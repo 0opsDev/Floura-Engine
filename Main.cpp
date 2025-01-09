@@ -5,10 +5,10 @@ const unsigned int height = 1440;
 //https://discord.gg/fd6REHgBus
 Vertex vertices[] =
 { //               COORDINATES           /            COLORS          /           NORMALS         /       TEXTURE COORDINATES    //
-	Vertex{glm::vec3(-1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-	Vertex{glm::vec3(-1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
-	Vertex{glm::vec3(1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
-	Vertex{glm::vec3(1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
+	Vertex{glm::vec3(-25.0f, 0.0f,  25.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+	Vertex{glm::vec3(-25.0f, 0.0f, -25.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 250.0f)},
+	Vertex{glm::vec3(25.0f, 0.0f, -25.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(250.0f, 250.0f)},
+	Vertex{glm::vec3(25.0f, 0.0f,  25.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(250.0f, 0.0f)}
 };
 GLuint indices[] =
 {
@@ -83,8 +83,8 @@ int main()
 	//textures
 	Texture textures[]
 	{
-		Texture("assets/Textures/Model/grassfinal0br.png", "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
-		Texture("assets/Textures/Model/grassfinal0brPBR.jpg", "specular", 1, GL_RGBA, GL_UNSIGNED_BYTE)
+		Texture("assets/Textures/Model/forrest.jpg", "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture("assets/Textures/Model/forrestpbr.jpg", "specular", 1, GL_RGBA, GL_UNSIGNED_BYTE)
 	};
 
 	//create a shader program and feed it shader and vertex files
