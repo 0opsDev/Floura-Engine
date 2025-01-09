@@ -187,9 +187,9 @@ int main()
 
 	//imgui vars
 	bool save = false;
+	float rotationStored = 50.0f;
 	bool DoDefaultAnimation = false;
 	float rotation = 0.0f;
-	double prevTime = glfwGetTime();
 	bool doVsync = false;
 	bool drawTriangles = true;
 	bool ResetTrans = false;
@@ -197,8 +197,8 @@ int main()
 	GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f };
 	GLfloat varFOV = 60.0f;
 	GLfloat lightRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat skyRGBA[4] = { 0.778f, 0.853f, 0.956f, 1.0f };
-	GLfloat LightTransform1[3] = { 0.0f, 1.0f, 0.0f };
+	GLfloat skyRGBA[4] = { 0.249f, 0.257f, 0.299f, 1.0f };
+	GLfloat LightTransform1[3] = { -2.0f, 5.0f, 0.0f };
 	GLfloat ObTransform1[3] = { 0.0f, 0.0f, 0.0f };
 	
 	//
@@ -248,10 +248,14 @@ int main()
 	//makes sure window stays open
 	while (!glfwWindowShouldClose(window))  
 	{
+
 		// Calculate delta time
-		float currentFrameTime = glfwGetTime();
+		// Cast the value to float
+		float currentFrameTime = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
+
+
 		if (save) {
 			std::fstream TestFile;
 			TestFile.open("Settings/DoDefaultAnimation.txt", std::ios::out);//write
@@ -315,18 +319,13 @@ int main()
 		camera.Inputs(window, deltaTime);
 		//camera fov, near and far plane
 		camera.updateMatrix(varFOV, 0.1f, 100.0f);
-
-		double crntTime = glfwGetTime();
 		if (DoDefaultAnimation) {
-			if (crntTime - prevTime >= 1 / 60)
-			{
-				rotation += 0.5f;
-				prevTime = crntTime;
-			}
+			float adjustedRot = rotationStored * deltaTime;
+			rotation += adjustedRot;
 		}
-		else {
-			rotation = 0.0f;
-		}
+		
+		
+
 		
 		//i added these
 		//transform light but not model
@@ -411,6 +410,8 @@ int main()
 		ImGui::Checkbox("move camera to 0,0,0", &ResetTrans);
 		ImGui::DragFloat3("Light Yransform", LightTransform1);
 		ImGui::DragFloat3("Object 1 Transform", ObTransform1);
+		ImGui::InputFloat("Speed of Rotation for object 1", &rotationStored);
+		ImGui::DragFloat("Rotation of object 1", &rotation);
 
 		ImGui::Text("Lighting");
 		ImGui::Text("Light color and intens");
