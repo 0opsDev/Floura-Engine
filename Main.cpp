@@ -94,6 +94,9 @@ GLuint lightIndices[] =
 	4, 5, 6,
 	4, 6, 7
 };
+// Initialize previous time and delta time
+float lastFrameTime = 0.0f;
+float deltaTime = 0.0f;
 
 int main() 
 {
@@ -169,9 +172,9 @@ int main()
 	lightVBO.Unbind();
 	lightEBO.Unbind();
 
-	Texture tileTex("assets/Textures/Model/square_tiles.jpg", GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE);
+	Texture tileTex("assets/Textures/Model/forrest.jpg", GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE);
 	tileTex.texUnit(shaderProgram, "tex0", 0);
-	Texture tileTexspec("assets/Textures/Model/square_tiles_spec.jpg", GL_TEXTURE_2D, 1, GL_RGBA, GL_UNSIGNED_BYTE);
+	Texture tileTexspec("assets/Textures/Model/forrestpbr.jpg", GL_TEXTURE_2D, 1, GL_RGBA, GL_UNSIGNED_BYTE);
 	tileTexspec.texUnit(shaderProgram, "tex1", 1);
 
 	// Initialize ImGUI
@@ -187,7 +190,7 @@ int main()
 	bool DoDefaultAnimation = false;
 	float rotation = 0.0f;
 	double prevTime = glfwGetTime();
-	bool doVsync = true;
+	bool doVsync = false;
 	bool drawTriangles = true;
 	bool ResetTrans = false;
 	GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f };
@@ -197,6 +200,7 @@ int main()
 	GLfloat skyRGBA[4] = { 0.778f, 0.853f, 0.956f, 1.0f };
 	GLfloat LightTransform1[3] = { 0.0f, 1.0f, 0.0f };
 	GLfloat ObTransform1[3] = { 0.0f, 0.0f, 0.0f };
+	
 	//
 	std::fstream TestFile2;
 	TestFile2.open("Settings/DoDefaultAnimation.txt", std::ios::in);//read
@@ -244,6 +248,10 @@ int main()
 	//makes sure window stays open
 	while (!glfwWindowShouldClose(window))  
 	{
+		// Calculate delta time
+		float currentFrameTime = glfwGetTime();
+		deltaTime = currentFrameTime - lastFrameTime;
+		lastFrameTime = currentFrameTime;
 		if (save) {
 			std::fstream TestFile;
 			TestFile.open("Settings/DoDefaultAnimation.txt", std::ios::out);//write
@@ -304,7 +312,7 @@ int main()
 		ImGui::NewFrame();
 
 		//inputs
-		camera.Inputs(window);
+		camera.Inputs(window, deltaTime);
 		//camera fov, near and far plane
 		camera.updateMatrix(varFOV, 0.1f, 100.0f);
 
@@ -399,7 +407,7 @@ int main()
 		ImGui::Checkbox("save changes?", &save);
 		// Checkbox that appears in the window
 		ImGui::Text("Rendering");
-		ImGui::Checkbox("Vsync (i wouldnt turn this off)", &doVsync);
+		ImGui::Checkbox("Vsync", &doVsync);
 		ImGui::Checkbox("Draw Triangles", &drawTriangles);
 		ImGui::SliderFloat("FOV", &varFOV, 0.1f, 160.0f);
 		ImGui::Text("Animation");

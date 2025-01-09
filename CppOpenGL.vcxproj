@@ -182,6 +182,8 @@
     <Image Include="Assets\Icons\Icon60B-F.png" />
     <Image Include="Assets\Icons\Icon60B.png" />
     <Image Include="Assets\Icons\IconF.png" />
+    <Image Include="Assets\Textures\Model\forrest.jpg" />
+    <Image Include="Assets\Textures\Model\forrestpbr.jpg" />
     <Image Include="Assets\Textures\Model\square_tiles.jpg" />
     <Image Include="Assets\Textures\Model\square_tiles_spec.jpg" />
     <Image Include="Assets\Textures\Model\temp.jpg" />
