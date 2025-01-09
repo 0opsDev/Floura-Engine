@@ -142,17 +142,32 @@
     <Image Include="Assets\Textures\Model\square_tiles_spec.jpg">
       <Filter>Resource Files\Textures</Filter>
     </Image>
-    <Image Include="Assets\Textures\Model\test.jpg">
+    <Image Include="Assets\Textures\Model\square_tiles.jpg">
       <Filter>Resource Files\Textures</Filter>
     </Image>
-    <Image Include="Assets\Textures\Model\square_tiles.jpg">
+    <Image Include="Assets\Textures\Model\wood_floor_deck_disp_4k.jpg">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Model\wood_floor_deck_diff_4k.jpg">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Textures\Model\temp.jpg">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Icons\Icon60A.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Icons\Icon60A-F.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Icons\Icon60B.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="Assets\Icons\Icon60B-F.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\Default.vert">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="Shaders\light.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
@@ -160,6 +175,9 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="Shaders\Default.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\Default.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

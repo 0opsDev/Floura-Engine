@@ -177,10 +177,16 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Icons\Icon.png" />
+    <Image Include="Assets\Icons\Icon60A-F.png" />
+    <Image Include="Assets\Icons\Icon60A.png" />
+    <Image Include="Assets\Icons\Icon60B-F.png" />
+    <Image Include="Assets\Icons\Icon60B.png" />
     <Image Include="Assets\Icons\IconF.png" />
     <Image Include="Assets\Textures\Model\square_tiles.jpg" />
     <Image Include="Assets\Textures\Model\square_tiles_spec.jpg" />
-    <Image Include="Assets\Textures\Model\test.jpg" />
+    <Image Include="Assets\Textures\Model\temp.jpg" />
+    <Image Include="Assets\Textures\Model\wood_floor_deck_diff_4k.jpg" />
+    <Image Include="Assets\Textures\Model\wood_floor_deck_disp_4k.jpg" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Default.frag" />

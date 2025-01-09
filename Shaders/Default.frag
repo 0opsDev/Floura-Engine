@@ -134,6 +134,7 @@ vec4 spotLight()
 
 void main()
 {
+	//colours seem to blend well, just have problems instancing objects and lights
 	// outputs final color
 
 	//spotlight needs work
