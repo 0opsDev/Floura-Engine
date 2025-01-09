@@ -1,82 +1,30 @@
-#include"imgui.h"
-#include"imgui_impl_glfw.h"
-#include"imgui_impl_opengl3.h"
-
-#include<iostream>
-#include<fstream>
-#include<glad/glad.h>
-#include<GLFW/glfw3.h>
-#include<stb/stb_image.h>
-#include<glm/glm.hpp>
-#include<glm/gtc/matrix_transform.hpp>
-#include<glm/gtc/type_ptr.hpp>
-
-#include"src/video/Texture.h"
-#include"src/video/shaderClass.h"
-#include"fileClass.h"
-#include"src/video/EBO.h"
-#include"src/video/VAO.h"
-#include"src/video/VBO.h"
-#include"src/Camera.h"
+#include"src/video/Mesh.h"
 
 const unsigned int width = 2560;
 const unsigned int height = 1440;
 //https://discord.gg/fd6REHgBus
-//prism
-GLfloat vertices[] =
-{ //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
-	-1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,		0.0f, 0.0f,		0.0f, 1.0f, 0.0f,
-	-1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,		0.0f, 1.0f,		0.0f, 1.0f, 0.0f,
-	 1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,		1.0f, 1.0f,		0.0f, 1.0f, 0.0f,
-	 1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,		1.0f, 0.0f,		0.0f, 1.0f, 0.0f
+Vertex vertices[] =
+{ //               COORDINATES           /            COLORS          /           NORMALS         /       TEXTURE COORDINATES    //
+	Vertex{glm::vec3(-1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+	Vertex{glm::vec3(-1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+	Vertex{glm::vec3(1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+	Vertex{glm::vec3(1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
 };
 GLuint indices[] =
 {
 	0, 1, 2,
 	0, 2, 3
 };
-GLfloat vertices2[] =
-{ //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
-	-20.5f, 0.0f,  20.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-	-20.5f, 0.0f, -20.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 205.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-	 20.5f, 0.0f, -20.5f,     0.83f, 0.70f, 0.44f,	 205.0f, 205.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-	 20.5f, 0.0f,  20.5f,     0.83f, 0.70f, 0.44f,	 205.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-
-	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,     -0.8f, 0.5f,  0.0f, // Left Side
-	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,     -0.8f, 0.5f,  0.0f, // Left Side
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,     -0.8f, 0.5f,  0.0f, // Left Side
-
-	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
-	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
-
-	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
-	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.8f, 0.5f,  0.0f, // Right side
-
-	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
-	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f,  0.8f  // Facing side
-};
-GLuint indices2[] =
-{
-	0, 1, 2, // Bottom side
-	0, 2, 3, // Bottom side
-	4, 6, 5, // Left side
-	7, 9, 8, // Non-facing side
-	10, 12, 11, // Right side
-	13, 15, 14 // Facing side
-};
-GLfloat lightVertices[] =
-{
-	-0.1f, -0.1f,  0.1f,
-	-0.1f, -0.1f, -0.1f,
-	 0.1f, -0.1f, -0.1f,
-	 0.1f, -0.1f,  0.1f,
-	-0.1f,  0.1f,  0.1f,
-	-0.1f,  0.1f, -0.1f,
-	 0.1f,  0.1f, -0.1f,
-	 0.1f,  0.1f,  0.1f
+Vertex lightVertices[] =
+{ //     COORDINATES     //
+	Vertex{glm::vec3(-0.1f, -0.1f,  0.1f)},
+	Vertex{glm::vec3(-0.1f, -0.1f, -0.1f)},
+	Vertex{glm::vec3(0.1f, -0.1f, -0.1f)},
+	Vertex{glm::vec3(0.1f, -0.1f,  0.1f)},
+	Vertex{glm::vec3(-0.1f,  0.1f,  0.1f)},
+	Vertex{glm::vec3(-0.1f,  0.1f, -0.1f)},
+	Vertex{glm::vec3(0.1f,  0.1f, -0.1f)},
+	Vertex{glm::vec3(0.1f,  0.1f,  0.1f)}
 };
 
 GLuint lightIndices[] =
@@ -94,88 +42,86 @@ GLuint lightIndices[] =
 	4, 5, 6,
 	4, 6, 7
 };
+
 // Initialize previous time and delta time
 float lastFrameTime = 0.0f;
 float deltaTime = 0.0f;
 
-int main() 
+int main()
 {
 	//start glfw
-	glfwInit(); 
+	glfwInit();
 
 	//give glfw hints on open gl version (3.3)
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); 
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, 1);
 
 
 
 	//size, name, fullscreen
-	GLFWwindow* window = glfwCreateWindow(width, height, "Farquhar Engine", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(width, height, "Farquhar Engine - A1.0.34b (ALPHA)", NULL, NULL);
 
 	//error checking
-	if (window == NULL) 
+	if (window == NULL)
 	{
-		std::cout << "failed to create window" << std::endl; 
-		glfwTerminate(); 
-		return -1; 
+		std::cout << "failed to create window" << std::endl;
+		glfwTerminate();
+		return -1;
 	}
 	//make window current context
-	glfwMakeContextCurrent(window); 
+	glfwMakeContextCurrent(window);
 
 	//load open gl config
-	gladLoadGL(); 
+	gladLoadGL();
 
 
 	//area of open gl we want to render in
 	glViewport(0, 0, width, height);
 
+	//textures
+	Texture textures[]
+	{
+		Texture("assets/Textures/Model/forrest.jpg", "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture("assets/Textures/Model/forrestpbr.jpg", "specular", 1, GL_RGBA, GL_UNSIGNED_BYTE)
+	};
+
 	//create a shader program and feed it shader and vertex files
-	Shader shaderProgram("Shaders/Default.vert","Shaders/Default.frag");
-
-	VAO VAO1;
-
-	VAO1.Bind();
-
-	VBO VBO1(vertices2, sizeof(vertices2));
-	EBO EBO1(indices2, sizeof(indices2));
-
-	//array of infomation stored in models drawn to the screen, eg, texture, colour, shape, normal texture (vao1 has nothing to do with lighting)
-	// array size (8) and where to plug into vbo
-	//shape
-	VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0);
-	//color
-	VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-	//texture
-	VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-	//normals
-	VAO1.LinkAttrib(VBO1, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-
-
-
-	VAO1.Unbind();
-	VBO1.Unbind();
-	EBO1.Unbind();
+	Shader shaderProgram("Shaders/Default.vert", "Shaders/Default.frag");
+	//mesh data, texutes, indices, vertexs
+	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
+	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
+	std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
+	//Creates floor mesh
+	Mesh floor(verts, ind, tex);
 
 	Shader lightShader("Shaders/light.vert", "Shaders/light.frag");
 
-	VAO lightVAO;
-	lightVAO.Bind();
+	//mesh data, lights
+	std::vector <Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
+	std::vector <GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
 
-	VBO lightVBO(lightVertices, sizeof(lightVertices));
-	EBO lightEBO(lightIndices, sizeof(lightIndices));
+	//Creates light mesh
+	Mesh light(lightVerts, lightInd, tex);
 
-	lightVAO.LinkAttrib(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+	glm::mat4 lightModel = glm::mat4(1.0f);
+	lightModel = glm::translate(lightModel, lightPos);
 
-	lightVAO.Unbind();
-	lightVBO.Unbind();
-	lightEBO.Unbind();
+	glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::mat4 objectModel = glm::mat4(1.0f);
+	objectModel = glm::translate(objectModel, objectPos);
 
-	Texture tileTex("assets/Textures/Model/forrest.jpg", GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE);
-	tileTex.texUnit(shaderProgram, "tex0", 0);
-	Texture tileTexspec("assets/Textures/Model/forrestpbr.jpg", GL_TEXTURE_2D, 1, GL_RGBA, GL_UNSIGNED_BYTE);
-	tileTexspec.texUnit(shaderProgram, "tex1", 1);
+	lightShader.Activate();
+	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	shaderProgram.Activate();
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(objectModel));
+	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+
 
 	// Initialize ImGUI
 	IMGUI_CHECKVERSION();
@@ -200,7 +146,7 @@ int main()
 	GLfloat skyRGBA[4] = { 0.249f, 0.257f, 0.299f, 1.0f };
 	GLfloat LightTransform1[3] = { -2.0f, 5.0f, 0.0f };
 	GLfloat ObTransform1[3] = { 0.0f, 0.0f, 0.0f };
-	
+
 	//
 	std::fstream TestFile2;
 	TestFile2.open("Settings/DoDefaultAnimation.txt", std::ios::in);//read
@@ -246,7 +192,7 @@ int main()
 	//glfwCreateCursor(Iconinages, iconW, iconH);
 
 	//makes sure window stays open
-	while (!glfwWindowShouldClose(window))  
+	while (!glfwWindowShouldClose(window))
 	{
 
 		// Calculate delta time
@@ -300,21 +246,18 @@ int main()
 		{
 			varFOV = 160.0f;
 		}
-		
-		
+
+		//Tell OpenGL a new frame is about to begin
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
 		//CLEAR BACK BUFFER
 		//RGB ALPHA please re enable to fix sky colour
 		glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
 		// SEND TO COLOR BUFFER (DRAWS COLOUR TO SCREEN)
 		//glclear only needs to run once btw
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-
-		// Tell OpenGL a new frame is about to begin
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
 		//inputs
 		camera.Inputs(window, deltaTime);
 		//camera fov, near and far plane
@@ -323,10 +266,15 @@ int main()
 			float adjustedRot = rotationStored * deltaTime;
 			rotation += adjustedRot;
 		}
-		
-		
 
-		
+
+
+		// Draws different meshes
+		floor.Draw(shaderProgram, camera);
+		light.Draw(lightShader, camera);
+
+
+		//2025 REWORK THESE PLEASE
 		//i added these
 		//transform light but not model
 		glm::vec4 lightColor = glm::vec4(lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
@@ -372,28 +320,17 @@ int main()
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 		//
 
+
 		camera.Matrix(shaderProgram, "camMatrix");
+
 
 		if (ResetTrans) {
 			camera.Position = glm::vec3(0, 0, 0);
 			ResetTrans = false;
 		}
-		tileTex.Bind();
-		tileTexspec.Bind();
-		//bind vao
-		VAO1.Bind();
-		//primative type
-		if (drawTriangles) {
-			//glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
-			glDrawElements(GL_TRIANGLES, sizeof(indices2) / sizeof(int), GL_UNSIGNED_INT, 0);
-			lightShader.Activate();
-			camera.Matrix(lightShader, "camMatrix");
-			lightVAO.Bind();
-			glDrawElements(GL_TRIANGLES, sizeof(lightIndices) / sizeof(int), GL_UNSIGNED_INT, 0);
-		}
-		
-		//glDrawArrays(GL_TRIANGLES, 0, 3); 
-			// ImGUI window creation
+
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// ImGUI window creation
 		ImGui::Begin("Settings Window");
 		// Text that appears in the window
 		ImGui::Text("Settings (Press escape to use mouse)");
@@ -401,17 +338,16 @@ int main()
 		// Checkbox that appears in the window
 		ImGui::Text("Rendering");
 		ImGui::Checkbox("Vsync", &doVsync);
-		ImGui::Checkbox("Draw Triangles", &drawTriangles);
 		ImGui::SliderFloat("FOV", &varFOV, 0.1f, 160.0f);
 		ImGui::Text("Animation");
 		ImGui::Checkbox("DoDefaultAnimation", &DoDefaultAnimation);
+		ImGui::InputFloat("Speed of Rotation for object 1", &rotationStored);
+		ImGui::DragFloat("Rotation of object 1", &rotation);
 
 		ImGui::Text("Transform");
 		ImGui::Checkbox("move camera to 0,0,0", &ResetTrans);
 		ImGui::DragFloat3("Light Yransform", LightTransform1);
 		ImGui::DragFloat3("Object 1 Transform", ObTransform1);
-		ImGui::InputFloat("Speed of Rotation for object 1", &rotationStored);
-		ImGui::DragFloat("Rotation of object 1", &rotation);
 
 		ImGui::Text("Lighting");
 		ImGui::Text("Light color and intens");
@@ -423,40 +359,29 @@ int main()
 		ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
 		ImGui::Text("Light Angle");
 		ImGui::DragFloat3("Cone Angle", ConeRot);
-		//ImGui::SliderFloat("Animation speed", &TimeT, 0.0f, 50.0f);
-		// Slider that appears in the window
-		//ImGui::SliderFloat("Size", &size, 0.5f, 2.0f);
-		
+
 		//
 		// Ends the window
 		ImGui::End();
-		 
+
 		// Renders the ImGUI elements
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		//swap back buffer with front buffer
-		glfwSwapBuffers(window); 
+		glfwSwapBuffers(window);
 		//tells open gl to proccess all events like window resizing and all otheer events
-		glfwPollEvents(); 
+		glfwPollEvents();
 	}
 	//delete all objects on close
 	// Deletes all ImGUI instances
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-	VAO1.Delete();
-	VBO1.Delete();
-	EBO1.Delete();
-	lightVAO.Delete();
-	lightVBO.Delete();
-	lightEBO.Delete();
-	tileTex.Delete();
-	tileTexspec.Delete();
 	shaderProgram.Delete();
 	lightShader.Delete();
 	//end opengl
-	glfwDestroyWindow(window); 
-	glfwTerminate(); 
-	return 0; 
+	glfwDestroyWindow(window);
+	glfwTerminate();
+	return 0;
 }
