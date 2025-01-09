@@ -379,12 +379,6 @@ int main()
 			camera.Position = glm::vec3(0, 0, 0);
 			ResetTrans = false;
 		}
-
-
-		//i added these
-		//
-
-
 		tileTex.Bind();
 		tileTexspec.Bind();
 		//bind vao
@@ -440,15 +434,10 @@ int main()
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-
-		
 		//swap back buffer with front buffer
 		glfwSwapBuffers(window); 
 		//tells open gl to proccess all events like window resizing and all otheer events
 		glfwPollEvents(); 
-
-
-
 	}
 	//delete all objects on close
 	// Deletes all ImGUI instances
