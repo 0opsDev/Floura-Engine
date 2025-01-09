@@ -83,8 +83,8 @@ int main()
 	//textures
 	Texture textures[]
 	{
-		Texture("assets/Textures/Model/forrest.jpg", "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
-		Texture("assets/Textures/Model/forrestpbr.jpg", "specular", 1, GL_RGBA, GL_UNSIGNED_BYTE)
+		Texture("assets/Textures/Model/grassfinal0br.png", "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture("assets/Textures/Model/grassfinal0brPBR.jpg", "specular", 1, GL_RGBA, GL_UNSIGNED_BYTE)
 	};
 
 	//create a shader program and feed it shader and vertex files
