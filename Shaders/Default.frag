@@ -27,7 +27,7 @@ uniform vec3 InnerLight1;
 //angle of spotlight
 uniform vec3 spotLightRot;
 //color of light from sky
-uniform vec4 skylightSpread;
+vec4 skylightSpread;
 
 
 
@@ -59,9 +59,8 @@ vec4 pointLight()
 
 	return (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * lightColor;
 }
-
-vec4 direcLight()
-{
+	vec4 direcLight()
+	{
 	// ambient lighting
 	float ambient = 0.20f;
 
@@ -95,9 +94,17 @@ vec4 spotLight()
 	//0.95
 	float innerCone = InnerY;
 
+//	float outerCone = 0.90f;
+//float innerCone = 0.95f;
+
+
 	// ambient lighting
 	//0.20f
+
 	float ambient = 0.20f / -ConeInten;
+
+	//float ambient = 0.20f;
+
 	//float ambient = 0.20f;
 
 	// diffuse lighting
@@ -116,7 +123,8 @@ vec4 spotLight()
 	// calculates the intensity of the crntPos based on its angle to the center of the light cone
 	float angle = dot(vec3(sRotx, sRoty, sRotz), -lightDirection);
 	float inten = clamp((angle - outerCone) / (innerCone - outerCone), (0.0f), (0.0f + (ConeInten)) );
-
+	//float angle = dot(vec3(0.0f, -1.0f, 0.0f), -lightDirection);
+	//float inten = clamp((angle - outerCone) / (innerCone - outerCone), 0.0f, 1.0f);
 
 	//skylightSpread
 	//(inten * lightColor) life saver
@@ -124,6 +132,7 @@ vec4 spotLight()
 	//real life saver ((inten * lightColor ) - (inten * skylightSpread) * (lightColor) )                                                            doesnt add color it adds brightness         the number we take needs to be pos
 	//
 	return (texture(diffuse0, texCoord) *  ( (skylightSpread + diffuse) *     ((inten * lightColor ) - (inten * skylightSpread) * (lightColor) )    + (skylightSpread + (ambient)  ) ) + texture(specular0, texCoord).r * specular * inten) * (skylightSpread + lightColor);
+	//return (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * lightColor;
 }
 
 
@@ -133,10 +142,10 @@ void main()
 	// outputs final color
 
 	//spotlight needs work
-	FragColor = spotLight();
+	//FragColor = spotLight();
 
 	//direct light finished
-	//FragColor = direcLight();
+	FragColor = direcLight();
 
 	//needs work
 	//FragColor = pointLight();

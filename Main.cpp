@@ -1,47 +1,11 @@
-#include"src/video/Mesh.h"
+#include"src/video/Model.h"
+#include"imgui.h"
+#include"imgui_impl_glfw.h"
+#include"imgui_impl_opengl3.h"
 
 const unsigned int width = 2560;
 const unsigned int height = 1440;
 //https://discord.gg/fd6REHgBus
-Vertex vertices[] =
-{ //               COORDINATES           /            COLORS          /           NORMALS         /       TEXTURE COORDINATES    //
-	Vertex{glm::vec3(-25.0f, 0.0f,  25.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-	Vertex{glm::vec3(-25.0f, 0.0f, -25.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 250.0f)},
-	Vertex{glm::vec3(25.0f, 0.0f, -25.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(250.0f, 250.0f)},
-	Vertex{glm::vec3(25.0f, 0.0f,  25.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(250.0f, 0.0f)}
-};
-GLuint indices[] =
-{
-	0, 1, 2,
-	0, 2, 3
-};
-Vertex lightVertices[] =
-{ //     COORDINATES     //
-	Vertex{glm::vec3(-0.1f, -0.1f,  0.1f)},
-	Vertex{glm::vec3(-0.1f, -0.1f, -0.1f)},
-	Vertex{glm::vec3(0.1f, -0.1f, -0.1f)},
-	Vertex{glm::vec3(0.1f, -0.1f,  0.1f)},
-	Vertex{glm::vec3(-0.1f,  0.1f,  0.1f)},
-	Vertex{glm::vec3(-0.1f,  0.1f, -0.1f)},
-	Vertex{glm::vec3(0.1f,  0.1f, -0.1f)},
-	Vertex{glm::vec3(0.1f,  0.1f,  0.1f)}
-};
-
-GLuint lightIndices[] =
-{
-	0, 1, 2,
-	0, 2, 3,
-	0, 4, 7,
-	0, 7, 3,
-	3, 7, 6,
-	3, 6, 2,
-	2, 6, 5,
-	2, 5, 1,
-	1, 5, 4,
-	1, 4, 0,
-	4, 5, 6,
-	4, 6, 7
-};
 
 // Initialize previous time and delta time
 float lastFrameTime = 0.0f;
@@ -61,7 +25,7 @@ int main()
 
 
 	//size, name, fullscreen
-	GLFWwindow* window = glfwCreateWindow(width, height, "Farquhar Engine - A1.0.34b (ALPHA)", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(width, height, "Farquhar Engine OPEN GL - 1.0 (FINAL)", NULL, NULL);
 
 	//error checking
 	if (window == NULL)
@@ -80,47 +44,19 @@ int main()
 	//area of open gl we want to render in
 	glViewport(0, 0, width, height);
 
-	//textures
-	Texture textures[]
-	{
-		Texture("assets/Textures/Model/forrest.jpg", "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
-		Texture("assets/Textures/Model/forrestpbr.jpg", "specular", 1, GL_RGBA, GL_UNSIGNED_BYTE)
-	};
 
 	//create a shader program and feed it shader and vertex files
 	Shader shaderProgram("Shaders/Default.vert", "Shaders/Default.frag");
-	//mesh data, texutes, indices, vertexs
-	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
-	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
-	std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
-	//Creates floor mesh
-	Mesh floor(verts, ind, tex);
-
-	Shader lightShader("Shaders/light.vert", "Shaders/light.frag");
-
-	//mesh data, lights
-	std::vector <Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
-	std::vector <GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
-
-	//Creates light mesh
-	Mesh light(lightVerts, lightInd, tex);
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
 	glm::mat4 lightModel = glm::mat4(1.0f);
 	lightModel = glm::translate(lightModel, lightPos);
 
-	glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::mat4 objectModel = glm::mat4(1.0f);
-	objectModel = glm::translate(objectModel, objectPos);
-
-	lightShader.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
-	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	shaderProgram.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(objectModel));
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+
 
 
 	// Initialize ImGUI
@@ -145,33 +81,34 @@ int main()
 	GLfloat lightRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	GLfloat skyRGBA[4] = { 0.249f, 0.257f, 0.299f, 1.0f };
 	GLfloat LightTransform1[3] = { -2.0f, 5.0f, 0.0f };
-	GLfloat ObTransform1[3] = { 0.0f, 0.0f, 0.0f };
 
 	//
-	std::fstream TestFile2;
-	TestFile2.open("Settings/DoDefaultAnimation.txt", std::ios::in);//read
-	if (TestFile2.is_open()) {
+	//std::fstream TestFile2;
+	//TestFile2.open("Settings/DoDefaultAnimation.txt", std::ios::in);//read
+	//if (TestFile2.is_open()) {
 		//writes in lines
-		std::string lineT;
-		while (getline(TestFile2, lineT))
-		{
-			if (lineT == "true") {
-				DoDefaultAnimation = true;
-				std::cout << DoDefaultAnimation << std::endl;
-			}
-			else {
-				DoDefaultAnimation = false;
-				std::cout << DoDefaultAnimation << std::endl;
-			}
-		}
-		TestFile2.close();
-	}
+	//	std::string lineT;
+	//	while (getline(TestFile2, lineT))
+	//	{
+	//		if (lineT == "true") {
+	//			DoDefaultAnimation = true;
+	//			std::cout << DoDefaultAnimation << std::endl;
+	//		}
+	//		else {
+	//			DoDefaultAnimation = false;
+	//			std::cout << DoDefaultAnimation << std::endl;
+	//		}
+	//	}
+	//	TestFile2.close();
+	//}
 
 	//depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	glEnable(GL_DEPTH_TEST);
 
 	// camera ratio and pos
-	Camera camera(width, height, glm::vec3(0.0f, 1.0f, 2.0f));
+	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+
+	Model model("Assets/Models/sword/scene.gltf");
 
 	//icon creation
 	int iconW, iconH;
@@ -202,22 +139,22 @@ int main()
 		lastFrameTime = currentFrameTime;
 
 
-		if (save) {
-			std::fstream TestFile;
-			TestFile.open("Settings/DoDefaultAnimation.txt", std::ios::out);//write
-			if (TestFile.is_open()) {
-				if (DoDefaultAnimation) {
-					TestFile << "true\n";
-					std::cout << "true\n";
-				}
-				else {
-					TestFile << "false\n";
-					std::cout << "false\n";
-				}
-			}
+		//if (save) {
+		//	std::fstream TestFile;
+		//	TestFile.open("Settings/DoDefaultAnimation.txt", std::ios::out);//write
+		//	if (TestFile.is_open()) {
+		//		if (DoDefaultAnimation) {
+		//			TestFile << "true\n";
+		//			std::cout << "true\n";
+		//		}
+		//		else {
+		//			TestFile << "false\n";
+		//			std::cout << "false\n";
+		//		}
+		//	}
 
-			save = false;
-		}
+		//	save = false;
+		//}
 		switch (doVsync) {
 		case true:
 			glfwSwapInterval(1);
@@ -262,16 +199,14 @@ int main()
 		camera.Inputs(window, deltaTime);
 		//camera fov, near and far plane
 		camera.updateMatrix(varFOV, 0.1f, 100.0f);
+
+		model.Draw(shaderProgram, camera);
+
 		if (DoDefaultAnimation) {
 			float adjustedRot = rotationStored * deltaTime;
 			rotation += adjustedRot;
 		}
 
-
-
-		// Draws different meshes
-		floor.Draw(shaderProgram, camera);
-		light.Draw(lightShader, camera);
 
 
 		//2025 REWORK THESE PLEASE
@@ -286,22 +221,10 @@ int main()
 		glm::mat4 lightModel = glm::mat4(1.0f);
 		lightModel = glm::translate(lightModel, lightPos);
 
-		lightShader.Activate();
-
 		//update light transform
-		glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+		//glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
 		//update light color on the model (not the world)
-		glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-
-		glm::vec3 pyramidPos = glm::vec3(ObTransform1[0], ObTransform1[1], ObTransform1[2]);
-		glm::mat4 pyramidModel = glm::mat4(1.0f);
-		pyramidModel = glm::translate(pyramidModel, pyramidPos);
-		pyramidModel = glm::rotate(pyramidModel, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-
-		glm::vec3 pyramidPos2 = glm::vec3(0.0f, 0.0f, 0.0f);
-		glm::mat4 pyramidModel2 = glm::mat4(1.0f);
-		pyramidModel2 = glm::translate(pyramidModel2, pyramidPos2);
-		pyramidModel2 = glm::rotate(pyramidModel2, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+		//glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 
 		//shaderprog can stay
 		//activate shader program
@@ -312,8 +235,6 @@ int main()
 		glUniform4f(glGetUniformLocation(shaderProgram.ID, "skylightSpread"), skylightSpread.x, skylightSpread.y, skylightSpread.z, skylightSpread.w);
 
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-		//
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(pyramidModel));
 		//update light color seprate from the model
 		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		// update light pos
@@ -329,36 +250,32 @@ int main()
 			ResetTrans = false;
 		}
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		// ImGUI window creation
 		ImGui::Begin("Settings Window");
 		// Text that appears in the window
 		ImGui::Text("Settings (Press escape to use mouse)");
-		ImGui::Checkbox("save changes?", &save);
+		//ImGui::Checkbox("save changes?", &save);
 		// Checkbox that appears in the window
 		ImGui::Text("Rendering");
 		ImGui::Checkbox("Vsync", &doVsync);
 		ImGui::SliderFloat("FOV", &varFOV, 0.1f, 160.0f);
-		ImGui::Text("Animation");
-		ImGui::Checkbox("DoDefaultAnimation", &DoDefaultAnimation);
-		ImGui::InputFloat("Speed of Rotation for object 1", &rotationStored);
-		ImGui::DragFloat("Rotation of object 1", &rotation);
+		//ImGui::Text("Animation");
 
 		ImGui::Text("Transform");
 		ImGui::Checkbox("move camera to 0,0,0", &ResetTrans);
-		ImGui::DragFloat3("Light Yransform", LightTransform1);
-		ImGui::DragFloat3("Object 1 Transform", ObTransform1);
+		//ImGui::DragFloat3("Light Yransform", LightTransform1);
 
 		ImGui::Text("Lighting");
 		ImGui::Text("Light color and intens");
 		ImGui::ColorEdit4("sky RGBA", skyRGBA);
 		ImGui::ColorEdit4("light RGBA", lightRGBA);
-		ImGui::DragFloat("light I", &ConeSI[2]);
-		ImGui::Text("cone size");
-		ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
-		ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
-		ImGui::Text("Light Angle");
-		ImGui::DragFloat3("Cone Angle", ConeRot);
+		//ImGui::DragFloat("light I", &ConeSI[2]);
+		//ImGui::Text("cone size");
+		//ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
+		//ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
+		//ImGui::Text("Light Angle");
+		//ImGui::DragFloat3("Cone Angle", ConeRot);
 
 		//
 		// Ends the window
@@ -379,7 +296,6 @@ int main()
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 	shaderProgram.Delete();
-	lightShader.Delete();
 	//end opengl
 	glfwDestroyWindow(window);
 	glfwTerminate();

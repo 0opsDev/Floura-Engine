@@ -152,6 +152,7 @@
     <ClCompile Include="src\video\EBO.cpp" />
     <ClCompile Include="src\video\fileClass.cpp" />
     <ClCompile Include="src\video\Mesh.cpp" />
+    <ClCompile Include="src\video\Model.cpp" />
     <ClCompile Include="src\video\ShaderClass.cpp" />
     <ClCompile Include="src\video\stb.cpp" />
     <ClCompile Include="src\video\Texture.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="src\video\EBO.h" />
     <ClInclude Include="src\video\fileClass.h" />
     <ClInclude Include="src\video\Mesh.h" />
+    <ClInclude Include="src\video\Model.h" />
     <ClInclude Include="src\video\shaderClass.h" />
     <ClInclude Include="src\video\Texture.h" />
     <ClInclude Include="src\video\VAO.h" />
