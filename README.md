@@ -1,5 +1,7 @@
 opened this github on september 9th 2024
 Farquhar engine 2024
+last release out now,
+go back a version if you want more control
 
 youtube playlist
 https://www.youtube.com/playlist?list=PLKMYyotlzXkiegGQOI8jSTfOTWRfDSpW_
