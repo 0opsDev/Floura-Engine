@@ -299,6 +299,10 @@ int main()
 		// ImGUI window creation
 		ImGui::Begin(igSettings[0]);
 		ImGui::Text(igTex[0]);
+		//load settings button
+		if (ImGui::SmallButton("load")) {
+			loadSettings();
+		}
 		//ImGui::Checkbox("save changes?", &save);
 		ImGui::Text(igTex[1]);
 		ImGui::Checkbox(igSettings[1], &doVsync);
