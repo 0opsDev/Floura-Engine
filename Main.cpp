@@ -5,8 +5,10 @@
 #include <iostream>
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
-const unsigned int width = 2560;
-const unsigned int height = 1440;
+// these two where const
+
+unsigned int screenArea[2] = { 2560, 1440  };
+int screenAreaI[2] = { screenArea[0], screenArea[1] };
 //https://discord.gg/fd6REHgBus
 
 // Initialize previous time and delta time
@@ -18,7 +20,6 @@ GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat skyRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat CameraXYZ[3] = { 0.0f, 0.0f, 50.0f };
 bool doVsync = false;
-
 const char* igSettings[] =
 {
 	"Settings Window" , "Vsync", "FOV",
@@ -63,6 +64,12 @@ void loadSettings() {
 			case 13:
 				if (iss >> value) lightRGBA[2] = value;
 				break;
+			case 15:
+				if (iss >> value) screenArea[0] = value;
+				break;
+			case 16:
+				if (iss >> value) screenArea[1] = value;
+				break;
 			case 1:
 				doVsync = (lineT == "VsyncT");
 				std::cout << doVsync << " Vsync" << std::endl;
@@ -77,6 +84,9 @@ void loadSettings() {
 
 int main()
 {
+	//calls the LoadSettings function
+	loadSettings();
+	//initialize inside of function
 	//start glfw
 	glfwInit();
 
@@ -89,7 +99,8 @@ int main()
 
 
 	//size, name, fullscreen
-	GLFWwindow* window = glfwCreateWindow(width, height, "Farquhar Engine OPEN GL - 1.1a", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(screenArea[0], screenArea[1], "Farquhar Engine OPEN GL - 1.1a", NULL, NULL);
+	
 
 	//error checking
 	if (window == NULL)
@@ -106,7 +117,7 @@ int main()
 
 
 	//area of open gl we want to render in
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, screenArea[0], screenArea[1]);
 
 
 	//create a shader program and feed it shader and vertex files
@@ -142,9 +153,6 @@ int main()
 
 	GLfloat value = 0.0f;
 
-	//calls the LoadSettings function
-	loadSettings();
-
 
 	//depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	glEnable(GL_DEPTH_TEST);
@@ -154,7 +162,7 @@ int main()
 
 	//INITIALIZE CAMERA
 	// camera ratio and pos
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 50.0f));
+	Camera camera(screenArea[0], screenArea[1], glm::vec3(0.0f, 0.0f, 50.0f));
 
 	Model model("Assets/Models/Sword/scene.gltf");
 
@@ -175,19 +183,22 @@ int main()
 	//change to icon (what window, how many images, what image)
 	glfwSetWindowIcon(window, 1, Iconinages);
 	//glfwCreateCursor(Iconinages, iconW, iconH);
+	switch (doVsync) {
+	case true:
+		//glfwSwapInterval(1);
+		glfwSwapInterval(1);
+		break;
+	case false:
+		glfwSwapInterval(0);
+		break;
+	}
 
+
+	//game loop
 	//makes sure window stays open
 	while (!glfwWindowShouldClose(window))
 	{
-		switch (doVsync) {
-		case true:
-			//glfwSwapInterval(1);
-			glfwSwapInterval(1);
-			break;
-		case false:
-			glfwSwapInterval(0);
-			break;
-		}
+
 
 
 		// Calculate delta time
@@ -299,15 +310,40 @@ int main()
 
 		// ImGUI window creation
 		ImGui::Begin(igSettings[0]);
+
 		ImGui::Text(igTex[0]);
 		//load settings button
 		if (ImGui::SmallButton("load")) {
 			loadSettings();
 		}
 		//ImGui::Checkbox("save changes?", &save);
+		//rendering
 		ImGui::Text(igTex[1]);
-		//Vsync
+		//do vsync
 		ImGui::Checkbox(igSettings[1], &doVsync);
+		//screen res
+		ImGui::DragInt("Width", &screenAreaI[0]);
+		ImGui::DragInt("Height", &screenAreaI[1]);
+		//apply button
+		if (ImGui::SmallButton("Apply Changes?")) {
+
+			screenArea[0] = screenAreaI[0];
+			screenArea[1] = screenAreaI[1];
+			glViewport(0, 0, screenArea[0], screenArea[1]);
+			glfwSetWindowSize(window, screenArea[0], screenArea[1]);
+
+			switch (doVsync) {
+			case true:
+				//glfwSwapInterval(1);
+				glfwSwapInterval(1);
+				break;
+			case false:
+				glfwSwapInterval(0);
+				break;
+			}
+		}
+		//Vsync
+		//ImGui::Checkbox(igSettings[1], &doVsync);
 		//FOV
 		ImGui::SliderFloat(igSettings[2], &varFOV, 0.1f, 160.0f);
 
