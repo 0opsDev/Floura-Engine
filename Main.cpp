@@ -100,11 +100,10 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, 1);
-
-
+		//GLFW_REFRESH_RATE
 
 	//size, name, fullscreen
-	GLFWwindow* window = glfwCreateWindow(screenArea[0], screenArea[1], "Farquhar Engine OPEN GL - 1.1a", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(screenArea[0], screenArea[1], "Farquhar Engine OPEN GL - 1.1b", NULL, NULL);
 	
 
 	//error checking
@@ -119,11 +118,9 @@ int main()
 
 	//load open gl config
 	gladLoadGL();
-
-
+	
 	//area of open gl we want to render in
 	glViewport(0, 0, screenArea[0], screenArea[1]);
-
 
 	//create a shader program and feed it shader and vertex files
 	Shader shaderProgram("Shaders/Default.vert", "Shaders/Default.frag");
@@ -146,13 +143,9 @@ int main()
 	ImGui_ImplOpenGL3_Init("#version 330");
 
 	//imgui vars
-	bool save = false;
 	GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f };
 	GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f };
 	GLfloat LightTransform1[3] = { -2.0f, 5.0f, 0.0f };
-
-
-
 
 	//depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	glEnable(GL_DEPTH_TEST);
@@ -192,12 +185,10 @@ int main()
 		glfwSwapInterval(0);
 		break;
 	}
-
 	//game loop
 	//makes sure window stays open
 	while (!glfwWindowShouldClose(window))
 	{
-
 		// Calculate delta time
 		// Cast the value to float
 
@@ -257,6 +248,7 @@ int main()
 		//glclear only needs to run once btw
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//inputs
+
 		camera.Inputs(window, deltaTime);
 
 		//camera fov, near and far plane
@@ -296,6 +288,11 @@ int main()
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 		camera.Matrix(shaderProgram, "camMatrix");
+
+
+
+
+
 
 		// ImGUI window creation
 		ImGui::Begin(igSettings[0]);
@@ -348,9 +345,6 @@ int main()
 		}
 
 		//ImGui::DragFloat3("Light Yransform", LightTransform1);
-
-
-
 		ImGui::Text(igTex[3]);
 		ImGui::Text(igTex[4]);
 		//sky and light
