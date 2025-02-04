@@ -70,7 +70,7 @@ void loadSettings() {
 			case 16:
 				if (iss >> value) screenArea[1] = value;
 				break;
-			case 1:
+			case 18:
 				doVsync = (lineT == "VsyncT");
 				std::cout << doVsync << " Vsync" << std::endl;
 				break;
