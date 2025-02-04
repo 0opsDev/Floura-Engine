@@ -28,7 +28,6 @@ void Camera::Matrix(Shader& shader, const char* uniform)
     // Exports the camera matrix to the Vertex Shader
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
-
 void Camera::Inputs(GLFWwindow* window, float deltaTime)
 {
     float adjustedSpeed = speed * deltaTime;
@@ -74,8 +73,8 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
     // Handles mouse inputs
     if (MouseState)
     {
-        // Hides mouse cursor
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        // Disables mouse cursor and prevents it from leaving the window
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         // Prevents camera from jumping on the first click
         if (firstClick)
