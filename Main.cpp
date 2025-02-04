@@ -7,7 +7,8 @@
 #include"imgui_impl_opengl3.h"
 // these two where const
 
-unsigned int screenArea[2] = { 2560, 1440  };
+// W+H
+unsigned int screenArea[2] = { 800, 600  };
 int screenAreaI[2] = { screenArea[0], screenArea[1] };
 //https://discord.gg/fd6REHgBus
 
@@ -46,37 +47,41 @@ void loadSettings() {
 			GLfloat value;
 
 			switch (lineNumber) {
-			case 5:
+			case 3:
 				if (iss >> value) skyRGBA[0] = value;
 				break;
-			case 6:
+			case 4:
 				if (iss >> value) skyRGBA[1] = value;
 				break;
-			case 7:
+			case 5:
 				if (iss >> value) skyRGBA[2] = value;
 				break;
-			case 11:
+			case 7:
 				if (iss >> value) lightRGBA[0] = value;
 				break;
-			case 12:
+			case 8:
 				if (iss >> value) lightRGBA[1] = value;
 				break;
-			case 13:
+			case 9:
 				if (iss >> value) lightRGBA[2] = value;
 				break;
-			case 15:
+			case 11:
 				if (iss >> value) screenArea[0] = value;
 				break;
-			case 16:
+			case 12:
 				if (iss >> value) screenArea[1] = value;
 				break;
-			case 18:
+			case 14:
 				doVsync = (lineT == "VsyncT");
-				std::cout << doVsync << " Vsync" << std::endl;
+				break;
+			case 16:
+				if (iss >> value) varFOV = value;
 				break;
 			default:
 				break;
 			}
+			screenAreaI[0] = screenArea[0];
+			screenAreaI[1] = screenArea[1];
 		}
 		TestFile2.close();
 	}
@@ -142,16 +147,11 @@ int main()
 
 	//imgui vars
 	bool save = false;
-	float rotationStored = 50.0f;
-	float rotation = 0.0f;
-	bool drawTriangles = true;
-	bool ResetTrans = false;
 	GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f };
 	GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f };
 	GLfloat LightTransform1[3] = { -2.0f, 5.0f, 0.0f };
 
 
-	GLfloat value = 0.0f;
 
 
 	//depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
@@ -193,13 +193,10 @@ int main()
 		break;
 	}
 
-
 	//game loop
 	//makes sure window stays open
 	while (!glfwWindowShouldClose(window))
 	{
-
-
 
 		// Calculate delta time
 		// Cast the value to float
@@ -208,11 +205,7 @@ int main()
 		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
 
-
 		//array of settings files which determines what line to read on the ini fale
-
-
-
 
 		//if (save) {
 		//	std::fstream TestFile;
@@ -271,8 +264,6 @@ int main()
 
 		model.Draw(shaderProgram, camera);
 
-
-
 		//2025 REWORK THESE PLEASE
 		//i added these
 		//transform light but not model
@@ -303,8 +294,6 @@ int main()
 		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		// update light pos
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-		//
-
 
 		camera.Matrix(shaderProgram, "camMatrix");
 
