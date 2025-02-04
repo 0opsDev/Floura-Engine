@@ -20,17 +20,20 @@ GLfloat varFOV = 60.0f;
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat skyRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat CameraXYZ[3] = { 0.0f, 0.0f, 50.0f };
+//FOV , near, far
+float cameraSettins[3] = { 60.0f, 0.1f, 1000.0f };
 bool doVsync = false;
 const char* igSettings[] =
 {
 	"Settings Window" , "Vsync", "FOV",
 	"Reset Camera",
-	"sky RGBA", "light RGBA", "Camera Transform"
+	"sky RGBA", "light RGBA", "Camera Transform", 
+	"Near and Far Plane"
 };
 const char* igTex[] =
 {
 	"Settings (Press escape to use mouse)" , "Rendering",
-	"Transform", "Lighting", "Light color and intens", 
+	"Transform", "Lighting", "Light color and intens", "Camera Settings"
 };
 
 void loadSettings() {
@@ -73,9 +76,19 @@ void loadSettings() {
 				break;
 			case 14:
 				doVsync = (lineT == "VsyncT");
+				std::cout << "Vsync: " << doVsync << std::endl;
 				break;
 			case 16:
-				if (iss >> value) varFOV = value;
+				if (iss >> value) cameraSettins[0] = value;
+				std::cout << "Camera FOV: " << cameraSettins[0] << std::endl;
+				break;
+			case 18:
+				if (iss >> value) cameraSettins[1] = value;
+				std::cout << "Camera Near Plane: " << cameraSettins[1] << std::endl;
+				break;
+			case 19:
+				if (iss >> value) cameraSettins[2] = value;
+				std::cout << "Camera Far Plane: " << cameraSettins[2] << std::endl;
 				break;
 			default:
 				break;
@@ -217,23 +230,23 @@ int main()
 
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS)
 		{
-			varFOV += 0.2f;
+			cameraSettins[0] += 0.2f;
 		}
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS)
 		{
-			varFOV -= 0.2f;
+			cameraSettins[0] -= 0.2f;
 		}
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
 		{
-			varFOV = 60.0f;
+			cameraSettins[0] = 60.0f;
 		}
-		if (varFOV <= 0.00f)
+		if (cameraSettins[0] <= 0.00f)
 		{
-			varFOV = 0.1f;
+			cameraSettins[0] = 0.1f;
 		}
-		if (varFOV >= 160.1f)
+		if (cameraSettins[0] >= 160.1f)
 		{
-			varFOV = 160.0f;
+			cameraSettins[0] = 160.0f;
 		}
 
 		//Tell OpenGL a new frame is about to begin
@@ -252,7 +265,7 @@ int main()
 		camera.Inputs(window, deltaTime);
 
 		//camera fov, near and far plane
-		camera.updateMatrix(varFOV, 0.1f, 100.0f);
+		camera.updateMatrix(cameraSettins[0], cameraSettins[1], cameraSettins[2]);
 
 		model.Draw(shaderProgram, camera);
 
@@ -328,10 +341,17 @@ int main()
 				break;
 			}
 		}
+
+
+
+		//camera settings
+		ImGui::Text(igTex[5]);
+
 		//Vsync
 		//ImGui::Checkbox(igSettings[1], &doVsync);
 		//FOV
-		ImGui::SliderFloat(igSettings[2], &varFOV, 0.1f, 160.0f);
+		ImGui::SliderFloat(igSettings[2], &cameraSettins[0], 0.1f, 160.0f);
+		ImGui::DragFloat2(igSettings[7], &cameraSettins[1], cameraSettins[2]);
 
 		//reset camera pos
 		ImGui::Text(igTex[2]);
