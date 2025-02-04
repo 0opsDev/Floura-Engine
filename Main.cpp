@@ -26,6 +26,51 @@ float deltaTime = 0.0f;
 
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat skyRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+bool doVsync = false;
+
+void loadSettings() {
+	//READ - settings
+	std::ifstream TestFile2("Settings/Settings.ini");
+	if (TestFile2.is_open())
+	{
+		std::string lineT;
+		int lineNumber = 0;
+
+		while (std::getline(TestFile2, lineT)) {
+			lineNumber++;
+			std::istringstream iss(lineT);
+			GLfloat value;
+
+			switch (lineNumber) {
+			case 5:
+				if (iss >> value) skyRGBA[0] = value;
+				break;
+			case 6:
+				if (iss >> value) skyRGBA[1] = value;
+				break;
+			case 7:
+				if (iss >> value) skyRGBA[2] = value;
+				break;
+			case 11:
+				if (iss >> value) lightRGBA[0] = value;
+				break;
+			case 12:
+				if (iss >> value) lightRGBA[1] = value;
+				break;
+			case 13:
+				if (iss >> value) lightRGBA[2] = value;
+				break;
+			case 1:
+				doVsync = (lineT == "VsyncT");
+				std::cout << doVsync << " Vsync" << std::endl;
+				break;
+			default:
+				break;
+			}
+		}
+		TestFile2.close();
+	}
+};
 
 int main()
 {
@@ -85,7 +130,6 @@ int main()
 	bool save = false;
 	float rotationStored = 50.0f;
 	float rotation = 0.0f;
-	bool doVsync = false;
 	bool drawTriangles = true;
 	bool ResetTrans = false;
 	GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f };
@@ -96,47 +140,10 @@ int main()
 
 	GLfloat value = 0.0f;
 
-	//READ
-	std::ifstream TestFile2("Settings/Settings.ini");
-	if (TestFile2.is_open())
-	{
-		std::string lineT;
-		int lineNumber = 0;
+	//glEnable(GL_CULL_FACE);
 
-		while (std::getline(TestFile2, lineT)) {
-			lineNumber++;
-			std::istringstream iss(lineT);
-			GLfloat value;
-
-			switch (lineNumber) {
-			case 5:
-				if (iss >> value) skyRGBA[0] = value;
-				break;
-			case 6:
-				if (iss >> value) skyRGBA[1] = value;
-				break;
-			case 7:
-				if (iss >> value) skyRGBA[2] = value;
-				break;
-			case 11:
-				if (iss >> value) lightRGBA[0] = value;
-				break;
-			case 12:
-				if (iss >> value) lightRGBA[1] = value;
-				break;
-			case 13:
-				if (iss >> value) lightRGBA[2] = value;
-				break;
-			case 1:
-				doVsync = (lineT == "VsyncT");
-				std::cout << doVsync << " Vsync" << std::endl;
-				break;
-			default:
-				break;
-			}
-		}
-		TestFile2.close();
-	}
+	//calls the LoadSettings function
+	loadSettings();
 
 
 	//depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
@@ -288,18 +295,14 @@ int main()
 			camera.Position = glm::vec3(0, 0, 0);
 			ResetTrans = false;
 		}
-		
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
+
 		// ImGUI window creation
 		ImGui::Begin(igSettings[0]);
-		// Text that appears in the window
 		ImGui::Text(igTex[0]);
 		//ImGui::Checkbox("save changes?", &save);
-		// Checkbox that appears in the window
 		ImGui::Text(igTex[1]);
 		ImGui::Checkbox(igSettings[1], &doVsync);
 		ImGui::SliderFloat(igSettings[2], &varFOV, 0.1f, 160.0f);
-		//ImGui::Text("Animation");
 
 		ImGui::Text(igTex[2]);
 		ImGui::Checkbox(igSettings[3], &ResetTrans);
@@ -319,7 +322,6 @@ int main()
 		//ImGui::Text("Light Angle");
 		//ImGui::DragFloat3("Cone Angle", ConeRot);
 
-		//
 		// Ends the window
 		ImGui::End();
 
@@ -327,18 +329,19 @@ int main()
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-		//swap back buffer with front buffer
+		// Swap back buffer with front buffer
 		glfwSwapBuffers(window);
-		//tells open gl to proccess all events like window resizing and all otheer events
+		// Tells open gl to proccess all events like window resizing and all otheer events
 		glfwPollEvents();
 	}
-	//delete all objects on close
+	// Cleanup
+	// Delete all objects on close
 	// Deletes all ImGUI instances
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 	shaderProgram.Delete();
-	//end opengl
+	// kill opengl
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return 0;

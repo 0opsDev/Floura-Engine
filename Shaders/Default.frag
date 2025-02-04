@@ -141,12 +141,12 @@ void main()
 	//colours seem to blend well, just have problems instancing objects and lights
 	// outputs final color
 
-	//spotlight needs work
+	//spotlight is broken
 	//FragColor = spotLight();
 
-	//direct light finished
+	//works perfect
 	FragColor = direcLight();
 
-	//needs work
+	//semi broken and needs controls to move light location
 	//FragColor = pointLight();
 }
