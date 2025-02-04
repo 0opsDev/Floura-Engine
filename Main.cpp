@@ -9,24 +9,27 @@ const unsigned int width = 2560;
 const unsigned int height = 1440;
 //https://discord.gg/fd6REHgBus
 
-const char* igSettings[] = 
-{ 
-	"Settings Window" , "Vsync", "FOV",
-	"move camera to 0,0,0",
-	"sky RGBA", "light RGBA" 
-};
-const char* igTex[] =
-{
-	"Settings (Press escape to use mouse)" , "Rendering",
-	"Transform", "Lighting", "Light color and intens"
-};
 // Initialize previous time and delta time
 float lastFrameTime = 0.0f;
 float deltaTime = 0.0f;
 
+GLfloat varFOV = 60.0f;
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat skyRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+GLfloat CameraXYZ[3] = { 0.0f, 0.0f, 50.0f };
 bool doVsync = false;
+
+const char* igSettings[] =
+{
+	"Settings Window" , "Vsync", "FOV",
+	"Reset Camera",
+	"sky RGBA", "light RGBA", "Camera Transform"
+};
+const char* igTex[] =
+{
+	"Settings (Press escape to use mouse)" , "Rendering",
+	"Transform", "Lighting", "Light color and intens", 
+};
 
 void loadSettings() {
 	//READ - settings
@@ -134,13 +137,10 @@ int main()
 	bool ResetTrans = false;
 	GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f };
 	GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f };
-	GLfloat varFOV = 60.0f;
 	GLfloat LightTransform1[3] = { -2.0f, 5.0f, 0.0f };
 
 
 	GLfloat value = 0.0f;
-
-	//glEnable(GL_CULL_FACE);
 
 	//calls the LoadSettings function
 	loadSettings();
@@ -149,8 +149,12 @@ int main()
 	//depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	glEnable(GL_DEPTH_TEST);
 
+	//need to do more research into this one
+	//glEnable(GL_CULL_FACE);
+
+	//INITIALIZE CAMERA
 	// camera ratio and pos
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 50.0f));
 
 	Model model("Assets/Models/Sword/scene.gltf");
 
@@ -188,6 +192,7 @@ int main()
 
 		// Calculate delta time
 		// Cast the value to float
+
 		float currentFrameTime = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
@@ -214,6 +219,7 @@ int main()
 
 		//	save = false;
 		//}
+
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS)
 		{
 			varFOV += 0.2f;
@@ -248,6 +254,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//inputs
 		camera.Inputs(window, deltaTime);
+
 		//camera fov, near and far plane
 		camera.updateMatrix(varFOV, 0.1f, 100.0f);
 
@@ -290,12 +297,6 @@ int main()
 
 		camera.Matrix(shaderProgram, "camMatrix");
 
-
-		if (ResetTrans) {
-			camera.Position = glm::vec3(0, 0, 0);
-			ResetTrans = false;
-		}
-
 		// ImGUI window creation
 		ImGui::Begin(igSettings[0]);
 		ImGui::Text(igTex[0]);
@@ -305,11 +306,21 @@ int main()
 		}
 		//ImGui::Checkbox("save changes?", &save);
 		ImGui::Text(igTex[1]);
+		//Vsync
 		ImGui::Checkbox(igSettings[1], &doVsync);
+		//FOV
 		ImGui::SliderFloat(igSettings[2], &varFOV, 0.1f, 160.0f);
 
+		//reset camera pos
 		ImGui::Text(igTex[2]);
-		ImGui::Checkbox(igSettings[3], &ResetTrans);
+		if (ImGui::SmallButton(igSettings[3])) {
+			camera.Position = glm::vec3(0, 0, 0);
+		}
+		//set cam pos
+		ImGui::DragFloat3(igSettings[6], CameraXYZ);
+		if (ImGui::SmallButton("Set")) {
+			camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
+		}
 
 		//ImGui::DragFloat3("Light Yransform", LightTransform1);
 
@@ -317,6 +328,7 @@ int main()
 
 		ImGui::Text(igTex[3]);
 		ImGui::Text(igTex[4]);
+		//sky and light
 		ImGui::ColorEdit4(igSettings[4], skyRGBA);
 		ImGui::ColorEdit4(igSettings[5], lightRGBA);
 		//ImGui::DragFloat("light I", &ConeSI[2]);
