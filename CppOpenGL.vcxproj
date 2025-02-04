@@ -188,8 +188,6 @@
   <ItemGroup>
     <Text Include="Assets\Textures\Model\notes.txt" />
     <Text Include="Settings\Settings.ini" />
-    <Text Include="Settings\testFile.txt" />
-    <Text Include="Storage\ObjectLocation.txt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Textures\Model\forrest.jpg" />

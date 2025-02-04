@@ -162,12 +162,6 @@
     <Text Include="Settings\Settings.ini">
       <Filter>Resource Files\Text</Filter>
     </Text>
-    <Text Include="Settings\testFile.txt">
-      <Filter>Resource Files\Text</Filter>
-    </Text>
-    <Text Include="Storage\ObjectLocation.txt">
-      <Filter>Resource Files\Text</Filter>
-    </Text>
     <Text Include="Assets\Textures\Model\notes.txt">
       <Filter>Resource Files\Textures</Filter>
     </Text>
