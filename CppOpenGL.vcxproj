@@ -188,6 +188,7 @@
   <ItemGroup>
     <None Include="Assets\Models\glTF\Sponza.bin" />
     <None Include="Assets\Models\sword\scene.bin" />
+    <None Include="Settings\Default.ini" />
     <None Include="Shaders\Default.frag" />
     <None Include="Shaders\Default.vert" />
     <None Include="Shaders\light.frag" />
