@@ -187,7 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Assets\Textures\Model\notes.txt" />
-    <Text Include="Settings\DoDefaultAnimation.txt" />
+    <Text Include="Settings\Settings.ini" />
     <Text Include="Settings\testFile.txt" />
     <Text Include="Storage\ObjectLocation.txt" />
   </ItemGroup>

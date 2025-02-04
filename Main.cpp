@@ -1,15 +1,31 @@
 #include"src/video/Model.h"
 #include"imgui.h"
+#include <fstream>
+#include <stdexcept>
+#include <iostream>
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
-
 const unsigned int width = 2560;
 const unsigned int height = 1440;
 //https://discord.gg/fd6REHgBus
 
+const char* igSettings[] = 
+{ 
+	"Settings Window" , "Vsync", "FOV",
+	"move camera to 0,0,0",
+	"sky RGBA", "light RGBA" 
+};
+const char* igTex[] =
+{
+	"Settings (Press escape to use mouse)" , "Rendering",
+	"Transform", "Lighting", "Light color and intens"
+};
 // Initialize previous time and delta time
 float lastFrameTime = 0.0f;
 float deltaTime = 0.0f;
+
+GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+GLfloat skyRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 int main()
 {
@@ -25,7 +41,7 @@ int main()
 
 
 	//size, name, fullscreen
-	GLFWwindow* window = glfwCreateWindow(width, height, "Farquhar Engine OPEN GL - 1.0 (FINAL)", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(width, height, "Farquhar Engine OPEN GL - 1.1", NULL, NULL);
 
 	//error checking
 	if (window == NULL)
@@ -57,8 +73,6 @@ int main()
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
-
-
 	// Initialize ImGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -70,7 +84,6 @@ int main()
 	//imgui vars
 	bool save = false;
 	float rotationStored = 50.0f;
-	bool DoDefaultAnimation = false;
 	float rotation = 0.0f;
 	bool doVsync = false;
 	bool drawTriangles = true;
@@ -78,29 +91,53 @@ int main()
 	GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f };
 	GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f };
 	GLfloat varFOV = 60.0f;
-	GLfloat lightRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat skyRGBA[4] = { 0.249f, 0.257f, 0.299f, 1.0f };
 	GLfloat LightTransform1[3] = { -2.0f, 5.0f, 0.0f };
 
-	//
-	//std::fstream TestFile2;
-	//TestFile2.open("Settings/DoDefaultAnimation.txt", std::ios::in);//read
-	//if (TestFile2.is_open()) {
-		//writes in lines
-	//	std::string lineT;
-	//	while (getline(TestFile2, lineT))
-	//	{
-	//		if (lineT == "true") {
-	//			DoDefaultAnimation = true;
-	//			std::cout << DoDefaultAnimation << std::endl;
-	//		}
-	//		else {
-	//			DoDefaultAnimation = false;
-	//			std::cout << DoDefaultAnimation << std::endl;
-	//		}
-	//	}
-	//	TestFile2.close();
-	//}
+
+	GLfloat value = 0.0f;
+
+	//READ
+	std::ifstream TestFile2("Settings/Settings.ini");
+	if (TestFile2.is_open())
+	{
+		std::string lineT;
+		int lineNumber = 0;
+
+		while (std::getline(TestFile2, lineT)) {
+			lineNumber++;
+			std::istringstream iss(lineT);
+			GLfloat value;
+
+			switch (lineNumber) {
+			case 5:
+				if (iss >> value) skyRGBA[0] = value;
+				break;
+			case 6:
+				if (iss >> value) skyRGBA[1] = value;
+				break;
+			case 7:
+				if (iss >> value) skyRGBA[2] = value;
+				break;
+			case 11:
+				if (iss >> value) lightRGBA[0] = value;
+				break;
+			case 12:
+				if (iss >> value) lightRGBA[1] = value;
+				break;
+			case 13:
+				if (iss >> value) lightRGBA[2] = value;
+				break;
+			case 1:
+				doVsync = (lineT == "VsyncT");
+				std::cout << doVsync << " Vsync" << std::endl;
+				break;
+			default:
+				break;
+			}
+		}
+		TestFile2.close();
+	}
+
 
 	//depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	glEnable(GL_DEPTH_TEST);
@@ -108,7 +145,7 @@ int main()
 	// camera ratio and pos
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
-	Model model("Assets/Models/sword/scene.gltf");
+	Model model("Assets/Models/Sword/scene.gltf");
 
 	//icon creation
 	int iconW, iconH;
@@ -131,12 +168,27 @@ int main()
 	//makes sure window stays open
 	while (!glfwWindowShouldClose(window))
 	{
+		switch (doVsync) {
+		case true:
+			//glfwSwapInterval(1);
+			glfwSwapInterval(1);
+			break;
+		case false:
+			glfwSwapInterval(0);
+			break;
+		}
+
 
 		// Calculate delta time
 		// Cast the value to float
 		float currentFrameTime = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
+
+
+		//array of settings files which determines what line to read on the ini fale
+
+
 
 
 		//if (save) {
@@ -155,14 +207,6 @@ int main()
 
 		//	save = false;
 		//}
-		switch (doVsync) {
-		case true:
-			glfwSwapInterval(1);
-			break;
-		case false:
-			glfwSwapInterval(0);
-			break;
-		}
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS)
 		{
 			varFOV += 0.2f;
@@ -201,11 +245,6 @@ int main()
 		camera.updateMatrix(varFOV, 0.1f, 100.0f);
 
 		model.Draw(shaderProgram, camera);
-
-		if (DoDefaultAnimation) {
-			float adjustedRot = rotationStored * deltaTime;
-			rotation += adjustedRot;
-		}
 
 
 
@@ -249,27 +288,30 @@ int main()
 			camera.Position = glm::vec3(0, 0, 0);
 			ResetTrans = false;
 		}
-
+		
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 		// ImGUI window creation
-		ImGui::Begin("Settings Window");
+		ImGui::Begin(igSettings[0]);
 		// Text that appears in the window
-		ImGui::Text("Settings (Press escape to use mouse)");
+		ImGui::Text(igTex[0]);
 		//ImGui::Checkbox("save changes?", &save);
 		// Checkbox that appears in the window
-		ImGui::Text("Rendering");
-		ImGui::Checkbox("Vsync", &doVsync);
-		ImGui::SliderFloat("FOV", &varFOV, 0.1f, 160.0f);
+		ImGui::Text(igTex[1]);
+		ImGui::Checkbox(igSettings[1], &doVsync);
+		ImGui::SliderFloat(igSettings[2], &varFOV, 0.1f, 160.0f);
 		//ImGui::Text("Animation");
 
-		ImGui::Text("Transform");
-		ImGui::Checkbox("move camera to 0,0,0", &ResetTrans);
+		ImGui::Text(igTex[2]);
+		ImGui::Checkbox(igSettings[3], &ResetTrans);
+
 		//ImGui::DragFloat3("Light Yransform", LightTransform1);
 
-		ImGui::Text("Lighting");
-		ImGui::Text("Light color and intens");
-		ImGui::ColorEdit4("sky RGBA", skyRGBA);
-		ImGui::ColorEdit4("light RGBA", lightRGBA);
+
+
+		ImGui::Text(igTex[3]);
+		ImGui::Text(igTex[4]);
+		ImGui::ColorEdit4(igSettings[4], skyRGBA);
+		ImGui::ColorEdit4(igSettings[5], lightRGBA);
 		//ImGui::DragFloat("light I", &ConeSI[2]);
 		//ImGui::Text("cone size");
 		//ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);

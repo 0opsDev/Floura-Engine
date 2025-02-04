@@ -159,7 +159,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Settings\DoDefaultAnimation.txt">
+    <Text Include="Settings\Settings.ini">
       <Filter>Resource Files\Text</Filter>
     </Text>
     <Text Include="Settings\testFile.txt">
