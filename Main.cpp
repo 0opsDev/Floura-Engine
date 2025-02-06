@@ -8,6 +8,7 @@
 // these two where const
 
 // W+H
+//FALLBACK
 unsigned int screenArea[2] = { 800, 600  };
 int screenAreaI[2] = { screenArea[0], screenArea[1] };
 //https://discord.gg/fd6REHgBus
@@ -25,7 +26,7 @@ float cameraSettins[3] = { 60.0f, 0.1f, 1000.0f };
 bool doVsync = false;
 bool clearColour = false;
 //Render, Camera, Light
-bool Panels[3] = {false, false, false};
+bool Panels[3] = {true, true, true};
 const char* igSettings[] =
 {
 	"Settings Window" , "Vsync", "FOV",
@@ -106,7 +107,6 @@ void loadSettings() {
 int main()
 {
 	//calls the LoadSettings function
-	loadSettings();
 	//initialize inside of function
 	//start glfw
 	glfwInit();
@@ -116,9 +116,36 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, 1);
-		//GLFW_REFRESH_RATE
+	glfwWindowHint(GLFW_MAXIMIZED, 1);
 
+	// Get the video mode of the primary monitor
+	// Get the primary monitor
+	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+	if (!primaryMonitor) {
+		std::cerr << "Failed to get primary monitor" << std::endl;
+		glfwTerminate();
+		return -1;
+	}
+
+	// Get the video mode of the primary monitor
+	const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
+	if (!videoMode) {
+		std::cerr << "Failed to get video mode" << std::endl;
+		glfwTerminate();
+		return -1;
+	}
+
+	//second fallback
+	// Store the width and height in the test array
+	screenArea[0] = videoMode->width;
+	screenArea[1] = videoMode->height;
+	// Print the resolution
+
+    // Now call glfwGetMonitorPos with correct arguments
+    glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screenAreaI[0], &screenAreaI[1]);
+	loadSettings();
 	//size, name, fullscreen
+	//create window
 	GLFWwindow* window = glfwCreateWindow(screenArea[0], screenArea[1], "Farquhar Engine OPEN GL - 1.1b", NULL, NULL);
 	
 
@@ -136,7 +163,10 @@ int main()
 	gladLoadGL();
 	
 	//area of open gl we want to render in
+	//screen assignment after fallback
 	glViewport(0, 0, screenArea[0], screenArea[1]);
+	glfwSetWindowSize(window, screenArea[0], screenArea[1]);
+	std::cout << "Primary monitor resolution: " << screenAreaI[0] << "x" << screenAreaI[1] << std::endl;
 
 	//create a shader program and feed it shader and vertex files
 	Shader shaderProgram("Shaders/Default.vert", "Shaders/Default.frag");
@@ -230,6 +260,7 @@ int main()
 
 		//	save = false;
 		//}
+		
 
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS)
 		{
