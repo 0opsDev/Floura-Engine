@@ -274,7 +274,7 @@ int main()
 	loadSettings();
 	//size, name, fullscreen
 	//create window
-	GLFWwindow* window = glfwCreateWindow(screenArea[0], screenArea[1], "Farquhar Engine OPEN GL - 1.2", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(screenArea[0], screenArea[1], "Farquhar Engine OPEN GL - 1.3", NULL, NULL);
 
 	//error checking
 	if (window == NULL)
