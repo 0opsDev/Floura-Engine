@@ -6,6 +6,14 @@
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
 // these two where const
+// 
+// 
+// 
+// 
+//refactoring, namespaces, encapulation, classes
+
+
+
 
 // W+H
 //FALLBACK
@@ -20,6 +28,9 @@ float deltaTime = 0.0f;
 // 1hz 60hz
 static float timeAccumulator[2] = { 0.0f, 0.0f };
 
+GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }; //currently useless
+GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f }; //currently useless
+GLfloat LightTransform1[3] = { -2.0f, 5.0f, 0.0f }; //currently useless
 GLfloat varFOV = 60.0f;
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat skyRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -44,6 +55,7 @@ const char* igTex[] =
 	"Settings (Press escape to use mouse)" , "Rendering",
 	"Transform", "Lighting", "Light color and intens", "Camera Settings"
 };
+
 
 void loadSettings() {
 	//READ - settings
@@ -106,22 +118,139 @@ void loadSettings() {
 			screenAreaI[1] = screenArea[1];
 		}
 		TestFile2.close();
+
+		//array of settings files which determines what line to read on the ini fale
+
+//	std::fstream TestFile;
+//	TestFile.open("Settings/DoDefaultAnimation.txt", std::ios::out);//write
+//	if (TestFile.is_open()) {
+//		if (DoDefaultAnimation) {
+//			TestFile << "true\n";
+//			std::cout << "true\n";
+//		}
+//		else {
+//			TestFile << "false\n";
+//			std::cout << "false\n";
+//		}
+//	}
 	}
 };
+
+void initializeGLFW() {
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, 1);
+	glfwWindowHint(GLFW_MAXIMIZED, 1);
+}
+
+void initializeImGui(GLFWwindow* window) {
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+}
+
+void imGuiMAIN(GLFWwindow* window, Camera camera){
+	// ImGUI window creation
+ImGui::Begin(igSettings[0]);
+ImGui::Text(igTex[0]);
+ImGui::Text(framerate.c_str());
+//load settings button
+if (ImGui::SmallButton("load")) {
+	loadSettings();
+}
+//ImGui::Checkbox("save changes?", &save);
+ImGui::Checkbox("Rendering Panel", &Panels[0]);
+ImGui::Checkbox("Camera Panel", &Panels[1]);
+ImGui::Checkbox("Lighting Panel", &Panels[2]);
+// Ends the window
+ImGui::End();
+//Rendering panel
+if (Panels[0]) {
+	ImGui::Begin(igTex[1]);
+
+	ImGui::Checkbox(igSettings[1], &doVsync);
+	//rendering
+	//do vsync
+	//screen res
+	ImGui::DragInt("Width", &screenAreaI[0]);
+	ImGui::DragInt("Height", &screenAreaI[1]);
+	//apply button
+	if (ImGui::SmallButton("Apply Changes?")) {
+
+		screenArea[0] = screenAreaI[0];
+		screenArea[1] = screenAreaI[1];
+		glViewport(0, 0, screenArea[0], screenArea[1]);
+		glfwSetWindowSize(window, screenArea[0], screenArea[1]);
+
+		switch (doVsync) {
+		case true:
+			//glfwSwapInterval(1);
+			glfwSwapInterval(1);
+			break;
+		case false:
+			glfwSwapInterval(0);
+			break;
+		}
+	}
+	ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour);
+	ImGui::End();
+}
+//Camera panel
+if (Panels[1]) {
+
+	ImGui::Begin(igTex[5]);
+
+	//Vsync
+	//ImGui::Checkbox(igSettings[1], &doVsync);
+	//FOV
+	ImGui::SliderFloat(igSettings[2], &cameraSettins[0], 0.1f, 160.0f);
+	ImGui::DragFloat2(igSettings[7], &cameraSettins[1], cameraSettins[2]);
+
+	//reset camera pos
+	ImGui::Text(igTex[2]);
+	if (ImGui::SmallButton(igSettings[3])) {
+		camera.Position = glm::vec3(0, 0, 0);
+	}
+	//set cam pos
+	ImGui::DragFloat3(igSettings[6], CameraXYZ);
+	if (ImGui::SmallButton("Set")) {
+		camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
+	}
+	ImGui::End();
+}
+//Lighting panel
+if (Panels[2]) {
+	ImGui::Begin(igTex[3]);
+	//ImGui::DragFloat3("Light Yransform", LightTransform1);
+	ImGui::Text(igTex[3]);
+	ImGui::Text(igTex[4]);
+	//sky and light
+	ImGui::ColorEdit4(igSettings[4], skyRGBA);
+	ImGui::ColorEdit4(igSettings[5], lightRGBA);
+	//ImGui::DragFloat("light I", &ConeSI[2]);
+	//ImGui::Text("cone size");
+	//ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
+	//ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
+	//ImGui::Text("Light Angle");
+	//ImGui::DragFloat3("Cone Angle", ConeRot);
+	ImGui::End();
+}
+// Renders the ImGUI elements
+ImGui::Render();
+}
+
 
 int main()
 {
 	//calls the LoadSettings function
 	//initialize inside of function
 	//start glfw
-	glfwInit();
-
-	//give glfw hints on open gl version (3.3)
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, 1);
-	glfwWindowHint(GLFW_MAXIMIZED, 1);
+	initializeGLFW();
 
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
@@ -151,8 +280,7 @@ int main()
 	loadSettings();
 	//size, name, fullscreen
 	//create window
-	GLFWwindow* window = glfwCreateWindow(screenArea[0], screenArea[1], "Farquhar Engine OPEN GL - 1.1b", NULL, NULL);
-	
+	GLFWwindow* window = glfwCreateWindow(screenArea[0], screenArea[1], "Farquhar Engine OPEN GL - 1.2", NULL, NULL);
 
 	//error checking
 	if (window == NULL)
@@ -176,28 +304,10 @@ int main()
 	//create a shader program and feed it shader and vertex files
 	Shader shaderProgram("Shaders/Default.vert", "Shaders/Default.frag");
 
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
-	glm::mat4 lightModel = glm::mat4(1.0f);
-	lightModel = glm::translate(lightModel, lightPos);
-
 	shaderProgram.Activate();
-	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	// Initialize ImGUI
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
-
-	//imgui vars
-	GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f };
-	GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f };
-	GLfloat LightTransform1[3] = { -2.0f, 5.0f, 0.0f };
-
+	initializeImGui(window);
 	//depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	glEnable(GL_DEPTH_TEST);
 
@@ -263,27 +373,6 @@ int main()
                 timeAccumulator[0] = 0.0f;
             }
             
-
-
-		//array of settings files which determines what line to read on the ini fale
-
-		//if (save) {
-		//	std::fstream TestFile;
-		//	TestFile.open("Settings/DoDefaultAnimation.txt", std::ios::out);//write
-		//	if (TestFile.is_open()) {
-		//		if (DoDefaultAnimation) {
-		//			TestFile << "true\n";
-		//			std::cout << "true\n";
-		//		}
-		//		else {
-		//			TestFile << "false\n";
-		//			std::cout << "false\n";
-		//		}
-		//	}
-
-		//	save = false;
-		//}
-		
 		timeAccumulator[1] += deltaTime;
 			//60hz
 		if (timeAccumulator[1] >= 0.016f) {
@@ -350,11 +439,6 @@ int main()
 		glm::mat4 lightModel = glm::mat4(1.0f);
 		lightModel = glm::translate(lightModel, lightPos);
 
-		//update light transform
-		//glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
-		//update light color on the model (not the world)
-		//glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-
 		//shaderprog can stay
 		//activate shader program
 		shaderProgram.Activate();
@@ -371,97 +455,9 @@ int main()
 
 		camera.Matrix(shaderProgram, "camMatrix");
 
+		// Render ImGUI elements
+		imGuiMAIN(window, camera);
 
-
-		// ImGUI window creation
-		ImGui::Begin(igSettings[0]);
-
-		ImGui::Text(igTex[0]);
-		ImGui::Text(framerate.c_str());
-		
-		//load settings button
-		if (ImGui::SmallButton("load")) {
-			loadSettings();
-		}
-		//ImGui::Checkbox("save changes?", &save);
-		ImGui::Checkbox("Rendering Panel", &Panels[0]);
-		ImGui::Checkbox("Camera Panel", &Panels[1]);
-		ImGui::Checkbox("Lighting Panel", &Panels[2]);
-		// Ends the window
-		ImGui::End();
-		//Rendering panel
-		if (Panels[0]) {
-			ImGui::Begin(igTex[1]);
-
-			ImGui::Checkbox(igSettings[1], &doVsync);
-			//rendering
-			//do vsync
-			//screen res
-			ImGui::DragInt("Width", &screenAreaI[0]);
-			ImGui::DragInt("Height", &screenAreaI[1]);
-			//apply button
-			if (ImGui::SmallButton("Apply Changes?")) {
-
-				screenArea[0] = screenAreaI[0];
-				screenArea[1] = screenAreaI[1];
-				glViewport(0, 0, screenArea[0], screenArea[1]);
-				glfwSetWindowSize(window, screenArea[0], screenArea[1]);
-
-				switch (doVsync) {
-				case true:
-					//glfwSwapInterval(1);
-					glfwSwapInterval(1);
-					break;
-				case false:
-					glfwSwapInterval(0);
-					break;
-				}
-			}
-			ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour);
-			ImGui::End();
-		}
-		//Camera panel
-		if (Panels[1]) {
-
-			ImGui::Begin(igTex[5]);
-
-			//Vsync
-			//ImGui::Checkbox(igSettings[1], &doVsync);
-			//FOV
-			ImGui::SliderFloat(igSettings[2], &cameraSettins[0], 0.1f, 160.0f);
-			ImGui::DragFloat2(igSettings[7], &cameraSettins[1], cameraSettins[2]);
-
-			//reset camera pos
-			ImGui::Text(igTex[2]);
-			if (ImGui::SmallButton(igSettings[3])) {
-				camera.Position = glm::vec3(0, 0, 0);
-			}
-			//set cam pos
-			ImGui::DragFloat3(igSettings[6], CameraXYZ);
-			if (ImGui::SmallButton("Set")) {
-				camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
-			}
-			ImGui::End();
-		}
-		//Lighting panel
-		if (Panels[2]){
-			ImGui::Begin(igTex[3]);
-			//ImGui::DragFloat3("Light Yransform", LightTransform1);
-			ImGui::Text(igTex[3]);
-			ImGui::Text(igTex[4]);
-			//sky and light
-			ImGui::ColorEdit4(igSettings[4], skyRGBA);
-			ImGui::ColorEdit4(igSettings[5], lightRGBA);
-			//ImGui::DragFloat("light I", &ConeSI[2]);
-			//ImGui::Text("cone size");
-			//ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
-			//ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
-			//ImGui::Text("Light Angle");
-			//ImGui::DragFloat3("Cone Angle", ConeRot);
-			ImGui::End();
-		}
-		// Renders the ImGUI elements
-		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// Swap back buffer with front buffer
