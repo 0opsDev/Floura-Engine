@@ -317,7 +317,8 @@ int main()
 	
 	//texture loading problems
 	//Model model("Assets/Models/sword/scene.gltf");
-	Model model("Assets/Models/glTF/Sponza.gltf");
+	Model model("Assets/Models/grass/scene.gltf");
+	Model model2("Assets/Models/harvy/scene.gltf");
 	//icon creation
 	int iconW, iconH;
 	int iconChannels;
@@ -411,6 +412,7 @@ int main()
 
 		//draws the model to the screen
 		model.Draw(shaderProgram, camera);
+		model2.Draw(shaderProgram, camera);
 
 		//2025 REWORK THESE PLEASE
 		//i added these
