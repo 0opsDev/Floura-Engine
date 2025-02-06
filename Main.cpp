@@ -37,6 +37,7 @@ GLfloat CameraXYZ[3] = { 0.0f, 0.0f, 50.0f };
 float cameraSettins[3] = { 60.0f, 0.1f, 1000.0f };
 bool doVsync = false;
 bool clearColour = false;
+int TempButton = 0;
 //Render, Camera, Light
 bool Panels[3] = {true, true, true};
 std::string framerate;
@@ -155,7 +156,7 @@ void initializeImGui(GLFWwindow* window) {
 	ImGui_ImplOpenGL3_Init("#version 330");
 }
 
-void imGuiMAIN(GLFWwindow* window, Camera camera){
+void imGuiMAIN(GLFWwindow* window){
 	// ImGUI window creation
 ImGui::Begin(igSettings[0]);
 ImGui::Text(igTex[0]);
@@ -207,12 +208,12 @@ if (Panels[1]) {
 	//reset camera pos
 	ImGui::Text(igTex[2]);
 	if (ImGui::SmallButton(igSettings[3])) {
-		camera.Position = glm::vec3(0, 0, 0);
+		TempButton = 1;
 	}
 	//set cam pos
 	ImGui::DragFloat3(igSettings[6], CameraXYZ);
 	if (ImGui::SmallButton("Set")) {
-		camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
+		TempButton = 2;
 	}
 	ImGui::End();
 }
@@ -317,7 +318,6 @@ int main()
 	//texture loading problems
 	//Model model("Assets/Models/sword/scene.gltf");
 	Model model("Assets/Models/sword/scene.gltf");
-
 	//icon creation
 	int iconW, iconH;
 	int iconChannels;
@@ -441,7 +441,18 @@ int main()
 		camera.Matrix(shaderProgram, "camMatrix");
 
 		// Render ImGUI elements
-		imGuiMAIN(window, camera);
+		imGuiMAIN(window);
+		switch (TempButton) {
+		case 1:
+			camera.Position = glm::vec3(0, 0, 0);
+			TempButton = 0;
+			break;
+		case 2:
+			camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
+			TempButton = 0;
+			break;
+		}
+
 
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
