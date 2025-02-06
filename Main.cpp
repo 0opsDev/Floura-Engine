@@ -23,6 +23,9 @@ GLfloat CameraXYZ[3] = { 0.0f, 0.0f, 50.0f };
 //FOV , near, far
 float cameraSettins[3] = { 60.0f, 0.1f, 1000.0f };
 bool doVsync = false;
+bool clearColour = false;
+//Render, Camera, Light
+bool Panels[3] = {false, false, false};
 const char* igSettings[] =
 {
 	"Settings Window" , "Vsync", "FOV",
@@ -256,10 +259,17 @@ int main()
 
 		//CLEAR BACK BUFFER
 		//RGB ALPHA please re enable to fix sky colour
-		glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
 		// SEND TO COLOR BUFFER (DRAWS COLOUR TO SCREEN)
 		//glclear only needs to run once btw
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		if (clearColour) {
+			glClear(GL_DEPTH_BUFFER_BIT);
+		}
+		else {
+			glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
+
+		
 		//inputs
 
 		camera.Inputs(window, deltaTime);
@@ -304,9 +314,6 @@ int main()
 
 
 
-
-
-
 		// ImGUI window creation
 		ImGui::Begin(igSettings[0]);
 
@@ -316,70 +323,82 @@ int main()
 			loadSettings();
 		}
 		//ImGui::Checkbox("save changes?", &save);
-		//rendering
-		ImGui::Text(igTex[1]);
-		//do vsync
-		ImGui::Checkbox(igSettings[1], &doVsync);
-		//screen res
-		ImGui::DragInt("Width", &screenAreaI[0]);
-		ImGui::DragInt("Height", &screenAreaI[1]);
-		//apply button
-		if (ImGui::SmallButton("Apply Changes?")) {
-
-			screenArea[0] = screenAreaI[0];
-			screenArea[1] = screenAreaI[1];
-			glViewport(0, 0, screenArea[0], screenArea[1]);
-			glfwSetWindowSize(window, screenArea[0], screenArea[1]);
-
-			switch (doVsync) {
-			case true:
-				//glfwSwapInterval(1);
-				glfwSwapInterval(1);
-				break;
-			case false:
-				glfwSwapInterval(0);
-				break;
-			}
-		}
-
-
-
-		//camera settings
-		ImGui::Text(igTex[5]);
-
-		//Vsync
-		//ImGui::Checkbox(igSettings[1], &doVsync);
-		//FOV
-		ImGui::SliderFloat(igSettings[2], &cameraSettins[0], 0.1f, 160.0f);
-		ImGui::DragFloat2(igSettings[7], &cameraSettins[1], cameraSettins[2]);
-
-		//reset camera pos
-		ImGui::Text(igTex[2]);
-		if (ImGui::SmallButton(igSettings[3])) {
-			camera.Position = glm::vec3(0, 0, 0);
-		}
-		//set cam pos
-		ImGui::DragFloat3(igSettings[6], CameraXYZ);
-		if (ImGui::SmallButton("Set")) {
-			camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
-		}
-
-		//ImGui::DragFloat3("Light Yransform", LightTransform1);
-		ImGui::Text(igTex[3]);
-		ImGui::Text(igTex[4]);
-		//sky and light
-		ImGui::ColorEdit4(igSettings[4], skyRGBA);
-		ImGui::ColorEdit4(igSettings[5], lightRGBA);
-		//ImGui::DragFloat("light I", &ConeSI[2]);
-		//ImGui::Text("cone size");
-		//ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
-		//ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
-		//ImGui::Text("Light Angle");
-		//ImGui::DragFloat3("Cone Angle", ConeRot);
-
+		ImGui::Checkbox("Rendering Panel", &Panels[0]);
+		ImGui::Checkbox("Camera Panel", &Panels[1]);
+		ImGui::Checkbox("Lighting Panel", &Panels[2]);
 		// Ends the window
 		ImGui::End();
+		//Rendering panel
+		if (Panels[0]) {
+			ImGui::Begin(igTex[1]);
 
+			ImGui::Checkbox(igSettings[1], &doVsync);
+			//rendering
+			//do vsync
+			//screen res
+			ImGui::DragInt("Width", &screenAreaI[0]);
+			ImGui::DragInt("Height", &screenAreaI[1]);
+			//apply button
+			if (ImGui::SmallButton("Apply Changes?")) {
+
+				screenArea[0] = screenAreaI[0];
+				screenArea[1] = screenAreaI[1];
+				glViewport(0, 0, screenArea[0], screenArea[1]);
+				glfwSetWindowSize(window, screenArea[0], screenArea[1]);
+
+				switch (doVsync) {
+				case true:
+					//glfwSwapInterval(1);
+					glfwSwapInterval(1);
+					break;
+				case false:
+					glfwSwapInterval(0);
+					break;
+				}
+			}
+			ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour);
+			ImGui::End();
+		}
+		//Camera panel
+		if (Panels[1]) {
+
+			ImGui::Begin(igTex[5]);
+
+			//Vsync
+			//ImGui::Checkbox(igSettings[1], &doVsync);
+			//FOV
+			ImGui::SliderFloat(igSettings[2], &cameraSettins[0], 0.1f, 160.0f);
+			ImGui::DragFloat2(igSettings[7], &cameraSettins[1], cameraSettins[2]);
+
+			//reset camera pos
+			ImGui::Text(igTex[2]);
+			if (ImGui::SmallButton(igSettings[3])) {
+				camera.Position = glm::vec3(0, 0, 0);
+			}
+			//set cam pos
+			ImGui::DragFloat3(igSettings[6], CameraXYZ);
+			if (ImGui::SmallButton("Set")) {
+				camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
+			}
+			ImGui::End();
+		}
+		//Lighting panel
+		if (Panels[2]){
+			ImGui::Begin(igTex[3]);
+			//ImGui::DragFloat3("Light Yransform", LightTransform1);
+			ImGui::Text(igTex[3]);
+			ImGui::Text(igTex[4]);
+			//sky and light
+			ImGui::ColorEdit4(igSettings[4], skyRGBA);
+			ImGui::ColorEdit4(igSettings[5], lightRGBA);
+			//ImGui::DragFloat("light I", &ConeSI[2]);
+			//ImGui::Text("cone size");
+			//ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
+			//ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
+			//ImGui::Text("Light Angle");
+			//ImGui::DragFloat3("Cone Angle", ConeRot);
+			ImGui::End();
+		}
 		// Renders the ImGUI elements
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
