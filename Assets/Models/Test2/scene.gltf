@@ -62,13 +62,8 @@
 	"images":[
 		{
 			"mimeType":"image/jpeg",
-			"name":"PlaceHolder.jpeg",
-			"uri":"../../Pictures/PlaceHolder.jpeg"
-		},
-		{
-			"mimeType":"image/png",
 			"name":"PlaceHolder",
-			"uri":"textures/PlaceHolder.png"
+			"uri":"textures/PlaceHolder.jpg"
 		}
 	],
 	"accessors":[

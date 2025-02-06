@@ -2,6 +2,7 @@
 
 Texture::Texture(const char* image, const char* texType, GLuint slot)
 {
+    std::cout << "Texture loading 1: " << image << std::endl;
     // Assigns the type of the texture to the texture object
     type = texType;
 
@@ -11,6 +12,12 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
     stbi_set_flip_vertically_on_load(true);
     // Reads the image from a file and stores it in bytes
     unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
+
+    if (!bytes)
+    {
+        std::cerr << "Failed to load texture: " << image << std::endl;
+        throw std::runtime_error("Failed to load texture: " + std::string(image));
+    }
 
     // Generates an OpenGL texture object
     glGenTextures(1, &ID);
@@ -74,12 +81,18 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 
     // Unbinds the OpenGL Texture object so that it can't accidentally be modified
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    std::cout << "Texture loaded 2: " << image << std::endl;
 }
 
 void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
 {
     // Gets the location of the uniform
     GLuint texUni = glGetUniformLocation(shader.ID, uniform);
+    if (texUni == -1)
+    {
+        std::cerr << "Failed to find uniform: " << uniform << std::endl;
+    }
     // Shader needs to be activated before changing the value of a uniform
     shader.Activate();
     // Sets the value of the uniform
@@ -90,14 +103,17 @@ void Texture::Bind()
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, ID);
+    std::cout << "Texture bound: " << unit << std::endl;
 }
 
 void Texture::Unbind()
 {
     glBindTexture(GL_TEXTURE_2D, 0);
+    std::cout << "Texture unbound: " << unit << std::endl;
 }
 
 void Texture::Delete()
 {
     glDeleteTextures(1, &ID);
+    std::cout << "Texture deleted: " << ID << std::endl;
 }

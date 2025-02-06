@@ -11,11 +11,14 @@
 //FALLBACK
 unsigned int screenArea[2] = { 800, 600  };
 int screenAreaI[2] = { screenArea[0], screenArea[1] };
+int frameRateI = 0;
 //https://discord.gg/fd6REHgBus
 
 // Initialize previous time and delta time
 float lastFrameTime = 0.0f;
 float deltaTime = 0.0f;
+// 1hz 60hz
+static float timeAccumulator[2] = { 0.0f, 0.0f };
 
 GLfloat varFOV = 60.0f;
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -27,6 +30,7 @@ bool doVsync = false;
 bool clearColour = false;
 //Render, Camera, Light
 bool Panels[3] = {true, true, true};
+std::string framerate;
 
 const char* igSettings[] =
 {
@@ -208,6 +212,7 @@ int main()
 	//Model model("Assets/Models/test2/scene.glb");
 	
 	//texture loading problems
+	//Model model("Assets/Models/sword/scene.gltf");
 	Model model("Assets/Models/sword/scene.gltf");
 
 	//icon creation
@@ -247,6 +252,24 @@ int main()
 		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
 
+		//framerate tracking
+		frameRateI = 1.0f / deltaTime;
+            //if () {
+				//run if after 1 second
+				//framerate = "Framerate: " + std::to_string(1.0f / deltaTime);
+			//	framerate = std::to_string(frameRateI);
+				
+
+            timeAccumulator[0] += deltaTime;
+			//1hz
+            if (timeAccumulator[0] >= 1.0f) {
+                //run if after 1 second
+                framerate = std::to_string(frameRateI);
+                timeAccumulator[0] = 0.0f;
+            }
+            
+
+
 		//array of settings files which determines what line to read on the ini fale
 
 		//if (save) {
@@ -266,26 +289,31 @@ int main()
 		//	save = false;
 		//}
 		
-
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS)
-		{
-			cameraSettins[0] += 0.2f;
-		}
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS)
-		{
-			cameraSettins[0] -= 0.2f;
-		}
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
-		{
-			cameraSettins[0] = 60.0f;
-		}
-		if (cameraSettins[0] <= 0.00f)
-		{
-			cameraSettins[0] = 0.1f;
-		}
-		if (cameraSettins[0] >= 160.1f)
-		{
-			cameraSettins[0] = 160.0f;
+		timeAccumulator[1] += deltaTime;
+			//60hz
+		if (timeAccumulator[1] >= 0.016f) {
+				//run if after .16 second
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS)
+			{
+				cameraSettins[0] += 0.2f;
+			}
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS)
+			{
+				cameraSettins[0] -= 0.2f;
+			}
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
+			{
+				cameraSettins[0] = 60.0f;
+			}
+			if (cameraSettins[0] <= 0.00f)
+			{
+				cameraSettins[0] = 0.1f;
+			}
+			if (cameraSettins[0] >= 160.1f)
+			{
+				cameraSettins[0] = 160.0f;
+			}
+			timeAccumulator[1] = 0.0f;
 		}
 
 		//Tell OpenGL a new frame is about to begin
@@ -304,7 +332,6 @@ int main()
 			glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
-
 		
 		//inputs
 
@@ -313,6 +340,7 @@ int main()
 		//camera fov, near and far plane
 		camera.updateMatrix(cameraSettins[0], cameraSettins[1], cameraSettins[2]);
 
+		//draws the model to the screen
 		model.Draw(shaderProgram, camera);
 
 		//2025 REWORK THESE PLEASE
@@ -354,6 +382,8 @@ int main()
 		ImGui::Begin(igSettings[0]);
 
 		ImGui::Text(igTex[0]);
+		ImGui::Text(framerate.c_str());
+		
 		//load settings button
 		if (ImGui::SmallButton("load")) {
 			loadSettings();
