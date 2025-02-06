@@ -103,17 +103,17 @@ void Texture::Bind()
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, ID);
-    std::cout << "Texture bound: " << unit << std::endl;
+    //std::cout << "Texture bound: " << unit << std::endl;
 }
 
 void Texture::Unbind()
 {
     glBindTexture(GL_TEXTURE_2D, 0);
-    std::cout << "Texture unbound: " << unit << std::endl;
+    //std::cout << "Texture unbound: " << unit << std::endl;
 }
 
 void Texture::Delete()
 {
     glDeleteTextures(1, &ID);
-    std::cout << "Texture deleted: " << ID << std::endl;
+    //std::cout << "Texture deleted: " << ID << std::endl;
 }

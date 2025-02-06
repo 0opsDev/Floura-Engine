@@ -254,17 +254,12 @@ int main()
 
 		//framerate tracking
 		frameRateI = 1.0f / deltaTime;
-            //if () {
-				//run if after 1 second
-				//framerate = "Framerate: " + std::to_string(1.0f / deltaTime);
-			//	framerate = std::to_string(frameRateI);
-				
 
             timeAccumulator[0] += deltaTime;
 			//1hz
             if (timeAccumulator[0] >= 1.0f) {
                 //run if after 1 second
-                framerate = std::to_string(frameRateI);
+                framerate = "FPS " + std::to_string(frameRateI);
                 timeAccumulator[0] = 0.0f;
             }
             
