@@ -230,7 +230,6 @@ std::vector<GLuint> Model::getIndices(json accessor)
 
 std::vector<Texture> Model::getTextures()
 {
-	//does run - could be inside of here
 	std::cout << "getTextures - model.cpp" << std::endl;
 	std::vector<Texture> textures;
 
@@ -259,29 +258,29 @@ std::vector<Texture> Model::getTextures()
 		// If the texture has been loaded, skip this
 		if (!skip)
 		{
-			// Load diffuse texture
+			// Determine the texture type based on the filename
+			const char* texType = "diffuse"; // Default to diffuse
 			if (texPath.find("baseColor") != std::string::npos)
 			{
-				std::cout << "model.cpp - Loading diffuse texture: " << fileDirectory + texPath << std::endl;
-				Texture diffuse = Texture((fileDirectory + texPath).c_str(), "diffuse", loadedTex.size());
-				textures.push_back(diffuse);
-				loadedTex.push_back(diffuse);
-				loadedTexName.push_back(texPath);
+				texType = "diffuse";
 			}
-			// Load specular texture
 			else if (texPath.find("metallicRoughness") != std::string::npos)
 			{
-				std::cout << "model.cpp - Loading specular texture: " << fileDirectory + texPath << std::endl;
-				Texture specular = Texture((fileDirectory + texPath).c_str(), "specular", loadedTex.size());
-				textures.push_back(specular);
-				loadedTex.push_back(specular);
-				loadedTexName.push_back(texPath);
+				texType = "specular";
 			}
+
+			// Load the texture
+			std::cout << "model.cpp - Loading texture: " << fileDirectory + texPath << std::endl;
+			Texture texture = Texture((fileDirectory + texPath).c_str(), texType, loadedTex.size());
+			textures.push_back(texture);
+			loadedTex.push_back(texture);
+			loadedTexName.push_back(texPath);
 		}
 	}
 
 	return textures;
 }
+
 
 std::vector<Vertex> Model::assembleVertices
 (

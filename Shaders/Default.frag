@@ -81,6 +81,7 @@ vec4 pointLight()
 
 vec4 spotLight()
 {
+
 	float InnerX = InnerLight1.x;
 	float InnerY = InnerLight1.y;
 	float ConeInten = InnerLight1.z;
@@ -94,8 +95,8 @@ vec4 spotLight()
 	//0.95
 	float innerCone = InnerY;
 
-//	float outerCone = 0.90f;
-//float innerCone = 0.95f;
+	//float outerCone = 0.90f;
+	//float innerCone = 0.95f;
 
 
 	// ambient lighting
@@ -130,7 +131,7 @@ vec4 spotLight()
 	//(inten * lightColor) life saver
 	// first part intensity, second part removes too brighht, third part makes sure inten wont invert
 	//real life saver ((inten * lightColor ) - (inten * skylightSpread) * (lightColor) )                                                            doesnt add color it adds brightness         the number we take needs to be pos
-	//
+	
 	return (texture(diffuse0, texCoord) *  ( (skylightSpread + diffuse) *     ((inten * lightColor ) - (inten * skylightSpread) * (lightColor) )    + (skylightSpread + (ambient)  ) ) + texture(specular0, texCoord).r * specular * inten) * (skylightSpread + lightColor);
 	//return (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * lightColor;
 }

@@ -28,7 +28,7 @@ static float timeAccumulator[2] = { 0.0f, 0.0f };
 
 GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }; //currently useless
 GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f }; //currently useless
-GLfloat LightTransform1[3] = { -2.0f, 5.0f, 0.0f }; //currently useless
+GLfloat LightTransform1[3] = { 0.0f, 0.0f, 25.0f }; //currently useless
 GLfloat varFOV = 60.0f;
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat skyRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -317,7 +317,7 @@ int main()
 	
 	//texture loading problems
 	//Model model("Assets/Models/sword/scene.gltf");
-	Model model("Assets/Models/sword/scene.gltf");
+	Model model("Assets/Models/glTF/Sponza.gltf");
 	//icon creation
 	int iconW, iconH;
 	int iconChannels;
@@ -436,7 +436,8 @@ int main()
 		//update light color seprate from the model
 		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		// update light pos
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		//temp glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z); glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), 0, 20, 0);
 
 		camera.Matrix(shaderProgram, "camMatrix");
 
