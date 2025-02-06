@@ -13,8 +13,6 @@
 //refactoring, namespaces, encapulation, classes
 
 
-
-
 // W+H
 //FALLBACK
 unsigned int screenArea[2] = { 800, 600  };
@@ -56,6 +54,9 @@ const char* igTex[] =
 	"Transform", "Lighting", "Light color and intens", "Camera Settings"
 };
 
+void setVSync(bool enabled) {
+	glfwSwapInterval(enabled ? 1 : 0);
+}
 
 void loadSettings() {
 	//READ - settings
@@ -187,15 +188,7 @@ if (Panels[0]) {
 		glViewport(0, 0, screenArea[0], screenArea[1]);
 		glfwSetWindowSize(window, screenArea[0], screenArea[1]);
 
-		switch (doVsync) {
-		case true:
-			//glfwSwapInterval(1);
-			glfwSwapInterval(1);
-			break;
-		case false:
-			glfwSwapInterval(0);
-			break;
-		}
+		setVSync(doVsync);
 	}
 	ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour);
 	ImGui::End();
@@ -342,15 +335,7 @@ int main()
 	//change to icon (what window, how many images, what image)
 	glfwSetWindowIcon(window, 1, Iconinages);
 	//glfwCreateCursor(Iconinages, iconW, iconH);
-	switch (doVsync) {
-	case true:
-		//glfwSwapInterval(1);
-		glfwSwapInterval(1);
-		break;
-	case false:
-		glfwSwapInterval(0);
-		break;
-	}
+	setVSync(doVsync);
 	//game loop
 	//makes sure window stays open
 	while (!glfwWindowShouldClose(window))

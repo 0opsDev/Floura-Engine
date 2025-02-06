@@ -1,6 +1,8 @@
 #include "Camera.h"
 
 bool MouseState = true;
+float timeAccumulator = 0;
+bool toggleESC = true;
 
 Camera::Camera(int width, int height, glm::vec3 position)
 {
@@ -67,7 +69,15 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
     }
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
-        MouseState = !MouseState;
+        if (toggleESC) {
+            MouseState = !MouseState;
+			toggleESC = false;
+        }
+
+    }
+    else
+    {
+		toggleESC = true;
     }
 
     // Handles mouse inputs
@@ -96,6 +106,7 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
 
         // Calculates upcoming vertical change in the Orientation
         glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
+
 
         // Decides whether or not the next vertical Orientation is legal or not
         if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
