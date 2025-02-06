@@ -27,6 +27,7 @@ bool doVsync = false;
 bool clearColour = false;
 //Render, Camera, Light
 bool Panels[3] = {true, true, true};
+
 const char* igSettings[] =
 {
 	"Settings Window" , "Vsync", "FOV",
@@ -203,7 +204,11 @@ int main()
 	// camera ratio and pos
 	Camera camera(screenArea[0], screenArea[1], glm::vec3(0.0f, 0.0f, 50.0f));
 
-	Model model("Assets/Models/Sword/scene.gltf");
+	//load the model //modelS
+	//Model model("Assets/Models/test2/scene.glb");
+	
+	//texture loading problems
+	Model model("Assets/Models/sword/scene.gltf");
 
 	//icon creation
 	int iconW, iconH;

@@ -2,8 +2,16 @@
 
 Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
 {
-    if (vertices.empty() || indices.empty() || textures.empty()) {
-        throw std::runtime_error("Vertices, indices, or textures are empty");
+    if (vertices.empty()) {
+        //throw std::runtime_error("Vertices, indices, or textures are empty");
+		std::cout << "Vertices are empty - mesh.cpp" << std::endl;
+    }
+    if(indices.empty()){
+        std::cout << "indices are empty - mesh.cpp" << std::endl;
+    }
+    if(textures.empty()) {
+        //problem is within texture or fileclass
+        std::cout << "textures are empty - mesh.cpp" << std::endl;
     }
 
     Mesh::vertices = vertices;

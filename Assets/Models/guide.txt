@@ -1,0 +1,1 @@
+can only be gltf (no glb)
