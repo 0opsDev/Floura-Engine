@@ -276,6 +276,12 @@ std::vector<Texture> Model::getTextures()
 				texType = "specular";
 				std::cout << "model.cpp - Texture type: specular" << std::endl;
 			}
+			else if (texPath.find("unshaded") != std::string::npos)
+			{
+				//sent to mesh.cpp
+				texType = "unshaded";
+				std::cout << "model.cpp - Texture type: unshaded" << std::endl;
+			}
 
 			// Load the texture
 			std::cout << "model.cpp - Loading texture: " << fileDirectory + texPath << std::endl;

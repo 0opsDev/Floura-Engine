@@ -27,7 +27,7 @@ float deltaTime = 0.0f;
 static float timeAccumulator[2] = { 0.0f, 0.0f };
 
 GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }; //currently useless
-GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f }; //currently useless
+GLfloat ConeRot[3] = { 1.0f, 1.0f , 0.0f }; //currently useless
 GLfloat LightTransform1[3] = { 0.0f, 0.0f, 25.0f }; //currently useless
 GLfloat varFOV = 60.0f;
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -231,7 +231,7 @@ if (Panels[2]) {
 	//ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
 	//ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
 	//ImGui::Text("Light Angle");
-	//ImGui::DragFloat3("Cone Angle", ConeRot);
+	ImGui::DragFloat3("Cone Angle", ConeRot);
 	ImGui::End();
 }
 // Renders the ImGUI elements
@@ -321,6 +321,7 @@ int main()
 	Model model("Assets/Models/grass/scene.gltf");
 	Model model2("Assets/Models/wall/scene.gltf");
 	Model model3("Assets/Models/sword/scene.gltf");
+	Model model4("Assets/Models/us/scene.gltf");
 	//Model model3("Assets/Models/harvy/scene.gltf");
 	//icon creation
 	int iconW, iconH;
@@ -417,6 +418,7 @@ int main()
 		model.Draw(shaderProgram, camera);
 		model2.Draw(shaderProgram, camera);
 		model3.Draw(shaderProgram, camera);
+		model4.Draw(shaderProgram, camera);
 
 		//2025 REWORK THESE PLEASE
 		//i added these
