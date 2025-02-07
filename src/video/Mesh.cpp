@@ -1,6 +1,5 @@
 #include "Mesh.h"
 
-
 Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
 {
     if (vertices.empty()) {
@@ -60,9 +59,11 @@ void Mesh::Draw
         if (type == "diffuse")
         {
             num = std::to_string(numDiffuse++);
+			//std::cout << "mesh.cpp - Diffuse texture: " << num << std::endl;
         }
         else if (type == "specular") {
             num = std::to_string(numSpecular++);
+			//std::cout << "mesh.cpp - Specular texture: " << num << std::endl;
         }
         textures[i].texUnit(shader, (type + num).c_str(), i);
         textures[i].Bind();
@@ -73,10 +74,11 @@ void Mesh::Draw
     camera.Matrix(shader, "camMatrix");
 
     // Initialize matrix
+
     glm::mat4 trans = glm::mat4(1.0f);
     glm::mat4 rot = glm::mat4(1.0f);
     glm::mat4 sca = glm::mat4(1.0f);
-
+    
     // Transform matrix to their correct form
     trans = glm::translate(trans, translation);
     rot = glm::mat4_cast(rotation);

@@ -91,11 +91,14 @@ void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
     GLuint texUni = glGetUniformLocation(shader.ID, uniform);
     if (texUni == -1)
     {
-        std::cerr << "Failed to find uniform: " << uniform << std::endl;
+        // comes from mesh::Draw
+       //std::cerr << "Texture.cpp Failed to find uniform: " << uniform << std::endl;
     }
     // Shader needs to be activated before changing the value of a uniform
+    
     shader.Activate();
     // Sets the value of the uniform
+	//std::cout << "Texture unit: " << unit << std::endl;
     glUniform1i(texUni, unit);
 }
 

@@ -181,12 +181,16 @@ std::vector<float> Model::getFloats(json accessor)
 std::vector<GLuint> Model::getIndices(json accessor)
 {
 	std::vector<GLuint> indices;
+	std::cout << "		L184 - Model.cpp" << std::endl;
+	std::cout << "getIndices / initialization - model.cpp" << std::endl;
+	
 
 	// Get properties from the accessor
 	unsigned int buffViewInd = accessor.value("bufferView", 0);
 	unsigned int count = accessor["count"];
 	unsigned int accByteOffset = accessor.value("byteOffset", 0);
 	unsigned int componentType = accessor["componentType"];
+	std::cout << "getIndices / getIndices: " << accessor << " - model.cpp" << std::endl;
 
 	// Get properties from the bufferView
 	json bufferView = JSON["bufferViews"][buffViewInd];
@@ -230,7 +234,8 @@ std::vector<GLuint> Model::getIndices(json accessor)
 
 std::vector<Texture> Model::getTextures()
 {
-	std::cout << "getTextures - model.cpp" << std::endl;
+
+	std::cout << "getTextures / initialization - model.cpp" << std::endl;
 	std::vector<Texture> textures;
 
 	std::string fileStr = std::string(file);
@@ -258,15 +263,18 @@ std::vector<Texture> Model::getTextures()
 		// If the texture has been loaded, skip this
 		if (!skip)
 		{
+			std::cout << "		L256 - Model.cpp" << std::endl;
 			// Determine the texture type based on the filename
 			const char* texType = "diffuse"; // Default to diffuse
 			if (texPath.find("baseColor") != std::string::npos)
 			{
 				texType = "diffuse";
+				std::cout << "model.cpp - Texture type: diffuse" << std::endl;
 			}
 			else if (texPath.find("metallicRoughness") != std::string::npos)
 			{
 				texType = "specular";
+				std::cout << "model.cpp - Texture type: specular" << std::endl;
 			}
 
 			// Load the texture

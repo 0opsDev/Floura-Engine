@@ -3,6 +3,7 @@
 bool MouseState = true;
 float timeAccumulator = 0;
 bool toggleESC = true;
+float scrollSpeed = 0;
 
 Camera::Camera(int width, int height, glm::vec3 position)
 {
@@ -33,6 +34,7 @@ void Camera::Matrix(Shader& shader, const char* uniform)
 void Camera::Inputs(GLFWwindow* window, float deltaTime)
 {
     float adjustedSpeed = speed * deltaTime;
+    
 
     // Handles inputs
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -59,14 +61,27 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
     {
         Position += adjustedSpeed * -Up;
     }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        scrollSpeed += 0.1f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        scrollSpeed -= 0.1f;
+    }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {
-        speed = 5.0f;
+        speed = (5.0f + scrollSpeed);
     }
-    else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
     {
-        speed = 2.0f;
+        speed = (2.0f + scrollSpeed);
     }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
+    {
+		scrollSpeed = 0;
+    }
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         if (toggleESC) {
