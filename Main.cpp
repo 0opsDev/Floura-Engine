@@ -318,7 +318,7 @@ int main()
 	//texture loading problems
 	
 
-	Model model("Assets/Models/grass/scene.gltf");
+	Model model("Assets/Models/grass3/scene.gltf");
 	Model model2("Assets/Models/wall/scene.gltf");
 	Model model3("Assets/Models/sword/scene.gltf");
 	Model model4("Assets/Models/us/scene.gltf");
