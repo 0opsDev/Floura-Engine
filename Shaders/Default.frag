@@ -76,7 +76,7 @@ vec4 direcLight()
 	vec4 diffuseColor = texture(diffuse0, texCoord);
 	float specularColor = texture(specular0, texCoord).r;
     // Sample the unshaded0 texture
-    vec4 unshadedColor = texture(unshaded0, texCoord) * lightColor;
+    vec4 unshadedColor = texture(unshaded0, texCoord) * skyColor;
 
     // If the unshaded0 texture is being used, return its color directly
     if (isUnshaded0 == 1)
@@ -103,7 +103,7 @@ vec4 direcLight()
     float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
     float specular = specAmount * specularLight;
 
-    return (diffuseColor * (diffuse + ambient) + specularColor * specular) * lightColor;
+    return (diffuseColor * (diffuse + ambient) + (specularColor + skyColor) * specular) * lightColor;
 }
 
 vec4 unShaded()
