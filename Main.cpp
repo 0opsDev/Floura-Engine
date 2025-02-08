@@ -255,7 +255,7 @@ if (Panels[2]) {
 		ImGui::Text(igTex[4]);
 		//sky and light
 		ImGui::ColorEdit4(igSettings[4], skyRGBA);
-		ImGui::ColorEdit4(igSettings[5], lightRGBA);
+		ImGui::DragFloat("light I", &ConeSI[2]);
 		ImGui::Text("Light Angle");
 		ImGui::DragFloat3("Cone Angle", ConeRot);
 		break;

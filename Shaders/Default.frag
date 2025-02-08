@@ -103,7 +103,7 @@ vec4 direcLight()
     float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
     float specular = specAmount * specularLight;
 
-    return (diffuseColor * (diffuse + ambient) + (specularColor + skyColor) * specular) * lightColor;
+    return (diffuseColor * (diffuse + ambient) + (specularColor) * specular) * skyColor;
 }
 
 vec4 unShaded()
