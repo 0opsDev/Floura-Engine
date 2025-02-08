@@ -1,5 +1,7 @@
 #include"Model.h"
 
+int totalVert = 0;
+
 Model::Model(const char* file)
 {
 	// Make a JSON object
@@ -191,6 +193,8 @@ std::vector<GLuint> Model::getIndices(json accessor)
 	unsigned int accByteOffset = accessor.value("byteOffset", 0);
 	unsigned int componentType = accessor["componentType"];
 	std::cout << "getIndices / getIndices: " << accessor << " - model.cpp" << std::endl;
+	totalVert += count;
+	std::cout << totalVert << std::endl;
 
 	// Get properties from the bufferView
 	json bufferView = JSON["bufferViews"][buffViewInd];

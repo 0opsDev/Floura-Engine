@@ -27,19 +27,21 @@ float deltaTime = 0.0f;
 static float timeAccumulator[2] = { 0.0f, 0.0f };
 
 GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }; //currently useless
-GLfloat ConeRot[3] = { 1.0f, 1.0f , 0.0f }; //currently useless
-GLfloat LightTransform1[3] = { 0.0f, 0.0f, 25.0f }; //currently useless
+GLfloat ConeRot[3] = { 1.0f, -1.0f , 0.0f }; //currently useless
+GLfloat LightTransform1[3] = { 0.0f, 25.0f, 0.0f }; //currently useless
 GLfloat varFOV = 60.0f;
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-GLfloat skyRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+GLfloat skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat CameraXYZ[3] = { 0.0f, 0.0f, 50.0f };
 //FOV , near, far
 float cameraSettins[3] = { 60.0f, 0.1f, 1000.0f };
 bool doVsync = false;
 bool clearColour = false;
-int TempButton = 0;
+int doReflections = 1;
 //Render, Camera, Light
 bool Panels[3] = {true, true, true};
+int TempButton = 0;
+int ShaderNum = 1;
 std::string framerate;
 
 const char* igSettings[] =
@@ -192,6 +194,7 @@ if (Panels[0]) {
 		setVSync(doVsync);
 	}
 	ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour);
+	ImGui::DragInt("Shader Number (Frag)", &ShaderNum);
 	ImGui::End();
 }
 //Camera panel
@@ -220,18 +223,58 @@ if (Panels[1]) {
 //Lighting panel
 if (Panels[2]) {
 	ImGui::Begin(igTex[3]);
-	//ImGui::DragFloat3("Light Yransform", LightTransform1);
-	ImGui::Text(igTex[3]);
-	ImGui::Text(igTex[4]);
-	//sky and light
-	ImGui::ColorEdit4(igSettings[4], skyRGBA);
-	ImGui::ColorEdit4(igSettings[5], lightRGBA);
-	//ImGui::DragFloat("light I", &ConeSI[2]);
-	//ImGui::Text("cone size");
-	//ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
-	//ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
-	//ImGui::Text("Light Angle");
-	ImGui::DragFloat3("Cone Angle", ConeRot);
+	
+	switch (ShaderNum) {
+	case 0: //us
+		ImGui::Text("UnShaded");
+		ImGui::Text(igTex[3]);
+		//sky
+		ImGui::ColorEdit4(igSettings[4], skyRGBA);
+		//doReflections
+		ImGui::SliderInt("doReflections", &doReflections, 0, 1);
+			
+		break;
+	case 1: //spot
+		ImGui::Text("Spot Light");
+		ImGui::DragFloat3("Light Transform", LightTransform1);
+		ImGui::Text(igTex[3]);
+		ImGui::Text(igTex[4]);
+		//sky and light
+		ImGui::ColorEdit4(igSettings[4], skyRGBA);
+		ImGui::ColorEdit4(igSettings[5], lightRGBA);
+		ImGui::DragFloat("light I", &ConeSI[2]);
+		ImGui::Text("cone size");
+		ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
+		ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
+		ImGui::Text("Light Angle");
+		ImGui::DragFloat3("Cone Angle", ConeRot);
+		break;
+	case 2: //dir light
+		ImGui::Text("Direct Light");
+		ImGui::Text(igTex[3]);
+		ImGui::Text(igTex[4]);
+		//sky and light
+		ImGui::ColorEdit4(igSettings[4], skyRGBA);
+		ImGui::ColorEdit4(igSettings[5], lightRGBA);
+		ImGui::Text("Light Angle");
+		ImGui::DragFloat3("Cone Angle", ConeRot);
+		break;
+	case 3:
+		ImGui::Text("Point Light (BROKE)");
+		ImGui::DragFloat3("Light Transform", LightTransform1);
+		ImGui::Text(igTex[3]);
+		ImGui::Text(igTex[4]);
+		//sky and light
+		ImGui::ColorEdit4(igSettings[4], skyRGBA);
+		ImGui::ColorEdit4(igSettings[5], lightRGBA);
+		ImGui::DragFloat("light I", &ConeSI[2]);
+		ImGui::Text("cone size");
+		ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
+		ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
+		ImGui::Text("Light Angle");
+		ImGui::DragFloat3("Cone Angle", ConeRot);
+		break;
+	}
 	ImGui::End();
 }
 // Renders the ImGUI elements
@@ -320,7 +363,7 @@ int main()
 
 	Model model("Assets/Models/grass3/scene.gltf");
 	Model model2("Assets/Models/wall/scene.gltf");
-	Model model3("Assets/Models/sword/scene.gltf");
+	Model model3("Assets/Models/harvy/scene.gltf");
 	Model model4("Assets/Models/us/scene.gltf");
 	//Model model3("Assets/Models/harvy/scene.gltf");
 	//icon creation
@@ -423,10 +466,12 @@ int main()
 		//2025 REWORK THESE PLEASE
 		//i added these
 		//transform light but not model
+		glm::int8 ShaderNumber = glm::int8(ShaderNum);
 		glm::vec4 lightColor = glm::vec4(lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 		glm::vec3 InnerLight = glm::vec3(ConeSI[1] - ConeSI[0], ConeSI[1], ConeSI[2]);
 		glm::vec3 spotLightRot = glm::vec3(ConeRot[0], ConeRot[1], ConeRot[2]);
-		glm::vec4 skylightSpread = glm::vec4(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
+		glm::vec4 skyColor = glm::vec4(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
+		glm::int8 doReflect = glm::int8(doReflections);
 
 		glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
 		glm::mat4 lightModel = glm::mat4(1.0f);
@@ -435,10 +480,12 @@ int main()
 		//shaderprog can stay
 		//activate shader program
 		shaderProgram.Activate();
-		//i wrote innerlight
+		//i wrote 
+		glUniform1i(glGetUniformLocation(shaderProgram.ID, "ShaderNumber"), ShaderNumber);
+		glUniform1i(glGetUniformLocation(shaderProgram.ID, "doReflect"), doReflect);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "InnerLight1"), InnerLight.x, InnerLight.y, InnerLight.z);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "spotLightRot"), spotLightRot.x, spotLightRot.y, spotLightRot.z);
-		glUniform4f(glGetUniformLocation(shaderProgram.ID, "skylightSpread"), skylightSpread.x, skylightSpread.y, skylightSpread.z, skylightSpread.w);
+		glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyColor.x, skyColor.y, skyColor.z, skyColor.w);
 
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 		//update light color seprate from the model
@@ -450,7 +497,7 @@ int main()
 		camera.Matrix(shaderProgram, "camMatrix");
 
 		// Render ImGUI elements
-		imGuiMAIN(window);
+        imGuiMAIN(window);
 		switch (TempButton) {
 		case 1:
 			camera.Position = glm::vec3(0, 0, 0);

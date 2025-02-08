@@ -12,6 +12,8 @@ in vec3 color;
 // Imports the texture coordinates from the Vertex Shader
 in vec2 texCoord;
 
+//determines the loaded shader
+uniform int ShaderNumber;
 // Gets the Texture Units from the main function
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
@@ -33,11 +35,15 @@ uniform int isUnshaded1;
 uniform int isUnshaded2;
 uniform int isUnshaded3;
 
+uniform int doReflect;
+
 //color of light from sky
-vec4 skylightSpread;
+uniform vec4 skyColor;
 
 vec4 pointLight()
 {	
+	vec4 diffuseColor = texture(diffuse0, texCoord);
+	float specularColor = texture(specular0, texCoord).r;
 	// used in two variables so I calculate it here to not have to do it twice
 	vec3 lightVec = lightPos - crntPos;
 
@@ -62,11 +68,13 @@ vec4 pointLight()
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	return (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * lightColor;
+	return (diffuseColor * (diffuse * inten + ambient) + specularColor * specular * inten) * lightColor;
 }
 
 vec4 direcLight()
 {
+	vec4 diffuseColor = texture(diffuse0, texCoord);
+	float specularColor = texture(specular0, texCoord).r;
     // Sample the unshaded0 texture
     vec4 unshadedColor = texture(unshaded0, texCoord) * lightColor;
 
@@ -95,11 +103,13 @@ vec4 direcLight()
     float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
     float specular = specAmount * specularLight;
 
-    return (texture(diffuse0, texCoord) * (diffuse + ambient) + texture(specular0, texCoord).r * specular) * lightColor;
+    return (diffuseColor * (diffuse + ambient) + specularColor * specular) * lightColor;
 }
 
 vec4 unShaded()
 {
+	vec4 diffuseColor = texture(diffuse0, texCoord);
+	float specularColor = texture(specular0, texCoord).r;
 	// ambient lighting
 	float ambient = 0.20f;
 
@@ -114,12 +124,29 @@ vec4 unShaded()
 	vec3 reflectionDirection = reflect(-lightDirection, normal);
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
-
-	return (texture(diffuse0, texCoord) + texture(specular0, texCoord).r * specular) * lightColor;
+	switch (doReflect){
+	case 0:
+	return (diffuseColor) * skyColor;
+	break;
+	case 1:
+	return (diffuseColor + specularColor * specular) * skyColor;
+	break;
+	}
+	
 }
 
 vec4 spotLight()
 {
+	vec4 diffuseColor = texture(diffuse0, texCoord);
+	float specularColor = texture(specular0, texCoord).r;
+    // Sample the unshaded0 texture
+    vec4 unshadedColor = texture(unshaded0, texCoord) * skyColor;
+
+    // If the unshaded0 texture is being used, return its color directly
+    if (isUnshaded0 == 1)
+    {
+        return unshadedColor;
+    }
 	float InnerX = InnerLight1.x;
 	float InnerY = InnerLight1.y;
 	float ConeInten = InnerLight1.z;
@@ -127,7 +154,6 @@ vec4 spotLight()
 	float sRotx = spotLightRot.x;
 	float sRoty = spotLightRot.y;
 	float sRotz = spotLightRot.z;
-
 	// controls how big the area that is lit up is
 	float outerCone = InnerX;
 	//0.95
@@ -135,6 +161,8 @@ vec4 spotLight()
 
 	// ambient lighting
 	float ambient = 0.20f / -ConeInten;
+	//new 2025
+	//float ambient = 0.20f;
 
 	// diffuse lighting
 	vec3 normal = normalize(Normal);
@@ -152,27 +180,33 @@ vec4 spotLight()
 	float angle = dot(vec3(sRotx, sRoty, sRotz), -lightDirection);
 	float inten = clamp((angle - outerCone) / (innerCone - outerCone), (0.0f), (0.0f + (ConeInten)) );
 
-	//skylightSpread
+	//skyColor
 	//(inten * lightColor) life saver
 	// first part intensity, second part removes too brighht, third part makes sure inten wont invert
-	//real life saver ((inten * lightColor ) - (inten * skylightSpread) * (lightColor) )                                                            doesnt add color it adds brightness         the number we take needs to be pos
-	
-	return (texture(diffuse0, texCoord) *  ( (skylightSpread + diffuse) *     ((inten * lightColor ) - (inten * skylightSpread) * (lightColor) )    + (skylightSpread + (ambient)  ) ) + texture(specular0, texCoord).r * specular * inten) * (skylightSpread + lightColor);
+	//real life saver ((inten * lightColor ) - (inten * skyColor) * (lightColor) )                                                            doesnt add color it adds brightness         the number we take needs to be pos
+	//																																				adds specular part
+	return (diffuseColor *  ( (skyColor + diffuse) *     ((inten * lightColor ) - (inten * skyColor)) + (skyColor + (ambient)  ) ) + specularColor * specular * inten) * (skyColor);
 }
 
 void main()
 {
 	//colours seem to blend well, just have problems instancing objects and lights
 	// outputs final color
-
-	//spotlight is broken
-	//FragColor = spotLight();
-
+	switch (ShaderNumber){
+	case 0:
+	FragColor = unShaded();
+	break;
+	case 1:
+	//spotlight is mostly working
+	FragColor = spotLight();
+	break;
+	case 2:
 	//works perfect
 	FragColor = direcLight();
-
-	//FragColor = unShaded();
-
+	break;
+	case 3:
 	//semi broken and needs controls to move light location
-	//FragColor = pointLight();
+	FragColor = pointLight();
+	break;
+	}
 }
