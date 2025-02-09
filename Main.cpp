@@ -469,16 +469,6 @@ int main()
 		model3.Draw(shaderProgram, camera);
 		model4.Draw(shaderProgram, camera);
 
-		//2025 REWORK THESE PLEASE
-		//i added these
-		//transform light but not model
-		glm::int8 ShaderNumber = glm::int8(ShaderNum);
-		glm::vec4 lightColor = glm::vec4(lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
-		glm::vec3 InnerLight = glm::vec3(ConeSI[1] - ConeSI[0], ConeSI[1], ConeSI[2]);
-		glm::vec3 spotLightRot = glm::vec3(ConeRot[0], ConeRot[1], ConeRot[2]);
-		glm::vec4 skyColor = glm::vec4(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
-		glm::int8 doReflect = glm::int8(doReflections);
-
 		glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
 		glm::mat4 lightModel = glm::mat4(1.0f);
 		lightModel = glm::translate(lightModel, lightPos);
@@ -487,17 +477,17 @@ int main()
 		//activate shader program
 		shaderProgram.Activate();
 		//i wrote 
-		glUniform1i(glGetUniformLocation(shaderProgram.ID, "ShaderNumber"), ShaderNumber);
-		glUniform1i(glGetUniformLocation(shaderProgram.ID, "doReflect"), doReflect);
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "InnerLight1"), InnerLight.x, InnerLight.y, InnerLight.z);
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "spotLightRot"), spotLightRot.x, spotLightRot.y, spotLightRot.z);
-		glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyColor.x, skyColor.y, skyColor.z, skyColor.w);
+		glUniform1i(glGetUniformLocation(shaderProgram.ID, "ShaderNumber"), ShaderNum);
+		glUniform1i(glGetUniformLocation(shaderProgram.ID, "doReflect"), doReflections);
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "InnerLight1"), (ConeSI[1] - ConeSI[0]), ConeSI[1], ConeSI[2]);
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "spotLightRot"), ConeRot[0], ConeRot[1], ConeRot[2]);
+		glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
 
 		//glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 		//update light color seprate from the model
-		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 		// update light pos
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), LightTransform1[0], LightTransform1[1], LightTransform1[2]);
 
 		camera.Matrix(shaderProgram, "camMatrix");
 
