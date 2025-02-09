@@ -487,17 +487,17 @@ int main()
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "spotLightRot"), spotLightRot.x, spotLightRot.y, spotLightRot.z);
 		glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyColor.x, skyColor.y, skyColor.z, skyColor.w);
 
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+		//glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 		//update light color seprate from the model
 		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		// update light pos
-		//temp glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z); glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), 0, 20, 0);
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z); 
 
-		camera.Matrix(shaderProgram, "camMatrix");
+		//camera.Matrix(shaderProgram, "camMatrix");
 
 		// Render ImGUI elements
         imGuiMAIN(window);
+
 		switch (TempButton) {
 		case 1:
 			camera.Position = glm::vec3(0, 0, 0);
@@ -508,7 +508,6 @@ int main()
 			TempButton = 0;
 			break;
 		}
-
 
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
