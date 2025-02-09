@@ -8,7 +8,7 @@
 		{
 			"name":"Scene",
 			"nodes":[
-				6
+				0
 			]
 		}
 	],
@@ -16,85 +16,10 @@
 		{
 			"mesh":0,
 			"name":"Circle",
-			"rotation":[
-				0,
-				1,
-				0,
-				1.4505657756230285e-14
-			],
 			"scale":[
-				1332.37060546875,
-				1332.3701171875,
-				1332.3701171875
-			],
-			"translation":[
-				0,
-				50.87184524536133,
-				-132.36273193359375
-			]
-		},
-		{
-			"children":[
-				0
-			],
-			"name":"Node_5",
-			"translation":[
-				4.100192070007324,
-				-12.165749549865723,
-				-19.713699340820312
-			]
-		},
-		{
-			"children":[
-				1
-			],
-			"name":"Object001",
-			"rotation":[
-				-0.70710688829422,
-				0,
-				0,
-				0.7071066498756409
-			],
-			"translation":[
-				-4.100192070007324,
-				19.71369743347168,
-				-12.165748596191406
-			]
-		},
-		{
-			"children":[
-				2
-			],
-			"name":"RootNode"
-		},
-		{
-			"children":[
-				3
-			],
-			"name":"Scimitar.fbx",
-			"rotation":[
-				0.70710688829422,
-				0,
-				0,
-				0.7071066498756409
-			]
-		},
-		{
-			"children":[
-				4
-			],
-			"name":"RootNode (model correction matrix)"
-		},
-		{
-			"children":[
-				5
-			],
-			"name":"RootNode (gltf orientation matrix)",
-			"rotation":[
-				-0.70710688829422,
-				0,
-				0,
-				0.7071066498756409
+				1500,
+				1000,
+				1500
 			]
 		}
 	],
@@ -113,7 +38,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Circle",
+			"name":"Circle.002",
 			"primitives":[
 				{
 					"attributes":{
@@ -144,61 +69,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":272,
+			"count":400,
 			"max":[
-				1.0828285217285156,
-				0.19837628304958344,
-				1.0828285217285156
+				1,
+				0.400422066450119,
+				1
 			],
 			"min":[
-				-1.0828285217285156,
-				-5.960464477539063e-08,
-				-1.0828285217285156
+				-1,
+				0,
+				-1
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":272,
+			"count":400,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":272,
+			"count":400,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":768,
+			"count":1344,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":3264,
+			"byteLength":4800,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3264,
-			"byteOffset":3264,
+			"byteLength":4800,
+			"byteOffset":4800,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2176,
-			"byteOffset":6528,
+			"byteLength":3200,
+			"byteOffset":9600,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1536,
-			"byteOffset":8704,
+			"byteLength":2688,
+			"byteOffset":12800,
 			"target":34963
 		}
 	],
@@ -210,7 +135,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":10240,
+			"byteLength":15488,
 			"uri":"scene.bin"
 		}
 	]

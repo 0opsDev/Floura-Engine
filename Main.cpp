@@ -26,7 +26,7 @@ float deltaTime = 0.0f;
 static float timeAccumulator[2] = { 0.0f, 0.0f };
 
 GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }; //currently useless
-GLfloat ConeRot[3] = { 1.0f, -1.0f , 0.0f }; //currently useless
+GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f }; //currently useless
 GLfloat LightTransform1[3] = { 0.0f, 25.0f, 0.0f }; //currently useless
 GLfloat varFOV = 60.0f;
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -369,8 +369,10 @@ int main()
 
 	Model model("Assets/Models/grass3/scene.gltf");
 	Model model2("Assets/Models/wall/scene.gltf");
-	Model model3("Assets/Models/harvy/scene.gltf");
+	Model model3("Assets/Models/vase/vase.gltf");
 	Model model4("Assets/Models/us/scene.gltf");
+	Model model5("Assets/Models/test/test.gltf");
+	Model model6("Assets/Models/test/test2.gltf");
 	//Model model3("Assets/Models/harvy/scene.gltf");
 	//icon creation
 	int iconW, iconH;
@@ -418,11 +420,11 @@ int main()
 			//run if after .16 second
 			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS)
 			{
-				cameraSettins[0] += 0.2f;
+				cameraSettins[0] += 0.4f;
 			}
 			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS)
 			{
-				cameraSettins[0] -= 0.2f;
+				cameraSettins[0] -= 0.4f;
 			}
 			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
 			{
@@ -468,6 +470,8 @@ int main()
 		model2.Draw(shaderProgram, camera);
 		model3.Draw(shaderProgram, camera);
 		model4.Draw(shaderProgram, camera);
+		model5.Draw(shaderProgram, camera);
+		model6.Draw(shaderProgram, camera);
 
 		glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
 		glm::mat4 lightModel = glm::mat4(1.0f);
@@ -482,8 +486,6 @@ int main()
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "InnerLight1"), (ConeSI[1] - ConeSI[0]), ConeSI[1], ConeSI[2]);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "spotLightRot"), ConeRot[0], ConeRot[1], ConeRot[2]);
 		glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
-
-		//glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 		//update light color seprate from the model
 		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 		// update light pos

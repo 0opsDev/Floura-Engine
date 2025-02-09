@@ -71,11 +71,11 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {
-        speed = (5.0f + scrollSpeed);
+        speed = (10.0f + scrollSpeed);
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
     {
-        speed = (2.0f + scrollSpeed);
+        speed = (5.0f + scrollSpeed);
     }
     if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
     {
