@@ -192,6 +192,13 @@ void imGuiMAIN(GLFWwindow* window) {
 
 			setVSync(doVsync);
 		}
+		if(ImGui::SmallButton("Enable Culling")) {
+			glEnable(GL_CULL_FACE);
+		}
+		if(ImGui::SmallButton("Disable Culling")) {
+			glDisable(GL_CULL_FACE);
+		}
+
 		ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour);
 		ImGui::DragInt("Shader Number (Frag)", &ShaderNum);
 		ImGui::End();
@@ -348,7 +355,7 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	//need to do more research into this one
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	//INITIALIZE CAMERA
 	// camera ratio and pos
@@ -492,7 +499,7 @@ int main()
 		// update light pos
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
-		//camera.Matrix(shaderProgram, "camMatrix");
+		camera.Matrix(shaderProgram, "camMatrix");
 
 		// Render ImGUI elements
 		imGuiMAIN(window);
