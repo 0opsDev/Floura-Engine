@@ -12,9 +12,13 @@ Model::Model(const char* file)
 	Model::file = file;
 	data = getData();
 
-	// Traverse all nodes
-	traverseNode(0);
+	// Traverse all root nodes
+	for (unsigned int i = 0; i < JSON["scenes"][0]["nodes"].size(); i++)
+	{
+		traverseNode(JSON["scenes"][0]["nodes"][i]);
+	}
 }
+
 
 void Model::Draw(Shader& shader, Camera& camera)
 {
@@ -33,6 +37,9 @@ void Model::loadMesh(unsigned int indMesh)
 	unsigned int texAccInd = JSON["meshes"][indMesh]["primitives"][0]["attributes"]["TEXCOORD_0"];
 	unsigned int indAccInd = JSON["meshes"][indMesh]["primitives"][0]["indices"];
 
+	// Debug output for mesh
+	std::cout << "Loading mesh: " << indMesh << std::endl;
+
 	// Use accessor indices to get all vertices components
 	std::vector<float> posVec = getFloats(JSON["accessors"][posAccInd]);
 	std::vector<glm::vec3> positions = groupFloatsVec3(posVec);
@@ -50,10 +57,14 @@ void Model::loadMesh(unsigned int indMesh)
 	meshes.push_back(Mesh(vertices, indices, textures));
 }
 
+
 void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 {
 	// Current node
 	json node = JSON["nodes"][nextNode];
+
+	// Debug output for node
+	std::cout << "Processing node: " << nextNode << std::endl;
 
 	// Get translation if it exists
 	glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -112,6 +123,7 @@ void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 	// Check if the node contains a mesh and if it does load it
 	if (node.find("mesh") != node.end())
 	{
+		std::cout << "Loading mesh: " << node["mesh"] << std::endl;
 		translationsMeshes.push_back(translation);
 		rotationsMeshes.push_back(rotation);
 		scalesMeshes.push_back(scale);
@@ -127,6 +139,8 @@ void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 			traverseNode(node["children"][i], matNextNode);
 	}
 }
+
+
 
 std::vector<unsigned char> Model::getData()
 {

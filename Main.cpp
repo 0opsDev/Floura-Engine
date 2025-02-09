@@ -31,7 +31,7 @@ GLfloat LightTransform1[3] = { 0.0f, 25.0f, 0.0f }; //currently useless
 GLfloat varFOV = 60.0f;
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-GLfloat CameraXYZ[3] = { 0.0f, 0.0f, 50.0f };
+GLfloat CameraXYZ[3] = { 0.0f, 5.0f, 0.0f };
 //FOV , near, far
 float cameraSettins[3] = { 60.0f, 0.1f, 1000.0f };
 bool doVsync = false;
@@ -360,6 +360,7 @@ int main()
 	//INITIALIZE CAMERA
 	// camera ratio and pos
 	Camera camera(screenArea[0], screenArea[1], glm::vec3(0.0f, 0.0f, 50.0f));
+	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
 
 	//load the model //modelS
 	//Model model("Assets/Models/test2/scene.glb");
@@ -369,7 +370,7 @@ int main()
 
 	Model model("Assets/Models/grass3/scene.gltf");
 	Model model2("Assets/Models/wall/scene.gltf");
-	Model model3("Assets/Models/vase/vase.gltf");
+	Model model3("Assets/Models/vase/vase2.gltf");
 	Model model4("Assets/Models/us/scene.gltf");
 	Model model5("Assets/Models/test/test.gltf");
 	Model model6("Assets/Models/test/test2.gltf");
