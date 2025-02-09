@@ -15,10 +15,9 @@
 
 // W+H
 //FALLBACK
-unsigned int screenArea[2] = { 800, 600  };
+unsigned int screenArea[2] = { 800, 600 };
 int screenAreaI[2] = { screenArea[0], screenArea[1] };
 int frameRateI = 0;
-//https://discord.gg/fd6REHgBus
 
 // Initialize previous time and delta time
 float lastFrameTime = 0.0f;
@@ -39,7 +38,7 @@ bool doVsync = false;
 bool clearColour = false;
 int doReflections = 1;
 //Render, Camera, Light
-bool Panels[3] = {true, true, true};
+bool Panels[3] = { true, true, true };
 int TempButton = 0;
 int ShaderNum = 1;
 std::string framerate;
@@ -48,7 +47,7 @@ const char* igSettings[] =
 {
 	"Settings Window" , "Vsync", "FOV",
 	"Reset Camera",
-	"sky RGBA", "light RGBA", "Camera Transform", 
+	"sky RGBA", "light RGBA", "Camera Transform",
 	"Near and Far Plane"
 };
 const char* igTex[] =
@@ -158,127 +157,127 @@ void initializeImGui(GLFWwindow* window) {
 	ImGui_ImplOpenGL3_Init("#version 330");
 }
 
-void imGuiMAIN(GLFWwindow* window){
+void imGuiMAIN(GLFWwindow* window) {
 	// ImGUI window creation
-ImGui::Begin(igSettings[0]);
-ImGui::Text(igTex[0]);
-ImGui::Text(framerate.c_str());
-//load settings button
-if (ImGui::SmallButton("load")) {
-	loadSettings();
-}
-//ImGui::Checkbox("save changes?", &save);
-ImGui::Checkbox("Rendering Panel", &Panels[0]);
-ImGui::Checkbox("Camera Panel", &Panels[1]);
-ImGui::Checkbox("Lighting Panel", &Panels[2]);
-// Ends the window
-ImGui::End();
-//Rendering panel
-if (Panels[0]) {
-	ImGui::Begin(igTex[1]);
-
-	ImGui::Checkbox(igSettings[1], &doVsync);
-	//rendering
-	//do vsync
-	//screen res
-	ImGui::DragInt("Width", &screenAreaI[0]);
-	ImGui::DragInt("Height", &screenAreaI[1]);
-	//apply button
-	if (ImGui::SmallButton("Apply Changes?")) {
-
-		screenArea[0] = screenAreaI[0];
-		screenArea[1] = screenAreaI[1];
-		glViewport(0, 0, screenArea[0], screenArea[1]);
-		glfwSetWindowSize(window, screenArea[0], screenArea[1]);
-
-		setVSync(doVsync);
+	ImGui::Begin(igSettings[0]);
+	ImGui::Text(igTex[0]);
+	ImGui::Text(framerate.c_str());
+	//load settings button
+	if (ImGui::SmallButton("load")) {
+		loadSettings();
 	}
-	ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour);
-	ImGui::DragInt("Shader Number (Frag)", &ShaderNum);
+	//ImGui::Checkbox("save changes?", &save);
+	ImGui::Checkbox("Rendering Panel", &Panels[0]);
+	ImGui::Checkbox("Camera Panel", &Panels[1]);
+	ImGui::Checkbox("Lighting Panel", &Panels[2]);
+	// Ends the window
 	ImGui::End();
-}
-//Camera panel
-if (Panels[1]) {
+	//Rendering panel
+	if (Panels[0]) {
+		ImGui::Begin(igTex[1]);
 
-	ImGui::Begin(igTex[5]);
+		ImGui::Checkbox(igSettings[1], &doVsync);
+		//rendering
+		//do vsync
+		//screen res
+		ImGui::DragInt("Width", &screenAreaI[0]);
+		ImGui::DragInt("Height", &screenAreaI[1]);
+		//apply button
+		if (ImGui::SmallButton("Apply Changes?")) {
 
-	//Vsync
-	//ImGui::Checkbox(igSettings[1], &doVsync);
-	//FOV
-	ImGui::SliderFloat(igSettings[2], &cameraSettins[0], 0.1f, 160.0f);
-	ImGui::DragFloat2(igSettings[7], &cameraSettins[1], cameraSettins[2]);
+			screenArea[0] = screenAreaI[0];
+			screenArea[1] = screenAreaI[1];
+			glViewport(0, 0, screenArea[0], screenArea[1]);
+			glfwSetWindowSize(window, screenArea[0], screenArea[1]);
 
-	//reset camera pos
-	ImGui::Text(igTex[2]);
-	if (ImGui::SmallButton(igSettings[3])) {
-		TempButton = 1;
+			setVSync(doVsync);
+		}
+		ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour);
+		ImGui::DragInt("Shader Number (Frag)", &ShaderNum);
+		ImGui::End();
 	}
-	//set cam pos
-	ImGui::DragFloat3(igSettings[6], CameraXYZ);
-	if (ImGui::SmallButton("Set")) {
-		TempButton = 2;
+	//Camera panel
+	if (Panels[1]) {
+
+		ImGui::Begin(igTex[5]);
+
+		//Vsync
+		//ImGui::Checkbox(igSettings[1], &doVsync);
+		//FOV
+		ImGui::SliderFloat(igSettings[2], &cameraSettins[0], 0.1f, 160.0f);
+		ImGui::DragFloat2(igSettings[7], &cameraSettins[1], cameraSettins[2]);
+
+		//reset camera pos
+		ImGui::Text(igTex[2]);
+		if (ImGui::SmallButton(igSettings[3])) {
+			TempButton = 1;
+		}
+		//set cam pos
+		ImGui::DragFloat3(igSettings[6], CameraXYZ);
+		if (ImGui::SmallButton("Set")) {
+			TempButton = 2;
+		}
+		ImGui::End();
 	}
-	ImGui::End();
-}
-//Lighting panel
-if (Panels[2]) {
-	ImGui::Begin(igTex[3]);
-	
-	switch (ShaderNum) {
-	case 0: //us
-		ImGui::Text("UnShaded");
-		ImGui::Text(igTex[3]);
-		//sky
-		ImGui::ColorEdit4(igSettings[4], skyRGBA);
-		//doReflections
-		ImGui::SliderInt("doReflections", &doReflections, 0, 1);
-			
-		break;
-	case 1: //spot
-		ImGui::Text("Spot Light");
-		ImGui::DragFloat3("Light Transform", LightTransform1);
-		ImGui::Text(igTex[3]);
-		ImGui::Text(igTex[4]);
-		//sky and light
-		ImGui::ColorEdit4(igSettings[4], skyRGBA);
-		ImGui::ColorEdit4(igSettings[5], lightRGBA);
-		ImGui::DragFloat("light I", &ConeSI[2]);
-		ImGui::Text("cone size");
-		ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
-		ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
-		ImGui::Text("Light Angle");
-		ImGui::DragFloat3("Cone Angle", ConeRot);
-		break;
-	case 2: //dir light
-		ImGui::Text("Direct Light");
-		ImGui::Text(igTex[3]);
-		ImGui::Text(igTex[4]);
-		//sky and light
-		ImGui::ColorEdit4(igSettings[4], skyRGBA);
-		ImGui::DragFloat("light I", &ConeSI[2]);
-		ImGui::Text("Light Angle");
-		ImGui::DragFloat3("Cone Angle", ConeRot);
-		break;
-	case 3:
-		ImGui::Text("Point Light (BROKE)");
-		ImGui::DragFloat3("Light Transform", LightTransform1);
-		ImGui::Text(igTex[3]);
-		ImGui::Text(igTex[4]);
-		//sky and light
-		ImGui::ColorEdit4(igSettings[4], skyRGBA);
-		ImGui::ColorEdit4(igSettings[5], lightRGBA);
-		ImGui::DragFloat("light I", &ConeSI[2]);
-		ImGui::Text("cone size");
-		ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
-		ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
-		ImGui::Text("Light Angle");
-		ImGui::DragFloat3("Cone Angle", ConeRot);
-		break;
+	//Lighting panel
+	if (Panels[2]) {
+		ImGui::Begin(igTex[3]);
+
+		switch (ShaderNum) {
+		case 0: //us
+			ImGui::Text("UnShaded");
+			ImGui::Text(igTex[3]);
+			//sky
+			ImGui::ColorEdit4(igSettings[4], skyRGBA);
+			//doReflections
+			ImGui::SliderInt("doReflections", &doReflections, 0, 1);
+
+			break;
+		case 1: //spot
+			ImGui::Text("Spot Light");
+			ImGui::DragFloat3("Light Transform", LightTransform1);
+			ImGui::Text(igTex[3]);
+			ImGui::Text(igTex[4]);
+			//sky and light
+			ImGui::ColorEdit4(igSettings[4], skyRGBA);
+			ImGui::ColorEdit4(igSettings[5], lightRGBA);
+			ImGui::DragFloat("light I", &ConeSI[2]);
+			ImGui::Text("cone size");
+			ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
+			ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
+			ImGui::Text("Light Angle");
+			ImGui::DragFloat3("Cone Angle", ConeRot);
+			break;
+		case 2: //dir light
+			ImGui::Text("Direct Light");
+			ImGui::Text(igTex[3]);
+			ImGui::Text(igTex[4]);
+			//sky and light
+			ImGui::ColorEdit4(igSettings[4], skyRGBA);
+			ImGui::DragFloat("light I", &ConeSI[2]);
+			ImGui::Text("Light Angle");
+			ImGui::DragFloat3("Cone Angle", ConeRot);
+			break;
+		case 3:
+			ImGui::Text("Point Light (BROKE)");
+			ImGui::DragFloat3("Light Transform", LightTransform1);
+			ImGui::Text(igTex[3]);
+			ImGui::Text(igTex[4]);
+			//sky and light
+			ImGui::ColorEdit4(igSettings[4], skyRGBA);
+			ImGui::ColorEdit4(igSettings[5], lightRGBA);
+			ImGui::DragFloat("light I", &ConeSI[2]);
+			ImGui::Text("cone size");
+			ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
+			ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
+			ImGui::Text("Light Angle");
+			ImGui::DragFloat3("Cone Angle", ConeRot);
+			break;
+		}
+		ImGui::End();
 	}
-	ImGui::End();
-}
-// Renders the ImGUI elements
-ImGui::Render();
+	// Renders the ImGUI elements
+	ImGui::Render();
 }
 
 
@@ -312,8 +311,8 @@ int main()
 	screenArea[1] = videoMode->height;
 	// Print the resolution
 
-    // Now call glfwGetMonitorPos with correct arguments
-    glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screenAreaI[0], &screenAreaI[1]);
+	// Now call glfwGetMonitorPos with correct arguments
+	glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screenAreaI[0], &screenAreaI[1]);
 	loadSettings();
 	//size, name, fullscreen
 	//create window
@@ -331,7 +330,7 @@ int main()
 
 	//load open gl config
 	gladLoadGL();
-	
+
 	//area of open gl we want to render in
 	//screen assignment after fallback
 	glViewport(0, 0, screenArea[0], screenArea[1]);
@@ -357,9 +356,9 @@ int main()
 
 	//load the model //modelS
 	//Model model("Assets/Models/test2/scene.glb");
-	
+
 	//texture loading problems
-	
+
 
 	Model model("Assets/Models/grass3/scene.gltf");
 	Model model2("Assets/Models/wall/scene.gltf");
@@ -398,18 +397,18 @@ int main()
 		//framerate tracking
 		frameRateI = 1.0f / deltaTime;
 
-            timeAccumulator[0] += deltaTime;
-			//1hz
-            if (timeAccumulator[0] >= 1.0f) {
-                //run if after 1 second
-                framerate = "FPS " + std::to_string(frameRateI);
-                timeAccumulator[0] = 0.0f;
-            }
-            
+		timeAccumulator[0] += deltaTime;
+		//1hz
+		if (timeAccumulator[0] >= 1.0f) {
+			//run if after 1 second
+			framerate = "FPS " + std::to_string(frameRateI);
+			timeAccumulator[0] = 0.0f;
+		}
+
 		timeAccumulator[1] += deltaTime;
-			//60hz
+		//60hz
 		if (timeAccumulator[1] >= 0.016f) {
-				//run if after .16 second
+			//run if after .16 second
 			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS)
 			{
 				cameraSettins[0] += 0.2f;
@@ -449,7 +448,7 @@ int main()
 			glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
-		
+
 		//inputs
 
 		camera.Inputs(window, deltaTime);
@@ -491,12 +490,12 @@ int main()
 		//update light color seprate from the model
 		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		// update light pos
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z); 
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 		//camera.Matrix(shaderProgram, "camMatrix");
 
 		// Render ImGUI elements
-        imGuiMAIN(window);
+		imGuiMAIN(window);
 
 		switch (TempButton) {
 		case 1:
