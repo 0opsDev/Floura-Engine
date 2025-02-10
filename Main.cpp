@@ -237,7 +237,7 @@ void imGuiMAIN(GLFWwindow* window) {
 			//sky
 			ImGui::ColorEdit4(igSettings[4], skyRGBA);
 			//doReflections
-			ImGui::SliderInt("doReflections", &doReflections, 0, 1);
+			ImGui::SliderInt("doReflections", &doReflections, 0, 2);
 
 			break;
 		case 1: //spot
@@ -366,15 +366,17 @@ int main()
 	//Model model("Assets/Models/test2/scene.glb");
 
 	//texture loading problems
+	Model Sky("Assets/Models/us/scene.gltf");
 
+	Model Map1("Assets/Models/Map/grass.gltf");
+	Model Map2("Assets/Models/Map/wall.gltf");
+	Model Map3 ("Assets/Models/Map/water.gltf");
 
-	Model model("Assets/Models/grass3/scene.gltf");
-	Model model2("Assets/Models/wall/scene.gltf");
-	Model model3("Assets/Models/vase/vase2.gltf");
-	Model model4("Assets/Models/us/scene.gltf");
-	Model model5("Assets/Models/test/test.gltf");
-	Model model6("Assets/Models/test/test2.gltf");
-	//Model model3("Assets/Models/harvy/scene.gltf");
+	//Model model2("Assets/Models/wall/scene.gltf");
+	Model model3("Assets/Models/vase/vase.gltf");
+
+	
+	//Model model5("Assets/Models/test/test.gltf");
 	//icon creation
 	int iconW, iconH;
 	int iconChannels;
@@ -466,13 +468,16 @@ int main()
 		//camera fov, near and far plane
 		camera.updateMatrix(cameraSettins[0], cameraSettins[1], cameraSettins[2]);
 
+		Sky.Draw(shaderProgram, camera);
 		//draws the model to the screen
-		model.Draw(shaderProgram, camera);
-		model2.Draw(shaderProgram, camera);
+		Map1.Draw(shaderProgram, camera);
+		Map2.Draw(shaderProgram, camera);
+		Map3.Draw(shaderProgram, camera);
+		//model2.Draw(shaderProgram, camera);
 		model3.Draw(shaderProgram, camera);
-		model4.Draw(shaderProgram, camera);
-		model5.Draw(shaderProgram, camera);
-		model6.Draw(shaderProgram, camera);
+		
+		//model5.Draw(shaderProgram, camera);
+		//model6.Draw(shaderProgram, camera);
 
 		glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
 		glm::mat4 lightModel = glm::mat4(1.0f);

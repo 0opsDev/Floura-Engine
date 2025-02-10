@@ -55,22 +55,22 @@ void Mesh::Draw
 
     for (unsigned int i = 0; i < textures.size(); i++)
     {
+        //std::cout << "58 - SHAD" << std::endl;
         std::string num;
         std::string type = textures[i].type;
         if (type == "diffuse")
         {
             num = std::to_string(numDiffuse++);
-            //std::cout << "mesh.cpp - Diffuse texture: " << num << std::endl;
+            //std::cout << "diffuse - mesh" << std::endl;
         }
         else if (type == "specular") {
             num = std::to_string(numSpecular++);
-            //std::cout << "mesh.cpp - Specular texture: " << num << std::endl;
+            //std::cout << "specular - mesh" << std::endl;
         }
         else if (type == "unshaded") {
             num = std::to_string(numUnshaded++);
-            //std::cout << "mesh.cpp - Unshaded texture: " << num << std::endl;
+            //std::cout << "isUnshaded - mesh" << std::endl;
         }
-
         textures[i].texUnit(shader, (type + num).c_str(), i);
         textures[i].Bind();
 
@@ -83,7 +83,6 @@ void Mesh::Draw
     camera.Matrix(shader, "camMatrix");
 
     // Initialize matrix
-
     glm::mat4 trans = glm::mat4(1.0f);
     glm::mat4 rot = glm::mat4(1.0f);
     glm::mat4 sca = glm::mat4(1.0f);
@@ -102,4 +101,5 @@ void Mesh::Draw
     // Draw the mesh to the buffer
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
+
 

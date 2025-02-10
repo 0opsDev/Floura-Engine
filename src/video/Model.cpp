@@ -199,7 +199,7 @@ std::vector<GLuint> Model::getIndices(json accessor)
 	std::vector<GLuint> indices;
 	std::cout << "		L184 - Model.cpp" << std::endl;
 	std::cout << "getIndices / initialization - model.cpp" << std::endl;
-	
+
 
 	// Get properties from the accessor
 	unsigned int buffViewInd = accessor.value("bufferView", 0);

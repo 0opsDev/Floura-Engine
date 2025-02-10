@@ -35,6 +35,7 @@ private:
     std::vector<float> getFloats(json accessor);
     std::vector<GLuint> getIndices(json accessor);
     std::vector<Texture> getTextures();
+    std::vector<Texture> getTexturesForMesh(unsigned int indMesh);
 
     std::vector<Vertex> assembleVertices(
         std::vector<glm::vec3> positions,
