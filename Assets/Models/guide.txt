@@ -1,1 +1,5 @@
 can only be gltf (no glb)
+
+(Nodes semi working)
+they dont handle textures well
+so please split nodes with different textures up into different models

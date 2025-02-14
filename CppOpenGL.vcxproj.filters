@@ -166,6 +166,12 @@
     <None Include="Settings\Default.ini">
       <Filter>Resource Files\Text</Filter>
     </None>
+    <None Include="Assets\ModelNames.cfg">
+      <Filter>Resource Files\Models</Filter>
+    </None>
+    <None Include="Assets\ModelPaths.cfg">
+      <Filter>Resource Files\Models</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Settings\Settings.ini">

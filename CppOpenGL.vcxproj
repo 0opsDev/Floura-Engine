@@ -186,6 +186,8 @@
     <ClInclude Include="src\video\VBO.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\ModelNames.cfg" />
+    <None Include="Assets\ModelPaths.cfg" />
     <None Include="Assets\Models\sword\scene.bin" />
     <None Include="Settings\Default.ini" />
     <None Include="Shaders\Default.frag" />

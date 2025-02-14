@@ -3,8 +3,10 @@
 #include <fstream>
 #include <stdexcept>
 #include <iostream>
+#include <vector>
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
+
 // these two where const
 // 
 // 
@@ -25,9 +27,9 @@ float deltaTime = 0.0f;
 // 1hz 60hz
 static float timeAccumulator[2] = { 0.0f, 0.0f };
 
-GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }; //currently useless
-GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f }; //currently useless
-GLfloat LightTransform1[3] = { 0.0f, 25.0f, 0.0f }; //currently useless
+GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }; 
+GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f }; 
+GLfloat LightTransform1[3] = { 0.0f, 25.0f, 0.0f }; 
 GLfloat varFOV = 60.0f;
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -38,23 +40,45 @@ bool doVsync = false;
 bool clearColour = false;
 int doReflections = 1;
 //Render, Camera, Light
-bool Panels[3] = { true, true, true };
+bool Panels[4] = { true, true, true, true };
 int TempButton = 0;
 int ShaderNum = 1;
 std::string framerate;
 
-const char* igSettings[] =
-{
-	"Settings Window" , "Vsync", "FOV",
-	"Reset Camera",
-	"sky RGBA", "light RGBA", "Camera Transform",
-	"Near and Far Plane"
-};
-const char* igTex[] =
-{
-	"Settings (Press escape to use mouse)" , "Rendering",
-	"Transform", "Lighting", "Light color and intens", "Camera Settings"
-};
+// Function to read lines from a file into a vector of strings
+std::vector<std::string> readLinesFromFile(const std::string& filePath) {
+	std::vector<std::string> lines;
+	std::ifstream file(filePath);
+	if (file.is_open()) {
+		std::string line;
+		while (std::getline(file, line)) {
+			lines.push_back(line);
+		}
+		file.close();
+	}
+	else {
+		std::cerr << "Failed to open file: " << filePath << std::endl;
+	}
+	return lines;
+}
+
+// Function to load models from files
+std::vector<Model> loadModels(const std::string& namesFilePath, const std::string& pathsFilePath) {
+	std::vector<std::string> modelNames = readLinesFromFile(namesFilePath);
+	std::vector<std::string> modelPaths = readLinesFromFile(pathsFilePath);
+
+	if (modelNames.size() != modelPaths.size()) {
+		throw std::runtime_error("Model names and paths count mismatch");
+	}
+
+	std::vector<Model> models;
+	for (size_t i = 0; i < modelNames.size(); ++i) {
+		models.emplace_back(modelPaths[i].c_str());
+		std::cout << "Loaded model: " << modelNames[i] << " from path: " << modelPaths[i] << std::endl;
+	}
+	return models;
+}
+
 
 void setVSync(bool enabled) {
 	glfwSwapInterval(enabled ? 1 : 0);
@@ -159,9 +183,8 @@ void initializeImGui(GLFWwindow* window) {
 
 void imGuiMAIN(GLFWwindow* window) {
 	// ImGUI window creation
-	ImGui::Begin(igSettings[0]);
-	ImGui::Text(igTex[0]);
-	ImGui::Text(framerate.c_str());
+	ImGui::Begin("Settings");
+	ImGui::Text("Settings (Press escape to use mouse)");
 	//load settings button
 	if (ImGui::SmallButton("load")) {
 		loadSettings();
@@ -170,13 +193,14 @@ void imGuiMAIN(GLFWwindow* window) {
 	ImGui::Checkbox("Rendering Panel", &Panels[0]);
 	ImGui::Checkbox("Camera Panel", &Panels[1]);
 	ImGui::Checkbox("Lighting Panel", &Panels[2]);
+	ImGui::Checkbox("Preformance Profiler", &Panels[3]);
 	// Ends the window
 	ImGui::End();
 	//Rendering panel
 	if (Panels[0]) {
-		ImGui::Begin(igTex[1]);
+		ImGui::Begin("Rendering");
 
-		ImGui::Checkbox(igSettings[1], &doVsync);
+		ImGui::Checkbox("Vsync", &doVsync);
 		//rendering
 		//do vsync
 		//screen res
@@ -206,21 +230,21 @@ void imGuiMAIN(GLFWwindow* window) {
 	//Camera panel
 	if (Panels[1]) {
 
-		ImGui::Begin(igTex[5]);
+		ImGui::Begin("Camera Settings");
 
 		//Vsync
 		//ImGui::Checkbox(igSettings[1], &doVsync);
 		//FOV
-		ImGui::SliderFloat(igSettings[2], &cameraSettins[0], 0.1f, 160.0f);
-		ImGui::DragFloat2(igSettings[7], &cameraSettins[1], cameraSettins[2]);
+		ImGui::SliderFloat("FOV", &cameraSettins[0], 0.1f, 160.0f);
+		ImGui::DragFloat2("Near and Far Plane", &cameraSettins[1], cameraSettins[2]);
 
 		//reset camera pos
-		ImGui::Text(igTex[2]);
-		if (ImGui::SmallButton(igSettings[3])) {
+		ImGui::Text("Transform");
+		if (ImGui::SmallButton("Reset Camera")) {
 			TempButton = 1;
 		}
 		//set cam pos
-		ImGui::DragFloat3(igSettings[6], CameraXYZ);
+		ImGui::DragFloat3("Camera Transform", CameraXYZ);
 		if (ImGui::SmallButton("Set")) {
 			TempButton = 2;
 		}
@@ -228,14 +252,14 @@ void imGuiMAIN(GLFWwindow* window) {
 	}
 	//Lighting panel
 	if (Panels[2]) {
-		ImGui::Begin(igTex[3]);
+		ImGui::Begin("Lighting");
 
 		switch (ShaderNum) {
 		case 0: //us
 			ImGui::Text("UnShaded");
-			ImGui::Text(igTex[3]);
+			ImGui::Text("Lighting");
 			//sky
-			ImGui::ColorEdit4(igSettings[4], skyRGBA);
+			ImGui::ColorEdit4("sky RGBA", skyRGBA);
 			//doReflections
 			ImGui::SliderInt("doReflections", &doReflections, 0, 2);
 
@@ -243,11 +267,11 @@ void imGuiMAIN(GLFWwindow* window) {
 		case 1: //spot
 			ImGui::Text("Spot Light");
 			ImGui::DragFloat3("Light Transform", LightTransform1);
-			ImGui::Text(igTex[3]);
-			ImGui::Text(igTex[4]);
+			ImGui::Text("Lighting");
+			ImGui::Text("Light color and intens");
 			//sky and light
-			ImGui::ColorEdit4(igSettings[4], skyRGBA);
-			ImGui::ColorEdit4(igSettings[5], lightRGBA);
+			ImGui::ColorEdit4("sky RGBA", skyRGBA);
+			ImGui::ColorEdit4("light RGBA", lightRGBA);
 			ImGui::DragFloat("light I", &ConeSI[2]);
 			ImGui::Text("cone size");
 			ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
@@ -257,10 +281,10 @@ void imGuiMAIN(GLFWwindow* window) {
 			break;
 		case 2: //dir light
 			ImGui::Text("Direct Light");
-			ImGui::Text(igTex[3]);
-			ImGui::Text(igTex[4]);
+			ImGui::Text("Lighting");
+			ImGui::Text("Light color and intens");
 			//sky and light
-			ImGui::ColorEdit4(igSettings[4], skyRGBA);
+			ImGui::ColorEdit4("sky RGBA", skyRGBA);
 			ImGui::DragFloat("light I", &ConeSI[2]);
 			ImGui::Text("Light Angle");
 			ImGui::DragFloat3("Cone Angle", ConeRot);
@@ -268,11 +292,11 @@ void imGuiMAIN(GLFWwindow* window) {
 		case 3:
 			ImGui::Text("Point Light (BROKE)");
 			ImGui::DragFloat3("Light Transform", LightTransform1);
-			ImGui::Text(igTex[3]);
-			ImGui::Text(igTex[4]);
+			ImGui::Text("Lighting");
+			ImGui::Text("Light color and intens");
 			//sky and light
-			ImGui::ColorEdit4(igSettings[4], skyRGBA);
-			ImGui::ColorEdit4(igSettings[5], lightRGBA);
+			ImGui::ColorEdit4("sky RGBA", skyRGBA);
+			ImGui::ColorEdit4("light RGBA", lightRGBA);
 			ImGui::DragFloat("light I", &ConeSI[2]);
 			ImGui::Text("cone size");
 			ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
@@ -281,6 +305,26 @@ void imGuiMAIN(GLFWwindow* window) {
 			ImGui::DragFloat3("Cone Angle", ConeRot);
 			break;
 		}
+		ImGui::End();
+	}
+	//preformance profiler
+	if (Panels[3]) {
+		ImGui::Begin("Preformance Profiler");
+		// Framerate graph
+		static float framerateValues[90] = { 0 };
+		static int frValues_offset = 0;
+		framerateValues[frValues_offset] = frameRateI;
+		frValues_offset = (frValues_offset + 1) % IM_ARRAYSIZE(framerateValues);
+		ImGui::Text(framerate.c_str());
+		//                                                                                                        current frame rate(PER SEC) + half of current frame rate so the graph has space to display(max graph height
+		ImGui::PlotLines("Framerate (FPS) Graph", framerateValues, IM_ARRAYSIZE(framerateValues), frValues_offset, nullptr, 0.0f, (frameRateI + (frameRateI / 2)), ImVec2(0, 80));
+		// Frame time graph
+		//stores 90 snapshots of frametime
+		static float frameTimeValues[90] = { 0 };
+		static int ftValues_offset = 0;
+		frameTimeValues[ftValues_offset] = deltaTime * 1000.0f; // Convert to milliseconds
+		ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
+		ImGui::PlotLines("Frame Times (ms)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
 		ImGui::End();
 	}
 	// Renders the ImGUI elements
@@ -366,14 +410,9 @@ int main()
 	//Model model("Assets/Models/test2/scene.glb");
 
 	//texture loading problems
-	Model Sky("Assets/Models/us/scene.gltf");
-
-	Model Map1("Assets/Models/Map/grass.gltf");
-	Model Map2("Assets/Models/Map/wall.gltf");
-	Model Map3 ("Assets/Models/Map/water.gltf");
-
-	//Model model2("Assets/Models/wall/scene.gltf");
-	Model model3("Assets/Models/vase/vase.gltf");
+	// Load models from files
+	std::vector<Model> models = loadModels("Assets/ModelNames.cfg", "Assets/ModelPaths.cfg");
+	
 
 	
 	//Model model5("Assets/Models/test/test.gltf");
@@ -468,16 +507,11 @@ int main()
 		//camera fov, near and far plane
 		camera.updateMatrix(cameraSettins[0], cameraSettins[1], cameraSettins[2]);
 
-		Sky.Draw(shaderProgram, camera);
-		//draws the model to the screen
-		Map1.Draw(shaderProgram, camera);
-		Map2.Draw(shaderProgram, camera);
-		Map3.Draw(shaderProgram, camera);
-		//model2.Draw(shaderProgram, camera);
-		model3.Draw(shaderProgram, camera);
-		
-		//model5.Draw(shaderProgram, camera);
-		//model6.Draw(shaderProgram, camera);
+
+		//draw the model
+		for (Model& model : models) {
+			model.Draw(shaderProgram, camera);
+		}
 
 		glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
 		glm::mat4 lightModel = glm::mat4(1.0f);
