@@ -42,12 +42,16 @@ int doReflections = 1;
 int doFog = 1;
 //Render, Camera, Light
 bool Panels[4] = { true, true, true, true };
+bool CapFps = false;
 int TempButton = 0;
 int ShaderNum = 1;
 std::string framerate;
+float CapNum = 60;
 float ftDif;
 std::string mapName = "";
-//Shader shaderProgram("Shaders/Default.vert", "Shaders/Default.frag");
+bool isFullscreen = false;
+int windowedPosX, windowedPosY, windowedWidth, windowedHeight;
+bool checkboxVar[1] = { false };
 
 // Function to read lines from a file into a vector of strings
 std::vector<std::string> readLinesFromFile(const std::string& filePath) {
@@ -189,6 +193,7 @@ void initializeGLFW() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, 1);
 	glfwWindowHint(GLFW_MAXIMIZED, 1);
+	glfwWindowHint(GLFW_DEPTH_BITS, 16);
 }
 
 void initializeImGui(GLFWwindow* window) {
@@ -199,8 +204,26 @@ void initializeImGui(GLFWwindow* window) {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 }
+void toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor) {
+	isFullscreen = !isFullscreen;
+	if (isFullscreen) {
+		// Save windowed mode dimensions and position
+		glfwGetWindowPos(window, &windowedPosX, &windowedPosY);
+		glfwGetWindowSize(window, &windowedWidth, &windowedHeight);
 
-void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT) {
+		// Get the video mode of the monitor
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+		// Switch to fullscreen
+		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+	}
+	else {
+		// Switch to windowed mode
+		glfwSetWindowMonitor(window, NULL, windowedPosX, windowedPosY, windowedWidth, windowedHeight, 0);
+	}
+}
+
+void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT) {
 	// ImGUI window creation
 	ImGui::Begin("Settings");
 	ImGui::Text("Settings (Press escape to use mouse)");
@@ -213,15 +236,31 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT) {
 	ImGui::Checkbox("Camera Panel", &Panels[1]);
 	ImGui::Checkbox("Lighting Panel", &Panels[2]);
 	ImGui::Checkbox("Preformance Profiler", &Panels[3]);
+
+	
 	// Ends the window
 	ImGui::End();
 	//Rendering panel
 	if (Panels[0]) {
 		ImGui::Begin("Rendering");
 
+		ImGui::Text("Framerate Limiters");
 		ImGui::Checkbox("Vsync", &doVsync);
+		ImGui::DragFloat("Framerate cap:)", &CapNum, 1);
+		ImGui::Checkbox("cap FPS", &CapFps);
+		switch (CapFps) {
+		case false: {
+		//	glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE); // Uncap the refresh rate
+			break;
+		}
+		case true: {
+		//	glfwWindowHint(GLFW_REFRESH_RATE, CapNum); // Uncap the refresh rate
+			break;
+		}
+
+		}
 		//rendering
-		//do vsync
+		
 		//screen res
 		ImGui::DragInt("Width", &screenAreaI[0]);
 		ImGui::DragInt("Height", &screenAreaI[1]);
@@ -234,6 +273,10 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT) {
 			glfwSetWindowSize(window, screenArea[0], screenArea[1]);
 
 			setVSync(doVsync);
+		}
+		if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)")) {
+
+			toggleFullscreen(window, monitorT);
 		}
 		if(ImGui::SmallButton("Enable Culling")) {
 			glEnable(GL_CULL_FACE);
@@ -404,7 +447,13 @@ int main()
 	loadSettings();
 	//size, name, fullscreen
 	//create window
-	GLFWwindow* window = glfwCreateWindow(screenArea[0], screenArea[1], "Farquhar Engine OPEN GL - 1.3", NULL, NULL);
+	//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
+	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", NULL, NULL);
+	if (!window) {
+		std::cerr << "Failed to create window" << std::endl;
+		glfwTerminate();
+		return -1;
+	}
 
 	//error checking
 	if (window == NULL)
@@ -470,6 +519,7 @@ int main()
 	//makes sure window stays open
 	while (!glfwWindowShouldClose(window))
 	{
+
 		switch (TempButton) {
 		case -1: {
 			switch (ShaderNum)
@@ -605,7 +655,7 @@ int main()
 		camera.Matrix(shaderProgram, "camMatrix");
 
 		// Render ImGUI elements
-		imGuiMAIN(window, shaderProgram);
+		imGuiMAIN(window, shaderProgram, primaryMonitor);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// Swap back buffer with front buffer
