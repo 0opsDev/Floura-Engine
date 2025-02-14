@@ -194,23 +194,9 @@ vec4 spotLight()
 
 void main()
 {
-	//colours seem to blend well, just have problems instancing objects and lights
-	// outputs final color
-	switch (ShaderNumber){
-	case 0:
-	FragColor = unShaded();
-	break;
-	case 1:
-	//spotlight is mostly working
+	//FragColor = unShaded();
 	FragColor = spotLight();
-	break;
-	case 2:
-	//works perfect
-	FragColor = direcLight();
-	break;
-	case 3:
-	//semi broken and needs controls to move light location
-	FragColor = pointLight();
-	break;
-	}
+	//FragColor = direcLight();
+	//FragColor = pointLight();
+	
 }

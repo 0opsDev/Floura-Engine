@@ -1,0 +1,1 @@
+add map folders which hold "models, modelnames, paths"

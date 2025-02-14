@@ -160,17 +160,35 @@
     <None Include="Shaders\Default.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="Assets\Models\sword\scene.bin">
-      <Filter>Resource Files\Models</Filter>
-    </None>
     <None Include="Settings\Default.ini">
       <Filter>Resource Files\Text</Filter>
     </None>
-    <None Include="Assets\ModelNames.cfg">
-      <Filter>Resource Files\Models</Filter>
+    <None Include="Shaders\unShaded.frag">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="Assets\ModelPaths.cfg">
-      <Filter>Resource Files\Models</Filter>
+    <None Include="Shaders\direcLight.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\pointLight.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\spotLight.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Assets\Maps\Default\ModelPaths.cfg">
+      <Filter>Resource Files\Text</Filter>
+    </None>
+    <None Include="Assets\Maps\Default\ModelNames.cfg">
+      <Filter>Resource Files\Text</Filter>
+    </None>
+    <None Include="Shaders\Depth.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Settings\Engine.ini">
+      <Filter>Resource Files\Text</Filter>
+    </None>
+    <None Include="Settings\EngineDefault.ini">
+      <Filter>Resource Files\Text</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

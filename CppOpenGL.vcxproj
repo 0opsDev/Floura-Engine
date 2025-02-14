@@ -186,14 +186,20 @@
     <ClInclude Include="src\video\VBO.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\ModelNames.cfg" />
-    <None Include="Assets\ModelPaths.cfg" />
-    <None Include="Assets\Models\sword\scene.bin" />
+    <None Include="Assets\Maps\Default\ModelNames.cfg" />
+    <None Include="Assets\Maps\Default\ModelPaths.cfg" />
     <None Include="Settings\Default.ini" />
+    <None Include="Settings\Engine.ini" />
+    <None Include="Settings\EngineDefault.ini" />
     <None Include="Shaders\Default.frag" />
     <None Include="Shaders\Default.vert" />
+    <None Include="Shaders\Depth.frag" />
+    <None Include="Shaders\direcLight.frag" />
     <None Include="Shaders\light.frag" />
     <None Include="Shaders\light.vert" />
+    <None Include="Shaders\pointLight.frag" />
+    <None Include="Shaders\spotLight.frag" />
+    <None Include="Shaders\unShaded.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Assets\Textures\Model\notes.txt" />

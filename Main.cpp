@@ -28,22 +28,26 @@ float deltaTime = 0.0f;
 static float timeAccumulator[2] = { 0.0f, 0.0f };
 
 GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }; 
-GLfloat ConeRot[3] = { 0.0f, -1.0f , 0.0f }; 
+GLfloat ConeRot[3] = { 0.0f, -4.0f , 0.0f }; 
 GLfloat LightTransform1[3] = { 0.0f, 25.0f, 0.0f }; 
-GLfloat varFOV = 60.0f;
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat CameraXYZ[3] = { 0.0f, 5.0f, 0.0f };
 //FOV , near, far
 float cameraSettins[3] = { 60.0f, 0.1f, 1000.0f };
 bool doVsync = false;
 bool clearColour = false;
 int doReflections = 1;
+int doFog = 1;
 //Render, Camera, Light
 bool Panels[4] = { true, true, true, true };
 int TempButton = 0;
 int ShaderNum = 1;
 std::string framerate;
+float ftDif;
+std::string mapName = "";
+//Shader shaderProgram("Shaders/Default.vert", "Shaders/Default.frag");
 
 // Function to read lines from a file into a vector of strings
 std::vector<std::string> readLinesFromFile(const std::string& filePath) {
@@ -73,12 +77,11 @@ std::vector<Model> loadModels(const std::string& namesFilePath, const std::strin
 
 	std::vector<Model> models;
 	for (size_t i = 0; i < modelNames.size(); ++i) {
-		models.emplace_back(modelPaths[i].c_str());
-		std::cout << "Loaded model: " << modelNames[i] << " from path: " << modelPaths[i] << std::endl;
+		models.emplace_back((mapName + modelPaths[i]).c_str());
+		std::cout << "Loaded model: " << '"' << modelNames[i] << '"' << " from path: " << modelPaths[i] << std::endl;
 	}
 	return models;
 }
-
 
 void setVSync(bool enabled) {
 	glfwSwapInterval(enabled ? 1 : 0);
@@ -99,44 +102,18 @@ void loadSettings() {
 
 			switch (lineNumber) {
 			case 3:
-				if (iss >> value) skyRGBA[0] = value;
+				if (iss >> value) screenArea[0] = static_cast<unsigned int>(value);
 				break;
 			case 4:
-				if (iss >> value) skyRGBA[1] = value;
+				if (iss >> value) screenArea[1] = static_cast<unsigned int>(value);
 				break;
-			case 5:
-				if (iss >> value) skyRGBA[2] = value;
-				break;
-			case 7:
-				if (iss >> value) lightRGBA[0] = value;
-				break;
-			case 8:
-				if (iss >> value) lightRGBA[1] = value;
-				break;
-			case 9:
-				if (iss >> value) lightRGBA[2] = value;
-				break;
-			case 11:
-				if (iss >> value) screenArea[0] = value;
-				break;
-			case 12:
-				if (iss >> value) screenArea[1] = value;
-				break;
-			case 14:
+			case 6:
 				doVsync = (lineT == "VsyncT");
 				std::cout << "Vsync: " << doVsync << std::endl;
 				break;
-			case 16:
+			case 8:
 				if (iss >> value) cameraSettins[0] = value;
 				std::cout << "Camera FOV: " << cameraSettins[0] << std::endl;
-				break;
-			case 18:
-				if (iss >> value) cameraSettins[1] = value;
-				std::cout << "Camera Near Plane: " << cameraSettins[1] << std::endl;
-				break;
-			case 19:
-				if (iss >> value) cameraSettins[2] = value;
-				std::cout << "Camera Far Plane: " << cameraSettins[2] << std::endl;
 				break;
 			default:
 				break;
@@ -146,22 +123,64 @@ void loadSettings() {
 		}
 		TestFile2.close();
 
-		//array of settings files which determines what line to read on the ini fale
+		std::ifstream TestFile3("Settings/Engine.ini");
+		if (TestFile3.is_open())
+		{
+			lineNumber = 0;
 
-//	std::fstream TestFile;
-//	TestFile.open("Settings/DoDefaultAnimation.txt", std::ios::out);//write
-//	if (TestFile.is_open()) {
-//		if (DoDefaultAnimation) {
-//			TestFile << "true\n";
-//			std::cout << "true\n";
-//		}
-//		else {
-//			TestFile << "false\n";
-//			std::cout << "false\n";
-//		}
-//	}
+			while (std::getline(TestFile3, lineT)) {
+				lineNumber++;
+				std::istringstream iss(lineT);
+				GLfloat value;
+
+				switch (lineNumber) {
+				case 8:
+					if (iss >> value) skyRGBA[0] = value;
+					break;
+				case 9:
+					if (iss >> value) skyRGBA[1] = value;
+					break;
+				case 10:
+					if (iss >> value) skyRGBA[2] = value;
+					break;
+				case 12:
+					if (iss >> value) lightRGBA[0] = value;
+					break;
+				case 13:
+					if (iss >> value) lightRGBA[1] = value;
+					break;
+				case 14:
+					if (iss >> value) lightRGBA[2] = value;
+					break;
+				case 16:
+					if (iss >> value) fogRGBA[0] = value;
+					break;
+				case 17:
+					if (iss >> value) fogRGBA[1] = value;
+					break;
+				case 18:
+					if (iss >> value) fogRGBA[2] = value;
+					break;
+				case 5:
+					if (iss >> value) cameraSettins[1] = value;
+					std::cout << "Camera Near Plane: " << cameraSettins[1] << std::endl;
+					break;
+				case 6:
+					if (iss >> value) cameraSettins[2] = value;
+					std::cout << "Camera Far Plane: " << cameraSettins[2] << std::endl;
+					break;
+				case 3:
+					mapName = "Assets/Maps/" + lineT + "/";
+					std::cout << "Map: " << mapName << std::endl;
+					break;
+				default:
+					break;
+				}
+			}
+			TestFile3.close();
+		}
 	}
-};
+}
 
 void initializeGLFW() {
 	glfwInit();
@@ -181,7 +200,7 @@ void initializeImGui(GLFWwindow* window) {
 	ImGui_ImplOpenGL3_Init("#version 330");
 }
 
-void imGuiMAIN(GLFWwindow* window) {
+void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT) {
 	// ImGUI window creation
 	ImGui::Begin("Settings");
 	ImGui::Text("Settings (Press escape to use mouse)");
@@ -225,6 +244,10 @@ void imGuiMAIN(GLFWwindow* window) {
 
 		ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour);
 		ImGui::DragInt("Shader Number (Frag)", &ShaderNum);
+		if (ImGui::SmallButton("Apply Shader?")) {
+			shaderProgramT.Delete();
+			TempButton = -1;
+		}
 		ImGui::End();
 	}
 	//Camera panel
@@ -255,13 +278,18 @@ void imGuiMAIN(GLFWwindow* window) {
 		ImGui::Begin("Lighting");
 
 		switch (ShaderNum) {
+		case -1:
+			ImGui::Text("DepthBuffer");
+			break;
 		case 0: //us
 			ImGui::Text("UnShaded");
 			ImGui::Text("Lighting");
 			//sky
 			ImGui::ColorEdit4("sky RGBA", skyRGBA);
+			ImGui::ColorEdit4("fog RGBA", fogRGBA);
 			//doReflections
 			ImGui::SliderInt("doReflections", &doReflections, 0, 2);
+			ImGui::SliderInt("doFog", &doFog, 0, 1);
 
 			break;
 		case 1: //spot
@@ -272,12 +300,15 @@ void imGuiMAIN(GLFWwindow* window) {
 			//sky and light
 			ImGui::ColorEdit4("sky RGBA", skyRGBA);
 			ImGui::ColorEdit4("light RGBA", lightRGBA);
+			ImGui::ColorEdit4("fog RGBA", fogRGBA);
 			ImGui::DragFloat("light I", &ConeSI[2]);
 			ImGui::Text("cone size");
 			ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
 			ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
 			ImGui::Text("Light Angle");
 			ImGui::DragFloat3("Cone Angle", ConeRot);
+			ImGui::SliderInt("doFog", &doFog, 0, 1);
+			
 			break;
 		case 2: //dir light
 			ImGui::Text("Direct Light");
@@ -285,9 +316,11 @@ void imGuiMAIN(GLFWwindow* window) {
 			ImGui::Text("Light color and intens");
 			//sky and light
 			ImGui::ColorEdit4("sky RGBA", skyRGBA);
+			ImGui::ColorEdit4("fog RGBA", fogRGBA);
 			ImGui::DragFloat("light I", &ConeSI[2]);
 			ImGui::Text("Light Angle");
 			ImGui::DragFloat3("Cone Angle", ConeRot);
+			ImGui::SliderInt("doFog", &doFog, 0, 1);
 			break;
 		case 3:
 			ImGui::Text("Point Light (BROKE)");
@@ -297,12 +330,14 @@ void imGuiMAIN(GLFWwindow* window) {
 			//sky and light
 			ImGui::ColorEdit4("sky RGBA", skyRGBA);
 			ImGui::ColorEdit4("light RGBA", lightRGBA);
+			ImGui::ColorEdit4("fog RGBA", fogRGBA);
 			ImGui::DragFloat("light I", &ConeSI[2]);
 			ImGui::Text("cone size");
 			ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
 			ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
 			ImGui::Text("Light Angle");
 			ImGui::DragFloat3("Cone Angle", ConeRot);
+			ImGui::SliderInt("doFog", &doFog, 0, 1);
 			break;
 		}
 		ImGui::End();
@@ -316,21 +351,23 @@ void imGuiMAIN(GLFWwindow* window) {
 		framerateValues[frValues_offset] = frameRateI;
 		frValues_offset = (frValues_offset + 1) % IM_ARRAYSIZE(framerateValues);
 		ImGui::Text(framerate.c_str());
-		//                                                                                                        current frame rate(PER SEC) + half of current frame rate so the graph has space to display(max graph height
-		ImGui::PlotLines("Framerate (FPS) Graph", framerateValues, IM_ARRAYSIZE(framerateValues), frValues_offset, nullptr, 0.0f, (frameRateI + (frameRateI / 2)), ImVec2(0, 80));
+		//ftDif = current frame rate(PER SEC) + half of current frame rate so the graph has space to display(max graph height
+		ImGui::PlotLines("Framerate (FPS) Graph", framerateValues, IM_ARRAYSIZE(framerateValues), frValues_offset, nullptr, 0.0f, ftDif, ImVec2(0, 80));
 		// Frame time graph
 		//stores 90 snapshots of frametime
 		static float frameTimeValues[90] = { 0 };
+		
 		static int ftValues_offset = 0;
 		frameTimeValues[ftValues_offset] = deltaTime * 1000.0f; // Convert to milliseconds
 		ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
-		ImGui::PlotLines("Frame Times (ms)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
+		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = deltaTime * 1000.0f) + " ms";
+		ImGui::Text(frametimes.c_str());
+		ImGui::PlotLines("Frame Times (ms) Graph", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
 		ImGui::End();
 	}
 	// Renders the ImGUI elements
 	ImGui::Render();
 }
-
 
 int main()
 {
@@ -389,7 +426,7 @@ int main()
 	std::cout << "Primary monitor resolution: " << screenAreaI[0] << "x" << screenAreaI[1] << std::endl;
 
 	//create a shader program and feed it shader and vertex files
-	Shader shaderProgram("Shaders/Default.vert", "Shaders/Default.frag");
+	Shader shaderProgram("Shaders/Default.vert", "Shaders/spotLight.frag");
 
 	shaderProgram.Activate();
 
@@ -397,6 +434,7 @@ int main()
 	initializeImGui(window);
 	//depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	//need to do more research into this one
 	glEnable(GL_CULL_FACE);
@@ -405,15 +443,9 @@ int main()
 	// camera ratio and pos
 	Camera camera(screenArea[0], screenArea[1], glm::vec3(0.0f, 0.0f, 50.0f));
 	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
-
-	//load the model //modelS
-	//Model model("Assets/Models/test2/scene.glb");
-
 	//texture loading problems
 	// Load models from files
-	std::vector<Model> models = loadModels("Assets/ModelNames.cfg", "Assets/ModelPaths.cfg");
-	
-
+	std::vector<Model> models = loadModels(mapName + "ModelNames.cfg", mapName + "ModelPaths.cfg");
 	
 	//Model model5("Assets/Models/test/test.gltf");
 	//icon creation
@@ -438,6 +470,47 @@ int main()
 	//makes sure window stays open
 	while (!glfwWindowShouldClose(window))
 	{
+		switch (TempButton) {
+		case -1: {
+			switch (ShaderNum)
+			{
+				//getting ready to add a file to put these in thats kind of like the model loading files
+			case -1: {
+				Shader shaderProgram("Shaders/Default.vert", "Shaders/Depth.frag");
+				break;
+			}
+			case 0: {
+				Shader shaderProgram("Shaders/Default.vert", "Shaders/unShaded.frag");
+				break;
+			}
+			case 1: {
+				Shader shaderProgram("Shaders/Default.vert", "Shaders/spotLight.frag");
+				break;
+			}
+			case 2: {
+				Shader shaderProgram("Shaders/Default.vert", "Shaders/direcLight.frag");
+				break;
+			}
+			case 3: {
+				Shader shaderProgram("Shaders/Default.vert", "Shaders/pointLight.frag");
+				break;
+			}
+
+			}
+			TempButton = 0;
+			break;
+		}
+		case 1: {
+			camera.Position = glm::vec3(0, 0, 0);
+			TempButton = 0;
+			break;
+		}
+		case 2: {
+			camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
+			TempButton = 0;
+			break;
+		}
+		}
 		// Calculate delta time
 		// Cast the value to float
 
@@ -452,10 +525,10 @@ int main()
 		//1hz
 		if (timeAccumulator[0] >= 1.0f) {
 			//run if after 1 second
+			ftDif = (frameRateI + (frameRateI / 2));
 			framerate = "FPS " + std::to_string(frameRateI);
 			timeAccumulator[0] = 0.0f;
 		}
-
 		timeAccumulator[1] += deltaTime;
 		//60hz
 		if (timeAccumulator[1] >= 0.016f) {
@@ -504,11 +577,10 @@ int main()
 
 		camera.Inputs(window, deltaTime);
 
-		//camera fov, near and far plane
+		// camera fov, near and far plane
 		camera.updateMatrix(cameraSettins[0], cameraSettins[1], cameraSettins[2]);
 
-
-		//draw the model
+		// draw the model
 		for (Model& model : models) {
 			model.Draw(shaderProgram, camera);
 		}
@@ -517,16 +589,15 @@ int main()
 		glm::mat4 lightModel = glm::mat4(1.0f);
 		lightModel = glm::translate(lightModel, lightPos);
 
-		//shaderprog can stay
-		//activate shader program
 		shaderProgram.Activate();
-		//i wrote 
-		glUniform1i(glGetUniformLocation(shaderProgram.ID, "ShaderNumber"), ShaderNum);
+
 		glUniform1i(glGetUniformLocation(shaderProgram.ID, "doReflect"), doReflections);
+		glUniform1i(glGetUniformLocation(shaderProgram.ID, "doFog"), doFog);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "InnerLight1"), (ConeSI[1] - ConeSI[0]), ConeSI[1], ConeSI[2]);
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "spotLightRot"), ConeRot[0], ConeRot[1], ConeRot[2]);
 		glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
-		//update light color seprate from the model
+		glUniform3f(glGetUniformLocation(shaderProgram.ID, "fogColor"), fogRGBA[0], fogRGBA[1], fogRGBA[2]);
+		// update light color seprate from the model
 		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 		// update light pos
 		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), LightTransform1[0], LightTransform1[1], LightTransform1[2]);
@@ -534,19 +605,7 @@ int main()
 		camera.Matrix(shaderProgram, "camMatrix");
 
 		// Render ImGUI elements
-		imGuiMAIN(window);
-
-		switch (TempButton) {
-		case 1:
-			camera.Position = glm::vec3(0, 0, 0);
-			TempButton = 0;
-			break;
-		case 2:
-			camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
-			TempButton = 0;
-			break;
-		}
-
+		imGuiMAIN(window, shaderProgram);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// Swap back buffer with front buffer
