@@ -46,7 +46,6 @@ bool CapFps = false;
 int TempButton = 0;
 int ShaderNum = 1;
 std::string framerate;
-float CapNum = 60;
 float ftDif;
 std::string mapName = "";
 bool isFullscreen = false;
@@ -194,6 +193,7 @@ void initializeGLFW() {
 	glfwWindowHint(GLFW_RESIZABLE, 1);
 	glfwWindowHint(GLFW_MAXIMIZED, 1);
 	glfwWindowHint(GLFW_DEPTH_BITS, 16);
+
 }
 
 void initializeImGui(GLFWwindow* window) {
@@ -246,19 +246,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 
 		ImGui::Text("Framerate Limiters");
 		ImGui::Checkbox("Vsync", &doVsync);
-		ImGui::DragFloat("Framerate cap:)", &CapNum, 1);
-		ImGui::Checkbox("cap FPS", &CapFps);
-		switch (CapFps) {
-		case false: {
-		//	glfwWindowHint(GLFW_REFRESH_RATE, GLFW_DONT_CARE); // Uncap the refresh rate
-			break;
-		}
-		case true: {
-		//	glfwWindowHint(GLFW_REFRESH_RATE, CapNum); // Uncap the refresh rate
-			break;
-		}
-
-		}
 		//rendering
 		
 		//screen res
@@ -267,8 +254,8 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		//apply button
 		if (ImGui::SmallButton("Apply Changes?")) {
 
-			screenArea[0] = screenAreaI[0];
-			screenArea[1] = screenAreaI[1];
+			screenArea[0] = static_cast<unsigned int>(screenAreaI[0]);
+			screenArea[1] = static_cast<unsigned int>(screenAreaI[1]);
 			glViewport(0, 0, screenArea[0], screenArea[1]);
 			glfwSetWindowSize(window, screenArea[0], screenArea[1]);
 
@@ -293,6 +280,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		}
 		ImGui::End();
 	}
+
 	//Camera panel
 	if (Panels[1]) {
 
