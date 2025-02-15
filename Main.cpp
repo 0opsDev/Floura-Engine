@@ -27,9 +27,9 @@ float deltaTime = 0.0f;
 // 1hz 60hz
 static float timeAccumulator[2] = { 0.0f, 0.0f };
 
-GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }; 
-GLfloat ConeRot[3] = { 0.0f, -4.0f , 0.0f }; 
-GLfloat LightTransform1[3] = { 0.0f, 25.0f, 0.0f }; 
+GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f };
+GLfloat ConeRot[3] = { 0.0f, -4.0f , 0.0f };
+GLfloat LightTransform1[3] = { 0.0f, 25.0f, 0.0f };
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -44,7 +44,8 @@ int doFog = 1;
 bool Panels[4] = { true, true, true, true };
 bool CapFps = false;
 int TempButton = 0;
-int ShaderNum = 1;
+int VertNum = 0;
+int FragNum = 2;
 std::string framerate;
 float ftDif;
 std::string mapName = "";
@@ -67,6 +68,33 @@ std::vector<std::string> readLinesFromFile(const std::string& filePath) {
 		std::cerr << "Failed to open file: " << filePath << std::endl;
 	}
 	return lines;
+}
+// Function to read a specific line from a file
+std::string readLineFromFile(const std::string& filePath, int lineNumber) {
+	std::ifstream file(filePath);
+	if (!file.is_open()) {
+		throw std::runtime_error("Failed to open file: " + filePath);
+	}
+
+	std::string line;
+	for (int i = 0; i <= lineNumber; ++i) {
+		if (!std::getline(file, line)) {
+			throw std::runtime_error("Line number out of range in file: " + filePath);
+		}
+	}
+	return line;
+}
+void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) {
+	try {
+		std::string vertFile = readLineFromFile("Shaders/VertList.cfg", VertNum);
+		std::string fragFile = readLineFromFile("Shaders/FragList.cfg", FragNum);
+		std::cout << "Vert: " << vertFile << "Frag: " << fragFile << std::endl;
+
+		shaderProgram = Shader(vertFile.c_str(), fragFile.c_str());
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error loading shader program: " << e.what() << std::endl;
+	}
 }
 
 // Function to load models from files
@@ -237,7 +265,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 	ImGui::Checkbox("Lighting Panel", &Panels[2]);
 	ImGui::Checkbox("Preformance Profiler", &Panels[3]);
 
-	
+
 	// Ends the window
 	ImGui::End();
 	//Rendering panel
@@ -247,7 +275,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		ImGui::Text("Framerate Limiters");
 		ImGui::Checkbox("Vsync", &doVsync);
 		//rendering
-		
+
 		//screen res
 		ImGui::DragInt("Width", &screenAreaI[0]);
 		ImGui::DragInt("Height", &screenAreaI[1]);
@@ -265,15 +293,16 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 
 			toggleFullscreen(window, monitorT);
 		}
-		if(ImGui::SmallButton("Enable Culling")) {
+		if (ImGui::SmallButton("Enable Culling")) {
 			glEnable(GL_CULL_FACE);
 		}
-		if(ImGui::SmallButton("Disable Culling")) {
+		if (ImGui::SmallButton("Disable Culling")) {
 			glDisable(GL_CULL_FACE);
 		}
 
 		ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour);
-		ImGui::DragInt("Shader Number (Frag)", &ShaderNum);
+		ImGui::DragInt("Shader Number (Vert)", &VertNum);
+		ImGui::DragInt("Shader Number (Frag)", &FragNum);
 		if (ImGui::SmallButton("Apply Shader?")) {
 			shaderProgramT.Delete();
 			TempButton = -1;
@@ -308,69 +337,22 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 	if (Panels[2]) {
 		ImGui::Begin("Lighting");
 
-		switch (ShaderNum) {
-		case -1:
-			ImGui::Text("DepthBuffer");
-			break;
-		case 0: //us
-			ImGui::Text("UnShaded");
-			ImGui::Text("Lighting");
-			//sky
-			ImGui::ColorEdit4("sky RGBA", skyRGBA);
-			ImGui::ColorEdit4("fog RGBA", fogRGBA);
-			//doReflections
-			ImGui::SliderInt("doReflections", &doReflections, 0, 2);
-			ImGui::SliderInt("doFog", &doFog, 0, 1);
-
-			break;
-		case 1: //spot
-			ImGui::Text("Spot Light");
-			ImGui::DragFloat3("Light Transform", LightTransform1);
-			ImGui::Text("Lighting");
-			ImGui::Text("Light color and intens");
-			//sky and light
-			ImGui::ColorEdit4("sky RGBA", skyRGBA);
-			ImGui::ColorEdit4("light RGBA", lightRGBA);
-			ImGui::ColorEdit4("fog RGBA", fogRGBA);
-			ImGui::DragFloat("light I", &ConeSI[2]);
-			ImGui::Text("cone size");
-			ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
-			ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
-			ImGui::Text("Light Angle");
-			ImGui::DragFloat3("Cone Angle", ConeRot);
-			ImGui::SliderInt("doFog", &doFog, 0, 1);
-			
-			break;
-		case 2: //dir light
-			ImGui::Text("Direct Light");
-			ImGui::Text("Lighting");
-			ImGui::Text("Light color and intens");
-			//sky and light
-			ImGui::ColorEdit4("sky RGBA", skyRGBA);
-			ImGui::ColorEdit4("fog RGBA", fogRGBA);
-			ImGui::DragFloat("light I", &ConeSI[2]);
-			ImGui::Text("Light Angle");
-			ImGui::DragFloat3("Cone Angle", ConeRot);
-			ImGui::SliderInt("doFog", &doFog, 0, 1);
-			break;
-		case 3:
-			ImGui::Text("Point Light (BROKE)");
-			ImGui::DragFloat3("Light Transform", LightTransform1);
-			ImGui::Text("Lighting");
-			ImGui::Text("Light color and intens");
-			//sky and light
-			ImGui::ColorEdit4("sky RGBA", skyRGBA);
-			ImGui::ColorEdit4("light RGBA", lightRGBA);
-			ImGui::ColorEdit4("fog RGBA", fogRGBA);
-			ImGui::DragFloat("light I", &ConeSI[2]);
-			ImGui::Text("cone size");
-			ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
-			ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
-			ImGui::Text("Light Angle");
-			ImGui::DragFloat3("Cone Angle", ConeRot);
-			ImGui::SliderInt("doFog", &doFog, 0, 1);
-			break;
-		}
+		ImGui::Text("Point Light (BROKE)");
+		ImGui::DragFloat3("Light Transform", LightTransform1);
+		ImGui::Text("Lighting");
+		ImGui::Text("Light color and intens");
+		//sky and light
+		ImGui::ColorEdit4("sky RGBA", skyRGBA);
+		ImGui::ColorEdit4("light RGBA", lightRGBA);
+		ImGui::ColorEdit4("fog RGBA", fogRGBA);
+		ImGui::DragFloat("light I", &ConeSI[2]);
+		ImGui::Text("cone size");
+		ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
+		ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
+		ImGui::Text("Light Angle");
+		ImGui::DragFloat3("Cone Angle", ConeRot);
+		ImGui::SliderInt("doReflections", &doReflections, 0, 2);
+		ImGui::SliderInt("doFog", &doFog, 0, 1);
 		ImGui::End();
 	}
 	//preformance profiler
@@ -387,7 +369,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		// Frame time graph
 		//stores 90 snapshots of frametime
 		static float frameTimeValues[90] = { 0 };
-		
+
 		static int ftValues_offset = 0;
 		frameTimeValues[ftValues_offset] = deltaTime * 1000.0f; // Convert to milliseconds
 		ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
@@ -462,8 +444,13 @@ int main()
 	glfwSetWindowSize(window, screenArea[0], screenArea[1]);
 	std::cout << "Primary monitor resolution: " << screenAreaI[0] << "x" << screenAreaI[1] << std::endl;
 
-	//create a shader program and feed it shader and vertex files
-	Shader shaderProgram("Shaders/Default.vert", "Shaders/spotLight.frag");
+	//create a shader program and feed it Dummy shader and vertex files
+	Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader");
+
+	//clean the shader prog for memory management
+	shaderProgram.Delete();
+	//feed the shader prog real data
+	loadShaderProgram(VertNum, FragNum, shaderProgram);
 
 	shaderProgram.Activate();
 
@@ -483,7 +470,7 @@ int main()
 	//texture loading problems
 	// Load models from files
 	std::vector<Model> models = loadModels(mapName + "ModelNames.cfg", mapName + "ModelPaths.cfg");
-	
+
 	//Model model5("Assets/Models/test/test.gltf");
 	//icon creation
 	int iconW, iconH;
@@ -510,31 +497,7 @@ int main()
 
 		switch (TempButton) {
 		case -1: {
-			switch (ShaderNum)
-			{
-				//getting ready to add a file to put these in thats kind of like the model loading files
-			case -1: {
-				Shader shaderProgram("Shaders/Default.vert", "Shaders/Depth.frag");
-				break;
-			}
-			case 0: {
-				Shader shaderProgram("Shaders/Default.vert", "Shaders/unShaded.frag");
-				break;
-			}
-			case 1: {
-				Shader shaderProgram("Shaders/Default.vert", "Shaders/spotLight.frag");
-				break;
-			}
-			case 2: {
-				Shader shaderProgram("Shaders/Default.vert", "Shaders/direcLight.frag");
-				break;
-			}
-			case 3: {
-				Shader shaderProgram("Shaders/Default.vert", "Shaders/pointLight.frag");
-				break;
-			}
-
-			}
+			loadShaderProgram(VertNum, FragNum, shaderProgram);
 			TempButton = 0;
 			break;
 		}

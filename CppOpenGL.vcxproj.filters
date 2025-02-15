@@ -31,6 +31,12 @@
     <Filter Include="Resource Files\Models">
       <UniqueIdentifier>{2fac693a-4137-4cad-af12-45fe5947ffa8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\Db">
+      <UniqueIdentifier>{20b5557a-530c-429f-b02b-1a2ef8cafcbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\Main">
+      <UniqueIdentifier>{e96aaa03-9abd-4e46-a63a-bb33a658f71a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -148,32 +154,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\light.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\light.vert">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\Default.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\Default.vert">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="Settings\Default.ini">
       <Filter>Resource Files\Text</Filter>
-    </None>
-    <None Include="Shaders\unShaded.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\direcLight.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\pointLight.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\spotLight.frag">
-      <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="Assets\Maps\Default\ModelPaths.cfg">
       <Filter>Resource Files\Text</Filter>
@@ -181,14 +163,47 @@
     <None Include="Assets\Maps\Default\ModelNames.cfg">
       <Filter>Resource Files\Text</Filter>
     </None>
-    <None Include="Shaders\Depth.frag">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="Settings\Engine.ini">
       <Filter>Resource Files\Text</Filter>
     </None>
     <None Include="Settings\EngineDefault.ini">
       <Filter>Resource Files\Text</Filter>
+    </None>
+    <None Include="Shaders\Empty.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\FragList.cfg">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\VertList.cfg">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\Main\Default.vert">
+      <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
+    <None Include="Shaders\Main\direcLight.frag">
+      <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
+    <None Include="Shaders\Main\pointLight.frag">
+      <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
+    <None Include="Shaders\Main\spotLight.frag">
+      <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
+    <None Include="Shaders\Db\Default.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Shaders\Db\Depth.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Shaders\Db\light.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Shaders\Db\light.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Shaders\Db\unShaded.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -191,15 +191,18 @@
     <None Include="Settings\Default.ini" />
     <None Include="Settings\Engine.ini" />
     <None Include="Settings\EngineDefault.ini" />
-    <None Include="Shaders\Default.frag" />
-    <None Include="Shaders\Default.vert" />
-    <None Include="Shaders\Depth.frag" />
-    <None Include="Shaders\direcLight.frag" />
-    <None Include="Shaders\light.frag" />
-    <None Include="Shaders\light.vert" />
-    <None Include="Shaders\pointLight.frag" />
-    <None Include="Shaders\spotLight.frag" />
-    <None Include="Shaders\unShaded.frag" />
+    <None Include="Shaders\Db\Default.frag" />
+    <None Include="Shaders\Db\Depth.frag" />
+    <None Include="Shaders\Db\light.frag" />
+    <None Include="Shaders\Db\light.vert" />
+    <None Include="Shaders\Db\unShaded.frag" />
+    <None Include="Shaders\Empty.shader" />
+    <None Include="Shaders\FragList.cfg" />
+    <None Include="Shaders\Main\Default.vert" />
+    <None Include="Shaders\Main\direcLight.frag" />
+    <None Include="Shaders\Main\pointLight.frag" />
+    <None Include="Shaders\Main\spotLight.frag" />
+    <None Include="Shaders\VertList.cfg" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Assets\Textures\Model\notes.txt" />
