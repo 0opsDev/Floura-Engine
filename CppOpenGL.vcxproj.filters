@@ -90,9 +90,6 @@
     <ClCompile Include="src\video\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\video\fileClass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\video\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -144,9 +141,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\video\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\video\fileClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\video\Model.h">
@@ -210,61 +204,5 @@
     <Text Include="Settings\Settings.ini">
       <Filter>Resource Files\Text</Filter>
     </Text>
-    <Text Include="Assets\Textures\Model\notes.txt">
-      <Filter>Resource Files\Textures</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Assets\Textures\Model\forrest.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\forrestpbr.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\grassfinal0br.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\grassfinal0br.png">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\grassfinal0brPBR.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\grassfinal0brPBR.png">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\square_tiles.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\square_tiles_spec.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\temp.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\wood_floor_deck_ao_4k.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\wood_floor_deck_arm_4k.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\wood_floor_deck_diff_4k.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\wood_floor_deck_disp_4k.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\wood_floor_deck_nor_dx_4k.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\wood_floor_deck_nor_gl_4k.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Textures\Model\wood_floor_deck_rough_4k.jpg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
-    <Image Include="Assets\Models\sword\textures\Object001_mtl_baseColor.jpeg">
-      <Filter>Resource Files\Textures</Filter>
-    </Image>
   </ItemGroup>
 </Project>

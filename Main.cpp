@@ -252,6 +252,12 @@ void toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor) {
 }
 
 void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT) {
+
+	//Tell Imgui a new frame is about to begin
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
 	// ImGUI window creation
 	ImGui::Begin("Settings");
 	ImGui::Text("Settings (Press escape to use mouse)");
@@ -380,249 +386,245 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 	}
 	// Renders the ImGUI elements
 	ImGui::Render();
+
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 int main()
 {
-	//calls the LoadSettings function
-	//initialize inside of function
-	//start glfw
-	initializeGLFW();
+		//calls the LoadSettings function
+		//initialize inside of function
+		//start glfw
+		initializeGLFW();
 
-	// Get the video mode of the primary monitor
-	// Get the primary monitor
-	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-	if (!primaryMonitor) {
-		std::cerr << "Failed to get primary monitor" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-
-	// Get the video mode of the primary monitor
-	const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
-	if (!videoMode) {
-		std::cerr << "Failed to get video mode" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-
-	//second fallback
-	// Store the width and height in the test array
-	screenArea[0] = videoMode->width;
-	screenArea[1] = videoMode->height;
-	// Print the resolution
-
-	// Now call glfwGetMonitorPos with correct arguments
-	glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screenAreaI[0], &screenAreaI[1]);
-	loadSettings();
-	//size, name, fullscreen
-	//create window
-	//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
-	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", NULL, NULL);
-	if (!window) {
-		std::cerr << "Failed to create window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-
-	//error checking
-	if (window == NULL)
-	{
-		std::cout << "failed to create window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	//make window current context
-	glfwMakeContextCurrent(window);
-
-	//load open gl config
-	gladLoadGL();
-
-	//area of open gl we want to render in
-	//screen assignment after fallback
-	glViewport(0, 0, screenArea[0], screenArea[1]);
-	glfwSetWindowSize(window, screenArea[0], screenArea[1]);
-	std::cout << "Primary monitor resolution: " << screenAreaI[0] << "x" << screenAreaI[1] << std::endl;
-
-	//create a shader program and feed it Dummy shader and vertex files
-	Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader");
-
-	//clean the shader prog for memory management
-	shaderProgram.Delete();
-	//feed the shader prog real data
-	loadShaderProgram(VertNum, FragNum, shaderProgram);
-
-	shaderProgram.Activate();
-
-	// Initialize ImGUI
-	initializeImGui(window);
-	//depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
-	//need to do more research into this one
-	glEnable(GL_CULL_FACE);
-
-	//INITIALIZE CAMERA
-	// camera ratio and pos
-	Camera camera(screenArea[0], screenArea[1], glm::vec3(0.0f, 0.0f, 50.0f));
-	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
-	//texture loading problems
-	// Load models from files
-	std::vector<Model> models = loadModels(mapName + "ModelNames.cfg", mapName + "ModelPaths.cfg");
-
-	//Model model5("Assets/Models/test/test.gltf");
-	//icon creation
-	int iconW, iconH;
-	int iconChannels;
-	//STBI_rgb_alpha
-
-	unsigned char* pixelsIcon = stbi_load("assets/Icons/Icon60B-F.png", &iconW, &iconH, &iconChannels, STBI_rgb_alpha);
-
-	//change window icon
-	GLFWimage Iconinages[1];
-	//give glfw pixels, width and height
-	Iconinages[0].width = iconW;
-	Iconinages[0].height = iconH;
-	Iconinages[0].pixels = pixelsIcon;
-
-	//change to icon (what window, how many images, what image)
-	glfwSetWindowIcon(window, 1, Iconinages);
-	//glfwCreateCursor(Iconinages, iconW, iconH);
-	setVSync(doVsync);
-	//game loop
-	//makes sure window stays open
-	while (!glfwWindowShouldClose(window))
-	{
-
-		switch (TempButton) {
-		case -1: {
-			loadShaderProgram(VertNum, FragNum, shaderProgram);
-			TempButton = 0;
-			break;
-		}
-		case 1: {
-			camera.Position = glm::vec3(0, 0, 0);
-			TempButton = 0;
-			break;
-		}
-		case 2: {
-			camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
-			TempButton = 0;
-			break;
-		}
-		}
-		// Calculate delta time
-		// Cast the value to float
-
-		float currentFrameTime = static_cast<float>(glfwGetTime());
-		deltaTime = currentFrameTime - lastFrameTime;
-		lastFrameTime = currentFrameTime;
-
-		//framerate tracking
-		frameRateI = 1.0f / deltaTime;
-
-		timeAccumulator[0] += deltaTime;
-		//1hz
-		if (timeAccumulator[0] >= 1.0f) {
-			//run if after 1 second
-			ftDif = (frameRateI + (frameRateI / 2));
-			framerate = "FPS " + std::to_string(frameRateI);
-			timeAccumulator[0] = 0.0f;
-		}
-		timeAccumulator[1] += deltaTime;
-		//60hz
-		if (timeAccumulator[1] >= 0.016f) {
-			//run if after .16 second
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS)
-			{
-				cameraSettins[0] += 0.4f;
-			}
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS)
-			{
-				cameraSettins[0] -= 0.4f;
-			}
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
-			{
-				cameraSettins[0] = 60.0f;
-			}
-			if (cameraSettins[0] <= 0.00f)
-			{
-				cameraSettins[0] = 0.1f;
-			}
-			if (cameraSettins[0] >= 160.1f)
-			{
-				cameraSettins[0] = 160.0f;
-			}
-			timeAccumulator[1] = 0.0f;
+		// Get the video mode of the primary monitor
+		// Get the primary monitor
+		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+		if (!primaryMonitor) {
+			std::cerr << "Failed to get primary monitor" << std::endl;
+			glfwTerminate();
+			return -1;
 		}
 
-		//Tell OpenGL a new frame is about to begin
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		//CLEAR BACK BUFFER
-		//RGB ALPHA please re enable to fix sky colour
-		// SEND TO COLOR BUFFER (DRAWS COLOUR TO SCREEN)
-		//glclear only needs to run once btw
-		if (clearColour) {
-			glClear(GL_DEPTH_BUFFER_BIT);
-		}
-		else {
-			glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// Get the video mode of the primary monitor
+		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
+		if (!videoMode) {
+			std::cerr << "Failed to get video mode" << std::endl;
+			glfwTerminate();
+			return -1;
 		}
 
-		//inputs
+		//second fallback
+		// Store the width and height in the test array
+		screenArea[0] = videoMode->width;
+		screenArea[1] = videoMode->height;
+		// Print the resolution
 
-		camera.Inputs(window, deltaTime);
+		// Now call glfwGetMonitorPos with correct arguments
+		glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screenAreaI[0], &screenAreaI[1]);
+		loadSettings();
+		//size, name, fullscreen
+		//create window
+		//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
+		GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.4", NULL, NULL);
 
-		// camera fov, near and far plane
-		camera.updateMatrix(cameraSettins[0], cameraSettins[1], cameraSettins[2]);
-
-		// draw the model
-		for (Model& model : models) {
-			model.Draw(shaderProgram, camera);
+		if (!window) {
+			std::cerr << "Failed to create window" << std::endl;
+			glfwTerminate();
+			return -1;
 		}
 
-		glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
-		glm::mat4 lightModel = glm::mat4(1.0f);
-		lightModel = glm::translate(lightModel, lightPos);
+		//error checking
+		if (window == NULL)
+		{
+			std::cout << "failed to create window" << std::endl;
+			glfwTerminate();
+			return -1;
+		}
+		//make window current context
+		glfwMakeContextCurrent(window);
+
+		//load open gl config
+		gladLoadGL();
+
+		//area of open gl we want to render in
+		//screen assignment after fallback
+		glViewport(0, 0, screenArea[0], screenArea[1]);
+		glfwSetWindowSize(window, screenArea[0], screenArea[1]);
+		std::cout << "Primary monitor resolution: " << screenAreaI[0] << "x" << screenAreaI[1] << std::endl;
+
+		//create a shader program and feed it Dummy shader and vertex files
+		Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader");
+
+		//clean the shader prog for memory management
+		shaderProgram.Delete();
+		//feed the shader prog real data
+		loadShaderProgram(VertNum, FragNum, shaderProgram);
 
 		shaderProgram.Activate();
 
-		glUniform1i(glGetUniformLocation(shaderProgram.ID, "doReflect"), doReflections);
-		glUniform1i(glGetUniformLocation(shaderProgram.ID, "doFog"), doFog);
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "InnerLight1"), (ConeSI[1] - ConeSI[0]), ConeSI[1], ConeSI[2]);
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "spotLightRot"), ConeRot[0], ConeRot[1], ConeRot[2]);
-		glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "fogColor"), fogRGBA[0], fogRGBA[1], fogRGBA[2]);
-		// update light color seprate from the model
-		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
-		// update light pos
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), LightTransform1[0], LightTransform1[1], LightTransform1[2]);
+		// Initialize ImGUI
+		initializeImGui(window);
 
-		camera.Matrix(shaderProgram, "camMatrix");
+		//depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
 
-		// Render ImGUI elements
-		imGuiMAIN(window, shaderProgram, primaryMonitor);
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		//need to do more research into this one
+		glEnable(GL_CULL_FACE);
 
-		// Swap back buffer with front buffer
-		glfwSwapBuffers(window);
-		// Tells open gl to proccess all events like window resizing and all otheer events
-		glfwPollEvents();
-	}
-	// Cleanup
-	// Delete all objects on close
-	// Deletes all ImGUI instances
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-	shaderProgram.Delete();
-	// kill opengl
-	glfwDestroyWindow(window);
-	glfwTerminate();
-	return 0;
+
+		//INITIALIZE CAMERA
+		// camera ratio and pos
+		Camera camera(screenArea[0], screenArea[1], glm::vec3(0.0f, 0.0f, 50.0f));
+		camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
+		//texture loading problems
+
+		// Load models from files
+		std::vector<Model> models = loadModels(mapName + "ModelNames.cfg", mapName + "ModelPaths.cfg");
+
+		//Model model5("Assets/Models/test/test.gltf");
+		//icon creation
+		int iconW, iconH;
+		int iconChannels;
+		stbi_set_flip_vertically_on_load(false);
+		//STBI_rgb_alpha
+		unsigned char* pixelsIcon = stbi_load("assets/Icons/Icon60B.png", &iconW, &iconH, &iconChannels, STBI_rgb_alpha);
+
+		//change window icon
+		GLFWimage Iconinages[1];
+		//give glfw pixels, width and height
+		Iconinages[0].width = iconW;
+		Iconinages[0].height = iconH;
+		Iconinages[0].pixels = pixelsIcon;
+
+		//change to icon (what window, how many images, what image)
+		glfwSetWindowIcon(window, 1, Iconinages);
+		//glfwCreateCursor(Iconinages, iconW, iconH);
+		setVSync(doVsync);
+		//game loop
+		//makes sure window stays open
+		while (!glfwWindowShouldClose(window))
+		{
+			// Calculate delta time
+			// Cast the value to float
+
+			float currentFrameTime = static_cast<float>(glfwGetTime());
+			deltaTime = currentFrameTime - lastFrameTime;
+			lastFrameTime = currentFrameTime;
+
+			//framerate tracking
+			frameRateI = 1.0f / deltaTime;
+
+			timeAccumulator[0] += deltaTime;
+			//1hz
+			if (timeAccumulator[0] >= 1.0f) {
+				//run if after 1 second
+				ftDif = (frameRateI + (frameRateI / 2));
+				framerate = "FPS " + std::to_string(frameRateI);
+				timeAccumulator[0] = 0.0f;
+			}
+			timeAccumulator[1] += deltaTime;
+			//60hz
+			if (timeAccumulator[1] >= 0.016f) {
+				//run if after .16 second
+				if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS)
+				{
+					cameraSettins[0] += 0.4f;
+				}
+				if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS)
+				{
+					cameraSettins[0] -= 0.4f;
+				}
+
+				if (cameraSettins[0] <= 0.00f)
+				{
+					cameraSettins[0] = 0.1f;
+				}
+				if (cameraSettins[0] >= 160.1f)
+				{
+					cameraSettins[0] = 160.0f;
+				}
+				timeAccumulator[1] = 0.0f;
+			}
+
+			switch (TempButton) {
+			case -1: {
+				loadShaderProgram(VertNum, FragNum, shaderProgram);
+				TempButton = 0;
+				break;
+			}
+			case 1: {
+				camera.Position = glm::vec3(0, 0, 0);
+				TempButton = 0;
+				break;
+			}
+			case 2: {
+				camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
+				TempButton = 0;
+				break;
+			}
+			}
+
+			//CLEAR BACK BUFFER
+			//RGB ALPHA please re enable to fix sky colour
+			// SEND TO COLOR BUFFER (DRAWS COLOUR TO SCREEN)
+			//glclear only needs to run once btw
+			if (clearColour) {
+				glClear(GL_DEPTH_BUFFER_BIT);
+			}
+			else {
+				glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			}
+
+			//inputs
+
+			glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
+			glm::mat4 lightModel = glm::mat4(1.0f);
+			lightModel = glm::translate(lightModel, lightPos);
+
+			shaderProgram.Activate();
+
+			glUniform1i(glGetUniformLocation(shaderProgram.ID, "doReflect"), doReflections);
+			glUniform1i(glGetUniformLocation(shaderProgram.ID, "doFog"), doFog);
+			glUniform3f(glGetUniformLocation(shaderProgram.ID, "InnerLight1"), (ConeSI[1] - ConeSI[0]), ConeSI[1], ConeSI[2]);
+			glUniform3f(glGetUniformLocation(shaderProgram.ID, "spotLightRot"), ConeRot[0], ConeRot[1], ConeRot[2]);
+			glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
+			glUniform3f(glGetUniformLocation(shaderProgram.ID, "fogColor"), fogRGBA[0], fogRGBA[1], fogRGBA[2]);
+			// update light color seprate from the model
+			glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
+			// update light pos
+			glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), LightTransform1[0], LightTransform1[1], LightTransform1[2]);
+
+			camera.Inputs(window, deltaTime);
+
+			// camera fov, near and far plane
+			camera.updateMatrix(cameraSettins[0], cameraSettins[1], cameraSettins[2]);
+
+			// draw the model
+			for (Model& model : models) {
+				model.Draw(shaderProgram, camera);
+			}
+
+			camera.Matrix(shaderProgram, "camMatrix");
+			imGuiMAIN(window, shaderProgram, primaryMonitor);
+
+			// Swap back buffer with front buffer
+			glfwSwapBuffers(window);
+			// Tells open gl to proccess all events like window resizing and all otheer events
+			glfwPollEvents();
+		}
+		std::cout << "\nGame Loop Ended" << std::endl;
+		// Cleanup
+		// Delete all objects on close
+		// Deletes all ImGUI instances
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
+		shaderProgram.Delete();
+		// kill opengl
+		glfwDestroyWindow(window);
+		glfwTerminate();
+		return 0;
 }

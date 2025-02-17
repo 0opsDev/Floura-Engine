@@ -156,7 +156,6 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="src\video\Camera.cpp" />
     <ClCompile Include="src\video\EBO.cpp" />
-    <ClCompile Include="src\video\fileClass.cpp" />
     <ClCompile Include="src\video\Mesh.cpp" />
     <ClCompile Include="src\video\Model.cpp" />
     <ClCompile Include="src\video\ShaderClass.cpp" />
@@ -177,7 +176,6 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="src\video\Camera.h" />
     <ClInclude Include="src\video\EBO.h" />
-    <ClInclude Include="src\video\fileClass.h" />
     <ClInclude Include="src\video\Mesh.h" />
     <ClInclude Include="src\video\Model.h" />
     <ClInclude Include="src\video\shaderClass.h" />
@@ -205,27 +203,7 @@
     <None Include="Shaders\VertList.cfg" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Assets\Textures\Model\notes.txt" />
     <Text Include="Settings\Settings.ini" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Assets\Models\sword\textures\Object001_mtl_baseColor.jpeg" />
-    <Image Include="Assets\Textures\Model\forrest.jpg" />
-    <Image Include="Assets\Textures\Model\forrestpbr.jpg" />
-    <Image Include="Assets\Textures\Model\grassfinal0br.jpg" />
-    <Image Include="Assets\Textures\Model\grassfinal0br.png" />
-    <Image Include="Assets\Textures\Model\grassfinal0brPBR.jpg" />
-    <Image Include="Assets\Textures\Model\grassfinal0brPBR.png" />
-    <Image Include="Assets\Textures\Model\square_tiles.jpg" />
-    <Image Include="Assets\Textures\Model\square_tiles_spec.jpg" />
-    <Image Include="Assets\Textures\Model\temp.jpg" />
-    <Image Include="Assets\Textures\Model\wood_floor_deck_ao_4k.jpg" />
-    <Image Include="Assets\Textures\Model\wood_floor_deck_arm_4k.jpg" />
-    <Image Include="Assets\Textures\Model\wood_floor_deck_diff_4k.jpg" />
-    <Image Include="Assets\Textures\Model\wood_floor_deck_disp_4k.jpg" />
-    <Image Include="Assets\Textures\Model\wood_floor_deck_nor_dx_4k.jpg" />
-    <Image Include="Assets\Textures\Model\wood_floor_deck_nor_gl_4k.jpg" />
-    <Image Include="Assets\Textures\Model\wood_floor_deck_rough_4k.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
