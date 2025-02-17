@@ -1,3 +1,4 @@
+//Include Libraries
 #include"src/video/Model.h"
 #include"imgui.h"
 #include <fstream>
@@ -7,25 +8,19 @@
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
 
-//refactoring, namespaces, encapulation, classes
-
-//Unint
-unsigned int screenArea[2] = { 800, 600 };
+//Global Variables
+unsigned int screenArea[2] = { 800, 600 }; //Unint
 
 //Int, Screen, Framerate, Buttons, Shader changing, Window info, Dofog&Reflect
 int screenAreaI[2] = { screenArea[0], screenArea[1] }, frameRateI, frameRate1IHZ, TempButton = 0,
 VertNum = 0, FragNum = 2, windowedPosX, windowedPosY, windowedWidth, windowedHeight,
 doReflections = 1, doFog = 1;
 
-//Bool
 bool Panels[4] = { true, true, true, true }, CapFps = false, checkboxVar[1] = { false },
-doVsync, clearColour, isFullscreen = false, aqFPS = true;
+doVsync, clearColour, isFullscreen = false, aqFPS = true; // bool
 
-// Initialize previous time and delta time
-//Float, DeltaTime, Camera: FOV , near, far
-float lastFrameTime, deltaTime, ftDif, cameraSettins[3] = { 60.0f, 0.1f, 1000.0f };
-// 1hz 60hz
-static float timeAccumulator[3] = { 0.0f, 0.0f, 0.0f };
+float lastFrameTime, deltaTime, ftDif, cameraSettins[3] = { 60.0f, 0.1f, 1000.0f }; //Float, DeltaTime, Camera: FOV , near, far
+static float timeAccumulator[3] = { 0.0f, 0.0f, 0.0f }; // DeltaTime Accumulators
 
 //GLfloat, Render, Camera, Light
 GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }, ConeRot[3] = { 0.0f, -4.0f , 0.0f },
@@ -33,9 +28,7 @@ LightTransform1[3] = { 0.0f, 25.0f, 0.0f }, CameraXYZ[3] = { 0.0f, 5.0f, 0.0f },
 lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f }, skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, 
 fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-//String, Framerate, Maploading
-std::string framerate, mapName = "";
-
+std::string framerate, mapName = ""; //String, Framerate, Maploading
 
 // Function to read lines from a file into a vector of strings
 std::vector<std::string> readLinesFromFile(const std::string& filePath) {
@@ -98,10 +91,12 @@ std::vector<Model> loadModels(const std::string& namesFilePath, const std::strin
 	return models;
 }
 
+//Methods
+// Toggles Vsync
 void setVSync(bool enabled) {
-	glfwSwapInterval(enabled ? 1 : 0);
+	glfwSwapInterval(enabled ? 1 : 0); //Toggles Vsync
 }
-
+// Loads Settings From Files
 void loadSettings() {
 	//READ - settings
 	std::ifstream TestFile2("Settings/Settings.ini");
@@ -112,8 +107,7 @@ void loadSettings() {
 
 		while (std::getline(TestFile2, lineT)) {
 			lineNumber++;
-			std::istringstream iss(lineT);
-			GLfloat value;
+			std::istringstream iss(lineT); GLfloat value;
 
 			switch (lineNumber) {
 			case 3:
@@ -133,11 +127,10 @@ void loadSettings() {
 			default:
 				break;
 			}
-			screenAreaI[0] = screenArea[0];
-			screenAreaI[1] = screenArea[1];
+			screenAreaI[0] = screenArea[0]; screenAreaI[1] = screenArea[1];
 		}
 		TestFile2.close();
-
+		
 		std::ifstream TestFile3("Settings/Engine.ini");
 		if (TestFile3.is_open())
 		{
@@ -145,8 +138,7 @@ void loadSettings() {
 
 			while (std::getline(TestFile3, lineT)) {
 				lineNumber++;
-				std::istringstream iss(lineT);
-				GLfloat value;
+				std::istringstream iss(lineT); GLfloat value; // variable init
 
 				switch (lineNumber) {
 				case 8:
@@ -196,122 +188,96 @@ void loadSettings() {
 		}
 	}
 }
-
+// Initialize GLFW
 void initializeGLFW() {
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, 1);
-	glfwWindowHint(GLFW_MAXIMIZED, 1);
-	glfwWindowHint(GLFW_DEPTH_BITS, 16);
-
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3), glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // Window Minimum and Maximum version
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //OpenGl Profile
+	glfwWindowHint(GLFW_RESIZABLE, 1); // Start Resizable
+	glfwWindowHint(GLFW_MAXIMIZED, 1); // Start Maximized
+	glfwWindowHint(GLFW_DEPTH_BITS, 16); // DepthBuffer Bit
 }
-
+// Initialize ImGui
 void initializeImGui(GLFWwindow* window) {
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
+	IMGUI_CHECKVERSION(), ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io, ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window, true), ImGui_ImplOpenGL3_Init("#version 330");
 }
+// Toggle Fullscreen
 void toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor) {
 	isFullscreen = !isFullscreen;
 	if (isFullscreen) {
+
 		// Save windowed mode dimensions and position
 		glfwGetWindowPos(window, &windowedPosX, &windowedPosY);
 		glfwGetWindowSize(window, &windowedWidth, &windowedHeight);
 
-		// Get the video mode of the monitor
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-		// Switch to fullscreen
-		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor); // Get the video mode of the monitor
+		
+		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate); // Switch to fullscreen
 	}
-	else {
-		// Switch to windowed mode
-		glfwSetWindowMonitor(window, NULL, windowedPosX, windowedPosY, windowedWidth, windowedHeight, 0);
-	}
+	else { glfwSetWindowMonitor(window, NULL, windowedPosX, windowedPosY, windowedWidth, windowedHeight, 0); } // Switch to windowed mode
 }
-
+// Holds ImGui Variables and Windows
 void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT) {
-
 	//Tell Imgui a new frame is about to begin
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
+	ImGui_ImplOpenGL3_NewFrame(), ImGui_ImplGlfw_NewFrame(), ImGui::NewFrame();
 
-	// ImGUI window creation
-	ImGui::Begin("Settings");
+	ImGui::Begin("Settings"); // ImGUI window creation
 	ImGui::Text("Settings (Press escape to use mouse)");
-	//load settings button
-	if (ImGui::SmallButton("load")) { loadSettings(); }
-	//ImGui::Checkbox("save changes?", &save);
+
+	if (ImGui::SmallButton("load")) { loadSettings(); } // load settings button
+
+	// Toggle ImGui Windows
 	ImGui::Checkbox("Rendering Panel", &Panels[0]), ImGui::Checkbox("Camera Panel", &Panels[1]);
 	ImGui::Checkbox("Lighting Panel", &Panels[2]), ImGui::Checkbox("Preformance Profiler", &Panels[3]);
 
-
-	// Ends the window
-	ImGui::End();
-	//Rendering panel
+	ImGui::End(); // Ends The ImGui Window
+	// Rendering panel
 	if (Panels[0]) {
 		ImGui::Begin("Rendering");
 
 		ImGui::Text("Framerate Limiters");
-		ImGui::Checkbox("Vsync", &doVsync);
-		//rendering
+		ImGui::Checkbox("Vsync", &doVsync); // Set the value of doVsync (bool)
 
-		//screen res
-		ImGui::DragInt("Width", &screenAreaI[0]), ImGui::DragInt("Height", &screenAreaI[1]);
-		//apply button
-		if (ImGui::SmallButton("Apply Changes?")) {
+		// Screen
+		ImGui::DragInt("Width", &screenAreaI[0]), ImGui::DragInt("Height", &screenAreaI[1]); // screen slider
+		
+		if (ImGui::SmallButton("Apply Changes?")) { // apply button
 
-			screenArea[0] = static_cast<unsigned int>(screenAreaI[0]), screenArea[1] = static_cast<unsigned int>(screenAreaI[1]);
+			screenArea[0] = static_cast<unsigned int>(screenAreaI[0]), screenArea[1] = static_cast<unsigned int>(screenAreaI[1]); // cast screenArea from screenAreaI
+			glViewport(0, 0, screenArea[0], screenArea[1]); // Set Viewport to "screenArea[0]", "screenArea[1]"
+			glfwSetWindowSize(window, screenArea[0], screenArea[1]); // Set Window Size to "screenArea[0]", "screenArea[1]" on window "window"
 
-			glViewport(0, 0, screenArea[0], screenArea[1]);
-			glfwSetWindowSize(window, screenArea[0], screenArea[1]);
-
-
-			setVSync(doVsync);
+			setVSync(doVsync);  // Set Vsync to value of doVsync (bool)
 		}
-		if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)")) {toggleFullscreen(window, monitorT);}
 
-		//culling
-		if (ImGui::SmallButton("Enable Culling")) { glEnable(GL_CULL_FACE); } if (ImGui::SmallButton("Disable Culling")) { glDisable(GL_CULL_FACE); }
+		if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)")) {toggleFullscreen(window, monitorT);} //Toggle Fullscreen
 
+		//Optimisation And Shaders
+		if (ImGui::SmallButton("Enable Culling")) { glEnable(GL_CULL_FACE); } if (ImGui::SmallButton("Disable Culling")) { glDisable(GL_CULL_FACE); } //culling
+		ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour); // Clear BackBuffer
+		ImGui::DragInt("Shader Number (Vert)", &VertNum),ImGui::DragInt("Shader Number (Frag)", &FragNum); // Shader Switching
 
-		ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour);
-		ImGui::DragInt("Shader Number (Vert)", &VertNum),ImGui::DragInt("Shader Number (Frag)", &FragNum);
+		if (ImGui::SmallButton("Apply Shader?")) {shaderProgramT.Delete(); TempButton = -1;} // apply shader
 
-
-		//apply shader
-		if (ImGui::SmallButton("Apply Shader?")) {shaderProgramT.Delete(); TempButton = -1;}
-
-		ImGui::End();
+		ImGui::End(); // Ends The ImGui Window
 	}
-
-	//Camera panel
+	// Camera panel
 	if (Panels[1]) {
-
 		ImGui::Begin("Camera Settings");
+		
+		//View Matrix
+		ImGui::SliderFloat("FOV", &cameraSettins[0], 0.1f, 160.0f); //FOV
+		ImGui::DragFloat2("Near and Far Plane", &cameraSettins[1], cameraSettins[2]); // Near and FarPlane
 
-		//FOV
-		ImGui::SliderFloat("FOV", &cameraSettins[0], 0.1f, 160.0f);
-		ImGui::DragFloat2("Near and Far Plane", &cameraSettins[1], cameraSettins[2]);
-
-		//reset camera pos
+		//Transform
 		ImGui::Text("Transform");
+		if (ImGui::SmallButton("Reset Camera")) {TempButton = 1;} // reset cam pos
+		ImGui::DragFloat3("Camera Transform", CameraXYZ); // set cam pos
+		if (ImGui::SmallButton("Set")) {TempButton = 2;} // apply cam pos
 
-		if (ImGui::SmallButton("Reset Camera")) {TempButton = 1;}
-
-		//set cam pos
-		ImGui::DragFloat3("Camera Transform", CameraXYZ);
-
-
-		if (ImGui::SmallButton("Set")) {TempButton = 2;}
-
-		ImGui::End();
+		ImGui::End(); // Ends The ImGui Window
 	}
 	// Lighting panel
 	if (Panels[2]) {
@@ -321,11 +287,9 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		ImGui::DragFloat3("Light Transform", LightTransform1);
 		ImGui::Text("Lighting"), ImGui::Text("Light color and intens");
 
-		// sky and light
-		ImGui::ColorEdit4("sky RGBA", skyRGBA), ImGui::ColorEdit4("light RGBA", lightRGBA), ImGui::ColorEdit4("fog RGBA", fogRGBA);
+		ImGui::ColorEdit4("sky RGBA", skyRGBA), ImGui::ColorEdit4("light RGBA", lightRGBA), ImGui::ColorEdit4("fog RGBA", fogRGBA);	// sky and light
 
 		ImGui::DragFloat("light I", &ConeSI[2]);
-
 
 		// cone settings
 		ImGui::Text("cone size");
@@ -334,17 +298,16 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		ImGui::Text("Light Angle");
 		ImGui::DragFloat3("Cone Angle", ConeRot);
 
+		ImGui::SliderInt("doReflections", &doReflections, 0, 2), ImGui::SliderInt("doFog", &doFog, 0, 1); 		//Toggles
 
-		//Toggles
-		ImGui::SliderInt("doReflections", &doReflections, 0, 2), ImGui::SliderInt("doFog", &doFog, 0, 1);
-
-		ImGui::End();
+		ImGui::End(); // Ends The ImGui Window
 	}
-	//preformance profiler
+	// preformance profiler
 	if (Panels[3]) {
 		ImGui::Begin("Preformance Profiler");
 		// Framerate graph
 		ImGui::Checkbox("Stabe Graph (Less Smoothness)", &aqFPS);
+
 			static float framerateValues[900] = { 0 };
 			static int frValues_offset = 0;
 			framerateValues[frValues_offset] = frameRateI;
@@ -352,32 +315,31 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		
 		ImGui::Text(framerate.c_str());
 		//ftDif = current frame rate(PER SEC) + half of current frame rate so the graph has space to display(max graph height
-		//ImGui::PlotLines("Framerate (FPS) Graph (500SAMP)", framerateValues, IM_ARRAYSIZE(framerateValues), frValues_offset, nullptr, 0.0f, ftDif, ImVec2(0, 80));
-			ImGui::PlotLines("Framerate (FPS) Graph (500SAMP)", framerateValues, (IM_ARRAYSIZE(framerateValues)), frValues_offset, nullptr, 0.0f, ftDif, ImVec2(0, 80));
+		ImGui::PlotLines("Framerate (FPS) Graph (500SAMP)", framerateValues, (IM_ARRAYSIZE(framerateValues)), frValues_offset, nullptr, 0.0f, ftDif, ImVec2(0, 80));
 
 
-		// Frame time graph
-		//stores 90 snapshots of frametime
-		static float frameTimeValues[90] = { 0 };
+		//Frame time graph
+		static float frameTimeValues[90] = { 0 }; //stores 90 snapshots of frametime
 
 		static int ftValues_offset = 0;
 		frameTimeValues[ftValues_offset] = deltaTime * 1000.0f; // Convert to milliseconds
 		ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
 		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = deltaTime * 1000.0f) + " ms";
+
 		ImGui::Text(frametimes.c_str());
 		ImGui::PlotLines("Frame Times (ms) Graph (90SAMP)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
-		ImGui::End();
+		ImGui::End(); // Ends The ImGui Window
 	}
-	// Renders the ImGUI elements
-	ImGui::Render();
+	
+	ImGui::Render(); // Renders the ImGUI elements
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
-
+// Holds DeltaTime Based Variables and Functions
 void DeltaMain(GLFWwindow* window) {
-	// Calculate delta time
-// Cast the value to float
 
+	// Calculate delta time
+	// Cast the value to float
 	float currentFrameTime = static_cast<float>(glfwGetTime());
 	deltaTime = currentFrameTime - lastFrameTime;
 	lastFrameTime = currentFrameTime;
@@ -386,68 +348,50 @@ void DeltaMain(GLFWwindow* window) {
 	frameRateI = 1.0f / deltaTime;
 	timeAccumulator[0] += deltaTime;
 	//1hz
-	if (timeAccumulator[0] >= 1.0f) {
-		//run if after 1 second
-		//update frameRate1IHZ at 1hz  
-		frameRate1IHZ = 1.0f / deltaTime;
+	if (timeAccumulator[0] >= 1.0f) { 	//run if after 1 second
+		frameRate1IHZ = 1.0f / deltaTime; //update frameRate1IHZ at 1hz  
 		framerate = "FPS " + std::to_string(frameRateI);
-		timeAccumulator[0] = 0.0f;
+		timeAccumulator[0] = 0.0f; //reset time
 	}
 	timeAccumulator[1] += deltaTime;
 	//60hz
-	if (timeAccumulator[1] >= 0.016f) {
-		//run if after .16 second
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS)
-		{
-			cameraSettins[0] += 0.4f;
-		}
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS)
-		{
-			cameraSettins[0] -= 0.4f;
-		}
+	if (timeAccumulator[1] >= 0.016f) { //run if after .16 second
 
-		if (cameraSettins[0] <= 0.00f)
-		{
-			cameraSettins[0] = 0.1f;
-		}
-		if (cameraSettins[0] >= 160.1f)
-		{
-			cameraSettins[0] = 160.0f;
-		}
-		timeAccumulator[1] = 0.0f;
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) { cameraSettins[0] += 0.4f; } // zoom out
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) { cameraSettins[0] -= 0.4f; } // zoom in
+
+		if (cameraSettins[0] <= 0.00f) { cameraSettins[0] = 0.1f; } // 0.1f zoom
+
+		if (cameraSettins[0] >= 160.1f) { cameraSettins[0] = 160.0f; } // 160.0f zoom
+
+		timeAccumulator[1] = 0.0f; //reset time
 	}
 	timeAccumulator[2] += deltaTime;
-	//30hz
+	
 	//1000.0f / (5.0f * 1000.0f)) (5hz)
-
-	//graph high correct
-	switch (aqFPS) {
-	case true:{
-		//sharp
+	
+	switch (aqFPS) { //graph high correct
+	case true:{ //sharp
 		if (timeAccumulator[2] >= (1000.0f / (frameRateI * (deltaTime * 1000.0f)))) {
 			ftDif = (frameRateI + (frameRateI / 2));
-			timeAccumulator[2] = 0.0f;
+			timeAccumulator[2] = 0.0f; //reset time
 		}
 			break;
 		}
-	case false:{
-		//smooth
+	case false:{ //smooth
 		if (timeAccumulator[2] >= (1000.0f / (frameRateI * (10.0f)))) {
 			ftDif = (frameRateI + (frameRateI / 2));
-			timeAccumulator[2] = 0.0f;
+			timeAccumulator[2] = 0.0f; //reset time
 		}
 			break;
 		}
 	}
 
-
 }
+//Main Function
 int main()
 {
-		//calls the LoadSettings function
-		//initialize inside of function
-		//start glfw
-		initializeGLFW();
+		initializeGLFW(); //initialize glfw
 
 		// Get the video mode of the primary monitor
 		// Get the primary monitor
@@ -466,38 +410,26 @@ int main()
 			return -1;
 		}
 
-		//second fallback
+		// second fallback
 		// Store the width and height in the test array
 		screenArea[0] = videoMode->width;
 		screenArea[1] = videoMode->height;
-		// Print the resolution
 
 		// Now call glfwGetMonitorPos with correct arguments
 		glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screenAreaI[0], &screenAreaI[1]);
 		loadSettings();
-		//size, name, fullscreen
-		//create window
+
 		//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
-		GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.4", NULL, NULL);
+		GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.4", NULL, NULL); // create window
 
-		if (!window) {
-			std::cerr << "Failed to create window" << std::endl;
-			glfwTerminate();
-			return -1;
-		}
+		// error checking
+		if (!window) { std::cerr << "Failed to create window" << std::endl; glfwTerminate(); return -1; } // "Failed to create window"
+		if (window == NULL) { std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
 
-		//error checking
-		if (window == NULL)
-		{
-			std::cout << "failed to create window" << std::endl;
-			glfwTerminate();
-			return -1;
-		}
-		//make window current context
-		glfwMakeContextCurrent(window);
+		glfwMakeContextCurrent(window);	//make window current context
+				
 
-		//load open gl config
-		gladLoadGL();
+		gladLoadGL(); // load open gl config
 
 		//area of open gl we want to render in
 		//screen assignment after fallback
@@ -505,135 +437,99 @@ int main()
 		glfwSetWindowSize(window, screenArea[0], screenArea[1]);
 		std::cout << "Primary monitor resolution: " << screenAreaI[0] << "x" << screenAreaI[1] << std::endl;
 
-		//create a shader program and feed it Dummy shader and vertex files
-		Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader");
+		// shaderprog init
+		Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader"); // create a shader program and feed it Dummy shader and vertex files
+		shaderProgram.Delete(); // clean the shader prog for memory management
+		loadShaderProgram(VertNum, FragNum, shaderProgram);// feed the shader prog real data
+		shaderProgram.Activate(); // activate new shader program for use
 
-		//clean the shader prog for memory management
-		shaderProgram.Delete();
-		//feed the shader prog real data
-		loadShaderProgram(VertNum, FragNum, shaderProgram);
+		initializeImGui(window); // Initialize ImGUI
 
-		shaderProgram.Activate();
-
-		// Initialize ImGUI
-		initializeImGui(window);
-
-		//depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
-		glEnable(GL_DEPTH_TEST);
+		// glenables
+		// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
+		glEnable(GL_DEPTH_TEST); // Depth buffer
 		glDepthFunc(GL_LESS);
+		glEnable(GL_CULL_FACE); // Culling
 
-		//need to do more research into this one
-		glEnable(GL_CULL_FACE);
+		// INITIALIZE CAMERA
+		Camera camera(screenArea[0], screenArea[1], glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
+		camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos
+		// texture loading problems
 
+		// Model Loader
+		std::vector<Model> models = loadModels(mapName + "ModelNames.cfg", mapName + "ModelPaths.cfg"); // Load models from files
 
-		//INITIALIZE CAMERA
-		// camera ratio and pos
-		Camera camera(screenArea[0], screenArea[1], glm::vec3(0.0f, 0.0f, 50.0f));
-		camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
-		//texture loading problems
+		// change window icon
+		// Icon Creation
+		int iconW, iconH; // Width and Depth
+		int iconChannels; // Image number (1)
+		stbi_set_flip_vertically_on_load(false); // Disable Image Flipping On Load
+		unsigned char* pixelsIcon = stbi_load("assets/Icons/Icon60B.png", &iconW, &iconH, &iconChannels, STBI_rgb_alpha); // create var with imnage inside
 
-		// Load models from files
-		std::vector<Model> models = loadModels(mapName + "ModelNames.cfg", mapName + "ModelPaths.cfg");
+		GLFWimage Iconinages[1]; // Create New "GLFWimage" VAR with "Iconinages at Channel (1)"
+		Iconinages[0].width = iconW, Iconinages[0].height = iconH, Iconinages[0].pixels = pixelsIcon; // Write Aspect Ratio and Fragnment to photo 
 
-		//Model model5("Assets/Models/test/test.gltf");
-		//icon creation
-		int iconW, iconH;
-		int iconChannels;
-		stbi_set_flip_vertically_on_load(false);
-		//STBI_rgb_alpha
-		unsigned char* pixelsIcon = stbi_load("assets/Icons/Icon60B.png", &iconW, &iconH, &iconChannels, STBI_rgb_alpha);
+		glfwSetWindowIcon(window, 1, Iconinages); // set the glfw window icon ("window", "Channel", "Image")
 
-		//change window icon
-		GLFWimage Iconinages[1];
-		//give glfw pixels, width and height
-		Iconinages[0].width = iconW, Iconinages[0].height = iconH, Iconinages[0].pixels = pixelsIcon;
+		setVSync(doVsync); // Set Vsync to value of doVsync (bool)
 
-		//change to icon (what window, how many images, what image)
-		glfwSetWindowIcon(window, 1, Iconinages);
-		//glfwCreateCursor(Iconinages, iconW, iconH);
-		setVSync(doVsync);
-		//game loop
-		//makes sure window stays open
-		while (!glfwWindowShouldClose(window))
+		while (!glfwWindowShouldClose(window)) // GAME LOOP
 		{
-			DeltaMain(window);
+			DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) 
+
 			switch (TempButton) {
 			case -1: {
 				loadShaderProgram(VertNum, FragNum, shaderProgram);
-				TempButton = 0;
-				break;
-			}
+				TempButton = 0; break; }
 			case 1: {
 				camera.Position = glm::vec3(0, 0, 0);
-				TempButton = 0;
-				break;
-			}
+				TempButton = 0; break; }
 			case 2: {
 				camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
-				TempButton = 0;
-				break;
-			}
+				TempButton = 0; break; }
 			}
 
-			//CLEAR BACK BUFFER
-			//RGB ALPHA please re enable to fix sky colour
-			// SEND TO COLOR BUFFER (DRAWS COLOUR TO SCREEN)
-			//glclear only needs to run once btw
-			if (clearColour) {
-				glClear(GL_DEPTH_BUFFER_BIT);
-			}
-			else {
-				glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			}
+			//Clear BackBuffer
+			if (clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
+			else { glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); } 	// Clear with colour
 
-			//inputs
 
+			// Convert variables to glm variables which hold data like a table
 			glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
-			glm::mat4 lightModel = glm::mat4(1.0f);
-			lightModel = glm::translate(lightModel, lightPos);
 
-			shaderProgram.Activate();
+			glm::mat4 lightModel = glm::mat4(1.0f); lightModel = glm::translate(lightModel, lightPos);
 
-			glUniform1i(glGetUniformLocation(shaderProgram.ID, "doReflect"), doReflections);
-			glUniform1i(glGetUniformLocation(shaderProgram.ID, "doFog"), doFog);
-			glUniform3f(glGetUniformLocation(shaderProgram.ID, "InnerLight1"), (ConeSI[1] - ConeSI[0]), ConeSI[1], ConeSI[2]);
-			glUniform3f(glGetUniformLocation(shaderProgram.ID, "spotLightRot"), ConeRot[0], ConeRot[1], ConeRot[2]);
-			glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
-			glUniform3f(glGetUniformLocation(shaderProgram.ID, "fogColor"), fogRGBA[0], fogRGBA[1], fogRGBA[2]);
-			// update light color seprate from the model
-			glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
-			// update light pos
+			//Send Variables to shader (GPU)
+			shaderProgram.Activate(); // activate shaderprog to send vars to gpu
+
+			//DO/1f
+			glUniform1i(glGetUniformLocation(shaderProgram.ID, "doReflect"), doReflections), glUniform1i(glGetUniformLocation(shaderProgram.ID, "doFog"), doFog);
+
+			//3f
+			glUniform3f(glGetUniformLocation(shaderProgram.ID, "InnerLight1"), (ConeSI[1] - ConeSI[0]), ConeSI[1], ConeSI[2]), 
+			glUniform3f(glGetUniformLocation(shaderProgram.ID, "spotLightRot"), ConeRot[0], ConeRot[1], ConeRot[2]), glUniform3f(glGetUniformLocation(shaderProgram.ID, "fogColor"), fogRGBA[0], fogRGBA[1], fogRGBA[2]),
 			glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), LightTransform1[0], LightTransform1[1], LightTransform1[2]);
 
-			camera.Inputs(window, deltaTime);
+			//4f
+			glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]),
+			glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 
-			// camera fov, near and far plane
-			camera.updateMatrix(cameraSettins[0], cameraSettins[1], cameraSettins[2]);
+			//Camera
+			camera.Inputs(window, deltaTime); //send Camera.cpp window inputs and delta time
+			camera.updateMatrix(cameraSettins[0], cameraSettins[1], cameraSettins[2]); // Update: fov, near and far plane
 
-			// draw the model
-			for (Model& model : models) {
-				model.Draw(shaderProgram, camera);
-			}
+			for (Model& model : models) { model.Draw(shaderProgram, camera); }// draw the model
 
-			camera.Matrix(shaderProgram, "camMatrix");
+			camera.Matrix(shaderProgram, "camMatrix"); //Send Camera Matrix To Shader Prog
 			imGuiMAIN(window, shaderProgram, primaryMonitor);
 
-			// Swap back buffer with front buffer
-			glfwSwapBuffers(window);
-			// Tells open gl to proccess all events like window resizing and all otheer events
-			glfwPollEvents();
+			glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
+			glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
 		}
-		std::cout << "\nGame Loop Ended" << std::endl;
-		// Cleanup
-		// Delete all objects on close
-		// Deletes all ImGUI instances
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
-		shaderProgram.Delete();
-		// kill opengl
-		glfwDestroyWindow(window);
-		glfwTerminate();
+
+		// Cleanup: Delete all objects on close
+		ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
+		shaderProgram.Delete(); // Delete Shader Prog
+		glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
 		return 0;
 }
