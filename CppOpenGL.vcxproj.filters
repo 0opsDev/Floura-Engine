@@ -37,14 +37,56 @@
     <Filter Include="Resource Files\Shaders\Main">
       <UniqueIdentifier>{e96aaa03-9abd-4e46-a63a-bb33a658f71a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\video">
+      <UniqueIdentifier>{98e07985-015c-418e-b754-26beaf7664f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\video\shader">
+      <UniqueIdentifier>{a10ec773-04b2-444b-8c2b-da8a1ebf1308}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\video\model">
+      <UniqueIdentifier>{da5d5fd1-0748-4fd1-93d0-970c877e7673}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\video\BufferObjects">
+      <UniqueIdentifier>{4ce3a349-9957-465a-94c6-662991dd73d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\video\BufferArrays">
+      <UniqueIdentifier>{1892b1b9-9ca8-4d72-9fd7-2f313e6451bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\main">
+      <UniqueIdentifier>{2056cd74-35c5-4625-92af-aed34477d283}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\control">
+      <UniqueIdentifier>{a181b63a-95ab-45b9-9d39-554546acd6c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\file">
+      <UniqueIdentifier>{2036a713-b53e-4479-9b53-7cfc6850ea5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\control">
+      <UniqueIdentifier>{3fb70cda-9e5e-4230-80b5-ca6ee05d31d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\file">
+      <UniqueIdentifier>{40e61a2a-2db8-47f0-a425-197e5832a633}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\main">
+      <UniqueIdentifier>{c25f9ba6-1d6a-4773-9896-24f97f4c43bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\video">
+      <UniqueIdentifier>{821fde3a-21d6-42ac-87fa-139e95542374}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\video\shader">
+      <UniqueIdentifier>{417df52d-3d0c-4fba-a8db-a13b74efa1be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\video\BufferArrays">
+      <UniqueIdentifier>{49208e6f-0ec0-4d7f-a01c-516820197508}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\video\BufferObjects">
+      <UniqueIdentifier>{6bcd220f-e059-4935-8077-c242b599b605}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\video\model">
+      <UniqueIdentifier>{62b70578-7fd3-4375-b671-eb640e37ee97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="imgui\imgui_widgets.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
@@ -66,32 +108,41 @@
     <ClCompile Include="imgui\imgui_tables.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\video\ShaderClass.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\control\Camera.cpp">
+      <Filter>Source Files\control</Filter>
     </ClCompile>
-    <ClCompile Include="src\video\stb.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\file\FileClass.cpp">
+      <Filter>Source Files\file</Filter>
     </ClCompile>
-    <ClCompile Include="src\video\Texture.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\main\Main.cpp">
+      <Filter>Source Files\main</Filter>
     </ClCompile>
-    <ClCompile Include="src\video\VAO.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\main\glad.c">
+      <Filter>Source Files\main</Filter>
     </ClCompile>
-    <ClCompile Include="src\video\VBO.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\video\shader\ShaderClass.cpp">
+      <Filter>Source Files\video\shader</Filter>
     </ClCompile>
-    <ClCompile Include="src\video\EBO.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\video\BufferArrays\VAO.cpp">
+      <Filter>Source Files\video\BufferArrays</Filter>
     </ClCompile>
-    <ClCompile Include="src\video\Camera.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\video\BufferObjects\EBO.cpp">
+      <Filter>Source Files\video\BufferObjects</Filter>
     </ClCompile>
-    <ClCompile Include="src\video\Mesh.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\video\BufferObjects\VBO.cpp">
+      <Filter>Source Files\video\BufferObjects</Filter>
     </ClCompile>
-    <ClCompile Include="src\video\Model.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\video\model\Mesh.cpp">
+      <Filter>Source Files\video\model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\model\Model.cpp">
+      <Filter>Source Files\video\model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\model\stb.cpp">
+      <Filter>Source Files\video\model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\model\Texture.cpp">
+      <Filter>Source Files\video\model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -122,29 +173,35 @@
     <ClInclude Include="imgui\imstb_truetype.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="src\video\VBO.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\control\Camera.h">
+      <Filter>Header Files\control</Filter>
     </ClInclude>
-    <ClInclude Include="src\video\EBO.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\file\FileClass.h">
+      <Filter>Header Files\file</Filter>
     </ClInclude>
-    <ClInclude Include="src\video\shaderClass.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\main\Main.h">
+      <Filter>Header Files\main</Filter>
     </ClInclude>
-    <ClInclude Include="src\video\Texture.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\video\shader\shaderClass.h">
+      <Filter>Header Files\video\shader</Filter>
     </ClInclude>
-    <ClInclude Include="src\video\VAO.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\video\BufferArrays\VAO.h">
+      <Filter>Header Files\video\BufferArrays</Filter>
     </ClInclude>
-    <ClInclude Include="src\video\Mesh.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\video\BufferObjects\EBO.h">
+      <Filter>Header Files\video\BufferObjects</Filter>
     </ClInclude>
-    <ClInclude Include="src\video\Camera.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\video\BufferObjects\VBO.h">
+      <Filter>Header Files\video\BufferObjects</Filter>
     </ClInclude>
-    <ClInclude Include="src\video\Model.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\video\model\Mesh.h">
+      <Filter>Header Files\video\model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\video\model\Model.h">
+      <Filter>Header Files\video\model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\video\model\Texture.h">
+      <Filter>Header Files\video\model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -155,9 +212,6 @@
       <Filter>Resource Files\Text</Filter>
     </None>
     <None Include="Assets\Maps\Default\ModelNames.cfg">
-      <Filter>Resource Files\Text</Filter>
-    </None>
-    <None Include="Settings\Engine.ini">
       <Filter>Resource Files\Text</Filter>
     </None>
     <None Include="Settings\EngineDefault.ini">

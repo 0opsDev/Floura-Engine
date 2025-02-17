@@ -75,11 +75,11 @@
     <LibraryPath>C:\Users\anon\source\repos\CppOpenGL\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>Libraries\include;$(IncludePath)</IncludePath>
+    <IncludePath>Libraries\include;src\video\shader;src\video\;src\main;src\file;src\video\BufferArrays;src\video\BufferObjects;src\video\model;src\control;$(IncludePath)</IncludePath>
     <LibraryPath>Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>Libraries\include;$(IncludePath)</IncludePath>
+    <IncludePath>Libraries\include;src\main;src\video;src\control;src\file;src\video\shader;src\video\model;src\video\BufferObjects;src\video\BufferArrays;$(IncludePath)</IncludePath>
     <LibraryPath>Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -145,7 +145,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />
@@ -153,16 +152,18 @@
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="src\video\Camera.cpp" />
-    <ClCompile Include="src\video\EBO.cpp" />
-    <ClCompile Include="src\video\Mesh.cpp" />
-    <ClCompile Include="src\video\Model.cpp" />
-    <ClCompile Include="src\video\ShaderClass.cpp" />
-    <ClCompile Include="src\video\stb.cpp" />
-    <ClCompile Include="src\video\Texture.cpp" />
-    <ClCompile Include="src\video\VAO.cpp" />
-    <ClCompile Include="src\video\VBO.cpp" />
+    <ClCompile Include="src\control\Camera.cpp" />
+    <ClCompile Include="src\file\FileClass.cpp" />
+    <ClCompile Include="src\main\glad.c" />
+    <ClCompile Include="src\main\Main.cpp" />
+    <ClCompile Include="src\video\BufferArrays\VAO.cpp" />
+    <ClCompile Include="src\video\BufferObjects\EBO.cpp" />
+    <ClCompile Include="src\video\BufferObjects\VBO.cpp" />
+    <ClCompile Include="src\video\model\Mesh.cpp" />
+    <ClCompile Include="src\video\model\Model.cpp" />
+    <ClCompile Include="src\video\model\stb.cpp" />
+    <ClCompile Include="src\video\model\Texture.cpp" />
+    <ClCompile Include="src\video\shader\ShaderClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h" />
@@ -174,20 +175,21 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
-    <ClInclude Include="src\video\Camera.h" />
-    <ClInclude Include="src\video\EBO.h" />
-    <ClInclude Include="src\video\Mesh.h" />
-    <ClInclude Include="src\video\Model.h" />
-    <ClInclude Include="src\video\shaderClass.h" />
-    <ClInclude Include="src\video\Texture.h" />
-    <ClInclude Include="src\video\VAO.h" />
-    <ClInclude Include="src\video\VBO.h" />
+    <ClInclude Include="src\control\Camera.h" />
+    <ClInclude Include="src\file\FileClass.h" />
+    <ClInclude Include="src\main\Main.h" />
+    <ClInclude Include="src\video\BufferArrays\VAO.h" />
+    <ClInclude Include="src\video\BufferObjects\EBO.h" />
+    <ClInclude Include="src\video\BufferObjects\VBO.h" />
+    <ClInclude Include="src\video\model\Mesh.h" />
+    <ClInclude Include="src\video\model\Model.h" />
+    <ClInclude Include="src\video\model\Texture.h" />
+    <ClInclude Include="src\video\shader\shaderClass.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Maps\Default\ModelNames.cfg" />
     <None Include="Assets\Maps\Default\ModelPaths.cfg" />
     <None Include="Settings\Default.ini" />
-    <None Include="Settings\Engine.ini" />
     <None Include="Settings\EngineDefault.ini" />
     <None Include="Shaders\Db\Default.frag" />
     <None Include="Shaders\Db\Depth.frag" />
