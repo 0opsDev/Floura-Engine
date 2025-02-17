@@ -9,26 +9,39 @@
 #include"imgui_impl_opengl3.h"
 
 //Global Variables
-unsigned int screenArea[2] = { 800, 600 }; //Unint
+//Render
+struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false; }; RenderSettings render;
 
-//Int, Screen, Framerate, Buttons, Shader changing, Window info, Dofog&Reflect
-int screenAreaI[2] = { screenArea[0], screenArea[1] }, frameRateI, frameRate1IHZ, TempButton = 0,
-VertNum = 0, FragNum = 2, windowedPosX, windowedPosY, windowedWidth, windowedHeight,
-doReflections = 1, doFog = 1;
-
-bool Panels[4] = { true, true, true, true }, CapFps = false, checkboxVar[1] = { false },
-doVsync, clearColour, isFullscreen = false, aqFPS = true; // bool
-
-float lastFrameTime, deltaTime, ftDif, cameraSettins[3] = { 60.0f, 0.1f, 1000.0f }; //Float, DeltaTime, Camera: FOV , near, far
-static float timeAccumulator[3] = { 0.0f, 0.0f, 0.0f }; // DeltaTime Accumulators
-
+//Shader
+struct ShaderSettings { int VertNum = 0, FragNum = 2; };
 //GLfloat, Render, Camera, Light
 GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }, ConeRot[3] = { 0.0f, -4.0f , 0.0f },
 LightTransform1[3] = { 0.0f, 25.0f, 0.0f }, CameraXYZ[3] = { 0.0f, 5.0f, 0.0f },
-lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f }, skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, 
+lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f }, skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f },
 fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+ShaderSettings shaderStr;
 
-std::string framerate, mapName = ""; //String, Framerate, Maploading
+struct ScreenSettings { //Screen
+	unsigned int width = 800, height = 600;
+	int windowedPosX, windowedPosY, windowedWidth, windowedHeight, widthI, heightI;
+	bool isFullscreen = false;
+}; ScreenSettings screen; 
+
+struct DeltaTime { //DeltaTime
+	int frameRateI, frameRate1IHZ;
+	float lastFrameTime, deltaTime, ftDif;
+	bool aqFPS = true;
+	std::string framerate;
+}; DeltaTime deltaTimeStr;
+static float timeAccumulator[3] = { 0.0f, 0.0f, 0.0f }; // DeltaTime Accumulators
+
+int TempButton = 0;
+bool Panels[4] = { true, true, true, true }, checkboxVar[1] = { false }; // bool
+
+float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; //Float, DeltaTime, Camera: FOV , near, far
+
+std::string mapName = ""; //String, Maploading
+
 
 // Function to read lines from a file into a vector of strings
 std::vector<std::string> readLinesFromFile(const std::string& filePath) {
@@ -90,7 +103,6 @@ std::vector<Model> loadModels(const std::string& namesFilePath, const std::strin
 	}
 	return models;
 }
-
 //Methods
 // Toggles Vsync
 void setVSync(bool enabled) {
@@ -111,23 +123,23 @@ void loadSettings() {
 
 			switch (lineNumber) {
 			case 3:
-				if (iss >> value) screenArea[0] = static_cast<unsigned int>(value);
+				if (iss >> value) screen.width = static_cast<unsigned int>(value);
 				break;
 			case 4:
-				if (iss >> value) screenArea[1] = static_cast<unsigned int>(value);
+				if (iss >> value) screen.height = static_cast<unsigned int>(value);
 				break;
 			case 6:
-				doVsync = (lineT == "VsyncT");
-				std::cout << "Vsync: " << doVsync << std::endl;
+				render.doVsync = (lineT == "VsyncT");
+				std::cout << "Vsync: " << &render.doVsync << std::endl;
 				break;
 			case 8:
-				if (iss >> value) cameraSettins[0] = value;
-				std::cout << "Camera FOV: " << cameraSettins[0] << std::endl;
+				if (iss >> value) cameraSettings[0] = value;
+				std::cout << "Camera FOV: " << cameraSettings[0] << std::endl;
 				break;
 			default:
 				break;
 			}
-			screenAreaI[0] = screenArea[0]; screenAreaI[1] = screenArea[1];
+			screen.heightI = screen.height; screen.widthI = screen.width;
 		}
 		TestFile2.close();
 		
@@ -169,12 +181,12 @@ void loadSettings() {
 					if (iss >> value) fogRGBA[2] = value;
 					break;
 				case 5:
-					if (iss >> value) cameraSettins[1] = value;
-					std::cout << "Camera Near Plane: " << cameraSettins[1] << std::endl;
+					if (iss >> value) cameraSettings[1] = value;
+					std::cout << "Camera Near Plane: " << cameraSettings[1] << std::endl;
 					break;
 				case 6:
-					if (iss >> value) cameraSettins[2] = value;
-					std::cout << "Camera Far Plane: " << cameraSettins[2] << std::endl;
+					if (iss >> value) cameraSettings[2] = value;
+					std::cout << "Camera Far Plane: " << cameraSettings[2] << std::endl;
 					break;
 				case 3:
 					mapName = "Assets/Maps/" + lineT + "/";
@@ -205,18 +217,19 @@ void initializeImGui(GLFWwindow* window) {
 }
 // Toggle Fullscreen
 void toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor) {
-	isFullscreen = !isFullscreen;
-	if (isFullscreen) {
+	
+	screen.isFullscreen = !screen.isFullscreen;
+	if (screen.isFullscreen) {
 
 		// Save windowed mode dimensions and position
-		glfwGetWindowPos(window, &windowedPosX, &windowedPosY);
-		glfwGetWindowSize(window, &windowedWidth, &windowedHeight);
+		glfwGetWindowPos(window, &screen.windowedPosX, &screen.windowedPosY);
+		glfwGetWindowSize(window, &screen.windowedWidth, &screen.windowedHeight);
 
 		const GLFWvidmode* mode = glfwGetVideoMode(monitor); // Get the video mode of the monitor
 		
 		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate); // Switch to fullscreen
 	}
-	else { glfwSetWindowMonitor(window, NULL, windowedPosX, windowedPosY, windowedWidth, windowedHeight, 0); } // Switch to windowed mode
+	else { glfwSetWindowMonitor(window, NULL, screen.windowedPosX, screen.windowedPosY, screen.windowedWidth, screen.windowedHeight, 0); } // Switch to windowed mode
 }
 // Holds ImGui Variables and Windows
 void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT) {
@@ -238,26 +251,26 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		ImGui::Begin("Rendering");
 
 		ImGui::Text("Framerate Limiters");
-		ImGui::Checkbox("Vsync", &doVsync); // Set the value of doVsync (bool)
+		ImGui::Checkbox("Vsync", &render.doVsync); // Set the value of doVsync (bool)
 
 		// Screen
-		ImGui::DragInt("Width", &screenAreaI[0]), ImGui::DragInt("Height", &screenAreaI[1]); // screen slider
+		ImGui::DragInt("Width", &screen.widthI), ImGui::DragInt("Height", &screen.heightI); // screen slider
 		
 		if (ImGui::SmallButton("Apply Changes?")) { // apply button
 
-			screenArea[0] = static_cast<unsigned int>(screenAreaI[0]), screenArea[1] = static_cast<unsigned int>(screenAreaI[1]); // cast screenArea from screenAreaI
-			glViewport(0, 0, screenArea[0], screenArea[1]); // Set Viewport to "screenArea[0]", "screenArea[1]"
-			glfwSetWindowSize(window, screenArea[0], screenArea[1]); // Set Window Size to "screenArea[0]", "screenArea[1]" on window "window"
+			screen.width = static_cast<unsigned int>(screen.widthI), screen.height = static_cast<unsigned int>(screen.heightI); // cast screenArea from screenAreaI
+			glViewport(0, 0, screen.width, screen.height); // Set Viewport to "screen.width", "screen.height"
+			glfwSetWindowSize(window, screen.width, screen.height); // Set Window Size to "screen.width", "screen.height" on window "window"
 
-			setVSync(doVsync);  // Set Vsync to value of doVsync (bool)
+			setVSync(render.doVsync);  // Set Vsync to value of doVsync (bool)
 		}
 
 		if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)")) {toggleFullscreen(window, monitorT);} //Toggle Fullscreen
 
 		//Optimisation And Shaders
 		if (ImGui::SmallButton("Enable Culling")) { glEnable(GL_CULL_FACE); } if (ImGui::SmallButton("Disable Culling")) { glDisable(GL_CULL_FACE); } //culling
-		ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &clearColour); // Clear BackBuffer
-		ImGui::DragInt("Shader Number (Vert)", &VertNum),ImGui::DragInt("Shader Number (Frag)", &FragNum); // Shader Switching
+		ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &render.clearColour); // Clear BackBuffer
+		ImGui::DragInt("Shader Number (Vert)", &shaderStr.VertNum),ImGui::DragInt("Shader Number (Frag)", &shaderStr.FragNum); // Shader Switching
 
 		if (ImGui::SmallButton("Apply Shader?")) {shaderProgramT.Delete(); TempButton = -1;} // apply shader
 
@@ -268,8 +281,8 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		ImGui::Begin("Camera Settings");
 		
 		//View Matrix
-		ImGui::SliderFloat("FOV", &cameraSettins[0], 0.1f, 160.0f); //FOV
-		ImGui::DragFloat2("Near and Far Plane", &cameraSettins[1], cameraSettins[2]); // Near and FarPlane
+		ImGui::SliderFloat("FOV", &cameraSettings[0], 0.1f, 160.0f); //FOV
+		ImGui::DragFloat2("Near and Far Plane", &cameraSettings[1], cameraSettings[2]); // Near and FarPlane
 
 		//Transform
 		ImGui::Text("Transform");
@@ -298,7 +311,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		ImGui::Text("Light Angle");
 		ImGui::DragFloat3("Cone Angle", ConeRot);
 
-		ImGui::SliderInt("doReflections", &doReflections, 0, 2), ImGui::SliderInt("doFog", &doFog, 0, 1); 		//Toggles
+		ImGui::SliderInt("doReflections", &render.doReflections, 0, 2), ImGui::SliderInt("doFog", &render.doFog, 0, 1); 		//Toggles
 
 		ImGui::End(); // Ends The ImGui Window
 	}
@@ -306,25 +319,25 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 	if (Panels[3]) {
 		ImGui::Begin("Preformance Profiler");
 		// Framerate graph
-		ImGui::Checkbox("Stabe Graph (Less Smoothness)", &aqFPS);
+		ImGui::Checkbox("Stabe Graph (Less Smoothness)", &deltaTimeStr.aqFPS);
 
 			static float framerateValues[900] = { 0 };
 			static int frValues_offset = 0;
-			framerateValues[frValues_offset] = frameRateI;
+			framerateValues[frValues_offset] = deltaTimeStr.frameRateI;
 			frValues_offset = (frValues_offset + 1) % IM_ARRAYSIZE(framerateValues);
 		
-		ImGui::Text(framerate.c_str());
+		ImGui::Text(deltaTimeStr.framerate.c_str());
 		//ftDif = current frame rate(PER SEC) + half of current frame rate so the graph has space to display(max graph height
-		ImGui::PlotLines("Framerate (FPS) Graph (500SAMP)", framerateValues, (IM_ARRAYSIZE(framerateValues)), frValues_offset, nullptr, 0.0f, ftDif, ImVec2(0, 80));
+		ImGui::PlotLines("Framerate (FPS) Graph (500SAMP)", framerateValues, (IM_ARRAYSIZE(framerateValues)), frValues_offset, nullptr, 0.0f, deltaTimeStr.ftDif, ImVec2(0, 80));
 
 
 		//Frame time graph
 		static float frameTimeValues[90] = { 0 }; //stores 90 snapshots of frametime
 
 		static int ftValues_offset = 0;
-		frameTimeValues[ftValues_offset] = deltaTime * 1000.0f; // Convert to milliseconds
+		frameTimeValues[ftValues_offset] = deltaTimeStr.deltaTime * 1000.0f; // Convert to milliseconds
 		ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
-		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = deltaTime * 1000.0f) + " ms";
+		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = deltaTimeStr.deltaTime * 1000.0f) + " ms";
 
 		ImGui::Text(frametimes.c_str());
 		ImGui::PlotLines("Frame Times (ms) Graph (90SAMP)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
@@ -337,50 +350,50 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 }
 // Holds DeltaTime Based Variables and Functions
 void DeltaMain(GLFWwindow* window) {
-
+	
 	// Calculate delta time
 	// Cast the value to float
 	float currentFrameTime = static_cast<float>(glfwGetTime());
-	deltaTime = currentFrameTime - lastFrameTime;
-	lastFrameTime = currentFrameTime;
+	deltaTimeStr.deltaTime = currentFrameTime - deltaTimeStr.lastFrameTime;
+	deltaTimeStr.lastFrameTime = currentFrameTime;
 
 	//framerate tracking
-	frameRateI = 1.0f / deltaTime;
-	timeAccumulator[0] += deltaTime;
+	deltaTimeStr.frameRateI = 1.0f / deltaTimeStr.deltaTime;
+	timeAccumulator[0] += deltaTimeStr.deltaTime;
 	//1hz
 	if (timeAccumulator[0] >= 1.0f) { 	//run if after 1 second
-		frameRate1IHZ = 1.0f / deltaTime; //update frameRate1IHZ at 1hz  
-		framerate = "FPS " + std::to_string(frameRateI);
+		deltaTimeStr.frameRate1IHZ = 1.0f / deltaTimeStr.deltaTime; //update frameRate1IHZ at 1hz  
+		deltaTimeStr.framerate = "FPS " + std::to_string(deltaTimeStr.frameRateI);
 		timeAccumulator[0] = 0.0f; //reset time
 	}
-	timeAccumulator[1] += deltaTime;
+	timeAccumulator[1] += deltaTimeStr.deltaTime;
 	//60hz
 	if (timeAccumulator[1] >= 0.016f) { //run if after .16 second
 
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) { cameraSettins[0] += 0.4f; } // zoom out
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) { cameraSettins[0] -= 0.4f; } // zoom in
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) { cameraSettings[0] += 0.4f; } // zoom out
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) { cameraSettings[0] -= 0.4f; } // zoom in
 
-		if (cameraSettins[0] <= 0.00f) { cameraSettins[0] = 0.1f; } // 0.1f zoom
+		if (cameraSettings[0] <= 0.00f) { cameraSettings[0] = 0.1f; } // 0.1f zoom
 
-		if (cameraSettins[0] >= 160.1f) { cameraSettins[0] = 160.0f; } // 160.0f zoom
+		if (cameraSettings[0] >= 160.1f) { cameraSettings[0] = 160.0f; } // 160.0f zoom
 
 		timeAccumulator[1] = 0.0f; //reset time
 	}
-	timeAccumulator[2] += deltaTime;
+	timeAccumulator[2] += deltaTimeStr.deltaTime;
 	
 	//1000.0f / (5.0f * 1000.0f)) (5hz)
 	
-	switch (aqFPS) { //graph high correct
+	switch (deltaTimeStr.aqFPS) { //graph high correct
 	case true:{ //sharp
-		if (timeAccumulator[2] >= (1000.0f / (frameRateI * (deltaTime * 1000.0f)))) {
-			ftDif = (frameRateI + (frameRateI / 2));
+		if (timeAccumulator[2] >= (1000.0f / (deltaTimeStr.frameRateI * (deltaTimeStr.deltaTime * 1000.0f)))) {
+			deltaTimeStr.ftDif = (deltaTimeStr.frameRateI + (deltaTimeStr.frameRateI / 2));
 			timeAccumulator[2] = 0.0f; //reset time
 		}
 			break;
 		}
 	case false:{ //smooth
-		if (timeAccumulator[2] >= (1000.0f / (frameRateI * (10.0f)))) {
-			ftDif = (frameRateI + (frameRateI / 2));
+		if (timeAccumulator[2] >= (1000.0f / (deltaTimeStr.frameRateI * (10.0f)))) {
+			deltaTimeStr.ftDif = (deltaTimeStr.frameRateI + (deltaTimeStr.frameRateI / 2));
 			timeAccumulator[2] = 0.0f; //reset time
 		}
 			break;
@@ -391,6 +404,7 @@ void DeltaMain(GLFWwindow* window) {
 //Main Function
 int main()
 {
+		
 		initializeGLFW(); //initialize glfw
 
 		// Get the video mode of the primary monitor
@@ -412,11 +426,11 @@ int main()
 
 		// second fallback
 		// Store the width and height in the test array
-		screenArea[0] = videoMode->width;
-		screenArea[1] = videoMode->height;
+		screen.width = videoMode->width;
+		screen.height = videoMode->height;
 
 		// Now call glfwGetMonitorPos with correct arguments
-		glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screenAreaI[0], &screenAreaI[1]);
+		glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screen.widthI, &screen.heightI);
 		loadSettings();
 
 		//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
@@ -433,14 +447,14 @@ int main()
 
 		//area of open gl we want to render in
 		//screen assignment after fallback
-		glViewport(0, 0, screenArea[0], screenArea[1]);
-		glfwSetWindowSize(window, screenArea[0], screenArea[1]);
-		std::cout << "Primary monitor resolution: " << screenAreaI[0] << "x" << screenAreaI[1] << std::endl;
+		glViewport(0, 0, screen.width, screen.height);
+		glfwSetWindowSize(window, screen.width, screen.height);
+		std::cout << "Primary monitor resolution: " << screen.width << "x" << screen.height << std::endl;
 
 		// shaderprog init
 		Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader"); // create a shader program and feed it Dummy shader and vertex files
 		shaderProgram.Delete(); // clean the shader prog for memory management
-		loadShaderProgram(VertNum, FragNum, shaderProgram);// feed the shader prog real data
+		loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);// feed the shader prog real data
 		shaderProgram.Activate(); // activate new shader program for use
 
 		initializeImGui(window); // Initialize ImGUI
@@ -452,7 +466,7 @@ int main()
 		glEnable(GL_CULL_FACE); // Culling
 
 		// INITIALIZE CAMERA
-		Camera camera(screenArea[0], screenArea[1], glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
+		Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 		camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos
 		// texture loading problems
 
@@ -471,7 +485,7 @@ int main()
 
 		glfwSetWindowIcon(window, 1, Iconinages); // set the glfw window icon ("window", "Channel", "Image")
 
-		setVSync(doVsync); // Set Vsync to value of doVsync (bool)
+		setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
 
 		while (!glfwWindowShouldClose(window)) // GAME LOOP
 		{
@@ -479,7 +493,7 @@ int main()
 
 			switch (TempButton) {
 			case -1: {
-				loadShaderProgram(VertNum, FragNum, shaderProgram);
+				loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);
 				TempButton = 0; break; }
 			case 1: {
 				camera.Position = glm::vec3(0, 0, 0);
@@ -490,7 +504,7 @@ int main()
 			}
 
 			//Clear BackBuffer
-			if (clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
+			if (render.clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
 			else { glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); } 	// Clear with colour
 
 
@@ -503,7 +517,7 @@ int main()
 			shaderProgram.Activate(); // activate shaderprog to send vars to gpu
 
 			//DO/1f
-			glUniform1i(glGetUniformLocation(shaderProgram.ID, "doReflect"), doReflections), glUniform1i(glGetUniformLocation(shaderProgram.ID, "doFog"), doFog);
+			glUniform1i(glGetUniformLocation(shaderProgram.ID, "doReflect"), render.doReflections), glUniform1i(glGetUniformLocation(shaderProgram.ID, "doFog"), render.doFog);
 
 			//3f
 			glUniform3f(glGetUniformLocation(shaderProgram.ID, "InnerLight1"), (ConeSI[1] - ConeSI[0]), ConeSI[1], ConeSI[2]), 
@@ -515,8 +529,8 @@ int main()
 			glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 
 			//Camera
-			camera.Inputs(window, deltaTime); //send Camera.cpp window inputs and delta time
-			camera.updateMatrix(cameraSettins[0], cameraSettins[1], cameraSettins[2]); // Update: fov, near and far plane
+			camera.Inputs(window, deltaTimeStr.deltaTime); //send Camera.cpp window inputs and delta time
+			camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
 
 			for (Model& model : models) { model.Draw(shaderProgram, camera); }// draw the model
 
