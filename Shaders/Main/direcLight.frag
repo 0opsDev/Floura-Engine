@@ -74,8 +74,14 @@ vec4 direcLight()
     vec3 reflectionDirection = reflect(-lightDirection, normal);
     float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
     float specular = specAmount * specularLight;
-
-    return (diffuseColor * (diffuse + ambient) + (specularColor) * specular) * skyColor;
+    		switch (doReflect){
+	case 0:
+		return (diffuseColor * (diffuse + ambient) + 0) * skyColor;
+	break;
+	case 1:
+		return (diffuseColor * (diffuse + ambient) + (specularColor) * specular) * skyColor;
+	break;
+	}    
 }
 float near = 0.1f;
 float far = 100.0f;

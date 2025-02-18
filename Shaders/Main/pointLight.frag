@@ -78,7 +78,15 @@ vec4 pointLight()
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	return (diffuseColor * (diffuse * inten + ambient) + specularColor * specular * inten) * lightColor;
+		switch (doReflect){
+	case 0:
+	return (diffuseColor * (diffuse * inten + ambient) + 0) * lightColor;
+	break;
+	case 1:
+		return (diffuseColor * (diffuse * inten + ambient) + specularColor * specular * inten) * lightColor;
+	break;
+	}
+
 }
 float near = 0.1f;
 float far = 100.0f;

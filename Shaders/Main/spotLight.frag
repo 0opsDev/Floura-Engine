@@ -92,7 +92,14 @@ vec4 spotLight()
 	// first part intensity, second part removes too brighht, third part makes sure inten wont invert
 	//real life saver ((inten * lightColor ) - (inten * skyColor) * (lightColor) )                                                            doesnt add color it adds brightness         the number we take needs to be pos
 	//																																				adds specular part
+	switch (doReflect){
+	case 0:
+	return (diffuseColor *  ( (skyColor + diffuse) *     ((inten * lightColor ) - (inten * skyColor)) + (skyColor + (ambient)  ) ) + 0) * (skyColor);
+	break;
+	case 1:
 	return (diffuseColor *  ( (skyColor + diffuse) *     ((inten * lightColor ) - (inten * skyColor)) + (skyColor + (ambient)  ) ) + specularColor * specular * inten) * (skyColor);
+	break;
+	}
 }
 float near = 0.1f;
 float far = 100.0f;
