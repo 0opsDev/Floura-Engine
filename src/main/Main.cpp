@@ -239,7 +239,7 @@ void toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor) {
 // Holds ImGui Variables and Windows
 void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT) {
 	//Tell Imgui a new frame is about to begin
-	ImGui_ImplOpenGL3_NewFrame(), ImGui_ImplGlfw_NewFrame(), ImGui::NewFrame();
+	ImGui_ImplOpenGL3_NewFrame();ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 
 	ImGui::Begin("Settings"); // ImGUI window creation
 	ImGui::Text("Settings (Press escape to use mouse)");
@@ -248,35 +248,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 
 	// Toggle ImGui Windows
 	ImGui::Checkbox("Preformance Profiler", &Panels[0]);
-	// preformance profiler
-	if (Panels[0]) {
-		ImGui::Begin("Preformance Profiler");
-		// Framerate graph
-		ImGui::Checkbox("Stabe Graph (Less Smoothness)", &deltaTimeStr.aqFPS);
-
-		static float framerateValues[900] = { 0 };
-		static int frValues_offset = 0;
-		framerateValues[frValues_offset] = deltaTimeStr.frameRateI;
-		frValues_offset = (frValues_offset + 1) % IM_ARRAYSIZE(framerateValues);
-
-		ImGui::Text(deltaTimeStr.framerate.c_str());
-		//ftDif = current frame rate(PER SEC) + half of current frame rate so the graph has space to display(max graph height
-		ImGui::PlotLines("Framerate (FPS) Graph (500SAMP)", framerateValues, (IM_ARRAYSIZE(framerateValues)), frValues_offset, nullptr, 0.0f, deltaTimeStr.ftDif, ImVec2(0, 80));
-
-
-		//Frame time graph
-		static float frameTimeValues[90] = { 0 }; //stores 90 snapshots of frametime
-
-		static int ftValues_offset = 0;
-		frameTimeValues[ftValues_offset] = deltaTimeStr.deltaTime * 1000.0f; // Convert to milliseconds
-		ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
-		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = deltaTimeStr.deltaTime * 1000.0f) + " ms";
-
-		ImGui::Text(frametimes.c_str());
-		ImGui::PlotLines("Frame Times (ms) Graph (90SAMP)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
-		ImGui::End();
-		ImGui::TreePop();// Ends The ImGui Window
-	}
 	// Rendering panel
 	if (ImGui::TreeNode("Rendering")) {
 		if (ImGui::TreeNode("Framerate And Resolution")) {
@@ -284,40 +255,50 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 			ImGui::Checkbox("Vsync", &render.doVsync); // Set the value of doVsync (bool)
 
 			// Screen
-			ImGui::DragInt("Width", &screen.widthI), ImGui::DragInt("Height", &screen.heightI); // screen slider
+			ImGui::DragInt("Width", &screen.widthI);
+			ImGui::DragInt("Height", &screen.heightI); // screen slider
 
 			if (ImGui::SmallButton("Apply Changes?")) { // apply button
-				screen.width = static_cast<unsigned int>(screen.widthI), screen.height = static_cast<unsigned int>(screen.heightI); // cast screenArea from screenAreaI
+				screen.width = static_cast<unsigned int>(screen.widthI);
+				screen.height = static_cast<unsigned int>(screen.heightI); // cast screenArea from screenAreaI
 				glViewport(0, 0, screen.width, screen.height); // Set Viewport to "screen.width", "screen.height"
 				glfwSetWindowSize(window, screen.width, screen.height); // Set Window Size to "screen.width", "screen.height" on window "window"
 				setVSync(render.doVsync);  // Set Vsync to value of doVsync (bool)
-				ImGui::TreePop();}// Ends The ImGui Window
+			}
 			if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)")) { toggleFullscreen(window, monitorT); } //Toggle Fullscreen
+			ImGui::TreePop();// Ends The ImGui Window
 		}
 
 		if (ImGui::TreeNode("Shaders")) {
 			//Optimisation And Shaders
-			if (ImGui::SmallButton("Enable Culling")) { glEnable(GL_CULL_FACE); } if (ImGui::SmallButton("Disable Culling")) { glDisable(GL_CULL_FACE); } //culling
+			if (ImGui::SmallButton("Enable Culling")) { glEnable(GL_CULL_FACE); } 
+			if (ImGui::SmallButton("Disable Culling")) { glDisable(GL_CULL_FACE); } //culling
 			ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &render.clearColour); // Clear BackBuffer
-			ImGui::DragInt("Shader Number (Vert)", &shaderStr.VertNum), ImGui::DragInt("Shader Number (Frag)", &shaderStr.FragNum); // Shader Switching
+			ImGui::DragInt("Shader Number (Vert)", &shaderStr.VertNum);
+			ImGui::DragInt("Shader Number (Frag)", &shaderStr.FragNum); // Shader Switching
 
 			if (ImGui::SmallButton("Apply Shader?")) { shaderProgramT.Delete(); TempButton = -1; } // apply shader
-			ImGui::SliderInt("doReflections", &render.doReflections, 0, 2), ImGui::SliderInt("doFog", &render.doFog, 0, 1); 		//Toggles
+			ImGui::SliderInt("doReflections", &render.doReflections, 0, 2);
+			ImGui::SliderInt("doFog", &render.doFog, 0, 1); 		//Toggles
 			ImGui::TreePop();// Ends The ImGui Window
 		}
 		// Lighting panel
 		if (ImGui::TreeNode("Lighting")) {
 
 			if (ImGui::TreeNode("Colour")) {
-				ImGui::ColorEdit4("sky RGBA", skyRGBA), ImGui::ColorEdit4("light RGBA", lightRGBA), ImGui::ColorEdit4("fog RGBA", fogRGBA);	// sky and light
-				ImGui::TreePop();}
+				ImGui::ColorEdit4("sky RGBA", skyRGBA);
+				ImGui::ColorEdit4("light RGBA", lightRGBA);
+				ImGui::ColorEdit4("fog RGBA", fogRGBA);	// sky and light
+				ImGui::TreePop();
+			}
 
 			if (ImGui::TreeNode("Light Settings")) {
 				ImGui::DragFloat("light I", &ConeSI[2]);
 
 				// cone settings
 				ImGui::Text("cone size");
-				ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f), ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
+				ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
+				ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
 
 				ImGui::Text("Light Angle");
 				ImGui::DragFloat3("Cone Angle", ConeRot);
@@ -334,17 +315,46 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		if (ImGui::TreeNode("View")) {
 			ImGui::SliderFloat("FOV", &cameraSettings[0], 0.1f, 160.0f); //FOV
 			ImGui::DragFloat2("Near and Far Plane", &cameraSettings[1], cameraSettings[2]); // Near and FarPlane
-			ImGui::TreePop();}// Ends The ImGui Window 
+			ImGui::TreePop();// Ends The ImGui Window 
+		}
 
 		if (ImGui::TreeNode("Transform")) {
 			if (ImGui::SmallButton("Reset Camera")) { TempButton = 1; } // reset cam pos
 			ImGui::DragFloat3("Camera Transform", CameraXYZ); // set cam pos
 			if (ImGui::SmallButton("Set")) { TempButton = 2; } // apply cam pos
-			ImGui::TreePop();}// Ends The ImGui Window 
-
+			ImGui::TreePop();// Ends The ImGui Window 
+		}
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
+	// preformance profiler
+	if (Panels[0]) {
+		ImGui::Begin("Preformance Profiler");
+		// Framerate graph
+		ImGui::Checkbox("Stabe Graph (Less Smoothness)", &deltaTimeStr.aqFPS);
+
+		static float framerateValues[900] = { 0 };
+		static int frValues_offset = 0;
+		framerateValues[frValues_offset] = static_cast<float>(deltaTimeStr.frameRateI);
+		frValues_offset = (frValues_offset + 1) % IM_ARRAYSIZE(framerateValues);
+
+		ImGui::Text(deltaTimeStr.framerate.c_str());
+		//ftDif = current frame rate(PER SEC) + half of current frame rate so the graph has space to display(max graph height
+		ImGui::PlotLines("Framerate (FPS) Graph (500SAMP)", framerateValues, (IM_ARRAYSIZE(framerateValues)), frValues_offset, nullptr, 0.0f, deltaTimeStr.ftDif, ImVec2(0, 80));
+
+		//Frame time graph
+		static float frameTimeValues[90] = { 0 }; //stores 90 snapshots of frametime
+
+		static int ftValues_offset = 0;
+		frameTimeValues[ftValues_offset] = deltaTimeStr.deltaTime * 1000.0f; // Convert to milliseconds
+		ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
+		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = deltaTimeStr.deltaTime * 1000.0f) + " ms";
+
+		ImGui::Text(frametimes.c_str());
+		ImGui::PlotLines("Frame Times (ms) Graph (90SAMP)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
+		ImGui::End();
+	}
+
 	ImGui::End();
 	
 	ImGui::Render(); // Renders the ImGUI elements

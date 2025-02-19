@@ -75,7 +75,7 @@
     <LibraryPath>C:\Users\anon\source\repos\CppOpenGL\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>Libraries\include;src\video\shader;src\video\;src\main;src\file;src\video\BufferArrays;src\video\BufferObjects;src\video\model;src\control;$(IncludePath)</IncludePath>
+    <IncludePath>Libraries\include;src\main;src\video;src\control;src\file;src\video\shader;src\video\model;src\video\BufferObjects;src\video\BufferArrays;$(IncludePath)</IncludePath>
     <LibraryPath>Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
