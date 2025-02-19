@@ -8,7 +8,10 @@
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
 #include "Main.h"
-
+//#include <stdio.h> - c
+//Address Sanitizer (DEBUG MODE)
+int x[100];
+int ADDSR[2] = { 0, 0};
 //Global Variables
 //Render
 struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false; }; RenderSettings render;
@@ -327,6 +330,19 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
+	// Debug panel
+	if (ImGui::TreeNode("DEBUG"))
+	{
+		ImGui::Text("Address Sanitizer (MAIN.CPP) - CRASH"); ImGui::Text("(0: NULL, 1: end of loop, 2: end of task)"); // Text
+		ImGui::SliderInt("ADDS", &ADDSR[0], 0, 2);
+		if (ImGui::SmallButton("Apply ADDS?")) {
+			switch (ADDSR[0]) {
+				case 1: { ADDSR[1] = 1; break;}
+				case 2: { ADDSR[1] = 2; break;}
+			}
+		}
+		ImGui::TreePop();// Ends The ImGui Window
+	} // apply shader
 	// preformance profiler
 	if (Panels[0]) {
 		ImGui::Begin("Preformance Profiler");
@@ -417,7 +433,7 @@ void DeltaMain(GLFWwindow* window) {
 //Main Function
 int main()
 {
-		
+		std:: cout << ("Main\n");
 		initializeGLFW(); //initialize glfw
 
 		// Get the video mode of the primary monitor
@@ -553,11 +569,17 @@ int main()
 
 			glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 			glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
+			if (ADDSR[1] == 1) {
+				x[100] = 5;
+			}
 		}
 
 		// Cleanup: Delete all objects on close
 		ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
 		shaderProgram.Delete(); // Delete Shader Prog
 		glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
+		if (ADDSR[1] == 2) {
+			x[100] = 5;
+		}
 		return 0;
 }
