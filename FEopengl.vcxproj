@@ -202,6 +202,7 @@
     <None Include="Shaders\Empty.shader" />
     <None Include="Shaders\FragList.cfg" />
     <None Include="Shaders\Main\Default.vert" />
+    <None Include="Shaders\Main\DefaultAMD.vert" />
     <None Include="Shaders\Main\direcLight.frag" />
     <None Include="Shaders\Main\pointLight.frag" />
     <None Include="Shaders\Main\spotLight.frag" />
