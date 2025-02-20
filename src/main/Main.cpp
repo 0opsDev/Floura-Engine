@@ -8,7 +8,6 @@
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
 #include "Main.h"
-//#include <stdio.h> - c
 //Address Sanitizer (DEBUG MODE)
 int x[100];
 int ADDSR[2] = { 0, 0};
@@ -47,7 +46,6 @@ static char TB[128] = "Input";
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // Float, DeltaTime, Camera: FOV , near, far
 
 std::string mapName = ""; // String, Maploading
-
 
 // Function to read lines from a file into a vector of strings
 std::vector<std::string> readLinesFromFile(const std::string& filePath) {
@@ -428,7 +426,6 @@ void DeltaMain(GLFWwindow* window) {
 			break;
 		}
 	}
-
 }
 //Main Function
 int main()
@@ -573,7 +570,6 @@ int main()
 				x[100] = 5;
 			}
 		}
-
 		// Cleanup: Delete all objects on close
 		ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
 		shaderProgram.Delete(); // Delete Shader Prog
