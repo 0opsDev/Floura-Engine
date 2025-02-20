@@ -1,8 +1,13 @@
-opened this github on september 9th 2024
-Farquhar engine 2024
+Farquhar is a Open Source c++ game engine created for the prepose of learning opengl
 
-youtube playlist
-https://www.youtube.com/playlist?list=PLKMYyotlzXkiegGQOI8jSTfOTWRfDSpW_
+Features:
+. glTF Model Loading
+. Vertex and Fragment Shader loading
+. Settings File
+. Map Files with Map Settings
+. ImGui Implementation
+. OpenGl API
+. Diffuse and Specular Texture Support
 
 screenshots
 ![image](https://github.com/user-attachments/assets/092587d9-8e78-4234-9794-c57df82aab04)
