@@ -92,25 +92,27 @@ float linearizeDepth(float depth)
 }
 
 //offset is distance from camera
-float logisticDepth(float depth, float steepness = 0.1f, float offset = 100.0f)
+float logisticDepth(float depth, float steepness, float offset)
 {
-	float zVal = linearizeDepth(depth);
-	return (1 / (1 + exp(-steepness * (zVal - offset))));
+    float zVal = linearizeDepth(depth);
+    float expVal = exp(clamp(-steepness * (zVal - offset), -10.0, 10.0));
+    return 1.0 / (1.0 + expVal);
 }
 
 void main()
 {
-switch (doFog)
-{
-	case 0:{
-	FragColor = direcLight();
-	break;
-	}
-	case 1:{
-	float depth = logisticDepth(gl_FragCoord.z);
-	FragColor = direcLight() * (1.0f - depth) + vec4(depth * vec3(fogColor), 1.0f);
-	break;
-	}
-}
-
+    switch (doFog)
+    {
+        case 0:
+        {
+            FragColor = direcLight();
+            break;
+        }
+        case 1:
+        {
+            float depth = logisticDepth(gl_FragCoord.z, 0.1f, 100.0f);
+            FragColor = direcLight() * (1.0f - depth) + vec4(depth * vec3(fogColor), 1.0f);
+            break;
+        }
+    }
 }

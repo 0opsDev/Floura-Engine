@@ -253,9 +253,6 @@
     <None Include="Shaders\Db\unShaded.frag">
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
-    <None Include="Shaders\Main\DefaultAMD.vert">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Settings\Settings.ini">
