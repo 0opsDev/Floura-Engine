@@ -18,7 +18,7 @@ Features:
 
 . Preformance Profiler 
 
-ScreenShots:
+Screenshots:
 
 ![image](https://github.com/user-attachments/assets/f03cc2ec-a07d-42f7-a737-12f395919730)
 
