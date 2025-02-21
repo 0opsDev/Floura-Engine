@@ -219,8 +219,34 @@ void initializeGLFW() {
 void initializeImGui(GLFWwindow* window) {
 	IMGUI_CHECKVERSION(), ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io, ImGui::StyleColorsDark();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	ImGui_ImplGlfw_InitForOpenGL(window, true), ImGui_ImplOpenGL3_Init("#version 330");
 }
+// ImGui styles
+void imGuiStyle() {
+	//HELL
+	ImGuiStyle& Style = ImGui::GetStyle();
+	Style.Colors[ImGuiCol_Text] = ImVec4(1, 1, 1, 1);
+	Style.Colors[ImGuiCol_WindowBg] = ImVec4(0.157, 0.169, 0.188, 1);
+	Style.Colors[ImGuiCol_CheckMark] = ImVec4(0, 1, 1, 1);
+	Style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0, 0, 0, 1);
+	Style.Colors[ImGuiCol_TitleBg] = ImVec4(0.118, 0.129, 0.141, 1);
+	Style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.3, 0.3, 0.3, 1);
+	Style.Colors[ImGuiCol_ButtonActive] = ImVec4(0, 1, 1, 1);
+	Style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0, 1, 1, 1);
+	Style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0, 1, 1, 1);
+	Style.Colors[ImGuiCol_Border] = ImVec4(0, 0, 0, 1);
+	Style.Colors[ImGuiCol_FrameBg] = ImVec4(0.212, 0.224, 0.243, 1);
+	Style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.259, 0.271, 0.286, 1);
+	Style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.447, 0.537, 0.855, 1);
+	Style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.447, 0.537, 0.855, 1);
+	Style.Colors[ImGuiCol_SliderGrab] = ImVec4(0, 1, 1, 1);
+	Style.Colors[ImGuiCol_Button] = ImVec4(0.447, 0.537, 0.855, 1);
+	Style.Colors[ImGuiCol_Tab] = ImVec4(0.447, 0.537, 0.855, 1);
+}	
 // Toggle Fullscreen
 void toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor) {
 	
@@ -243,12 +269,12 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 	ImGui_ImplOpenGL3_NewFrame();ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 
 	ImGui::Begin("Settings"); // ImGUI window creation
+
 	ImGui::Text("Settings (Press escape to use mouse)");
 	ImGui::InputText("TB TEST", TB, IM_ARRAYSIZE(TB));
 	if (ImGui::SmallButton("load")) { loadSettings(); } // load settings button
-
-	// Toggle ImGui Windows
 	ImGui::Checkbox("Preformance Profiler", &Panels[0]);
+	// Toggle ImGui Windows
 	// Rendering panel
 	if (ImGui::TreeNode("Rendering")) {
 		if (ImGui::TreeNode("Framerate And Resolution")) {
@@ -341,6 +367,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		}
 		ImGui::TreePop();// Ends The ImGui Window
 	} // apply shader
+	ImGui::End();
 	// preformance profiler
 	if (Panels[0]) {
 		ImGui::Begin("Preformance Profiler");
@@ -369,7 +396,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		ImGui::End();
 	}
 
-	ImGui::End();
+
 	
 	ImGui::Render(); // Renders the ImGUI elements
 
@@ -482,9 +509,9 @@ int main()
 		shaderProgram.Delete(); // clean the shader prog for memory management
 		loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);// feed the shader prog real data
 		shaderProgram.Activate(); // activate new shader program for use
-
 		initializeImGui(window); // Initialize ImGUI
-
+		imGuiStyle();
+		imGuiMAIN(window, shaderProgram, primaryMonitor);
 		// glenables
 		// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 		glEnable(GL_DEPTH_TEST); // Depth buffer
