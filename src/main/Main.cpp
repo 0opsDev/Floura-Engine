@@ -8,11 +8,19 @@
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
 #include "Main.h"
-//#include <btBulletDynamicsCommon.h>
+#include <btBulletDynamicsCommon.h>
 //Address Sanitizer (DEBUG MODE)
 int x[100];
 int ADDSR[2] = { 0, 0};
 //Global Variables
+
+// Bullet Physics Globals
+btDiscreteDynamicsWorld* dynamicsWorld;
+btBroadphaseInterface* broadphase;
+btDefaultCollisionConfiguration* collisionConfiguration;
+btCollisionDispatcher* dispatcher;
+btSequentialImpulseConstraintSolver* solver;
+
 //Render
 struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = true; }; RenderSettings render;
 
@@ -225,6 +233,9 @@ void initializeImGui(GLFWwindow* window) {
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	ImGui_ImplGlfw_InitForOpenGL(window, true), ImGui_ImplOpenGL3_Init("#version 330");
+}
+// Initialize Bullet
+void initializeBullet() {
 }
 // ImGui styles
 void imGuiStyle() {
@@ -515,8 +526,10 @@ int main()
 
 		Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
 		initializeImGui(window); // Initialize ImGUI
+		
 		imGuiStyle();
 		imGuiMAIN(window, shaderProgram, primaryMonitor);
+
 		// glenables
 		// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 		glEnable(GL_DEPTH_TEST); // Depth buffer
@@ -558,16 +571,12 @@ int main()
 
 			switch (TempButton) {
 			case -1: {
-				loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);
-				TempButton = 0; break; }
+				loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);TempButton = 0; break; }
 			case 1: {
-				camera.Position = glm::vec3(0, 0, 0);
-				TempButton = 0; break; }
+				camera.Position = glm::vec3(0, 0, 0);TempButton = 0; break; }
 			case 2: {
-				camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);
-				TempButton = 0; break; }
+				camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);TempButton = 0; break; }
 			}
-
 
 			// Convert variables to glm variables which hold data like a table
 			glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
@@ -589,8 +598,6 @@ int main()
 			glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]),
 			glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 
-			///deltaTimeStr.deltaTime
-
 			//Camera
 			camera.Inputs(window, deltaTimeStr.deltaTime); //send Camera.cpp window inputs and delta time
 			camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
@@ -602,6 +609,7 @@ int main()
 			// draw the model
 			glStencilFunc(GL_ALWAYS, 1, 0xFF);
 			glStencilMask(0xFF);
+
 			for (Model& model : models) { model.Draw(shaderProgram, camera); }
 
 			if (shaderStr.Stencil) {
@@ -630,6 +638,7 @@ int main()
 			}
 		}
 		// Cleanup: Delete all objects on close
+
 		ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
 		shaderProgram.Delete(); // Delete Shader Prog
 		outlineShaderProgram.Delete();
