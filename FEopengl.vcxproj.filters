@@ -253,6 +253,15 @@
     <None Include="Shaders\Db\unShaded.frag">
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
+    <None Include="Shaders\Db\Test.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Shaders\Main\outlining.frag">
+      <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
+    <None Include="Shaders\Main\outlining.vert">
+      <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Settings\Settings.ini">

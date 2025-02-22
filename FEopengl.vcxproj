@@ -198,11 +198,14 @@
     <None Include="Shaders\Db\Depth.frag" />
     <None Include="Shaders\Db\light.frag" />
     <None Include="Shaders\Db\light.vert" />
+    <None Include="Shaders\Db\Test.frag" />
     <None Include="Shaders\Db\unShaded.frag" />
     <None Include="Shaders\Empty.shader" />
     <None Include="Shaders\FragList.cfg" />
     <None Include="Shaders\Main\Default.vert" />
     <None Include="Shaders\Main\direcLight.frag" />
+    <None Include="Shaders\Main\outlining.frag" />
+    <None Include="Shaders\Main\outlining.vert" />
     <None Include="Shaders\Main\pointLight.frag" />
     <None Include="Shaders\Main\spotLight.frag" />
     <None Include="Shaders\VertList.cfg" />

@@ -13,10 +13,10 @@ int x[100];
 int ADDSR[2] = { 0, 0};
 //Global Variables
 //Render
-struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false; }; RenderSettings render;
+struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = true; }; RenderSettings render;
 
 //Shader
-struct ShaderSettings { int VertNum = 0, FragNum = 2; };
+struct ShaderSettings { int VertNum = 0, FragNum = 2; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = {1.0f, 1.0f, 1.0f, 1.0f}; };
 //GLfloat, Render, Camera, Light
 GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }, ConeRot[3] = { 0.0f, -4.0f , 0.0f },
 LightTransform1[3] = { 0.0f, 25.0f, 0.0f }, CameraXYZ[3] = { 0.0f, 5.0f, 0.0f },
@@ -300,10 +300,11 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 			//Optimisation And Shaders
 			if (ImGui::SmallButton("Enable Culling")) { glEnable(GL_CULL_FACE); } 
 			if (ImGui::SmallButton("Disable Culling")) { glDisable(GL_CULL_FACE); } //culling
-			ImGui::Checkbox("ClearColourBufferBit (BackBuffer)", &render.clearColour); // Clear BackBuffer
+			ImGui::Checkbox("ClearBufferBit (BackBuffer)", &render.clearColour); // Clear Buffer
+			ImGui::Checkbox("Enable Stencil Buffer", &shaderStr.Stencil);
+			ImGui::DragFloat("Stencil Size", &shaderStr.stencilSize);
 			ImGui::DragInt("Shader Number (Vert)", &shaderStr.VertNum);
 			ImGui::DragInt("Shader Number (Frag)", &shaderStr.FragNum); // Shader Switching
-
 			if (ImGui::SmallButton("Apply Shader?")) { shaderProgramT.Delete(); TempButton = -1; } // apply shader
 			ImGui::SliderInt("doReflections", &render.doReflections, 0, 2);
 			ImGui::SliderInt("doFog", &render.doFog, 0, 1); 		//Toggles
@@ -316,6 +317,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 				ImGui::ColorEdit4("sky RGBA", skyRGBA);
 				ImGui::ColorEdit4("light RGBA", lightRGBA);
 				ImGui::ColorEdit4("fog RGBA", fogRGBA);	// sky and light
+				ImGui::ColorEdit4("Stencil RGBA", shaderStr.stencilColor);
 				ImGui::TreePop();
 			}
 
@@ -509,6 +511,8 @@ int main()
 		shaderProgram.Delete(); // clean the shader prog for memory management
 		loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);// feed the shader prog real data
 		shaderProgram.Activate(); // activate new shader program for use
+
+		Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
 		initializeImGui(window); // Initialize ImGUI
 		imGuiStyle();
 		imGuiMAIN(window, shaderProgram, primaryMonitor);
@@ -516,8 +520,15 @@ int main()
 		// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 		glEnable(GL_DEPTH_TEST); // Depth buffer
 		glDepthFunc(GL_LESS);
+		glEnable(GL_STENCIL_TEST); //stencil buffer
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		glEnable(GL_CULL_FACE); // Culling
-
+		glCullFace(GL_FRONT);
+		switch (render.frontFaceSide) {
+			case true: { glFrontFace(GL_CW);break;} // inside facing
+			case false: { glFrontFace(GL_CCW); break;} // outside facing
+		}
+		
 		// INITIALIZE CAMERA
 		Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 		camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos
@@ -556,10 +567,6 @@ int main()
 				TempButton = 0; break; }
 			}
 
-			//Clear BackBuffer
-			if (render.clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
-			else { glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); } 	// Clear with colour
-
 
 			// Convert variables to glm variables which hold data like a table
 			glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
@@ -581,12 +588,36 @@ int main()
 			glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]),
 			glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 
+			///deltaTimeStr.deltaTime
 
 			//Camera
 			camera.Inputs(window, deltaTimeStr.deltaTime); //send Camera.cpp window inputs and delta time
 			camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
 
-			for (Model& model : models) { model.Draw(shaderProgram, camera); }// draw the model
+			//Clear BackBuffer
+			if (render.clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
+			else { glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); } 	// Clear with colour
+
+			// draw the model
+			glStencilFunc(GL_ALWAYS, 1, 0xFF);
+			glStencilMask(0xFF);
+			for (Model& model : models) { model.Draw(shaderProgram, camera); }
+
+			if (shaderStr.Stencil) {
+				glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
+				glStencilMask(0x00);
+				glDisable(GL_DEPTH_TEST);
+				outlineShaderProgram.Activate();
+				glUniform1f(glGetUniformLocation(outlineShaderProgram.ID, "outlining"), shaderStr.stencilSize);
+				glUniform4f(glGetUniformLocation(outlineShaderProgram.ID, "stencilColor"), shaderStr.stencilColor[0], shaderStr.stencilColor[1], shaderStr.stencilColor[2], shaderStr.stencilColor[3]);
+				//add stencil buffer toggle tommorow
+				//draw
+				for (Model& model : models) { model.Draw(outlineShaderProgram, camera); }
+
+				glStencilMask(0xFF);
+				glStencilFunc(GL_ALWAYS, 0, 0xFF);
+				glEnable(GL_DEPTH_TEST);
+			}
 
 			camera.Matrix(shaderProgram, "camMatrix"); //Send Camera Matrix To Shader Prog
 			imGuiMAIN(window, shaderProgram, primaryMonitor);
@@ -600,6 +631,7 @@ int main()
 		// Cleanup: Delete all objects on close
 		ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
 		shaderProgram.Delete(); // Delete Shader Prog
+		outlineShaderProgram.Delete();
 		glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
 		if (ADDSR[1] == 2) {
 			x[100] = 5;
