@@ -23,7 +23,6 @@ btDefaultCollisionConfiguration* collisionConfiguration;
 btCollisionDispatcher* dispatcher;
 btSequentialImpulseConstraintSolver* solver;
 
-
 //Render
 struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = true; }; RenderSettings render;
 
@@ -432,7 +431,6 @@ void DeltaMain(GLFWwindow* window) {
 int main()
 {
 		init init;
-		std:: cout << ("Main\n");
 		init.initGLFW(); // initialize glfw
 
 		// Get the video mode of the primary monitor
@@ -495,21 +493,11 @@ int main()
 
 		// glenables
 		// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
-		glEnable(GL_DEPTH_TEST); // Depth buffer
-		glDepthFunc(GL_LESS);
-		glEnable(GL_STENCIL_TEST); //stencil buffer
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		glEnable(GL_CULL_FACE); // Culling
-		glCullFace(GL_FRONT);
-		switch (render.frontFaceSide) {
-			case true: { glFrontFace(GL_CW);break;} // inside facing
-			case false: { glFrontFace(GL_CCW); break;} // outside facing
-		}
+		init.initGLenable(render.frontFaceSide);
 		
 		// INITIALIZE CAMERA
 		Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 		camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos
-
 
 		// texture loading problems
 
@@ -550,7 +538,6 @@ int main()
 			//DO
 			UniformH.Int(shaderProgram.ID, "doReflect", render.doReflections);
 			UniformH.Int(shaderProgram.ID, "doFog", render.doFog);
-			
 			//TRANS
 			UniformH.Float3(shaderProgram.ID, "InnerLight1", ConeSI[1] - ConeSI[0], ConeSI[1], ConeSI[2]);
 			UniformH.Float3(shaderProgram.ID, "spotLightRot", ConeRot[0], ConeRot[1], ConeRot[2]);

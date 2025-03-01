@@ -26,6 +26,8 @@ public:
 
     void initBullet();
 
+    void initGLenable(bool frontFaceSide);
+
 };
 
 #endif // INIT_CLASS_H

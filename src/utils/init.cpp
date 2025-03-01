@@ -46,3 +46,18 @@ void init::initImGui(GLFWwindow* window) {
 void init::initBullet() {
 
 }
+
+void init::initGLenable(bool frontFaceSide ) {
+	// glenables
+	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
+	glEnable(GL_DEPTH_TEST); // Depth buffer
+	glDepthFunc(GL_LESS);
+	glEnable(GL_STENCIL_TEST); //stencil buffer
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glEnable(GL_CULL_FACE); // Culling
+	glCullFace(GL_FRONT);
+	switch (frontFaceSide) {
+	case true: { glFrontFace(GL_CW); break; } // inside facing
+	case false: { glFrontFace(GL_CCW); break; } // outside facing
+	}
+}
