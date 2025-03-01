@@ -165,6 +165,7 @@ LinearMath_vs2010_x64_release.lib;%(AdditionalDependencies)</AdditionalDependenc
     <ClCompile Include="src\main\glad.c" />
     <ClCompile Include="src\main\Main.cpp" />
     <ClCompile Include="src\utils\init.cpp" />
+    <ClCompile Include="src\utils\ScreenUtils.cpp" />
     <ClCompile Include="src\utils\UF.cpp" />
     <ClCompile Include="src\video\BufferArrays\VAO.cpp" />
     <ClCompile Include="src\video\BufferObjects\EBO.cpp" />
@@ -190,6 +191,7 @@ LinearMath_vs2010_x64_release.lib;%(AdditionalDependencies)</AdditionalDependenc
     <ClInclude Include="src\main\Main.h" />
     <ClInclude Include="src\utils\include.h" />
     <ClInclude Include="src\utils\init.h" />
+    <ClInclude Include="src\utils\ScreenUtils.h" />
     <ClInclude Include="src\utils\UF.h" />
     <ClInclude Include="src\video\BufferArrays\VAO.h" />
     <ClInclude Include="src\video\BufferObjects\EBO.h" />

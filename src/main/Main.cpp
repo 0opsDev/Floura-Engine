@@ -3,6 +3,7 @@
 #include "Main.h"
 #include "UF.h"
 #include "Init.h"
+#include "screenutils.h" 
 #include <btBulletDynamicsCommon.h>
 
 //Global Variables
@@ -207,27 +208,10 @@ void loadSettings() {
 		}
 	}
 }
-// Toggle Fullscreen
-void toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor) {
-	
-	screen.isFullscreen = !screen.isFullscreen;
-	if (screen.isFullscreen) {
-
-		// Save windowed mode dimensions and position
-		glfwGetWindowPos(window, &screen.windowedPosX, &screen.windowedPosY);
-		glfwGetWindowSize(window, &screen.windowedWidth, &screen.windowedHeight);
-
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor); // Get the video mode of the monitor
-		
-		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate); // Switch to fullscreen
-	}
-	else { glfwSetWindowMonitor(window, NULL, screen.windowedPosX, screen.windowedPosY, screen.windowedWidth, screen.windowedHeight, 0); } // Switch to windowed mode
-}
 // Holds ImGui Variables and Windows
-void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT) {
+void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame();ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
-
 	ImGui::Begin("Settings"); // ImGUI window creation
 
 	ImGui::Text("Settings (Press escape to use mouse)");
@@ -252,7 +236,10 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 				glfwSetWindowSize(window, screen.width, screen.height); // Set Window Size to "screen.width", "screen.height" on window "window"
 				setVSync(render.doVsync);  // Set Vsync to value of doVsync (bool)
 			}
-			if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)")) { toggleFullscreen(window, monitorT); } //Toggle Fullscreen
+
+			if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)")) 
+			{ScreenH.toggleFullscreen(window, monitorT, screen.isFullscreen, screen.windowedPosX, screen.windowedPosY, screen.windowedWidth, screen.windowedHeight); } //Toggle Fullscreen
+
 			ImGui::TreePop();// Ends The ImGui Window
 		}
 
@@ -410,6 +397,7 @@ int main()
 {
 		init init;
 		init.initGLFW(); // initialize glfw
+		ScreenUtils ScreenH;
 
 		// Get the video mode of the primary monitor
 		// Get the primary monitor
@@ -441,12 +429,10 @@ int main()
 		GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.4", NULL, NULL); // create window
 
 		// error checking
-		if (!window) { std::cerr << "Failed to create window" << std::endl; glfwTerminate(); return -1; } // "Failed to create window"
 		if (window == NULL) { std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
 
 		glfwMakeContextCurrent(window);	//make window current context
 				
-
 		gladLoadGL(); // load open gl config
 
 		//area of open gl we want to render in
@@ -467,7 +453,7 @@ int main()
 
 		init.initImGui(window); // Initialize ImGUI
 		
-		imGuiMAIN(window, shaderProgram, primaryMonitor);
+		imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH);
 
 		// glenables
 		// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
@@ -495,6 +481,7 @@ int main()
 		glfwSetWindowIcon(window, 1, Iconinages); // set the glfw window icon ("window", "Channel", "Image")
 
 		setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
+
 		while (!glfwWindowShouldClose(window)) // GAME LOOP
 		{
 			DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) 
@@ -557,7 +544,7 @@ int main()
 
 			camera.Matrix(shaderProgram, "camMatrix"); //Send Camera Matrix To Shader Prog
 
-			imGuiMAIN(window, shaderProgram, primaryMonitor);
+			imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH);
 
 			glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 			glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
