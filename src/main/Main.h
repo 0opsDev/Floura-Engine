@@ -4,11 +4,10 @@
 #include <iostream>
 #include <vector>
 #include "Camera.h"
-#include "Main.h"
 class Main
 {
 public:
-	
+
 };
 
 

@@ -85,6 +85,12 @@
     <Filter Include="Header Files\video\model">
       <UniqueIdentifier>{62b70578-7fd3-4375-b671-eb640e37ee97}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\utils">
+      <UniqueIdentifier>{9e7054d9-43c7-4a34-89c0-d2c5de312676}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\utils">
+      <UniqueIdentifier>{887285a0-4c12-411e-9dfe-2e4b6cd8e6c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\Camera.cpp">
@@ -144,6 +150,9 @@
     <ClCompile Include="src\imgui\imgui_widgets.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\UF.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\control\Camera.h">
@@ -202,6 +211,9 @@
     </ClInclude>
     <ClInclude Include="src\imgui\imstb_truetype.h">
       <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\UF.h">
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

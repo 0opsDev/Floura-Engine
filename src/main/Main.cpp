@@ -8,6 +8,7 @@
 #include"imgui_impl_glfw.h"
 #include"imgui_impl_opengl3.h"
 #include "Main.h"
+#include "UF.h"
 #include <btBulletDynamicsCommon.h>
 //Address Sanitizer (DEBUG MODE)
 int x[100];
@@ -50,7 +51,7 @@ static float timeAccumulator[3] = { 0.0f, 0.0f, 0.0f }; // DeltaTime Accumulator
 int TempButton = 0;
 bool Panels[1] = { true }, checkboxVar[1] = { false }; // bool
 
-static char TB[128] = "Input";
+static char TB[128] = "Input"; //bullet
 
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // Float, DeltaTime, Camera: FOV , near, far
 
@@ -99,7 +100,6 @@ void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) {
 		std::cerr << "Error loading shader program: " << e.what() << std::endl;
 	}
 }
-
 // Function to load models from files
 std::vector<Model> loadModels(const std::string& namesFilePath, const std::string& pathsFilePath) {
 	std::vector<std::string> modelNames = readLinesFromFile(namesFilePath);
@@ -334,6 +334,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 			}
 
 			if (ImGui::TreeNode("Light Settings")) {
+				ImGui::DragFloat3("Light Transform", LightTransform1);
 				ImGui::DragFloat("light I", &ConeSI[2]);
 
 				// cone settings
@@ -424,6 +425,7 @@ void DeltaMain(GLFWwindow* window) {
 	float currentFrameTime = static_cast<float>(glfwGetTime());
 	deltaTimeStr.deltaTime = currentFrameTime - deltaTimeStr.lastFrameTime;
 	deltaTimeStr.lastFrameTime = currentFrameTime;
+	
 
 	//framerate tracking
 	deltaTimeStr.frameRateI = 1.0f / deltaTimeStr.deltaTime;
@@ -518,6 +520,8 @@ int main()
 		glfwSetWindowSize(window, screen.width, screen.height);
 		std::cout << "Primary monitor resolution: " << screen.width << "x" << screen.height << std::endl;
 
+		UF UniformH;
+
 		// shaderprog init
 		Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader"); // create a shader program and feed it Dummy shader and vertex files
 		shaderProgram.Delete(); // clean the shader prog for memory management
@@ -525,6 +529,9 @@ int main()
 		shaderProgram.Activate(); // activate new shader program for use
 
 		Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
+
+
+
 		initializeImGui(window); // Initialize ImGUI
 		
 		imGuiStyle();
@@ -546,6 +553,8 @@ int main()
 		// INITIALIZE CAMERA
 		Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 		camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos
+
+
 		// texture loading problems
 
 		// Model Loader
@@ -564,7 +573,6 @@ int main()
 		glfwSetWindowIcon(window, 1, Iconinages); // set the glfw window icon ("window", "Channel", "Image")
 
 		setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
-
 		while (!glfwWindowShouldClose(window)) // GAME LOOP
 		{
 			DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) 
@@ -586,17 +594,18 @@ int main()
 			//Send Variables to shader (GPU)
 			shaderProgram.Activate(); // activate shaderprog to send vars to gpu
 
-			//DO/1f
-			glUniform1i(glGetUniformLocation(shaderProgram.ID, "doReflect"), render.doReflections), glUniform1i(glGetUniformLocation(shaderProgram.ID, "doFog"), render.doFog);
-
-			//3f
-			glUniform3f(glGetUniformLocation(shaderProgram.ID, "InnerLight1"), (ConeSI[1] - ConeSI[0]), ConeSI[1], ConeSI[2]), 
-			glUniform3f(glGetUniformLocation(shaderProgram.ID, "spotLightRot"), ConeRot[0], ConeRot[1], ConeRot[2]), glUniform3f(glGetUniformLocation(shaderProgram.ID, "fogColor"), fogRGBA[0], fogRGBA[1], fogRGBA[2]),
-			glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), LightTransform1[0], LightTransform1[1], LightTransform1[2]);
-
-			//4f
-			glUniform4f(glGetUniformLocation(shaderProgram.ID, "skyColor"), skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]),
-			glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
+			//DO
+			UniformH.Int(shaderProgram.ID, "doReflect", render.doReflections);
+			UniformH.Int(shaderProgram.ID, "doFog", render.doFog);
+			
+			//TRANS
+			UniformH.Float3(shaderProgram.ID, "InnerLight1", ConeSI[1] - ConeSI[0], ConeSI[1], ConeSI[2]);
+			UniformH.Float3(shaderProgram.ID, "spotLightRot", ConeRot[0], ConeRot[1], ConeRot[2]);
+			UniformH.Float3(shaderProgram.ID, "lightPos", lightPos.x, lightPos.y, lightPos.z);
+			//COL
+			UniformH.Float3(shaderProgram.ID, "fogColor", fogRGBA[0], fogRGBA[1], fogRGBA[2]);
+			UniformH.Float4(shaderProgram.ID, "skyColor", skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
+			UniformH.Float4(shaderProgram.ID, "lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 
 			//Camera
 			camera.Inputs(window, deltaTimeStr.deltaTime); //send Camera.cpp window inputs and delta time
@@ -617,8 +626,8 @@ int main()
 				glStencilMask(0x00);
 				glDisable(GL_DEPTH_TEST);
 				outlineShaderProgram.Activate();
-				glUniform1f(glGetUniformLocation(outlineShaderProgram.ID, "outlining"), shaderStr.stencilSize);
-				glUniform4f(glGetUniformLocation(outlineShaderProgram.ID, "stencilColor"), shaderStr.stencilColor[0], shaderStr.stencilColor[1], shaderStr.stencilColor[2], shaderStr.stencilColor[3]);
+				UniformH.Float(outlineShaderProgram.ID, "outlining", shaderStr.stencilSize);
+				UniformH.Float4(outlineShaderProgram.ID, "stencilColor", shaderStr.stencilColor[0], shaderStr.stencilColor[1], shaderStr.stencilColor[2], shaderStr.stencilColor[3]);
 				//add stencil buffer toggle tommorow
 				//draw
 				for (Model& model : models) { model.Draw(outlineShaderProgram, camera); }

@@ -78,11 +78,11 @@
     <LibraryPath>C:\Users\anon\source\repos\CppOpenGL\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>src\Libraries\include;src\main;src\video;src\control;src\file;src\video\shader;src\video\model;src\video\BufferObjects;src\video\BufferArrays;$(IncludePath)</IncludePath>
+    <IncludePath>src\Libraries\include;src\main;src\video;src\control;src\file;src\video\shader;src\video\model;src\video\BufferObjects;src\utils;src\video\BufferArrays;$(IncludePath)</IncludePath>
     <LibraryPath>src\Libraries\lib;src\bullet3\bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>src\Libraries\include;src\main;src\video;src\control;src\file;src\video\shader;src\video\model;src\video\BufferObjects;src\video\BufferArrays;$(IncludePath)</IncludePath>
+    <IncludePath>src\Libraries\include;src\main;src\video;src\control;src\file;src\video\shader;src\video\model;src\utils;src\video\BufferObjects;src\video\BufferArrays;$(IncludePath)</IncludePath>
     <LibraryPath>src\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -166,6 +166,7 @@ LinearMath_vs2010_x64_release.lib;%(AdditionalDependencies)</AdditionalDependenc
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\main\glad.c" />
     <ClCompile Include="src\main\Main.cpp" />
+    <ClCompile Include="src\utils\UF.cpp" />
     <ClCompile Include="src\video\BufferArrays\VAO.cpp" />
     <ClCompile Include="src\video\BufferObjects\EBO.cpp" />
     <ClCompile Include="src\video\BufferObjects\VBO.cpp" />
@@ -188,6 +189,7 @@ LinearMath_vs2010_x64_release.lib;%(AdditionalDependencies)</AdditionalDependenc
     <ClInclude Include="src\imgui\imstb_textedit.h" />
     <ClInclude Include="src\imgui\imstb_truetype.h" />
     <ClInclude Include="src\main\Main.h" />
+    <ClInclude Include="src\utils\UF.h" />
     <ClInclude Include="src\video\BufferArrays\VAO.h" />
     <ClInclude Include="src\video\BufferObjects\EBO.h" />
     <ClInclude Include="src\video\BufferObjects\VBO.h" />
