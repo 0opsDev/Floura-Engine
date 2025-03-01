@@ -9,6 +9,7 @@
 #include"imgui_impl_opengl3.h"
 #include "Main.h"
 #include "UF.h"
+#include "Init.h"
 #include <btBulletDynamicsCommon.h>
 //Address Sanitizer (DEBUG MODE)
 int x[100];
@@ -21,6 +22,7 @@ btBroadphaseInterface* broadphase;
 btDefaultCollisionConfiguration* collisionConfiguration;
 btCollisionDispatcher* dispatcher;
 btSequentialImpulseConstraintSolver* solver;
+
 
 //Render
 struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = true; }; RenderSettings render;
@@ -215,50 +217,6 @@ void loadSettings() {
 		}
 	}
 }
-// Initialize GLFW
-void initializeGLFW() {
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3), glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // Window Minimum and Maximum version
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //OpenGl Profile
-	glfwWindowHint(GLFW_RESIZABLE, 1); // Start Resizable
-	glfwWindowHint(GLFW_MAXIMIZED, 1); // Start Maximized
-	glfwWindowHint(GLFW_DEPTH_BITS, 16); // DepthBuffer Bit
-}
-// Initialize ImGui
-void initializeImGui(GLFWwindow* window) {
-	IMGUI_CHECKVERSION(), ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io, ImGui::StyleColorsDark();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
-	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	ImGui_ImplGlfw_InitForOpenGL(window, true), ImGui_ImplOpenGL3_Init("#version 330");
-}
-// Initialize Bullet
-void initializeBullet() {
-}
-// ImGui styles
-void imGuiStyle() {
-	//HELL
-	ImGuiStyle& Style = ImGui::GetStyle();
-	Style.Colors[ImGuiCol_Text] = ImVec4(1, 1, 1, 1);
-	Style.Colors[ImGuiCol_WindowBg] = ImVec4(0.157, 0.169, 0.188, 1);
-	Style.Colors[ImGuiCol_CheckMark] = ImVec4(0, 1, 1, 1);
-	Style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0, 0, 0, 1);
-	Style.Colors[ImGuiCol_TitleBg] = ImVec4(0.118, 0.129, 0.141, 1);
-	Style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.3, 0.3, 0.3, 1);
-	Style.Colors[ImGuiCol_ButtonActive] = ImVec4(0, 1, 1, 1);
-	Style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0, 1, 1, 1);
-	Style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0, 1, 1, 1);
-	Style.Colors[ImGuiCol_Border] = ImVec4(0, 0, 0, 1);
-	Style.Colors[ImGuiCol_FrameBg] = ImVec4(0.212, 0.224, 0.243, 1);
-	Style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.259, 0.271, 0.286, 1);
-	Style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.447, 0.537, 0.855, 1);
-	Style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.447, 0.537, 0.855, 1);
-	Style.Colors[ImGuiCol_SliderGrab] = ImVec4(0, 1, 1, 1);
-	Style.Colors[ImGuiCol_Button] = ImVec4(0.447, 0.537, 0.855, 1);
-	Style.Colors[ImGuiCol_Tab] = ImVec4(0.447, 0.537, 0.855, 1);
-}	
 // Toggle Fullscreen
 void toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor) {
 	
@@ -389,7 +347,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 		// Framerate graph
 		ImGui::Checkbox("Stabe Graph (Less Smoothness)", &deltaTimeStr.aqFPS);
 
-		static float framerateValues[900] = { 0 };
+		static float framerateValues[60] = { 0 };
 		static int frValues_offset = 0;
 		framerateValues[frValues_offset] = static_cast<float>(deltaTimeStr.frameRateI);
 		frValues_offset = (frValues_offset + 1) % IM_ARRAYSIZE(framerateValues);
@@ -473,8 +431,9 @@ void DeltaMain(GLFWwindow* window) {
 //Main Function
 int main()
 {
+		init init;
 		std:: cout << ("Main\n");
-		initializeGLFW(); //initialize glfw
+		init.initGLFW(); // initialize glfw
 
 		// Get the video mode of the primary monitor
 		// Get the primary monitor
@@ -530,11 +489,8 @@ int main()
 
 		Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
 
-
-
-		initializeImGui(window); // Initialize ImGUI
+		init.initImGui(window); // Initialize ImGUI
 		
-		imGuiStyle();
 		imGuiMAIN(window, shaderProgram, primaryMonitor);
 
 		// glenables
@@ -578,12 +534,9 @@ int main()
 			DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) 
 
 			switch (TempButton) {
-			case -1: {
-				loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);TempButton = 0; break; }
-			case 1: {
-				camera.Position = glm::vec3(0, 0, 0);TempButton = 0; break; }
-			case 2: {
-				camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);TempButton = 0; break; }
+			case -1: { loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);TempButton = 0; break; }
+			case 1: { camera.Position = glm::vec3(0, 0, 0);TempButton = 0; break; }
+			case 2: { camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);TempButton = 0; break; }
 			}
 
 			// Convert variables to glm variables which hold data like a table
@@ -638,6 +591,7 @@ int main()
 			}
 
 			camera.Matrix(shaderProgram, "camMatrix"); //Send Camera Matrix To Shader Prog
+
 			imGuiMAIN(window, shaderProgram, primaryMonitor);
 
 			glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)

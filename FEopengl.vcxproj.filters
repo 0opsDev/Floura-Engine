@@ -25,9 +25,6 @@
     <Filter Include="Header Files\imgui">
       <UniqueIdentifier>{36fd3c58-e113-499c-ab17-d424b8a67eaf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Text">
-      <UniqueIdentifier>{1127e8f9-a6ef-4e08-aa57-9d56c9ea50d4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Models">
       <UniqueIdentifier>{2fac693a-4137-4cad-af12-45fe5947ffa8}</UniqueIdentifier>
     </Filter>
@@ -91,6 +88,12 @@
     <Filter Include="Source Files\utils">
       <UniqueIdentifier>{887285a0-4c12-411e-9dfe-2e4b6cd8e6c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Text Files">
+      <UniqueIdentifier>{4af88813-d1f1-4671-9fb4-e54fbd5a6d30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Text Files\Text">
+      <UniqueIdentifier>{1127e8f9-a6ef-4e08-aa57-9d56c9ea50d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\Camera.cpp">
@@ -151,6 +154,9 @@
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\UF.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\init.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -215,19 +221,16 @@
     <ClInclude Include="src\utils\UF.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\init.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Default.ini">
-      <Filter>Resource Files\Text</Filter>
-    </None>
-    <None Include="Assets\Maps\Default\ModelPaths.cfg">
-      <Filter>Resource Files\Text</Filter>
-    </None>
-    <None Include="Assets\Maps\Default\ModelNames.cfg">
-      <Filter>Resource Files\Text</Filter>
+      <Filter>Text Files\Text</Filter>
     </None>
     <None Include="Settings\EngineDefault.ini">
-      <Filter>Resource Files\Text</Filter>
+      <Filter>Text Files\Text</Filter>
     </None>
     <None Include="Shaders\Empty.shader">
       <Filter>Resource Files\Shaders</Filter>
@@ -274,10 +277,13 @@
     <None Include="Shaders\Main\outlining.vert">
       <Filter>Resource Files\Shaders\Main</Filter>
     </None>
+    <None Include="Settings\imgui.ini">
+      <Filter>Text Files\Text</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Settings\Settings.ini">
-      <Filter>Resource Files\Text</Filter>
+      <Filter>Text Files\Text</Filter>
     </Text>
   </ItemGroup>
 </Project>
