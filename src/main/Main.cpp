@@ -1,12 +1,5 @@
 #include"Model.h"
 #include "Camera.h"
-#include"imgui.h"
-#include <fstream>
-#include <stdexcept>
-#include <iostream>
-#include <vector>
-#include"imgui_impl_glfw.h"
-#include"imgui_impl_opengl3.h"
 #include "Main.h"
 #include "UF.h"
 #include "Init.h"

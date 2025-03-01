@@ -190,6 +190,7 @@ LinearMath_vs2010_x64_release.lib;%(AdditionalDependencies)</AdditionalDependenc
     <ClInclude Include="src\imgui\imstb_textedit.h" />
     <ClInclude Include="src\imgui\imstb_truetype.h" />
     <ClInclude Include="src\main\Main.h" />
+    <ClInclude Include="src\utils\include.h" />
     <ClInclude Include="src\utils\init.h" />
     <ClInclude Include="src\utils\UF.h" />
     <ClInclude Include="src\video\BufferArrays\VAO.h" />

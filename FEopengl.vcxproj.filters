@@ -224,6 +224,9 @@
     <ClInclude Include="src\utils\init.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\include.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Default.ini">

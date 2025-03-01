@@ -1,20 +1,8 @@
 #ifndef UF_CLASS_H
 #define UF_CLASS_H
 
-#include <iostream>
-#include <vector>
-#include "Model.h"
-#include "Camera.h"
-#include "imgui.h"
-#include <fstream>
-#include <stdexcept>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtx/vector_angle.hpp>
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include <include.h>
+
 
 class UF
 {
