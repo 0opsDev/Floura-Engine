@@ -4,9 +4,7 @@
 #include "UF.h"
 #include "Init.h"
 #include <btBulletDynamicsCommon.h>
-//Address Sanitizer (DEBUG MODE)
-int x[100];
-int ADDSR[2] = { 0, 0};
+
 //Global Variables
 
 // Bullet Physics Globals
@@ -319,19 +317,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT)
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
-	// Debug panel
-	if (ImGui::TreeNode("DEBUG"))
-	{
-		ImGui::Text("Address Sanitizer (MAIN.CPP) - CRASH"); ImGui::Text("(0: NULL, 1: end of loop, 2: end of task)"); // Text
-		ImGui::SliderInt("ADDS", &ADDSR[0], 0, 2);
-		if (ImGui::SmallButton("Apply ADDS?")) {
-			switch (ADDSR[0]) {
-				case 1: { ADDSR[1] = 1; break;}
-				case 2: { ADDSR[1] = 2; break;}
-			}
-		}
-		ImGui::TreePop();// Ends The ImGui Window
-	} // apply shader
 	ImGui::End();
 	// preformance profiler
 	if (Panels[0]) {
@@ -576,9 +561,6 @@ int main()
 
 			glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 			glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
-			if (ADDSR[1] == 1) {
-				x[100] = 5;
-			}
 		}
 		// Cleanup: Delete all objects on close
 
@@ -586,8 +568,5 @@ int main()
 		shaderProgram.Delete(); // Delete Shader Prog
 		outlineShaderProgram.Delete();
 		glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
-		if (ADDSR[1] == 2) {
-			x[100] = 5;
-		}
 		return 0;
 }
