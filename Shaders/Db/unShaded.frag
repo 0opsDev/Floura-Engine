@@ -29,10 +29,14 @@ uniform int doFog;
 
 //color of light from sky
 uniform vec4 skyColor;
+uniform float gamma;
+
 vec4 unShaded()
 {
 	vec4 diffuseColor = texture(diffuse0, texCoord);
-	float specularColor = texture(specular0, texCoord).r;
+	diffuseColor.rgb = pow(diffuseColor.rgb, vec3(gamma)); // Correct the gamma
+
+	float specularColor = pow(texture(specular0, texCoord).r, 1.0 / gamma);
 	vec4 unshadedColor = texture(unshaded0, texCoord) * skyColor;
 
     // If the unshaded0 texture is being used, return its color directly
@@ -96,8 +100,11 @@ void main()
         case 1:
         {
             float depth = logisticDepth(gl_FragCoord.z, 0.1f, 100.0f);
-            FragColor = unShaded() * (1.0f - depth) + vec4(depth * vec3(fogColor), 1.0f);
+            vec3 correctedFogColor = pow(fogColor, vec3(gamma)); // Apply gamma correction to fog
+            FragColor = unShaded() * (1.0f - depth) + vec4(depth * correctedFogColor, 1.0f);
             break;
         }
     }
+	// Apply final gamma correction before output
+    FragColor.rgb = pow(FragColor.rgb, vec3(1.0 / gamma)); 
 }

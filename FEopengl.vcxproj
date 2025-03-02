@@ -201,11 +201,9 @@
     <None Include="Settings\Default.ini" />
     <None Include="Settings\EngineDefault.ini" />
     <None Include="Settings\imgui.ini" />
-    <None Include="Shaders\Db\Default.frag" />
     <None Include="Shaders\Db\Depth.frag" />
     <None Include="Shaders\Db\light.frag" />
     <None Include="Shaders\Db\light.vert" />
-    <None Include="Shaders\Db\Test.frag" />
     <None Include="Shaders\Db\unShaded.frag" />
     <None Include="Shaders\Empty.shader" />
     <None Include="Shaders\FragList.cfg" />

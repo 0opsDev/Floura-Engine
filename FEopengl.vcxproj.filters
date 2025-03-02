@@ -265,9 +265,6 @@
     <None Include="Shaders\Main\spotLight.frag">
       <Filter>Resource Files\Shaders\Main</Filter>
     </None>
-    <None Include="Shaders\Db\Default.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
     <None Include="Shaders\Db\Depth.frag">
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
@@ -278,9 +275,6 @@
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
     <None Include="Shaders\Db\unShaded.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\Db\Test.frag">
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
     <None Include="Shaders\Main\outlining.frag">

@@ -42,7 +42,7 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
-            GL_RGBA,
+            GL_SRGB_ALPHA, // GL_RGBA
             widthImg,
             heightImg,
             0,
@@ -54,7 +54,7 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
-            GL_RGB,
+            GL_SRGB, //was GL_RGB
             widthImg,
             heightImg,
             0,

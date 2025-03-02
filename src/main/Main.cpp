@@ -11,9 +11,9 @@
 struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = true; }; RenderSettings render;
 
 //Shader
-struct ShaderSettings { int VertNum = 0, FragNum = 2; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = {1.0f, 1.0f, 1.0f, 1.0f}; };
+struct ShaderSettings { int VertNum = 0, FragNum = 2; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = {1.0f, 1.0f, 1.0f, 1.0f}, gamma = 2.2; };
 //GLfloat, Render, Camera, Light
-GLfloat ConeSI[3] = { 0.05f, 0.95f , 1.0f }, ConeRot[3] = { 0.0f, -4.0f , 0.0f },
+GLfloat ConeSI[3] = { 0.05f, 0.95f , 2.0f }, ConeRot[3] = { 0.0f, -4.0f , 0.0f },
 LightTransform1[3] = { 0.0f, 25.0f, 0.0f }, CameraXYZ[3] = { 0.0f, 5.0f, 0.0f },
 lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f }, skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f },
 fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -229,7 +229,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 				ScreenH.SetScreenSize(window, screen.width, screen.height); // set window and viewport w&h
 				ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
 			}
-
 			if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)")) 
 			{ScreenH.toggleFullscreen(window, monitorT, screen.isFullscreen, screen.windowedPosX, screen.windowedPosY, screen.windowedWidth, screen.windowedHeight); } //Toggle Fullscreen
 
@@ -246,6 +245,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			ImGui::DragInt("Shader Number (Vert)", &shaderStr.VertNum);
 			ImGui::DragInt("Shader Number (Frag)", &shaderStr.FragNum); // Shader Switching
 			if (ImGui::SmallButton("Apply Shader?")) { shaderProgramT.Delete(); TempButton = -1; } // apply shader
+			ImGui::DragFloat("Gamma", &shaderStr.gamma);
 			ImGui::SliderInt("doReflections", &render.doReflections, 0, 2);
 			ImGui::SliderInt("doFog", &render.doFog, 0, 1); 		//Toggles
 			ImGui::TreePop();// Ends The ImGui Window
@@ -478,8 +478,7 @@ int main()
 
 			//Send Variables to shader (GPU)
 			shaderProgram.Activate(); // activate shaderprog to send vars to gpu
-			UniformH.MassUniforms(shaderProgram.ID, render.doReflections, render.doFog, ConeSI, ConeRot, lightPos, fogRGBA, skyRGBA, lightRGBA);
-
+			UniformH.MassUniforms(shaderProgram.ID, render.doReflections, render.doFog, ConeSI, ConeRot, lightPos, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
 			//Camera
 			camera.Inputs(window, deltaTimeStr.deltaTime); //send Camera.cpp window inputs and delta time
 			camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
