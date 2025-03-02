@@ -110,10 +110,6 @@ std::vector<Model> loadModels(const std::string& namesFilePath, const std::strin
 	return models;
 }
 //Methods
-// Toggles Vsync
-void setVSync(bool enabled) {
-	glfwSwapInterval(enabled ? 1 : 0); //Toggles Vsync
-}
 // Loads Settings From Files
 void loadSettings() {
 	//READ - settings
@@ -224,7 +220,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		if (ImGui::TreeNode("Framerate And Resolution")) {
 			ImGui::Text("Framerate Limiters");
 			ImGui::Checkbox("Vsync", &render.doVsync); // Set the value of doVsync (bool)
-
 			// Screen
 			ImGui::DragInt("Width", &screen.widthI);
 			ImGui::DragInt("Height", &screen.heightI); // screen slider
@@ -232,9 +227,8 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			if (ImGui::SmallButton("Apply Changes?")) { // apply button
 				screen.width = static_cast<unsigned int>(screen.widthI);
 				screen.height = static_cast<unsigned int>(screen.heightI); // cast screenArea from screenAreaI
-				glViewport(0, 0, screen.width, screen.height); // Set Viewport to "screen.width", "screen.height"
-				glfwSetWindowSize(window, screen.width, screen.height); // Set Window Size to "screen.width", "screen.height" on window "window"
-				setVSync(render.doVsync);  // Set Vsync to value of doVsync (bool)
+				ScreenH.SetScreenSize(window, screen.width, screen.height); // set window and viewport w&h
+				ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
 			}
 
 			if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)")) 
@@ -402,18 +396,14 @@ int main()
 		// Get the video mode of the primary monitor
 		// Get the primary monitor
 		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-		if (!primaryMonitor) {
-			std::cerr << "Failed to get primary monitor" << std::endl;
-			glfwTerminate();
-			return -1;
+		if (!primaryMonitor) { std::cerr << "Failed to get primary monitor" << std::endl;
+			glfwTerminate(); return -1;
 		}
 
 		// Get the video mode of the primary monitor
 		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
-		if (!videoMode) {
-			std::cerr << "Failed to get video mode" << std::endl;
-			glfwTerminate();
-			return -1;
+		if (!videoMode) { std::cerr << "Failed to get video mode" << std::endl;
+			glfwTerminate(); return -1;
 		}
 
 		// second fallback
@@ -437,11 +427,10 @@ int main()
 
 		//area of open gl we want to render in
 		//screen assignment after fallback
-		glViewport(0, 0, screen.width, screen.height);
-		glfwSetWindowSize(window, screen.width, screen.height);
+		ScreenH.SetScreenSize(window, screen.width, screen.height);  // set window and viewport w&h
 		std::cout << "Primary monitor resolution: " << screen.width << "x" << screen.height << std::endl;
 
-		UF UniformH;
+		UF UniformH; // glunfiorm
 
 		// shaderprog init
 		Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader"); // create a shader program and feed it Dummy shader and vertex files
@@ -468,19 +457,10 @@ int main()
 		// Model Loader
 		std::vector<Model> models = loadModels(mapName + "ModelNames.cfg", mapName + "ModelPaths.cfg"); // Load models from files
 
-		// change window icon
-		// Icon Creation
-		int iconW, iconH; // Width and Depth
-		int iconChannels; // Image number (1)
-		stbi_set_flip_vertically_on_load(false); // Disable Image Flipping On Load
-		unsigned char* pixelsIcon = stbi_load("assets/Icons/Icon60B.png", &iconW, &iconH, &iconChannels, STBI_rgb_alpha); // create var with imnage inside
+		// window logo creation and assignment
+		init.initLogo(window);
 
-		GLFWimage Iconinages[1]; // Create New "GLFWimage" VAR with "Iconinages at Channel (1)"
-		Iconinages[0].width = iconW, Iconinages[0].height = iconH, Iconinages[0].pixels = pixelsIcon; // Write Aspect Ratio and Fragnment to photo 
-
-		glfwSetWindowIcon(window, 1, Iconinages); // set the glfw window icon ("window", "Channel", "Image")
-
-		setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
+		ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
 
 		while (!glfwWindowShouldClose(window)) // GAME LOOP
 		{
@@ -494,23 +474,11 @@ int main()
 
 			// Convert variables to glm variables which hold data like a table
 			glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
-
 			glm::mat4 lightModel = glm::mat4(1.0f); lightModel = glm::translate(lightModel, lightPos);
 
 			//Send Variables to shader (GPU)
 			shaderProgram.Activate(); // activate shaderprog to send vars to gpu
-
-			//DO
-			UniformH.Int(shaderProgram.ID, "doReflect", render.doReflections);
-			UniformH.Int(shaderProgram.ID, "doFog", render.doFog);
-			//TRANS
-			UniformH.Float3(shaderProgram.ID, "InnerLight1", ConeSI[1] - ConeSI[0], ConeSI[1], ConeSI[2]);
-			UniformH.Float3(shaderProgram.ID, "spotLightRot", ConeRot[0], ConeRot[1], ConeRot[2]);
-			UniformH.Float3(shaderProgram.ID, "lightPos", lightPos.x, lightPos.y, lightPos.z);
-			//COL
-			UniformH.Float3(shaderProgram.ID, "fogColor", fogRGBA[0], fogRGBA[1], fogRGBA[2]);
-			UniformH.Float4(shaderProgram.ID, "skyColor", skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
-			UniformH.Float4(shaderProgram.ID, "lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
+			UniformH.MassUniforms(shaderProgram.ID, render.doReflections, render.doFog, ConeSI, ConeRot, lightPos, fogRGBA, skyRGBA, lightRGBA);
 
 			//Camera
 			camera.Inputs(window, deltaTimeStr.deltaTime); //send Camera.cpp window inputs and delta time

@@ -20,3 +20,12 @@ void ScreenUtils::toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor, boo
 	}
 	else { glfwSetWindowMonitor(window, NULL, windowedPosX, windowedPosY, windowedWidth, windowedHeight, 0); } // Switch to windowed mode
 }
+
+void ScreenUtils::setVSync(bool enabled) {
+	glfwSwapInterval(enabled ? 1 : 0); //Toggles Vsync
+}
+
+void ScreenUtils::SetScreenSize(GLFWwindow* window, unsigned int width, unsigned int height) {
+	glViewport(0, 0, width, height);
+	glfwSetWindowSize(window, width, height);
+}

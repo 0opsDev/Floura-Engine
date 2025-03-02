@@ -17,6 +17,8 @@ public:
 
     void initGLenable(bool frontFaceSide);
 
+    void initLogo(GLFWwindow* window);
+
 };
 
 #endif // INIT_CLASS_H
