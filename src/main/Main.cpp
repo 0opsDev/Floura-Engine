@@ -4,16 +4,8 @@
 #include "UF.h"
 #include "Init.h"
 #include "screenutils.h" 
-#include <btBulletDynamicsCommon.h>
 
 //Global Variables
-
-// Bullet Physics Globals
-btDiscreteDynamicsWorld* dynamicsWorld;
-btBroadphaseInterface* broadphase;
-btDefaultCollisionConfiguration* collisionConfiguration;
-btCollisionDispatcher* dispatcher;
-btSequentialImpulseConstraintSolver* solver;
 
 //Render
 struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = true; }; RenderSettings render;

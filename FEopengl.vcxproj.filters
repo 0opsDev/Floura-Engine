@@ -94,6 +94,9 @@
     <Filter Include="Text Files\Text">
       <UniqueIdentifier>{1127e8f9-a6ef-4e08-aa57-9d56c9ea50d4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\bullet">
+      <UniqueIdentifier>{66117c28-6c9d-4a30-8ae4-2983dcb3b0bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\control\Camera.cpp">
