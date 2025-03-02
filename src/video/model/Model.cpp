@@ -20,7 +20,6 @@ Model::Model(const char* file)
 	}
 }
 
-
 void Model::Draw(Shader& shader, Camera& camera)
 {
 	// Go over all meshes and draw each one
@@ -304,6 +303,7 @@ std::vector<Texture> Model::getTextures()
 
 			// Load the texture
 			std::cout << "model.cpp - Loading texture: " << fileDirectory + texPath << std::endl;
+			std::cout << loadedTex.size() << std::endl;
 			Texture texture = Texture((fileDirectory + texPath).c_str(), texType, loadedTex.size());
 			textures.push_back(texture);
 			loadedTex.push_back(texture);

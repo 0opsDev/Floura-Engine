@@ -52,6 +52,7 @@ std::string mapName = ""; // String, Maploading
 
 // Function to read lines from a file into a vector of strings
 std::vector<std::string> readLinesFromFile(const std::string& filePath) {
+	// Shaders
 	std::vector<std::string> lines;
 	std::ifstream file(filePath);
 	if (file.is_open()) {
@@ -68,6 +69,7 @@ std::vector<std::string> readLinesFromFile(const std::string& filePath) {
 }
 // Function to read a specific line from a file
 std::string readLineFromFile(const std::string& filePath, int lineNumber) {
+	// Shaders
 	std::ifstream file(filePath);
 	if (!file.is_open()) {
 		throw std::runtime_error("Failed to open file: " + filePath);
@@ -98,14 +100,19 @@ std::vector<Model> loadModels(const std::string& namesFilePath, const std::strin
 	std::vector<std::string> modelNames = readLinesFromFile(namesFilePath);
 	std::vector<std::string> modelPaths = readLinesFromFile(pathsFilePath);
 
-	if (modelNames.size() != modelPaths.size()) {
-		throw std::runtime_error("Model names and paths count mismatch");
-	}
 
 	std::vector<Model> models;
-	for (size_t i = 0; i < modelNames.size(); ++i) {
-		models.emplace_back((mapName + modelPaths[i]).c_str());
-		std::cout << "Loaded model: " << '"' << modelNames[i] << '"' << " from path: " << modelPaths[i] << std::endl;
+
+	if (modelNames.size() != modelPaths.size()) {
+		std::cout << "\n ERR: Model names and paths count mismatch" << std::endl;
+		models.emplace_back(("Assets/assets/fallback/model/placeholder/placeholder.gltf"));
+		//throw std::runtime_error("Model names and paths count mismatch");
+	}
+	else {
+		for (size_t i = 0; i < modelNames.size(); ++i) {
+			models.emplace_back((mapName + modelPaths[i]).c_str());
+			std::cout << "Loaded model: " << '"' << modelNames[i] << '"' << " from path: " << modelPaths[i] << std::endl;
+		}
 	}
 	return models;
 }
@@ -428,6 +435,7 @@ int main()
 		//area of open gl we want to render in
 		//screen assignment after fallback
 		ScreenH.SetScreenSize(window, screen.width, screen.height);  // set window and viewport w&h
+
 		std::cout << "Primary monitor resolution: " << screen.width << "x" << screen.height << std::endl;
 
 		UF UniformH; // glunfiorm

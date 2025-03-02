@@ -12,11 +12,15 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
     stbi_set_flip_vertically_on_load(true);
     // Reads the image from a file and stores it in bytes
     unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
+    //std::cout << "\n" << image << " < image \n" << widthImg << " < widthImg \n" << heightImg << " < heightImg \n" << numColCh << " < numColCh \n" << std::endl;
 
     if (!bytes)
     {
-        std::cerr << "Failed to load texture: " << image << std::endl;
-        throw std::runtime_error("Failed to load texture: " + std::string(image));
+        std::cerr << "\nFailed to load texture: " << image << "\n" << std::endl;
+        // load fallback texture
+        widthImg = 2; heightImg = 2; numColCh = 3;
+        bytes = stbi_load("Assets/assets/fallback/model/placeholder/texture/placeholder_unshaded.png", &widthImg, &heightImg, &numColCh, 0);
+        //throw std::runtime_error("Failed to load texture: " + std::string(image));
     }
 
     // Generates an OpenGL texture object
