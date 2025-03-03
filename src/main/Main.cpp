@@ -34,9 +34,7 @@ struct DeltaTime { //DeltaTime
 static float timeAccumulator[3] = { 0.0f, 0.0f, 0.0f }; // DeltaTime Accumulators
 
 int TempButton = 0;
-bool Panels[1] = { true }, checkboxVar[1] = { false }; // bool
-
-static char TB[128] = "Input"; //bullet
+bool Panels[1] = { true }; // bool
 
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // Float, DeltaTime, Camera: FOV , near, far
 
@@ -210,7 +208,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	ImGui::Begin("Settings"); // ImGUI window creation
 
 	ImGui::Text("Settings (Press escape to use mouse)");
-	ImGui::InputText("TB TEST", TB, IM_ARRAYSIZE(TB));
 	if (ImGui::SmallButton("load")) { loadSettings(); } // load settings button
 	ImGui::Checkbox("Preformance Profiler", &Panels[0]);
 	// Toggle ImGui Windows
@@ -477,8 +474,13 @@ int main()
 			glm::mat4 lightModel = glm::mat4(1.0f); lightModel = glm::translate(lightModel, lightPos);
 
 			//Send Variables to shader (GPU)
-			shaderProgram.Activate(); // activate shaderprog to send vars to gpu
-			UniformH.MassUniforms(shaderProgram.ID, render.doReflections, render.doFog, ConeSI, ConeRot, lightPos, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
+
+			shaderProgram.Activate(); // activate shaderprog to send uniforms to gpu
+
+			UniformH.DoUniforms(shaderProgram.ID, render.doReflections, render.doFog);
+			UniformH.TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos);
+			UniformH.ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
+
 			//Camera
 			camera.Inputs(window, deltaTimeStr.deltaTime); //send Camera.cpp window inputs and delta time
 			camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane

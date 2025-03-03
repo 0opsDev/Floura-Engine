@@ -162,6 +162,7 @@
     <ClCompile Include="src\main\Main.cpp" />
     <ClCompile Include="src\utils\init.cpp" />
     <ClCompile Include="src\utils\ScreenUtils.cpp" />
+    <ClCompile Include="src\utils\SettingsUtil.cpp" />
     <ClCompile Include="src\utils\UF.cpp" />
     <ClCompile Include="src\video\BufferArrays\VAO.cpp" />
     <ClCompile Include="src\video\BufferObjects\EBO.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="src\utils\include.h" />
     <ClInclude Include="src\utils\init.h" />
     <ClInclude Include="src\utils\ScreenUtils.h" />
+    <ClInclude Include="src\utils\SettingsUtil.h" />
     <ClInclude Include="src\utils\UF.h" />
     <ClInclude Include="src\video\BufferArrays\VAO.h" />
     <ClInclude Include="src\video\BufferObjects\EBO.h" />

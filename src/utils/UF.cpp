@@ -29,17 +29,22 @@ void UF::Float4(GLuint shader, const char* uniform, GLfloat uniFloat, GLfloat un
     glUniform4f(glGetUniformLocation(shader, uniform), uniFloat, uniFloat2, uniFloat3, uniFloat4);
 }
 
-void UF::MassUniforms(GLuint shader, int doReflections, int doFog, GLfloat ConeSI[], GLfloat ConeRot[], glm::vec3 lightPos, GLfloat fogRGBA[], GLfloat skyRGBA[], GLfloat lightRGBA[], float gamma)
+void UF::MassUniforms(GLuint shader)
 {
-	//seperate these to their own seprate part
+}
 
+void UF::DoUniforms(GLuint shader, int doReflections, int doFog) {
 	//DO
 	Int(shader, "doReflect", doReflections);
 	Int(shader, "doFog", doFog);
+}
+void UF::TrasformUniforms(GLuint shader, GLfloat ConeSI[], GLfloat ConeRot[], glm::vec3 lightPos) {
 	//TRANS
 	Float3(shader, "InnerLight1", ConeSI[1] - ConeSI[0], ConeSI[1], ConeSI[2]);
 	Float3(shader, "spotLightRot", ConeRot[0], ConeRot[1], ConeRot[2]);
 	Float3(shader, "lightPos", lightPos.x, lightPos.y, lightPos.z);
+}
+void UF::ColourUniforms(GLuint shader, GLfloat fogRGBA[], GLfloat skyRGBA[], GLfloat lightRGBA[], float gamma) {
 	//COL
 	Float3(shader, "fogColor", fogRGBA[0], fogRGBA[1], fogRGBA[2]);
 	Float4(shader, "skyColor", skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);

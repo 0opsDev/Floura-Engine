@@ -165,6 +165,9 @@
     <ClCompile Include="src\utils\ScreenUtils.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\SettingsUtil.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\control\Camera.h">
@@ -234,6 +237,9 @@
       <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\ScreenUtils.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\SettingsUtil.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
