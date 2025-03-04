@@ -23,6 +23,7 @@ struct ScreenSettings { //Screen
 	unsigned int width = 800, height = 600;
 	int windowedPosX, windowedPosY, windowedWidth, windowedHeight, widthI, heightI;
 	bool isFullscreen = false;
+	std::string WindowTitle = "OpenGL Window";
 }; ScreenSettings screen = {0};
 
 struct DeltaTime { //DeltaTime
@@ -34,7 +35,7 @@ struct DeltaTime { //DeltaTime
 static float timeAccumulator[3] = { 0.0f, 0.0f, 0.0f }; // DeltaTime Accumulators
 
 int TempButton = 0;
-bool Panels[1] = { true }; // bool
+bool Panels[3] = { true, true, true}; // ImGui Panels
 
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // Float, DeltaTime, Camera: FOV , near, far
 
@@ -183,6 +184,9 @@ void loadSettings() {
 				case 18:
 					if (iss >> value) fogRGBA[2] = value;
 					break;
+				case 20:
+					screen.WindowTitle = lineT;
+					break;
 				case 5:
 					if (iss >> value) cameraSettings[1] = value;
 					std::cout << "Camera Near Plane: " << cameraSettings[1] << std::endl;
@@ -199,104 +203,138 @@ void loadSettings() {
 			}
 			TestFile3.close();
 		}
+		std::ifstream TestFile4("Settings/imguiPanels.ini");
+		if (TestFile4.is_open())
+		{
+			lineNumber = 0;
+
+			while (std::getline(TestFile4, lineT)) {
+				lineNumber++;
+				std::istringstream iss(lineT); GLfloat value; // variable init
+
+				switch (lineNumber) {
+				case 3:
+					if (iss >> value) Panels[0] = value;
+					std::cout << "ImGui: " << Panels[0] << std::endl;
+					break;
+				case 6:
+					if (iss >> value) Panels[1] = value;
+					std::cout << "Main Panel: " << Panels[1] << std::endl;
+					break;
+				case 8:
+					if (iss >> value) Panels[2] = value;
+					std::cout << "Preformance Panel: " << Panels[2] << std::endl;
+					break;
+				default:
+					break;
+				}
+			}
+			TestFile4.close();
+		}
 	}
 }
 // Holds ImGui Variables and Windows
 void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame();ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
-	ImGui::Begin("Settings"); // ImGUI window creation
+	//Main Panel
+	if (Panels[1]) {
+		ImGui::Begin("Settings"); // ImGUI window creation
 
-	ImGui::Text("Settings (Press escape to use mouse)");
-	if (ImGui::SmallButton("load")) { loadSettings(); } // load settings button
-	ImGui::Checkbox("Preformance Profiler", &Panels[0]);
-	// Toggle ImGui Windows
-	// Rendering panel
-	if (ImGui::TreeNode("Rendering")) {
-		if (ImGui::TreeNode("Framerate And Resolution")) {
-			ImGui::Text("Framerate Limiters");
-			ImGui::Checkbox("Vsync", &render.doVsync); // Set the value of doVsync (bool)
-			// Screen
-			ImGui::DragInt("Width", &screen.widthI);
-			ImGui::DragInt("Height", &screen.heightI); // screen slider
+		ImGui::Text("Settings (Press escape to use mouse)");
+		if (ImGui::SmallButton("load")) { loadSettings(); } // load settings button
+		ImGui::Checkbox("Preformance Profiler", &Panels[2]);
+		// Toggle ImGui Windows
+		// Rendering panel
+		if (ImGui::TreeNode("Rendering")) {
+			if (ImGui::TreeNode("Framerate And Resolution")) {
+				ImGui::Text("Framerate Limiters");
+				ImGui::Checkbox("Vsync", &render.doVsync); // Set the value of doVsync (bool)
+				// Screen
+				ImGui::DragInt("Width", &screen.widthI);
+				ImGui::DragInt("Height", &screen.heightI); // screen slider
 
-			if (ImGui::SmallButton("Apply Changes?")) { // apply button
-				screen.width = static_cast<unsigned int>(screen.widthI);
-				screen.height = static_cast<unsigned int>(screen.heightI); // cast screenArea from screenAreaI
-				ScreenH.SetScreenSize(window, screen.width, screen.height); // set window and viewport w&h
-				ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
+				if (ImGui::SmallButton("Apply Changes?")) { // apply button
+					screen.width = static_cast<unsigned int>(screen.widthI);
+					screen.height = static_cast<unsigned int>(screen.heightI); // cast screenArea from screenAreaI
+					ScreenH.SetScreenSize(window, screen.width, screen.height); // set window and viewport w&h
+					ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
+				}
+				if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
+				{
+					ScreenH.toggleFullscreen(window, monitorT, screen.isFullscreen, screen.windowedPosX, screen.windowedPosY, screen.windowedWidth, screen.windowedHeight);
+				} //Toggle Fullscreen
+
+				ImGui::TreePop();// Ends The ImGui Window
 			}
-			if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)")) 
-			{ScreenH.toggleFullscreen(window, monitorT, screen.isFullscreen, screen.windowedPosX, screen.windowedPosY, screen.windowedWidth, screen.windowedHeight); } //Toggle Fullscreen
+
+			if (ImGui::TreeNode("Shaders")) {
+				//Optimisation And Shaders
+				if (ImGui::SmallButton("Enable Culling")) { glEnable(GL_CULL_FACE); }
+				if (ImGui::SmallButton("Disable Culling")) { glDisable(GL_CULL_FACE); } //culling
+				ImGui::Checkbox("ClearBufferBit (BackBuffer)", &render.clearColour); // Clear Buffer
+				ImGui::Checkbox("Enable Stencil Buffer", &shaderStr.Stencil);
+				ImGui::DragFloat("Stencil Size", &shaderStr.stencilSize);
+				ImGui::DragInt("Shader Number (Vert)", &shaderStr.VertNum);
+				ImGui::DragInt("Shader Number (Frag)", &shaderStr.FragNum); // Shader Switching
+				if (ImGui::SmallButton("Apply Shader?")) { shaderProgramT.Delete(); TempButton = -1; } // apply shader
+				ImGui::DragFloat("Gamma", &shaderStr.gamma);
+				ImGui::SliderInt("doReflections", &render.doReflections, 0, 2);
+				ImGui::SliderInt("doFog", &render.doFog, 0, 1); 		//Toggles
+				ImGui::TreePop();// Ends The ImGui Window
+			}
+			// Lighting panel
+			if (ImGui::TreeNode("Lighting")) {
+
+				if (ImGui::TreeNode("Colour")) {
+					ImGui::ColorEdit4("sky RGBA", skyRGBA);
+					ImGui::ColorEdit4("light RGBA", lightRGBA);
+					ImGui::ColorEdit4("fog RGBA", fogRGBA);	// sky and light
+					ImGui::ColorEdit4("Stencil RGBA", shaderStr.stencilColor);
+					ImGui::TreePop();
+				}
+
+				if (ImGui::TreeNode("Light Settings")) {
+					ImGui::DragFloat3("Light Transform", LightTransform1);
+					ImGui::DragFloat("light I", &ConeSI[2]);
+
+					// cone settings
+					ImGui::Text("cone size");
+					ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
+					ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
+
+					ImGui::Text("Light Angle");
+					ImGui::DragFloat3("Cone Angle", ConeRot);
+					ImGui::TreePop();
+				}
+
+				ImGui::TreePop();// Ends The ImGui Window
+			}
+			ImGui::TreePop();// Ends The ImGui Window
+		}
+		// Camera panel
+		if (ImGui::TreeNode("Camera Settings")) {
+
+			if (ImGui::TreeNode("View")) {
+				ImGui::SliderFloat("FOV", &cameraSettings[0], 0.1f, 160.0f); //FOV
+				ImGui::DragFloat2("Near and Far Plane", &cameraSettings[1], cameraSettings[2]); // Near and FarPlane
+				ImGui::TreePop();// Ends The ImGui Window 
+			}
+
+			if (ImGui::TreeNode("Transform")) {
+				if (ImGui::SmallButton("Reset Camera")) { TempButton = 1; } // reset cam pos
+				ImGui::DragFloat3("Camera Transform", CameraXYZ); // set cam pos
+				if (ImGui::SmallButton("Set")) { TempButton = 2; } // apply cam pos
+				ImGui::TreePop();// Ends The ImGui Window 
+			}
 
 			ImGui::TreePop();// Ends The ImGui Window
 		}
-
-		if (ImGui::TreeNode("Shaders")) {
-			//Optimisation And Shaders
-			if (ImGui::SmallButton("Enable Culling")) { glEnable(GL_CULL_FACE); } 
-			if (ImGui::SmallButton("Disable Culling")) { glDisable(GL_CULL_FACE); } //culling
-			ImGui::Checkbox("ClearBufferBit (BackBuffer)", &render.clearColour); // Clear Buffer
-			ImGui::Checkbox("Enable Stencil Buffer", &shaderStr.Stencil);
-			ImGui::DragFloat("Stencil Size", &shaderStr.stencilSize);
-			ImGui::DragInt("Shader Number (Vert)", &shaderStr.VertNum);
-			ImGui::DragInt("Shader Number (Frag)", &shaderStr.FragNum); // Shader Switching
-			if (ImGui::SmallButton("Apply Shader?")) { shaderProgramT.Delete(); TempButton = -1; } // apply shader
-			ImGui::DragFloat("Gamma", &shaderStr.gamma);
-			ImGui::SliderInt("doReflections", &render.doReflections, 0, 2);
-			ImGui::SliderInt("doFog", &render.doFog, 0, 1); 		//Toggles
-			ImGui::TreePop();// Ends The ImGui Window
-		}
-		// Lighting panel
-		if (ImGui::TreeNode("Lighting")) {
-
-			if (ImGui::TreeNode("Colour")) {
-				ImGui::ColorEdit4("sky RGBA", skyRGBA);
-				ImGui::ColorEdit4("light RGBA", lightRGBA);
-				ImGui::ColorEdit4("fog RGBA", fogRGBA);	// sky and light
-				ImGui::ColorEdit4("Stencil RGBA", shaderStr.stencilColor);
-				ImGui::TreePop();
-			}
-
-			if (ImGui::TreeNode("Light Settings")) {
-				ImGui::DragFloat3("Light Transform", LightTransform1);
-				ImGui::DragFloat("light I", &ConeSI[2]);
-
-				// cone settings
-				ImGui::Text("cone size");
-				ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
-				ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
-
-				ImGui::Text("Light Angle");
-				ImGui::DragFloat3("Cone Angle", ConeRot);
-				ImGui::TreePop();
-			}
-
-			ImGui::TreePop();// Ends The ImGui Window
-		}
-		ImGui::TreePop();// Ends The ImGui Window
+		ImGui::End();
 	}
-	// Camera panel
-	if (ImGui::TreeNode("Camera Settings")) {
-
-		if (ImGui::TreeNode("View")) {
-			ImGui::SliderFloat("FOV", &cameraSettings[0], 0.1f, 160.0f); //FOV
-			ImGui::DragFloat2("Near and Far Plane", &cameraSettings[1], cameraSettings[2]); // Near and FarPlane
-			ImGui::TreePop();// Ends The ImGui Window 
-		}
-
-		if (ImGui::TreeNode("Transform")) {
-			if (ImGui::SmallButton("Reset Camera")) { TempButton = 1; } // reset cam pos
-			ImGui::DragFloat3("Camera Transform", CameraXYZ); // set cam pos
-			if (ImGui::SmallButton("Set")) { TempButton = 2; } // apply cam pos
-			ImGui::TreePop();// Ends The ImGui Window 
-		}
-
-		ImGui::TreePop();// Ends The ImGui Window
-	}
-	ImGui::End();
+	
 	// preformance profiler
-	if (Panels[0]) {
+	if (Panels[2]) {
 		ImGui::Begin("Preformance Profiler");
 		// Framerate graph
 		ImGui::Checkbox("Stabe Graph (Less Smoothness)", &deltaTimeStr.aqFPS);
@@ -322,8 +360,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		ImGui::PlotLines("Frame Times (ms) Graph (90SAMP)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
 		ImGui::End();
 	}
-
-
 	
 	ImGui::Render(); // Renders the ImGUI elements
 
@@ -346,6 +382,7 @@ void DeltaMain(GLFWwindow* window) {
 	if (timeAccumulator[0] >= 1.0f) { 	//run if after 1 second
 		deltaTimeStr.frameRate1IHZ = 1.0f / deltaTimeStr.deltaTime; //update frameRate1IHZ at 1hz  
 		deltaTimeStr.framerate = "FPS " + std::to_string(deltaTimeStr.frameRateI);
+		glfwSetWindowTitle(window, (screen.WindowTitle + " (FPS:" + std::to_string(deltaTimeStr.frameRateI) + ")").c_str()); //set window title to framerate
 		timeAccumulator[0] = 0.0f; //reset time
 	}
 	timeAccumulator[1] += deltaTimeStr.deltaTime;
@@ -385,22 +422,17 @@ void DeltaMain(GLFWwindow* window) {
 //Main Function
 int main()
 {
-		init init;
-		init.initGLFW(); // initialize glfw
+		init init; init.initGLFW(); // initialize glfw
 		ScreenUtils ScreenH;
 
 		// Get the video mode of the primary monitor
 		// Get the primary monitor
 		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-		if (!primaryMonitor) { std::cerr << "Failed to get primary monitor" << std::endl;
-			glfwTerminate(); return -1;
-		}
+		if (!primaryMonitor) { std::cerr << "Failed to get primary monitor" << std::endl; glfwTerminate(); return -1; }
 
 		// Get the video mode of the primary monitor
 		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
-		if (!videoMode) { std::cerr << "Failed to get video mode" << std::endl;
-			glfwTerminate(); return -1;
-		}
+		if (!videoMode) { std::cerr << "Failed to get video mode" << std::endl; glfwTerminate(); return -1; }
 
 		// second fallback
 		// Store the width and height in the test array
@@ -412,7 +444,7 @@ int main()
 		loadSettings();
 
 		//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
-		GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.4", NULL, NULL); // create window
+		GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, screen.WindowTitle.c_str(), NULL, NULL); // create window
 
 		// error checking
 		if (window == NULL) { std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
@@ -439,7 +471,7 @@ int main()
 
 		init.initImGui(window); // Initialize ImGUI
 		
-		imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH);
+		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH); }
 
 		// glenables
 		// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
@@ -461,6 +493,8 @@ int main()
 
 		while (!glfwWindowShouldClose(window)) // GAME LOOP
 		{
+			if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); }
+
 			DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) 
 
 			switch (TempButton) {
@@ -513,7 +547,7 @@ int main()
 
 			camera.Matrix(shaderProgram, "camMatrix"); //Send Camera Matrix To Shader Prog
 
-			imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH);
+			if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH); }
 
 			glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 			glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)

@@ -244,12 +244,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Settings\Default.ini">
-      <Filter>Text Files\Text</Filter>
-    </None>
-    <None Include="Settings\EngineDefault.ini">
-      <Filter>Text Files\Text</Filter>
-    </None>
     <None Include="Shaders\Empty.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
@@ -290,6 +284,18 @@
       <Filter>Resource Files\Shaders\Main</Filter>
     </None>
     <None Include="Settings\imgui.ini">
+      <Filter>Text Files\Text</Filter>
+    </None>
+    <None Include="Settings\Default\Default.ini">
+      <Filter>Text Files\Text</Filter>
+    </None>
+    <None Include="Settings\Default\EngineDefault.ini">
+      <Filter>Text Files\Text</Filter>
+    </None>
+    <None Include="Settings\imguiPanels.ini">
+      <Filter>Text Files\Text</Filter>
+    </None>
+    <None Include="Keybinds.ReadMe">
       <Filter>Text Files\Text</Filter>
     </None>
   </ItemGroup>

@@ -200,9 +200,11 @@
     <ClInclude Include="src\video\shader\shaderClass.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Settings\Default.ini" />
-    <None Include="Settings\EngineDefault.ini" />
+    <None Include="Keybinds.ReadMe" />
+    <None Include="Settings\Default\Default.ini" />
+    <None Include="Settings\Default\EngineDefault.ini" />
     <None Include="Settings\imgui.ini" />
+    <None Include="Settings\imguiPanels.ini" />
     <None Include="Shaders\Db\Depth.frag" />
     <None Include="Shaders\Db\light.frag" />
     <None Include="Shaders\Db\light.vert" />
