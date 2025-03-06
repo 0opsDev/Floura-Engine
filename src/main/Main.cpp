@@ -8,15 +8,15 @@
 //Global Variables
 
 //Render
-struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = true; }; RenderSettings render;
+struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = false; }; RenderSettings render;
 
 //Shader
-struct ShaderSettings { int VertNum = 0, FragNum = 2; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = {1.0f, 1.0f, 1.0f, 1.0f}, gamma = 2.2; };
+struct ShaderSettings { int VertNum = 0, FragNum = 3; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = {1.0f, 1.0f, 1.0f, 1.0f}, gamma = 2.2; };
 //GLfloat, Render, Camera, Light
-GLfloat ConeSI[3] = { 0.05f, 0.95f , 2.0f }, ConeRot[3] = { 0.0f, -4.0f , 0.0f },
+GLfloat ConeSI[3] = { 0.05f, 0.95f , 2.0f }, ConeRot[3] = { 45.0f, -4.0f , -60.0f },
 LightTransform1[3] = { 0.0f, 25.0f, 0.0f }, CameraXYZ[3] = { 0.0f, 5.0f, 0.0f },
 lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f }, skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f },
-fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, DepthDistance = 100.0f, DepthPlane[2] = {0.1f, 100.0f};
 ShaderSettings shaderStr;
 
 struct ScreenSettings { //Screen
@@ -86,27 +86,47 @@ void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) {
 		std::cerr << "Error loading shader program: " << e.what() << std::endl;
 	}
 }
+std::vector<int> readCullingSettings(const std::string& filePath) {
+	std::vector<int> cullingSettings;
+	std::ifstream file(filePath);
+	if (file.is_open()) {
+		std::string line;
+		while (std::getline(file, line)) {
+			cullingSettings.push_back(std::stoi(line));
+		}
+		file.close();
+	}
+	else {
+		std::cerr << "Failed to open file: " << filePath << std::endl;
+	}
+	return cullingSettings;
+}
+
+
+
 // Function to load models from files
-std::vector<Model> loadModels(const std::string& namesFilePath, const std::string& pathsFilePath) {
+std::vector<std::pair<Model, int>> loadModels(const std::string& namesFilePath, const std::string& pathsFilePath, const std::string& cullingFilePath) {
 	std::vector<std::string> modelNames = readLinesFromFile(namesFilePath);
 	std::vector<std::string> modelPaths = readLinesFromFile(pathsFilePath);
+	std::vector<int> cullingSettings = readCullingSettings(cullingFilePath);
 
+	std::vector<std::pair<Model, int>> models;
 
-	std::vector<Model> models;
-
-	if (modelNames.size() != modelPaths.size()) {
-		std::cout << "\n ERR: Model names and paths count mismatch" << std::endl;
-		models.emplace_back(("Assets/assets/fallback/model/placeholder/placeholder.gltf"));
-		//throw std::runtime_error("Model names and paths count mismatch");
+	if (modelNames.size() != modelPaths.size() || modelNames.size() != cullingSettings.size()) {
+		std::cout << "\n ERR: Model names, paths, and culling settings count mismatch" << std::endl;
+		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0);
 	}
 	else {
 		for (size_t i = 0; i < modelNames.size(); ++i) {
-			models.emplace_back((mapName + modelPaths[i]).c_str());
+			models.emplace_back(Model((mapName + modelPaths[i]).c_str()), cullingSettings[i]);
 			std::cout << "Loaded model: " << '"' << modelNames[i] << '"' << " from path: " << modelPaths[i] << std::endl;
 		}
 	}
 	return models;
 }
+
+
+
 //Methods
 // Loads Settings From Files
 void loadSettings() {
@@ -270,8 +290,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 
 			if (ImGui::TreeNode("Shaders")) {
 				//Optimisation And Shaders
-				if (ImGui::SmallButton("Enable Culling")) { glEnable(GL_CULL_FACE); }
-				if (ImGui::SmallButton("Disable Culling")) { glDisable(GL_CULL_FACE); } //culling
 				ImGui::Checkbox("ClearBufferBit (BackBuffer)", &render.clearColour); // Clear Buffer
 				ImGui::Checkbox("Enable Stencil Buffer", &shaderStr.Stencil);
 				ImGui::DragFloat("Stencil Size", &shaderStr.stencilSize);
@@ -281,9 +299,14 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 				ImGui::DragFloat("Gamma", &shaderStr.gamma);
 				ImGui::SliderInt("doReflections", &render.doReflections, 0, 2);
 				ImGui::SliderInt("doFog", &render.doFog, 0, 1); 		//Toggles
+
+				ImGui::Text("DepthBuffer Settings (FOG)");
+				ImGui::DragFloat("Depth Distance (FOG)", &DepthDistance);
+				ImGui::DragFloat2("Near and Far Depth Plane", DepthPlane);
 				ImGui::TreePop();// Ends The ImGui Window
 			}
 			// Lighting panel
+
 			if (ImGui::TreeNode("Lighting")) {
 
 				if (ImGui::TreeNode("Colour")) {
@@ -305,6 +328,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 
 					ImGui::Text("Light Angle");
 					ImGui::DragFloat3("Cone Angle", ConeRot);
+
 					ImGui::TreePop();
 				}
 
@@ -484,7 +508,7 @@ int main()
 		// texture loading problems
 
 		// Model Loader
-		std::vector<Model> models = loadModels(mapName + "ModelNames.cfg", mapName + "ModelPaths.cfg"); // Load models from files
+		std::vector<std::pair<Model, int>> models = loadModels(mapName + "ModelNames.cfg", mapName + "ModelPaths.cfg", mapName + "ModelCull.cfg"); // Load models from files
 
 		// window logo creation and assignment
 		init.initLogo(window);
@@ -498,36 +522,47 @@ int main()
 			DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) 
 
 			switch (TempButton) {
-			case -1: { loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);TempButton = 0; break; }
-			case 1: { camera.Position = glm::vec3(0, 0, 0);TempButton = 0; break; }
-			case 2: { camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]);TempButton = 0; break; }
+			case -1: { loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram); TempButton = 0; break; }
+			case 1: { camera.Position = glm::vec3(0, 0, 0); TempButton = 0; break; }
+			case 2: { camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); TempButton = 0; break; }
 			}
 
 			// Convert variables to glm variables which hold data like a table
 			glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
 			glm::mat4 lightModel = glm::mat4(1.0f); lightModel = glm::translate(lightModel, lightPos);
 
-			//Send Variables to shader (GPU)
-
+			// Send Variables to shader (GPU)
 			shaderProgram.Activate(); // activate shaderprog to send uniforms to gpu
-
 			UniformH.DoUniforms(shaderProgram.ID, render.doReflections, render.doFog);
-			UniformH.TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos);
+			UniformH.TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos, DepthDistance, DepthPlane);
 			UniformH.ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
 
-			//Camera
-			camera.Inputs(window, deltaTimeStr.deltaTime); //send Camera.cpp window inputs and delta time
+			// Camera
+			camera.Inputs(window, deltaTimeStr.deltaTime); // send Camera.cpp window inputs and delta time
 			camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
 
-			//Clear BackBuffer
+			// Clear BackBuffer
 			if (render.clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
-			else { glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); } 	// Clear with colour
+			else { glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); } // Clear with colour
 
 			// draw the model
 			glStencilFunc(GL_ALWAYS, 1, 0xFF);
 			glStencilMask(0xFF);
 
-			for (Model& model : models) { model.Draw(shaderProgram, camera); }
+			for (auto& modelPair : models) {
+				Model& model = modelPair.first;
+				int cullingSetting = modelPair.second;
+
+				// Apply culling settings
+				if (cullingSetting == 1) {
+					glEnable(GL_CULL_FACE);
+				}
+				else {
+					glDisable(GL_CULL_FACE);
+				}
+
+				model.Draw(shaderProgram, camera);
+			}
 
 			if (shaderStr.Stencil) {
 				glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
@@ -536,16 +571,19 @@ int main()
 				outlineShaderProgram.Activate();
 				UniformH.Float(outlineShaderProgram.ID, "outlining", shaderStr.stencilSize);
 				UniformH.Float4(outlineShaderProgram.ID, "stencilColor", shaderStr.stencilColor[0], shaderStr.stencilColor[1], shaderStr.stencilColor[2], shaderStr.stencilColor[3]);
-				//add stencil buffer toggle tommorow
-				//draw
-				for (Model& model : models) { model.Draw(outlineShaderProgram, camera); }
+				// add stencil buffer toggle tommorow
+				// draw
+				for (auto& modelPair : models) {
+					Model& model = modelPair.first;
+					model.Draw(outlineShaderProgram, camera);
+				}
 
 				glStencilMask(0xFF);
 				glStencilFunc(GL_ALWAYS, 0, 0xFF);
 				glEnable(GL_DEPTH_TEST);
 			}
 
-			camera.Matrix(shaderProgram, "camMatrix"); //Send Camera Matrix To Shader Prog
+			camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 			if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH); }
 

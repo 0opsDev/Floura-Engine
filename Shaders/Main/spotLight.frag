@@ -42,6 +42,9 @@ uniform int doFog;
 //color of light from sky
 uniform vec4 skyColor;
 uniform float gamma;
+uniform float DepthDistance;
+uniform float FarPlane;
+uniform float NearPlane;
 
 vec4 spotLight()
 {
@@ -77,7 +80,7 @@ vec4 spotLight()
 	// diffuse lighting
 	vec3 normal = normalize(Normal);
 	vec3 lightDirection = normalize(lightPos - crntPos);
-	float diffuse = max(dot(normal, lightDirection), 0.0f);
+	float diffuse = max(abs(dot(normal, lightDirection)), 0.0f);
 
 	// specular lighting
 	float specularLight = 0.50f;
@@ -90,11 +93,15 @@ vec4 spotLight()
 	float angle = dot(vec3(sRotx, sRoty, sRotz), -lightDirection);
 	float inten = clamp((angle - outerCone) / (innerCone - outerCone), (0.0f), (0.0f + (ConeInten)) );
 
+
+	if (diffuseColor.a < 0.1)
+	discard;
 	//skyColor
 	//(inten * lightColor) life saver
 	// first part intensity, second part removes too brighht, third part makes sure inten wont invert
 	//real life saver ((inten * lightColor ) - (inten * skyColor) * (lightColor) )                                                            doesnt add color it adds brightness         the number we take needs to be pos
 	//																																				adds specular part
+
 	switch (doReflect){
 	case 0:
 	return (diffuseColor *  ( (skyColor + diffuse) *     ((inten * lightColor ) - (inten * skyColor)) + (skyColor + (ambient)  ) ) + 0) * (skyColor);
@@ -104,12 +111,12 @@ vec4 spotLight()
 	break;
 	}
 }
-float near = 0.1f;
-float far = 100.0f;
+//float near = 0.1f;
+//float far = 100.0f;
 
 float linearizeDepth(float depth)
 {
-	return (2.0 * near * far) / (far + near - (depth * 2.0 - 1.0) * (far - near));
+	return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
 }
 
 //offset is distance from camera
@@ -131,7 +138,7 @@ void main()
         }
         case 1:
         {
-            float depth = logisticDepth(gl_FragCoord.z, 0.1f, 100.0f);
+            float depth = logisticDepth(gl_FragCoord.z, 0.1f, DepthDistance);
             vec3 correctedFogColor = pow(fogColor, vec3(gamma)); // Apply gamma correction to fog
             FragColor = spotLight() * (1.0f - depth) + vec4(depth * correctedFogColor, 1.0f);
             break;
