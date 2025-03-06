@@ -11,8 +11,7 @@ in vec3 Normal;
 in vec3 color;
 // Imports the texture coordinates from the Vertex Shader
 in vec2 texCoord;
-//determines the loaded shader
-uniform int ShaderNumber;
+
 // Gets the Texture Units from the main function
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;

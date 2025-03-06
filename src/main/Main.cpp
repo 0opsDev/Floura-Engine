@@ -11,10 +11,10 @@
 struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = false; }; RenderSettings render;
 
 //Shader
-struct ShaderSettings { int VertNum = 0, FragNum = 3; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = {1.0f, 1.0f, 1.0f, 1.0f}, gamma = 2.2; };
+struct ShaderSettings { int VertNum = 0, FragNum = 2; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = {1.0f, 1.0f, 1.0f, 1.0f}, gamma = 2.2; };
 //GLfloat, Render, Camera, Light
-GLfloat ConeSI[3] = { 0.05f, 0.95f , 2.0f }, ConeRot[3] = { 45.0f, -4.0f , -60.0f },
-LightTransform1[3] = { 0.0f, 25.0f, 0.0f }, CameraXYZ[3] = { 0.0f, 5.0f, 0.0f },
+GLfloat ConeSI[3] = { 0.111f, 0.825f , 2.0f }, ConeRot[3] = { 0.0f, -1.0f , 0.0f },
+LightTransform1[3] = { 0.0f, 5.0f, 0.0f }, CameraXYZ[3] = { 0.0f, 5.0f, 0.0f },
 lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f }, skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f },
 fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, DepthDistance = 100.0f, DepthPlane[2] = {0.1f, 100.0f};
 ShaderSettings shaderStr;
@@ -492,6 +492,7 @@ int main()
 		shaderProgram.Activate(); // activate new shader program for use
 
 		Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
+		Shader LightProgram("Shaders/Db/light.vert", "Shaders/Db/light.frag");
 
 		init.initImGui(window); // Initialize ImGUI
 		
@@ -509,6 +510,8 @@ int main()
 
 		// Model Loader
 		std::vector<std::pair<Model, int>> models = loadModels(mapName + "ModelNames.cfg", mapName + "ModelPaths.cfg", mapName + "ModelCull.cfg"); // Load models from files
+
+		Model Lightmodel = "Assets/assets/Light/light.gltf";
 
 		// window logo creation and assignment
 		init.initLogo(window);
@@ -536,10 +539,14 @@ int main()
 			UniformH.DoUniforms(shaderProgram.ID, render.doReflections, render.doFog);
 			UniformH.TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos, DepthDistance, DepthPlane);
 			UniformH.ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
+			LightProgram.Activate();
+			UniformH.Float4(LightProgram.ID, "lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
+			UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
 
 			// Camera
 			camera.Inputs(window, deltaTimeStr.deltaTime); // send Camera.cpp window inputs and delta time
 			camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
+
 
 			// Clear BackBuffer
 			if (render.clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
@@ -564,6 +571,9 @@ int main()
 				model.Draw(shaderProgram, camera);
 			}
 
+			glDisable(GL_CULL_FACE);
+			Lightmodel.Draw(LightProgram, camera);
+
 			if (shaderStr.Stencil) {
 				glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
 				glStencilMask(0x00);
@@ -584,6 +594,7 @@ int main()
 			}
 
 			camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
+			camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 			if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH); }
 
