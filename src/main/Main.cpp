@@ -92,24 +92,6 @@ void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) {
 	}
 }
 
-std::vector<int> readCullingSettings(const std::string& filePath) {
-	std::vector<int> cullingSettings;
-	std::ifstream file(filePath);
-	if (file.is_open()) {
-		std::string line;
-		while (std::getline(file, line)) {
-			cullingSettings.push_back(std::stoi(line));
-		}
-		file.close();
-	}
-	else {
-		std::cerr << "Failed to open file: " << filePath << std::endl;
-	}
-	return cullingSettings;
-}
-
-
-
 // Function to load models from files
 std::vector<std::pair<Model, int>> loadModelsFromJson(const std::string& jsonFilePath) {
 	std::vector<std::pair<Model, int>> models;
@@ -528,8 +510,6 @@ int main()
 		Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 		camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos
 
-		// texture loading problems
-
 		// Model Loader
 		std::vector<std::pair<Model, int>> models = loadModelsFromJson(mapName + "ModelData.json"); // Load models from JSON file
 
@@ -583,12 +563,8 @@ int main()
 				int cullingSetting = modelPair.second;
 
 				// Apply culling settings
-				if (cullingSetting == 1) {
-					glEnable(GL_CULL_FACE);
-				}
-				else {
-					glDisable(GL_CULL_FACE);
-				}
+				if (cullingSetting == 1) {glEnable(GL_CULL_FACE);}
+				else {glDisable(GL_CULL_FACE);}
 
 				model.Draw(shaderProgram, camera);
 			}
