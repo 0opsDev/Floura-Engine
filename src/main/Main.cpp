@@ -43,6 +43,8 @@ float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // Float, DeltaTime, Camera:
 
 std::string mapName = ""; // String, Maploading
 
+glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f); // testing
+
 
 // Function to read a specific line from a file
 std::string readLineFromFile(const std::string& filePath, int lineNumber) {
@@ -133,7 +135,7 @@ std::vector<std::pair<Model, int>> loadModelsFromJson(const std::string& jsonFil
 
 //Methods
 // Loads Settings From Files
-void loadSettings() {
+void loadSettings() { //todo, make this use json
 	//READ - settings
 	std::ifstream TestFile2("Settings/Settings.ini");
 	if (TestFile2.is_open())
@@ -520,6 +522,7 @@ int main()
 
 		ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
 
+
 		while (!glfwWindowShouldClose(window)) // GAME LOOP
 		{
 			if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); }
@@ -541,14 +544,14 @@ int main()
 			UniformH.DoUniforms(shaderProgram.ID, render.doReflections, render.doFog);
 			UniformH.TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos, DepthDistance, DepthPlane);
 			UniformH.ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
+			//UniformH.Float3(shaderProgram.ID, "Transmodel", NULL, NULL, NULL); // testing
 			LightProgram.Activate();
 			UniformH.Float4(LightProgram.ID, "lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
-			UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
+			//UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
 
 			// Camera
 			camera.Inputs(window, deltaTimeStr.deltaTime); // send Camera.cpp window inputs and delta time
 			camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
-
 
 			// Clear BackBuffer
 			if (render.clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
@@ -566,11 +569,11 @@ int main()
 				if (cullingSetting == 1) {glEnable(GL_CULL_FACE);}
 				else {glDisable(GL_CULL_FACE);}
 
-				model.Draw(shaderProgram, camera);
+				model.Draw(shaderProgram, camera, translation); // add arg for transform to draw inside of model class
 			}
 
 			glDisable(GL_CULL_FACE);
-			Lightmodel.Draw(LightProgram, camera);
+			Lightmodel.Draw(LightProgram, camera, lightPos);
 
 			if (shaderStr.Stencil) {
 				glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
@@ -583,7 +586,7 @@ int main()
 				// draw
 				for (auto& modelPair : models) {
 					Model& model = modelPair.first;
-					model.Draw(outlineShaderProgram, camera);
+					model.Draw(outlineShaderProgram, camera, translation);
 				}
 
 				glStencilMask(0xFF);

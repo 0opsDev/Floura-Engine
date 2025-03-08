@@ -15,16 +15,15 @@ uniform mat4 model;
 uniform mat4 translation;
 uniform mat4 rotation;
 uniform mat4 scale;
-uniform vec3 Lightmodel;
 
 void main()
 {
     // Alter the position of the model in xyz using Lightmodel
-    vec4 modifiedPos = vec4(aPos + Lightmodel, 1.0f);
-    // Outputs the positions/coordinates of all vertices
-    gl_Position = camMatrix * model * modifiedPos;
     crntPos = vec3(model * translation * rotation * scale * vec4(aPos, 1.0f));
     Normal = aNormal;
     color = aColor;
     texCoord = aTex;
+
+    // Outputs the positions/coordinates of all vertices
+    gl_Position = camMatrix * vec4(crntPos, 1.0f);
 }
