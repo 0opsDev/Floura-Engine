@@ -1,0 +1,7 @@
+[
+  {
+    "name": "vase",
+    "path": "Models/vase/vase.gltf",
+    "isCulling": true
+  }
+]

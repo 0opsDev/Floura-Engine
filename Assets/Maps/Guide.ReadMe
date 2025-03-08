@@ -3,8 +3,5 @@ Enter map name on line 21 of "Settings.ini"
 
 inside of map folder
 
-ModelNames.cfg: Creates a model with a set name
-ModelPaths.cfg: Assigns model filepath
-
-Path must be the path from the folder Maps/ 
-eg. Models/vase/vase.gltf
+ModelData.json holds data for model names, where the model is,
+and wether it should cull

@@ -5,6 +5,8 @@
 #include "Init.h"
 #include "screenutils.h" 
 
+using json = nlohmann::json;
+
 //Global Variables
 
 //Render
@@ -105,25 +107,44 @@ std::vector<int> readCullingSettings(const std::string& filePath) {
 
 
 // Function to load models from files
-std::vector<std::pair<Model, int>> loadModels(const std::string& namesFilePath, const std::string& pathsFilePath, const std::string& cullingFilePath) {
-	std::vector<std::string> modelNames = readLinesFromFile(namesFilePath);
-	std::vector<std::string> modelPaths = readLinesFromFile(pathsFilePath);
-	std::vector<int> cullingSettings = readCullingSettings(cullingFilePath);
-
+std::vector<std::pair<Model, int>> loadModelsFromJson(const std::string& jsonFilePath) {
 	std::vector<std::pair<Model, int>> models;
-
-	if (modelNames.size() != modelPaths.size() || modelNames.size() != cullingSettings.size()) {
-		std::cout << "\n ERR: Model names, paths, and culling settings count mismatch" << std::endl;
+	std::ifstream file(jsonFilePath);
+	if (!file.is_open()) {
+		std::cerr << "Failed to open file: " << jsonFilePath << std::endl;
 		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0);
+		return models;
 	}
-	else {
-		for (size_t i = 0; i < modelNames.size(); ++i) {
-			models.emplace_back(Model((mapName + modelPaths[i]).c_str()), cullingSettings[i]);
-			std::cout << "Loaded model: " << '"' << modelNames[i] << '"' << " from path: " << modelPaths[i] << std::endl;
+
+	json modelData;
+	try {
+		file >> modelData;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error parsing JSON file: " << e.what() << std::endl;
+		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0);
+		return models;
+	}
+	file.close();
+
+	try {
+		for (const auto& item : modelData) {
+			std::string name = item.at("name").get<std::string>();
+			std::string path = item.at("path").get<std::string>();
+			bool isCulling = item.at("isCulling").get<bool>();
+
+			models.emplace_back(Model((mapName + path).c_str()), isCulling);
+			std::cout << "Loaded model: " << '"' << name << '"' << " from path: " << path << std::endl;
 		}
 	}
+	catch (const std::exception& e) {
+		std::cerr << "Error processing JSON data: " << e.what() << std::endl;
+		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0);
+	}
+
 	return models;
 }
+
 
 
 
@@ -509,7 +530,7 @@ int main()
 		// texture loading problems
 
 		// Model Loader
-		std::vector<std::pair<Model, int>> models = loadModels(mapName + "ModelNames.cfg", mapName + "ModelPaths.cfg", mapName + "ModelCull.cfg"); // Load models from files
+		std::vector<std::pair<Model, int>> models = loadModelsFromJson(mapName + "ModelData.json"); // Load models from JSON file
 
 		Model Lightmodel = "Assets/assets/Light/light.gltf";
 
