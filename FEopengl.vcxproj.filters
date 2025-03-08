@@ -247,12 +247,6 @@
     <None Include="Shaders\Empty.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="Shaders\FragList.cfg">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\VertList.cfg">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="Shaders\Main\Default.vert">
       <Filter>Resource Files\Shaders\Main</Filter>
     </None>
@@ -297,6 +291,9 @@
     </None>
     <None Include="Keybinds.ReadMe">
       <Filter>Text Files\Text</Filter>
+    </None>
+    <None Include="Shaders\ShaderList.json">
+      <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

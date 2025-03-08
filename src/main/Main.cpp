@@ -43,23 +43,7 @@ float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // Float, DeltaTime, Camera:
 
 std::string mapName = ""; // String, Maploading
 
-// Function to read lines from a file into a vector of strings
-std::vector<std::string> readLinesFromFile(const std::string& filePath) {
-	// Shaders
-	std::vector<std::string> lines;
-	std::ifstream file(filePath);
-	if (file.is_open()) {
-		std::string line;
-		while (std::getline(file, line)) {
-			lines.push_back(line);
-		}
-		file.close();
-	}
-	else {
-		std::cerr << "Failed to open file: " << filePath << std::endl;
-	}
-	return lines;
-}
+
 // Function to read a specific line from a file
 std::string readLineFromFile(const std::string& filePath, int lineNumber) {
 	// Shaders
@@ -76,11 +60,30 @@ std::string readLineFromFile(const std::string& filePath, int lineNumber) {
 	}
 	return line;
 }
+
+std::pair<std::string, std::string> getShaderPaths(int vertIndex, int fragIndex) {
+	std::ifstream file("Shaders/ShaderList.json"); // turn into string
+	if (!file.is_open()) {
+		throw std::runtime_error("Failed to open file: Shaders/ShaderList.json");
+	}
+
+	json shaderData;
+	file >> shaderData;
+	file.close();
+
+	std::string vertPath = shaderData[0]["Vert"].at(vertIndex); //check for paths (strings) in array at number index givin and return it
+	std::string fragPath = shaderData[0]["Frag"].at(fragIndex);
+
+	return { vertPath, fragPath };
+}
+
 void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) {
 	try {
-		std::string vertFile = readLineFromFile("Shaders/VertList.cfg", VertNum);
-		std::string fragFile = readLineFromFile("Shaders/FragList.cfg", FragNum);
-		std::cout << "Vert: " << vertFile << "Frag: " << fragFile << std::endl;
+		std::pair<std::string, std::string> shaderPaths = getShaderPaths(VertNum, FragNum);
+		std::string vertFile = shaderPaths.first;
+		std::string fragFile = shaderPaths.second;
+
+		std::cout << "Vert: " << vertFile << " Frag: " << fragFile << std::endl;
 
 		shaderProgram = Shader(vertFile.c_str(), fragFile.c_str());
 	}
@@ -88,6 +91,7 @@ void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) {
 		std::cerr << "Error loading shader program: " << e.what() << std::endl;
 	}
 }
+
 std::vector<int> readCullingSettings(const std::string& filePath) {
 	std::vector<int> cullingSettings;
 	std::ifstream file(filePath);
@@ -144,9 +148,6 @@ std::vector<std::pair<Model, int>> loadModelsFromJson(const std::string& jsonFil
 
 	return models;
 }
-
-
-
 
 //Methods
 // Loads Settings From Files

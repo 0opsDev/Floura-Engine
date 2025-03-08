@@ -1,0 +1,9 @@
+[
+  {
+    "Width": 800,
+    "Height": 600,
+    "Vsync": true,
+    "FOV":60.0,
+    "MAP": "Test"
+  }
+]
