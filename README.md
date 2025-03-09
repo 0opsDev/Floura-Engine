@@ -25,3 +25,6 @@ Screenshots:
 ![image](https://github.com/user-attachments/assets/092587d9-8e78-4234-9794-c57df82aab04)
 
 ![image](https://github.com/user-attachments/assets/3fd431cb-a0b5-4ed2-81b1-d780bdefc3f1)
+
+Rough Pipeline for reference:
+![RoughPipeline](https://github.com/user-attachments/assets/6d760507-0ab8-4121-bfc7-43d88981d61a)
