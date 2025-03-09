@@ -4,6 +4,7 @@
 #include "UF.h"
 #include "Init.h"
 #include "screenutils.h" 
+#include <glm/gtx/string_cast.hpp>
 
 using json = nlohmann::json;
 
@@ -95,12 +96,12 @@ void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) {
 }
 
 // Function to load models from files
-std::vector<std::pair<Model, int>> loadModelsFromJson(const std::string& jsonFilePath) {
-	std::vector<std::pair<Model, int>> models;
+std::vector<std::tuple<Model, int, glm::vec3>> loadModelsFromJson(const std::string& jsonFilePath) {
+	std::vector<std::tuple<Model, int, glm::vec3>> models;
 	std::ifstream file(jsonFilePath);
 	if (!file.is_open()) {
 		std::cerr << "Failed to open file: " << jsonFilePath << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0);
+		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f));
 		return models;
 	}
 
@@ -110,7 +111,7 @@ std::vector<std::pair<Model, int>> loadModelsFromJson(const std::string& jsonFil
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error parsing JSON file: " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0);
+		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f));
 		return models;
 	}
 	file.close();
@@ -120,18 +121,21 @@ std::vector<std::pair<Model, int>> loadModelsFromJson(const std::string& jsonFil
 			std::string name = item.at("name").get<std::string>();
 			std::string path = item.at("path").get<std::string>();
 			bool isCulling = item.at("isCulling").get<bool>();
+			glm::vec3 location = glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]);
 
-			models.emplace_back(Model((mapName + path).c_str()), isCulling);
-			std::cout << "Loaded model: " << '"' << name << '"' << " from path: " << path << std::endl;
+			models.emplace_back(Model((mapName + path).c_str()), isCulling, location);
+			std::cout << "Loaded model: " << '"' << name << '"' << " from path: " << path << " at location: " << glm::to_string(location) << std::endl;
 		}
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error processing JSON data: " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0);
+		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f));
 	}
 
 	return models;
 }
+
+
 
 //Methods
 // Loads Settings From Files
@@ -513,7 +517,7 @@ int main()
 		camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos
 
 		// Model Loader
-		std::vector<std::pair<Model, int>> models = loadModelsFromJson(mapName + "ModelData.json"); // Load models from JSON file
+		std::vector<std::tuple<Model, int, glm::vec3>> models = loadModelsFromJson(mapName + "ModelData.json"); // Load models from JSON file
 
 		Model Lightmodel = "Assets/assets/Light/light.gltf";
 
@@ -525,7 +529,7 @@ int main()
 
 		while (!glfwWindowShouldClose(window)) // GAME LOOP
 		{
-			if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); }
+			if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings();}
 
 			DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) 
 
@@ -561,13 +565,14 @@ int main()
 			glStencilFunc(GL_ALWAYS, 1, 0xFF);
 			glStencilMask(0xFF);
 
-			for (auto& modelPair : models) {
-				Model& model = modelPair.first;
-				int cullingSetting = modelPair.second;
+			for (auto& modelTuple : models) {
+				Model& model = std::get<0>(modelTuple);
+				int cullingSetting = std::get<1>(modelTuple);
+				glm::vec3 translation = std::get<2>(modelTuple);
 
 				// Apply culling settings
-				if (cullingSetting == 1) {glEnable(GL_CULL_FACE);}
-				else {glDisable(GL_CULL_FACE);}
+				if (cullingSetting == 1) { glEnable(GL_CULL_FACE); }
+				else { glDisable(GL_CULL_FACE); }
 
 				model.Draw(shaderProgram, camera, translation); // add arg for transform to draw inside of model class
 			}
@@ -584,8 +589,9 @@ int main()
 				UniformH.Float4(outlineShaderProgram.ID, "stencilColor", shaderStr.stencilColor[0], shaderStr.stencilColor[1], shaderStr.stencilColor[2], shaderStr.stencilColor[3]);
 				// add stencil buffer toggle tommorow
 				// draw
-				for (auto& modelPair : models) {
-					Model& model = modelPair.first;
+				for (auto& modelTuple : models) {
+					Model& model = std::get<0>(modelTuple);
+					glm::vec3 translation = std::get<2>(modelTuple);
 					model.Draw(outlineShaderProgram, camera, translation);
 				}
 

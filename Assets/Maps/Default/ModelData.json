@@ -2,30 +2,35 @@
   {
     "name": "Sky",
     "path": "Models/sky/skybox.gltf",
-    "isCulling": true
+    "isCulling": true,
+    "Location": [ 0, 0, 0 ]
   },
 
   {
     "name": "Map1",
     "path": "Models/Map/grass.gltf",
-    "isCulling": true
+    "isCulling": true,
+    "Location": [ 0, 0, 0 ]
   },
 
   {
     "name": "Map2",
     "path": "Models/Map/wall.gltf",
-    "isCulling": true
+    "isCulling": true,
+    "Location": [ 0, 0, 0 ]
   },
 
   {
     "name": "Map3",
     "path": "Models/Map/water.gltf",
-    "isCulling": true
+    "isCulling": true,
+    "Location": [ 0, 0, 0 ]
   },
 
   {
     "name": "vase",
     "path": "Models/vase/vase.gltf",
-    "isCulling": true
+    "isCulling": true,
+    "Location": [ 0, -0.35, 0 ]
   }
 ]
