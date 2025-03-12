@@ -14,12 +14,12 @@ using json = nlohmann::json;
 struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = false; }; RenderSettings render;
 
 //Shader
-struct ShaderSettings { int VertNum = 0, FragNum = 2; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = {1.0f, 1.0f, 1.0f, 1.0f}, gamma = 2.2; };
+struct ShaderSettings { int VertNum = 0, FragNum = 2; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, gamma = 2.2; };
 //GLfloat, Render, Camera, Light
 GLfloat ConeSI[3] = { 0.111f, 0.825f , 2.0f }, ConeRot[3] = { 0.0f, -1.0f , 0.0f },
 LightTransform1[3] = { 0.0f, 5.0f, 0.0f }, CameraXYZ[3] = { 0.0f, 5.0f, 0.0f },
 lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f }, skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f },
-fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, DepthDistance = 100.0f, DepthPlane[2] = {0.1f, 100.0f};
+fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, DepthDistance = 100.0f, DepthPlane[2] = { 0.1f, 100.0f };
 ShaderSettings shaderStr;
 
 struct ScreenSettings { //Screen
@@ -27,18 +27,18 @@ struct ScreenSettings { //Screen
 	int windowedPosX, windowedPosY, windowedWidth, windowedHeight, widthI, heightI;
 	bool isFullscreen = false;
 	std::string WindowTitle = "OpenGL Window";
-}; ScreenSettings screen = {0};
+}; ScreenSettings screen = { 0 };
 
 struct DeltaTime { //DeltaTime
 	int frameRateI, frameRate1IHZ;
 	float lastFrameTime, deltaTime, ftDif;
 	bool aqFPS = true;
 	std::string framerate;
-}; DeltaTime deltaTimeStr = {0};
+}; DeltaTime deltaTimeStr = { 0 };
 static float timeAccumulator[3] = { 0.0f, 0.0f, 0.0f }; // DeltaTime Accumulators
 
 int TempButton = 0;
-bool Panels[3] = { true, true, true}; // ImGui Panels
+bool Panels[3] = { true, true, true }; // ImGui Panels
 
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // Float, DeltaTime, Camera: FOV , near, far
 
@@ -176,7 +176,7 @@ void loadSettings() { //todo, make this use json
 			screen.heightI = screen.height; screen.widthI = screen.width;
 		}
 		TestFile2.close();
-		
+
 		std::ifstream TestFile3(mapName + "Engine.ini");
 		if (TestFile3.is_open())
 		{
@@ -266,7 +266,7 @@ void loadSettings() { //todo, make this use json
 // Holds ImGui Variables and Windows
 void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH) {
 	//Tell Imgui a new frame is about to begin
-	ImGui_ImplOpenGL3_NewFrame();ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
+	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	//Main Panel
 	if (Panels[1]) {
 		ImGui::Begin("Settings"); // ImGUI window creation
@@ -366,7 +366,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		}
 		ImGui::End();
 	}
-	
+
 	// preformance profiler
 	if (Panels[2]) {
 		ImGui::Begin("Preformance Profiler");
@@ -394,20 +394,20 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		ImGui::PlotLines("Frame Times (ms) Graph (90SAMP)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
 		ImGui::End();
 	}
-	
+
 	ImGui::Render(); // Renders the ImGUI elements
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 // Holds DeltaTime Based Variables and Functions
 void DeltaMain(GLFWwindow* window) {
-	
+
 	// Calculate delta time
 	// Cast the value to float
 	float currentFrameTime = static_cast<float>(glfwGetTime());
 	deltaTimeStr.deltaTime = currentFrameTime - deltaTimeStr.lastFrameTime;
 	deltaTimeStr.lastFrameTime = currentFrameTime;
-	
+
 
 	//framerate tracking
 	deltaTimeStr.frameRateI = 1.0f / deltaTimeStr.deltaTime;
@@ -423,7 +423,7 @@ void DeltaMain(GLFWwindow* window) {
 	//60hz
 	if (timeAccumulator[1] >= 0.016f) { //run if after .16 second
 
-		
+
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) { cameraSettings[0] += 0.4f; } // zoom out
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) { cameraSettings[0] -= 0.4f; } // zoom in
 		if (cameraSettings[0] <= 0.00f) { cameraSettings[0] = 0.1f; } // 0.1f zoom
@@ -433,186 +433,186 @@ void DeltaMain(GLFWwindow* window) {
 		timeAccumulator[1] = 0.0f; //reset time
 	}
 	timeAccumulator[2] += deltaTimeStr.deltaTime;
-	
+
 	//1000.0f / (5.0f * 1000.0f)) (5hz)
-	
+
 	switch (deltaTimeStr.aqFPS) { //graph high correct
-	case true:{ //sharp
+	case true: { //sharp
 		if (timeAccumulator[2] >= (1000.0f / (deltaTimeStr.frameRateI * (deltaTimeStr.deltaTime * 1000.0f)))) {
 			deltaTimeStr.ftDif = (deltaTimeStr.frameRateI + (deltaTimeStr.frameRateI / 2));
 			timeAccumulator[2] = 0.0f; //reset time
 		}
-			break;
-		}
-	case false:{ //smooth
+		break;
+	}
+	case false: { //smooth
 		if (timeAccumulator[2] >= (1000.0f / (deltaTimeStr.frameRateI * (10.0f)))) {
 			deltaTimeStr.ftDif = (deltaTimeStr.frameRateI + (deltaTimeStr.frameRateI / 2));
 			timeAccumulator[2] = 0.0f; //reset time
 		}
-			break;
-		}
+		break;
+	}
 	}
 }
 //Main Function
 int main()
 {
-		init init; init.initGLFW(); // initialize glfw
-		ScreenUtils ScreenH;
+	init init; init.initGLFW(); // initialize glfw
+	ScreenUtils ScreenH;
 
-		// Get the video mode of the primary monitor
-		// Get the primary monitor
-		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-		if (!primaryMonitor) { std::cerr << "Failed to get primary monitor" << std::endl; glfwTerminate(); return -1; }
+	// Get the video mode of the primary monitor
+	// Get the primary monitor
+	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+	if (!primaryMonitor) { std::cerr << "Failed to get primary monitor" << std::endl; glfwTerminate(); return -1; }
 
-		// Get the video mode of the primary monitor
-		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
-		if (!videoMode) { std::cerr << "Failed to get video mode" << std::endl; glfwTerminate(); return -1; }
+	// Get the video mode of the primary monitor
+	const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
+	if (!videoMode) { std::cerr << "Failed to get video mode" << std::endl; glfwTerminate(); return -1; }
 
-		// second fallback
-		// Store the width and height in the test array
-		screen.width = videoMode->width;
-		screen.height = videoMode->height;
+	// second fallback
+	// Store the width and height in the test array
+	screen.width = videoMode->width;
+	screen.height = videoMode->height;
 
-		// Now call glfwGetMonitorPos with correct arguments
-		glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screen.widthI, &screen.heightI);
-		loadSettings();
+	// Now call glfwGetMonitorPos with correct arguments
+	glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screen.widthI, &screen.heightI);
+	loadSettings();
 
-		//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
-		GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, screen.WindowTitle.c_str(), NULL, NULL); // create window
+	//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
+	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, screen.WindowTitle.c_str(), NULL, NULL); // create window
 
-		// error checking
-		if (window == NULL) { std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
+	// error checking
+	if (window == NULL) { std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
 
-		glfwMakeContextCurrent(window);	//make window current context
-				
-		gladLoadGL(); // load open gl config
+	glfwMakeContextCurrent(window);	//make window current context
 
-		//area of open gl we want to render in
-		//screen assignment after fallback
-		ScreenH.SetScreenSize(window, screen.width, screen.height);  // set window and viewport w&h
+	gladLoadGL(); // load open gl config
 
-		std::cout << "Primary monitor resolution: " << screen.width << "x" << screen.height << std::endl;
+	//area of open gl we want to render in
+	//screen assignment after fallback
+	ScreenH.SetScreenSize(window, screen.width, screen.height);  // set window and viewport w&h
 
-		UF UniformH; // glunfiorm
+	std::cout << "Primary monitor resolution: " << screen.width << "x" << screen.height << std::endl;
 
-		// shaderprog init
-		Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader"); // create a shader program and feed it Dummy shader and vertex files
-		shaderProgram.Delete(); // clean the shader prog for memory management
-		loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);// feed the shader prog real data
-		shaderProgram.Activate(); // activate new shader program for use
+	UF UniformH; // glunfiorm
 
-		Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
-		Shader LightProgram("Shaders/Db/light.vert", "Shaders/Db/light.frag");
+	// shaderprog init
+	Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader"); // create a shader program and feed it Dummy shader and vertex files
+	shaderProgram.Delete(); // clean the shader prog for memory management
+	loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);// feed the shader prog real data
+	shaderProgram.Activate(); // activate new shader program for use
 
-		init.initImGui(window); // Initialize ImGUI
-		
-		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH); }
+	Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
+	Shader LightProgram("Shaders/Db/light.vert", "Shaders/Db/light.frag");
 
-		// glenables
-		// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
-		init.initGLenable(render.frontFaceSide);
-		
-		// INITIALIZE CAMERA
-		Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
-		camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos
+	init.initImGui(window); // Initialize ImGUI
 
-		// Model Loader
-		std::vector<std::tuple<Model, int, glm::vec3>> models = loadModelsFromJson(mapName + "ModelData.json"); // Load models from JSON file
+	if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH); }
 
-		Model Lightmodel = "Assets/assets/Light/light.gltf";
+	// glenables
+	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
+	init.initGLenable(render.frontFaceSide);
 
-		// window logo creation and assignment
-		init.initLogo(window);
+	// INITIALIZE CAMERA
+	Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
+	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos
 
-		ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
+	// Model Loader
+	std::vector<std::tuple<Model, int, glm::vec3>> models = loadModelsFromJson(mapName + "ModelData.json"); // Load models from JSON file
+
+	Model Lightmodel = "Assets/assets/Light/light.gltf";
+
+	// window logo creation and assignment
+	init.initLogo(window);
+
+	ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
 
 
-		while (!glfwWindowShouldClose(window)) // GAME LOOP
-		{
-			if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings();}
+	while (!glfwWindowShouldClose(window)) // GAME LOOP
+	{
+		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); }
 
-			DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) 
+		DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) 
 
-			switch (TempButton) {
-			case -1: { loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram); TempButton = 0; break; }
-			case 1: { camera.Position = glm::vec3(0, 0, 0); TempButton = 0; break; }
-			case 2: { camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); TempButton = 0; break; }
-			}
+		switch (TempButton) {
+		case -1: { loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram); TempButton = 0; break; }
+		case 1: { camera.Position = glm::vec3(0, 0, 0); TempButton = 0; break; }
+		case 2: { camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); TempButton = 0; break; }
+		}
 
-			// Convert variables to glm variables which hold data like a table
-			glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
-			glm::mat4 lightModel = glm::mat4(1.0f); lightModel = glm::translate(lightModel, lightPos);
+		// Convert variables to glm variables which hold data like a table
+		glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
+		glm::mat4 lightModel = glm::mat4(1.0f); lightModel = glm::translate(lightModel, lightPos);
 
-			// Send Variables to shader (GPU)
-			shaderProgram.Activate(); // activate shaderprog to send uniforms to gpu
-			UniformH.DoUniforms(shaderProgram.ID, render.doReflections, render.doFog);
-			UniformH.TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos, DepthDistance, DepthPlane);
-			UniformH.ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
-			//UniformH.Float3(shaderProgram.ID, "Transmodel", NULL, NULL, NULL); // testing
-			LightProgram.Activate();
-			UniformH.Float4(LightProgram.ID, "lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
-			//UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
+		// Send Variables to shader (GPU)
+		shaderProgram.Activate(); // activate shaderprog to send uniforms to gpu
+		UniformH.DoUniforms(shaderProgram.ID, render.doReflections, render.doFog);
+		UniformH.TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos, DepthDistance, DepthPlane);
+		UniformH.ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
+		//UniformH.Float3(shaderProgram.ID, "Transmodel", NULL, NULL, NULL); // testing
+		LightProgram.Activate();
+		UniformH.Float4(LightProgram.ID, "lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
+		//UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
 
-			// Camera
-			camera.Inputs(window, deltaTimeStr.deltaTime); // send Camera.cpp window inputs and delta time
-			camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
+		// Camera
+		camera.Inputs(window, deltaTimeStr.deltaTime); // send Camera.cpp window inputs and delta time
+		camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
 
-			// Clear BackBuffer
-			if (render.clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
-			else { glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); } // Clear with colour
+		// Clear BackBuffer
+		if (render.clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
+		else { glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); } // Clear with colour
 
-			// draw the model
-			glStencilFunc(GL_ALWAYS, 1, 0xFF);
-			glStencilMask(0xFF);
+		// draw the model
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0xFF);
 
+		for (auto& modelTuple : models) {
+			Model& model = std::get<0>(modelTuple);
+			int cullingSetting = std::get<1>(modelTuple);
+			glm::vec3 translation = std::get<2>(modelTuple);
+
+			// Apply culling settings
+			if (cullingSetting == 1) { glEnable(GL_CULL_FACE); }
+			else { glDisable(GL_CULL_FACE); }
+
+			model.Draw(shaderProgram, camera, translation); // add arg for transform to draw inside of model class
+		}
+
+		glDisable(GL_CULL_FACE);
+		Lightmodel.Draw(LightProgram, camera, lightPos);
+
+		if (shaderStr.Stencil) {
+			glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
+			glStencilMask(0x00);
+			glDisable(GL_DEPTH_TEST);
+			outlineShaderProgram.Activate();
+			UniformH.Float(outlineShaderProgram.ID, "outlining", shaderStr.stencilSize);
+			UniformH.Float4(outlineShaderProgram.ID, "stencilColor", shaderStr.stencilColor[0], shaderStr.stencilColor[1], shaderStr.stencilColor[2], shaderStr.stencilColor[3]);
+			// add stencil buffer toggle tommorow
+			// draw
 			for (auto& modelTuple : models) {
 				Model& model = std::get<0>(modelTuple);
-				int cullingSetting = std::get<1>(modelTuple);
 				glm::vec3 translation = std::get<2>(modelTuple);
-
-				// Apply culling settings
-				if (cullingSetting == 1) { glEnable(GL_CULL_FACE); }
-				else { glDisable(GL_CULL_FACE); }
-
-				model.Draw(shaderProgram, camera, translation); // add arg for transform to draw inside of model class
+				model.Draw(outlineShaderProgram, camera, translation);
 			}
 
-			glDisable(GL_CULL_FACE);
-			Lightmodel.Draw(LightProgram, camera, lightPos);
-
-			if (shaderStr.Stencil) {
-				glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
-				glStencilMask(0x00);
-				glDisable(GL_DEPTH_TEST);
-				outlineShaderProgram.Activate();
-				UniformH.Float(outlineShaderProgram.ID, "outlining", shaderStr.stencilSize);
-				UniformH.Float4(outlineShaderProgram.ID, "stencilColor", shaderStr.stencilColor[0], shaderStr.stencilColor[1], shaderStr.stencilColor[2], shaderStr.stencilColor[3]);
-				// add stencil buffer toggle tommorow
-				// draw
-				for (auto& modelTuple : models) {
-					Model& model = std::get<0>(modelTuple);
-					glm::vec3 translation = std::get<2>(modelTuple);
-					model.Draw(outlineShaderProgram, camera, translation);
-				}
-
-				glStencilMask(0xFF);
-				glStencilFunc(GL_ALWAYS, 0, 0xFF);
-				glEnable(GL_DEPTH_TEST);
-			}
-
-			camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
-			camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
-
-			if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH); }
-
-			glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
-			glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
+			glStencilMask(0xFF);
+			glStencilFunc(GL_ALWAYS, 0, 0xFF);
+			glEnable(GL_DEPTH_TEST);
 		}
-		// Cleanup: Delete all objects on close
 
-		ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
-		shaderProgram.Delete(); // Delete Shader Prog
-		outlineShaderProgram.Delete();
-		glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
-		return 0;
+		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
+		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
+
+		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH); }
+
+		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
+		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
+	}
+	// Cleanup: Delete all objects on close
+
+	ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
+	shaderProgram.Delete(); // Delete Shader Prog
+	outlineShaderProgram.Delete();
+	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
+	return 0;
 }

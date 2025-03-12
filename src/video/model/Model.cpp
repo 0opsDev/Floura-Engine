@@ -25,7 +25,7 @@ void Model::Draw(Shader& shader, Camera& camera, glm::vec3 translation) // send 
 	// Go over all meshes and draw each one
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], translation); 
+		meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], translation);
 	}
 }
 
