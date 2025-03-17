@@ -11,6 +11,7 @@
 
 #include "shaderClass.h"
 #include "Main.h"
+#include "timeUtil.h"
 
 class Camera
 {
@@ -39,7 +40,7 @@ public:
     void Matrix(Shader& shader, const char* uniform);
 
     // Handles camera inputs
-    void Inputs(GLFWwindow* window, float deltaTime);
+    void Inputs(GLFWwindow* window);
 };
 
 #endif

@@ -5,6 +5,7 @@
 #include "Init.h"
 #include "screenutils.h" 
 #include <glm/gtx/string_cast.hpp>
+#include "timeUtil.h"
 
 using json = nlohmann::json;
 
@@ -31,7 +32,7 @@ struct ScreenSettings { //Screen
 
 struct DeltaTime { //DeltaTime
 	int frameRateI, frameRate1IHZ;
-	float lastFrameTime, deltaTime, ftDif;
+	float lastFrameTime, ftDif;
 	bool aqFPS = true;
 	std::string framerate;
 }; DeltaTime deltaTimeStr = { 0 };
@@ -264,7 +265,7 @@ void loadSettings() { //todo, make this use json
 	}
 }
 // Holds ImGui Variables and Windows
-void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH) {
+void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH, float deltaTime) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	//Main Panel
@@ -386,9 +387,9 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		static float frameTimeValues[90] = { 0 }; //stores 90 snapshots of frametime
 
 		static int ftValues_offset = 0;
-		frameTimeValues[ftValues_offset] = deltaTimeStr.deltaTime * 1000.0f; // Convert to milliseconds
+		frameTimeValues[ftValues_offset] = deltaTime * 1000.0f; // Convert to milliseconds
 		ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
-		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = deltaTimeStr.deltaTime * 1000.0f) + " ms";
+		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = deltaTime * 1000.0f) + " ms";
 
 		ImGui::Text(frametimes.c_str());
 		ImGui::PlotLines("Frame Times (ms) Graph (90SAMP)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
@@ -400,57 +401,42 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 // Holds DeltaTime Based Variables and Functions
-void DeltaMain(GLFWwindow* window) {
+void DeltaMain(GLFWwindow* window, float deltaTime) { // work on this more
 
-	// Calculate delta time
-	// Cast the value to float
-	float currentFrameTime = static_cast<float>(glfwGetTime());
-	deltaTimeStr.deltaTime = currentFrameTime - deltaTimeStr.lastFrameTime;
-	deltaTimeStr.lastFrameTime = currentFrameTime;
-
-
-	//framerate tracking
-	deltaTimeStr.frameRateI = 1.0f / deltaTimeStr.deltaTime;
-	timeAccumulator[0] += deltaTimeStr.deltaTime;
-	//1hz
-	if (timeAccumulator[0] >= 1.0f) { 	//run if after 1 second
-		deltaTimeStr.frameRate1IHZ = 1.0f / deltaTimeStr.deltaTime; //update frameRate1IHZ at 1hz  
+	// Framerate tracking
+	deltaTimeStr.frameRateI = 1.0f / deltaTime;
+	timeAccumulator[0] += deltaTime;
+	// 1hz
+	if (timeAccumulator[0] >= 1.0f) {
+		deltaTimeStr.frameRate1IHZ = 1.0f / deltaTime;
 		deltaTimeStr.framerate = "FPS " + std::to_string(deltaTimeStr.frameRateI);
-		glfwSetWindowTitle(window, (screen.WindowTitle + " (FPS:" + std::to_string(deltaTimeStr.frameRateI) + ")").c_str()); //set window title to framerate
-		timeAccumulator[0] = 0.0f; //reset time
+		glfwSetWindowTitle(window, (screen.WindowTitle + " (FPS:" + std::to_string(deltaTimeStr.frameRateI) + ")").c_str());
+		timeAccumulator[0] = 0.0f;
 	}
-	timeAccumulator[1] += deltaTimeStr.deltaTime;
-	//60hz
-	if (timeAccumulator[1] >= 0.016f) { //run if after .16 second
-
-
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) { cameraSettings[0] += 0.4f; } // zoom out
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) { cameraSettings[0] -= 0.4f; } // zoom in
-		if (cameraSettings[0] <= 0.00f) { cameraSettings[0] = 0.1f; } // 0.1f zoom
-
-		if (cameraSettings[0] >= 160.1f) { cameraSettings[0] = 160.0f; } // 160.0f zoom
-
-		timeAccumulator[1] = 0.0f; //reset time
+	timeAccumulator[1] += deltaTime;
+	// 60hz
+	if (timeAccumulator[1] >= 0.016f) {
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) { cameraSettings[0] += 0.4f; }
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) { cameraSettings[0] -= 0.4f; }
+		if (cameraSettings[0] <= 0.00f) { cameraSettings[0] = 0.1f; }
+		if (cameraSettings[0] >= 160.1f) { cameraSettings[0] = 160.0f; }
+		timeAccumulator[1] = 0.0f;
 	}
-	timeAccumulator[2] += deltaTimeStr.deltaTime;
+	timeAccumulator[2] += deltaTime;
 
-	//1000.0f / (5.0f * 1000.0f)) (5hz)
-
-	switch (deltaTimeStr.aqFPS) { //graph high correct
-	case true: { //sharp
-		if (timeAccumulator[2] >= (1000.0f / (deltaTimeStr.frameRateI * (deltaTimeStr.deltaTime * 1000.0f)))) {
+	switch (deltaTimeStr.aqFPS) {
+	case true:
+		if (timeAccumulator[2] >= (1000.0f / (deltaTimeStr.frameRateI * (deltaTime * 1000.0f)))) {
 			deltaTimeStr.ftDif = (deltaTimeStr.frameRateI + (deltaTimeStr.frameRateI / 2));
-			timeAccumulator[2] = 0.0f; //reset time
+			timeAccumulator[2] = 0.0f;
 		}
 		break;
-	}
-	case false: { //smooth
+	case false:
 		if (timeAccumulator[2] >= (1000.0f / (deltaTimeStr.frameRateI * (10.0f)))) {
 			deltaTimeStr.ftDif = (deltaTimeStr.frameRateI + (deltaTimeStr.frameRateI / 2));
-			timeAccumulator[2] = 0.0f; //reset time
+			timeAccumulator[2] = 0.0f;
 		}
 		break;
-	}
 	}
 }
 //Main Function
@@ -458,7 +444,6 @@ int main()
 {
 	init init; init.initGLFW(); // initialize glfw
 	ScreenUtils ScreenH;
-
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -506,7 +491,7 @@ int main()
 
 	init.initImGui(window); // Initialize ImGUI
 
-	if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH); }
+	if (Panels[0]) { float deltaTime = TimeUtil::deltaTime; imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime); } //dummy deltatime for init + imgui
 
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
@@ -531,7 +516,10 @@ int main()
 	{
 		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); }
 
-		DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) 
+		// Update delta time
+		TimeUtil::updateDeltaTime();
+		float deltaTime = TimeUtil::deltaTime;
+		DeltaMain(window, deltaTime); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) 
 
 		switch (TempButton) {
 		case -1: { loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram); TempButton = 0; break; }
@@ -554,7 +542,7 @@ int main()
 		//UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
 
 		// Camera
-		camera.Inputs(window, deltaTimeStr.deltaTime); // send Camera.cpp window inputs and delta time
+		camera.Inputs(window); // send Camera.cpp window inputs and delta time
 		camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
 
 		// Clear BackBuffer
@@ -603,7 +591,7 @@ int main()
 		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
-		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH); }
+		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime); }
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)

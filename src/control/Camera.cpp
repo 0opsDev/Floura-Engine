@@ -32,8 +32,9 @@ void Camera::Matrix(Shader& shader, const char* uniform)
     // Exports the camera matrix to the Vertex Shader
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
-void Camera::Inputs(GLFWwindow* window, float deltaTime)
+void Camera::Inputs(GLFWwindow* window)
 {
+    float deltaTime = TimeUtil::deltaTime;
     float adjustedSpeed = speed * deltaTime;;
 
     // Handles inputs

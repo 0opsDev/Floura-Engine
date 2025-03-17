@@ -160,6 +160,7 @@
     <ClCompile Include="src\utils\init.cpp" />
     <ClCompile Include="src\utils\ScreenUtils.cpp" />
     <ClCompile Include="src\utils\SettingsUtil.cpp" />
+    <ClCompile Include="src\utils\timeUtil.cpp" />
     <ClCompile Include="src\utils\UF.cpp" />
     <ClCompile Include="src\video\BufferArrays\VAO.cpp" />
     <ClCompile Include="src\video\BufferObjects\EBO.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="src\video\model\Model.h" />
     <ClInclude Include="src\video\model\Texture.h" />
     <ClInclude Include="src\video\shader\shaderClass.h" />
+    <ClInclude Include="timeUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Maps\Test\ModelData.json" />
