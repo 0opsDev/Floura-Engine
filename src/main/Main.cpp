@@ -9,18 +9,21 @@
 
 using json = nlohmann::json;
 
+float sensitivity = 100.0f; // mouse sensitivity (please put this into the settings json, have it in imgui too and have to ability to save to it)
+
 //Global Variables
+	//GLfloat, Render, Camera, Light
+GLfloat ConeSI[3] = { 0.111f, 0.825f , 2.0f }, ConeRot[3] = { 0.0f, -1.0f , 0.0f },
+LightTransform1[3] = { 0.0f, 5.0f, 0.0f }, CameraXYZ[3] = { 0.0f, 0.0f, 0.0f }, // cameraxyz values are used for initial camera position
+lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f }, skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f },
+fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, DepthDistance = 100.0f, DepthPlane[2] = { 0.1f, 100.0f };
 
 //Render
 struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = false; }; RenderSettings render;
 
 //Shader
 struct ShaderSettings { int VertNum = 0, FragNum = 2; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, gamma = 2.2; };
-//GLfloat, Render, Camera, Light
-GLfloat ConeSI[3] = { 0.111f, 0.825f , 2.0f }, ConeRot[3] = { 0.0f, -1.0f , 0.0f },
-LightTransform1[3] = { 0.0f, 5.0f, 0.0f }, CameraXYZ[3] = { 0.0f, 5.0f, 0.0f },
-lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f }, skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f },
-fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, DepthDistance = 100.0f, DepthPlane[2] = { 0.1f, 100.0f };
+
 ShaderSettings shaderStr;
 
 struct ScreenSettings { //Screen
@@ -44,8 +47,6 @@ bool Panels[3] = { true, true, true }; // ImGui Panels
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // Float, DeltaTime, Camera: FOV , near, far
 
 std::string mapName = ""; // String, Maploading
-
-glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f); // testing
 
 
 // Function to read a specific line from a file
@@ -499,10 +500,10 @@ int main()
 
 	// INITIALIZE CAMERA
 	Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
-	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos
+	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos //INIT CAMERA POSITION
 
 	// Model Loader
-	std::vector<std::tuple<Model, int, glm::vec3>> models = loadModelsFromJson(mapName + "ModelData.json"); // Load models from JSON file
+	std::vector<std::tuple<Model, int, glm::vec3>> models = loadModelsFromJson(mapName + "ModelECSData.json"); // Load models from JSON file
 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
@@ -542,7 +543,7 @@ int main()
 		//UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
 
 		// Camera
-		camera.Inputs(window); // send Camera.cpp window inputs and delta time
+		camera.Inputs(window, sensitivity); // send Camera.cpp window inputs and delta time
 		camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
 
 		// Clear BackBuffer

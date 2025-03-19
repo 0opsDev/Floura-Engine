@@ -4,8 +4,8 @@
     "path": "Models/sky/skybox.gltf",
     "isCulling": true,
     "Location": [ 0, 0, 0 ],
-    "Rotation": [ 0, 0, 0, 0],
-    "Scale": [ 0, 0, 0]
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 0, 0, 0 ]
   },
   {
     "name": "TallGrass",

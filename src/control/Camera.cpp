@@ -32,10 +32,10 @@ void Camera::Matrix(Shader& shader, const char* uniform)
     // Exports the camera matrix to the Vertex Shader
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
-void Camera::Inputs(GLFWwindow* window)
+void Camera::Inputs(GLFWwindow* window, float sensitivity)
 {
     float deltaTime = TimeUtil::deltaTime;
-    float adjustedSpeed = speed * deltaTime;;
+    float adjustedSpeed = speed * deltaTime;
 
     // Handles inputs
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
