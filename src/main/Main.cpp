@@ -8,7 +8,19 @@
 #include "timeUtil.h" 
 #include "inputUtil.h"
 
+
 using json = nlohmann::json;
+
+float ViewportVerticies[] = {
+	// Coords,   Texture cords
+	 1.0f, -1.0f,  1.0f, 0.0f,
+	-1.0f, -1.0f,  0.0f, 0.0f,
+	-1.0f,  1.0f,  0.0f, 1.0f,
+
+	 1.0f,  1.0f,  1.0f, 1.0f,
+	 1.0f, -1.0f,  1.0f, 0.0f,
+	-1.0f,  1.0f,  0.0f, 1.0f
+};
 
 float sensitivity = 100.0f; // mouse sensitivity (please put this into the settings json, have it in imgui too and have to ability to save to it)
 bool invertMouse[2] = { false, false }; // invert mouse x and y axis
@@ -418,6 +430,10 @@ int main()
 
 	gladLoadGL(); // load open gl config
 
+	// Enable depth testing
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
 	//area of open gl we want to render in
 	//screen assignment after fallback
 	ScreenH.SetScreenSize(window, screen.width, screen.height);  // set window and viewport w&h
@@ -438,6 +454,10 @@ int main()
 	Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
 	Shader LightProgram("Shaders/Db/light.vert", "Shaders/Db/light.frag");
 
+	Shader frameBufferProgram("Shaders/Main/framebuffer.vert", "Shaders/Main/framebuffer.frag");
+	frameBufferProgram.Activate();
+	UniformH.Int(frameBufferProgram.ID, "screenTexture", 0);
+
 	init.initImGui(window); // Initialize ImGUI
 
 	if (Panels[0]) { float deltaTime = TimeUtil::deltaTime; imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime); } //dummy deltatime for init + imgui
@@ -455,15 +475,64 @@ int main()
 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
+	// init viewport rectangle object drawn to viewport with framebuffer texture attached
+	unsigned int viewVAO, viewVBO;
+	glGenVertexArrays(1, &viewVAO);
+	glGenBuffers(1, &viewVBO);
+	glBindVertexArray(viewVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, viewVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(ViewportVerticies), &ViewportVerticies, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+
+
+	unsigned int FBO; // FrameBuffer Object
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	// ColourBuffer
+	unsigned int frameBufferTexture;
+	glGenTextures(1, &frameBufferTexture);
+	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screen.width, screen.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
+
+	// DepthBuffer + StencilBuffer
+	unsigned int RBO; // RenderBuffer Object
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screen.width, screen.height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+
+	//ERROR CHECKING
+	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer error: " << fboStatus << std::endl;
+
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
+
 		inputH.updateMouse(invertMouse, sensitivity); // update mouse
 		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); }
 
 		// Update delta time
 		TimeUtil::updateDeltaTime();
 		float deltaTime = TimeUtil::deltaTime;
-		DeltaMain(window, deltaTime); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) 
+		DeltaMain(window, deltaTime); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) \
+
+		//FrameBuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		// Clear BackBuffer
+		if (render.clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
+		else { glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); } // Clear with colour
+		glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
 
 		switch (TempButton) {
 		case -1: { loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram); TempButton = 0; break; }
@@ -489,13 +558,15 @@ int main()
 		camera.Inputs(window); // send Camera.cpp window inputs and delta time
 		camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
 
-		// Clear BackBuffer
-		if (render.clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
-		else { glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); } // Clear with colour
-
 		// draw the model
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
 		glStencilMask(0xFF);
+
+
+		if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
+			glClearColor(1, 1, 1, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		}
 
 		for (auto& modelTuple : models) {
 			Model& model = std::get<0>(modelTuple);
@@ -508,9 +579,10 @@ int main()
 
 			model.Draw(shaderProgram, camera, translation); // add arg for transform to draw inside of model class
 		}
-
 		glDisable(GL_CULL_FACE);
 		Lightmodel.Draw(LightProgram, camera, lightPos);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
 		if (shaderStr.Stencil) {
 			glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
@@ -534,6 +606,14 @@ int main()
 
 		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// draw the framebuffer
+		frameBufferProgram.Activate();
+		glBindVertexArray(viewVAO);
+		glDisable(GL_DEPTH_TEST); // stops culling on the rectangle the framebuffer is drawn on
+		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime); }
 
