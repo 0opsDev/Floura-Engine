@@ -1,0 +1,12 @@
+[
+  {
+    "MapName": "Default",
+    "NearPlane": "0.1f",
+    "FarPlane": "100000.000f",
+    "Window": "Test",
+
+    "skyRGBA": [ 0.698, 0.745, 0.898 ],
+    "lightRGBA": [ 0.925, 0.757, 0.757 ],
+    "fogRGBA": [ 0.409, 0.460, 0.627 ]
+  }
+]

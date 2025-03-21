@@ -5,7 +5,7 @@
 #include "Init.h"
 #include "screenutils.h" 
 #include <glm/gtx/string_cast.hpp>
-#include "timeUtil.h"
+#include "timeUtil.h" 
 #include "inputUtil.h"
 
 using json = nlohmann::json;
@@ -139,134 +139,72 @@ std::vector<std::tuple<Model, int, glm::vec3>> loadModelsFromJson(const std::str
 	return models;
 }
 
-
-
 //Methods
 // Loads Settings From Files
-void loadSettings() { //todo, make this use json
-	//READ - settings
-	std::ifstream TestFile2("Settings/Settings.ini");
-	if (TestFile2.is_open())
-	{
-		std::string lineT;
-		int lineNumber = 0;
+void loadSettings() {
+	// Load Settings.json
+	std::ifstream settingsFile("Settings/Settings.json");
+	if (settingsFile.is_open()) {
+		json settingsData;
+		settingsFile >> settingsData;
+		settingsFile.close();
 
-		while (std::getline(TestFile2, lineT)) {
-			lineNumber++;
-			std::istringstream iss(lineT); GLfloat value;
+		screen.heightI = settingsData[0]["Height"];
+		screen.widthI = settingsData[0]["Width"];
+		screen.width = static_cast<unsigned int>(screen.widthI);
+		screen.height = static_cast<unsigned int>(screen.heightI); // cast screenArea from screenAreaI
 
-			switch (lineNumber) {
-			case 3:
-				if (iss >> value) screen.width = static_cast<unsigned int>(value);
-				break;
-			case 4:
-				if (iss >> value) screen.height = static_cast<unsigned int>(value);
-				break;
-			case 6:
-				render.doVsync = (lineT == "VsyncT");
-				std::cout << "Vsync: " << render.doVsync << std::endl;
-				break;
-			case 8:
-				if (iss >> value) cameraSettings[0] = value;
-				std::cout << "Camera FOV: " << cameraSettings[0] << std::endl;
-				break;
-			case 10:
-				mapName = "Assets/Maps/" + lineT + "/";
-				std::cout << "Map: " << mapName << std::endl;
-				break;
-			default:
-				break;
-			}
-			screen.heightI = screen.height; screen.widthI = screen.width;
-		}
-		TestFile2.close();
+		render.doVsync = settingsData[0]["Vsync"];
+		cameraSettings[0] = settingsData[0]["FOV"];
+		mapName = "Assets/Maps/" + settingsData[0]["MAP"].get<std::string>() + "/";
+	}
+	else {
+		std::cerr << "Failed to open Settings/Settings.json" << std::endl;
+	}
 
-		std::ifstream TestFile3(mapName + "Engine.ini");
-		if (TestFile3.is_open())
-		{
-			lineNumber = 0;
+	// Load EngineDefault.json
+	std::ifstream engineDefaultFile(mapName + "Engine.json");
+	if (engineDefaultFile.is_open()) {
+		json engineDefaultData;
+		engineDefaultFile >> engineDefaultData;
+		engineDefaultFile.close();
 
-			while (std::getline(TestFile3, lineT)) {
-				lineNumber++;
-				std::istringstream iss(lineT); GLfloat value; // variable init
+		skyRGBA[0] = engineDefaultData[0]["skyRGBA"][0];
+		skyRGBA[1] = engineDefaultData[0]["skyRGBA"][1];
+		skyRGBA[2] = engineDefaultData[0]["skyRGBA"][2];
 
-				switch (lineNumber) {
-				case 8:
-					if (iss >> value) skyRGBA[0] = value;
-					break;
-				case 9:
-					if (iss >> value) skyRGBA[1] = value;
-					break;
-				case 10:
-					if (iss >> value) skyRGBA[2] = value;
-					break;
-				case 12:
-					if (iss >> value) lightRGBA[0] = value;
-					break;
-				case 13:
-					if (iss >> value) lightRGBA[1] = value;
-					break;
-				case 14:
-					if (iss >> value) lightRGBA[2] = value;
-					break;
-				case 16:
-					if (iss >> value) fogRGBA[0] = value;
-					break;
-				case 17:
-					if (iss >> value) fogRGBA[1] = value;
-					break;
-				case 18:
-					if (iss >> value) fogRGBA[2] = value;
-					break;
-				case 20:
-					screen.WindowTitle = lineT;
-					break;
-				case 5:
-					if (iss >> value) cameraSettings[1] = value;
-					std::cout << "Camera Near Plane: " << cameraSettings[1] << std::endl;
-					break;
-				case 6:
-					if (iss >> value) cameraSettings[2] = value;
-					std::cout << "Camera Far Plane: " << cameraSettings[2] << std::endl;
-					break;
-				case 3:
-					break;
-				default:
-					break;
-				}
-			}
-			TestFile3.close();
-		}
-		std::ifstream TestFile4("Settings/imguiPanels.ini");
-		if (TestFile4.is_open())
-		{
-			lineNumber = 0;
+		lightRGBA[0] = engineDefaultData[0]["lightRGBA"][0];
+		lightRGBA[1] = engineDefaultData[0]["lightRGBA"][1];
+		lightRGBA[2] = engineDefaultData[0]["lightRGBA"][2];
 
-			while (std::getline(TestFile4, lineT)) {
-				lineNumber++;
-				std::istringstream iss(lineT); GLfloat value; // variable init
+		fogRGBA[0] = engineDefaultData[0]["fogRGBA"][0];
+		fogRGBA[1] = engineDefaultData[0]["fogRGBA"][1];
+		fogRGBA[2] = engineDefaultData[0]["fogRGBA"][2];
 
-				switch (lineNumber) {
-				case 3:
-					if (iss >> value) Panels[0] = value;
-					std::cout << "ImGui: " << Panels[0] << std::endl;
-					break;
-				case 6:
-					if (iss >> value) Panels[1] = value;
-					std::cout << "Main Panel: " << Panels[1] << std::endl;
-					break;
-				case 8:
-					if (iss >> value) Panels[2] = value;
-					std::cout << "Preformance Panel: " << Panels[2] << std::endl;
-					break;
-				default:
-					break;
-				}
-			}
-			TestFile4.close();
-		}
+		cameraSettings[1] = std::stof(engineDefaultData[0]["NearPlane"].get<std::string>());
+		cameraSettings[2] = std::stof(engineDefaultData[0]["FarPlane"].get<std::string>());
+		screen.WindowTitle = engineDefaultData[0]["Window"];
+	}
+	else {
+		std::cerr << "Failed to open Settings/Default/EngineDefault.json" << std::endl;
+	}
+
+	// Load imguiPanels.json
+	std::ifstream imguiPanelsFile("Settings/imguiPanels.json");
+	if (imguiPanelsFile.is_open()) {
+		json imguiPanelsData;
+		imguiPanelsFile >> imguiPanelsData;
+		imguiPanelsFile.close();
+
+		Panels[0] = imguiPanelsData[0]["imGui"];
+		Panels[1] = imguiPanelsData[0]["panelMain"];
+		Panels[2] = imguiPanelsData[0]["Panel Performance"];
+	}
+	else {
+		std::cerr << "Failed to open Settings/imguiPanels.json" << std::endl;
 	}
 }
+
 // Holds ImGui Variables and Windows
 void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH, float deltaTime) {
 	//Tell Imgui a new frame is about to begin
@@ -479,8 +417,11 @@ int main()
 	//area of open gl we want to render in
 	//screen assignment after fallback
 	ScreenH.SetScreenSize(window, screen.width, screen.height);  // set window and viewport w&h
-
 	std::cout << "Primary monitor resolution: " << screen.width << "x" << screen.height << std::endl;
+	// window logo creation and assignment
+	init.initLogo(window);
+	ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
+
 
 	UF UniformH; // glunfiorm
 
@@ -497,6 +438,7 @@ int main()
 
 	if (Panels[0]) { float deltaTime = TimeUtil::deltaTime; imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime); } //dummy deltatime for init + imgui
 
+
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init.initGLenable(render.frontFaceSide);
@@ -504,17 +446,10 @@ int main()
 	// INITIALIZE CAMERA
 	Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos //INIT CAMERA POSITION
-
 	// Model Loader
 	std::vector<std::tuple<Model, int, glm::vec3>> models = loadModelsFromJson(mapName + "ModelECSData.json"); // Load models from JSON file
 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
-
-	// window logo creation and assignment
-	init.initLogo(window);
-
-	ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
-
 
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
@@ -547,7 +482,7 @@ int main()
 		//UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
 
 		// Camera
-		camera.Inputs(window, sensitivity); // send Camera.cpp window inputs and delta time
+		camera.Inputs(window); // send Camera.cpp window inputs and delta time
 		camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
 
 		// Clear BackBuffer

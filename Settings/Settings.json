@@ -1,8 +1,8 @@
 [
   {
-    "Width": 800,
-    "Height": 600,
-    "Vsync": true,
+    "Width": 1920,
+    "Height": 1080,
+    "Vsync": false,
     "FOV":60.0,
     "MAP": "Test"
   }

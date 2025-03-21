@@ -1,8 +1,0 @@
-[
-  {
-    "name": "vase",
-    "path": "Models/vase/vase.gltf",
-    "isCulling": true,
-    "Location": [ 0, 0, 0 ]
-  }
-]

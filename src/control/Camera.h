@@ -30,7 +30,6 @@ public:
     int height;
 
     float speed = 0.1f;
-    //float sensitivity = 100.0f;
 
     // Camera constructor
     Camera(int width, int height, glm::vec3 position);
@@ -40,7 +39,7 @@ public:
     void Matrix(Shader& shader, const char* uniform);
 
     // Handles camera inputs
-    void Inputs(GLFWwindow* window, float sensitivity);
+    void Inputs(GLFWwindow* window);
 };
 
 #endif

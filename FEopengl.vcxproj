@@ -201,7 +201,6 @@
     <ClInclude Include="src\video\shader\shaderClass.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Maps\Test\ModelData.json" />
     <None Include="Keybinds.ReadMe" />
     <None Include="Settings\Default\Default.ini" />
     <None Include="Settings\Default\EngineDefault.ini" />
