@@ -292,25 +292,17 @@
     <None Include="Settings\imgui.ini">
       <Filter>Text Files\Text</Filter>
     </None>
-    <None Include="Settings\Default\Default.ini">
-      <Filter>Text Files\Text</Filter>
-    </None>
-    <None Include="Settings\Default\EngineDefault.ini">
-      <Filter>Text Files\Text</Filter>
-    </None>
-    <None Include="Settings\imguiPanels.ini">
-      <Filter>Text Files\Text</Filter>
-    </None>
     <None Include="Keybinds.ReadMe">
       <Filter>Text Files\Text</Filter>
     </None>
     <None Include="Shaders\ShaderList.json">
       <Filter>Resource Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Settings\Settings.ini">
+    <None Include="Settings\imguiPanels.json">
       <Filter>Text Files\Text</Filter>
-    </Text>
+    </None>
+    <None Include="Settings\Settings.json">
+      <Filter>Text Files\Text</Filter>
+    </None>
   </ItemGroup>
 </Project>

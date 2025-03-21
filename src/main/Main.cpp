@@ -157,6 +157,10 @@ void loadSettings() {
 		render.doVsync = settingsData[0]["Vsync"];
 		cameraSettings[0] = settingsData[0]["FOV"];
 		mapName = "Assets/Maps/" + settingsData[0]["MAP"].get<std::string>() + "/";
+
+		sensitivity = settingsData[0]["Sensitivity"];
+		invertMouse[0] = settingsData[0]["InvertX"];
+		invertMouse[1] = settingsData[0]["InvertY"];
 	}
 	else {
 		std::cerr << "Failed to open Settings/Settings.json" << std::endl;

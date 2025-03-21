@@ -202,10 +202,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Keybinds.ReadMe" />
-    <None Include="Settings\Default\Default.ini" />
-    <None Include="Settings\Default\EngineDefault.ini" />
     <None Include="Settings\imgui.ini" />
-    <None Include="Settings\imguiPanels.ini" />
+    <None Include="Settings\imguiPanels.json" />
+    <None Include="Settings\Settings.json" />
     <None Include="Shaders\Db\Depth.frag" />
     <None Include="Shaders\Db\light.frag" />
     <None Include="Shaders\Db\light.vert" />
@@ -218,9 +217,6 @@
     <None Include="Shaders\Main\pointLight.frag" />
     <None Include="Shaders\Main\spotLight.frag" />
     <None Include="Shaders\ShaderList.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Settings\Settings.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

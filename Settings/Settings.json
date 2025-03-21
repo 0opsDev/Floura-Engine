@@ -3,7 +3,10 @@
     "Width": 1920,
     "Height": 1080,
     "Vsync": false,
-    "FOV":60.0,
-    "MAP": "Test"
+    "FOV": 60.0,
+    "MAP": "Test",
+    "Sensitivity": 100.0,
+    "InvertX": false,
+    "InvertY": false
   }
 ]
