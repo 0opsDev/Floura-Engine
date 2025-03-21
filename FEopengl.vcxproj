@@ -212,10 +212,13 @@
     <None Include="Shaders\Empty.shader" />
     <None Include="Shaders\Main\Default.vert" />
     <None Include="Shaders\Main\direcLight.frag" />
+    <None Include="Shaders\Main\framebuffer.frag" />
+    <None Include="Shaders\Main\framebuffer.vert" />
     <None Include="Shaders\Main\outlining.frag" />
     <None Include="Shaders\Main\outlining.vert" />
     <None Include="Shaders\Main\pointLight.frag" />
     <None Include="Shaders\Main\spotLight.frag" />
+    <None Include="Shaders\Main\TieDyeframebuffer.frag" />
     <None Include="Shaders\ShaderList.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -304,5 +304,14 @@
     <None Include="Settings\Settings.json">
       <Filter>Text Files\Text</Filter>
     </None>
+    <None Include="Shaders\Main\framebuffer.frag">
+      <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
+    <None Include="Shaders\Main\framebuffer.vert">
+      <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
+    <None Include="Shaders\Main\TieDyeframebuffer.frag">
+      <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
   </ItemGroup>
 </Project>

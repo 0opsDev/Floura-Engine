@@ -11,6 +11,10 @@
 
 using json = nlohmann::json;
 
+float resolutionScale = 0.25f;
+int TAAsamp = 30.0f;
+bool enableResolutionScaling = true; // Change this as needed
+
 float ViewportVerticies[] = {
 	// Coords,   Texture cords
 	 1.0f, -1.0f,  1.0f, 0.0f,
@@ -241,6 +245,9 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 				// Screen
 				ImGui::DragInt("Width", &screen.widthI);
 				ImGui::DragInt("Height", &screen.heightI); // screen slider
+				ImGui::Checkbox("Enable TAAU", &enableResolutionScaling); // Set the value of doVsync (bool)
+				ImGui::DragFloat("resolution Scale", &resolutionScale);
+				ImGui::DragInt("TAA samples", &TAAsamp);
 
 				if (ImGui::SmallButton("Apply Changes?")) { // apply button
 					screen.width = static_cast<unsigned int>(screen.widthI);
@@ -324,7 +331,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		}
 		ImGui::End();
 	}
-
 	// preformance profiler
 	if (Panels[2]) {
 		ImGui::Begin("Preformance Profiler");
@@ -475,6 +481,8 @@ int main()
 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
+
+	// make this a class, also make it so it updates with user inputted res in imgui
 	// init viewport rectangle object drawn to viewport with framebuffer texture attached
 	unsigned int viewVAO, viewVBO;
 	glGenVertexArrays(1, &viewVAO);
@@ -609,7 +617,14 @@ int main()
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		// draw the framebuffer
+		GLint uniformLocation = glGetUniformLocation(frameBufferProgram.ID, "enableTAA");
 		frameBufferProgram.Activate();
+		UniformH.Float(frameBufferProgram.ID, "time", glfwGetTime() );
+		UniformH.Float(frameBufferProgram.ID, "resolutionScale", resolutionScale);
+		UniformH.Int(frameBufferProgram.ID, "TAAsamp", TAAsamp);
+		
+		UniformH.Int(frameBufferProgram.ID, "frameCount", 4);
+		glUniform1i(uniformLocation, enableResolutionScaling ? 1 : 0);
 		glBindVertexArray(viewVAO);
 		glDisable(GL_DEPTH_TEST); // stops culling on the rectangle the framebuffer is drawn on
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);

@@ -54,5 +54,13 @@
     "Location": [ -6, -1, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
     "Scale": [ 0, 0, 0 ]
+  },
+  {
+    "name": "FAT",
+    "path": "Models/fat/fat.gltf",
+    "isCulling": false,
+    "Location": [ -5, 2, 0 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 0, 0, 0 ]
   }
 ]
