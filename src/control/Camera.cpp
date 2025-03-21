@@ -1,6 +1,8 @@
 #include "Camera.h"
 #include "Main.h"
+#include "inputUtil.h"
 
+// Global Variables
 bool MouseState = true;
 float timeAccumulator = 0;
 bool toggleESC = true;
@@ -117,8 +119,10 @@ void Camera::Inputs(GLFWwindow* window, float sensitivity)
 
         // Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
         // and then "transforms" them into degrees 
-        float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
-        float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
+        float rotX = inputUtil::sensitivityX * (float)(mouseY - (height / 2)) / height;
+        float rotY = inputUtil::sensitivityY * (float)(mouseX - (width / 2)) / width;
+        //float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
+        //float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
 
         // Calculates upcoming vertical change in the Orientation
         glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));

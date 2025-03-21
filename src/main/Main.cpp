@@ -6,10 +6,12 @@
 #include "screenutils.h" 
 #include <glm/gtx/string_cast.hpp>
 #include "timeUtil.h"
+#include "inputUtil.h"
 
 using json = nlohmann::json;
 
 float sensitivity = 100.0f; // mouse sensitivity (please put this into the settings json, have it in imgui too and have to ability to save to it)
+bool invertMouse[2] = { false, false }; // invert mouse x and y axis
 
 //Global Variables
 	//GLfloat, Render, Camera, Light
@@ -445,6 +447,7 @@ int main()
 {
 	init init; init.initGLFW(); // initialize glfw
 	ScreenUtils ScreenH;
+	inputUtil inputH;
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -515,6 +518,7 @@ int main()
 
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
+		inputH.updateMouse(invertMouse, sensitivity); // update mouse
 		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); }
 
 		// Update delta time

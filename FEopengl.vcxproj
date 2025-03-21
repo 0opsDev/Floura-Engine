@@ -158,6 +158,7 @@
     <ClCompile Include="src\main\glad.c" />
     <ClCompile Include="src\main\Main.cpp" />
     <ClCompile Include="src\utils\init.cpp" />
+    <ClCompile Include="src\utils\inputUtil.cpp" />
     <ClCompile Include="src\utils\ScreenUtils.cpp" />
     <ClCompile Include="src\utils\SettingsUtil.cpp" />
     <ClCompile Include="src\utils\timeUtil.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="src\main\Main.h" />
     <ClInclude Include="src\utils\include.h" />
     <ClInclude Include="src\utils\init.h" />
+    <ClInclude Include="src\utils\inputUtil.h" />
     <ClInclude Include="src\utils\ScreenUtils.h" />
     <ClInclude Include="src\utils\SettingsUtil.h" />
     <ClInclude Include="src\utils\timeUtil.h" />
