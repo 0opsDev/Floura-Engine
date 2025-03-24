@@ -11,10 +11,15 @@
 
 using json = nlohmann::json;
 
+// Forward declaration of the function
+void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int width, unsigned int height);
+
 int MSAAsamp = 16.0f;
 float sharpenStrength = 3;
 bool enableMSAA = true; // Change this as needed
 float texelSizeMulti = 1.0;
+char UniformInput[64] = {0}; // 64 is buffer size
+float UniformFloat[] = {0, 0, 0};
 
 float ViewportVerticies[] = {
 	// Coords,   Texture cords
@@ -227,7 +232,7 @@ void loadSettings() {
 }
 
 // Holds ImGui Variables and Windows
-void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH, float deltaTime) {
+void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH, float deltaTime, unsigned int& frameBufferTexture, unsigned int& RBO) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	//Main Panel
@@ -256,11 +261,13 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 					screen.height = static_cast<unsigned int>(screen.heightI); // cast screenArea from screenAreaI
 					ScreenH.SetScreenSize(window, screen.width, screen.height); // set window and viewport w&h
 					ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
+					updateFrameBufferResolution(frameBufferTexture, RBO, screen.width, screen.height); // Update frame buffer resolution
 				}
 				if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 				{
 					ScreenH.toggleFullscreen(window, monitorT, screen.isFullscreen, screen.windowedPosX, screen.windowedPosY, screen.windowedWidth, screen.windowedHeight);
 				} //Toggle Fullscreen
+
 
 				ImGui::TreePop();// Ends The ImGui Window
 			}
@@ -280,6 +287,13 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 				ImGui::Text("DepthBuffer Settings (FOG)");
 				ImGui::DragFloat("Depth Distance (FOG)", &DepthDistance);
 				ImGui::DragFloat2("Near and Far Depth Plane", DepthPlane);
+
+				ImGui::InputText("Uniform Input", UniformInput, IM_ARRAYSIZE(UniformInput));
+				ImGui::DragFloat("UniformFloat", UniformFloat);
+				if (false & UniformInput != NULL) { // Debug
+					std::cout << UniformInput << std::endl;
+				}
+
 				ImGui::TreePop();// Ends The ImGui Window
 			}
 			// Lighting panel
@@ -405,6 +419,19 @@ void DeltaMain(GLFWwindow* window, float deltaTime) { // work on this more
 	}
 }
 
+void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int width, unsigned int height) {
+	// Update frame buffer texture
+	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Update render buffer storage
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+}
+
+
 //Main Function
 int main()
 {
@@ -467,9 +494,7 @@ int main()
 	frameBufferProgram.Activate();
 	UniformH.Int(frameBufferProgram.ID, "screenTexture", 0);
 
-	init.initImGui(window); // Initialize ImGUI
 
-	if (Panels[0]) { float deltaTime = TimeUtil::deltaTime; imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime); } //dummy deltatime for init + imgui
 
 
 	// glenables
@@ -527,6 +552,10 @@ int main()
 	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "Framebuffer error: " << fboStatus << std::endl;
 
+	init.initImGui(window); // Initialize ImGUI
+
+	if (Panels[0]) { float deltaTime = TimeUtil::deltaTime; imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime, frameBufferTexture, RBO); } //dummy deltatime for init + imgui
+
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 
@@ -560,11 +589,12 @@ int main()
 		UniformH.DoUniforms(shaderProgram.ID, render.doReflections, render.doFog);
 		UniformH.TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos, DepthDistance, DepthPlane);
 		UniformH.ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
+
+
 		//UniformH.Float3(shaderProgram.ID, "Transmodel", NULL, NULL, NULL); // testing
 		LightProgram.Activate();
 		UniformH.Float4(LightProgram.ID, "lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 		//UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
-
 		// Camera
 		camera.Inputs(window); // send Camera.cpp window inputs and delta time
 		camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
@@ -626,6 +656,9 @@ int main()
 		UniformH.Int(frameBufferProgram.ID, "MSAAsamp", MSAAsamp);
 		UniformH.Float(frameBufferProgram.ID, "sharpenStrength", sharpenStrength);
 		UniformH.Float(frameBufferProgram.ID, "texelSizeMulti", texelSizeMulti);
+
+		UniformH.Float(frameBufferProgram.ID,UniformInput, UniformFloat[0]);
+
 		UniformH.Int(frameBufferProgram.ID, "frameCount", 4);
 		glUniform1i(uniformLocation, enableMSAA ? 1 : 0);
 		glBindVertexArray(viewVAO);
@@ -633,7 +666,7 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime); }
+		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime, frameBufferTexture, RBO); }
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
@@ -646,4 +679,4 @@ int main()
 	outlineShaderProgram.Delete();
 	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
 	return 0;
-}
+}	

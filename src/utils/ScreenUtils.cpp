@@ -18,7 +18,10 @@ void ScreenUtils::toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor, boo
 
 		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate); // Switch to fullscreen
 	}
-	else { glfwSetWindowMonitor(window, NULL, windowedPosX, windowedPosY, windowedWidth, windowedHeight, 0); } // Switch to windowed mode
+	else { 
+		glfwSetWindowMonitor(window, NULL, windowedPosX, windowedPosY, windowedWidth, windowedHeight, 0); 
+		std::cout << "Restoring window to: " << windowedWidth << "x" << windowedHeight << " at position: " << windowedPosX << "," << windowedPosY << std::endl;
+	} // Switch to windowed mode
 }
 
 void ScreenUtils::setVSync(bool enabled) {
@@ -28,4 +31,5 @@ void ScreenUtils::setVSync(bool enabled) {
 void ScreenUtils::SetScreenSize(GLFWwindow* window, unsigned int width, unsigned int height) {
 	glViewport(0, 0, width, height);
 	glfwSetWindowSize(window, width, height);
+	std::cout << "set screensize: " << width << "*" << height << std::endl;
 }
