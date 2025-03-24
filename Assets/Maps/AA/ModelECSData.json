@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Sky",
+    "path": "Models/sky/skybox.gltf",
+    "isCulling": true,
+    "Location": [ 0, 0, 0 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 0, 0, 0 ]
+  },
+  {
+    "name": "Checker",
+    "path": "Models/checker/AA.gltf",
+    "isCulling": false,
+    "Location": [ 0, 0, 0 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 0, 0, 0 ]
+  }
+]

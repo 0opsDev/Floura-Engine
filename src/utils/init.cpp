@@ -8,7 +8,7 @@ void init::initGLFW() {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3), glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // Window Minimum and Maximum version
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //OpenGl Profile
-	glfwWindowHint(GLFW_RESIZABLE, 1); // Start Resizable
+	glfwWindowHint(GLFW_RESIZABLE, 0); // Start Resizable
 	glfwWindowHint(GLFW_MAXIMIZED, 1); // Start Maximized
 	glfwWindowHint(GLFW_DEPTH_BITS, 16); // DepthBuffer Bit
 }

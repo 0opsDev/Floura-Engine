@@ -11,9 +11,10 @@
 
 using json = nlohmann::json;
 
-float resolutionScale = 0.25f;
-int TAAsamp = 30.0f;
-bool enableResolutionScaling = true; // Change this as needed
+int MSAAsamp = 16.0f;
+float sharpenStrength = 3;
+bool enableMSAA = true; // Change this as needed
+float texelSizeMulti = 1.0;
 
 float ViewportVerticies[] = {
 	// Coords,   Texture cords
@@ -245,9 +246,10 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 				// Screen
 				ImGui::DragInt("Width", &screen.widthI);
 				ImGui::DragInt("Height", &screen.heightI); // screen slider
-				ImGui::Checkbox("Enable TAAU", &enableResolutionScaling); // Set the value of doVsync (bool)
-				ImGui::DragFloat("resolution Scale", &resolutionScale);
-				ImGui::DragInt("TAA samples", &TAAsamp);
+				ImGui::Checkbox("Enable MSAA", &enableMSAA); // Set the value of doVsync (bool)
+				ImGui::DragInt("MSAA samples", &MSAAsamp);
+				ImGui::DragFloat("MSAA Sharpen Strength ", &sharpenStrength);
+				ImGui::DragFloat("texel Size Multiplier (Edge Size)", &texelSizeMulti);
 
 				if (ImGui::SmallButton("Apply Changes?")) { // apply button
 					screen.width = static_cast<unsigned int>(screen.widthI);
@@ -402,6 +404,7 @@ void DeltaMain(GLFWwindow* window, float deltaTime) { // work on this more
 		break;
 	}
 }
+
 //Main Function
 int main()
 {
@@ -617,14 +620,14 @@ int main()
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		// draw the framebuffer
-		GLint uniformLocation = glGetUniformLocation(frameBufferProgram.ID, "enableTAA");
+		GLint uniformLocation = glGetUniformLocation(frameBufferProgram.ID, "enableMSAA");
 		frameBufferProgram.Activate();
-		UniformH.Float(frameBufferProgram.ID, "time", glfwGetTime() );
-		UniformH.Float(frameBufferProgram.ID, "resolutionScale", resolutionScale);
-		UniformH.Int(frameBufferProgram.ID, "TAAsamp", TAAsamp);
-		
+		UniformH.Float(frameBufferProgram.ID, "time", glfwGetTime());
+		UniformH.Int(frameBufferProgram.ID, "MSAAsamp", MSAAsamp);
+		UniformH.Float(frameBufferProgram.ID, "sharpenStrength", sharpenStrength);
+		UniformH.Float(frameBufferProgram.ID, "texelSizeMulti", texelSizeMulti);
 		UniformH.Int(frameBufferProgram.ID, "frameCount", 4);
-		glUniform1i(uniformLocation, enableResolutionScaling ? 1 : 0);
+		glUniform1i(uniformLocation, enableMSAA ? 1 : 0);
 		glBindVertexArray(viewVAO);
 		glDisable(GL_DEPTH_TEST); // stops culling on the rectangle the framebuffer is drawn on
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
@@ -638,6 +641,7 @@ int main()
 	// Cleanup: Delete all objects on close
 
 	ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
+	frameBufferProgram.Delete();
 	shaderProgram.Delete(); // Delete Shader Prog
 	outlineShaderProgram.Delete();
 	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
