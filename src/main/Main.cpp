@@ -232,7 +232,7 @@ void loadSettings() {
 }
 
 // Holds ImGui Variables and Windows
-void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH, float deltaTime, unsigned int& frameBufferTexture, unsigned int& RBO) {
+void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH, float deltaTime, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	//Main Panel
@@ -374,7 +374,18 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		ImGui::PlotLines("Frame Times (ms) Graph (90SAMP)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
 		ImGui::End();
 	}
+	ImGui::Begin("ViewPort");
+	const float window_width = ImGui::GetContentRegionAvail().x;
+	const float window_height = ImGui::GetContentRegionAvail().y;
+	updateFrameBufferResolution(frameBufferTexture, RBO, window_width, window_height); // Update frame buffer resolution
+	glViewport(0, 0, window_width, window_height);
 
+	    // Bind the framebuffer texture
+//    glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+
+//	ImVec2 pos = ImGui::GetCursorScreenPos();
+	ImGui::Image((ImTextureID)(uintptr_t)frameBufferTexture, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::End();
 	ImGui::Render(); // Renders the ImGUI elements
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -494,9 +505,6 @@ int main()
 	frameBufferProgram.Activate();
 	UniformH.Int(frameBufferProgram.ID, "screenTexture", 0);
 
-
-
-
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init.initGLenable(render.frontFaceSide);
@@ -554,7 +562,7 @@ int main()
 
 	init.initImGui(window); // Initialize ImGUI
 
-	if (Panels[0]) { float deltaTime = TimeUtil::deltaTime; imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime, frameBufferTexture, RBO); } //dummy deltatime for init + imgui
+	if (Panels[0]) { float deltaTime = TimeUtil::deltaTime; imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime, frameBufferTexture, RBO, FBO); } //dummy deltatime for init + imgui
 
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
@@ -648,6 +656,8 @@ int main()
 		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
+		//think about updating a copy of the texture here so it can be rendered on gui with effects
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		// draw the framebuffer
 		GLint uniformLocation = glGetUniformLocation(frameBufferProgram.ID, "enableMSAA");
@@ -661,12 +671,14 @@ int main()
 
 		UniformH.Int(frameBufferProgram.ID, "frameCount", 4);
 		glUniform1i(uniformLocation, enableMSAA ? 1 : 0);
+
 		glBindVertexArray(viewVAO);
 		glDisable(GL_DEPTH_TEST); // stops culling on the rectangle the framebuffer is drawn on
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime, frameBufferTexture, RBO); }
+		glDrawArrays(GL_TRIANGLES, 0, 6); // see if we can send "fragcolour" out to be used as a texture
+		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime, frameBufferTexture, RBO, FBO); }
+
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
