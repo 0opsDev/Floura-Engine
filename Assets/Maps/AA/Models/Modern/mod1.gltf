@@ -80,10 +80,10 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":6,
+			"count":26,
 			"max":[
-				30,
-				0,
+				31.39270782470703,
+				34.44633102416992,
 				80
 			],
 			"min":[
@@ -96,45 +96,45 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":6,
+			"count":26,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":6,
+			"count":26,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":12,
+			"count":36,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":72,
+			"byteLength":312,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
+			"byteLength":312,
+			"byteOffset":312,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":208,
+			"byteOffset":624,
+			"target":34962
+		},
+		{
+			"buffer":0,
 			"byteLength":72,
-			"byteOffset":72,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":48,
-			"byteOffset":144,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":24,
-			"byteOffset":192,
+			"byteOffset":832,
 			"target":34963
 		}
 	],
@@ -146,7 +146,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":216,
+			"byteLength":904,
 			"uri":"mod1.bin"
 		}
 	]

@@ -5,7 +5,7 @@
     "isCulling": false,
     "Location": [ 0, -1, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0, 0, 0 ]
+    "Scale": [ 1, 1, 1 ]
   },
   {
     "name": "mod1",
@@ -13,7 +13,7 @@
     "isCulling": true,
     "Location": [ 0, 0, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0, 0, 0 ]
+    "Scale": [ 1, 1, 1 ]
   },
   {
     "name": "mod2",
@@ -21,7 +21,7 @@
     "isCulling": true,
     "Location": [ 0, 0, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0, 0, 0 ]
+    "Scale": [ 1, 1, 1 ]
   },
   {
     "name": "mod3",
@@ -29,14 +29,38 @@
     "isCulling": true,
     "Location": [ 0, 0, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0, 0, 0 ]
+    "Scale": [ 1, 1, 1 ]
   },
   {
     "name": "Vase",
     "path": "Models/vase/vase.gltf",
     "isCulling": true,
-    "Location": [ -2, 0, 5 ],
+    "Location": [ -1, -0.7, 2.5 ],
     "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0, 0, 0 ]
+    "Scale": [ 0.5, 0.5, 0.5 ]
+  },
+  {
+    "name": "Vase",
+    "path": "Models/vase/vase.gltf",
+    "isCulling": true,
+    "Location": [ -13.5, -1.05, 2.7 ],
+    "Rotation": [ 0.5, 0.5, 0.5, 0.5 ],
+    "Scale": [ 0.5, 0.5, 0.5 ]
+  },
+  {
+    "name": "Vase",
+    "path": "Models/vase/vase.gltf",
+    "isCulling": true,
+    "Location": [ -0.5, -0.7, 6.5 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 0.5, 0.5, 0.5 ]
+  },
+  {
+    "name": "combined",
+    "path": "Models/Modern/combine.gltf",
+    "isCulling": true,
+    "Location": [ 100, 0, 0 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 1, 1, 1 ]
   }
 ]

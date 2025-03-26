@@ -8,7 +8,8 @@
 		{
 			"name":"Scene",
 			"nodes":[
-				0
+				0,
+				1
 			]
 		}
 	],
@@ -20,6 +21,20 @@
 				0.20000000298023224,
 				0.20000000298023224,
 				0.20000000298023224
+			]
+		},
+		{
+			"mesh":1,
+			"name":"Plane.006",
+			"scale":[
+				0.20000000298023224,
+				0.20000000298023224,
+				0.20000000298023224
+			],
+			"translation":[
+				0,
+				3.5443010330200195,
+				0
 			]
 		}
 	],
@@ -34,6 +49,19 @@
 				"metallicFactor":0,
 				"metallicRoughnessTexture":{
 					"index":1
+				}
+			}
+		},
+		{
+			"doubleSided":true,
+			"name":"Material.005",
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":2
+				},
+				"metallicFactor":0,
+				"metallicRoughnessTexture":{
+					"index":3
 				}
 			}
 		}
@@ -52,9 +80,31 @@
 					"material":0
 				}
 			]
+		},
+		{
+			"name":"Plane.006",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":4,
+						"NORMAL":5,
+						"TEXCOORD_0":6
+					},
+					"indices":7,
+					"material":1
+				}
+			]
 		}
 	],
 	"textures":[
+		{
+			"sampler":0,
+			"source":0
+		},
+		{
+			"sampler":0,
+			"source":1
+		},
 		{
 			"sampler":0,
 			"source":0
@@ -80,10 +130,10 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":50,
+			"count":48,
 			"max":[
 				30,
-				14.999999046325684,
+				17.105464935302734,
 				80
 			],
 			"min":[
@@ -96,45 +146,103 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":50,
+			"count":48,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":50,
+			"count":48,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":102,
+			"count":114,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":4,
+			"componentType":5126,
+			"count":56,
+			"max":[
+				30,
+				16.475595474243164,
+				80
+			],
+			"min":[
+				-60,
+				4.780623435974121,
+				-10
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":5,
+			"componentType":5126,
+			"count":56,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":6,
+			"componentType":5126,
+			"count":56,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":7,
+			"componentType":5123,
+			"count":138,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":600,
+			"byteLength":576,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":600,
-			"byteOffset":600,
+			"byteLength":576,
+			"byteOffset":576,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":400,
-			"byteOffset":1200,
+			"byteLength":384,
+			"byteOffset":1152,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":204,
-			"byteOffset":1600,
+			"byteLength":228,
+			"byteOffset":1536,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":672,
+			"byteOffset":1764,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":672,
+			"byteOffset":2436,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":448,
+			"byteOffset":3108,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":276,
+			"byteOffset":3556,
 			"target":34963
 		}
 	],
@@ -146,7 +254,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":1804,
+			"byteLength":3832,
 			"uri":"mod3.bin"
 		}
 	]

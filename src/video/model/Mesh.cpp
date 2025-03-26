@@ -71,6 +71,10 @@ void Mesh::Draw
             num = std::to_string(numUnshaded++);
             //std::cout << "isUnshaded - mesh" << std::endl;
         }
+
+        // Debug output
+//        std::cout << "Binding texture: " << textures[i].type << " at unit " << i << std::endl;
+
         textures[i].texUnit(shader, (type + num).c_str(), i);
         textures[i].Bind();
 
@@ -101,5 +105,3 @@ void Mesh::Draw
     // Draw the mesh to the buffer
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
-
-

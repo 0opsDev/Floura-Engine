@@ -3,7 +3,7 @@
     "Width": 2560,
     "Height": 1440,
     "Vsync": false,
-    "FOV": 60.0,
+    "FOV": 80.0,
     "MAP": "AA",
     "Sensitivity": 100.0,
     "InvertX": false,

@@ -20,12 +20,14 @@ Model::Model(const char* file)
 	}
 }
 
-void Model::Draw(Shader& shader, Camera& camera, glm::vec3 translation) // send transform thru arg here, translation needs to be sent thru per model
+void Model::Draw(Shader& shader, Camera& camera, glm::vec3 translation, glm::quat rotation, glm::vec3 scale) // send transform thru arg here, translation needs to be sent thru per model
 {
+	//glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	//glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f); //temp vars
 	// Go over all meshes and draw each one
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], translation);
+		meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], translation, rotation, scale);
 	}
 }
 

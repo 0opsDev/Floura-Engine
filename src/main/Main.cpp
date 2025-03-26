@@ -122,12 +122,12 @@ void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) {
 }
 
 // Function to load models from files
-std::vector<std::tuple<Model, int, glm::vec3>> loadModelsFromJson(const std::string& jsonFilePath) {
-	std::vector<std::tuple<Model, int, glm::vec3>> models;
+std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> loadModelsFromJson(const std::string& jsonFilePath) {
+	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models;
 	std::ifstream file(jsonFilePath);
 	if (!file.is_open()) {
 		std::cerr << "Failed to open file: " << jsonFilePath << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f));
+		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		return models;
 	}
 
@@ -137,7 +137,7 @@ std::vector<std::tuple<Model, int, glm::vec3>> loadModelsFromJson(const std::str
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error parsing JSON file: " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f));
+		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 		return models;
 	}
 	file.close();
@@ -148,14 +148,15 @@ std::vector<std::tuple<Model, int, glm::vec3>> loadModelsFromJson(const std::str
 			std::string path = item.at("path").get<std::string>();
 			bool isCulling = item.at("isCulling").get<bool>();
 			glm::vec3 location = glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]);
-
-			models.emplace_back(Model((mapName + path).c_str()), isCulling, location);
+			glm::quat rotation = glm::quat(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2], item.at("Rotation")[3]);
+			glm::vec3 scale = glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]);
+			models.emplace_back(Model((mapName + path).c_str()), isCulling, location, rotation, scale);
 			std::cout << "Loaded model: " << '"' << name << '"' << " from path: " << path << " at location: " << glm::to_string(location) << std::endl;
 		}
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error processing JSON data: " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f));
+		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	}
 
 	return models;
@@ -513,7 +514,7 @@ int main()
 	Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos //INIT CAMERA POSITION
 	// Model Loader
-	std::vector<std::tuple<Model, int, glm::vec3>> models = loadModelsFromJson(mapName + "ModelECSData.json"); // Load models from JSON file
+	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = loadModelsFromJson(mapName + "ModelECSData.json"); // Load models from JSON file
 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
@@ -614,22 +615,24 @@ int main()
 
 		if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
-			glClearColor(1, 1, 1, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			glClearColor(0, 0.3, 0.4, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		}
 
 		for (auto& modelTuple : models) {
 			Model& model = std::get<0>(modelTuple);
 			int cullingSetting = std::get<1>(modelTuple);
 			glm::vec3 translation = std::get<2>(modelTuple);
+			glm::quat rotation = std::get<3>(modelTuple);
+			glm::vec3 scale = std::get<4>(modelTuple);
 
 			// Apply culling settings
-			if (cullingSetting == 1) { glEnable(GL_CULL_FACE); }
+			if (cullingSetting == 1 && glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) { glEnable(GL_CULL_FACE); }
 			else { glDisable(GL_CULL_FACE); }
 
-			model.Draw(shaderProgram, camera, translation); // add arg for transform to draw inside of model class
+			model.Draw(shaderProgram, camera, translation, rotation, scale); // add arg for transform to draw inside of model class
 		}
 		glDisable(GL_CULL_FACE);
-		Lightmodel.Draw(LightProgram, camera, lightPos);
+		Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(0.0f, 0.0f ,0.0f));
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
@@ -645,7 +648,9 @@ int main()
 			for (auto& modelTuple : models) {
 				Model& model = std::get<0>(modelTuple);
 				glm::vec3 translation = std::get<2>(modelTuple);
-				model.Draw(outlineShaderProgram, camera, translation);
+				glm::quat rotation = std::get<3>(modelTuple);
+				glm::vec3 scale = std::get<4>(modelTuple);
+				model.Draw(outlineShaderProgram, camera, translation, rotation, scale);
 			}
 
 			glStencilMask(0xFF);

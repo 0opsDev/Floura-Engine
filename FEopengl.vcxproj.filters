@@ -105,9 +105,6 @@
     <ClCompile Include="src\file\FileClass.cpp">
       <Filter>Source Files\file</Filter>
     </ClCompile>
-    <ClCompile Include="src\main\Main.cpp">
-      <Filter>Source Files\main</Filter>
-    </ClCompile>
     <ClCompile Include="src\main\glad.c">
       <Filter>Source Files\main</Filter>
     </ClCompile>
@@ -172,6 +169,9 @@
       <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\inputUtil.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\Main.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
