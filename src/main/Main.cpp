@@ -632,7 +632,7 @@ int main()
 			model.Draw(shaderProgram, camera, translation, rotation, scale); // add arg for transform to draw inside of model class
 		}
 		glDisable(GL_CULL_FACE);
-		Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(0.0f, 0.0f ,0.0f));
+		Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f ,1.0f));
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
