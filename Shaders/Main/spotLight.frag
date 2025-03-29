@@ -49,7 +49,8 @@ vec4 spotLight()
 	vec4 diffuseColor = texture(diffuse0, texCoord);
 	diffuseColor.rgb = pow(diffuseColor.rgb, vec3(gamma)); // Correct the gamma
 
-	float specularColor = pow(texture(specular0, texCoord).r, 1.0 / gamma);
+	float specularColor = pow(texture(specular0, texCoord).r, gamma);
+	//float specularColor = texture(specular0, texCoord).r;
     // Sample the unshaded0 texture
     vec4 unshadedColor = texture(unshaded0, texCoord) * skyColor;
 
@@ -58,20 +59,14 @@ vec4 spotLight()
     {
         return unshadedColor;
     }
-	float InnerX = InnerLight1.x;
-	float InnerY = InnerLight1.y;
-	float ConeInten = InnerLight1.z;
 
-	float sRotx = spotLightRot.x;
-	float sRoty = spotLightRot.y;
-	float sRotz = spotLightRot.z;
 	// controls how big the area that is lit up is
-	float outerCone = InnerX;
+	float outerCone = InnerLight1.x;
 	//0.95
-	float innerCone = InnerY;
+	float innerCone = InnerLight1.y;
 
 	// ambient lighting
-	float ambient = 0.20f / -ConeInten;
+	float ambient = 0.20f / -InnerLight1.z;
 	//new 2025
 	//float ambient = 0.20f;
 
@@ -88,9 +83,8 @@ vec4 spotLight()
 	float specular = specAmount * specularLight;
 
 	// calculates the intensity of the crntPos based on its angle to the center of the light cone
-	float angle = dot(vec3(sRotx, sRoty, sRotz), -lightDirection);
-	float inten = clamp((angle - outerCone) / (innerCone - outerCone), (0.0f), (0.0f + (ConeInten)) );
-
+	float angle = dot(vec3(spotLightRot.x, spotLightRot.y, spotLightRot.z), -lightDirection);
+	float inten = clamp((angle - outerCone) / (innerCone - outerCone), (0.0f), (0.0f + (InnerLight1.z)) );
 
 	if (diffuseColor.a < 0.1)
 	discard;
@@ -100,14 +94,19 @@ vec4 spotLight()
 	//real life saver ((inten * lightColor ) - (inten * skyColor) * (lightColor) )                                                            doesnt add color it adds brightness         the number we take needs to be pos
 	//																																				adds specular part
 
+	vec4 finalColor;
 	switch (doReflect){
 	case 0:
-	return (diffuseColor *  ( (skyColor + diffuse) *     ((inten * lightColor ) - (inten * skyColor)) + (skyColor + (ambient)  ) ) + 0) * (skyColor);
-	break;
+		finalColor = diffuseColor *  ( (diffuse) * ((inten * lightColor ) - (inten * skyColor)) + (skyColor + (ambient)  ) );
+		break;
 	case 1:
-	return (diffuseColor *  ( (skyColor + diffuse) * ((inten * lightColor ) - (inten * skyColor)) + (skyColor + (ambient)  ) ) + specularColor * specular * inten) * skyColor;
-	break;
+		finalColor = diffuseColor *  ( (diffuse) * ((inten * lightColor ) - (inten * skyColor)) + (skyColor + (ambient)  ) ) + specularColor * specular * inten;
+		break;
 	}
+
+	// Ensure alpha is set to 1
+	finalColor.a = 1.0;
+	return finalColor;
 }
 //float near = 0.1f;
 //float far = 100.0f;

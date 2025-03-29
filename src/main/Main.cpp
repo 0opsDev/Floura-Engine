@@ -10,9 +10,10 @@
 
 
 using json = nlohmann::json;
+unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO;// FBO init
 
 // Forward declaration of the function
-void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int width, unsigned int height);
+void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
 
 int MSAAsamp = 16.0f;
 float sharpenStrength = 3;
@@ -233,7 +234,7 @@ void loadSettings() {
 }
 
 // Holds ImGui Variables and Windows
-void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH, float deltaTime, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO) {
+void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH, float deltaTime, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO, unsigned int& frameBufferTexture2) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	//Main Panel
@@ -262,7 +263,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 					screen.height = static_cast<unsigned int>(screen.heightI); // cast screenArea from screenAreaI
 					ScreenH.SetScreenSize(window, screen.width, screen.height); // set window and viewport w&h
 					ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
-					updateFrameBufferResolution(frameBufferTexture, RBO, screen.width, screen.height); // Update frame buffer resolution
+					updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, screen.width, screen.height); // Update frame buffer resolution
 				}
 				if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 				{
@@ -375,17 +376,18 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		ImGui::PlotLines("Frame Times (ms) Graph (90SAMP)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
 		ImGui::End();
 	}
+
 	ImGui::Begin("ViewPort");
 	const float window_width = ImGui::GetContentRegionAvail().x;
 	const float window_height = ImGui::GetContentRegionAvail().y;
-	updateFrameBufferResolution(frameBufferTexture, RBO, window_width, window_height); // Update frame buffer resolution
+	updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, window_width, window_height); // Update frame buffer resolution
 	glViewport(0, 0, window_width, window_height);
 
 	    // Bind the framebuffer texture
 //    glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
 //	ImVec2 pos = ImGui::GetCursorScreenPos();
-	ImGui::Image((ImTextureID)(uintptr_t)frameBufferTexture, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::Image((ImTextureID)(uintptr_t)frameBufferTexture2, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
 	ImGui::End();
 	ImGui::Render(); // Renders the ImGUI elements
 
@@ -431,18 +433,96 @@ void DeltaMain(GLFWwindow* window, float deltaTime) { // work on this more
 	}
 }
 
-void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int width, unsigned int height) {
-	// Update frame buffer texture
+void setupMainFBO(unsigned int& viewVAO, unsigned int& viewVBO, unsigned int& FBO, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int width, unsigned int height, const float* ViewportVerticies) {
+	// Initialize viewport rectangle object drawn to viewport with framebuffer texture attached
+	glGenVertexArrays(1, &viewVAO);
+	glGenBuffers(1, &viewVBO);
+	glBindVertexArray(viewVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, viewVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(ViewportVerticies) * 6 * 4, ViewportVerticies, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+	// FrameBuffer Object
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	// ColorBuffer
+	glGenTextures(1, &frameBufferTexture);
+	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
+
+	// DepthBuffer + StencilBuffer
+	// RenderBuffer Object
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+
+	// Error checking
+	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer error: " << fboStatus << std::endl;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void setupSecondFBO(unsigned int& FBO, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int width, unsigned int height) {
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	// Color buffer
+	glGenTextures(1, &frameBufferTexture);
+	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
+
+	// Depth and stencil buffer
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+
+	// Error checking
+	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer error: " << fboStatus << std::endl;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height) {
+	// Update first frame buffer texture
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	// Update render buffer storage
+	// Update first render buffer storage
 	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-}
 
+	// Update second frame buffer texture
+	glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Update second render buffer storage
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO2);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+}
 
 //Main Function
 int main()
@@ -518,52 +598,12 @@ int main()
 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
-
-	// make this a class, also make it so it updates with user inputted res in imgui
-	// init viewport rectangle object drawn to viewport with framebuffer texture attached
-	unsigned int viewVAO, viewVBO;
-	glGenVertexArrays(1, &viewVAO);
-	glGenBuffers(1, &viewVBO);
-	glBindVertexArray(viewVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, viewVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(ViewportVerticies), &ViewportVerticies, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-
-
-
-	unsigned int FBO; // FrameBuffer Object
-	glGenFramebuffers(1, &FBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-	// ColourBuffer
-	unsigned int frameBufferTexture;
-	glGenTextures(1, &frameBufferTexture);
-	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, screen.width, screen.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
-
-	// DepthBuffer + StencilBuffer
-	unsigned int RBO; // RenderBuffer Object
-	glGenRenderbuffers(1, &RBO);
-	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screen.width, screen.height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
-
-	//ERROR CHECKING
-	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "Framebuffer error: " << fboStatus << std::endl;
+	setupMainFBO(viewVAO, viewVBO, FBO, frameBufferTexture, RBO, screen.width, screen.height, ViewportVerticies);
+	setupSecondFBO(FBO2, frameBufferTexture2, RBO2, screen.width, screen.height);
 
 	init.initImGui(window); // Initialize ImGUI
 
-	if (Panels[0]) { float deltaTime = TimeUtil::deltaTime; imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime, frameBufferTexture, RBO, FBO); } //dummy deltatime for init + imgui
+	if (Panels[0]) { float deltaTime = TimeUtil::deltaTime; imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime, frameBufferTexture, RBO, FBO, frameBufferTexture2); } //dummy deltatime for init + imgui
 
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
@@ -681,8 +721,25 @@ int main()
 		glDisable(GL_DEPTH_TEST); // stops culling on the rectangle the framebuffer is drawn on
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
-		glDrawArrays(GL_TRIANGLES, 0, 6); // see if we can send "fragcolour" out to be used as a texture
-		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime, frameBufferTexture, RBO, FBO); }
+		// Apply post-processing and render to the second FBO
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO2);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		frameBufferProgram.Activate();
+		glBindVertexArray(viewVAO);
+		glDisable(GL_DEPTH_TEST);
+		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// Copy the contents of the second FBO to the default FBO
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		frameBufferProgram.Activate();
+		glBindVertexArray(viewVAO);
+		glDisable(GL_DEPTH_TEST);
+		glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
 
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)

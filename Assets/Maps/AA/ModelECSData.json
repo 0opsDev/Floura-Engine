@@ -3,7 +3,7 @@
     "name": "Checker",
     "path": "Models/checker/AA.gltf",
     "isCulling": false,
-    "Location": [ 0, -1, 0 ],
+    "Location": [ 0, -50, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
     "Scale": [ 1, 1, 1 ]
   },
@@ -59,8 +59,40 @@
     "name": "combined",
     "path": "Models/Modern/combine.gltf",
     "isCulling": true,
-    "Location": [ 100, 0, 0 ],
+    "Location": [ 500, 0, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
     "Scale": [ 1, 1, 1 ]
+  },
+  {
+    "name": "fence",
+    "path": "Models/fence/fence.gltf",
+    "isCulling": false,
+    "Location": [ -11, -1.8, 6 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 1, 1, 1.8 ]
+  },
+  {
+    "name": "fence",
+    "path": "Models/fence/fence.gltf",
+    "isCulling": false,
+    "Location": [ 1.727, -1.8, 15 ],
+    "Rotation": [ 1, 0, 0.707, 0 ],
+    "Scale": [ 1, 1, 1.8 ]
+  },
+  {
+    "name": "grass",
+    "path": "Models/Modern/grass.gltf",
+    "isCulling": false,
+    "Location": [ 0, -50, 0 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 500, 100, 500 ]
+  },
+  {
+    "name": "sky",
+    "path": "Models/sky/skybox2.gltf",
+    "isCulling": false,
+    "Location": [ 0, 0, 0 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 1000, 1000, 1000 ]
   }
 ]
