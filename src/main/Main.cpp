@@ -711,6 +711,7 @@ int main()
 		UniformH.Int(frameBufferProgram.ID, "MSAAsamp", MSAAsamp);
 		UniformH.Float(frameBufferProgram.ID, "sharpenStrength", sharpenStrength);
 		UniformH.Float(frameBufferProgram.ID, "texelSizeMulti", texelSizeMulti);
+		UniformH.Float(frameBufferProgram.ID, "deltaTime", deltaTime);
 
 		UniformH.Float(frameBufferProgram.ID,UniformInput, UniformFloat[0]);
 

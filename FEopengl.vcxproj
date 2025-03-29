@@ -210,8 +210,10 @@
     <None Include="Shaders\Db\light.vert" />
     <None Include="Shaders\Db\unShaded.frag" />
     <None Include="Shaders\Empty.shader" />
+    <None Include="Shaders\Main\4bitToDither.frag" />
     <None Include="Shaders\Main\Default.vert" />
     <None Include="Shaders\Main\direcLight.frag" />
+    <None Include="Shaders\Main\DITHERFB.frag" />
     <None Include="Shaders\Main\framebuffer.frag" />
     <None Include="Shaders\Main\framebuffer.vert" />
     <None Include="Shaders\Main\outlining.frag" />

@@ -2,7 +2,7 @@
   {
     "name": "Checker",
     "path": "Models/checker/AA.gltf",
-    "isCulling": false,
+    "isCulling": true,
     "Location": [ 0, -50, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
     "Scale": [ 1, 1, 1 ]
@@ -82,7 +82,7 @@
   {
     "name": "grass",
     "path": "Models/Modern/grass.gltf",
-    "isCulling": false,
+    "isCulling": true,
     "Location": [ 0, -50, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
     "Scale": [ 500, 100, 500 ]
