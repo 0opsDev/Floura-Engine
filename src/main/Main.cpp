@@ -7,6 +7,8 @@
 #include <glm/gtx/string_cast.hpp>
 #include "timeUtil.h" 
 #include "inputUtil.h"
+#include <thread>
+#include <chrono>
 
 
 using json = nlohmann::json;
@@ -48,7 +50,6 @@ struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, 
 
 //Shader
 struct ShaderSettings { int VertNum = 0, FragNum = 2; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, gamma = 2.2; };
-
 ShaderSettings shaderStr;
 
 struct ScreenSettings { //Screen
@@ -67,9 +68,9 @@ struct DeltaTime { //DeltaTime
 static float timeAccumulator[3] = { 0.0f, 0.0f, 0.0f }; // DeltaTime Accumulators
 
 int TempButton = 0;
-bool Panels[3] = { true, true, true }; // ImGui Panels
+bool Panels[] = { true, true, true }; // ImGui Panels
 
-float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // Float, DeltaTime, Camera: FOV , near, far
+float cameraSettings[] = { 60.0f, 0.1f, 1000.0f }; // Float, DeltaTime, Camera: FOV , near, far
 
 std::string mapName = ""; // String, Maploading
 
@@ -163,6 +164,7 @@ std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> loadModelsF
 	return models;
 }
 
+
 //Methods
 // Loads Settings From Files
 void loadSettings() {
@@ -234,7 +236,7 @@ void loadSettings() {
 }
 
 // Holds ImGui Variables and Windows
-void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, ScreenUtils ScreenH, float deltaTime, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO, unsigned int& frameBufferTexture2) {
+void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO, unsigned int& frameBufferTexture2) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	//Main Panel
@@ -261,13 +263,13 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 				if (ImGui::SmallButton("Apply Changes?")) { // apply button
 					screen.width = static_cast<unsigned int>(screen.widthI);
 					screen.height = static_cast<unsigned int>(screen.heightI); // cast screenArea from screenAreaI
-					ScreenH.SetScreenSize(window, screen.width, screen.height); // set window and viewport w&h
-					ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
+					ScreenUtils::SetScreenSize(window, screen.width, screen.height); // set window and viewport w&h
+					ScreenUtils::setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
 					updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, screen.width, screen.height); // Update frame buffer resolution
 				}
 				if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 				{
-					ScreenH.toggleFullscreen(window, monitorT, screen.isFullscreen, screen.windowedPosX, screen.windowedPosY, screen.windowedWidth, screen.windowedHeight);
+					ScreenUtils::toggleFullscreen(window, monitorT, screen.isFullscreen, screen.windowedPosX, screen.windowedPosY, screen.windowedWidth, screen.windowedHeight);
 				} //Toggle Fullscreen
 
 
@@ -368,9 +370,9 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		static float frameTimeValues[90] = { 0 }; //stores 90 snapshots of frametime
 
 		static int ftValues_offset = 0;
-		frameTimeValues[ftValues_offset] = deltaTime * 1000.0f; // Convert to milliseconds
+		frameTimeValues[ftValues_offset] = TimeUtil::deltaTime * 1000.0f; // Convert to milliseconds
 		ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
-		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = deltaTime * 1000.0f) + " ms";
+		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = TimeUtil::deltaTime * 1000.0f) + " ms";
 
 		ImGui::Text(frametimes.c_str());
 		ImGui::PlotLines("Frame Times (ms) Graph (90SAMP)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
@@ -527,9 +529,8 @@ void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int&
 //Main Function
 int main()
 {
-	init init; init.initGLFW(); // initialize glfw
-	ScreenUtils ScreenH;
-	inputUtil inputH;
+	auto startInitTime = std::chrono::high_resolution_clock::now();
+	init::initGLFW(); // initialize glfw
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -564,14 +565,11 @@ int main()
 
 	//area of open gl we want to render in
 	//screen assignment after fallback
-	ScreenH.SetScreenSize(window, screen.width, screen.height);  // set window and viewport w&h
+	ScreenUtils::SetScreenSize(window, screen.width, screen.height);  // set window and viewport w&h
 	std::cout << "Primary monitor resolution: " << screen.width << "x" << screen.height << std::endl;
 	// window logo creation and assignment
-	init.initLogo(window);
-	ScreenH.setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
-
-
-	UF UniformH; // glunfiorm
+	init::initLogo(window);
+	ScreenUtils::setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
 
 	// shaderprog init
 	Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader"); // create a shader program and feed it Dummy shader and vertex files
@@ -584,36 +582,46 @@ int main()
 
 	Shader frameBufferProgram("Shaders/Main/framebuffer.vert", "Shaders/Main/framebuffer.frag");
 	frameBufferProgram.Activate();
-	UniformH.Int(frameBufferProgram.ID, "screenTexture", 0);
+	UF::Int(frameBufferProgram.ID, "screenTexture", 0);
 
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
-	init.initGLenable(render.frontFaceSide);
+	init::initGLenable(render.frontFaceSide);
 
 	// INITIALIZE CAMERA
 	Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos //INIT CAMERA POSITION
+
+	/*
+	loading models from json is very taxing
+	consider putting this in a thread
+	*/
+
 	// Model Loader
-	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = loadModelsFromJson(mapName + "ModelECSData.json"); // Load models from JSON file
+	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = loadModelsFromJson(mapName + "ModelECSData.json"); // Load models from JSON file 
+
 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
 	setupMainFBO(viewVAO, viewVBO, FBO, frameBufferTexture, RBO, screen.width, screen.height, ViewportVerticies);
 	setupSecondFBO(FBO2, frameBufferTexture2, RBO2, screen.width, screen.height);
 
-	init.initImGui(window); // Initialize ImGUI
+	init::initImGui(window); // Initialize ImGUI
 
-	if (Panels[0]) { float deltaTime = TimeUtil::deltaTime; imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime, frameBufferTexture, RBO, FBO, frameBufferTexture2); } //dummy deltatime for init + imgui
+	if (Panels[0]) {imGuiMAIN(window, shaderProgram, primaryMonitor, frameBufferTexture, RBO, FBO, frameBufferTexture2); } //dummy deltatime for init + imgui
 
+
+	auto stopInitTime = std::chrono::high_resolution_clock::now();
+	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
+
+	std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 
-		inputH.updateMouse(invertMouse, sensitivity); // update mouse
+		inputUtil::updateMouse(invertMouse, sensitivity); // update mouse
 		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); }
 
-		// Update delta time
-		TimeUtil::updateDeltaTime();
-		float deltaTime = TimeUtil::deltaTime;
+		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::deltaTime; // Update delta time
 		DeltaMain(window, deltaTime); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) \
 
 		//FrameBuffer
@@ -635,14 +643,14 @@ int main()
 
 		// Send Variables to shader (GPU)
 		shaderProgram.Activate(); // activate shaderprog to send uniforms to gpu
-		UniformH.DoUniforms(shaderProgram.ID, render.doReflections, render.doFog);
-		UniformH.TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos, DepthDistance, DepthPlane);
-		UniformH.ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
+		UF::DoUniforms(shaderProgram.ID, render.doReflections, render.doFog);
+		UF::TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos, DepthDistance, DepthPlane);
+		UF::ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
 
 
 		//UniformH.Float3(shaderProgram.ID, "Transmodel", NULL, NULL, NULL); // testing
 		LightProgram.Activate();
-		UniformH.Float4(LightProgram.ID, "lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
+		UF::Float4(LightProgram.ID, "lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 		//UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
 		// Camera
 		camera.Inputs(window); // send Camera.cpp window inputs and delta time
@@ -651,7 +659,6 @@ int main()
 		// draw the model
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
 		glStencilMask(0xFF);
-
 
 		if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
@@ -681,8 +688,8 @@ int main()
 			glStencilMask(0x00);
 			glDisable(GL_DEPTH_TEST);
 			outlineShaderProgram.Activate();
-			UniformH.Float(outlineShaderProgram.ID, "outlining", shaderStr.stencilSize);
-			UniformH.Float4(outlineShaderProgram.ID, "stencilColor", shaderStr.stencilColor[0], shaderStr.stencilColor[1], shaderStr.stencilColor[2], shaderStr.stencilColor[3]);
+			UF::Float(outlineShaderProgram.ID, "outlining", shaderStr.stencilSize);
+			UF::Float4(outlineShaderProgram.ID, "stencilColor", shaderStr.stencilColor[0], shaderStr.stencilColor[1], shaderStr.stencilColor[2], shaderStr.stencilColor[3]);
 			// add stencil buffer toggle tommorow
 			// draw
 			for (auto& modelTuple : models) {
@@ -707,15 +714,15 @@ int main()
 		// draw the framebuffer
 		GLint uniformLocation = glGetUniformLocation(frameBufferProgram.ID, "enableMSAA");
 		frameBufferProgram.Activate();
-		UniformH.Float(frameBufferProgram.ID, "time", glfwGetTime());
-		UniformH.Int(frameBufferProgram.ID, "MSAAsamp", MSAAsamp);
-		UniformH.Float(frameBufferProgram.ID, "sharpenStrength", sharpenStrength);
-		UniformH.Float(frameBufferProgram.ID, "texelSizeMulti", texelSizeMulti);
-		UniformH.Float(frameBufferProgram.ID, "deltaTime", deltaTime);
+		UF::Float(frameBufferProgram.ID, "time", glfwGetTime());
+		UF::Int(frameBufferProgram.ID, "MSAAsamp", MSAAsamp);
+		UF::Float(frameBufferProgram.ID, "sharpenStrength", sharpenStrength);
+		UF::Float(frameBufferProgram.ID, "texelSizeMulti", texelSizeMulti);
+		UF::Float(frameBufferProgram.ID, "deltaTime", deltaTime);
 
-		UniformH.Float(frameBufferProgram.ID,UniformInput, UniformFloat[0]);
+		UF::Float(frameBufferProgram.ID,UniformInput, UniformFloat[0]);
 
-		UniformH.Int(frameBufferProgram.ID, "frameCount", 4);
+		UF::Int(frameBufferProgram.ID, "frameCount", 4);
 		glUniform1i(uniformLocation, enableMSAA ? 1 : 0);
 
 		glBindVertexArray(viewVAO);
@@ -740,8 +747,7 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, ScreenH, deltaTime, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
-
+		if (Panels[0]) {imGuiMAIN(window, shaderProgram, primaryMonitor, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
@@ -754,4 +760,4 @@ int main()
 	outlineShaderProgram.Delete();
 	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
 	return 0;
-}	
+}

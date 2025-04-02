@@ -1,9 +1,5 @@
 #include "Init.h"
 
-init::init() {
-
-}
-
 void init::initGLFW() {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3), glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // Window Minimum and Maximum version

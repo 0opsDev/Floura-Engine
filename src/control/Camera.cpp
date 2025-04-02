@@ -3,10 +3,8 @@
 #include "inputUtil.h"
 
 // Global Variables
-bool MouseState = true;
-float timeAccumulator = 0;
-bool toggleESC = true;
-float scrollSpeed = 0;
+bool MouseState = true, toggleESC = true;
+float timeAccumulator = 0, scrollSpeed = 0;
 
 Camera::Camera(int width, int height, glm::vec3 position)
 {

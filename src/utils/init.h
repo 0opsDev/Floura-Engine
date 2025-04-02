@@ -7,17 +7,15 @@ class init
 {
 public:
 
-    init();
+    static void initGLFW();
 
-    void initGLFW();
+    static void initImGui(GLFWwindow* window);
 
-    void initImGui(GLFWwindow* window);
+    static void initBullet();
 
-    void initBullet();
+    static void initGLenable(bool frontFaceSide);
 
-    void initGLenable(bool frontFaceSide);
-
-    void initLogo(GLFWwindow* window);
+    static void initLogo(GLFWwindow* window);
 
 };
 

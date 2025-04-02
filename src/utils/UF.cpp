@@ -1,10 +1,6 @@
 #include "UF.h"
 
 // most useless class ever
-UF::UF()
-{
-
-}
 
 void UF::Int(GLuint shader, const char* uniform, int uniInt)
 {
