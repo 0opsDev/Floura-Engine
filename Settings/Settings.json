@@ -1,10 +1,10 @@
 [
   {
-    "Width": 2560,
-    "Height": 1440,
+    "Width": 1920,
+    "Height": 1080,
     "Vsync": false,
     "FOV": 80.0,
-    "MAP": "AA",
+    "MAP": "Default",
     "Sensitivity": 100.0,
     "InvertX": false,
     "InvertY": false

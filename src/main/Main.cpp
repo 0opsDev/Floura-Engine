@@ -9,9 +9,8 @@
 #include "inputUtil.h"
 #include <thread>
 #include <chrono>
+#include <SettingsUtil.h>
 
-
-using json = nlohmann::json;
 unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO;// FBO init
 
 // Forward declaration of the function
@@ -19,21 +18,10 @@ void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int&
 
 int MSAAsamp = 16.0f;
 float sharpenStrength = 3;
-bool enableMSAA = true; // Change this as needed
+bool enableMSAA = false; // Change this as needed
 float texelSizeMulti = 1.0;
 char UniformInput[64] = {0}; // 64 is buffer size
 float UniformFloat[] = {0, 0, 0};
-
-float ViewportVerticies[] = {
-	// Coords,   Texture cords
-	 1.0f, -1.0f,  1.0f, 0.0f,
-	-1.0f, -1.0f,  0.0f, 0.0f,
-	-1.0f,  1.0f,  0.0f, 1.0f,
-
-	 1.0f,  1.0f,  1.0f, 1.0f,
-	 1.0f, -1.0f,  1.0f, 0.0f,
-	-1.0f,  1.0f,  0.0f, 1.0f
-};
 
 float sensitivity = 100.0f; // mouse sensitivity (please put this into the settings json, have it in imgui too and have to ability to save to it)
 bool invertMouse[2] = { false, false }; // invert mouse x and y axis
@@ -44,6 +32,8 @@ GLfloat ConeSI[3] = { 0.111f, 0.825f , 2.0f }, ConeRot[3] = { 0.0f, -1.0f , 0.0f
 LightTransform1[3] = { 0.0f, 5.0f, 0.0f }, CameraXYZ[3] = { 0.0f, 0.0f, 0.0f }, // cameraxyz values are used for initial camera position
 lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f }, skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f },
 fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, DepthDistance = 100.0f, DepthPlane[2] = { 0.1f, 100.0f };
+
+std::string facesCubemap[6];
 
 //Render
 struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = false; }; RenderSettings render;
@@ -164,7 +154,6 @@ std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> loadModelsF
 	return models;
 }
 
-
 //Methods
 // Loads Settings From Files
 void loadSettings() {
@@ -211,6 +200,11 @@ void loadSettings() {
 		fogRGBA[1] = engineDefaultData[0]["fogRGBA"][1];
 		fogRGBA[2] = engineDefaultData[0]["fogRGBA"][2];
 
+		render.doReflections = engineDefaultData[0]["doReflections"];
+		render.doFog = engineDefaultData[0]["doFog"];
+		shaderStr.VertNum = engineDefaultData[0]["VertNum"];
+		shaderStr.FragNum = engineDefaultData[0]["FragNum"];
+
 		cameraSettings[1] = std::stof(engineDefaultData[0]["NearPlane"].get<std::string>());
 		cameraSettings[2] = std::stof(engineDefaultData[0]["FarPlane"].get<std::string>());
 		screen.WindowTitle = engineDefaultData[0]["Window"];
@@ -232,6 +226,28 @@ void loadSettings() {
 	}
 	else {
 		std::cerr << "Failed to open Settings/imguiPanels.json" << std::endl;
+	}
+}
+
+void LoadSkybox() {
+	std::ifstream SkyboxJson(mapName + "Skybox.json");
+	if (SkyboxJson.is_open()) {
+		json SkyboxJsonData;
+		SkyboxJson >> SkyboxJsonData;
+		SkyboxJson.close();
+
+		std::string Path = SkyboxJsonData[0]["Path"].get<std::string>() + "/";
+
+		std::cout << "Skybox Path: " << Path << std::endl;
+
+		for (int i = 0; i < 6; i++)
+		{
+			facesCubemap[i] = Path + SkyboxJsonData[0]["Faces"][i].get<std::string>();
+			std::cout << "Skybox Face: " << facesCubemap[i] << std::endl;
+		}
+	}
+	else {
+		std::cerr << "Failed to open Skybox.json" << std::endl;
 	}
 }
 
@@ -530,6 +546,7 @@ void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int&
 int main()
 {
 	auto startInitTime = std::chrono::high_resolution_clock::now();
+	std::thread storageThread1(loadSettings); 
 	init::initGLFW(); // initialize glfw
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
@@ -547,7 +564,6 @@ int main()
 
 	// Now call glfwGetMonitorPos with correct arguments
 	glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screen.widthI, &screen.heightI);
-	loadSettings();
 
 	//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
 	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, screen.WindowTitle.c_str(), NULL, NULL); // create window
@@ -562,6 +578,8 @@ int main()
 	// Enable depth testing
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+
+	storageThread1.join();
 
 	//area of open gl we want to render in
 	//screen assignment after fallback
@@ -579,6 +597,9 @@ int main()
 
 	Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
 	Shader LightProgram("Shaders/Db/light.vert", "Shaders/Db/light.frag");
+	Shader skyboxShader("Shaders/Main/skybox.vert", "Shaders/Main/skybox.frag");
+	skyboxShader.Activate();
+	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
 
 	Shader frameBufferProgram("Shaders/Main/framebuffer.vert", "Shaders/Main/framebuffer.frag");
 	frameBufferProgram.Activate();
@@ -597,23 +618,75 @@ int main()
 	consider putting this in a thread
 	*/
 
-	// Model Loader
-	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = loadModelsFromJson(mapName + "ModelECSData.json"); // Load models from JSON file 
+	// Create VAO, VBO, and EBO for the skybox
+	unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+	glGenBuffers(1, &skyboxEBO);
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(SettingsUtils::skyboxVertices), &SettingsUtils::skyboxVertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, skyboxEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(SettingsUtils::skyboxIndices), &SettingsUtils::skyboxIndices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+	LoadSkybox();
 
-	Model Lightmodel = "Assets/assets/Light/light.gltf";
+	// Creates the cubemap texture object
+	unsigned int cubemapTexture;
+	glGenTextures(1, &cubemapTexture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	// These are very important to prevent seams
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	setupMainFBO(viewVAO, viewVBO, FBO, frameBufferTexture, RBO, screen.width, screen.height, ViewportVerticies);
+	// Cycles through all the textures and attaches them to the cubemap object
+	for (unsigned int i = 0; i < 6; i++)
+	{
+		int width, height, nrChannels;
+		unsigned char* data = stbi_load(facesCubemap[i].c_str(), &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			stbi_set_flip_vertically_on_load(false);
+			glTexImage2D
+			(
+				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				0,
+				GL_RGBA,
+				width,
+				height,
+				0,
+				GL_RGBA,
+				GL_UNSIGNED_BYTE,
+				data
+			);
+			stbi_image_free(data);
+		}
+		else
+		{
+			std::cout << "Failed to load texture: " << facesCubemap[i] << std::endl;
+			stbi_image_free(data);
+		}
+	}
+
+	setupMainFBO(viewVAO, viewVBO, FBO, frameBufferTexture, RBO, screen.width, screen.height, SettingsUtils::ViewportVerticies);
 	setupSecondFBO(FBO2, frameBufferTexture2, RBO2, screen.width, screen.height);
-
+	
 	init::initImGui(window); // Initialize ImGUI
 
-	if (Panels[0]) {imGuiMAIN(window, shaderProgram, primaryMonitor, frameBufferTexture, RBO, FBO, frameBufferTexture2); } //dummy deltatime for init + imgui
-
+	// Model Loader
+	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = loadModelsFromJson(mapName + "ModelECSData.json"); // Load models from JSON file 
+	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
-
 	std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
@@ -647,7 +720,6 @@ int main()
 		UF::TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos, DepthDistance, DepthPlane);
 		UF::ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
 
-
 		//UniformH.Float3(shaderProgram.ID, "Transmodel", NULL, NULL, NULL); // testing
 		LightProgram.Activate();
 		UF::Float4(LightProgram.ID, "lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
@@ -664,7 +736,6 @@ int main()
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 			glClearColor(0, 0.3, 0.4, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		}
-
 		for (auto& modelTuple : models) {
 			Model& model = std::get<0>(modelTuple);
 			int cullingSetting = std::get<1>(modelTuple);
@@ -678,10 +749,9 @@ int main()
 
 			model.Draw(shaderProgram, camera, translation, rotation, scale); // add arg for transform to draw inside of model class
 		}
+
 		glDisable(GL_CULL_FACE);
 		Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f ,1.0f));
-
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
 		if (shaderStr.Stencil) {
 			glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
@@ -708,10 +778,37 @@ int main()
 		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
-		//think about updating a copy of the texture here so it can be rendered on gui with effects
+		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
+		glDepthFunc(GL_LEQUAL);
+
+		skyboxShader.Activate();
+		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 projection = glm::mat4(1.0f);
+		// We make the mat4 into a mat3 and then a mat4 again in order to get rid of the last row and column
+		// The last row and column affect the translation of the skybox (which we don't want to affect)
+		view = glm::mat4(glm::mat3(glm::lookAt(camera.Position, camera.Position + camera.Orientation, camera.Up)));
+		projection = glm::perspective(glm::radians(cameraSettings[0]), (float)screen.width / screen.height, cameraSettings[1], cameraSettings[2]);
+		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+		skyboxShader.Activate();
+		glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
+		UF::Float4(skyboxShader.ID, "skyRGBA", skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
+		// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
+		// where an object is present (a depth of 1.0f will always fail against any object's depth value)
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
+		// Switch back to the normal depth function
+		glDepthFunc(GL_LESS);
+
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		// draw the framebuffer
+
 		GLint uniformLocation = glGetUniformLocation(frameBufferProgram.ID, "enableMSAA");
 		frameBufferProgram.Activate();
 		UF::Float(frameBufferProgram.ID, "time", glfwGetTime());
@@ -725,6 +822,7 @@ int main()
 		UF::Int(frameBufferProgram.ID, "frameCount", 4);
 		glUniform1i(uniformLocation, enableMSAA ? 1 : 0);
 
+		// draw the framebuffer
 		glBindVertexArray(viewVAO);
 		glDisable(GL_DEPTH_TEST); // stops culling on the rectangle the framebuffer is drawn on
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
@@ -747,10 +845,12 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
+
 		if (Panels[0]) {imGuiMAIN(window, shaderProgram, primaryMonitor, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
+
 	}
 	// Cleanup: Delete all objects on close
 

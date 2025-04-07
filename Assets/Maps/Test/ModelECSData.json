@@ -1,19 +1,11 @@
 [
   {
-    "name": "Sky",
-    "path": "Models/sky/skybox.gltf",
-    "isCulling": true,
-    "Location": [ 0, 0, 0 ],
-    "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0, 0, 0 ]
-  },
-  {
     "name": "TallGrass",
     "path": "Models/grass2/grass.gltf",
     "isCulling": false,
     "Location": [ 0, 0, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0, 0, 0 ]
+    "Scale": [ 1, 1, 1 ]
   },
   {
     "name": "Ground",
@@ -21,7 +13,7 @@
     "isCulling": true,
     "Location": [ 0, 0, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0, 0, 0 ]
+    "Scale": [ 1, 1, 1 ]
   },
   {
     "name": "Vase",
@@ -29,7 +21,7 @@
     "isCulling": true,
     "Location": [ 0, -1, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0, 0, 0 ]
+    "Scale": [ 1, 1, 1 ]
   },
   {
     "name": "Vase",
@@ -37,7 +29,7 @@
     "isCulling": true,
     "Location": [ 3, -1, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0, 0, 0 ]
+    "Scale": [ 1, 1, 1 ]
   },
   {
     "name": "Vase",
@@ -45,7 +37,7 @@
     "isCulling": true,
     "Location": [ -3, -1, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0, 0, 0 ]
+    "Scale": [ 1, 1, 1 ]
   },
   {
     "name": "Vase",
@@ -53,6 +45,6 @@
     "isCulling": true,
     "Location": [ -6, -1, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0, 0, 0 ]
+    "Scale": [ 1, 1, 1 ]
   }
 ]

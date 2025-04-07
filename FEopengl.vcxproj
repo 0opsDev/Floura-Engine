@@ -219,6 +219,8 @@
     <None Include="Shaders\Main\outlining.frag" />
     <None Include="Shaders\Main\outlining.vert" />
     <None Include="Shaders\Main\pointLight.frag" />
+    <None Include="Shaders\Main\skybox.frag" />
+    <None Include="Shaders\Main\skybox.vert" />
     <None Include="Shaders\Main\spotLight.frag" />
     <None Include="Shaders\Main\TieDyeframebuffer.frag" />
     <None Include="Shaders\ShaderList.json" />

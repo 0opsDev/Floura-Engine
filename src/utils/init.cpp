@@ -65,7 +65,7 @@ void init::initLogo(GLFWwindow* window) {
 	int iconW, iconH; // Width and Depth
 	int iconChannels; // Image number (1)
 	stbi_set_flip_vertically_on_load(false); // Disable Image Flipping On Load
-	unsigned char* pixelsIcon = stbi_load("assets/Icons/Icon60B.tga", &iconW, &iconH, &iconChannels, STBI_rgb_alpha); // create var with imnage inside - tga because fast (hardly any compression)
+	unsigned char* pixelsIcon = stbi_load("assets/Icons/Icon.png", &iconW, &iconH, &iconChannels, STBI_rgb_alpha); // create var with imnage inside - tga because fast (hardly any compression)
 
 	GLFWimage Iconinages[1]; // Create New "GLFWimage" VAR with "Iconinages at Channel (1)"
 	Iconinages[0].width = iconW, Iconinages[0].height = iconH, Iconinages[0].pixels = pixelsIcon; // Write Aspect Ratio and Fragnment to photo 

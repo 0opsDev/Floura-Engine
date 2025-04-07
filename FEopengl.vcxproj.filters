@@ -319,5 +319,11 @@
     <None Include="Shaders\Main\4bitToDither.frag">
       <Filter>Resource Files\Shaders\Main</Filter>
     </None>
+    <None Include="Shaders\Main\skybox.frag">
+      <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
+    <None Include="Shaders\Main\skybox.vert">
+      <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
   </ItemGroup>
 </Project>

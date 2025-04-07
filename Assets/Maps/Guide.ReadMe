@@ -1,7 +1,0 @@
-Folder Name = Map Name
-Enter map name on line 21 of "Settings.ini"
-
-inside of map folder
-
-ModelData.json holds data for model names, where the model is,
-and wether it should cull
