@@ -1,0 +1,17 @@
+[
+  {
+    "MapName": "Template",
+    "NearPlane": "0.1f",
+    "FarPlane": "100000.000f",
+    "Window": "Template",
+
+    "skyRGBA": [ 1, 1, 1 ],
+    "lightRGBA": [ 1.0, 1.0, 1.0 ],
+    "fogRGBA": [ 0.295, 0.328, 0.436 ],
+
+    "doReflections": true,
+    "doFog": false,
+    "VertNum": 0,
+    "FragNum": 1
+  }
+]

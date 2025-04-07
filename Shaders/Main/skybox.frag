@@ -5,11 +5,11 @@ in vec3 texCoords;
 
 uniform samplerCube skybox;
 //color of light from sky
-uniform vec4 skyColor;
-
-vec4 skyTEX = texture(skybox, texCoords);
+uniform vec3 skyRGBA;
 
 void main()
 {
-    FragColor = skyTEX;
+    vec4 skyTEX = texture(skybox, texCoords);
+    vec3 color = skyTEX.rgb * skyRGBA;
+    FragColor = vec4(color, 1.0);
 }
