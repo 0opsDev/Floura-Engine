@@ -1,0 +1,12 @@
+[
+  {
+    "Width": 1920,
+    "Height": 1080,
+    "Vsync": false,
+    "FOV": 80.0,
+    "MAP": "Template",
+    "Sensitivity": 100.0,
+    "InvertX": false,
+    "InvertY": false
+  }
+]

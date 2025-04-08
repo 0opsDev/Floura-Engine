@@ -20,8 +20,8 @@ int MSAAsamp = 16.0f;
 float sharpenStrength = 3;
 bool enableMSAA = false; // Change this as needed
 float texelSizeMulti = 1.0;
-char UniformInput[64] = {0}; // 64 is buffer size
-float UniformFloat[] = {0, 0, 0};
+char UniformInput[64] = { 0 }; // 64 is buffer size
+float UniformFloat[] = { 0, 0, 0 };
 
 float sensitivity = 100.0f; // mouse sensitivity (please put this into the settings json, have it in imgui too and have to ability to save to it)
 bool invertMouse[2] = { false, false }; // invert mouse x and y axis
@@ -36,7 +36,7 @@ fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, DepthDistance = 100.0f, DepthPlane[2] =
 std::string facesCubemap[6];
 
 //Render
-struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, clearColour = false, frontFaceSide = false; }; RenderSettings render;
+struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, frontFaceSide = false; }; RenderSettings render;
 
 //Shader
 struct ShaderSettings { int VertNum = 0, FragNum = 2; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, gamma = 2.2; };
@@ -63,7 +63,6 @@ bool Panels[] = { true, true, true }; // ImGui Panels
 float cameraSettings[] = { 60.0f, 0.1f, 1000.0f }; // Float, DeltaTime, Camera: FOV , near, far
 
 std::string mapName = ""; // String, Maploading
-
 
 // Function to read a specific line from a file
 std::string readLineFromFile(const std::string& filePath, int lineNumber) {
@@ -181,6 +180,23 @@ void loadSettings() {
 		std::cerr << "Failed to open Settings/Settings.json" << std::endl;
 	}
 
+	// Load imguiPanels.json
+	std::ifstream imguiPanelsFile("Settings/imguiPanels.json");
+	if (imguiPanelsFile.is_open()) {
+		json imguiPanelsData;
+		imguiPanelsFile >> imguiPanelsData;
+		imguiPanelsFile.close();
+
+		Panels[0] = imguiPanelsData[0]["imGui"];
+		Panels[1] = imguiPanelsData[0]["panelMain"];
+		Panels[2] = imguiPanelsData[0]["Panel Performance"];
+	}
+	else {
+		std::cerr << "Failed to open Settings/imguiPanels.json" << std::endl;
+	}
+}
+
+void loadEngineSettings() {
 	// Load EngineDefault.json
 	std::ifstream engineDefaultFile(mapName + "Engine.json");
 	if (engineDefaultFile.is_open()) {
@@ -211,21 +227,6 @@ void loadSettings() {
 	}
 	else {
 		std::cerr << "Failed to open Settings/Default/EngineDefault.json" << std::endl;
-	}
-
-	// Load imguiPanels.json
-	std::ifstream imguiPanelsFile("Settings/imguiPanels.json");
-	if (imguiPanelsFile.is_open()) {
-		json imguiPanelsData;
-		imguiPanelsFile >> imguiPanelsData;
-		imguiPanelsFile.close();
-
-		Panels[0] = imguiPanelsData[0]["imGui"];
-		Panels[1] = imguiPanelsData[0]["panelMain"];
-		Panels[2] = imguiPanelsData[0]["Panel Performance"];
-	}
-	else {
-		std::cerr << "Failed to open Settings/imguiPanels.json" << std::endl;
 	}
 }
 
@@ -260,7 +261,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		ImGui::Begin("Settings"); // ImGUI window creation
 
 		ImGui::Text("Settings (Press escape to use mouse)");
-		if (ImGui::SmallButton("load")) { loadSettings(); } // load settings button
+		if (ImGui::SmallButton("load")) { loadSettings(); loadEngineSettings();} // load settings button
 		ImGui::Checkbox("Preformance Profiler", &Panels[2]);
 		// Toggle ImGui Windows
 		// Rendering panel
@@ -294,7 +295,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 
 			if (ImGui::TreeNode("Shaders")) {
 				//Optimisation And Shaders
-				ImGui::Checkbox("ClearBufferBit (BackBuffer)", &render.clearColour); // Clear Buffer
 				ImGui::Checkbox("Enable Stencil Buffer", &shaderStr.Stencil);
 				ImGui::DragFloat("Stencil Size", &shaderStr.stencilSize);
 				ImGui::DragInt("Shader Number (Vert)", &shaderStr.VertNum);
@@ -311,9 +311,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 				ImGui::InputText("Uniform Input", UniformInput, IM_ARRAYSIZE(UniformInput));
 				ImGui::DragFloat("UniformFloat", UniformFloat);
 				if (false & UniformInput != NULL) { // Debug
-					std::cout << UniformInput << std::endl;
-				}
-
+					std::cout << UniformInput << std::endl; }
 				ImGui::TreePop();// Ends The ImGui Window
 			}
 			// Lighting panel
@@ -401,7 +399,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, window_width, window_height); // Update frame buffer resolution
 	glViewport(0, 0, window_width, window_height);
 
-	    // Bind the framebuffer texture
+	// Bind the framebuffer texture
 //    glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
 //	ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -470,7 +468,7 @@ void setupMainFBO(unsigned int& viewVAO, unsigned int& viewVBO, unsigned int& FB
 	// ColorBuffer
 	glGenTextures(1, &frameBufferTexture);
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -486,8 +484,9 @@ void setupMainFBO(unsigned int& viewVAO, unsigned int& viewVBO, unsigned int& FB
 
 	// Error checking
 	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
 		std::cout << "Framebuffer error: " << fboStatus << std::endl;
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -499,7 +498,7 @@ void setupSecondFBO(unsigned int& FBO, unsigned int& frameBufferTexture, unsigne
 	// Color buffer
 	glGenTextures(1, &frameBufferTexture);
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -514,8 +513,9 @@ void setupSecondFBO(unsigned int& FBO, unsigned int& frameBufferTexture, unsigne
 
 	// Error checking
 	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
 		std::cout << "Framebuffer error: " << fboStatus << std::endl;
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -523,7 +523,7 @@ void setupSecondFBO(unsigned int& FBO, unsigned int& frameBufferTexture, unsigne
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height) {
 	// Update first frame buffer texture
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Update first render buffer storage
@@ -533,7 +533,7 @@ void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int&
 
 	// Update second frame buffer texture
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Update second render buffer storage
@@ -542,84 +542,8 @@ void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int&
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-//Main Function
-int main()
-{
-	auto startInitTime = std::chrono::high_resolution_clock::now();
-	std::thread storageThread1(loadSettings); 
-	init::initGLFW(); // initialize glfw
-	// Get the video mode of the primary monitor
-	// Get the primary monitor
-	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-	if (!primaryMonitor) { std::cerr << "Failed to get primary monitor" << std::endl; glfwTerminate(); return -1; }
-
-	// Get the video mode of the primary monitor
-	const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
-	if (!videoMode) { std::cerr << "Failed to get video mode" << std::endl; glfwTerminate(); return -1; }
-
-	// second fallback
-	// Store the width and height in the test array
-	screen.width = videoMode->width;
-	screen.height = videoMode->height;
-
-	// Now call glfwGetMonitorPos with correct arguments
-	glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screen.widthI, &screen.heightI);
-
-	//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
-	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, screen.WindowTitle.c_str(), NULL, NULL); // create window
-
-	// error checking
-	if (window == NULL) { std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
-
-	glfwMakeContextCurrent(window);	//make window current context
-
-	gladLoadGL(); // load open gl config
-
-	// Enable depth testing
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
-	storageThread1.join();
-
-	//area of open gl we want to render in
-	//screen assignment after fallback
-	ScreenUtils::SetScreenSize(window, screen.width, screen.height);  // set window and viewport w&h
-	std::cout << "Primary monitor resolution: " << screen.width << "x" << screen.height << std::endl;
-	// window logo creation and assignment
-	init::initLogo(window);
-	ScreenUtils::setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
-
-	// shaderprog init
-	Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader"); // create a shader program and feed it Dummy shader and vertex files
-	shaderProgram.Delete(); // clean the shader prog for memory management
-	loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);// feed the shader prog real data
-	shaderProgram.Activate(); // activate new shader program for use
-
-	Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
-	Shader LightProgram("Shaders/Db/light.vert", "Shaders/Db/light.frag");
-	Shader skyboxShader("Shaders/Main/skybox.vert", "Shaders/Main/skybox.frag");
-	skyboxShader.Activate();
-	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
-
-	Shader frameBufferProgram("Shaders/Main/framebuffer.vert", "Shaders/Main/framebuffer.frag");
-	frameBufferProgram.Activate();
-	UF::Int(frameBufferProgram.ID, "screenTexture", 0);
-
-	// glenables
-	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
-	init::initGLenable(render.frontFaceSide);
-
-	// INITIALIZE CAMERA
-	Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
-	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos //INIT CAMERA POSITION
-
-	/*
-	loading models from json is very taxing
-	consider putting this in a thread
-	*/
-
+void skyboxBuffer(unsigned int &skyboxVAO, unsigned int &skyboxVBO, unsigned int &skyboxEBO) {
 	// Create VAO, VBO, and EBO for the skybox
-	unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
 	glGenVertexArrays(1, &skyboxVAO);
 	glGenBuffers(1, &skyboxVBO);
 	glGenBuffers(1, &skyboxEBO);
@@ -633,11 +557,10 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
 
-	LoadSkybox();
-
+void cubeboxTexture(unsigned int& cubemapTexture) {
 	// Creates the cubemap texture object
-	unsigned int cubemapTexture;
 	glGenTextures(1, &cubemapTexture);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -675,10 +598,100 @@ int main()
 			stbi_image_free(data);
 		}
 	}
+}
+//Main Function
+int main()
+{
+	auto startInitTime = std::chrono::high_resolution_clock::now();
+	std::thread storageThread1(loadSettings);
+	init::initGLFW(); // initialize glfw
+	// Get the video mode of the primary monitor
+	// Get the primary monitor
+	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+	if (!primaryMonitor) { std::cerr << "Failed to get primary monitor" << std::endl; glfwTerminate(); return -1; }
+
+	// Get the video mode of the primary monitor
+	const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
+	if (!videoMode) { std::cerr << "Failed to get video mode" << std::endl; glfwTerminate(); return -1; }
+
+	// second fallback
+	// Store the width and height in the test array
+	screen.width = videoMode->width;
+	screen.height = videoMode->height;
+
+	// Now call glfwGetMonitorPos with correct arguments
+	glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screen.widthI, &screen.heightI);
+
+	//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
+	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, screen.WindowTitle.c_str(), NULL, NULL); // create window
+
+	// error checking
+	if (window == NULL) { std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
+
+	glfwMakeContextCurrent(window);	//make window current context
+
+	gladLoadGL(); // load open gl config
+
+	// Enable depth testing
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	storageThread1.join();
+	std::thread storageThread2(loadEngineSettings);
+
+	//area of open gl we want to render in
+	//screen assignment after fallback
+	ScreenUtils::SetScreenSize(window, screen.width, screen.height);  // set window and viewport w&h
+	std::cout << "Primary monitor resolution: " << screen.width << "x" << screen.height << std::endl;
+	// window logo creation and assignment
+	init::initLogo(window);
+	ScreenUtils::setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
+
+	// shaderprog init
+	Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader"); // create a shader program and feed it Dummy shader and vertex files
+	shaderProgram.Delete(); // clean the shader prog for memory management
+
+	storageThread2.join();
+
+	loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);// feed the shader prog real data
+	shaderProgram.Activate(); // activate new shader program for use
+
+	Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
+	Shader LightProgram("Shaders/Db/light.vert", "Shaders/Db/light.frag");
+	Shader skyboxShader("Shaders/Main/skybox.vert", "Shaders/Main/skybox.frag");
+	skyboxShader.Activate();
+	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
+
+	Shader frameBufferProgram("Shaders/Main/framebuffer.vert", "Shaders/Main/framebuffer.frag");
+	frameBufferProgram.Activate();
+	UF::Int(frameBufferProgram.ID, "screenTexture", 0);
+
+	// glenables
+	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
+	init::initGLenable(render.frontFaceSide);
+
+	// INITIALIZE CAMERA
+	Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
+	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos //INIT CAMERA POSITION
+
+	/*
+	loading models from json is very taxing
+	consider putting this in a thread
+	*/
+
+	// Create VAO, VBO, and EBO for the skybox
+	unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
+	skyboxBuffer(skyboxVAO, skyboxVBO, skyboxEBO);
+
+	LoadSkybox();
+
+	// Create and load a cubemap texture
+	unsigned int cubemapTexture;
+	cubeboxTexture(cubemapTexture);
 
 	setupMainFBO(viewVAO, viewVBO, FBO, frameBufferTexture, RBO, screen.width, screen.height, SettingsUtils::ViewportVerticies);
 	setupSecondFBO(FBO2, frameBufferTexture2, RBO2, screen.width, screen.height);
-	
+
 	init::initImGui(window); // Initialize ImGUI
 
 	// Model Loader
@@ -692,7 +705,7 @@ int main()
 	{
 
 		inputUtil::updateMouse(invertMouse, sensitivity); // update mouse
-		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); }
+		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); loadEngineSettings(); }
 
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::deltaTime; // Update delta time
 		DeltaMain(window, deltaTime); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) \
@@ -700,8 +713,7 @@ int main()
 		//FrameBuffer
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		// Clear BackBuffer
-		if (render.clearColour) { glClear(GL_DEPTH_BUFFER_BIT); } // clear just depth buffer for lols
-		else { glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); } // Clear with colour
+		glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear with colour
 		glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
 
 		switch (TempButton) {
@@ -736,6 +748,7 @@ int main()
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 			glClearColor(0, 0.3, 0.4, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		}
+
 		for (auto& modelTuple : models) {
 			Model& model = std::get<0>(modelTuple);
 			int cullingSetting = std::get<1>(modelTuple);
@@ -751,7 +764,10 @@ int main()
 		}
 
 		glDisable(GL_CULL_FACE);
-		Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f ,1.0f));
+		Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f));
+
+		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
+		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 		if (shaderStr.Stencil) {
 			glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
@@ -775,9 +791,6 @@ int main()
 			glEnable(GL_DEPTH_TEST);
 		}
 
-		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
-		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
-
 		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 		glDepthFunc(GL_LEQUAL);
 
@@ -794,6 +807,7 @@ int main()
 		skyboxShader.Activate();
 		glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
 		UF::Float3(skyboxShader.ID, "skyRGBA", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
+
 		// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
 		// where an object is present (a depth of 1.0f will always fail against any object's depth value)
 		glBindVertexArray(skyboxVAO);
@@ -806,7 +820,6 @@ int main()
 		// Switch back to the normal depth function
 		glDepthFunc(GL_LESS);
 
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		GLint uniformLocation = glGetUniformLocation(frameBufferProgram.ID, "enableMSAA");
@@ -817,10 +830,11 @@ int main()
 		UF::Float(frameBufferProgram.ID, "texelSizeMulti", texelSizeMulti);
 		UF::Float(frameBufferProgram.ID, "deltaTime", deltaTime);
 
-		UF::Float(frameBufferProgram.ID,UniformInput, UniformFloat[0]);
+		UF::Float(frameBufferProgram.ID, UniformInput, UniformFloat[0]);
 
 		UF::Int(frameBufferProgram.ID, "frameCount", 4);
 		glUniform1i(uniformLocation, enableMSAA ? 1 : 0);
+
 
 		// draw the framebuffer
 		glBindVertexArray(viewVAO);
@@ -845,8 +859,7 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-
-		if (Panels[0]) {imGuiMAIN(window, shaderProgram, primaryMonitor, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
+		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)

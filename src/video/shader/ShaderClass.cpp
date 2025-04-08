@@ -11,10 +11,18 @@ std::string get_file_contents(const char* filename)
         in.seekg(0, std::ios::beg);
         in.read(&contents[0], contents.size());
         in.close();
-        return(contents);
+
+        // Check for BOM and remove it if present
+        const std::string BOM = "\xEF\xBB\xBF";
+        if (contents.compare(0, BOM.size(), BOM) == 0) {
+            contents.erase(0, BOM.size());
+        }
+
+        return contents;
     }
     throw std::runtime_error("Failed to open file: " + std::string(filename));
 }
+
 
 Shader::Shader(const char* vertexFile, const char* fragmentFile) 
 {
@@ -68,28 +76,22 @@ void Shader::Delete()
     glDeleteProgram(ID);
 }
 
-void Shader::compileErrors(unsigned int shader, const char* type) 
-{
+void Shader::compileErrors(unsigned int shader, const char* type) {
     GLint hasCompiled;
     char infoLog[1024];
-    if (type != "PROGRAM") 
-    {
+    if (strcmp(type, "PROGRAM") != 0) {
         glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
-        if (hasCompiled == GL_FALSE)
-        {
-            //error checking
+        if (hasCompiled == GL_FALSE) {
             glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-            std::cout << "SHADER_COMPILATION_ERROR for:" << type << "\n" << std::endl;
+            std::cerr << "SHADER_COMPILATION_ERROR for: " << type << "\n" << infoLog << std::endl;
         }
     }
-    else 
-    {
+    else {
         glGetProgramiv(shader, GL_LINK_STATUS, &hasCompiled);
-        if (hasCompiled == GL_FALSE)
-        {
-            //error checking
+        if (hasCompiled == GL_FALSE) {
             glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-            std::cout << "SHADER_LINKING_ERROR for:" << type << "\n" << std::endl;
+            std::cerr << "SHADER_LINKING_ERROR for: " << type << "\n" << infoLog << std::endl;
         }
     }
 }
+
