@@ -14,11 +14,11 @@ Features:
 
 . ImGui Implementation
 
-. OpenGl API
+. OpenGL API
 
 . Diffuse and Specular Texture Support
 
-. Preformance Profiler 
+. Performance Profiler 
 
 . Basic Json Entity Component System
 
