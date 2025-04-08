@@ -9,6 +9,9 @@
     ],
     "Vert": [
       "Shaders/Main/Default.vert"
+    ],
+    "Geom": [
+      "Shaders/Main/Default.geom"
     ]
   }
 ]

@@ -325,5 +325,8 @@
     <None Include="Shaders\Main\skybox.vert">
       <Filter>Resource Files\Shaders\Main</Filter>
     </None>
+    <None Include="Shaders\Main\Default.geom">
+      <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
   </ItemGroup>
 </Project>

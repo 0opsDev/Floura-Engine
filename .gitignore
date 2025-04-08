@@ -362,3 +362,9 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Settings/DoDefaultAnimation.txt
+
+# Ignore the Build folder
+Build/
+
+# Ignore the FE Build.zip file
+FE Build.zip
