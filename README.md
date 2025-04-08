@@ -4,9 +4,11 @@ Features:
 
 . glTF Model Loading
 
-. Vertex and Fragment Shader loading
+. Cubemaps
 
-. Settings File
+. FrameBuffer Vertex and Fragment Shader Support
+
+. Settings Files
 
 . Map Files with Map Settings
 
