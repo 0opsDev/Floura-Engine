@@ -26,10 +26,29 @@ Features:
 
 Screenshots:
 
+![image](https://github.com/user-attachments/assets/4f785c12-f6bf-456c-bc49-c00d743fe079)
+
 ![image](https://github.com/user-attachments/assets/b9ca279e-19a7-4f49-ae67-771ba146d92e)
 
-![image](https://github.com/user-attachments/assets/f03cc2ec-a07d-42f7-a737-12f395919730)
 
-![image](https://github.com/user-attachments/assets/092587d9-8e78-4234-9794-c57df82aab04)
+Controls:
 
-![image](https://github.com/user-attachments/assets/3fd431cb-a0b5-4ed2-81b1-d780bdefc3f1)
+WASD: Move
+
+Mouse: Look
+
+Left Shift: Sprint
+
+Space: Fly Up
+
+ctrl: Fly Down
+
+Arrow UP/Down: Increase/Decrease Speed
+
+Right Shift: Reset Speed
+
+Home: Load Settings
+
+Mouse Side Buttons: Zoom 
+
+F1: Wireframe
