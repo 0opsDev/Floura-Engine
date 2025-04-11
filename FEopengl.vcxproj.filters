@@ -172,7 +172,7 @@
       <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="src\main\Main.cpp">
-      <Filter>Source Files\utils</Filter>
+      <Filter>Source Files\main</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -292,9 +292,6 @@
     <None Include="Settings\imgui.ini">
       <Filter>Text Files\Text</Filter>
     </None>
-    <None Include="Keybinds.ReadMe">
-      <Filter>Text Files\Text</Filter>
-    </None>
     <None Include="Shaders\ShaderList.json">
       <Filter>Resource Files</Filter>
     </None>
@@ -327,6 +324,9 @@
     </None>
     <None Include="Shaders\Main\Default.geom">
       <Filter>Resource Files\Shaders\Main</Filter>
+    </None>
+    <None Include="Shaders\Db\solidColour.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
     </None>
   </ItemGroup>
 </Project>

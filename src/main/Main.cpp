@@ -10,6 +10,11 @@
 #include <thread>
 #include <chrono>
 #include <SettingsUtil.h>
+//temorary
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#include <OpenAL/efx.h>
+#include <OpenAL/efx-presets.h>
 
 unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO;// FBO init
 
@@ -599,6 +604,7 @@ void cubeboxTexture(unsigned int& cubemapTexture) {
 		}
 	}
 }
+
 //Main Function
 int main()
 {
@@ -614,6 +620,7 @@ int main()
 	const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
 	if (!videoMode) { std::cerr << "Failed to get video mode" << std::endl; glfwTerminate(); return -1; }
 
+
 	// second fallback
 	// Store the width and height in the test array
 	screen.width = videoMode->width;
@@ -621,7 +628,7 @@ int main()
 
 	// Now call glfwGetMonitorPos with correct arguments
 	glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screen.widthI, &screen.heightI);
-
+	storageThread1.join();
 	//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
 	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, screen.WindowTitle.c_str(), NULL, NULL); // create window
 
@@ -636,7 +643,6 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	storageThread1.join();
 	std::thread storageThread2(loadEngineSettings);
 
 	//area of open gl we want to render in
@@ -659,6 +665,7 @@ int main()
 	Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
 	Shader LightProgram("Shaders/Db/light.vert", "Shaders/Db/light.frag");
 	Shader skyboxShader("Shaders/Main/skybox.vert", "Shaders/Main/skybox.frag");
+	Shader SolidColour("Shaders/Main/Default.vert", "Shaders/Db/solidColour.frag");
 	skyboxShader.Activate();
 	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
 
@@ -746,7 +753,7 @@ int main()
 
 		if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
-			glClearColor(0, 0.3, 0.4, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			glClearColor(0, 0, 0, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		}
 
 		for (auto& modelTuple : models) {
@@ -760,36 +767,47 @@ int main()
 			if (cullingSetting == 1 && glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) { glEnable(GL_CULL_FACE); }
 			else { glDisable(GL_CULL_FACE); }
 
-			model.Draw(shaderProgram, camera, translation, rotation, scale); // add arg for transform to draw inside of model class
-		}
+			if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
+			model.Draw(shaderProgram, camera, translation, rotation, scale);
+			glDisable(GL_CULL_FACE);
+			Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f));
+			if (shaderStr.Stencil) {
+				glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
+				glStencilMask(0x00);
+				glDisable(GL_DEPTH_TEST);
+				outlineShaderProgram.Activate();
+				UF::Float(outlineShaderProgram.ID, "outlining", shaderStr.stencilSize);
+				UF::Float4(outlineShaderProgram.ID, "stencilColor", shaderStr.stencilColor[0], shaderStr.stencilColor[1], shaderStr.stencilColor[2], shaderStr.stencilColor[3]);
+				// add stencil buffer toggle tommorow
+				// draw
+				for (auto& modelTuple : models) {
+					Model& model = std::get<0>(modelTuple);
+					glm::vec3 translation = std::get<2>(modelTuple);
+					glm::quat rotation = std::get<3>(modelTuple);
+					glm::vec3 scale = std::get<4>(modelTuple);
+					model.Draw(outlineShaderProgram, camera, translation, rotation, scale);
+				}
 
-		glDisable(GL_CULL_FACE);
-		Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f));
+				glStencilMask(0xFF);
+				glStencilFunc(GL_ALWAYS, 0, 0xFF);
+				glEnable(GL_DEPTH_TEST);
+			}
+			}
+			else {
+				SolidColour.Activate();
+				UF::Float(SolidColour.ID, "DepthDistance", 50);
+				UF::Float(SolidColour.ID, "NearPlane", DepthPlane[0]);
+				UF::Float(SolidColour.ID, "FarPlane", DepthPlane[1]);
+
+				model.Draw(SolidColour, camera, translation, rotation, scale);
+				glDisable(GL_CULL_FACE);
+				Lightmodel.Draw(SolidColour, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f));
+			}
+		}
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
 		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
-
-		if (shaderStr.Stencil) {
-			glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
-			glStencilMask(0x00);
-			glDisable(GL_DEPTH_TEST);
-			outlineShaderProgram.Activate();
-			UF::Float(outlineShaderProgram.ID, "outlining", shaderStr.stencilSize);
-			UF::Float4(outlineShaderProgram.ID, "stencilColor", shaderStr.stencilColor[0], shaderStr.stencilColor[1], shaderStr.stencilColor[2], shaderStr.stencilColor[3]);
-			// add stencil buffer toggle tommorow
-			// draw
-			for (auto& modelTuple : models) {
-				Model& model = std::get<0>(modelTuple);
-				glm::vec3 translation = std::get<2>(modelTuple);
-				glm::quat rotation = std::get<3>(modelTuple);
-				glm::vec3 scale = std::get<4>(modelTuple);
-				model.Draw(outlineShaderProgram, camera, translation, rotation, scale);
-			}
-
-			glStencilMask(0xFF);
-			glStencilFunc(GL_ALWAYS, 0, 0xFF);
-			glEnable(GL_DEPTH_TEST);
-		}
 
 		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 		glDepthFunc(GL_LEQUAL);
@@ -810,13 +828,13 @@ int main()
 
 		// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
 		// where an object is present (a depth of 1.0f will always fail against any object's depth value)
-		glBindVertexArray(skyboxVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
+		if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
+			glBindVertexArray(skyboxVAO);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+		}
 		// Switch back to the normal depth function
 		glDepthFunc(GL_LESS);
 
@@ -834,7 +852,6 @@ int main()
 
 		UF::Int(frameBufferProgram.ID, "frameCount", 4);
 		glUniform1i(uniformLocation, enableMSAA ? 1 : 0);
-
 
 		// draw the framebuffer
 		glBindVertexArray(viewVAO);

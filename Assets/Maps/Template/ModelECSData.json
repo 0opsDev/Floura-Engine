@@ -6,5 +6,13 @@
     "Location": [ 0, 0, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
     "Scale": [ 1, 1, 1 ]
+  },
+  {
+    "name": "Grass",
+    "path": "Models/mc/scene.gltf",
+    "isCulling": true,
+    "Location": [ 0, 0, 0 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 1000, 1000, 1000 ]
   }
 ]

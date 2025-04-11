@@ -201,13 +201,13 @@
     <ClInclude Include="src\video\shader\shaderClass.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Keybinds.ReadMe" />
     <None Include="Settings\imgui.ini" />
     <None Include="Settings\imguiPanels.json" />
     <None Include="Settings\Settings.json" />
     <None Include="Shaders\Db\Depth.frag" />
     <None Include="Shaders\Db\light.frag" />
     <None Include="Shaders\Db\light.vert" />
+    <None Include="Shaders\Db\solidColour.frag" />
     <None Include="Shaders\Db\unShaded.frag" />
     <None Include="Shaders\Empty.shader" />
     <None Include="Shaders\Main\4bitToDither.frag" />
