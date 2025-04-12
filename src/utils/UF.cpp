@@ -34,11 +34,14 @@ void UF::DoUniforms(GLuint shader, int doReflections, int doFog) {
 	Int(shader, "doReflect", doReflections);
 	Int(shader, "doFog", doFog);
 }
-void UF::TrasformUniforms(GLuint shader, GLfloat ConeSI[], GLfloat ConeRot[], glm::vec3 lightPos, GLfloat DepthDistance, GLfloat DepthPlane[]) {
+void UF::TrasformUniforms(GLuint shader, GLfloat ConeSI[], GLfloat ConeRot[], glm::vec3 lightPos) {
 	//TRANS
 	Float3(shader, "InnerLight1", ConeSI[1] - ConeSI[0], ConeSI[1], ConeSI[2]);
 	Float3(shader, "spotLightRot", ConeRot[0], ConeRot[1], ConeRot[2]);
 	Float3(shader, "lightPos", lightPos.x, lightPos.y, lightPos.z);
+}
+
+void UF::Depth(GLuint shader, GLfloat DepthDistance, GLfloat DepthPlane[]) {
 	Float(shader, "DepthDistance", DepthDistance);
 	Float(shader, "NearPlane", DepthPlane[0]);
 	Float(shader, "FarPlane", DepthPlane[1]);

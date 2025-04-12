@@ -17,7 +17,8 @@ public:
     //Use Of Uniform
     static void MassUniforms(GLuint shader);
     static void DoUniforms(GLuint shader, int doReflections, int doFog);
-    static void TrasformUniforms(GLuint shader, GLfloat ConeSI[], GLfloat ConeRot[], glm::vec3 lightPos, GLfloat DepthDistance, GLfloat DepthPlane[]);
+    static void TrasformUniforms(GLuint shader, GLfloat ConeSI[], GLfloat ConeRot[], glm::vec3 lightPos);
+    static void Depth(GLuint shader, GLfloat DepthDistance, GLfloat DepthPlane[]);
     static void ColourUniforms(GLuint shader, GLfloat fogRGBA[], GLfloat skyRGBA[], GLfloat lightRGBA[], float gamma);
 
 };

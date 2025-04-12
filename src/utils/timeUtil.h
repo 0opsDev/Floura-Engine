@@ -3,8 +3,8 @@
 
 class TimeUtil {
 public:
-    static float deltaTime;
-    static float lastFrameTime;
+    static float s_DeltaTime;
+    static float s_lastFrameTime;
 
     static void updateDeltaTime();
 };

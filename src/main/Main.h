@@ -7,7 +7,8 @@
 class Main
 {
 public:
+
+private:
+
 };
-
-
 #endif

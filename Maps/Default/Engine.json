@@ -5,8 +5,8 @@
     "FarPlane": "100000.000f",
     "Window": " Default",
 
-    "skyRGBA": [ 0.402, 0.402, 0.402 ],
-    "lightRGBA": [ 1.0, 1.0, 1.0 ],
+    "skyRGBA": [ 0.711, 0.711, 1.000 ],
+    "lightRGBA": [ 1.0, 0.990, 0.824 ],
     "fogRGBA": [ 0.295, 0.328, 0.436 ],
 
     "doReflections": true,

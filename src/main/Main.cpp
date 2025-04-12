@@ -16,58 +16,77 @@
 #include <OpenAL/efx.h>
 #include <OpenAL/efx-presets.h>
 
-unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO;// FBO init
+unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
 
 // Forward declaration of the function
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
 
-int MSAAsamp = 16.0f;
-float sharpenStrength = 3;
+constexpr int DefaultMSAASamples = 16;
+constexpr float DefaultSharpenStrength = 3.0f;
+constexpr float DefaultTexelSizeMultiplier = 1.0f;
+constexpr float DefaultSensitivity = 100.0f;
+
+int MSAAsamp = DefaultMSAASamples;
+float sharpenStrength = DefaultSharpenStrength;
 bool enableMSAA = false; // Change this as needed
-float texelSizeMulti = 1.0;
-char UniformInput[64] = { 0 }; // 64 is buffer size
-float UniformFloat[] = { 0, 0, 0 };
+float texelSizeMulti = DefaultTexelSizeMultiplier;
+char UniformInput[64] = {}; // Zero-initialized buffer
+float UniformFloat[3] = {}; // Zero-initialized array
 
-float sensitivity = 100.0f; // mouse sensitivity (please put this into the settings json, have it in imgui too and have to ability to save to it)
-bool invertMouse[2] = { false, false }; // invert mouse x and y axis
+float sensitivity = DefaultSensitivity; // Mouse sensitivity
+bool invertMouse[2] = {}; // Invert mouse x and y axis (default: false)
 
-//Global Variables
-	//GLfloat, Render, Camera, Light
-GLfloat ConeSI[3] = { 0.111f, 0.825f , 2.0f }, ConeRot[3] = { 0.0f, -1.0f , 0.0f },
-LightTransform1[3] = { 0.0f, 5.0f, 0.0f }, CameraXYZ[3] = { 0.0f, 0.0f, 0.0f }, // cameraxyz values are used for initial camera position
-lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f }, skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f },
-fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, DepthDistance = 100.0f, DepthPlane[2] = { 0.1f, 100.0f };
+// Global Variables
+GLfloat ConeSI[3] = { 0.111f, 0.825f, 2.0f };
+GLfloat ConeRot[3] = { 0.0f, -1.0f, 0.0f };
+GLfloat LightTransform1[3] = { 0.0f, 5.0f, 0.0f };
+GLfloat CameraXYZ[3] = { 0.0f, 0.0f, 0.0f }; // Initial camera position
+GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+GLfloat skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat DepthDistance = 100.0f;
+GLfloat DepthPlane[2] = { 0.1f, 100.0f };
 
-std::string facesCubemap[6];
+std::array<std::string, 6> facesCubemap;
 
-//Render
-struct RenderSettings { int doReflections = 1, doFog = 1; bool doVsync = false, frontFaceSide = false; }; RenderSettings render;
+// Render settings
+int doReflections = 1;
+int doFog = 1;
+bool doVsync = false;
+bool frontFaceSide = false;
 
-//Shader
-struct ShaderSettings { int VertNum = 0, FragNum = 2; bool Stencil = 0; float stencilSize = 0.009f, stencilColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f }, gamma = 2.2; };
-ShaderSettings shaderStr;
+// Shader settings
+int VertNum = 0;
+int FragNum = 2;
+bool Stencil = false;
+float stencilSize = 0.009f;
+GLfloat stencilColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+float gamma = 2.2f;
 
-struct ScreenSettings { //Screen
-	unsigned int width = 800, height = 600;
-	int windowedPosX, windowedPosY, windowedWidth, windowedHeight, widthI, heightI;
-	bool isFullscreen = false;
-	std::string WindowTitle = "OpenGL Window";
-}; ScreenSettings screen = { 0 };
+unsigned int width = 800, height = 600;
+int windowedPosX = 0, windowedPosY = 0, windowedWidth = 0, windowedHeight = 0, widthI = 0, heightI = 0;
+bool isFullscreen = false;
+std::string WindowTitle = "OpenGL Window";
 
-struct DeltaTime { //DeltaTime
-	int frameRateI, frameRate1IHZ;
-	float lastFrameTime, ftDif;
+struct DeltaTime {
+	int frameRateI = 0;
+	int frameRate1IHZ = 0;
+	float lastFrameTime = 0.0f;
+	float ftDif = 0.0f;
 	bool aqFPS = true;
 	std::string framerate;
-}; DeltaTime deltaTimeStr = { 0 };
-static float timeAccumulator[3] = { 0.0f, 0.0f, 0.0f }; // DeltaTime Accumulators
+};
+DeltaTime deltaTimeStr;
+
+static float timeAccumulator[3] = {}; // Zero-initialized DeltaTime accumulators
 
 int TempButton = 0;
-bool Panels[] = { true, true, true }; // ImGui Panels
+bool Panels[3] = { true, true, true }; // ImGui Panels
 
-float cameraSettings[] = { 60.0f, 0.1f, 1000.0f }; // Float, DeltaTime, Camera: FOV , near, far
+float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
 
-std::string mapName = ""; // String, Maploading
+std::string mapName; // Map loading
+
 
 // Function to read a specific line from a file
 std::string readLineFromFile(const std::string& filePath, int lineNumber) {
@@ -146,7 +165,7 @@ std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> loadModelsF
 			glm::vec3 location = glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]);
 			glm::quat rotation = glm::quat(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2], item.at("Rotation")[3]);
 			glm::vec3 scale = glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]);
-			models.emplace_back(Model((mapName + path).c_str()), isCulling, location, rotation, scale);
+			models.emplace_back(Model(("Assets/assets/" + path).c_str()), isCulling, location, rotation, scale);
 			std::cout << "Loaded model: " << '"' << name << '"' << " from path: " << path << " at location: " << glm::to_string(location) << std::endl;
 		}
 	}
@@ -168,14 +187,14 @@ void loadSettings() {
 		settingsFile >> settingsData;
 		settingsFile.close();
 
-		screen.heightI = settingsData[0]["Height"];
-		screen.widthI = settingsData[0]["Width"];
-		screen.width = static_cast<unsigned int>(screen.widthI);
-		screen.height = static_cast<unsigned int>(screen.heightI); // cast screenArea from screenAreaI
+		heightI = settingsData[0]["Height"];
+		widthI = settingsData[0]["Width"];
+		width = static_cast<unsigned int>(widthI);
+		height = static_cast<unsigned int>(heightI); // cast screenArea from screenAreaI
 
-		render.doVsync = settingsData[0]["Vsync"];
+		doVsync = settingsData[0]["Vsync"];
 		cameraSettings[0] = settingsData[0]["FOV"];
-		mapName = "Assets/Maps/" + settingsData[0]["MAP"].get<std::string>() + "/";
+		mapName = "Maps/" + settingsData[0]["MAP"].get<std::string>() + "/";
 
 		sensitivity = settingsData[0]["Sensitivity"];
 		invertMouse[0] = settingsData[0]["InvertX"];
@@ -221,14 +240,14 @@ void loadEngineSettings() {
 		fogRGBA[1] = engineDefaultData[0]["fogRGBA"][1];
 		fogRGBA[2] = engineDefaultData[0]["fogRGBA"][2];
 
-		render.doReflections = engineDefaultData[0]["doReflections"];
-		render.doFog = engineDefaultData[0]["doFog"];
-		shaderStr.VertNum = engineDefaultData[0]["VertNum"];
-		shaderStr.FragNum = engineDefaultData[0]["FragNum"];
+		doReflections = engineDefaultData[0]["doReflections"];
+		doFog = engineDefaultData[0]["doFog"];
+		VertNum = engineDefaultData[0]["VertNum"];
+		FragNum = engineDefaultData[0]["FragNum"];
 
 		cameraSettings[1] = std::stof(engineDefaultData[0]["NearPlane"].get<std::string>());
 		cameraSettings[2] = std::stof(engineDefaultData[0]["FarPlane"].get<std::string>());
-		screen.WindowTitle = engineDefaultData[0]["Window"];
+		WindowTitle = engineDefaultData[0]["Window"];
 	}
 	else {
 		std::cerr << "Failed to open Settings/Default/EngineDefault.json" << std::endl;
@@ -273,25 +292,25 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		if (ImGui::TreeNode("Rendering")) {
 			if (ImGui::TreeNode("Framerate And Resolution")) {
 				ImGui::Text("Framerate Limiters");
-				ImGui::Checkbox("Vsync", &render.doVsync); // Set the value of doVsync (bool)
+				ImGui::Checkbox("Vsync", &doVsync); // Set the value of doVsync (bool)
 				// Screen
-				ImGui::DragInt("Width", &screen.widthI);
-				ImGui::DragInt("Height", &screen.heightI); // screen slider
+				ImGui::DragInt("Width", &widthI);
+				ImGui::DragInt("Height", &heightI); // screen slider
 				ImGui::Checkbox("Enable MSAA", &enableMSAA); // Set the value of doVsync (bool)
 				ImGui::DragInt("MSAA samples", &MSAAsamp);
 				ImGui::DragFloat("MSAA Sharpen Strength ", &sharpenStrength);
 				ImGui::DragFloat("texel Size Multiplier (Edge Size)", &texelSizeMulti);
 
 				if (ImGui::SmallButton("Apply Changes?")) { // apply button
-					screen.width = static_cast<unsigned int>(screen.widthI);
-					screen.height = static_cast<unsigned int>(screen.heightI); // cast screenArea from screenAreaI
-					ScreenUtils::SetScreenSize(window, screen.width, screen.height); // set window and viewport w&h
-					ScreenUtils::setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
-					updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, screen.width, screen.height); // Update frame buffer resolution
+					width = static_cast<unsigned int>(widthI);
+					height = static_cast<unsigned int>(heightI); // cast screenArea from screenAreaI
+					ScreenUtils::SetScreenSize(window, width, height); // set window and viewport w&h
+					ScreenUtils::setVSync(doVsync); // Set Vsync to value of doVsync (bool)
+					updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, width, height); // Update frame buffer resolution
 				}
 				if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 				{
-					ScreenUtils::toggleFullscreen(window, monitorT, screen.isFullscreen, screen.windowedPosX, screen.windowedPosY, screen.windowedWidth, screen.windowedHeight);
+					ScreenUtils::toggleFullscreen(window, monitorT, isFullscreen, windowedPosX, windowedPosY, windowedWidth, windowedHeight);
 				} //Toggle Fullscreen
 
 
@@ -300,14 +319,14 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 
 			if (ImGui::TreeNode("Shaders")) {
 				//Optimisation And Shaders
-				ImGui::Checkbox("Enable Stencil Buffer", &shaderStr.Stencil);
-				ImGui::DragFloat("Stencil Size", &shaderStr.stencilSize);
-				ImGui::DragInt("Shader Number (Vert)", &shaderStr.VertNum);
-				ImGui::DragInt("Shader Number (Frag)", &shaderStr.FragNum); // Shader Switching
+				ImGui::Checkbox("Enable Stencil Buffer", &Stencil);
+				ImGui::DragFloat("Stencil Size", &stencilSize);
+				ImGui::DragInt("Shader Number (Vert)", &VertNum);
+				ImGui::DragInt("Shader Number (Frag)", &FragNum); // Shader Switching
 				if (ImGui::SmallButton("Apply Shader?")) { shaderProgramT.Delete(); TempButton = -1; } // apply shader
-				ImGui::DragFloat("Gamma", &shaderStr.gamma);
-				ImGui::SliderInt("doReflections", &render.doReflections, 0, 2);
-				ImGui::SliderInt("doFog", &render.doFog, 0, 1); 		//Toggles
+				ImGui::DragFloat("Gamma", &gamma);
+				ImGui::SliderInt("doReflections", &doReflections, 0, 2);
+				ImGui::SliderInt("doFog", &doFog, 0, 1); 		//Toggles
 
 				ImGui::Text("DepthBuffer Settings (FOG)");
 				ImGui::DragFloat("Depth Distance (FOG)", &DepthDistance);
@@ -327,7 +346,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 					ImGui::ColorEdit4("sky RGBA", skyRGBA);
 					ImGui::ColorEdit4("light RGBA", lightRGBA);
 					ImGui::ColorEdit4("fog RGBA", fogRGBA);	// sky and light
-					ImGui::ColorEdit4("Stencil RGBA", shaderStr.stencilColor);
+					ImGui::ColorEdit4("Stencil RGBA", stencilColor);
 					ImGui::TreePop();
 				}
 
@@ -389,9 +408,9 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		static float frameTimeValues[90] = { 0 }; //stores 90 snapshots of frametime
 
 		static int ftValues_offset = 0;
-		frameTimeValues[ftValues_offset] = TimeUtil::deltaTime * 1000.0f; // Convert to milliseconds
+		frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f; // Convert to milliseconds
 		ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
-		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = TimeUtil::deltaTime * 1000.0f) + " ms";
+		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f) + " ms";
 
 		ImGui::Text(frametimes.c_str());
 		ImGui::PlotLines("Frame Times (ms) Graph (90SAMP)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
@@ -424,7 +443,7 @@ void DeltaMain(GLFWwindow* window, float deltaTime) { // work on this more
 	if (timeAccumulator[0] >= 1.0f) {
 		deltaTimeStr.frameRate1IHZ = 1.0f / deltaTime;
 		deltaTimeStr.framerate = "FPS " + std::to_string(deltaTimeStr.frameRateI);
-		glfwSetWindowTitle(window, (screen.WindowTitle + " (FPS:" + std::to_string(deltaTimeStr.frameRateI) + ")").c_str());
+		glfwSetWindowTitle(window, (WindowTitle + " (FPS:" + std::to_string(deltaTimeStr.frameRateI) + ")").c_str());
 		timeAccumulator[0] = 0.0f;
 	}
 	timeAccumulator[1] += deltaTime;
@@ -554,9 +573,9 @@ void skyboxBuffer(unsigned int &skyboxVAO, unsigned int &skyboxVBO, unsigned int
 	glGenBuffers(1, &skyboxEBO);
 	glBindVertexArray(skyboxVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(SettingsUtils::skyboxVertices), &SettingsUtils::skyboxVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(SettingsUtils::s_skyboxVertices), &SettingsUtils::s_skyboxVertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, skyboxEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(SettingsUtils::skyboxIndices), &SettingsUtils::skyboxIndices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(SettingsUtils::s_skyboxIndices), &SettingsUtils::s_skyboxIndices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -609,8 +628,9 @@ void cubeboxTexture(unsigned int& cubemapTexture) {
 int main()
 {
 	auto startInitTime = std::chrono::high_resolution_clock::now();
-	std::thread storageThread1(loadSettings);
 	init::initGLFW(); // initialize glfw
+	std::thread storageThread1(loadSettings);
+
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -620,17 +640,16 @@ int main()
 	const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
 	if (!videoMode) { std::cerr << "Failed to get video mode" << std::endl; glfwTerminate(); return -1; }
 
-
 	// second fallback
 	// Store the width and height in the test array
-	screen.width = videoMode->width;
-	screen.height = videoMode->height;
+	width = videoMode->width;
+	height = videoMode->height;
 
 	// Now call glfwGetMonitorPos with correct arguments
-	glfwGetMonitorPos(glfwGetPrimaryMonitor(), &screen.widthI, &screen.heightI);
-	storageThread1.join();
+	glfwGetMonitorPos(glfwGetPrimaryMonitor(), &widthI, &heightI);
+
 	//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
-	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, screen.WindowTitle.c_str(), NULL, NULL); // create window
+	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, WindowTitle.c_str(), NULL, NULL); // create window
 
 	// error checking
 	if (window == NULL) { std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
@@ -643,23 +662,21 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	std::thread storageThread2(loadEngineSettings);
-
 	//area of open gl we want to render in
 	//screen assignment after fallback
-	ScreenUtils::SetScreenSize(window, screen.width, screen.height);  // set window and viewport w&h
-	std::cout << "Primary monitor resolution: " << screen.width << "x" << screen.height << std::endl;
+	ScreenUtils::SetScreenSize(window, width, height);  // set window and viewport w&h
+	std::cout << "Primary monitor resolution: " << width << "x" << height << std::endl;
 	// window logo creation and assignment
 	init::initLogo(window);
-	ScreenUtils::setVSync(render.doVsync); // Set Vsync to value of doVsync (bool)
+	ScreenUtils::setVSync(doVsync); // Set Vsync to value of doVsync (bool)
+	std::thread storageThread2(loadEngineSettings);
 
 	// shaderprog init
 	Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader"); // create a shader program and feed it Dummy shader and vertex files
 	shaderProgram.Delete(); // clean the shader prog for memory management
 
-	storageThread2.join();
 
-	loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram);// feed the shader prog real data
+	loadShaderProgram(VertNum, FragNum, shaderProgram);// feed the shader prog real data
 	shaderProgram.Activate(); // activate new shader program for use
 
 	Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
@@ -675,10 +692,10 @@ int main()
 
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
-	init::initGLenable(render.frontFaceSide);
+	init::initGLenable(frontFaceSide);
 
 	// INITIALIZE CAMERA
-	Camera camera(screen.width, screen.height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
+	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos //INIT CAMERA POSITION
 
 	/*
@@ -696,8 +713,8 @@ int main()
 	unsigned int cubemapTexture;
 	cubeboxTexture(cubemapTexture);
 
-	setupMainFBO(viewVAO, viewVBO, FBO, frameBufferTexture, RBO, screen.width, screen.height, SettingsUtils::ViewportVerticies);
-	setupSecondFBO(FBO2, frameBufferTexture2, RBO2, screen.width, screen.height);
+	setupMainFBO(viewVAO, viewVBO, FBO, frameBufferTexture, RBO, width, height, SettingsUtils::s_ViewportVerticies);
+	setupSecondFBO(FBO2, frameBufferTexture2, RBO2, width, height);
 
 	init::initImGui(window); // Initialize ImGUI
 
@@ -705,6 +722,8 @@ int main()
 	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = loadModelsFromJson(mapName + "ModelECSData.json"); // Load models from JSON file 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
+	storageThread1.join();
+	storageThread2.join();
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
@@ -714,7 +733,7 @@ int main()
 		inputUtil::updateMouse(invertMouse, sensitivity); // update mouse
 		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); loadEngineSettings(); }
 
-		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::deltaTime; // Update delta time
+		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
 		DeltaMain(window, deltaTime); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) \
 
 		//FrameBuffer
@@ -724,7 +743,7 @@ int main()
 		glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
 
 		switch (TempButton) {
-		case -1: { loadShaderProgram(shaderStr.VertNum, shaderStr.FragNum, shaderProgram); TempButton = 0; break; }
+		case -1: { loadShaderProgram(VertNum, FragNum, shaderProgram); TempButton = 0; break; }
 		case 1: { camera.Position = glm::vec3(0, 0, 0); TempButton = 0; break; }
 		case 2: { camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); TempButton = 0; break; }
 		}
@@ -735,9 +754,10 @@ int main()
 
 		// Send Variables to shader (GPU)
 		shaderProgram.Activate(); // activate shaderprog to send uniforms to gpu
-		UF::DoUniforms(shaderProgram.ID, render.doReflections, render.doFog);
-		UF::TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos, DepthDistance, DepthPlane);
-		UF::ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, shaderStr.gamma);
+		UF::DoUniforms(shaderProgram.ID, doReflections, doFog);
+		UF::TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos);
+		UF::Depth(shaderProgram.ID, DepthDistance, DepthPlane);
+		UF::ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, gamma);
 
 		//UniformH.Float3(shaderProgram.ID, "Transmodel", NULL, NULL, NULL); // testing
 		LightProgram.Activate();
@@ -771,33 +791,10 @@ int main()
 			model.Draw(shaderProgram, camera, translation, rotation, scale);
 			glDisable(GL_CULL_FACE);
 			Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f));
-			if (shaderStr.Stencil) {
-				glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
-				glStencilMask(0x00);
-				glDisable(GL_DEPTH_TEST);
-				outlineShaderProgram.Activate();
-				UF::Float(outlineShaderProgram.ID, "outlining", shaderStr.stencilSize);
-				UF::Float4(outlineShaderProgram.ID, "stencilColor", shaderStr.stencilColor[0], shaderStr.stencilColor[1], shaderStr.stencilColor[2], shaderStr.stencilColor[3]);
-				// add stencil buffer toggle tommorow
-				// draw
-				for (auto& modelTuple : models) {
-					Model& model = std::get<0>(modelTuple);
-					glm::vec3 translation = std::get<2>(modelTuple);
-					glm::quat rotation = std::get<3>(modelTuple);
-					glm::vec3 scale = std::get<4>(modelTuple);
-					model.Draw(outlineShaderProgram, camera, translation, rotation, scale);
-				}
-
-				glStencilMask(0xFF);
-				glStencilFunc(GL_ALWAYS, 0, 0xFF);
-				glEnable(GL_DEPTH_TEST);
-			}
 			}
 			else {
 				SolidColour.Activate();
-				UF::Float(SolidColour.ID, "DepthDistance", 50);
-				UF::Float(SolidColour.ID, "NearPlane", DepthPlane[0]);
-				UF::Float(SolidColour.ID, "FarPlane", DepthPlane[1]);
+				UF::Depth(SolidColour.ID, 50, DepthPlane);
 
 				model.Draw(SolidColour, camera, translation, rotation, scale);
 				glDisable(GL_CULL_FACE);
@@ -805,6 +802,29 @@ int main()
 			}
 		}
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
+
+		if (Stencil) {
+			glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
+			glStencilMask(0x00);
+			glDisable(GL_DEPTH_TEST);
+			outlineShaderProgram.Activate();
+			UF::Float(outlineShaderProgram.ID, "outlining", stencilSize);
+			UF::Float4(outlineShaderProgram.ID, "stencilColor", stencilColor[0], stencilColor[1], stencilColor[2], stencilColor[3]);
+			// add stencil buffer toggle tommorow
+			// draw
+			for (auto& modelTuple : models) {
+				Model& model = std::get<0>(modelTuple);
+				glm::vec3 translation = std::get<2>(modelTuple);
+				glm::quat rotation = std::get<3>(modelTuple);
+				glm::vec3 scale = std::get<4>(modelTuple);
+				model.Draw(outlineShaderProgram, camera, translation, rotation, scale);
+			}
+
+			glStencilMask(0xFF);
+			glStencilFunc(GL_ALWAYS, 0, 0xFF);
+			glEnable(GL_DEPTH_TEST);
+		}
+
 
 		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
@@ -818,7 +838,7 @@ int main()
 		// We make the mat4 into a mat3 and then a mat4 again in order to get rid of the last row and column
 		// The last row and column affect the translation of the skybox (which we don't want to affect)
 		view = glm::mat4(glm::mat3(glm::lookAt(camera.Position, camera.Position + camera.Orientation, camera.Up)));
-		projection = glm::perspective(glm::radians(cameraSettings[0]), (float)screen.width / screen.height, cameraSettings[1], cameraSettings[2]);
+		projection = glm::perspective(glm::radians(cameraSettings[0]), (float)width / height, cameraSettings[1], cameraSettings[2]);
 		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
@@ -836,6 +856,7 @@ int main()
 			glBindVertexArray(0);
 		}
 		// Switch back to the normal depth function
+
 		glDepthFunc(GL_LESS);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -885,7 +906,11 @@ int main()
 	// Cleanup: Delete all objects on close
 
 	ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
+
 	frameBufferProgram.Delete();
+	LightProgram.Delete();
+	skyboxShader.Delete();
+	SolidColour.Delete();
 	shaderProgram.Delete(); // Delete Shader Prog
 	outlineShaderProgram.Delete();
 	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl

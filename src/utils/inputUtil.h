@@ -8,8 +8,8 @@ class inputUtil
 {
 public:
 
-    static float sensitivityX;
-    static float sensitivityY;
+    static float s_sensitivityX;
+    static float s_sensitivityY;
     inputUtil();
 	static void updateMouse(bool invertMouse[], float sensitivityvar);
 

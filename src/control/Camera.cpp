@@ -34,7 +34,7 @@ void Camera::Matrix(Shader& shader, const char* uniform)
 }
 void Camera::Inputs(GLFWwindow* window)
 {
-    float deltaTime = TimeUtil::deltaTime;
+    float deltaTime = TimeUtil::s_DeltaTime;
     float adjustedSpeed = speed * deltaTime;
 
     // Handles inputs
@@ -117,8 +117,8 @@ void Camera::Inputs(GLFWwindow* window)
 
         // Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
         // and then "transforms" them into degrees 
-        float rotX = inputUtil::sensitivityX * (float)(mouseY - (height / 2)) / height;
-        float rotY = inputUtil::sensitivityY * (float)(mouseX - (width / 2)) / width;
+        float rotX = inputUtil::s_sensitivityX * (float)(mouseY - (height / 2)) / height;
+        float rotY = inputUtil::s_sensitivityY * (float)(mouseX - (width / 2)) / width;
         //float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
         //float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
 

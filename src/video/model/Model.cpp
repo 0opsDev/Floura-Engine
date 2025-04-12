@@ -199,7 +199,7 @@ std::vector<float> Model::getFloats(json accessor)
 std::vector<GLuint> Model::getIndices(json accessor)
 {
 	std::vector<GLuint> indices;
-	std::cout << "\nL184 - Model.cpp" << std::endl;
+	std::cout << "\nModel.cpp" << std::endl;
 	std::cout << "getIndices / initialization - model.cpp" << std::endl;
 
 
@@ -208,7 +208,6 @@ std::vector<GLuint> Model::getIndices(json accessor)
 	unsigned int count = accessor["count"];
 	unsigned int accByteOffset = accessor.value("byteOffset", 0);
 	unsigned int componentType = accessor["componentType"];
-	std::cout << "getIndices / getIndices: " << accessor << " - model.cpp" << std::endl;
 	totalVert += count;
 	std::cout << totalVert << std::endl;
 
@@ -283,7 +282,7 @@ std::vector<Texture> Model::getTextures()
 		// If the texture has been loaded, skip this
 		if (!skip)
 		{
-			std::cout << "\nL256 - Model.cpp" << std::endl;
+			std::cout << "\nModel.cpp" << std::endl;
 			// Determine the texture type based on the filename
 			const char* texType = "diffuse"; // Default to diffuse
 			if (texPath.find("baseColor") != std::string::npos)

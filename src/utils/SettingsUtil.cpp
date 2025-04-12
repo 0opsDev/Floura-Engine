@@ -4,7 +4,7 @@ SettingsUtils::SettingsUtils()
 {
 }
 
-float SettingsUtils::ViewportVerticies[24] = {
+float SettingsUtils::s_ViewportVerticies[24] = {
 	// Coords,   Texture cords
 	 1.0f, -1.0f,  1.0f, 0.0f,
 	-1.0f, -1.0f,  0.0f, 0.0f,
@@ -15,7 +15,7 @@ float SettingsUtils::ViewportVerticies[24] = {
 	-1.0f,  1.0f,  0.0f, 1.0f
 };
 
-float SettingsUtils::skyboxVertices[24] =
+float SettingsUtils::s_skyboxVertices[24] =
 {
 	//   Coordinates
 	-1.0f, -1.0f,  1.0f,
@@ -28,7 +28,7 @@ float SettingsUtils::skyboxVertices[24] =
 	-1.0f,  1.0f, -1.0f
 };
 
-unsigned int SettingsUtils::skyboxIndices[36] =
+unsigned int SettingsUtils::s_skyboxIndices[36] =
 {
 	// Right
 	1, 2, 6,
