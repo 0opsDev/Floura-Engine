@@ -2,9 +2,9 @@
 #define MESH_CLASS_H
 
 #include <string>
-#include "VAO.h"
-#include "EBO.h"
-#include "Camera.h"
+#include "Render/Buffer/VAO.h"
+#include "Render/Buffer/EBO.h"
+#include "Render/Camera.h"
 #include "Texture.h"
 #include <json/json.hpp>
 

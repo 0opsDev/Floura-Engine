@@ -1,5 +1,5 @@
 #include"Model.h"
-#include"Main.h"
+#include"Core/Main.h"
 
 int totalVert = 0;
 

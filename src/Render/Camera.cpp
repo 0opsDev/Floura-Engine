@@ -1,6 +1,6 @@
 #include "Camera.h"
-#include "Main.h"
-#include "inputUtil.h"
+#include "Core/Main.h"
+#include "Systems/utils/inputUtil.h"
 
 // Global Variables
 bool MouseState = true, toggleESC = true;

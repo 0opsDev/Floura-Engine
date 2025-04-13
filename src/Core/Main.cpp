@@ -1,15 +1,15 @@
-#include"Model.h"
-#include "Camera.h"
+#include"Render/Model/Model.h"
+#include "Render/Camera.h"
 #include "Main.h"
-#include "UF.h"
-#include "Init.h"
-#include "screenutils.h" 
+#include "Systems/utils/UF.h"
+#include "Systems/utils/Init.h"
+#include "Systems/utils/screenutils.h" 
 #include <glm/gtx/string_cast.hpp>
-#include "timeUtil.h" 
-#include "inputUtil.h"
+#include "Systems/utils/timeUtil.h" 
+#include "Systems/utils/inputUtil.h"
 #include <thread>
 #include <chrono>
-#include <SettingsUtil.h>
+#include <Systems/utils/SettingsUtil.h>
 //temorary
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>

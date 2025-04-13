@@ -76,11 +76,11 @@
     <LibraryPath>C:\Users\anon\source\repos\CppOpenGL\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>src\Libraries\include;src\main;src\video;src\control;src\file;src\video\shader;src\video\model;src\video\BufferObjects;src\utils;src\video\BufferArrays;$(IncludePath)</IncludePath>
+    <IncludePath>src\Libraries\include;src\file;src\;$(IncludePath)</IncludePath>
     <LibraryPath>src\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>src\Libraries\include;src\main;src\video;src\control;src\file;src\video\shader;src\video\model;src\utils;src\video\BufferObjects;src\video\BufferArrays;$(IncludePath)</IncludePath>
+    <IncludePath>src\Libraries\include;src\file;src\;$(IncludePath)</IncludePath>
     <LibraryPath>src\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -118,7 +118,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,7 +132,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
@@ -146,59 +146,59 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\control\Camera.cpp" />
-    <ClCompile Include="src\file\FileClass.cpp" />
-    <ClCompile Include="src\imgui\imgui.cpp" />
-    <ClCompile Include="src\imgui\imgui_demo.cpp" />
-    <ClCompile Include="src\imgui\imgui_draw.cpp" />
-    <ClCompile Include="src\imgui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="src\imgui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="src\imgui\imgui_tables.cpp" />
-    <ClCompile Include="src\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="src\main\glad.c" />
-    <ClCompile Include="src\main\Main.cpp" />
-    <ClCompile Include="src\utils\init.cpp" />
-    <ClCompile Include="src\utils\inputUtil.cpp" />
-    <ClCompile Include="src\utils\ScreenUtils.cpp" />
-    <ClCompile Include="src\utils\SettingsUtil.cpp" />
-    <ClCompile Include="src\utils\timeUtil.cpp" />
-    <ClCompile Include="src\utils\UF.cpp" />
-    <ClCompile Include="src\video\BufferArrays\VAO.cpp" />
-    <ClCompile Include="src\video\BufferObjects\EBO.cpp" />
-    <ClCompile Include="src\video\BufferObjects\VBO.cpp" />
-    <ClCompile Include="src\video\model\Mesh.cpp" />
-    <ClCompile Include="src\video\model\Model.cpp" />
-    <ClCompile Include="src\video\model\stb.cpp" />
-    <ClCompile Include="src\video\model\Texture.cpp" />
-    <ClCompile Include="src\video\shader\ShaderClass.cpp" />
+    <ClCompile Include="src\Core\glad.c" />
+    <ClCompile Include="src\Core\Main.cpp" />
+    <ClCompile Include="src\Libraries\include\imgui\imgui.cpp" />
+    <ClCompile Include="src\Libraries\include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\Libraries\include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\Libraries\include\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\Libraries\include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\Libraries\include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Render\Buffer\EBO.cpp" />
+    <ClCompile Include="src\Render\Buffer\VAO.cpp" />
+    <ClCompile Include="src\Render\Buffer\VBO.cpp" />
+    <ClCompile Include="src\Render\Camera.cpp" />
+    <ClCompile Include="src\Render\model\Mesh.cpp" />
+    <ClCompile Include="src\Render\model\Model.cpp" />
+    <ClCompile Include="src\Render\model\stb.cpp" />
+    <ClCompile Include="src\Render\model\Texture.cpp" />
+    <ClCompile Include="src\Render\shader\ShaderClass.cpp" />
+    <ClCompile Include="src\Systems\file\FileClass.cpp" />
+    <ClCompile Include="src\Systems\utils\init.cpp" />
+    <ClCompile Include="src\Systems\utils\inputUtil.cpp" />
+    <ClCompile Include="src\Systems\utils\ScreenUtils.cpp" />
+    <ClCompile Include="src\Systems\utils\SettingsUtil.cpp" />
+    <ClCompile Include="src\Systems\utils\timeUtil.cpp" />
+    <ClCompile Include="src\Systems\utils\UF.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\control\Camera.h" />
-    <ClInclude Include="src\file\FileClass.h" />
-    <ClInclude Include="src\imgui\imconfig.h" />
-    <ClInclude Include="src\imgui\imgui.h" />
-    <ClInclude Include="src\imgui\imgui_impl_glfw.h" />
-    <ClInclude Include="src\imgui\imgui_impl_opengl3.h" />
-    <ClInclude Include="src\imgui\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="src\imgui\imgui_internal.h" />
-    <ClInclude Include="src\imgui\imstb_rectpack.h" />
-    <ClInclude Include="src\imgui\imstb_textedit.h" />
-    <ClInclude Include="src\imgui\imstb_truetype.h" />
-    <ClInclude Include="src\main\Main.h" />
-    <ClInclude Include="src\utils\include.h" />
-    <ClInclude Include="src\utils\init.h" />
-    <ClInclude Include="src\utils\inputUtil.h" />
-    <ClInclude Include="src\utils\ScreenUtils.h" />
-    <ClInclude Include="src\utils\SettingsUtil.h" />
-    <ClInclude Include="src\utils\timeUtil.h" />
-    <ClInclude Include="src\utils\UF.h" />
-    <ClInclude Include="src\video\BufferArrays\VAO.h" />
-    <ClInclude Include="src\video\BufferObjects\EBO.h" />
-    <ClInclude Include="src\video\BufferObjects\VBO.h" />
-    <ClInclude Include="src\video\model\Mesh.h" />
-    <ClInclude Include="src\video\model\Model.h" />
-    <ClInclude Include="src\video\model\Texture.h" />
-    <ClInclude Include="src\video\shader\shaderClass.h" />
+    <ClInclude Include="src\Core\Main.h" />
+    <ClInclude Include="src\Libraries\include\imgui\imconfig.h" />
+    <ClInclude Include="src\Libraries\include\imgui\imgui.h" />
+    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="src\Libraries\include\imgui\imgui_internal.h" />
+    <ClInclude Include="src\Libraries\include\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\Libraries\include\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\Libraries\include\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\Render\Buffer\EBO.h" />
+    <ClInclude Include="src\Render\Buffer\VAO.h" />
+    <ClInclude Include="src\Render\Buffer\VBO.h" />
+    <ClInclude Include="src\Render\Camera.h" />
+    <ClInclude Include="src\Render\model\Mesh.h" />
+    <ClInclude Include="src\Render\model\Model.h" />
+    <ClInclude Include="src\Render\model\Texture.h" />
+    <ClInclude Include="src\Render\shader\shaderClass.h" />
+    <ClInclude Include="src\Systems\file\FileClass.h" />
+    <ClInclude Include="src\Systems\utils\include.h" />
+    <ClInclude Include="src\Systems\utils\init.h" />
+    <ClInclude Include="src\Systems\utils\inputUtil.h" />
+    <ClInclude Include="src\Systems\utils\ScreenUtils.h" />
+    <ClInclude Include="src\Systems\utils\SettingsUtil.h" />
+    <ClInclude Include="src\Systems\utils\timeUtil.h" />
+    <ClInclude Include="src\Systems\utils\UF.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\imgui.ini" />
