@@ -679,14 +679,14 @@ int main()
 	loadShaderProgram(VertNum, FragNum, shaderProgram);// feed the shader prog real data
 	shaderProgram.Activate(); // activate new shader program for use
 
-	Shader outlineShaderProgram("Shaders/Main/outlining.vert", "Shaders/Main/outlining.frag");
-	Shader LightProgram("Shaders/Db/light.vert", "Shaders/Db/light.frag");
-	Shader skyboxShader("Shaders/Main/skybox.vert", "Shaders/Main/skybox.frag");
-	Shader SolidColour("Shaders/Main/Default.vert", "Shaders/Db/solidColour.frag");
+	Shader outlineShaderProgram("Shaders/PostProcess/outlining.vert", "Shaders/PostProcess/outlining.frag");
+	Shader LightProgram("Shaders/Lighting/light.vert", "Shaders/Lighting/light.frag");
+	Shader skyboxShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
+	Shader SolidColour("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
 	skyboxShader.Activate();
 	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
 
-	Shader frameBufferProgram("Shaders/Main/framebuffer.vert", "Shaders/Main/framebuffer.frag");
+	Shader frameBufferProgram("Shaders/PostProcess/framebuffer.vert", "Shaders/PostProcess/framebuffer.frag");
 	frameBufferProgram.Activate();
 	UF::Int(frameBufferProgram.ID, "screenTexture", 0);
 

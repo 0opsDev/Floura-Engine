@@ -2,16 +2,16 @@
   {
     "Frag": [
       "Shaders/Db/Depth.frag",
-      "Shaders/Db/unShaded.frag",
-      "Shaders/Main/spotLight.frag",
-      "Shaders/Main/direcLight.frag",
-      "Shaders/Main/pointLight.frag"
+      "Shaders/Lighting/unShaded.frag",
+      "Shaders/Lighting/spotLight.frag",
+      "Shaders/Lighting/direcLight.frag",
+      "Shaders/Lighting/pointLight.frag"
     ],
     "Vert": [
-      "Shaders/Main/Default.vert"
+      "Shaders/Lighting/Default.vert"
     ],
     "Geom": [
-      "Shaders/Main/Default.geom"
+      "Shaders/Lighting/Default.geom"
     ]
   }
 ]

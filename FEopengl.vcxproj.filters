@@ -31,9 +31,6 @@
     <Filter Include="Resource Files\Shaders\Db">
       <UniqueIdentifier>{20b5557a-530c-429f-b02b-1a2ef8cafcbc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shaders\Main">
-      <UniqueIdentifier>{e96aaa03-9abd-4e46-a63a-bb33a658f71a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\main">
       <UniqueIdentifier>{2056cd74-35c5-4625-92af-aed34477d283}</UniqueIdentifier>
     </Filter>
@@ -90,6 +87,15 @@
     </Filter>
     <Filter Include="Source Files\Render\Buffer">
       <UniqueIdentifier>{6fc961bd-ce5d-4918-a0c5-963435c987fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\Post Process">
+      <UniqueIdentifier>{4057e73a-f53b-4cb2-9f85-a8deaf84f57f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\Lighting">
+      <UniqueIdentifier>{68973aa0-8d3c-44bd-97d7-a544a9e59406}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\Skybox">
+      <UniqueIdentifier>{e96aaa03-9abd-4e46-a63a-bb33a658f71a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -253,35 +259,8 @@
     <None Include="Shaders\Empty.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="Shaders\Main\Default.vert">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
-    <None Include="Shaders\Main\direcLight.frag">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
-    <None Include="Shaders\Main\pointLight.frag">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
-    <None Include="Shaders\Main\spotLight.frag">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
     <None Include="Shaders\Db\Depth.frag">
       <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\Db\light.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\Db\light.vert">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\Db\unShaded.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\Main\outlining.frag">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
-    <None Include="Shaders\Main\outlining.vert">
-      <Filter>Resource Files\Shaders\Main</Filter>
     </None>
     <None Include="Settings\imgui.ini">
       <Filter>Text Files\Text</Filter>
@@ -295,32 +274,59 @@
     <None Include="Settings\Settings.json">
       <Filter>Text Files\Text</Filter>
     </None>
-    <None Include="Shaders\Main\framebuffer.frag">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
-    <None Include="Shaders\Main\framebuffer.vert">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
-    <None Include="Shaders\Main\TieDyeframebuffer.frag">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
-    <None Include="Shaders\Main\DITHERFB.frag">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
-    <None Include="Shaders\Main\4bitToDither.frag">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
-    <None Include="Shaders\Main\skybox.frag">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
-    <None Include="Shaders\Main\skybox.vert">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
-    <None Include="Shaders\Main\Default.geom">
-      <Filter>Resource Files\Shaders\Main</Filter>
-    </None>
     <None Include="Shaders\Db\solidColour.frag">
       <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Shaders\PostProcess\DITHERFB.frag">
+      <Filter>Resource Files\Shaders\Post Process</Filter>
+    </None>
+    <None Include="Shaders\PostProcess\framebuffer.frag">
+      <Filter>Resource Files\Shaders\Post Process</Filter>
+    </None>
+    <None Include="Shaders\PostProcess\framebuffer.vert">
+      <Filter>Resource Files\Shaders\Post Process</Filter>
+    </None>
+    <None Include="Shaders\PostProcess\TieDyeframebuffer.frag">
+      <Filter>Resource Files\Shaders\Post Process</Filter>
+    </None>
+    <None Include="Shaders\PostProcess\4bitToDither.frag">
+      <Filter>Resource Files\Shaders\Post Process</Filter>
+    </None>
+    <None Include="Shaders\Lighting\light.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\light.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\unShaded.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\Default.geom">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\Default.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\direcLight.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\pointLight.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\spotLight.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\PostProcess\outlining.frag">
+      <Filter>Resource Files\Shaders\Post Process</Filter>
+    </None>
+    <None Include="Shaders\PostProcess\outlining.vert">
+      <Filter>Resource Files\Shaders\Post Process</Filter>
+    </None>
+    <None Include="Shaders\Skybox\skybox.vert">
+      <Filter>Resource Files\Shaders\Skybox</Filter>
+    </None>
+    <None Include="Shaders\Skybox\skybox.frag">
+      <Filter>Resource Files\Shaders\Skybox</Filter>
     </None>
   </ItemGroup>
 </Project>
