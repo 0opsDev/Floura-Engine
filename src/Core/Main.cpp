@@ -434,42 +434,39 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 // Holds DeltaTime Based Variables and Functions
-void DeltaMain(GLFWwindow* window, float deltaTime) { // work on this more
-
-	// Framerate tracking
-	deltaTimeStr.frameRateI = 1.0f / deltaTime;
+void DeltaMain(GLFWwindow* window, float deltaTime) {
+	// Framerate tracking  
+	deltaTimeStr.frameRateI = static_cast<int>(1.0f / deltaTime);
 	timeAccumulator[0] += deltaTime;
-	// 1hz
+
+	// Update FPS and window title every second  
 	if (timeAccumulator[0] >= 1.0f) {
-		deltaTimeStr.frameRate1IHZ = 1.0f / deltaTime;
+		deltaTimeStr.frameRate1IHZ = deltaTimeStr.frameRateI;
 		deltaTimeStr.framerate = "FPS " + std::to_string(deltaTimeStr.frameRateI);
 		glfwSetWindowTitle(window, (WindowTitle + " (FPS:" + std::to_string(deltaTimeStr.frameRateI) + ")").c_str());
 		timeAccumulator[0] = 0.0f;
 	}
+
 	timeAccumulator[1] += deltaTime;
-	// 60hz
 	if (timeAccumulator[1] >= 0.016f) {
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) { cameraSettings[0] += 0.4f; }
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) { cameraSettings[0] -= 0.4f; }
-		if (cameraSettings[0] <= 0.00f) { cameraSettings[0] = 0.1f; }
-		if (cameraSettings[0] >= 160.1f) { cameraSettings[0] = 160.0f; }
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) {
+			cameraSettings[0] = std::min(cameraSettings[0] + 0.4f, 160.0f);
+		}
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) {
+			cameraSettings[0] = std::max(cameraSettings[0] - 0.4f, 0.1f);
+		}
 		timeAccumulator[1] = 0.0f;
 	}
-	timeAccumulator[2] += deltaTime;
 
-	switch (deltaTimeStr.aqFPS) {
-	case true:
-		if (timeAccumulator[2] >= (1000.0f / (deltaTimeStr.frameRateI * (deltaTime * 1000.0f)))) {
-			deltaTimeStr.ftDif = (deltaTimeStr.frameRateI + (deltaTimeStr.frameRateI / 2));
-			timeAccumulator[2] = 0.0f;
-		}
-		break;
-	case false:
-		if (timeAccumulator[2] >= (1000.0f / (deltaTimeStr.frameRateI * (10.0f)))) {
-			deltaTimeStr.ftDif = (deltaTimeStr.frameRateI + (deltaTimeStr.frameRateI / 2));
-			timeAccumulator[2] = 0.0f;
-		}
-		break;
+	// Update frame time difference based on FPS mode  
+	timeAccumulator[2] += deltaTime;
+	float frameTimeThreshold = deltaTimeStr.aqFPS ?
+		(1000.0f / (deltaTimeStr.frameRateI * deltaTime * 1000.0f)) :
+		(1000.0f / (deltaTimeStr.frameRateI * 10.0f));
+
+	if (timeAccumulator[2] >= frameTimeThreshold) {
+		deltaTimeStr.ftDif = deltaTimeStr.frameRateI * 1.5f;
+		timeAccumulator[2] = 0.0f;
 	}
 }
 
@@ -566,7 +563,7 @@ void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int&
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-void skyboxBuffer(unsigned int &skyboxVAO, unsigned int &skyboxVBO, unsigned int &skyboxEBO) {
+void skyboxBuffer(unsigned int&skyboxVAO, unsigned int&skyboxVBO, unsigned int&skyboxEBO) {
 	// Create VAO, VBO, and EBO for the skybox
 	glGenVertexArrays(1, &skyboxVAO);
 	glGenBuffers(1, &skyboxVBO);
@@ -788,9 +785,9 @@ int main()
 			else { glDisable(GL_CULL_FACE); }
 
 			if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
-			model.Draw(shaderProgram, camera, translation, rotation, scale);
-			glDisable(GL_CULL_FACE);
-			Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f));
+				model.Draw(shaderProgram, camera, translation, rotation, scale);
+				glDisable(GL_CULL_FACE);
+				Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f));
 			}
 			else {
 				SolidColour.Activate();
