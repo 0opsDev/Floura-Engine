@@ -81,7 +81,7 @@ DeltaTime deltaTimeStr;
 static float timeAccumulator[3] = {}; // Zero-initialized DeltaTime accumulators
 
 int TempButton = 0;
-bool Panels[3] = { true, true, true }; // ImGui Panels
+bool Panels[2] = { true, true}; // ImGui Panels
 
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
 
@@ -199,24 +199,11 @@ void loadSettings() {
 		sensitivity = settingsData[0]["Sensitivity"];
 		invertMouse[0] = settingsData[0]["InvertX"];
 		invertMouse[1] = settingsData[0]["InvertY"];
+
+		Panels[0] = settingsData[0]["imGui"];
 	}
 	else {
 		std::cerr << "Failed to open Settings/Settings.json" << std::endl;
-	}
-
-	// Load imguiPanels.json
-	std::ifstream imguiPanelsFile("Settings/imguiPanels.json");
-	if (imguiPanelsFile.is_open()) {
-		json imguiPanelsData;
-		imguiPanelsFile >> imguiPanelsData;
-		imguiPanelsFile.close();
-
-		Panels[0] = imguiPanelsData[0]["imGui"];
-		Panels[1] = imguiPanelsData[0]["panelMain"];
-		Panels[2] = imguiPanelsData[0]["Panel Performance"];
-	}
-	else {
-		std::cerr << "Failed to open Settings/imguiPanels.json" << std::endl;
 	}
 }
 
@@ -289,12 +276,11 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	//Main Panel
-	if (Panels[1]) {
 		ImGui::Begin("Settings"); // ImGUI window creation
 
 		ImGui::Text("Settings (Press escape to use mouse)");
 		if (ImGui::SmallButton("load")) { loadSettings(); loadEngineSettings();} // load settings button
-		ImGui::Checkbox("Preformance Profiler", &Panels[2]);
+		ImGui::Checkbox("Preformance Profiler", &Panels[1]);
 		// Toggle ImGui Windows
 		// Rendering panel
 		if (ImGui::TreeNode("Rendering")) {
@@ -396,9 +382,8 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			ImGui::TreePop();// Ends The ImGui Window
 		}
 		ImGui::End();
-	}
 	// preformance profiler
-	if (Panels[2]) {
+	if (Panels[1]) {
 		ImGui::Begin("Preformance Profiler");
 		// Framerate graph
 		ImGui::Checkbox("Stabe Graph (Less Smoothness)", &deltaTimeStr.aqFPS);
