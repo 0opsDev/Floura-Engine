@@ -1,0 +1,74 @@
+[
+  {
+    "name": "MONT",
+    "path": "Models/MONT/terrain5.gltf",
+    "isCulling": true,
+    "Location": [ 0, -30, 0 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 100, 100, 100 ]
+  },
+  {
+    "name": "mod1",
+    "path": "Models/Modern/mod1.gltf",
+    "isCulling": true,
+    "Location": [ 0, -0.7, 0 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 1, 1, 1 ]
+  },
+  {
+    "name": "mod2",
+    "path": "Models/Modern/mod2.gltf",
+    "isCulling": true,
+    "Location": [ 0, -0.7, 0 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 1, 1, 1 ]
+  },
+  {
+    "name": "mod3",
+    "path": "Models/Modern/mod3.gltf",
+    "isCulling": true,
+    "Location": [ 0, -0.7, 0 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 1, 1, 1 ]
+  },
+  {
+    "name": "Vase",
+    "path": "Models/vase/vase.gltf",
+    "isCulling": true,
+    "Location": [ -1, -0.85, 2.5 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 0.5, 0.5, 0.5 ]
+  },
+  {
+    "name": "Vase",
+    "path": "Models/vase/vase.gltf",
+    "isCulling": true,
+    "Location": [ -13.5, -1.19, 2.7 ],
+    "Rotation": [ 0.5, 0.5, 0.5, 0.5 ],
+    "Scale": [ 0.5, 0.5, 0.5 ]
+  },
+  {
+    "name": "Vase",
+    "path": "Models/vase/vase.gltf",
+    "isCulling": true,
+    "Location": [ -0.5, -0.85, 6.5 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 0.5, 0.5, 0.5 ]
+  },
+  {
+    "name": "fence",
+    "path": "Models/fence/fence.gltf",
+    "isCulling": false,
+    "Location": [ -11, -2.5, 6 ],
+    "Rotation": [ 0, 0, 0, 0 ],
+    "Scale": [ 1, 1, 1.8 ]
+  },
+  {
+    "name": "fence",
+    "path": "Models/fence/fence.gltf",
+    "isCulling": false,
+    "Location": [ 1.727, -2.5, 15 ],
+    "Rotation": [ 1, 0, 0.707, 0 ],
+    "Scale": [ 1, 1, 1.8 ]
+  }
+]

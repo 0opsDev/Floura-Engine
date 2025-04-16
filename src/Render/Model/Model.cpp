@@ -314,49 +314,49 @@ std::vector<Texture> Model::getTextures()
 
 std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 {
-    std::vector<Texture> textures;
+	std::vector<Texture> textures;
 
-    // Check if the mesh has a material
-    if (JSON["meshes"][indMesh]["primitives"][0].find("material") != JSON["meshes"][indMesh]["primitives"][0].end())
-    {
-        unsigned int materialIndex = JSON["meshes"][indMesh]["primitives"][0]["material"];
-        json material = JSON["materials"][materialIndex];
+	// Check if the mesh has a material
+	if (JSON["meshes"][indMesh]["primitives"][0].find("material") != JSON["meshes"][indMesh]["primitives"][0].end())
+	{
+		unsigned int materialIndex = JSON["meshes"][indMesh]["primitives"][0]["material"];
+		json material = JSON["materials"][materialIndex];
 
-        // Check if the material has a baseColorTexture
-        if (material["pbrMetallicRoughness"].find("baseColorTexture") != material["pbrMetallicRoughness"].end())
-        {
-            unsigned int textureIndex = material["pbrMetallicRoughness"]["baseColorTexture"]["index"];
-            if (!JSON["images"][textureIndex]["uri"].is_null()) // Handle null values
-            {
-                std::string texturePath = JSON["images"][textureIndex]["uri"];
+		// Check if the material has a baseColorTexture
+		if (material["pbrMetallicRoughness"].find("baseColorTexture") != material["pbrMetallicRoughness"].end())
+		{
+			unsigned int textureIndex = material["pbrMetallicRoughness"]["baseColorTexture"]["index"];
+			if (!JSON["images"][textureIndex]["uri"].is_null()) // Handle null values
+			{
+				std::string texturePath = JSON["images"][textureIndex]["uri"];
 
-                // Check if the texture is already loaded
-                bool skip = false;
-                for (unsigned int i = 0; i < loadedTexName.size(); i++)
-                {
-                    if (loadedTexName[i] == texturePath)
-                    {
-                        textures.push_back(loadedTex[i]);
-                        skip = true;
-                        break;
-                    }
-                }
+				// Check if the texture is already loaded
+				bool skip = false;
+				for (unsigned int i = 0; i < loadedTexName.size(); i++)
+				{
+					if (loadedTexName[i] == texturePath)
+					{
+						textures.push_back(loadedTex[i]);
+						skip = true;
+						break;
+					}
+				}
 
-                // If the texture is not loaded, load it
-                if (!skip)
-                {
-                    std::string fileStr = std::string(file);
-                    std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
-                    Texture texture = Texture((fileDirectory + texturePath).c_str(), "diffuse", loadedTex.size());
-                    textures.push_back(texture);
-                    loadedTex.push_back(texture);
-                    loadedTexName.push_back(texturePath);
-                }
-            }
-        }
-    }
+				// If the texture is not loaded, load it
+				if (!skip)
+				{
+					std::string fileStr = std::string(file);
+					std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
+					Texture texture = Texture((fileDirectory + texturePath).c_str(), "diffuse", loadedTex.size());
+					textures.push_back(texture);
+					loadedTex.push_back(texture);
+					loadedTexName.push_back(texturePath);
+				}
+			}
+		}
+	}
 
-    return textures;
+	return textures;
 }
 
 std::vector<Vertex> Model::assembleVertices

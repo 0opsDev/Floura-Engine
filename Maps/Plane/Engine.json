@@ -1,0 +1,22 @@
+[
+  {
+    "MapName": "DEF",
+    "NearPlane": "0.1f",
+    "FarPlane": "100000.000f",
+    "Window": "DEF",
+
+    "skyRGBA": [ 1, 1, 1 ],
+    "lightRGBA": [ 1.0, 1.0, 1.0 ],
+    "fogRGBA": [ 0.295, 0.328, 0.436 ],
+
+    "doReflections": true,
+    "doFog": true,
+    "VertNum": 0,
+    "FragNum": 3,
+
+    "ConeRot": [ 3, -1, 5 ],
+
+    "DepthDistance": 100,
+    "DepthPlane":  [0.100, 250]
+  }
+]

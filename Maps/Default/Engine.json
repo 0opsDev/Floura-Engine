@@ -10,8 +10,13 @@
     "fogRGBA": [ 0.295, 0.328, 0.436 ],
 
     "doReflections": true,
-    "doFog":  false,
+    "doFog": false,
     "VertNum": 0,
-    "FragNum":  2
+    "FragNum": 2,
+
+    "ConeRot": [ 0, -1, 0 ],
+
+    "DepthDistance": 100,
+    "DepthPlane": [ 0.100, 100 ]
   }
 ]

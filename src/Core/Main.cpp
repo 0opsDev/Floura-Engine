@@ -240,6 +240,10 @@ void loadEngineSettings() {
 		fogRGBA[1] = engineDefaultData[0]["fogRGBA"][1];
 		fogRGBA[2] = engineDefaultData[0]["fogRGBA"][2];
 
+		ConeRot[0] = engineDefaultData[0]["ConeRot"][0];
+		ConeRot[1] = engineDefaultData[0]["ConeRot"][1];
+		ConeRot[2] = engineDefaultData[0]["ConeRot"][2];
+
 		doReflections = engineDefaultData[0]["doReflections"];
 		doFog = engineDefaultData[0]["doFog"];
 		VertNum = engineDefaultData[0]["VertNum"];
@@ -247,6 +251,10 @@ void loadEngineSettings() {
 
 		cameraSettings[1] = std::stof(engineDefaultData[0]["NearPlane"].get<std::string>());
 		cameraSettings[2] = std::stof(engineDefaultData[0]["FarPlane"].get<std::string>());
+
+		DepthDistance = engineDefaultData[0]["DepthDistance"];
+		DepthPlane[0] = engineDefaultData[0]["DepthPlane"][0];
+		DepthPlane[1] = engineDefaultData[0]["DepthPlane"][1];
 		WindowTitle = engineDefaultData[0]["Window"];
 	}
 	else {

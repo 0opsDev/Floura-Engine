@@ -12,6 +12,11 @@
     "doReflections": true,
     "doFog": false,
     "VertNum": 0,
-    "FragNum": 1
+    "FragNum": 1,
+
+    "ConeRot": [ 0, -1, 0 ],
+
+    "DepthDistance": 100,
+    "DepthPlane": [ 0.100, 100 ]
   }
 ]

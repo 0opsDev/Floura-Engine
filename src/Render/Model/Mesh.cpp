@@ -4,12 +4,12 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vec
 {
     if (vertices.empty()) {
         //throw std::runtime_error("Vertices, indices, or textures are empty");
-		std::cout << "mesh.cpp Vertices are empty" << std::endl;
+        std::cout << "mesh.cpp Vertices are empty" << std::endl;
     }
-    if(indices.empty()){
+    if (indices.empty()) {
         std::cout << "mesh.cpp indices are empty" << std::endl;
     }
-    if(textures.empty()) {
+    if (textures.empty()) {
         //problem is within texture or fileclass
         //looking like the file
         //model.cpp knows the location of the texture
@@ -73,7 +73,7 @@ void Mesh::Draw
         }
 
         // Debug output
-//        std::cout << "Binding texture: " << textures[i].type << " at unit " << i << std::endl;
+        //std::cout << "Binding texture: " << textures[i].type << " at unit " << i << std::endl;
 
         textures[i].texUnit(shader, (type + num).c_str(), i);
         textures[i].Bind();
