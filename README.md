@@ -39,9 +39,9 @@ Mouse: Look
 
 Left Shift: Sprint
 
-Space: Fly Up
+Space: Fly Up/Jump
 
-ctrl: Fly Down
+ctrl: Fly Down/Crouch
 
 Arrow UP/Down: Increase/Decrease Speed
 
@@ -52,3 +52,7 @@ Home: Load Settings
 Mouse Side Buttons: Zoom 
 
 F1: Wireframe
+
+F2: Freecam ON
+
+F2: Freecam OFF
