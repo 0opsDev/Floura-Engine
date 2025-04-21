@@ -1,39 +1,5 @@
 @echo off
 
-REM Function to copy files and folders
-:copyfiles
-echo Starting to copy files...
-
-REM Create the build folder if it doesn't exist
-if not exist "build" (
-    mkdir "build"
-)
-
-REM Read the directories from Build.cfg and copy them
-if not exist "Build.cfg" (
-    echo Error: Build.cfg not found. Please create the file with the required paths.
-    goto end
-)
-
-echo Reading directories from Build.cfg...
-
-for /f "usebackq delims=" %%d in ("Build.cfg") do (
-    echo Copying "%%d" to the build folder...
-    if exist "%%d" (
-        if exist "%%d\" (
-            xcopy /E /I /Y "%%d" "build\%%~nd"
-        ) else (
-            copy /Y "%%d" "build\"
-        )
-        echo "%%d" copied successfully.
-    ) else (
-        echo Warning: "%%d" does not exist and will be skipped.
-    )
-)
-
-echo All specified files and folders have been processed!
-goto end
-
 REM Main menu
 :menu
 echo.
@@ -57,8 +23,7 @@ exit
 
 :restart
 echo Restarting the script...
-call %0
-exit
+goto copyfiles
 
 :wipeandrestart
 echo Wiping all contents of the build folder...
@@ -68,10 +33,16 @@ if exist "build" (
 ) else (
     echo Build folder does not exist, no need to wipe.
 )
-goto restart
+goto copyfiles
 
 :zipbuildfolder
-echo Zipping build folder into FE Build.zip...
+echo Preparing to zip build folder...
+
+REM Check if build folder exists; if not, build it
+if not exist "build" (
+    echo Build folder does not exist. Creating and populating it now...
+    goto copyfiles
+)
 
 REM Delete existing FE Build.zip if it exists
 if exist "FE Build.zip" (
@@ -80,17 +51,42 @@ if exist "FE Build.zip" (
     echo Old FE Build.zip deleted.
 )
 
-REM Check if build folder exists
-if not exist "build" (
-    echo Build folder does not exist. Cannot create zip file.
-    goto end
-)
-
 REM Use PowerShell to create the ZIP file
 PowerShell -Command "Compress-Archive -Path 'build\*' -DestinationPath 'FE Build.zip'"
 echo Build folder has been successfully zipped into FE Build.zip!
 goto menu
 
 :end
-REM Return to menu after the process is done
+REM Function to copy files and folders
+:copyfiles
+echo Starting to copy files...
+
+REM Create the build folder if it doesn't exist
+if not exist "build" (
+    mkdir "build"
+)
+
+REM Read the directories from Build.cfg and copy them
+if not exist "Build.cfg" (
+    echo Error: Build.cfg not found. Please create the file with the required paths.
+    goto menu
+)
+
+echo Reading directories from Build.cfg...
+
+for /f "usebackq delims=" %%d in ("Build.cfg") do (
+    echo Copying "%%d" to the build folder...
+    if exist "%%d" (
+        if exist "%%d\" (
+            xcopy /E /I /Y "%%d" "build\%%~nd"
+        ) else (
+            copy /Y "%%d" "build\"
+        )
+        echo "%%d" copied successfully.
+    ) else (
+        echo Warning: "%%d" does not exist and will be skipped.
+    )
+)
+
+echo All specified files and folders have been processed!
 goto menu

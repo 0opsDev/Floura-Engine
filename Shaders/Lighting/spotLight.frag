@@ -50,7 +50,6 @@ vec4 spotLight()
 	diffuseColor.rgb = pow(diffuseColor.rgb, vec3(gamma)); // Correct the gamma
 
 	float specularColor = pow(texture(specular0, texCoord).r, gamma);
-	//float specularColor = texture(specular0, texCoord).r;
     // Sample the unshaded0 texture
     vec4 unshadedColor = texture(unshaded0, texCoord) * skyColor;
 
@@ -62,13 +61,10 @@ vec4 spotLight()
 
 	// controls how big the area that is lit up is
 	float outerCone = InnerLight1.x;
-	//0.95
 	float innerCone = InnerLight1.y;
 
 	// ambient lighting
 	float ambient = 0.20f / -InnerLight1.z;
-	//new 2025
-	//float ambient = 0.20f;
 
 	// diffuse lighting
 	vec3 normal = normalize(Normal);
@@ -87,12 +83,7 @@ vec4 spotLight()
 	float inten = clamp((angle - outerCone) / (innerCone - outerCone), (0.0f), (0.0f + (InnerLight1.z)) );
 
 	if (diffuseColor.a < 0.1)
-	discard;
-	//skyColor
-	//(inten * lightColor) life saver
-	// first part intensity, second part removes too brighht, third part makes sure inten wont invert
-	//real life saver ((inten * lightColor ) - (inten * skyColor) * (lightColor) )                                                            doesnt add color it adds brightness         the number we take needs to be pos
-	//																																				adds specular part
+		discard;
 
 	vec4 finalColor;
 	switch (doReflect){
@@ -108,15 +99,12 @@ vec4 spotLight()
 	finalColor.a = 1.0;
 	return finalColor;
 }
-//float near = 0.1f;
-//float far = 100.0f;
 
 float linearizeDepth(float depth)
 {
 	return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
 }
 
-//offset is distance from camera
 float logisticDepth(float depth, float steepness, float offset)
 {
     float zVal = linearizeDepth(depth);
@@ -131,6 +119,7 @@ void main()
         case 0:
         {
             FragColor = spotLight();
+            FragColor.a = 1.0; // Ensure alpha is fully opaque when fog is off
             break;
         }
         case 1:
@@ -143,5 +132,5 @@ void main()
     }
 
     // Apply final gamma correction before output
-    FragColor.rgb = pow(FragColor.rgb, vec3(1.0 / gamma)); 
+    FragColor.rgb = pow(FragColor.rgb, vec3(1.0 / gamma));
 }

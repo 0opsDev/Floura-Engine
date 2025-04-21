@@ -4,7 +4,7 @@
     "Height": 1440,
     "Vsync": false,
     "FOV": 80.0,
-    "MAP": "Plane",
+    "MAP": "Template",
     "Sensitivity": 100.0,
     "InvertX": false,
     "InvertY": false,

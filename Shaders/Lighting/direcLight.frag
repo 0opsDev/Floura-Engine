@@ -46,17 +46,15 @@ uniform float NearPlane;
 
 vec4 direcLight()
 {
-	vec4 diffuseColor = texture(diffuse0, texCoord);
-	diffuseColor.rgb = pow(diffuseColor.rgb, vec3(gamma)); // Correct the gamma
+    vec4 diffuseColor = texture(diffuse0, texCoord);
+    diffuseColor.rgb = pow(diffuseColor.rgb, vec3(gamma)); // Correct the gamma
 
-	float specularColor = pow(texture(specular0, texCoord).r, 1.0 / gamma);
-    // Sample the unshaded0 texture
-    //vec4 unshadedColor = texture(unshaded0, texCoord) * skyColor;
-	vec4 unshadedColor = (texture(unshaded0, texCoord) * skyColor);
+    float specularColor = pow(texture(specular0, texCoord).r, 1.0 / gamma);
+    vec4 unshadedColor = (texture(unshaded0, texCoord) * skyColor);
 
-    // If the unshaded0 texture is being used, return its color directly
     if (isUnshaded0 == 1)
     {
+        unshadedColor.a = 1.0; // Force unshaded texture alpha
         return unshadedColor;
     }
 
@@ -64,42 +62,38 @@ vec4 direcLight()
     float sRoty = spotLightRot.y;
     float sRotz = spotLightRot.z;
 
-    // Ambient lighting
     float ambient = 0.20f;
 
-    // Diffuse lighting
     vec3 normal = normalize(Normal);
     vec3 lightDirection = normalize(vec3(sRotx, sRoty, sRotz));
-	float diffuse = max(abs(dot(normal, lightDirection)), 0.0f);
+    float diffuse = max(abs(dot(normal, lightDirection)), 0.0f);
 
-    // Specular lighting
     float specularLight = 0.50f;
     vec3 viewDirection = normalize(camPos - crntPos);
     vec3 reflectionDirection = reflect(-lightDirection, normal);
     float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
     float specular = specAmount * specularLight;
 
-   	if (diffuseColor.a < 0.1)
-	discard;
+    if (diffuseColor.a < 0.1)
+        discard;
+
+    diffuseColor.a = 1.0; // Force opaque alpha for diffuse texture
 
     switch (doReflect){
-	case 0:
-		return (diffuseColor * (diffuse + ambient) + 0) * skyColor;
-	break;
-	case 1:
-		return (diffuseColor * (diffuse + ambient) + (specularColor) * specular) * skyColor;
-	break;
-	}    
+        case 0:
+            return (diffuseColor * (diffuse + ambient)) * skyColor;
+        break;
+        case 1:
+            return (diffuseColor * (diffuse + ambient) + specularColor * specular) * skyColor;
+        break;
+    }    
 }
-//float near = 0.1f;
-//float far = 100.0f;
 
 float linearizeDepth(float depth)
 {
-	return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
+    return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
 }
 
-//offset is distance from camera
 float logisticDepth(float depth, float steepness, float offset)
 {
     float zVal = linearizeDepth(depth);
@@ -109,11 +103,14 @@ float logisticDepth(float depth, float steepness, float offset)
 
 void main()
 {
+    FragColor.a = 1.0; // Ensure output is fully opaque
+
     switch (doFog)
     {
         case 0:
         {
             FragColor = direcLight();
+            FragColor.a = 1.0; // Force fully opaque output
             break;
         }
         case 1:
@@ -121,9 +118,10 @@ void main()
             float depth = logisticDepth(gl_FragCoord.z, 0.1f, DepthDistance);
             vec3 correctedFogColor = pow(fogColor, vec3(gamma)); // Apply gamma correction to fog
             FragColor = direcLight() * (1.0f - depth) + vec4(depth * correctedFogColor, 1.0f);
+            FragColor.a = 1.0; // Ensure fully opaque output even with fog blending
             break;
         }
     }
-    // Apply final gamma correction before output
-    FragColor.rgb = pow(FragColor.rgb, vec3(1.0 / gamma)); 
+
+    FragColor.rgb = pow(FragColor.rgb, vec3(1.0 / gamma)); // Apply final gamma correction before output
 }

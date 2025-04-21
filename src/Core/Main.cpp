@@ -15,6 +15,8 @@
 #include <OpenAL/alc.h>
 #include <OpenAL/efx.h>
 #include <OpenAL/efx-presets.h>
+#define STB_PERLIN_IMPLEMENTATION
+#include <stb/stb_perlin.h>
 
 unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
 
@@ -614,6 +616,84 @@ void cubeboxTexture(unsigned int& cubemapTexture) {
 	}
 }
 
+//just testing
+void mc(Shader shaderProgram, Camera camera, Model Front, Model Back, Model Left, Model Right, Model Top, Model Bottom) {
+	const int mapWidth = 50;
+	const int mapHeight = 50;
+	const int mapDepth = 50;
+	const float displace = 0.05f;        // Lower frequency for smoother hills
+	const float maxTerrainHeight = 20.0f; // Max terrain height in blocks
+	const float spacing = 1.0f;
+
+	int seedX = rand() % 1000;
+	int seedY = rand() % 1000;
+	int seedZ = rand() % 1000;
+
+	// Store block presence
+	std::vector<std::vector<std::vector<bool>>> blockMap(mapWidth,
+		std::vector<std::vector<bool>>(mapHeight,
+			std::vector<bool>(mapDepth, false)));
+
+	// First pass: create terrain height map
+	for (int x = 0; x < mapWidth; ++x) {
+		for (int z = 0; z < mapDepth; ++z) {
+			// 2D Perlin noise to get height
+			float animatedY = TimeUtil::s_lastFrameTime * 0.1; // e.g., speedFactor = 0.1f
+			float heightValue = stb_perlin_noise3(x * displace, animatedY, z * displace, 0, 0, 0);
+
+			heightValue = (heightValue + 1.0f) / 2.0f; // Normalize from [-1,1] to [0,1]
+			int terrainHeight = static_cast<int>(heightValue * maxTerrainHeight);
+
+			// Fill blocks from 0 up to terrainHeight
+			for (int y = 0; y <= terrainHeight && y < mapHeight; ++y) {
+				blockMap[x][y][z] = true;
+			}
+		}
+	}
+
+	// Second pass: render only visible faces
+	for (int x = 0; x < mapWidth; ++x) {
+		for (int y = 0; y < mapHeight; ++y) {
+			for (int z = 0; z < mapDepth; ++z) {
+				if (!blockMap[x][y][z]) continue;
+
+				int gridX = static_cast<int>(x * spacing);
+				int gridY = static_cast<int>(y * spacing);
+				int gridZ = static_cast<int>(z * spacing);
+				glm::vec3 position(gridX, gridY, gridZ);
+
+				// Check neighboring blocks and render only visible faces
+			// Front (positive Z)
+				if (z + 1 >= mapDepth || !blockMap[x][y][z + 1])
+					Left.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
+
+				// Back (negative Z)
+				if (z - 1 < 0 || !blockMap[x][y][z - 1])
+					Right.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
+
+				// Right (positive X)
+				if (x + 1 >= mapWidth || !blockMap[x + 1][y][z])
+					Front.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
+
+				// Left (negative X)
+				if (x - 1 < 0 || !blockMap[x - 1][y][z])
+					Back.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
+
+				// Top (positive Y)
+				if (y + 1 >= mapHeight || !blockMap[x][y + 1][z])
+					Top.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
+
+				// Bottom (negative Y)
+				if (y - 1 < 0 || !blockMap[x][y - 1][z])
+					Bottom.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
+
+			}
+		}
+	}
+	glDisable(GL_CULL_FACE);
+
+}
+
 //Main Function
 int main()
 {
@@ -717,6 +797,18 @@ int main()
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
+
+	Model ExampleModel = "Assets/assets/Models/cube/cube.gltf";
+	Model Front = "Assets/assets/Models/cube/Front.gltf";
+	Model Back = "Assets/assets/Models/cube/Back.gltf";
+	Model Left = "Assets/assets/Models/cube/Left.gltf";
+	Model Right = "Assets/assets/Models/cube/Right.gltf";
+	Model Top = "Assets/assets/Models/cube/Top.gltf";
+	Model Bottom = "Assets/assets/Models/cube/Bottom.gltf";
+
+
+
+
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 
@@ -791,6 +883,17 @@ int main()
 				Lightmodel.Draw(SolidColour, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f));
 			}
 		}
+
+		/*
+		if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+			glDisable(GL_CULL_FACE);
+			mc(SolidColour, camera, Front, Back, Left, Right, Top, Bottom);
+		}
+		else {
+			glEnable(GL_CULL_FACE);
+			mc(shaderProgram, camera, Front, Back, Left, Right, Top, Bottom);
+		}
+		*/
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
 		if (Stencil) {
@@ -810,11 +913,11 @@ int main()
 				model.Draw(outlineShaderProgram, camera, translation, rotation, scale);
 			}
 
+
 			glStencilMask(0xFF);
 			glStencilFunc(GL_ALWAYS, 0, 0xFF);
 			glEnable(GL_DEPTH_TEST);
 		}
-
 
 		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
