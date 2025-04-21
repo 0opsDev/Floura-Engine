@@ -862,6 +862,17 @@ int main()
 		glm::vec3 cameraPos = Camera::PositionMatrix;
 		glm::vec3 feetpos = glm::vec3(Camera::PositionMatrix.x, (Camera::PositionMatrix.y - PlayerHeightCurrent), Camera::PositionMatrix.z);
 
+		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
+			camera.doFreeCam = true;
+			doPlayerCollision = false;
+			DoGravity = false;
+		}
+		if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
+			camera.doFreeCam = false;
+			doPlayerCollision = true;
+			DoGravity = true;
+		}
+
 		//physics
 		if (!camera.doFreeCam) {
 
