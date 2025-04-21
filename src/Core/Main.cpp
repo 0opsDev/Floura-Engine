@@ -619,7 +619,7 @@ void cubeboxTexture(unsigned int& cubemapTexture) {
 //just testing
 void mc(Shader shaderProgram, Camera camera, Model Front, Model Back, Model Left, Model Right, Model Top, Model Bottom) {
 	const int mapWidth = 50;
-	const int mapHeight = 50;
+	const int mapHeight = 20;
 	const int mapDepth = 50;
 	const float displace = 0.05f;        // Lower frequency for smoother hills
 	const float maxTerrainHeight = 20.0f; // Max terrain height in blocks
@@ -638,7 +638,8 @@ void mc(Shader shaderProgram, Camera camera, Model Front, Model Back, Model Left
 	for (int x = 0; x < mapWidth; ++x) {
 		for (int z = 0; z < mapDepth; ++z) {
 			// 2D Perlin noise to get height
-			float animatedY = TimeUtil::s_lastFrameTime * 0.1; // e.g., speedFactor = 0.1f
+			float time = glfwGetTime();
+			float animatedY = time * 0.1; // e.g., speedFactor = 0.1f
 			float heightValue = stb_perlin_noise3(x * displace, animatedY, z * displace, 0, 0, 0);
 
 			heightValue = (heightValue + 1.0f) / 2.0f; // Normalize from [-1,1] to [0,1]
@@ -663,6 +664,7 @@ void mc(Shader shaderProgram, Camera camera, Model Front, Model Back, Model Left
 				glm::vec3 position(gridX, gridY, gridZ);
 
 				// Check neighboring blocks and render only visible faces
+				glEnable(GL_CULL_FACE);
 			// Front (positive Z)
 				if (z + 1 >= mapDepth || !blockMap[x][y][z + 1])
 					Left.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
@@ -686,11 +688,10 @@ void mc(Shader shaderProgram, Camera camera, Model Front, Model Back, Model Left
 				// Bottom (negative Y)
 				if (y - 1 < 0 || !blockMap[x][y - 1][z])
 					Bottom.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
-
+				glDisable(GL_CULL_FACE);
 			}
 		}
 	}
-	glDisable(GL_CULL_FACE);
 
 }
 
@@ -884,16 +885,13 @@ int main()
 			}
 		}
 
-		/*
 		if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
-			glDisable(GL_CULL_FACE);
 			mc(SolidColour, camera, Front, Back, Left, Right, Top, Bottom);
 		}
 		else {
-			glEnable(GL_CULL_FACE);
 			mc(shaderProgram, camera, Front, Back, Left, Right, Top, Bottom);
 		}
-		*/
+
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
 		if (Stencil) {

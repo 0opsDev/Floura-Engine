@@ -8,7 +8,7 @@ using json = nlohmann::json;
 
 class Model {
 public:
-    Model(const char* file, unsigned int instancing = 1, std::vector<glm::mat4> instanceMatrix = {});
+    Model(const char* file);
 
     void Draw(Shader& shader, Camera& camera, glm::vec3 translation, glm::quat rotation, glm::vec3 scale);
 
@@ -16,14 +16,12 @@ private:
     const char* file;
     std::vector<unsigned char> data;
     json JSON;
-	unsigned int instancing;
 
     std::vector<Mesh> meshes;
     std::vector<glm::vec3> translationsMeshes;
     std::vector<glm::quat> rotationsMeshes;
     std::vector<glm::vec3> scalesMeshes;
     std::vector<glm::mat4> matricesMeshes;
-	std::vector<glm::mat4> instanceMatrix;
 
     std::vector<std::string> loadedTexName;
     std::vector<Texture> loadedTex;
