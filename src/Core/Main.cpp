@@ -80,12 +80,19 @@ struct DeltaTime {
 };
 DeltaTime deltaTimeStr;
 
-static float timeAccumulator[3] = {}; // Zero-initialized DeltaTime accumulators
+static float timeAccumulator[4] = {0,0,0,0}; // Zero-initialized DeltaTime accumulators
 
 int TempButton = 0;
 bool Panels[2] = { true, true}; // ImGui Panels
 
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
+
+bool doPlayerCollision = true;
+bool doFreeCam = false;
+bool DoGravity = true;
+float PlayerHeight = 1.8f;
+float CrouchHighDiff = 0.9f;
+float PlayerHeightCurrent;
 
 std::string mapName; // Map loading
 
@@ -179,6 +186,34 @@ std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> loadModelsF
 	return models;
 }
 
+
+void LoadPlayerConfig() {
+	// Load PlayerConfig.json
+	std::ifstream playerConfigFile("Settings/PlayerController.json");
+	if (playerConfigFile.is_open()) {
+		json playerConfigData;
+		playerConfigFile >> playerConfigData;
+		playerConfigFile.close();
+
+		doPlayerCollision = playerConfigData[0]["PlayerCollision"];
+		std::cout << "Player Collision: " << doPlayerCollision << std::endl;
+		doFreeCam = playerConfigData[0]["FreeCam"];
+		std::cout << "FreeCam: " << doFreeCam << std::endl;
+		DoGravity = playerConfigData[0]["DoGravity"];
+		std::cout << "DoGravity: " << DoGravity << std::endl;
+
+		PlayerHeight = playerConfigData[0]["PlayerHeight"];
+		std::cout << "PlayerHeight: " << PlayerHeight << std::endl;
+		CrouchHighDiff = playerConfigData[0]["CrouchHighDiff"];
+		std::cout << "CrouchHighDiff: " << CrouchHighDiff << std::endl;
+
+		std::cout << "Loaded Player Config from Settings/PlayerConfig.json" << std::endl;
+	}
+	else {
+		std::cerr << "Failed to open Settings/PlayerConfig.json" << std::endl;
+	}
+}
+
 //Methods
 // Loads Settings From Files
 void loadSettings() {
@@ -203,6 +238,9 @@ void loadSettings() {
 		invertMouse[1] = settingsData[0]["InvertY"];
 
 		Panels[0] = settingsData[0]["imGui"];
+
+		std::cout << "Loaded settings from Settings.json" << std::endl;
+
 	}
 	else {
 		std::cerr << "Failed to open Settings/Settings.json" << std::endl;
@@ -429,7 +467,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 // Holds DeltaTime Based Variables and Functions
-void DeltaMain(GLFWwindow* window, float deltaTime) {
+void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera) {
 	// Framerate tracking  
 	deltaTimeStr.frameRateI = static_cast<int>(1.0f / deltaTime);
 	timeAccumulator[0] += deltaTime;
@@ -438,7 +476,10 @@ void DeltaMain(GLFWwindow* window, float deltaTime) {
 	if (timeAccumulator[0] >= 1.0f) {
 		deltaTimeStr.frameRate1IHZ = deltaTimeStr.frameRateI;
 		deltaTimeStr.framerate = "FPS " + std::to_string(deltaTimeStr.frameRateI);
-		glfwSetWindowTitle(window, (WindowTitle + " (FPS:" + std::to_string(deltaTimeStr.frameRateI) + ")").c_str());
+		glfwSetWindowTitle(window, (WindowTitle + " (FPS: " + std::to_string(deltaTimeStr.frameRateI) + 
+			" ) (at pos: " + std::to_string(Camera::PositionMatrix.x) + " " + std::to_string(Camera::PositionMatrix.y) + " " + std::to_string(Camera::PositionMatrix.z) +
+			") (updates at 1hz)").c_str());
+
 		timeAccumulator[0] = 0.0f;
 	}
 
@@ -450,6 +491,8 @@ void DeltaMain(GLFWwindow* window, float deltaTime) {
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) {
 			cameraSettings[0] = std::max(cameraSettings[0] - 0.4f, 0.1f);
 		}
+		
+
 		timeAccumulator[1] = 0.0f;
 	}
 
@@ -664,7 +707,6 @@ void mc(Shader shaderProgram, Camera camera, Model Front, Model Back, Model Left
 				glm::vec3 position(gridX, gridY, gridZ);
 
 				// Check neighboring blocks and render only visible faces
-				glEnable(GL_CULL_FACE);
 			// Front (positive Z)
 				if (z + 1 >= mapDepth || !blockMap[x][y][z + 1])
 					Left.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
@@ -688,11 +730,11 @@ void mc(Shader shaderProgram, Camera camera, Model Front, Model Back, Model Left
 				// Bottom (negative Y)
 				if (y - 1 < 0 || !blockMap[x][y - 1][z])
 					Bottom.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
-				glDisable(GL_CULL_FACE);
+				
 			}
 		}
 	}
-
+	glDisable(GL_CULL_FACE);
 }
 
 //Main Function
@@ -701,7 +743,7 @@ int main()
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 	init::initGLFW(); // initialize glfw
 	std::thread storageThread1(loadSettings);
-
+	std::thread storageThread3(LoadPlayerConfig);
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -795,9 +837,7 @@ int main()
 
 	storageThread1.join();
 	storageThread2.join();
-	auto stopInitTime = std::chrono::high_resolution_clock::now();
-	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
-	std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
+	storageThread3.join();
 
 	Model ExampleModel = "Assets/assets/Models/cube/cube.gltf";
 	Model Front = "Assets/assets/Models/cube/Front.gltf";
@@ -807,17 +847,71 @@ int main()
 	Model Top = "Assets/assets/Models/cube/Top.gltf";
 	Model Bottom = "Assets/assets/Models/cube/Bottom.gltf";
 
+	LoadPlayerConfig();
 
+	camera.doFreeCam = doFreeCam; // set camera to free cam or not
 
-
+	auto stopInitTime = std::chrono::high_resolution_clock::now();
+	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
+	std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
+		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
+		DeltaMain(window, deltaTime, camera); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) \
+
+		glm::vec3 cameraPos = Camera::PositionMatrix;
+		glm::vec3 feetpos = glm::vec3(Camera::PositionMatrix.x, (Camera::PositionMatrix.y - PlayerHeightCurrent), Camera::PositionMatrix.z);
+
+		//physics
+		if (!camera.doFreeCam) {
+
+			if (doPlayerCollision) { //testing collisions if touching ground
+				if ((0.1 - feetpos.y) <= 0) { //air
+					//std::cout << "Player is in the air" << std::endl;
+					if (timeAccumulator[3] >= 0.20f) {
+						camera.DoJump = false;
+						if (DoGravity) { camera.Position = glm::vec3(cameraPos.x, (cameraPos.y - (10 * deltaTime)), cameraPos.z); }
+					}
+					else {
+						timeAccumulator[3] += deltaTime;
+					}
+
+				}
+				else{ //ground
+					//std::cout << "Player is on the ground" << std::endl;
+					camera.DoJump = true;
+					timeAccumulator[3] = 0.0f;
+
+					if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) { //gravity
+						if (DoGravity) { camera.Position = glm::vec3(cameraPos.x, (cameraPos.y - (10 * deltaTime)), cameraPos.z); }
+					}
+
+
+				}
+				//terrstd::cout <<timeAccumulator[3] << std::endl;
+			}
+			//crouch 
+			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+				PlayerHeightCurrent = CrouchHighDiff;
+			}
+			else {
+				PlayerHeightCurrent = PlayerHeight;
+			}
+
+		}
+		else {
+			camera.DoJump = true;
+		}
+
+		if (doPlayerCollision) {
+			if (feetpos.y <= 0) {
+				camera.Position = glm::vec3(cameraPos.x, PlayerHeightCurrent, cameraPos.z);
+			} //testing collisions
+		}
+		//physics
 
 		inputUtil::updateMouse(invertMouse, sensitivity); // update mouse
 		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); loadEngineSettings(); }
-
-		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
-		DeltaMain(window, deltaTime); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) \
 
 		//FrameBuffer
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
@@ -885,13 +979,11 @@ int main()
 			}
 		}
 
-		if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
-			mc(SolidColour, camera, Front, Back, Left, Right, Top, Bottom);
-		}
-		else {
-			mc(shaderProgram, camera, Front, Back, Left, Right, Top, Bottom);
-		}
-
+		// voxel test 
+		/*
+		if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) { glDisable(GL_CULL_FACE); mc(SolidColour, camera, Front, Back, Left, Right, Top, Bottom); }
+		else { glEnable(GL_CULL_FACE); mc(shaderProgram, camera, Front, Back, Left, Right, Top, Bottom);}
+		*/
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
 		if (Stencil) {

@@ -6,6 +6,8 @@
 bool MouseState = true, toggleESC = true;
 float timeAccumulator = 0, scrollSpeed = 0;
 
+glm::vec3 Camera::PositionMatrix = glm::vec3(0,0,0);
+
 Camera::Camera(int width, int height, glm::vec3 position)
 {
     Camera::width = width;
@@ -25,6 +27,7 @@ void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
     projection = glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
 
     cameraMatrix = projection * view;
+	PositionMatrix = Position;
 }
 
 void Camera::Matrix(Shader& shader, const char* uniform)
@@ -37,50 +40,90 @@ void Camera::Inputs(GLFWwindow* window)
     float deltaTime = TimeUtil::s_DeltaTime;
     float adjustedSpeed = speed * deltaTime;
 
-    // Handles inputs
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    {
-        Position += adjustedSpeed * Orientation;
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    {
-        Position += adjustedSpeed * -glm::normalize(glm::cross(Orientation, Up));
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    {
-        Position += adjustedSpeed * -Orientation;
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    {
-        Position += adjustedSpeed * glm::normalize(glm::cross(Orientation, Up));
-    }
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-    {
-        Position += adjustedSpeed * Up;
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-    {
-        Position += adjustedSpeed * -Up;
-    }
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-    {
-        scrollSpeed += 10.0f * deltaTime;
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-    {
-        scrollSpeed -= 10.0f * deltaTime;
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-    {
-        speed = (10.0f + scrollSpeed);
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-    {
-        speed = (5.0f + scrollSpeed);
-    }
-    if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
-    {
-        scrollSpeed = 0;
+	if (doFreeCam)
+	{
+        // Handles inputs
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        {
+            Position += adjustedSpeed * Orientation;
+        }
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        {
+            Position += adjustedSpeed * -glm::normalize(glm::cross(Orientation, Up));
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        {
+            Position += adjustedSpeed * -Orientation;
+        }
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        {
+            Position += adjustedSpeed * glm::normalize(glm::cross(Orientation, Up));
+        }
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && DoJump) //jump
+        {
+            Position += adjustedSpeed * Up;
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        {
+            Position += adjustedSpeed * -Up;
+        }
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        {
+            scrollSpeed += 10.0f * deltaTime;
+        }
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        {
+            scrollSpeed -= 10.0f * deltaTime;
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        {
+            speed = (10.0f + scrollSpeed);
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+        {
+            speed = (5.0f + scrollSpeed);
+        }
+        if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
+        {
+            scrollSpeed = 0;
+        }
+	}
+    else {
+        // Flattened forward direction (ignore Y component)
+        glm::vec3 flatOrientation = glm::normalize(glm::vec3(Orientation.x, 0.0f, Orientation.z));
+
+        // Handles inputs
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        {
+            Position += adjustedSpeed * flatOrientation;
+        }
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        {
+            Position += adjustedSpeed * -glm::normalize(glm::cross(flatOrientation, Up));
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        {
+            Position += adjustedSpeed * -flatOrientation;
+        }
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        {
+            Position += adjustedSpeed * glm::normalize(glm::cross(flatOrientation, Up));
+        }
+		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
+		{
+            if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            {
+                speed = (10.0f + scrollSpeed);
+            }
+		}
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+        {
+            speed = (5.0f + scrollSpeed);
+        }
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && DoJump) //jump
+        {
+            Position += ((speed) * deltaTime) * Up;
+        }
     }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -95,7 +138,6 @@ void Camera::Inputs(GLFWwindow* window)
     {
         toggleESC = true;
     }
-
     // Handles mouse inputs
     if (MouseState)
     {

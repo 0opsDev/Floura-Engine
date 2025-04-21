@@ -8,6 +8,9 @@
     "Sensitivity": 100.0,
     "InvertX": false,
     "InvertY": false,
-    "imGui": true
+    "imGui": true,
+    "PlayerCollision": true,
+    "DoGravity": true,
+    "FreeCam": false
   }
 ]
