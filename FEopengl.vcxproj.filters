@@ -325,5 +325,8 @@
     <None Include="Shaders\Skybox\skybox.frag">
       <Filter>Resource Files\Shaders\Skybox</Filter>
     </None>
+    <None Include="Settings\PlayerController.json">
+      <Filter>Text Files\Text</Filter>
+    </None>
   </ItemGroup>
 </Project>

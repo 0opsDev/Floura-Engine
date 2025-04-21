@@ -17,6 +17,9 @@
 #include <OpenAL/efx-presets.h>
 #define STB_PERLIN_IMPLEMENTATION
 #include <stb/stb_perlin.h>
+#define SOL_ALL_SAFETIES_ON 1
+#include <sol/sol.hpp>
+#pragma comment(lib, "lua54.lib")
 
 unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
 
@@ -90,9 +93,16 @@ float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
 bool doPlayerCollision = true;
 bool doFreeCam = false;
 bool DoGravity = true;
+bool footCollision = false;
 float PlayerHeight = 1.8f;
 float CrouchHighDiff = 0.9f;
 float PlayerHeightCurrent;
+// Define the plane's boundaries
+float planeMinX = -5.0f; // Left edge of the plane
+float planeMaxX = 5.0f;  // Right edge of the plane
+float planeMinZ = -5.0f; // Front edge of the plane
+float planeMaxZ = 5.0f;  // Back edge of the plane
+float planeY = 0.0f;     // Y-position of the plane
 
 std::string mapName; // Map loading
 
@@ -476,10 +486,9 @@ void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera) {
 	if (timeAccumulator[0] >= 1.0f) {
 		deltaTimeStr.frameRate1IHZ = deltaTimeStr.frameRateI;
 		deltaTimeStr.framerate = "FPS " + std::to_string(deltaTimeStr.frameRateI);
-		glfwSetWindowTitle(window, (WindowTitle + " (FPS: " + std::to_string(deltaTimeStr.frameRateI) + 
-			" ) (at pos: " + std::to_string(Camera::PositionMatrix.x) + " " + std::to_string(Camera::PositionMatrix.y) + " " + std::to_string(Camera::PositionMatrix.z) +
-			") (updates at 1hz)").c_str());
-
+		glfwSetWindowTitle(window, (WindowTitle + " (FPS: " + std::to_string(deltaTimeStr.frameRate1IHZ) +
+	" ) (at pos: " + std::to_string(Camera::PositionMatrix.x) + " " + std::to_string(Camera::PositionMatrix.y) + " " + std::to_string(Camera::PositionMatrix.z) +
+	") (Foot Collision: " + std::to_string(footCollision) + ")" + " (Title updates at 1hz) ").c_str());
 		timeAccumulator[0] = 0.0f;
 	}
 
@@ -491,7 +500,6 @@ void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera) {
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) {
 			cameraSettings[0] = std::max(cameraSettings[0] - 0.4f, 0.1f);
 		}
-		
 
 		timeAccumulator[1] = 0.0f;
 	}
@@ -861,7 +869,6 @@ int main()
 
 		glm::vec3 cameraPos = Camera::PositionMatrix;
 		glm::vec3 feetpos = glm::vec3(Camera::PositionMatrix.x, (Camera::PositionMatrix.y - PlayerHeightCurrent), Camera::PositionMatrix.z);
-
 		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
 			camera.doFreeCam = true;
 			doPlayerCollision = false;
@@ -877,8 +884,7 @@ int main()
 		if (!camera.doFreeCam) {
 
 			if (doPlayerCollision) { //testing collisions if touching ground
-				if ((0.1 - feetpos.y) <= 0) { //air
-					//std::cout << "Player is in the air" << std::endl;
+				if (!footCollision) { //air
 					if (timeAccumulator[3] >= 0.20f) {
 						camera.DoJump = false;
 						if (DoGravity) { camera.Position = glm::vec3(cameraPos.x, (cameraPos.y - (10 * deltaTime)), cameraPos.z); }
@@ -889,7 +895,6 @@ int main()
 
 				}
 				else{ //ground
-					//std::cout << "Player is on the ground" << std::endl;
 					camera.DoJump = true;
 					timeAccumulator[3] = 0.0f;
 
@@ -899,7 +904,6 @@ int main()
 
 
 				}
-				//terrstd::cout <<timeAccumulator[3] << std::endl;
 			}
 			//crouch 
 			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
@@ -912,13 +916,27 @@ int main()
 		}
 		else {
 			camera.DoJump = true;
+			PlayerHeightCurrent = PlayerHeight;
 		}
 
+		// Check for collision
 		if (doPlayerCollision) {
-			if (feetpos.y <= 0) {
+			if (feetpos.y <= planeY && cameraPos.y >= planeY && // Check if plane is between feetpos and cameraPos
+				feetpos.x >= planeMinX && feetpos.x <= planeMaxX && // Check X bounds
+				feetpos.z >= planeMinZ && feetpos.z <= planeMaxZ) { // Check Z bounds
+				// Collision detected
 				camera.Position = glm::vec3(cameraPos.x, PlayerHeightCurrent, cameraPos.z);
-			} //testing collisions
+				footCollision = true;
+			}
+			else {
+				footCollision = false;
+			}
 		}
+
+		if (glfwGetKey(window, GLFW_KEY_F10) == GLFW_PRESS) {
+			camera.Position = glm::vec3(0, 0, 0);
+		}
+
 		//physics
 
 		inputUtil::updateMouse(invertMouse, sensitivity); // update mouse
@@ -992,9 +1010,10 @@ int main()
 
 		// voxel test 
 		/*
-		if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) { glDisable(GL_CULL_FACE); mc(SolidColour, camera, Front, Back, Left, Right, Top, Bottom); }
+				if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) { glDisable(GL_CULL_FACE); mc(SolidColour, camera, Front, Back, Left, Right, Top, Bottom); }
 		else { glEnable(GL_CULL_FACE); mc(shaderProgram, camera, Front, Back, Left, Right, Top, Bottom);}
 		*/
+		
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
 		if (Stencil) {
