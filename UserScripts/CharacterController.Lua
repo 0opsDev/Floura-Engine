@@ -3,7 +3,7 @@
 
 --runs at main.cpp init speed
 function init()
-io.write("Main.Lua Running init \n")
+io.write("CharacterController.Lua Running init \n")
 
 return 0
 end

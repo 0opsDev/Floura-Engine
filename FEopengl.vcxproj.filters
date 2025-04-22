@@ -334,5 +334,11 @@
     <None Include="UserScripts\Main.Lua">
       <Filter>Source Files\UserScripts</Filter>
     </None>
+    <None Include="UserScripts\CharacterController.Lua">
+      <Filter>Source Files\UserScripts</Filter>
+    </None>
+    <None Include="Settings\LogConfig.json">
+      <Filter>Text Files\Text</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -196,6 +196,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\imgui.ini" />
+    <None Include="Settings\LogConfig.json" />
     <None Include="Settings\PlayerController.json" />
     <None Include="Settings\Settings.json" />
     <None Include="Shaders\Db\Depth.frag" />
@@ -219,6 +220,7 @@
     <None Include="Shaders\ShaderList.json" />
     <None Include="Shaders\Skybox\skybox.frag" />
     <None Include="Shaders\Skybox\skybox.vert" />
+    <None Include="UserScripts\CharacterController.Lua" />
     <None Include="UserScripts\Main.Lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

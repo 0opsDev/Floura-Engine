@@ -1,5 +1,6 @@
 #include"Model.h"
 #include"Core/Main.h"
+#include "Systems/utils/init.h"
 
 int totalVert = 0;
 
@@ -40,7 +41,7 @@ void Model::loadMesh(unsigned int indMesh)
 	unsigned int indAccInd = JSON["meshes"][indMesh]["primitives"][0]["indices"];
 
 	// Debug output for mesh
-	std::cout << "Loading mesh: " << indMesh << std::endl;
+	if (init::LogALL || init::LogModel) std::cout << "Loading mesh: " << indMesh << std::endl;
 
 	// Use accessor indices to get all vertices components
 	std::vector<float> posVec = getFloats(JSON["accessors"][posAccInd]);
@@ -65,7 +66,7 @@ void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 	json node = JSON["nodes"][nextNode];
 
 	// Debug output for node
-	std::cout << "Processing node: " << nextNode << std::endl;
+	if (init::LogALL || init::LogModel) std::cout << "Processing node: " << nextNode << std::endl;
 
 	// Get translation if it exists
 	glm::vec3 translation = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -124,7 +125,7 @@ void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 	// Check if the node contains a mesh and if it does load it
 	if (node.find("mesh") != node.end())
 	{
-		std::cout << "Loading mesh: " << node["mesh"] << std::endl;
+		if (init::LogALL || init::LogModel) std::cout << "Loading mesh: " << node["mesh"] << std::endl;
 		translationsMeshes.push_back(translation);
 		rotationsMeshes.push_back(rotation);
 		scalesMeshes.push_back(scale);
@@ -196,8 +197,8 @@ std::vector<float> Model::getFloats(json accessor)
 std::vector<GLuint> Model::getIndices(json accessor)
 {
 	std::vector<GLuint> indices;
-	std::cout << "\nModel.cpp" << std::endl;
-	std::cout << "getIndices / initialization - model.cpp" << std::endl;
+	if (init::LogALL || init::LogModel) std::cout << "\nModel.cpp" << std::endl;
+	if (init::LogALL || init::LogModel) std::cout << "getIndices / initialization - model.cpp" << std::endl;
 
 
 	// Get properties from the accessor
@@ -206,7 +207,7 @@ std::vector<GLuint> Model::getIndices(json accessor)
 	unsigned int accByteOffset = accessor.value("byteOffset", 0);
 	unsigned int componentType = accessor["componentType"];
 	totalVert += count;
-	std::cout << totalVert << std::endl;
+	if (init::LogALL || init::LogModel) std::cout << totalVert << std::endl;
 
 	// Get properties from the bufferView
 	json bufferView = JSON["bufferViews"][buffViewInd];
@@ -251,7 +252,7 @@ std::vector<GLuint> Model::getIndices(json accessor)
 std::vector<Texture> Model::getTextures()
 {
 
-	std::cout << "getTextures / initialization - model.cpp" << std::endl;
+	if (init::LogALL || init::LogModel) std::cout << "getTextures / initialization - model.cpp" << std::endl;
 	std::vector<Texture> textures;
 
 	std::string fileStr = std::string(file);
@@ -262,7 +263,7 @@ std::vector<Texture> Model::getTextures()
 	{
 		// uri of current texture
 		std::string texPath = JSON["images"][i]["uri"];
-		std::cout << "model.cpp - Texture path: " << texPath << std::endl;
+		if (init::LogALL || init::LogModel) std::cout << "model.cpp - Texture path: " << texPath << std::endl;
 
 		// Check if the texture has already been loaded
 		bool skip = false;
@@ -279,29 +280,29 @@ std::vector<Texture> Model::getTextures()
 		// If the texture has been loaded, skip this
 		if (!skip)
 		{
-			std::cout << "\nModel.cpp" << std::endl;
+			if (init::LogALL || init::LogModel) std::cout << "\nModel.cpp" << std::endl;
 			// Determine the texture type based on the filename
 			const char* texType = "diffuse"; // Default to diffuse
 			if (texPath.find("baseColor") != std::string::npos)
 			{
 				texType = "diffuse";
-				std::cout << "model.cpp - Texture type: diffuse" << std::endl;
+				if (init::LogALL || init::LogModel) std::cout << "model.cpp - Texture type: diffuse" << std::endl;
 			}
 			else if (texPath.find("metallicRoughness") != std::string::npos)
 			{
 				texType = "specular";
-				std::cout << "model.cpp - Texture type: specular" << std::endl;
+				if (init::LogALL || init::LogModel) std::cout << "model.cpp - Texture type: specular" << std::endl;
 			}
 			else if (texPath.find("unshaded") != std::string::npos)
 			{
 				//sent to mesh.cpp
 				texType = "unshaded";
-				std::cout << "model.cpp - Texture type: unshaded" << std::endl;
+				if (init::LogALL || init::LogModel) std::cout << "model.cpp - Texture type: unshaded" << std::endl;
 			}
 
 			// Load the texture
-			std::cout << "model.cpp - Loading texture: " << fileDirectory + texPath << std::endl;
-			std::cout << loadedTex.size() << std::endl;
+			if (init::LogALL || init::LogModel) std::cout << "model.cpp - Loading texture: " << fileDirectory + texPath << std::endl;
+			if (init::LogALL || init::LogModel) std::cout << loadedTex.size() << std::endl;
 			Texture texture = Texture((fileDirectory + texPath).c_str(), texType, loadedTex.size());
 			textures.push_back(texture);
 			loadedTex.push_back(texture);

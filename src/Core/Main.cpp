@@ -146,7 +146,7 @@ void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) {
 		std::string vertFile = shaderPaths.first;
 		std::string fragFile = shaderPaths.second;
 
-		std::cout << "Vert: " << vertFile << " Frag: " << fragFile << std::endl;
+		if (init::LogALL || init::LogSystems) std::cout << "Vert: " << vertFile << " Frag: " << fragFile << std::endl;
 
 		shaderProgram = Shader(vertFile.c_str(), fragFile.c_str());
 	}
@@ -185,7 +185,7 @@ std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> loadModelsF
 			glm::quat rotation = glm::quat(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2], item.at("Rotation")[3]);
 			glm::vec3 scale = glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]);
 			models.emplace_back(Model(("Assets/assets/" + path).c_str()), isCulling, location, rotation, scale);
-			std::cout << "Loaded model: " << '"' << name << '"' << " from path: " << path << " at location: " << glm::to_string(location) << std::endl;
+			if (init::LogALL || init::LogModel) std::cout << "Loaded model: " << '"' << name << '"' << " from path: " << path << " at location: " << glm::to_string(location) << std::endl;
 		}
 	}
 	catch (const std::exception& e) {
@@ -206,18 +206,18 @@ void LoadPlayerConfig() {
 		playerConfigFile.close();
 
 		doPlayerCollision = playerConfigData[0]["PlayerCollision"];
-		std::cout << "Player Collision: " << doPlayerCollision << std::endl;
+		if (init::LogALL || init::LogSystems) std::cout << "Player Collision: " << doPlayerCollision << std::endl;
 		doFreeCam = playerConfigData[0]["FreeCam"];
-		std::cout << "FreeCam: " << doFreeCam << std::endl;
+		if (init::LogALL || init::LogSystems) std::cout << "FreeCam: " << doFreeCam << std::endl;
 		DoGravity = playerConfigData[0]["DoGravity"];
-		std::cout << "DoGravity: " << DoGravity << std::endl;
+		if (init::LogALL || init::LogSystems) std::cout << "DoGravity: " << DoGravity << std::endl;
 
 		PlayerHeight = playerConfigData[0]["PlayerHeight"];
-		std::cout << "PlayerHeight: " << PlayerHeight << std::endl;
+		if (init::LogALL || init::LogSystems) std::cout << "PlayerHeight: " << PlayerHeight << std::endl;
 		CrouchHighDiff = playerConfigData[0]["CrouchHighDiff"];
-		std::cout << "CrouchHighDiff: " << CrouchHighDiff << std::endl;
+		if (init::LogALL || init::LogSystems) std::cout << "CrouchHighDiff: " << CrouchHighDiff << std::endl;
 
-		std::cout << "Loaded Player Config from Settings/PlayerConfig.json" << std::endl;
+		if (init::LogALL || init::LogSystems) std::cout << "Loaded Player Config from Settings/PlayerConfig.json" << std::endl;
 	}
 	else {
 		std::cerr << "Failed to open Settings/PlayerConfig.json" << std::endl;
@@ -249,7 +249,7 @@ void loadSettings() {
 
 		Panels[0] = settingsData[0]["imGui"];
 
-		std::cout << "Loaded settings from Settings.json" << std::endl;
+		if (init::LogALL || init::LogSystems) std::cout << "Loaded settings from Settings.json" << std::endl;
 
 	}
 	else {
@@ -308,12 +308,12 @@ void LoadSkybox() {
 
 		std::string Path = SkyboxJsonData[0]["Path"].get<std::string>() + "/";
 
-		std::cout << "Skybox Path: " << Path << std::endl;
+		if (init::LogALL || init::LogModel) std::cout << "Skybox Path: " << Path << std::endl;
 
 		for (int i = 0; i < 6; i++)
 		{
 			facesCubemap[i] = Path + SkyboxJsonData[0]["Faces"][i].get<std::string>();
-			std::cout << "Skybox Face: " << facesCubemap[i] << std::endl;
+			if (init::LogALL || init::LogModel) std::cout << "Skybox Face: " << facesCubemap[i] << std::endl;
 		}
 	}
 	else {
@@ -379,7 +379,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 				ImGui::InputText("Uniform Input", UniformInput, IM_ARRAYSIZE(UniformInput));
 				ImGui::DragFloat("UniformFloat", UniformFloat);
 				if (false & UniformInput != NULL) { // Debug
-					std::cout << UniformInput << std::endl; }
+					if (init::LogALL || init::LogSystems) std::cout << UniformInput << std::endl; }
 				ImGui::TreePop();// Ends The ImGui Window
 			}
 			// Lighting panel
@@ -552,7 +552,7 @@ void setupMainFBO(unsigned int& viewVAO, unsigned int& viewVBO, unsigned int& FB
 	// Error checking
 	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "Framebuffer error: " << fboStatus << std::endl;
+		if (init::LogALL || init::LogSystems) std::cout << "Framebuffer error: " << fboStatus << std::endl;
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -581,7 +581,7 @@ void setupSecondFBO(unsigned int& FBO, unsigned int& frameBufferTexture, unsigne
 	// Error checking
 	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "Framebuffer error: " << fboStatus << std::endl;
+		if (init::LogALL || init::LogSystems) std::cout << "Framebuffer error: " << fboStatus << std::endl;
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -661,111 +661,46 @@ void cubeboxTexture(unsigned int& cubemapTexture) {
 		}
 		else
 		{
-			std::cout << "Failed to load texture: " << facesCubemap[i] << std::endl;
+			if (init::LogALL || init::LogModel) std::cout << "Failed to load texture: " << facesCubemap[i] << std::endl;
 			stbi_image_free(data);
 		}
 	}
 }
 
-//just testing
-void mc(Shader shaderProgram, Camera camera, Model Front, Model Back, Model Left, Model Right, Model Top, Model Bottom) {
-	const int mapWidth = 50;
-	const int mapHeight = 20;
-	const int mapDepth = 50;
-	const float displace = 0.05f;        // Lower frequency for smoother hills
-	const float maxTerrainHeight = 20.0f; // Max terrain height in blocks
-	const float spacing = 1.0f;
-
-	int seedX = rand() % 1000;
-	int seedY = rand() % 1000;
-	int seedZ = rand() % 1000;
-
-	// Store block presence
-	std::vector<std::vector<std::vector<bool>>> blockMap(mapWidth,
-		std::vector<std::vector<bool>>(mapHeight,
-			std::vector<bool>(mapDepth, false)));
-
-	// First pass: create terrain height map
-	for (int x = 0; x < mapWidth; ++x) {
-		for (int z = 0; z < mapDepth; ++z) {
-			// 2D Perlin noise to get height
-			float time = glfwGetTime();
-			float animatedY = time * 0.1; // e.g., speedFactor = 0.1f
-			float heightValue = stb_perlin_noise3(x * displace, animatedY, z * displace, 0, 0, 0);
-
-			heightValue = (heightValue + 1.0f) / 2.0f; // Normalize from [-1,1] to [0,1]
-			int terrainHeight = static_cast<int>(heightValue * maxTerrainHeight);
-
-			// Fill blocks from 0 up to terrainHeight
-			for (int y = 0; y <= terrainHeight && y < mapHeight; ++y) {
-				blockMap[x][y][z] = true;
-			}
-		}
+void LoadLua(sol::state& LuaState, std::string Path) {
+	LuaState.open_libraries(sol::lib::base, sol::lib::io, sol::lib::math, sol::lib::table);
+	// Step 1) Load & Parse File
+	try
+	{
+		LuaState.safe_script_file(Path);
+		if (init::LogALL || init::LogLua) std::cout << "[CPP LoadLua] Lua File read OK! at: " << Path << std::endl;
 	}
-
-	// Second pass: render only visible faces
-	for (int x = 0; x < mapWidth; ++x) {
-		for (int y = 0; y < mapHeight; ++y) {
-			for (int z = 0; z < mapDepth; ++z) {
-				if (!blockMap[x][y][z]) continue;
-
-				int gridX = static_cast<int>(x * spacing);
-				int gridY = static_cast<int>(y * spacing);
-				int gridZ = static_cast<int>(z * spacing);
-				glm::vec3 position(gridX, gridY, gridZ);
-
-				// Check neighboring blocks and render only visible faces
-			// Front (positive Z)
-				if (z + 1 >= mapDepth || !blockMap[x][y][z + 1])
-					Left.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
-
-				// Back (negative Z)
-				if (z - 1 < 0 || !blockMap[x][y][z - 1])
-					Right.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
-
-				// Right (positive X)
-				if (x + 1 >= mapWidth || !blockMap[x + 1][y][z])
-					Front.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
-
-				// Left (negative X)
-				if (x - 1 < 0 || !blockMap[x - 1][y][z])
-					Back.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
-
-				// Top (positive Y)
-				if (y + 1 >= mapHeight || !blockMap[x][y + 1][z])
-					Top.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
-
-				// Bottom (negative Y)
-				if (y - 1 < 0 || !blockMap[x][y - 1][z])
-					Bottom.Draw(shaderProgram, camera, position, glm::quat(1, 0, 0, 0), glm::vec3(0.5f));
-				
-			}
-		}
+	catch (const sol::error& e)
+	{
+		// Something went wrong with loading this script
+		if (init::LogALL || init::LogLua) std::cout << "[CPP LoadLua] Lua File read ERROR! at: " << Path << std::endl;
+		if (init::LogALL || init::LogLua) std::cout << std::string(e.what()) << "\n";
 	}
-	glDisable(GL_CULL_FACE);
+}
+
+void runLuaInitFunc(sol::state& LuaStat) {
+
+	//LuaStat["init"]();
+
+	float x1 = LuaStat["init"]();
+	if (init::LogALL || init::LogLua) std::cout << "init returned: " << x1 << std::endl;
+
 }
 
 //Main Function
 int main()
 {
 	auto startInitTime = std::chrono::high_resolution_clock::now();
-
-	// Step 0) Initialise Lua
-	sol::state mainLua;
-	mainLua.open_libraries(sol::lib::base, sol::lib::io, sol::lib::math, sol::lib::table);
-
-	// Step 1) Load & Parse File
-	try
-	{
-		mainLua.safe_script_file("UserScripts/Main.lua");
-		std::cout << "[CPP S1] Lua File read OK!\n";
-	}
-	catch (const sol::error& e)
-	{
-		// Something went wrong with loading this script
-		std::cout << std::string(e.what()) << "\n";
-		return 0;
-	}
+	init::initLog();// init logs (should always be before priniting anything)
+	sol::state mainLua; std::string mainLuaPath = "UserScripts/Main.lua";
+	sol::state CharacterControllerScript; std::string CharacterControllerScriptPath = "UserScripts/CharacterController.Lua";
+	LoadLua(mainLua, mainLuaPath); // Initialize Lua
+	LoadLua(CharacterControllerScript, CharacterControllerScriptPath); // Initialize Lua
 
 	init::initGLFW(); // initialize glfw
 	std::thread storageThread1(loadSettings);
@@ -791,7 +726,7 @@ int main()
 	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, WindowTitle.c_str(), NULL, NULL); // create window
 
 	// error checking
-	if (window == NULL) { std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
+	if (window == NULL) { if (init::LogALL || init::LogSystems) std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
 
 	glfwMakeContextCurrent(window);	//make window current context
 
@@ -804,7 +739,7 @@ int main()
 	//area of open gl we want to render in
 	//screen assignment after fallback
 	ScreenUtils::SetScreenSize(window, width, height);  // set window and viewport w&h
-	std::cout << "Primary monitor resolution: " << width << "x" << height << std::endl;
+	if (init::LogALL || init::LogSystems) std::cout << "Primary monitor resolution: " << width << "x" << height << std::endl;
 	// window logo creation and assignment
 	init::initLogo(window);
 	ScreenUtils::setVSync(doVsync); // Set Vsync to value of doVsync (bool)
@@ -865,26 +800,16 @@ int main()
 	storageThread2.join();
 	storageThread3.join();
 
-	Model ExampleModel = "Assets/assets/Models/cube/cube.gltf";
-	Model Front = "Assets/assets/Models/cube/Front.gltf";
-	Model Back = "Assets/assets/Models/cube/Back.gltf";
-	Model Left = "Assets/assets/Models/cube/Left.gltf";
-	Model Right = "Assets/assets/Models/cube/Right.gltf";
-	Model Top = "Assets/assets/Models/cube/Top.gltf";
-	Model Bottom = "Assets/assets/Models/cube/Bottom.gltf";
-
 	LoadPlayerConfig();
 
 	camera.doFreeCam = doFreeCam; // set camera to free cam or not
 
-	//mainLua["init"]();
-
-	float x1 = mainLua["init"]();
-	std::cout << "MainLua init returned: " << x1 << std::endl;
+	runLuaInitFunc(mainLua); // run the init function in lua
+	runLuaInitFunc(CharacterControllerScript); // run the init function in lua
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
-	std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
+	if (init::LogALL || init::LogSystems) std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
 
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{

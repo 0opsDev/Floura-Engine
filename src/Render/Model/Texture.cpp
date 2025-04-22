@@ -1,8 +1,9 @@
 #include "Texture.h"
+#include "Systems/utils/init.h"
 
 Texture::Texture(const char* image, const char* texType, GLuint slot)
 {
-    std::cout << "Texture loading 1: " << image << std::endl;
+    if (init::LogALL || init::LogModel) std::cout << "Texture loading 1: " << image << std::endl;
     // Assigns the type of the texture to the texture object
     type = texType;
 
@@ -86,7 +87,7 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
     // Unbinds the OpenGL Texture object so that it can't accidentally be modified
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    std::cout << "Texture loaded 2: " << image << std::endl;
+    if (init::LogALL || init::LogModel) std::cout << "Texture loaded 2: " << image << std::endl;
 }
 
 void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)

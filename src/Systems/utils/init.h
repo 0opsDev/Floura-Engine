@@ -7,6 +7,16 @@ class init
 {
 public:
 
+    static bool LogALL;
+
+    static bool LogModel;
+
+    static bool LogSystems;
+
+    static bool LogLua;
+
+    static void initLog();
+
     static void initGLFW();
 
     static void initImGui(GLFWwindow* window);

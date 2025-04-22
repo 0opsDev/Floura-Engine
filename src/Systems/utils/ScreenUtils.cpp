@@ -1,5 +1,5 @@
 #include "screenutils.h" 
-
+#include "Systems/utils/init.h"
 
 void ScreenUtils::toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor, bool isFullscreen, int windowedPosX, int windowedPosY, int windowedWidth, int windowedHeight)
 {
@@ -28,5 +28,5 @@ void ScreenUtils::setVSync(bool enabled) {
 void ScreenUtils::SetScreenSize(GLFWwindow* window, unsigned int width, unsigned int height) {
 	glViewport(0, 0, width, height);
 	glfwSetWindowSize(window, width, height);
-	std::cout << "set screensize: " << width << "*" << height << std::endl;
+	if (init::LogALL || init::LogSystems) std::cout << "set screensize: " << width << "*" << height << std::endl;
 }
