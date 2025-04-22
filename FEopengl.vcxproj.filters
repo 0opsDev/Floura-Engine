@@ -177,6 +177,12 @@
     <ClCompile Include="src\Systems\file\FileClass.cpp">
       <Filter>Source Files\file</Filter>
     </ClCompile>
+    <ClCompile Include="src\Systems\utils\ScriptEngine.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Render\RenderLoop.cpp">
+      <Filter>Source Files\main</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Libraries\include\imgui\imconfig.h">
@@ -257,6 +263,12 @@
     <ClInclude Include="src\Systems\file\FileClass.h">
       <Filter>Header Files\file</Filter>
     </ClInclude>
+    <ClInclude Include="src\Systems\utils\ScriptEngine.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Render\RenderLoop.h">
+      <Filter>Header Files\main</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Empty.shader">
@@ -332,9 +344,6 @@
       <Filter>Text Files\Text</Filter>
     </None>
     <None Include="UserScripts\Main.Lua">
-      <Filter>Source Files\UserScripts</Filter>
-    </None>
-    <None Include="UserScripts\CharacterController.Lua">
       <Filter>Source Files\UserScripts</Filter>
     </None>
     <None Include="Settings\LogConfig.json">

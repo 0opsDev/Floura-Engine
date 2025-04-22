@@ -1,5 +1,5 @@
 
-
+--COUNT = 1
 
 --runs at main.cpp init speed
 function init()
@@ -10,12 +10,16 @@ end
 
 --updates at main.cpp loop speed
 function update()
---io.write("Lua Function update \n")
+COUNT = COUNT + 1;
+
+--io.write(""..COUNT.."\n")
 
 end
 
 --updates at 60hz deltatime
 function UpdateDelta()
---io.write("Lua Function UpdateDelta \n")
+COUNT = COUNT + 1;
+
+--io.write(""..COUNT.."\n")
 
 end

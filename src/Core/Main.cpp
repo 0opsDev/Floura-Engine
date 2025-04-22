@@ -10,6 +10,7 @@
 #include <thread>
 #include <chrono>
 #include <Systems/utils/SettingsUtil.h>
+#include "Systems/utils/ScriptEngine.h"
 //temorary
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
@@ -106,7 +107,6 @@ float planeY = 0.0f;     // Y-position of the plane
 
 std::string mapName; // Map loading
 
-
 // Function to read a specific line from a file
 std::string readLineFromFile(const std::string& filePath, int lineNumber) {
 	// Shaders
@@ -197,7 +197,7 @@ std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> loadModelsF
 }
 
 
-void LoadPlayerConfig() {
+void LoadPlayerConfig(sol::state& LuaStat) {
 	// Load PlayerConfig.json
 	std::ifstream playerConfigFile("Settings/PlayerController.json");
 	if (playerConfigFile.is_open()) {
@@ -477,7 +477,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 // Holds DeltaTime Based Variables and Functions
-void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera, sol::state& mainLua) {
+void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera) {
 	// Framerate tracking  
 	deltaTimeStr.frameRateI = static_cast<int>(1.0f / deltaTime);
 	timeAccumulator[0] += deltaTime;
@@ -500,7 +500,6 @@ void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera, sol::state& m
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) {
 			cameraSettings[0] = std::max(cameraSettings[0] - 0.4f, 0.1f);
 		}
-		mainLua["UpdateDelta"]();
 		timeAccumulator[1] = 0.0f;
 	}
 
@@ -667,44 +666,15 @@ void cubeboxTexture(unsigned int& cubemapTexture) {
 	}
 }
 
-void LoadLua(sol::state& LuaState, std::string Path) {
-	LuaState.open_libraries(sol::lib::base, sol::lib::io, sol::lib::math, sol::lib::table);
-	// Step 1) Load & Parse File
-	try
-	{
-		LuaState.safe_script_file(Path);
-		if (init::LogALL || init::LogLua) std::cout << "[CPP LoadLua] Lua File read OK! at: " << Path << std::endl;
-	}
-	catch (const sol::error& e)
-	{
-		// Something went wrong with loading this script
-		if (init::LogALL || init::LogLua) std::cout << "[CPP LoadLua] Lua File read ERROR! at: " << Path << std::endl;
-		if (init::LogALL || init::LogLua) std::cout << std::string(e.what()) << "\n";
-	}
-}
-
-void runLuaInitFunc(sol::state& LuaStat) {
-
-	//LuaStat["init"]();
-
-	float x1 = LuaStat["init"]();
-	if (init::LogALL || init::LogLua) std::cout << "init returned: " << x1 << std::endl;
-
-}
-
 //Main Function
 int main()
 {
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 	init::initLog();// init logs (should always be before priniting anything)
-	sol::state mainLua; std::string mainLuaPath = "UserScripts/Main.lua";
-	sol::state CharacterControllerScript; std::string CharacterControllerScriptPath = "UserScripts/CharacterController.Lua";
-	LoadLua(mainLua, mainLuaPath); // Initialize Lua
-	LoadLua(CharacterControllerScript, CharacterControllerScriptPath); // Initialize Lua
+	ScriptEngine Main("TempName", "UserScripts/Main.lua"); //where temp name is i wanna have a list of strings for libs to import
 
 	init::initGLFW(); // initialize glfw
 	std::thread storageThread1(loadSettings);
-	std::thread storageThread3(LoadPlayerConfig);
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -782,7 +752,6 @@ int main()
 	skyboxBuffer(skyboxVAO, skyboxVBO, skyboxEBO);
 
 	LoadSkybox();
-
 	// Create and load a cubemap texture
 	unsigned int cubemapTexture;
 	cubeboxTexture(cubemapTexture);
@@ -798,23 +767,20 @@ int main()
 
 	storageThread1.join();
 	storageThread2.join();
-	storageThread3.join();
 
-	LoadPlayerConfig();
 
 	camera.doFreeCam = doFreeCam; // set camera to free cam or not
-
-	runLuaInitFunc(mainLua); // run the init function in lua
-	runLuaInitFunc(CharacterControllerScript); // run the init function in lua
+	Main.init();
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	if (init::LogALL || init::LogSystems) std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
-
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
-		DeltaMain(window, deltaTime, camera, mainLua); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) \
+		DeltaMain(window, deltaTime, camera); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC)
+		
+		Main.update(); Main.UpdateDelta();
 
 		glm::vec3 cameraPos = Camera::PositionMatrix;
 		glm::vec3 feetpos = glm::vec3(Camera::PositionMatrix.x, (Camera::PositionMatrix.y - PlayerHeightCurrent), Camera::PositionMatrix.z);
@@ -843,7 +809,7 @@ int main()
 					}
 
 				}
-				else{ //ground
+				else { //ground
 					camera.DoJump = true;
 					timeAccumulator[3] = 0.0f;
 
@@ -885,7 +851,6 @@ int main()
 		if (glfwGetKey(window, GLFW_KEY_F10) == GLFW_PRESS) {
 			camera.Position = glm::vec3(0, 0, 0);
 		}
-
 		//physics
 
 		inputUtil::updateMouse(invertMouse, sensitivity); // update mouse
@@ -957,11 +922,7 @@ int main()
 			}
 		}
 
-		// voxel test 
-		/*
-				if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) { glDisable(GL_CULL_FACE); mc(SolidColour, camera, Front, Back, Left, Right, Top, Bottom); }
-		else { glEnable(GL_CULL_FACE); mc(shaderProgram, camera, Front, Back, Left, Right, Top, Bottom);}
-		*/
+
 		
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
@@ -1064,7 +1025,6 @@ int main()
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
-		mainLua["update"]();
 	}
 	// Cleanup: Delete all objects on close
 
