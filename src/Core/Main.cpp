@@ -477,7 +477,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 // Holds DeltaTime Based Variables and Functions
-void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera) {
+void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera, sol::state& mainLua) {
 	// Framerate tracking  
 	deltaTimeStr.frameRateI = static_cast<int>(1.0f / deltaTime);
 	timeAccumulator[0] += deltaTime;
@@ -500,7 +500,7 @@ void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera) {
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) {
 			cameraSettings[0] = std::max(cameraSettings[0] - 0.4f, 0.1f);
 		}
-
+		mainLua["UpdateDelta"]();
 		timeAccumulator[1] = 0.0f;
 	}
 
@@ -749,6 +749,24 @@ void mc(Shader shaderProgram, Camera camera, Model Front, Model Back, Model Left
 int main()
 {
 	auto startInitTime = std::chrono::high_resolution_clock::now();
+
+	// Step 0) Initialise Lua
+	sol::state mainLua;
+	mainLua.open_libraries(sol::lib::base, sol::lib::io, sol::lib::math, sol::lib::table);
+
+	// Step 1) Load & Parse File
+	try
+	{
+		mainLua.safe_script_file("UserScripts/Main.lua");
+		std::cout << "[CPP S1] Lua File read OK!\n";
+	}
+	catch (const sol::error& e)
+	{
+		// Something went wrong with loading this script
+		std::cout << std::string(e.what()) << "\n";
+		return 0;
+	}
+
 	init::initGLFW(); // initialize glfw
 	std::thread storageThread1(loadSettings);
 	std::thread storageThread3(LoadPlayerConfig);
@@ -859,13 +877,19 @@ int main()
 
 	camera.doFreeCam = doFreeCam; // set camera to free cam or not
 
+	//mainLua["init"]();
+
+	float x1 = mainLua["init"]();
+	std::cout << "MainLua init returned: " << x1 << std::endl;
+
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
+
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
-		DeltaMain(window, deltaTime, camera); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) \
+		DeltaMain(window, deltaTime, camera, mainLua); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC) \
 
 		glm::vec3 cameraPos = Camera::PositionMatrix;
 		glm::vec3 feetpos = glm::vec3(Camera::PositionMatrix.x, (Camera::PositionMatrix.y - PlayerHeightCurrent), Camera::PositionMatrix.z);
@@ -1112,9 +1136,10 @@ int main()
 
 		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
 
+
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
-
+		mainLua["update"]();
 	}
 	// Cleanup: Delete all objects on close
 

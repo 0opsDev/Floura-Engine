@@ -97,6 +97,9 @@
     <Filter Include="Resource Files\Shaders\Skybox">
       <UniqueIdentifier>{e96aaa03-9abd-4e46-a63a-bb33a658f71a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\UserScripts">
+      <UniqueIdentifier>{7968ca2d-4921-4b76-ac28-dd1ea9edb422}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -327,6 +330,9 @@
     </None>
     <None Include="Settings\PlayerController.json">
       <Filter>Text Files\Text</Filter>
+    </None>
+    <None Include="UserScripts\Main.Lua">
+      <Filter>Source Files\UserScripts</Filter>
     </None>
   </ItemGroup>
 </Project>
