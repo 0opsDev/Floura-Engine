@@ -180,13 +180,7 @@
     <ClCompile Include="src\Systems\utils\ScriptEngine.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Render\RenderLoop.cpp">
-      <Filter>Source Files\main</Filter>
-    </ClCompile>
     <ClCompile Include="src\Systems\utils\timeAccumulator.cpp">
-      <Filter>Source Files\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelLinker.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -272,13 +266,7 @@
     <ClInclude Include="src\Systems\utils\ScriptEngine.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Render\RenderLoop.h">
-      <Filter>Header Files\main</Filter>
-    </ClInclude>
     <ClInclude Include="src\Systems\utils\timeAccumulator.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelLinker.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
@@ -288,9 +276,6 @@
     </None>
     <None Include="Shaders\Db\Depth.frag">
       <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Settings\imgui.ini">
-      <Filter>Text Files\Text</Filter>
     </None>
     <None Include="Shaders\ShaderList.json">
       <Filter>Resource Files</Filter>
@@ -360,6 +345,15 @@
     </None>
     <None Include="Settings\LogConfig.json">
       <Filter>Text Files\Text</Filter>
+    </None>
+    <None Include="UserScripts\Main\Test.Lua">
+      <Filter>Source Files\UserScripts</Filter>
+    </None>
+    <None Include="UserScripts\LuaStartup.json">
+      <Filter>Source Files\UserScripts</Filter>
+    </None>
+    <None Include="Settings\imgui.ini">
+      <Filter>Source Files\utils</Filter>
     </None>
   </ItemGroup>
 </Project>

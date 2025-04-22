@@ -19,6 +19,8 @@ public:
 	void update();
 
 	void UpdateDelta();
+
+	void runFunction(const std::string& name);
 };
 
 #endif // SCRIPT_ENGINE_H

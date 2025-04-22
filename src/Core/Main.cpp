@@ -102,8 +102,7 @@ float planeY = 0.0f;     // Y-position of the plane
 std::string mapName; // Map loading
 
 void Main::updateModelLua(std::vector<std::string> path, std::vector<std::string> modelName, std::vector<float> x, std::vector<float> y, std::vector<float> z) {
-
-	std::cout << "Received Path: " << path[1] << std::endl;
+	//std::cout << "Received Path: " << path[1] << std::endl;
 }
 
 // Function to read a specific line from a file
@@ -668,8 +667,9 @@ int main()
 {
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 	init::initLog();// init logs (should always be before priniting anything)
-	ScriptEngine Main("TempName", "UserScripts/Main.lua"); //where temp name is i wanna have a list of strings for libs to import
 
+	ScriptEngine Main("name", "UserScripts/Main.Lua");
+	Main.runFunction("init");
 	init::initGLFW(); // initialize glfw
 	std::thread storageThread1(loadSettings);
 	// Get the video mode of the primary monitor
@@ -767,7 +767,6 @@ int main()
 
 
 	camera.doFreeCam = doFreeCam; // set camera to free cam or not
-	Main.init();
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
@@ -777,7 +776,8 @@ int main()
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
 		DeltaMain(window, deltaTime, camera); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC)
 
-		Main.update(); Main.UpdateDelta();
+		Main.runFunction("update");
+		Main.runFunction("UpdateDelta");
 
 		glm::vec3 cameraPos = Camera::PositionMatrix;
 		glm::vec3 feetpos = glm::vec3(Camera::PositionMatrix.x, (Camera::PositionMatrix.y - PlayerHeightCurrent), Camera::PositionMatrix.z);

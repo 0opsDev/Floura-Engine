@@ -83,3 +83,22 @@ void ScriptEngine::UpdateDelta() {
 		timeAccumulatorSE = 0;
 	}
 }
+
+void ScriptEngine::runFunction(const std::string& name) {
+    if (name == "update") {
+        update();
+    }
+    else if (name == "UpdateDelta") {
+        UpdateDelta();
+    }
+    else if (name == "init") {
+        init();
+    }
+    else {
+        if (luaState[name].valid()) {
+            luaState[name](); // Call the Lua function
+        } else {
+            std::cerr << "Lua function '" << name << "' not found or invalid." << std::endl;
+        }
+    }
+}

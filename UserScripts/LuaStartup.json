@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Main",
+    "Path": "Main.Lua",
+    "init": "init",
+    "loop": [ "update", "UpdateDelta" ]
+  },
+  {
+    "name":  "test",
+    "Path": "Main/Test.Lua",
+    "init": "runOnce",
+    "loop": [ "update", "UpdateDelta" ]
+  }
+]
