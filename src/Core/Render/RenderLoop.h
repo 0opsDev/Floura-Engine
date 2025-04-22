@@ -5,7 +5,5 @@ class RenderLoop
 {
 public:
 
-	void Loop();
-
 };
 #endif

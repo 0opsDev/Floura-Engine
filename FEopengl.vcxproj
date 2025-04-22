@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ModelLinker.cpp" />
     <ClCompile Include="src\Core\glad.c" />
     <ClCompile Include="src\Core\Main.cpp" />
     <ClCompile Include="src\Core\Render\RenderLoop.cpp" />
@@ -165,10 +166,12 @@
     <ClCompile Include="src\Systems\utils\ScreenUtils.cpp" />
     <ClCompile Include="src\Systems\utils\ScriptEngine.cpp" />
     <ClCompile Include="src\Systems\utils\SettingsUtil.cpp" />
+    <ClCompile Include="src\Systems\utils\timeAccumulator.cpp" />
     <ClCompile Include="src\Systems\utils\timeUtil.cpp" />
     <ClCompile Include="src\Systems\utils\UF.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ModelLinker.h" />
     <ClInclude Include="src\Core\Main.h" />
     <ClInclude Include="src\Core\Render\RenderLoop.h" />
     <ClInclude Include="src\Libraries\include\imgui\imconfig.h" />
@@ -195,6 +198,7 @@
     <ClInclude Include="src\Systems\utils\ScreenUtils.h" />
     <ClInclude Include="src\Systems\utils\ScriptEngine.h" />
     <ClInclude Include="src\Systems\utils\SettingsUtil.h" />
+    <ClInclude Include="src\Systems\utils\timeAccumulator.h" />
     <ClInclude Include="src\Systems\utils\timeUtil.h" />
     <ClInclude Include="src\Systems\utils\UF.h" />
   </ItemGroup>

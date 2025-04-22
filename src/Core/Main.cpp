@@ -27,15 +27,9 @@ unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBuffer
 // Forward declaration of the function
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
 
-constexpr int DefaultMSAASamples = 16;
-constexpr float DefaultSharpenStrength = 3.0f;
-constexpr float DefaultTexelSizeMultiplier = 1.0f;
 constexpr float DefaultSensitivity = 100.0f;
+bool enableFB = false; // Change this as needed
 
-int MSAAsamp = DefaultMSAASamples;
-float sharpenStrength = DefaultSharpenStrength;
-bool enableMSAA = false; // Change this as needed
-float texelSizeMulti = DefaultTexelSizeMultiplier;
 char UniformInput[64] = {}; // Zero-initialized buffer
 float UniformFloat[3] = {}; // Zero-initialized array
 
@@ -84,10 +78,10 @@ struct DeltaTime {
 };
 DeltaTime deltaTimeStr;
 
-static float timeAccumulator[4] = {0,0,0,0}; // Zero-initialized DeltaTime accumulators
+static float timeAccumulator[4] = { 0,0,0,0 }; // Zero-initialized DeltaTime accumulators
 
 int TempButton = 0;
-bool Panels[2] = { true, true}; // ImGui Panels
+bool Panels[2] = { true, true }; // ImGui Panels
 
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
 
@@ -106,6 +100,11 @@ float planeMaxZ = 5.0f;  // Back edge of the plane
 float planeY = 0.0f;     // Y-position of the plane
 
 std::string mapName; // Map loading
+
+void Main::updateModelLua(std::vector<std::string> path, std::vector<std::string> modelName, std::vector<float> x, std::vector<float> y, std::vector<float> z) {
+
+	std::cout << "Received Path: " << path[1] << std::endl;
+}
 
 // Function to read a specific line from a file
 std::string readLineFromFile(const std::string& filePath, int lineNumber) {
@@ -326,112 +325,110 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	//Main Panel
-		ImGui::Begin("Settings"); // ImGUI window creation
+	ImGui::Begin("Settings"); // ImGUI window creation
 
-		ImGui::Text("Settings (Press escape to use mouse)");
-		if (ImGui::SmallButton("load")) { loadSettings(); loadEngineSettings();} // load settings button
-		ImGui::Checkbox("Preformance Profiler", &Panels[1]);
-		// Toggle ImGui Windows
-		// Rendering panel
-		if (ImGui::TreeNode("Rendering")) {
-			if (ImGui::TreeNode("Framerate And Resolution")) {
-				ImGui::Text("Framerate Limiters");
-				ImGui::Checkbox("Vsync", &doVsync); // Set the value of doVsync (bool)
-				// Screen
-				ImGui::DragInt("Width", &widthI);
-				ImGui::DragInt("Height", &heightI); // screen slider
-				ImGui::Checkbox("Enable MSAA", &enableMSAA); // Set the value of doVsync (bool)
-				ImGui::DragInt("MSAA samples", &MSAAsamp);
-				ImGui::DragFloat("MSAA Sharpen Strength ", &sharpenStrength);
-				ImGui::DragFloat("texel Size Multiplier (Edge Size)", &texelSizeMulti);
+	ImGui::Text("Settings (Press escape to use mouse)");
+	if (ImGui::SmallButton("load")) { loadSettings(); loadEngineSettings(); } // load settings button
+	ImGui::Checkbox("Preformance Profiler", &Panels[1]);
+	// Toggle ImGui Windows
+	// Rendering panel
+	if (ImGui::TreeNode("Rendering")) {
+		if (ImGui::TreeNode("Framerate And Resolution")) {
+			ImGui::Text("Framerate Limiters");
+			ImGui::Checkbox("Vsync", &doVsync); // Set the value of doVsync (bool)
+			// Screen
+			ImGui::DragInt("Width", &widthI);
+			ImGui::DragInt("Height", &heightI); // screen slider
+			ImGui::Checkbox("Enable FB shader", &enableFB); // Set the value of doVsync (bool)
 
-				if (ImGui::SmallButton("Apply Changes?")) { // apply button
-					width = static_cast<unsigned int>(widthI);
-					height = static_cast<unsigned int>(heightI); // cast screenArea from screenAreaI
-					ScreenUtils::SetScreenSize(window, width, height); // set window and viewport w&h
-					ScreenUtils::setVSync(doVsync); // Set Vsync to value of doVsync (bool)
-					updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, width, height); // Update frame buffer resolution
-				}
-				if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
-				{
-					ScreenUtils::toggleFullscreen(window, monitorT, isFullscreen, windowedPosX, windowedPosY, windowedWidth, windowedHeight);
-				} //Toggle Fullscreen
-
-
-				ImGui::TreePop();// Ends The ImGui Window
+			if (ImGui::SmallButton("Apply Changes?")) { // apply button
+				width = static_cast<unsigned int>(widthI);
+				height = static_cast<unsigned int>(heightI); // cast screenArea from screenAreaI
+				ScreenUtils::SetScreenSize(window, width, height); // set window and viewport w&h
+				ScreenUtils::setVSync(doVsync); // Set Vsync to value of doVsync (bool)
+				updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, width, height); // Update frame buffer resolution
 			}
+			if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
+			{
+				ScreenUtils::toggleFullscreen(window, monitorT, isFullscreen, windowedPosX, windowedPosY, windowedWidth, windowedHeight);
+			} //Toggle Fullscreen
 
-			if (ImGui::TreeNode("Shaders")) {
-				//Optimisation And Shaders
-				ImGui::Checkbox("Enable Stencil Buffer", &Stencil);
-				ImGui::DragFloat("Stencil Size", &stencilSize);
-				ImGui::DragInt("Shader Number (Vert)", &VertNum);
-				ImGui::DragInt("Shader Number (Frag)", &FragNum); // Shader Switching
-				if (ImGui::SmallButton("Apply Shader?")) { shaderProgramT.Delete(); TempButton = -1; } // apply shader
-				ImGui::DragFloat("Gamma", &gamma);
-				ImGui::SliderInt("doReflections", &doReflections, 0, 2);
-				ImGui::SliderInt("doFog", &doFog, 0, 1); 		//Toggles
 
-				ImGui::Text("DepthBuffer Settings (FOG)");
-				ImGui::DragFloat("Depth Distance (FOG)", &DepthDistance);
-				ImGui::DragFloat2("Near and Far Depth Plane", DepthPlane);
+			ImGui::TreePop();// Ends The ImGui Window
+		}
 
-				ImGui::InputText("Uniform Input", UniformInput, IM_ARRAYSIZE(UniformInput));
-				ImGui::DragFloat("UniformFloat", UniformFloat);
-				if (false & UniformInput != NULL) { // Debug
-					if (init::LogALL || init::LogSystems) std::cout << UniformInput << std::endl; }
-				ImGui::TreePop();// Ends The ImGui Window
-			}
-			// Lighting panel
+		if (ImGui::TreeNode("Shaders")) {
+			//Optimisation And Shaders
+			ImGui::Checkbox("Enable Stencil Buffer", &Stencil);
+			ImGui::DragFloat("Stencil Size", &stencilSize);
+			ImGui::DragInt("Shader Number (Vert)", &VertNum);
+			ImGui::DragInt("Shader Number (Frag)", &FragNum); // Shader Switching
+			if (ImGui::SmallButton("Apply Shader?")) { shaderProgramT.Delete(); TempButton = -1; } // apply shader
+			ImGui::DragFloat("Gamma", &gamma);
+			ImGui::SliderInt("doReflections", &doReflections, 0, 2);
+			ImGui::SliderInt("doFog", &doFog, 0, 1); 		//Toggles
 
-			if (ImGui::TreeNode("Lighting")) {
+			ImGui::Text("DepthBuffer Settings (FOG)");
+			ImGui::DragFloat("Depth Distance (FOG)", &DepthDistance);
+			ImGui::DragFloat2("Near and Far Depth Plane", DepthPlane);
 
-				if (ImGui::TreeNode("Colour")) {
-					ImGui::ColorEdit4("sky RGBA", skyRGBA);
-					ImGui::ColorEdit4("light RGBA", lightRGBA);
-					ImGui::ColorEdit4("fog RGBA", fogRGBA);	// sky and light
-					ImGui::ColorEdit4("Stencil RGBA", stencilColor);
-					ImGui::TreePop();
-				}
-
-				if (ImGui::TreeNode("Light Settings")) {
-					ImGui::DragFloat3("Light Transform", LightTransform1);
-					ImGui::DragFloat("light I", &ConeSI[2]);
-
-					// cone settings
-					ImGui::Text("cone size");
-					ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
-					ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
-
-					ImGui::Text("Light Angle");
-					ImGui::DragFloat3("Cone Angle", ConeRot);
-
-					ImGui::TreePop();
-				}
-
-				ImGui::TreePop();// Ends The ImGui Window
+			ImGui::InputText("Uniform Input", UniformInput, IM_ARRAYSIZE(UniformInput));
+			ImGui::DragFloat("UniformFloat", UniformFloat);
+			if (false & UniformInput != NULL) { // Debug
+				if (init::LogALL || init::LogSystems) std::cout << UniformInput << std::endl;
 			}
 			ImGui::TreePop();// Ends The ImGui Window
 		}
-		// Camera panel
-		if (ImGui::TreeNode("Camera Settings")) {
+		// Lighting panel
 
-			if (ImGui::TreeNode("View")) {
-				ImGui::SliderFloat("FOV", &cameraSettings[0], 0.1f, 160.0f); //FOV
-				ImGui::DragFloat2("Near and Far Plane", &cameraSettings[1], cameraSettings[2]); // Near and FarPlane
-				ImGui::TreePop();// Ends The ImGui Window 
+		if (ImGui::TreeNode("Lighting")) {
+
+			if (ImGui::TreeNode("Colour")) {
+				ImGui::ColorEdit4("sky RGBA", skyRGBA);
+				ImGui::ColorEdit4("light RGBA", lightRGBA);
+				ImGui::ColorEdit4("fog RGBA", fogRGBA);	// sky and light
+				ImGui::ColorEdit4("Stencil RGBA", stencilColor);
+				ImGui::TreePop();
 			}
 
-			if (ImGui::TreeNode("Transform")) {
-				if (ImGui::SmallButton("Reset Camera")) { TempButton = 1; } // reset cam pos
-				ImGui::DragFloat3("Camera Transform", CameraXYZ); // set cam pos
-				if (ImGui::SmallButton("Set")) { TempButton = 2; } // apply cam pos
-				ImGui::TreePop();// Ends The ImGui Window 
+			if (ImGui::TreeNode("Light Settings")) {
+				ImGui::DragFloat3("Light Transform", LightTransform1);
+				ImGui::DragFloat("light I", &ConeSI[2]);
+
+				// cone settings
+				ImGui::Text("cone size");
+				ImGui::SliderFloat("cone Size (D: 0.95)", &ConeSI[1], 0.0f, 1.0f);
+				ImGui::SliderFloat("cone Strength (D: 0.05)", &ConeSI[0], 0.0f, 0.90f);
+
+				ImGui::Text("Light Angle");
+				ImGui::DragFloat3("Cone Angle", ConeRot);
+
+				ImGui::TreePop();
 			}
 
 			ImGui::TreePop();// Ends The ImGui Window
 		}
-		ImGui::End();
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+	// Camera panel
+	if (ImGui::TreeNode("Camera Settings")) {
+
+		if (ImGui::TreeNode("View")) {
+			ImGui::SliderFloat("FOV", &cameraSettings[0], 0.1f, 160.0f); //FOV
+			ImGui::DragFloat2("Near and Far Plane", &cameraSettings[1], cameraSettings[2]); // Near and FarPlane
+			ImGui::TreePop();// Ends The ImGui Window 
+		}
+
+		if (ImGui::TreeNode("Transform")) {
+			if (ImGui::SmallButton("Reset Camera")) { TempButton = 1; } // reset cam pos
+			ImGui::DragFloat3("Camera Transform", CameraXYZ); // set cam pos
+			if (ImGui::SmallButton("Set")) { TempButton = 2; } // apply cam pos
+			ImGui::TreePop();// Ends The ImGui Window 
+		}
+
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+	ImGui::End();
 	// preformance profiler
 	if (Panels[1]) {
 		ImGui::Begin("Preformance Profiler");
@@ -487,8 +484,8 @@ void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera) {
 		deltaTimeStr.frameRate1IHZ = deltaTimeStr.frameRateI;
 		deltaTimeStr.framerate = "FPS " + std::to_string(deltaTimeStr.frameRateI);
 		glfwSetWindowTitle(window, (WindowTitle + " (FPS: " + std::to_string(deltaTimeStr.frameRate1IHZ) +
-	" ) (at pos: " + std::to_string(Camera::PositionMatrix.x) + " " + std::to_string(Camera::PositionMatrix.y) + " " + std::to_string(Camera::PositionMatrix.z) +
-	") (Foot Collision: " + std::to_string(footCollision) + ")" + " (Title updates at 1hz) ").c_str());
+			" ) (at pos: " + std::to_string(Camera::PositionMatrix.x) + " " + std::to_string(Camera::PositionMatrix.y) + " " + std::to_string(Camera::PositionMatrix.z) +
+			") (Foot Collision: " + std::to_string(footCollision) + ")" + " (Title updates at 1hz) ").c_str());
 		timeAccumulator[0] = 0.0f;
 	}
 
@@ -608,7 +605,7 @@ void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int&
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-void skyboxBuffer(unsigned int&skyboxVAO, unsigned int&skyboxVBO, unsigned int&skyboxEBO) {
+void skyboxBuffer(unsigned int& skyboxVAO, unsigned int& skyboxVBO, unsigned int& skyboxEBO) {
 	// Create VAO, VBO, and EBO for the skybox
 	glGenVertexArrays(1, &skyboxVAO);
 	glGenBuffers(1, &skyboxVBO);
@@ -779,7 +776,7 @@ int main()
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
 		DeltaMain(window, deltaTime, camera); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC)
-		
+
 		Main.update(); Main.UpdateDelta();
 
 		glm::vec3 cameraPos = Camera::PositionMatrix;
@@ -923,7 +920,7 @@ int main()
 		}
 
 
-		
+
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
 		if (Stencil) {
@@ -984,18 +981,14 @@ int main()
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		GLint uniformLocation = glGetUniformLocation(frameBufferProgram.ID, "enableMSAA");
+		GLint uniformLocation = glGetUniformLocation(frameBufferProgram.ID, "enableFB");
 		frameBufferProgram.Activate();
 		UF::Float(frameBufferProgram.ID, "time", glfwGetTime());
-		UF::Int(frameBufferProgram.ID, "MSAAsamp", MSAAsamp);
-		UF::Float(frameBufferProgram.ID, "sharpenStrength", sharpenStrength);
-		UF::Float(frameBufferProgram.ID, "texelSizeMulti", texelSizeMulti);
 		UF::Float(frameBufferProgram.ID, "deltaTime", deltaTime);
 
 		UF::Float(frameBufferProgram.ID, UniformInput, UniformFloat[0]);
 
-		UF::Int(frameBufferProgram.ID, "frameCount", 4);
-		glUniform1i(uniformLocation, enableMSAA ? 1 : 0);
+		glUniform1i(uniformLocation, enableFB ? 1 : 0);
 
 		// draw the framebuffer
 		glBindVertexArray(viewVAO);

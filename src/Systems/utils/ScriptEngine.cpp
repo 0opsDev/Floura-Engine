@@ -1,8 +1,18 @@
 #include "Systems/utils/ScriptEngine.h"
 #include "Systems/utils/init.h"
 #include "Systems/utils/timeUtil.h"
+#include <unordered_set>
+#include <vector>
+#include <string>
+#include "core/Main.h"
 
 float timeAccumulatorSE = 0;
+
+std::vector<float> Modelx2, Modely2, Modelz2;
+std::vector<std::string> modelName2, Path2;
+std::unordered_set<std::string> existingNames; // Track model names to avoid duplicates
+
+
 sol::state luaState; //create new lua state
 // Constructor
 ScriptEngine::ScriptEngine(std::string FunctionName, std::string Path) { //creates object
@@ -32,13 +42,44 @@ void ScriptEngine::init() {
 }
 
 void ScriptEngine::update() {
+	// Clear arrays at the start of update
+	Modelx2.clear();
+	Modely2.clear();
+	Modelz2.clear();
+	modelName2.clear();
+	Path2.clear();
+	existingNames.clear();
+
+	// Step 5) Call Lua Function, which calls C++ Function!
+	luaState["ModelDraw"] = [](std::string Path, std::string modelName, float Modelx, float Modely, float Modelz) {
+		if (existingNames.find(modelName) == existingNames.end()) { // Only add if it's not a duplicate
+			Modelx2.push_back(Modelx);
+			Modely2.push_back(Modely);
+			Modelz2.push_back(Modelz);
+			modelName2.push_back(modelName);
+			Path2.push_back(Path);
+			existingNames.insert(modelName); // Mark the modelName as added
+		}
+		return 0;
+		};
+
 	luaState["update"]();
+	//now we need to send these arrays to main.cpp
+	// Pass stored model data to updateModelLua
+
+	//std::cout << Path2[1] << std::endl;
+
+		Main::updateModelLua(Path2, modelName2, Modelx2, Modely2, Modelz2);
 }
+
 
 void ScriptEngine::UpdateDelta() {
 	timeAccumulatorSE += TimeUtil::s_DeltaTime;
 	if (timeAccumulatorSE >= 0.016f) {
 		luaState["UpdateDelta"]();
+
+
+
 		timeAccumulatorSE = 0;
 	}
 }

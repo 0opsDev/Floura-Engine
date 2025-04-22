@@ -1,25 +1,21 @@
 
---COUNT = 1
 
---runs at main.cpp init speed
 function init()
-io.write("Main.Lua Running init \n")
+	io.write("Main.Lua Running init \n")
 
-return 0
+	return 0
 end
 
---updates at main.cpp loop speed
-function update()
-COUNT = COUNT + 1;
+function update() --updates GameLoop speed
 
---io.write(""..COUNT.."\n")
+ModelDraw("modelPath.gltf", "modelName", 1, 2, 3)
 
+ModelDraw("NOTTmodelPath.gltf", "NOTTmodelName", 4, 2, 0)
+
+	--io.write("[LUA S5] HostFunction returned "..r.."\n")
 end
 
---updates at 60hz deltatime
-function UpdateDelta()
-COUNT = COUNT + 1;
 
---io.write(""..COUNT.."\n")
+function UpdateDelta() --updates at 60hz deltatime
 
 end
