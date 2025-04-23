@@ -54,25 +54,50 @@ void init::initImGui(GLFWwindow* window) {
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	ImGui_ImplGlfw_InitForOpenGL(window, true), ImGui_ImplOpenGL3_Init("#version 330");
 
-	//theme
 	ImGuiStyle& Style = ImGui::GetStyle();
-	Style.Colors[ImGuiCol_Text] = ImVec4(1, 1, 1, 1);
-	Style.Colors[ImGuiCol_WindowBg] = ImVec4(0.157, 0.169, 0.188, 1);
-	Style.Colors[ImGuiCol_CheckMark] = ImVec4(0, 1, 1, 1);
-	Style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0, 0, 0, 1);
-	Style.Colors[ImGuiCol_TitleBg] = ImVec4(0.118, 0.129, 0.141, 1);
-	Style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.3, 0.3, 0.3, 1);
-	Style.Colors[ImGuiCol_ButtonActive] = ImVec4(0, 1, 1, 1);
-	Style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0, 1, 1, 1);
-	Style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0, 1, 1, 1);
-	Style.Colors[ImGuiCol_Border] = ImVec4(0, 0, 0, 1);
-	Style.Colors[ImGuiCol_FrameBg] = ImVec4(0.212, 0.224, 0.243, 1);
-	Style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.259, 0.271, 0.286, 1);
-	Style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.447, 0.537, 0.855, 1);
-	Style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.447, 0.537, 0.855, 1);
-	Style.Colors[ImGuiCol_SliderGrab] = ImVec4(0, 1, 1, 1);
-	Style.Colors[ImGuiCol_Button] = ImVec4(0.447, 0.537, 0.855, 1);
-	Style.Colors[ImGuiCol_Tab] = ImVec4(0.447, 0.537, 0.855, 1);
+
+	// General Colors
+	Style.Colors[ImGuiCol_Text] = ImVec4(0.88f, 0.88f, 0.88f, 1.0f);  // Light gray text
+	Style.Colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.0f);  // Dark background
+	Style.Colors[ImGuiCol_Border] = ImVec4(0.19f, 0.19f, 0.19f, 1.0f);  // Subtle dark gray border
+
+	// Buttons
+	Style.Colors[ImGuiCol_Button] = ImVec4(0.26f, 0.29f, 0.48f, 1.0f);  // Discord blue
+	Style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.34f, 0.38f, 0.68f, 1.0f);  // Lighter blue on hover
+	Style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.20f, 0.22f, 0.38f, 1.0f);  // Darker blue when clicked
+
+	// Frame Background
+	Style.Colors[ImGuiCol_FrameBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.0f);  // Dark gray
+	Style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.24f, 0.26f, 0.42f, 1.0f);  // Discord blue accent
+	Style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.34f, 0.38f, 0.68f, 1.0f);  // Vibrant blue
+
+	// Tabs
+	Style.Colors[ImGuiCol_Tab] = ImVec4(0.19f, 0.19f, 0.19f, 1.0f);  // Soft dark gray tab
+	Style.Colors[ImGuiCol_TabHovered] = ImVec4(0.34f, 0.38f, 0.68f, 1.0f);  // Vibrant blue on hover
+	Style.Colors[ImGuiCol_TabActive] = ImVec4(0.26f, 0.29f, 0.48f, 1.0f);  // Discord blue
+
+	// Checkmarks
+	Style.Colors[ImGuiCol_CheckMark] = ImVec4(0.34f, 0.38f, 0.68f, 1.0f);  // Vibrant blue
+
+	// Slider
+	Style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.34f, 0.38f, 0.68f, 1.0f);  // Discord blue
+	Style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.20f, 0.22f, 0.38f, 1.0f);  // Dark blue
+
+	// Scrollbar
+	Style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.0f);  // Dark gray background
+	Style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.19f, 0.19f, 0.19f, 1.0f);  // Subtle dark gray
+	Style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.26f, 0.29f, 0.48f, 1.0f);  // Discord blue
+	Style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.34f, 0.38f, 0.68f, 1.0f);  // Vibrant blue
+
+	// Curved Elements
+	Style.FrameRounding = 8.0f;
+	Style.WindowRounding = 6.0f;
+	Style.ScrollbarRounding = 8.0f;
+
+	// Padding
+	Style.WindowPadding = ImVec2(8, 8);
+	Style.FramePadding = ImVec2(6, 3);
+	Style.ItemSpacing = ImVec2(7, 5);
 }
 
 void init::initBullet() {

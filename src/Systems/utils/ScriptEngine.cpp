@@ -39,6 +39,7 @@ void ScriptEngine::init() {
 	if (init::LogALL || init::LogLua) std::cout << "[CPP runLuaInitFunc] init returned: " << x1 << std::endl;
 }
 
+
 void ScriptEngine::update() {
 
 // could we have a model.Clear function that clears the model
@@ -59,6 +60,7 @@ void ScriptEngine::update() {
 	isCulling2.clear();
 	existingNames.clear();
 	*/
+
 	luaState["ModelDraw"] = [](std::string Path, std::string modelName, bool isCulling, float Modelx, float Modely, float Modelz, float RotW, float RotX, float RotY, float RotZ, float ScaleX, float ScaleY, float ScaleZ) {
 		//std::cout << "VALID" << std::endl;
 		if (existingNames.find(modelName) == existingNames.end()) { // Only add if it's not a duplicate
@@ -80,8 +82,6 @@ void ScriptEngine::update() {
 		Main::updateModelLua(Path2, modelName2, isCulling2, Modelx2, Modely2, Modelz2, RotW2, RotX2, RotY2, RotZ2, ScaleX2, ScaleY2, ScaleZ2);
 		return 0;
 		}; // needs to be made so it doesnt clear when re ran
-
-
 
 	luaState["update"](); // the issue is that for some reason two diff scripts cant run the same function at the same time 
 }

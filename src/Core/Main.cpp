@@ -63,25 +63,16 @@ float stencilSize = 0.009f;
 GLfloat stencilColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 float gamma = 2.2f;
 
-unsigned int width = 800, height = 600;
+float resolutionScale = 1;
+unsigned int width = 800, height = 600, ViewPortWidth = 800, ViewPortHeight = 600;
 int windowedPosX = 0, windowedPosY = 0, windowedWidth = 0, windowedHeight = 0, widthI = 0, heightI = 0;
 bool isFullscreen = false;
 std::string WindowTitle = "OpenGL Window";
 
-struct DeltaTime {
-	int frameRateI = 0;
-	int frameRate1IHZ = 0;
-	float lastFrameTime = 0.0f;
-	float ftDif = 0.0f;
-	bool aqFPS = true;
-	std::string framerate;
-};
-DeltaTime deltaTimeStr;
-
 static float timeAccumulator[4] = { 0,0,0,0 }; // Zero-initialized DeltaTime accumulators
 
 int TempButton = 0;
-bool Panels[2] = { true, true }; // ImGui Panels
+bool Panels[5] = { true, true, true, true, true}; // ImGui Panels
 
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
 
@@ -116,7 +107,7 @@ void Main::updateModelLua(
 	std::vector<float> ScaleY,
 	std::vector<float> ScaleZ)
 {
-	if (true) { //turn true for debugging
+	if (false) { //turn true for debugging
 		for (size_t i = 0; i < modelName.size(); i++) {
 			std::cout << "Received modelName: " << modelName[i] << std::endl;
 			if (false) {
@@ -355,27 +346,83 @@ void LoadSkybox() {
 void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO, unsigned int& frameBufferTexture2) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(static_cast<unsigned int>(widthI), static_cast<unsigned int>(heightI)));
+	ImGui::Begin("Window"); // ImGUI window creation
+
+	ImGui::End();
 	//Main Panel
-	ImGui::Begin("Settings"); // ImGUI window creation
+	ImGui::Begin("Panels"); // ImGUI window creation
 
 	ImGui::Text("Settings (Press escape to use mouse)");
 	if (ImGui::SmallButton("load")) { loadSettings(); loadEngineSettings(); } // load settings button
-	ImGui::Checkbox("Preformance Profiler", &Panels[1]);
+	ImGui::Checkbox("Rendering", &Panels[1]);
+	ImGui::Checkbox("Camera Settings", &Panels[2]);
+	ImGui::Checkbox("ViewPort", &Panels[3]);
+	//Panels
 	// Toggle ImGui Windows
 	// Rendering panel
-	if (ImGui::TreeNode("Rendering")) {
+	if (Panels[1]) {
+
+		ImGui::Begin("Rendering"); // ImGUI window creation
+
+		if (ImGui::TreeNode("System Infomation")) {
+			const GLubyte* version = glGetString(GL_VERSION);
+			const GLubyte* renderer = glGetString(GL_RENDERER);
+
+			ImGui::Text("OpenGL Version: %s", version); // Display OpenGL version
+			ImGui::Text("Renderer: %s", renderer);  // Display GPU renderer
+
+			ImGui::Text( (std::string("ViewportSize: ") + std::to_string(static_cast<int>(ViewPortWidth * resolutionScale)) + "*" + std::to_string(static_cast<int>(ViewPortHeight * resolutionScale)) ).c_str() );
+
+			ImGui::Spacing();
+
+			static float framerateValues[60] = { 0 };
+			static int frValues_offset = 0;
+			framerateValues[frValues_offset] = static_cast<float>(TimeUtil::s_frameRate);
+			frValues_offset = (frValues_offset + 1) % IM_ARRAYSIZE(framerateValues);
+
+			//Frame time graph
+			static float frameTimeValues[90] = { 0 }; //stores 90 snapshots of frametime
+
+			static int ftValues_offset = 0;
+			frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f; // Convert to milliseconds
+			ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
+			std::string frametimes = "LAT: " + std::to_string(frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f) + " ms";
+
+			ImGui::Text(("fps: " + std::to_string(TimeUtil::s_frameRate1hz)).c_str());
+			ImGui::Text(frametimes.c_str());
+			ImGui::Spacing();
+
+			//std::string stringFPS = "FPS: " + std::to_string(deltaTimeStr.frameRate1IHZ) + frametimes;
+			if (ImGui::TreeNode("FPS Graph"))
+			{
+				ImGui::PlotLines("Framerate (FPS) Graph", framerateValues, (IM_ARRAYSIZE(framerateValues)), frValues_offset, nullptr, 0.0f, TimeUtil::s_frameRate * 1.5f, ImVec2(0, 80));
+				ImGui::PlotLines("Frame Times (ms) Graph", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
+
+				ImGui::TreePop();// Ends The ImGui Window
+			}
+
+		ImGui::TreePop();// Ends The ImGui Window
+		}
+
+		ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
 		if (ImGui::TreeNode("Framerate And Resolution")) {
 			ImGui::Text("Framerate Limiters");
 			ImGui::Checkbox("Vsync", &doVsync); // Set the value of doVsync (bool)
 			// Screen
 			ImGui::DragInt("Width", &widthI);
 			ImGui::DragInt("Height", &heightI); // screen slider
+
+			ImGui::SliderFloat("Resolution Scale", &resolutionScale, 0.009, 1);
 			ImGui::Checkbox("Enable FB shader", &enableFB); // Set the value of doVsync (bool)
 
 			if (ImGui::SmallButton("Apply Changes?")) { // apply button
 				width = static_cast<unsigned int>(widthI);
 				height = static_cast<unsigned int>(heightI); // cast screenArea from screenAreaI
-				ScreenUtils::SetScreenSize(window, width, height); // set window and viewport w&h
+				glViewport(0, 0, width * resolutionScale, height * resolutionScale); // real internal res
+				glfwSetWindowSize(window, width, height);
+				//ScreenUtils::SetScreenSize(window, width, height); // set window and viewport w&h
 				ScreenUtils::setVSync(doVsync); // Set Vsync to value of doVsync (bool)
 				updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, width, height); // Update frame buffer resolution
 			}
@@ -439,82 +486,49 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 
 			ImGui::TreePop();// Ends The ImGui Window
 		}
-		ImGui::TreePop();// Ends The ImGui Window
+		ImGui::End();
 	}
 	// Camera panel
-	if (ImGui::TreeNode("Camera Settings")) {
+	if (Panels[2]) {
+		ImGui::Begin("Camera Settings"); // ImGUI window creation
 
-		if (ImGui::TreeNode("View")) {
-			ImGui::SliderFloat("FOV", &cameraSettings[0], 0.1f, 160.0f); //FOV
-			ImGui::DragFloat2("Near and Far Plane", &cameraSettings[1], cameraSettings[2]); // Near and FarPlane
-			ImGui::TreePop();// Ends The ImGui Window 
-		}
+		ImGui::Text("View");
+		ImGui::SliderFloat("FOV", &cameraSettings[0], 0.1f, 160.0f); //FOV
+		ImGui::DragFloat2("Near and Far Plane", &cameraSettings[1], cameraSettings[2]); // Near and FarPlane
 
-		if (ImGui::TreeNode("Transform")) {
-			if (ImGui::SmallButton("Reset Camera")) { TempButton = 1; } // reset cam pos
-			ImGui::DragFloat3("Camera Transform", CameraXYZ); // set cam pos
-			if (ImGui::SmallButton("Set")) { TempButton = 2; } // apply cam pos
-			ImGui::TreePop();// Ends The ImGui Window 
-		}
+		ImGui::Spacing();
 
-		ImGui::TreePop();// Ends The ImGui Window
-	}
-	ImGui::End();
-	// preformance profiler
-	if (Panels[1]) {
-		ImGui::Begin("Preformance Profiler");
-		// Framerate graph
-		ImGui::Checkbox("Stabe Graph (Less Smoothness)", &deltaTimeStr.aqFPS);
+		ImGui::Text("Transform");
+		if (ImGui::SmallButton("Reset Camera")) { TempButton = 1; } // reset cam pos
+		ImGui::DragFloat3("Camera Transform", CameraXYZ); // set cam pos
+		if (ImGui::SmallButton("Set")) { TempButton = 2; } // apply cam pos
 
-		static float framerateValues[60] = { 0 };
-		static int frValues_offset = 0;
-		framerateValues[frValues_offset] = static_cast<float>(deltaTimeStr.frameRateI);
-		frValues_offset = (frValues_offset + 1) % IM_ARRAYSIZE(framerateValues);
-
-		ImGui::Text(deltaTimeStr.framerate.c_str());
-		//ftDif = current frame rate(PER SEC) + half of current frame rate so the graph has space to display(max graph height
-		ImGui::PlotLines("Framerate (FPS) Graph (500SAMP)", framerateValues, (IM_ARRAYSIZE(framerateValues)), frValues_offset, nullptr, 0.0f, deltaTimeStr.ftDif, ImVec2(0, 80));
-
-		//Frame time graph
-		static float frameTimeValues[90] = { 0 }; //stores 90 snapshots of frametime
-
-		static int ftValues_offset = 0;
-		frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f; // Convert to milliseconds
-		ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
-		std::string frametimes = "Frame Times " + std::to_string(frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f) + " ms";
-
-		ImGui::Text(frametimes.c_str());
-		ImGui::PlotLines("Frame Times (ms) Graph (90SAMP)", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
 		ImGui::End();
 	}
 
-	ImGui::Begin("ViewPort");
-	const float window_width = ImGui::GetContentRegionAvail().x;
-	const float window_height = ImGui::GetContentRegionAvail().y;
-	updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, window_width, window_height); // Update frame buffer resolution
-	glViewport(0, 0, window_width, window_height);
+	if (Panels[3]) {
+		ImGui::Begin("ViewPort");
+		const float window_width = ImGui::GetContentRegionAvail().x;
+		const float window_height = ImGui::GetContentRegionAvail().y;
+		updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, window_width, window_height); // Update frame buffer resolution
+		glViewport(0, 0, (window_width * resolutionScale), (window_height * resolutionScale));
+		ImGui::Image((ImTextureID)(uintptr_t)frameBufferTexture2, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::End();
+	}
 
-	// Bind the framebuffer texture
-//    glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
-//	ImVec2 pos = ImGui::GetCursorScreenPos();
-	ImGui::Image((ImTextureID)(uintptr_t)frameBufferTexture2, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
 	ImGui::End();
 	ImGui::Render(); // Renders the ImGUI elements
-
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 // Holds DeltaTime Based Variables and Functions
 void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera) {
 	// Framerate tracking  
-	deltaTimeStr.frameRateI = static_cast<int>(1.0f / deltaTime);
 	timeAccumulator[0] += deltaTime;
 
 	// Update FPS and window title every second  
 	if (timeAccumulator[0] >= 1.0f) {
-		deltaTimeStr.frameRate1IHZ = deltaTimeStr.frameRateI;
-		deltaTimeStr.framerate = "FPS " + std::to_string(deltaTimeStr.frameRateI);
-		glfwSetWindowTitle(window, (WindowTitle + " (FPS: " + std::to_string(deltaTimeStr.frameRate1IHZ) +
+		glfwSetWindowTitle(window, (WindowTitle + " (FPS: " + std::to_string(TimeUtil::s_frameRate1hz) +
 			" ) (at pos: " + std::to_string(Camera::PositionMatrix.x) + " " + std::to_string(Camera::PositionMatrix.y) + " " + std::to_string(Camera::PositionMatrix.z) +
 			") (Foot Collision: " + std::to_string(footCollision) + ")" + " (Title updates at 1hz) ").c_str());
 		timeAccumulator[0] = 0.0f;
@@ -529,17 +543,6 @@ void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera) {
 			cameraSettings[0] = std::max(cameraSettings[0] - 0.4f, 0.1f);
 		}
 		timeAccumulator[1] = 0.0f;
-	}
-
-	// Update frame time difference based on FPS mode  
-	timeAccumulator[2] += deltaTime;
-	float frameTimeThreshold = deltaTimeStr.aqFPS ?
-		(1000.0f / (deltaTimeStr.frameRateI * deltaTime * 1000.0f)) :
-		(1000.0f / (deltaTimeStr.frameRateI * 10.0f));
-
-	if (timeAccumulator[2] >= frameTimeThreshold) {
-		deltaTimeStr.ftDif = deltaTimeStr.frameRateI * 1.5f;
-		timeAccumulator[2] = 0.0f;
 	}
 }
 
@@ -615,25 +618,28 @@ void setupSecondFBO(unsigned int& FBO, unsigned int& frameBufferTexture, unsigne
 }
 
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height) {
-	// Update first frame buffer texture
-	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glBindTexture(GL_TEXTURE_2D, 0);
 
-	// Update first render buffer storage
-	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	ViewPortWidth = width;
+	ViewPortHeight = height;
+		// Update first frame buffer texture
+		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (width * resolutionScale), (height * resolutionScale), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
-	// Update second frame buffer texture
-	glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glBindTexture(GL_TEXTURE_2D, 0);
+		// Update first render buffer storage
+		glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (width * resolutionScale), (height * resolutionScale));
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	// Update second render buffer storage
-	glBindRenderbuffer(GL_RENDERBUFFER, RBO2);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+		// Update second frame buffer texture
+		glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (width * resolutionScale), (height * resolutionScale), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		// Update second render buffer storage
+		glBindRenderbuffer(GL_RENDERBUFFER, RBO2);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (width * resolutionScale), (height * resolutionScale));
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
 void skyboxBuffer(unsigned int& skyboxVAO, unsigned int& skyboxVBO, unsigned int& skyboxEBO) {
@@ -1005,8 +1011,6 @@ int main()
 			}
 		}
 
-
-
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
 		if (Stencil) {
@@ -1070,7 +1074,7 @@ int main()
 		GLint uniformLocation = glGetUniformLocation(frameBufferProgram.ID, "enableFB");
 		frameBufferProgram.Activate();
 		UF::Float(frameBufferProgram.ID, "time", glfwGetTime());
-		UF::Float(frameBufferProgram.ID, "deltaTime", deltaTime);
+		UF::Float(frameBufferProgram.ID, "deltaTime", TimeUtil::s_DeltaTime);
 
 		UF::Float(frameBufferProgram.ID, UniformInput, UniformFloat[0]);
 
