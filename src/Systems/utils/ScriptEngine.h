@@ -9,6 +9,7 @@
 class ScriptEngine
 {
 public:
+	sol::state luaState;
 
 	ScriptEngine(std::string Name, std::string Path); //Constructor
 

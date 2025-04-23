@@ -8,11 +8,12 @@ end
 
 function update() --updates GameLoop speed
 
-ModelDraw("modelPath.gltf", "modelName", 1, 2, 3)
+--         path              name         culling trans  rot        scale
 
-ModelDraw("NOTTmodelPath.gltf", "NOTTmodelName", 4, 2, 0)
+ModelDraw("modelPath.gltf", "modelName", true, 1, 2, 3,  1, 2, 3, 4,  1, 1, 1)
 
-	--io.write("[LUA S5] HostFunction returned "..r.."\n")
+ModelDraw("NOTTmodelPath.gltf", "NOTTmodelName", false, 4, 2, 0, 0, 0, 0, 0, 1, 1, 1)
+
 end
 
 

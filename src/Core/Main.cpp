@@ -22,10 +22,10 @@
 #include <sol/sol.hpp>
 #pragma comment(lib, "lua54.lib")
 
-unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
-
 // Forward declaration of the function
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
+
+unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
 
 constexpr float DefaultSensitivity = 100.0f;
 bool enableFB = false; // Change this as needed
@@ -101,8 +101,40 @@ float planeY = 0.0f;     // Y-position of the plane
 
 std::string mapName; // Map loading
 
-void Main::updateModelLua(std::vector<std::string> path, std::vector<std::string> modelName, std::vector<float> x, std::vector<float> y, std::vector<float> z) {
-	//std::cout << "Received Path: " << path[1] << std::endl;
+void Main::updateModelLua( 
+	std::vector<std::string> path,
+	std::vector<std::string> modelName,
+	std::vector<bool> isCulling,
+	std::vector<float> Modelx,
+	std::vector<float> Modely,
+	std::vector<float> Modelz,
+	std::vector<float> RotW,
+	std::vector<float> RotX,
+	std::vector<float> RotY,
+	std::vector<float> RotZ,
+	std::vector<float> ScaleX,
+	std::vector<float> ScaleY,
+	std::vector<float> ScaleZ)
+{
+	if (true) { //turn true for debugging
+		for (size_t i = 0; i < modelName.size(); i++) {
+			std::cout << "Received modelName: " << modelName[i] << std::endl;
+			if (false) {
+				std::cout << "Received Path: " << path[i] << std::endl;
+				std::cout << "Received x: " << Modelx[i] << std::endl;
+				std::cout << "Received y: " << Modely[i] << std::endl;
+				std::cout << "Received z: " << Modelz[i] << std::endl;
+				std::cout << "Received RotW: " << RotW[i] << std::endl;
+				std::cout << "Received RotX: " << RotX[i] << std::endl;
+				std::cout << "Received RotY: " << RotY[i] << std::endl;
+				std::cout << "Received RotZ: " << RotZ[i] << std::endl;
+				std::cout << "Received ScaleX: " << ScaleX[i] << std::endl;
+				std::cout << "Received ScaleY: " << ScaleY[i] << std::endl;
+				std::cout << "Received ScaleZ: " << ScaleZ[i] << std::endl;
+			}
+		}
+	}
+
 }
 
 // Function to read a specific line from a file
@@ -662,14 +694,69 @@ void cubeboxTexture(unsigned int& cubemapTexture) {
 	}
 }
 
+struct ScriptInfo {
+	ScriptEngine* engine;
+	std::vector<std::string> loopFunctions;
+};
+
+std::unordered_map<std::string, ScriptInfo> scripts;
+
+json loadScriptConfig(const std::string& filepath) {
+	std::ifstream file(filepath);
+	if (!file.is_open()) {
+		std::cerr << "Failed to open " << filepath << "\n";
+		return {};
+	}
+
+	json config;
+	file >> config;
+	return config;
+}
+
+void setupScripts(const json& config) {
+	for (const auto& scriptDef : config) {
+		std::string name = scriptDef["name"];
+		std::string path = "UserScripts/" + std::string(scriptDef["Path"]);
+
+		if (scripts.find(name) != scripts.end())
+			continue;
+
+		ScriptEngine* engine = new ScriptEngine(name, path);
+
+		// Run init functions
+		if (scriptDef.contains("init")) {
+			for (const auto& func : scriptDef["init"]) {
+				engine->runFunction(func);
+			}
+		}
+
+		ScriptInfo info{ engine };
+		if (scriptDef.contains("loop")) {
+			for (const auto& func : scriptDef["loop"]) {
+				info.loopFunctions.push_back(func);
+			}
+		}
+
+		scripts[name] = info;
+	}
+}
+
+void runAllLoopFunctions() {
+	for (auto& [name, info] : scripts) {
+		for (const auto& func : info.loopFunctions) {
+			info.engine->runFunction(func);
+		}
+	}
+}
+
 //Main Function
 int main()
 {
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 	init::initLog();// init logs (should always be before priniting anything)
+	json config = loadScriptConfig("UserScripts/LuaStartup.json");
+	setupScripts(config);
 
-	ScriptEngine Main("name", "UserScripts/Main.Lua");
-	Main.runFunction("init");
 	init::initGLFW(); // initialize glfw
 	std::thread storageThread1(loadSettings);
 	// Get the video mode of the primary monitor
@@ -776,8 +863,7 @@ int main()
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
 		DeltaMain(window, deltaTime, camera); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC)
 
-		Main.runFunction("update");
-		Main.runFunction("UpdateDelta");
+		runAllLoopFunctions();
 
 		glm::vec3 cameraPos = Camera::PositionMatrix;
 		glm::vec3 feetpos = glm::vec3(Camera::PositionMatrix.x, (Camera::PositionMatrix.y - PlayerHeightCurrent), Camera::PositionMatrix.z);
