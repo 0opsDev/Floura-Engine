@@ -525,26 +525,26 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 // Holds DeltaTime Based Variables and Functions
-void DeltaMain(GLFWwindow* window, float deltaTime, Camera camera) {
+void DeltaMain(GLFWwindow* window, Camera camera) {
 	// Framerate tracking  
-	timeAccumulator[0] += deltaTime;
+	timeAccumulator[0] += TimeUtil::s_DeltaTime;
 
 	// Update FPS and window title every second  
 	if (timeAccumulator[0] >= 1.0f) {
-		glfwSetWindowTitle(window, (WindowTitle + " (FPS: " + std::to_string(TimeUtil::s_frameRate1hz) +
+		glfwSetWindowTitle(window, (WindowTitle + " (FPS: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz) ) +
 			" ) (at pos: " + std::to_string(Camera::PositionMatrix.x) + " " + std::to_string(Camera::PositionMatrix.y) + " " + std::to_string(Camera::PositionMatrix.z) +
 			") (Foot Collision: " + std::to_string(footCollision) + ")" + " (Title updates at 1hz) ").c_str());
-		timeAccumulator[0] = 0.0f;
+
+		timeAccumulator[0] = 0;
 	}
 
-	timeAccumulator[1] += deltaTime;
+	timeAccumulator[1] += TimeUtil::s_DeltaTime;
 	if (timeAccumulator[1] >= 0.016f) {
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) {
-			cameraSettings[0] = std::min(cameraSettings[0] + 0.4f, 160.0f);
-		}
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) {
-			cameraSettings[0] = std::max(cameraSettings[0] - 0.4f, 0.1f);
-		}
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) cameraSettings[0] = std::min(cameraSettings[0] + 0.4f, 160.0f);
+
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) cameraSettings[0] = std::max(cameraSettings[0] - 0.4f, 0.1f);
+
+		//if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) { isWireframe = !isWireframe; }
 		timeAccumulator[1] = 0.0f;
 	}
 }
@@ -870,8 +870,7 @@ int main()
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
-		DeltaMain(window, deltaTime, camera); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC)
-
+		DeltaMain(window, camera); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC)
 		runAllLoopFunctions();
 
 		glm::vec3 cameraPos = Camera::PositionMatrix;

@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 out vec4 FragColor;
 
 uniform float DepthDistance; // Distance offset for depth adjustment
