@@ -160,7 +160,6 @@
     <ClCompile Include="src\Render\shader\ShaderClass.cpp" />
     <ClCompile Include="src\Systems\file\FileClass.cpp" />
     <ClCompile Include="src\Systems\utils\init.cpp" />
-    <ClCompile Include="src\Systems\utils\inputUtil.cpp" />
     <ClCompile Include="src\Systems\utils\ScreenUtils.cpp" />
     <ClCompile Include="src\Systems\utils\ScriptEngine.cpp" />
     <ClCompile Include="src\Systems\utils\SettingsUtil.cpp" />
@@ -190,7 +189,6 @@
     <ClInclude Include="src\Systems\file\FileClass.h" />
     <ClInclude Include="src\Systems\utils\include.h" />
     <ClInclude Include="src\Systems\utils\init.h" />
-    <ClInclude Include="src\Systems\utils\inputUtil.h" />
     <ClInclude Include="src\Systems\utils\ScreenUtils.h" />
     <ClInclude Include="src\Systems\utils\ScriptEngine.h" />
     <ClInclude Include="src\Systems\utils\SettingsUtil.h" />

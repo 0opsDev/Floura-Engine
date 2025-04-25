@@ -159,9 +159,6 @@
     <ClCompile Include="src\Systems\utils\init.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\Systems\utils\inputUtil.cpp">
-      <Filter>Source Files\utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\Systems\utils\ScreenUtils.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
@@ -243,9 +240,6 @@
       <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\Systems\utils\init.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Systems\utils\inputUtil.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\Systems\utils\ScreenUtils.h">

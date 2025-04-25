@@ -1,7 +1,7 @@
 x = 0
 
 function init()
-	io.write("Main.Lua Running init \n")
+	io.write("[LUA] Main.Lua Running init \n")
 
 	return 0
 end

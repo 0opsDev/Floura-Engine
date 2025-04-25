@@ -2,7 +2,6 @@
   {
     "PlayerCollision": true,
     "DoGravity": true,
-    "FreeCam": false,
 
     "PlayerHeight": 1.8,
     "CrouchHighDiff": 0.9

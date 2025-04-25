@@ -5,9 +5,8 @@
     "Vsync": false,
     "FOV": 80.0,
     "MAP": "Plane",
-    "Sensitivity": 100.0,
-    "InvertX": false,
-    "InvertY": false,
-    "imGui": true 
+    "SensitivityX": 100.0,
+    "SensitivityY": 100.0,
+    "imGui": true
   }
 ]

@@ -6,11 +6,11 @@
 #include "Systems/utils/screenutils.h" 
 #include <glm/gtx/string_cast.hpp>
 #include "Systems/utils/timeUtil.h" 
-#include "Systems/utils/inputUtil.h"
 #include <thread>
 #include <chrono>
 #include <Systems/utils/SettingsUtil.h>
 #include "Systems/utils/ScriptEngine.h"
+#include "Systems/utils/timeAccumulator.h"
 //temorary
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
@@ -18,23 +18,16 @@
 #include <OpenAL/efx-presets.h>
 #define STB_PERLIN_IMPLEMENTATION
 #include <stb/stb_perlin.h>
-#define SOL_ALL_SAFETIES_ON 1
-#include <sol/sol.hpp>
-#pragma comment(lib, "lua54.lib")
 
 // Forward declaration of the function
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
 
 unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
 
-constexpr float DefaultSensitivity = 100.0f;
 bool enableFB = false; // Change this as needed
 
 char UniformInput[64] = {}; // Zero-initialized buffer
 float UniformFloat[3] = {}; // Zero-initialized array
-
-float sensitivity = DefaultSensitivity; // Mouse sensitivity
-bool invertMouse[2] = {}; // Invert mouse x and y axis (default: false)
 
 // Global Variables
 GLfloat ConeSI[3] = { 0.111f, 0.825f, 2.0f };
@@ -50,8 +43,8 @@ GLfloat DepthPlane[2] = { 0.1f, 100.0f };
 std::array<std::string, 6> facesCubemap;
 
 // Render settings
-int doReflections = 1;
-int doFog = 1;
+bool doReflections = true;
+bool doFog = true;
 bool doVsync = false;
 bool frontFaceSide = false;
 bool isWireframe = false;
@@ -70,7 +63,7 @@ int windowedPosX = 0, windowedPosY = 0, windowedWidth = 0, windowedHeight = 0, w
 bool isFullscreen = false;
 std::string WindowTitle = "OpenGL Window";
 
-static float timeAccumulator[4] = { 0,0,0,0 }; // Zero-initialized DeltaTime accumulators
+//static float timeAccumulator[4] = { 0,0,0,0 }; // Zero-initialized DeltaTime accumulators
 
 int TempButton = 0;
 bool Panels[5] = { true, true, true, true, true}; // ImGui Panels
@@ -78,8 +71,6 @@ bool Panels[5] = { true, true, true, true, true}; // ImGui Panels
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
 
 bool doPlayerCollision = true;
-bool doFreeCam = false;
-bool DoGravity = true;
 bool footCollision = false;
 float PlayerHeight = 1.8f;
 float CrouchHighDiff = 0.9f;
@@ -90,6 +81,11 @@ float planeMaxX = 5.0f;  // Right edge of the plane
 float planeMinZ = -5.0f; // Front edge of the plane
 float planeMaxZ = 5.0f;  // Back edge of the plane
 float planeY = 0.0f;     // Y-position of the plane
+
+TimeAccumulator TA1;
+TimeAccumulator TA2;
+TimeAccumulator TA3;
+
 
 std::string mapName; // Map loading
 
@@ -219,7 +215,7 @@ std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> loadModelsF
 }
 
 
-void LoadPlayerConfig(sol::state& LuaStat) {
+void LoadPlayerConfig() {
 	// Load PlayerConfig.json
 	std::ifstream playerConfigFile("Settings/PlayerController.json");
 	if (playerConfigFile.is_open()) {
@@ -229,10 +225,8 @@ void LoadPlayerConfig(sol::state& LuaStat) {
 
 		doPlayerCollision = playerConfigData[0]["PlayerCollision"];
 		if (init::LogALL || init::LogSystems) std::cout << "Player Collision: " << doPlayerCollision << std::endl;
-		doFreeCam = playerConfigData[0]["FreeCam"];
-		if (init::LogALL || init::LogSystems) std::cout << "FreeCam: " << doFreeCam << std::endl;
-		DoGravity = playerConfigData[0]["DoGravity"];
-		if (init::LogALL || init::LogSystems) std::cout << "DoGravity: " << DoGravity << std::endl;
+		Camera::s_DoGravity = playerConfigData[0]["DoGravity"];
+		if (init::LogALL || init::LogSystems) std::cout << "DoGravity: " << Camera::s_DoGravity << std::endl;
 
 		PlayerHeight = playerConfigData[0]["PlayerHeight"];
 		if (init::LogALL || init::LogSystems) std::cout << "PlayerHeight: " << PlayerHeight << std::endl;
@@ -265,9 +259,8 @@ void loadSettings() {
 		cameraSettings[0] = settingsData[0]["FOV"];
 		mapName = "Maps/" + settingsData[0]["MAP"].get<std::string>() + "/";
 
-		sensitivity = settingsData[0]["Sensitivity"];
-		invertMouse[0] = settingsData[0]["InvertX"];
-		invertMouse[1] = settingsData[0]["InvertY"];
+		Camera::s_sensitivityY = settingsData[0]["SensitivityY"];
+		Camera::s_sensitivityX = settingsData[0]["SensitivityX"];
 
 		Panels[0] = settingsData[0]["imGui"];
 
@@ -344,7 +337,7 @@ void LoadSkybox() {
 }
 
 // Holds ImGui Variables and Windows
-void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO, unsigned int& frameBufferTexture2) {
+void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, Camera camera, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO, unsigned int& frameBufferTexture2) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -391,7 +384,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
 			std::string frametimes = "LAT: " + std::to_string(frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f) + " ms";
 
-			ImGui::Text(("fps: " + std::to_string(TimeUtil::s_frameRate1hz)).c_str());
+			ImGui::Text( ("fps: " + std::to_string( static_cast<int>(TimeUtil::s_frameRate1hz) ) ).c_str() );
 			ImGui::Text(frametimes.c_str());
 			ImGui::Spacing();
 
@@ -446,8 +439,8 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			ImGui::DragInt("Shader Number (Frag)", &FragNum); // Shader Switching
 			if (ImGui::SmallButton("Apply Shader?")) { shaderProgramT.Delete(); TempButton = -1; } // apply shader
 			ImGui::DragFloat("Gamma", &gamma);
-			ImGui::SliderInt("doReflections", &doReflections, 0, 2);
-			ImGui::SliderInt("doFog", &doFog, 0, 1); 		//Toggles
+			ImGui::Checkbox("doReflections", &doReflections);
+			ImGui::Checkbox("doFog", &doFog); 		//Toggles
 
 			ImGui::Text("DepthBuffer Settings (FOG)");
 			ImGui::DragFloat("Depth Distance (FOG)", &DepthDistance);
@@ -494,17 +487,33 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	// Camera panel
 	if (Panels[2]) {
 		ImGui::Begin("Camera Settings"); // ImGUI window creation
+		if (ImGui::TreeNode("Controls")) {
+			ImGui::Text("Transform");
+			if (ImGui::SmallButton("Reset Camera")) { TempButton = 1; } // reset cam pos
+			ImGui::DragFloat3("Camera Transform", CameraXYZ); // set cam pos
+			if (ImGui::SmallButton("Set")) { TempButton = 2; } // apply cam pos
+			ImGui::DragFloat("Camera Speed", &Camera::s_scrollSpeed); //Camera
+			
+			ImGui::Spacing();
+			ImGui::Text("Bindings");
+			ImGui::DragFloat("Camera Sensitivity X", &Camera::s_sensitivityX);
+			ImGui::DragFloat("Camera Sensitivity Y", &Camera::s_sensitivityY);
+			ImGui::TreePop();
+		}
 
-		ImGui::Text("View");
-		ImGui::SliderFloat("FOV", &cameraSettings[0], 0.1f, 160.0f); //FOV
-		ImGui::DragFloat2("Near and Far Plane", &cameraSettings[1], cameraSettings[2]); // Near and FarPlane
-
+		if (ImGui::TreeNode("Perspective")) {
+			ImGui::Spacing();
+			ImGui::Text("View");
+			ImGui::SliderFloat("FOV", &cameraSettings[0], 0.1f, 160.0f); //FOV
+			ImGui::DragFloat2("Near and Far Plane", &cameraSettings[1], cameraSettings[2]); // Near and FarPlane
+			ImGui::TreePop();
+		}
 		ImGui::Spacing();
+		ImGui::Checkbox("DoGravity: ", &Camera::s_DoGravity);
 
-		ImGui::Text("Transform");
-		if (ImGui::SmallButton("Reset Camera")) { TempButton = 1; } // reset cam pos
-		ImGui::DragFloat3("Camera Transform", CameraXYZ); // set cam pos
-		if (ImGui::SmallButton("Set")) { TempButton = 2; } // apply cam pos
+		/*
+			doPlayerCollision = true;
+		*/
 
 		ImGui::End();
 	}
@@ -525,27 +534,29 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 // Holds DeltaTime Based Variables and Functions
-void DeltaMain(GLFWwindow* window, Camera camera) {
+void DeltaMain(GLFWwindow* window) {
 	// Framerate tracking  
-	timeAccumulator[0] += TimeUtil::s_DeltaTime;
+
+	TA1.update();
 
 	// Update FPS and window title every second  
-	if (timeAccumulator[0] >= 1.0f) {
+	if (TA1.Counter >= 1.0f) {
 		glfwSetWindowTitle(window, (WindowTitle + " (FPS: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz) ) +
-			" ) (at pos: " + std::to_string(Camera::PositionMatrix.x) + " " + std::to_string(Camera::PositionMatrix.y) + " " + std::to_string(Camera::PositionMatrix.z) +
+			" ) (at pos: " + std::to_string(Camera::s_PositionMatrix.x) + " " + std::to_string(Camera::s_PositionMatrix.y) + " " + std::to_string(Camera::s_PositionMatrix.z) +
 			") (Foot Collision: " + std::to_string(footCollision) + ")" + " (Title updates at 1hz) ").c_str());
 
-		timeAccumulator[0] = 0;
+		TA1.reset();
+		//timeAccumulator[0] = 0;
 	}
 
-	timeAccumulator[1] += TimeUtil::s_DeltaTime;
-	if (timeAccumulator[1] >= 0.016f) {
+	TA2.update();
+	if (TA2.Counter >= 1 / 60) {
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) cameraSettings[0] = std::min(cameraSettings[0] + 0.4f, 160.0f);
 
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) cameraSettings[0] = std::max(cameraSettings[0] - 0.4f, 0.1f);
-
+		
 		//if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) { isWireframe = !isWireframe; }
-		timeAccumulator[1] = 0.0f;
+		TA2.reset();
 	}
 }
 
@@ -861,8 +872,7 @@ int main()
 	storageThread1.join();
 	storageThread2.join();
 
-
-	camera.doFreeCam = doFreeCam; // set camera to free cam or not
+	LoadPlayerConfig();
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
@@ -870,42 +880,40 @@ int main()
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
-		DeltaMain(window, camera); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC)
+		DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC)
 		runAllLoopFunctions();
 
-		glm::vec3 cameraPos = Camera::PositionMatrix;
-		glm::vec3 feetpos = glm::vec3(Camera::PositionMatrix.x, (Camera::PositionMatrix.y - PlayerHeightCurrent), Camera::PositionMatrix.z);
+		glm::vec3 cameraPos = Camera::s_PositionMatrix;
+		glm::vec3 feetpos = glm::vec3(Camera::s_PositionMatrix.x, (Camera::s_PositionMatrix.y - PlayerHeightCurrent), Camera::s_PositionMatrix.z);
 		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
-			camera.doFreeCam = true;
+			Camera::s_DoGravity = false;
 			doPlayerCollision = false;
-			DoGravity = false;
 		}
 		if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
-			camera.doFreeCam = false;
 			doPlayerCollision = true;
-			DoGravity = true;
+			Camera::s_DoGravity = true;
 		}
 
 		//physics
-		if (!camera.doFreeCam) {
+		if (Camera::s_DoGravity) {
 
 			if (doPlayerCollision) { //testing collisions if touching ground
 				if (!footCollision) { //air
-					if (timeAccumulator[3] >= 0.20f) {
+					if (TA3.Counter >= 0.20f) {
 						camera.DoJump = false;
-						if (DoGravity) { camera.Position = glm::vec3(cameraPos.x, (cameraPos.y - (10 * deltaTime)), cameraPos.z); }
+						camera.Position = glm::vec3(cameraPos.x, (cameraPos.y - (10 * deltaTime)), cameraPos.z);
 					}
 					else {
-						timeAccumulator[3] += deltaTime;
+						TA3.update();
 					}
 
 				}
 				else { //ground
 					camera.DoJump = true;
-					timeAccumulator[3] = 0.0f;
+					TA3.reset();
 
 					if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) { //gravity
-						if (DoGravity) { camera.Position = glm::vec3(cameraPos.x, (cameraPos.y - (10 * deltaTime)), cameraPos.z); }
+						camera.Position = glm::vec3(cameraPos.x, (cameraPos.y - (10 * deltaTime)), cameraPos.z);
 					}
 
 
@@ -944,7 +952,6 @@ int main()
 		}
 		//physics
 
-		inputUtil::updateMouse(invertMouse, sensitivity); // update mouse
 		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); loadEngineSettings(); }
 
 		//FrameBuffer
@@ -965,7 +972,8 @@ int main()
 
 		// Send Variables to shader (GPU)
 		shaderProgram.Activate(); // activate shaderprog to send uniforms to gpu
-		UF::DoUniforms(shaderProgram.ID, doReflections, doFog);
+		UF::Bool(shaderProgram.ID, "doReflect", doReflections);
+		UF::Bool(shaderProgram.ID, "doFog", doFog);
 		UF::TrasformUniforms(shaderProgram.ID, ConeSI, ConeRot, lightPos);
 		UF::Depth(shaderProgram.ID, DepthDistance, DepthPlane);
 		UF::ColourUniforms(shaderProgram.ID, fogRGBA, skyRGBA, lightRGBA, gamma);
@@ -1073,14 +1081,12 @@ int main()
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		GLint uniformLocation = glGetUniformLocation(frameBufferProgram.ID, "enableFB");
 		frameBufferProgram.Activate();
 		UF::Float(frameBufferProgram.ID, "time", glfwGetTime());
 		UF::Float(frameBufferProgram.ID, "deltaTime", TimeUtil::s_DeltaTime);
 
 		UF::Float(frameBufferProgram.ID, UniformInput, UniformFloat[0]);
-
-		glUniform1i(uniformLocation, enableFB ? 1 : 0);
+		UF::Bool(frameBufferProgram.ID, "enableFB", enableFB);
 
 		// draw the framebuffer
 		glBindVertexArray(viewVAO);
@@ -1105,7 +1111,7 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
+		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, camera, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
 
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)

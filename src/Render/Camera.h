@@ -19,11 +19,14 @@ public:
     // Stores camera transform
     glm::vec3 Position;
 	bool DoJump = true;
-	bool doFreeCam = false;
-    static glm::vec3 PositionMatrix;
+    static bool s_DoGravity;
+    static glm::vec3 s_PositionMatrix;
     glm::vec3 Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4 cameraMatrix = glm::mat4(1.0f);
+    static float s_scrollSpeed;
+    static float s_sensitivityX;
+    static float s_sensitivityY;
 
     // Prevents the camera from jumping around when first clicking left click
     bool firstClick = true;

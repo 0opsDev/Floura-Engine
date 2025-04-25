@@ -1,12 +1,14 @@
 #include "Camera.h"
 #include "Core/Main.h"
-#include "Systems/utils/inputUtil.h"
 
 // Global Variables
 bool MouseState = true, toggleESC = true;
-float timeAccumulator = 0, scrollSpeed = 0;
-
-glm::vec3 Camera::PositionMatrix = glm::vec3(0,0,0);
+float timeAccumulator = 0;
+float Camera::s_scrollSpeed = 0;
+float Camera::s_sensitivityX = 100;
+float Camera::s_sensitivityY = 100;
+glm::vec3 Camera::s_PositionMatrix = glm::vec3(0,0,0);
+bool Camera::s_DoGravity = false;
 
 Camera::Camera(int width, int height, glm::vec3 position)
 {
@@ -27,7 +29,7 @@ void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
     projection = glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
 
     cameraMatrix = projection * view;
-	PositionMatrix = Position;
+    s_PositionMatrix = Position;
 }
 
 void Camera::Matrix(Shader& shader, const char* uniform)
@@ -40,7 +42,7 @@ void Camera::Inputs(GLFWwindow* window)
     float deltaTime = TimeUtil::s_DeltaTime;
     float adjustedSpeed = speed * deltaTime;
 
-	if (doFreeCam)
+	if (!s_DoGravity)
 	{
         // Handles inputs
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -69,23 +71,23 @@ void Camera::Inputs(GLFWwindow* window)
         }
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
         {
-            scrollSpeed += 10.0f * deltaTime;
+            s_scrollSpeed += 10.0f * deltaTime;
         }
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         {
-            scrollSpeed -= 10.0f * deltaTime;
+            s_scrollSpeed -= 10.0f * deltaTime;
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         {
-            speed = (10.0f + scrollSpeed);
+            speed = (10.0f + s_scrollSpeed);
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
         {
-            speed = (5.0f + scrollSpeed);
+            speed = (5.0f + s_scrollSpeed);
         }
         if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
         {
-            scrollSpeed = 0;
+            s_scrollSpeed = 0;
         }
 	}
     else {
@@ -113,12 +115,12 @@ void Camera::Inputs(GLFWwindow* window)
 		{
             if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
             {
-                speed = (10.0f + scrollSpeed);
+                speed = (10.0f + s_scrollSpeed);
             }
 		}
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
         {
-            speed = (5.0f + scrollSpeed);
+            speed = (5.0f + s_scrollSpeed);
         }
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && DoJump) //jump
         {
@@ -159,8 +161,8 @@ void Camera::Inputs(GLFWwindow* window)
 
         // Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
         // and then "transforms" them into degrees 
-        float rotX = inputUtil::s_sensitivityX * (float)(mouseY - (height / 2)) / height;
-        float rotY = inputUtil::s_sensitivityY * (float)(mouseX - (width / 2)) / width;
+        float rotX = s_sensitivityY * (float)(mouseY - (height / 2)) / height;
+        float rotY = s_sensitivityX * (float)(mouseX - (width / 2)) / width;
         //float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
         //float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
 

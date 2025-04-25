@@ -1,7 +1,5 @@
 #include "UF.h"
 
-// most useless class ever
-
 void UF::Int(GLuint shader, const char* uniform, int uniInt)
 {
     // Set an integer uniform variable for the given shader
@@ -25,8 +23,13 @@ void UF::Float4(GLuint shader, const char* uniform, GLfloat uniFloat, GLfloat un
     glUniform4f(glGetUniformLocation(shader, uniform), uniFloat, uniFloat2, uniFloat3, uniFloat4);
 }
 
-void UF::MassUniforms(GLuint shader)
+
+void UF::Bool(GLuint shader, const char* uniform, bool uniformBool)
 {
+	GLint uniformLocation = glGetUniformLocation(shader, uniform);
+	glUniform1i(uniformLocation, uniformBool ? 1 : 0);
+
+// std::cout << uniform << " " << uniformBool << std::endl;
 }
 
 void UF::DoUniforms(GLuint shader, int doReflections, int doFog) {

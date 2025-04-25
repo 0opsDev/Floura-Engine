@@ -13,6 +13,7 @@ public:
     static void Float2(GLuint shader, const char* uniform, GLfloat uniFloat, GLfloat uniFloat2);
     static void Float3(GLuint shader, const char* uniform, GLfloat uniFloat, GLfloat uniFloat2, GLfloat uniFloat3);
     static void Float4(GLuint shader, const char* uniform, GLfloat uniFloat, GLfloat uniFloat2, GLfloat uniFloat3, GLfloat uniFloat4);
+    static void Bool(GLuint shader, const char* uniform, bool uniformBool);
 
     //Use Of Uniform
     static void MassUniforms(GLuint shader);
