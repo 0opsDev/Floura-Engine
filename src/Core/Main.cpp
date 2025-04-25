@@ -18,6 +18,7 @@
 #include <OpenAL/efx-presets.h>
 #define STB_PERLIN_IMPLEMENTATION
 #include <stb/stb_perlin.h>
+#include "Render/Shader/Framebuffer.h"
 
 // Forward declaration of the function
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
@@ -61,9 +62,6 @@ float resolutionScale = 1;
 unsigned int width = 800, height = 600, ViewPortWidth = 800, ViewPortHeight = 600;
 int windowedPosX = 0, windowedPosY = 0, windowedWidth = 0, windowedHeight = 0, widthI = 0, heightI = 0;
 bool isFullscreen = false;
-std::string WindowTitle = "OpenGL Window";
-
-//static float timeAccumulator[4] = { 0,0,0,0 }; // Zero-initialized DeltaTime accumulators
 
 int TempButton = 0;
 bool Panels[5] = { true, true, true, true, true}; // ImGui Panels
@@ -75,6 +73,7 @@ bool footCollision = false;
 float PlayerHeight = 1.8f;
 float CrouchHighDiff = 0.9f;
 float PlayerHeightCurrent;
+
 // Define the plane's boundaries
 float planeMinX = -5.0f; // Left edge of the plane
 float planeMaxX = 5.0f;  // Right edge of the plane
@@ -307,7 +306,7 @@ void loadEngineSettings() {
 		DepthDistance = engineDefaultData[0]["DepthDistance"];
 		DepthPlane[0] = engineDefaultData[0]["DepthPlane"][0];
 		DepthPlane[1] = engineDefaultData[0]["DepthPlane"][1];
-		WindowTitle = engineDefaultData[0]["Window"];
+		SettingsUtils::s_WindowTitle = engineDefaultData[0]["Window"];
 	}
 	else {
 		std::cerr << "Failed to open Settings/Default/EngineDefault.json" << std::endl;
@@ -541,7 +540,7 @@ void DeltaMain(GLFWwindow* window) {
 
 	// Update FPS and window title every second  
 	if (TA1.Counter >= 1.0f) {
-		glfwSetWindowTitle(window, (WindowTitle + " (FPS: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz) ) +
+		glfwSetWindowTitle(window, (SettingsUtils::s_WindowTitle + " (FPS: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz) ) +
 			" ) (at pos: " + std::to_string(Camera::s_PositionMatrix.x) + " " + std::to_string(Camera::s_PositionMatrix.y) + " " + std::to_string(Camera::s_PositionMatrix.z) +
 			") (Foot Collision: " + std::to_string(footCollision) + ")" + " (Title updates at 1hz) ").c_str());
 
@@ -558,77 +557,6 @@ void DeltaMain(GLFWwindow* window) {
 		//if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) { isWireframe = !isWireframe; }
 		TA2.reset();
 	}
-}
-
-void setupMainFBO(unsigned int& viewVAO, unsigned int& viewVBO, unsigned int& FBO, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int width, unsigned int height, const float* ViewportVerticies) {
-	// Initialize viewport rectangle object drawn to viewport with framebuffer texture attached
-	glGenVertexArrays(1, &viewVAO);
-	glGenBuffers(1, &viewVBO);
-	glBindVertexArray(viewVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, viewVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(ViewportVerticies) * 6 * 4, ViewportVerticies, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-
-	// FrameBuffer Object
-	glGenFramebuffers(1, &FBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-	// ColorBuffer
-	glGenTextures(1, &frameBufferTexture);
-	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
-
-	// DepthBuffer + StencilBuffer
-	// RenderBuffer Object
-	glGenRenderbuffers(1, &RBO);
-	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
-
-	// Error checking
-	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-		if (init::LogALL || init::LogSystems) std::cout << "Framebuffer error: " << fboStatus << std::endl;
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void setupSecondFBO(unsigned int& FBO, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int width, unsigned int height) {
-	glGenFramebuffers(1, &FBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-	// Color buffer
-	glGenTextures(1, &frameBufferTexture);
-	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
-
-	// Depth and stencil buffer
-	glGenRenderbuffers(1, &RBO);
-	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
-
-	// Error checking
-	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-		if (init::LogALL || init::LogSystems) std::cout << "Framebuffer error: " << fboStatus << std::endl;
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height) {
@@ -797,7 +725,7 @@ int main()
 	glfwGetMonitorPos(glfwGetPrimaryMonitor(), &widthI, &heightI);
 
 	//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
-	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, WindowTitle.c_str(), NULL, NULL); // create window
+	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, SettingsUtils::s_WindowTitle.c_str(), NULL, NULL); // create window
 
 	// error checking
 	if (window == NULL) { if (init::LogALL || init::LogSystems) std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
@@ -860,8 +788,10 @@ int main()
 	unsigned int cubemapTexture;
 	cubeboxTexture(cubemapTexture);
 
-	setupMainFBO(viewVAO, viewVBO, FBO, frameBufferTexture, RBO, width, height, SettingsUtils::s_ViewportVerticies);
-	setupSecondFBO(FBO2, frameBufferTexture2, RBO2, width, height);
+	Framebuffer fb1;
+	
+	fb1.setupMainFBO(viewVAO, viewVBO, FBO, frameBufferTexture, RBO, width, height, SettingsUtils::s_ViewportVerticies);
+	fb1.setupSecondFBO(FBO2, frameBufferTexture2, RBO2, width, height);
 
 	init::initImGui(window); // Initialize ImGUI
 

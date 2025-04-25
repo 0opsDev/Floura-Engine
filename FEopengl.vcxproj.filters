@@ -180,6 +180,12 @@
     <ClCompile Include="src\Systems\utils\timeAccumulator.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\Render\Shader\Framebuffer.cpp">
+      <Filter>Source Files\Render\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Shader\Cubemap.cpp">
+      <Filter>Source Files\Render\Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Libraries\include\imgui\imconfig.h">
@@ -262,6 +268,12 @@
     </ClInclude>
     <ClInclude Include="src\Systems\utils\timeAccumulator.h">
       <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Shader\Framebuffer.h">
+      <Filter>Header Files\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Shader\Cubemap.h">
+      <Filter>Header Files\Render\Shader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -157,6 +157,8 @@
     <ClCompile Include="src\Render\model\Model.cpp" />
     <ClCompile Include="src\Render\model\stb.cpp" />
     <ClCompile Include="src\Render\model\Texture.cpp" />
+    <ClCompile Include="src\Render\Shader\Cubemap.cpp" />
+    <ClCompile Include="src\Render\Shader\Framebuffer.cpp" />
     <ClCompile Include="src\Render\shader\ShaderClass.cpp" />
     <ClCompile Include="src\Systems\file\FileClass.cpp" />
     <ClCompile Include="src\Systems\utils\init.cpp" />
@@ -185,6 +187,8 @@
     <ClInclude Include="src\Render\model\Mesh.h" />
     <ClInclude Include="src\Render\model\Model.h" />
     <ClInclude Include="src\Render\model\Texture.h" />
+    <ClInclude Include="src\Render\Shader\Cubemap.h" />
+    <ClInclude Include="src\Render\Shader\Framebuffer.h" />
     <ClInclude Include="src\Render\shader\shaderClass.h" />
     <ClInclude Include="src\Systems\file\FileClass.h" />
     <ClInclude Include="src\Systems\utils\include.h" />

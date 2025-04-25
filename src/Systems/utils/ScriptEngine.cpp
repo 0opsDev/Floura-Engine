@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 #include "core/Main.h"
+#include "SettingsUtil.h"
+#include "screenutils.h" 
 
 float timeAccumulatorSE = 0;
 std::vector<float> Modelx2, Modely2, Modelz2, RotW2, RotX2, RotY2, RotZ2, ScaleX2, ScaleY2, ScaleZ2;
@@ -35,31 +37,25 @@ void ScriptEngine::LoadLua(sol::state& LuaState, std::string Path) {
 
 //init
 void ScriptEngine::init() {
+
+	luaState["SetWindow"] = [](std::string windowVariableType, std::string value) {
+
+		if (windowVariableType == "Title") SettingsUtils::s_WindowTitle = value; // Title
+		else if (windowVariableType == "Vsync" || "vsync") {
+			//std::cout << "pass thru" << std::endl;
+			if (value == "true") { ScreenUtils::setVSync(true); } // set vsync true
+			if (value == "false") { ScreenUtils::setVSync(false); } // set vsync false
+			if (value != "true" && value != "false") { if (init::LogALL || init::LogLua) std::cout << "[CPP] Exemption Lua SetWindow: 'Vysnc' can only be 'true' or 'false' But value is: " << value << std::endl; } //debug
+		}
+		else if (init::LogALL || init::LogLua) std::cout << "[CPP] Exemption Lua SetWindow: Unsupported 'windowVariableType' known as: " << windowVariableType << std::endl; // debug
+		};
+
 	float x1 = luaState["init"]();
 	if (init::LogALL || init::LogLua) std::cout << "[CPP runLuaInitFunc] init returned: " << x1 << std::endl;
 }
 
 
 void ScriptEngine::update() {
-
-// could we have a model.Clear function that clears the model
-	/*
-	// Clear arrays at the start of update
-	Modelx2.clear();
-	Modely2.clear();
-	Modelz2.clear();
-	RotW2.clear();
-	RotX2.clear();
-	RotY2.clear();
-	RotZ2.clear();
-	ScaleX2.clear();
-	ScaleY2.clear();
-	ScaleZ2.clear();
-	modelName2.clear();
-	Path2.clear();
-	isCulling2.clear();
-	existingNames.clear();
-	*/
 
 	luaState["ModelDraw"] = [](std::string Path, std::string modelName, bool isCulling, float Modelx, float Modely, float Modelz, float RotW, float RotX, float RotY, float RotZ, float ScaleX, float ScaleY, float ScaleZ) {
 		//std::cout << "VALID" << std::endl;
@@ -83,12 +79,37 @@ void ScriptEngine::update() {
 		return 0;
 		}; // needs to be made so it doesnt clear when re ran
 
+	luaState["SetWindow"] = [](std::string windowVariableType, std::string value) {
+
+		if (windowVariableType == "Title") SettingsUtils::s_WindowTitle = value; // Title
+		else if (windowVariableType == "Vsync" || "vsync") {
+			//std::cout << "pass thru" << std::endl;
+			if (value == "true") { ScreenUtils::setVSync(true); } // set vsync true
+			if (value == "false") { ScreenUtils::setVSync(false); } // set vsync false
+			if (value != "true" && value != "false") { if (init::LogALL || init::LogLua) std::cout << "[CPP] Exemption Lua SetWindow: 'Vysnc' can only be 'true' or 'false' But value is: " << value << std::endl; } //debug
+		}
+		else if (init::LogALL || init::LogLua) std::cout << "[CPP] Exemption Lua SetWindow: Unsupported 'windowVariableType' known as: " << windowVariableType << std::endl; // debug
+		};
+
 	luaState["update"](); // the issue is that for some reason two diff scripts cant run the same function at the same time 
 }
 
 void ScriptEngine::UpdateDelta() {
 	timeAccumulatorSE += TimeUtil::s_DeltaTime;
 	if (timeAccumulatorSE >= 0.016f) {
+
+		luaState["SetWindow"] = [](std::string windowVariableType, std::string value) {
+
+			if (windowVariableType == "Title") SettingsUtils::s_WindowTitle = value; // Title
+			else if (windowVariableType == "Vsync" || "vsync") {
+				//std::cout << "pass thru" << std::endl;
+				if (value == "true") { ScreenUtils::setVSync(true); } // set vsync true
+				if (value == "false") { ScreenUtils::setVSync(false); } // set vsync false
+				if (value != "true" && value !=  "false"){ if (init::LogALL || init::LogLua) std::cout << "[CPP] Exemption Lua SetWindow: 'Vysnc' can only be 'true' or 'false' But value is: " << value << std::endl; } //debug
+			}
+			else if (init::LogALL || init::LogLua) std::cout << "[CPP] Exemption Lua SetWindow: Unsupported 'windowVariableType' known as: " << windowVariableType << std::endl; // debug
+			};
+
 		luaState["UpdateDelta"]();
 
 		timeAccumulatorSE = 0;
