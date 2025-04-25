@@ -1,4 +1,6 @@
-Farquhar Engine is a Open Source C++ Game Engine created for the purpose of learning opengl
+Farquhar Engine is a Open Source C++ Game Engine created for the purpose of learning opengl,
+
+Refer to /documentation.md for more
 
 Features:
 ---
@@ -35,5 +37,7 @@ F3: Gravity and Collisions ON
 Screenshots:
 ---
 ![image](https://github.com/user-attachments/assets/07719cea-7554-490c-9e99-a242be7d05df)
+---
 ![image](https://github.com/user-attachments/assets/4f785c12-f6bf-456c-bc49-c00d743fe079)
+---
 ![image](https://github.com/user-attachments/assets/b9ca279e-19a7-4f49-ae67-771ba146d92e)
