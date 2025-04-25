@@ -54,6 +54,7 @@ int doReflections = 1;
 int doFog = 1;
 bool doVsync = false;
 bool frontFaceSide = false;
+bool isWireframe = false;
 
 // Shader settings
 int VertNum = 0;
@@ -105,7 +106,7 @@ void Main::updateModelLua(
 	std::vector<float> RotZ,
 	std::vector<float> ScaleX,
 	std::vector<float> ScaleY,
-	std::vector<float> ScaleZ)
+	std::vector<float> ScaleZ)	
 {
 	if (false) { //turn true for debugging
 		for (size_t i = 0; i < modelName.size(); i++) {
@@ -405,6 +406,8 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 
 		ImGui::TreePop();// Ends The ImGui Window
 		}
+
+		ImGui::Checkbox("isWireframe", &isWireframe);
 
 		ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
 		if (ImGui::TreeNode("Framerate And Resolution")) {
@@ -980,7 +983,7 @@ int main()
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
 		glStencilMask(0xFF);
 
-		if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+		if (isWireframe) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 			glClearColor(0, 0, 0, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		}
@@ -993,10 +996,10 @@ int main()
 			glm::vec3 scale = std::get<4>(modelTuple);
 
 			// Apply culling settings
-			if (cullingSetting == 1 && glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) { glEnable(GL_CULL_FACE); }
+			if (cullingSetting == 1 && !isWireframe) { glEnable(GL_CULL_FACE); }
 			else { glDisable(GL_CULL_FACE); }
 
-			if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
+			if (!isWireframe) {
 				model.Draw(shaderProgram, camera, translation, rotation, scale);
 				glDisable(GL_CULL_FACE);
 				Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -1058,7 +1061,7 @@ int main()
 
 		// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
 		// where an object is present (a depth of 1.0f will always fail against any object's depth value)
-		if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
+		if (!isWireframe) {
 			glBindVertexArray(skyboxVAO);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);

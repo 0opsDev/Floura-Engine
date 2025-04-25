@@ -18,11 +18,11 @@ Features:
 
 . Diffuse and Specular Texture Support
 
-. Performance Profiler 
-
 . Basic Json Entity Component System
 
-. WireFrame View (F1)
+. WireFrame View
+
+. Embedded Lua via sol2 (not really in a working state)
 
 Screenshots:
 
@@ -50,8 +50,6 @@ Right Shift: Reset Speed
 Home: Load Settings
 
 Mouse Side Buttons: Zoom 
-
-F1: Wireframe
 
 F2: Freecam ON
 
