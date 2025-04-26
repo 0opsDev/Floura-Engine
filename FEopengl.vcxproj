@@ -164,6 +164,7 @@
     <ClCompile Include="src\Systems\utils\init.cpp" />
     <ClCompile Include="src\Systems\utils\ScreenUtils.cpp" />
     <ClCompile Include="src\Systems\utils\ScriptEngine.cpp" />
+    <ClCompile Include="src\Systems\utils\ScriptRunner.cpp" />
     <ClCompile Include="src\Systems\utils\SettingsUtil.cpp" />
     <ClCompile Include="src\Systems\utils\timeAccumulator.cpp" />
     <ClCompile Include="src\Systems\utils\timeUtil.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="src\Systems\utils\init.h" />
     <ClInclude Include="src\Systems\utils\ScreenUtils.h" />
     <ClInclude Include="src\Systems\utils\ScriptEngine.h" />
+    <ClInclude Include="src\Systems\utils\ScriptRunner.h" />
     <ClInclude Include="src\Systems\utils\SettingsUtil.h" />
     <ClInclude Include="src\Systems\utils\timeAccumulator.h" />
     <ClInclude Include="src\Systems\utils\timeUtil.h" />
@@ -226,9 +228,9 @@
     <None Include="Shaders\ShaderList.json" />
     <None Include="Shaders\Skybox\skybox.frag" />
     <None Include="Shaders\Skybox\skybox.vert" />
+    <None Include="UserScripts\dbg\Test.Lua" />
     <None Include="UserScripts\LuaStartup.json" />
-    <None Include="UserScripts\Main.Lua" />
-    <None Include="UserScripts\Main\Test.Lua" />
+    <None Include="UserScripts\Main\Main.Lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

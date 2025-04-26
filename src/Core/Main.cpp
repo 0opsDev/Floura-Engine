@@ -19,6 +19,7 @@
 #define STB_PERLIN_IMPLEMENTATION
 #include <stb/stb_perlin.h>
 #include "Render/Shader/Framebuffer.h"
+#include "Systems/utils/ScriptRunner.h"
 
 // Forward declaration of the function
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
@@ -85,23 +86,14 @@ TimeAccumulator TA1;
 TimeAccumulator TA2;
 TimeAccumulator TA3;
 
-
 std::string mapName; // Map loading
 
 void Main::updateModelLua( 
-	std::vector<std::string> path,
-	std::vector<std::string> modelName,
-	std::vector<bool> isCulling,
-	std::vector<float> Modelx,
-	std::vector<float> Modely,
-	std::vector<float> Modelz,
-	std::vector<float> RotW,
-	std::vector<float> RotX,
-	std::vector<float> RotY,
-	std::vector<float> RotZ,
-	std::vector<float> ScaleX,
-	std::vector<float> ScaleY,
-	std::vector<float> ScaleZ)	
+	std::vector<std::string> path, std::vector<std::string> modelName, std::vector<bool> isCulling,
+	std::vector<float> Modelx, std::vector<float> Modely, std::vector<float> Modelz,
+	std::vector<float> RotW, std::vector<float> RotX, std::vector<float> RotY, std::vector<float> RotZ,
+	std::vector<float> ScaleX, std::vector<float> ScaleY, std::vector<float> ScaleZ
+)	
 {
 	if (false) { //turn true for debugging
 		for (size_t i = 0; i < modelName.size(); i++) {
@@ -121,7 +113,6 @@ void Main::updateModelLua(
 			}
 		}
 	}
-
 }
 
 // Function to read a specific line from a file
@@ -213,7 +204,6 @@ std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> loadModelsF
 	return models;
 }
 
-
 void LoadPlayerConfig() {
 	// Load PlayerConfig.json
 	std::ifstream playerConfigFile("Settings/PlayerController.json");
@@ -239,8 +229,6 @@ void LoadPlayerConfig() {
 	}
 }
 
-//Methods
-// Loads Settings From Files
 void loadSettings() {
 	// Load Settings.json
 	std::ifstream settingsFile("Settings/Settings.json");
@@ -268,6 +256,41 @@ void loadSettings() {
 	}
 	else {
 		std::cerr << "Failed to open Settings/Settings.json" << std::endl;
+	}
+}
+
+void saveSettings() {
+	try {
+		// Load the settings file
+		std::ifstream settingsFile("Settings/Settings.json", std::ios::in);
+		if (!settingsFile.is_open()) {
+			if (init::LogALL || init::LogSystems) std::cout << "Failed to open Settings/Settings.json" << std::endl;
+		}
+
+		json settingsData;
+		settingsFile >> settingsData;
+		settingsFile.close();
+
+		settingsData[0]["Vsync"] = doVsync;
+		settingsData[0]["FOV"] = cameraSettings[0];
+
+		settingsData[0]["SensitivityY"] = Camera::s_sensitivityY;
+		settingsData[0]["SensitivityX"] = Camera::s_sensitivityX;
+
+		// Write back to file
+		std::ofstream outFile("Settings/Settings.json", std::ios::out);
+		if (!outFile.is_open()) {
+			if (init::LogALL || init::LogSystems) std::cout << ("Failed to write to Settings.json") << std::endl;
+		}
+
+		outFile << settingsData.dump(4);
+		outFile.close();
+
+		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated Settings.json" << std::endl;
+
+	}
+	catch (const std::exception& e) {
+		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
 	}
 }
 
@@ -349,6 +372,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 
 	ImGui::Text("Settings (Press escape to use mouse)");
 	if (ImGui::SmallButton("load")) { loadSettings(); loadEngineSettings(); } // load settings button
+	if (ImGui::SmallButton("save (just settings)")) { saveSettings(); } // save settings button
 	ImGui::Checkbox("Rendering", &Panels[1]);
 	ImGui::Checkbox("Camera Settings", &Panels[2]);
 	ImGui::Checkbox("ViewPort", &Panels[3]);
@@ -642,69 +666,12 @@ void cubeboxTexture(unsigned int& cubemapTexture) {
 	}
 }
 
-struct ScriptInfo {
-	ScriptEngine* engine;
-	std::vector<std::string> loopFunctions;
-};
-
-std::unordered_map<std::string, ScriptInfo> scripts;
-
-json loadScriptConfig(const std::string& filepath) {
-	std::ifstream file(filepath);
-	if (!file.is_open()) {
-		std::cerr << "Failed to open " << filepath << "\n";
-		return {};
-	}
-
-	json config;
-	file >> config;
-	return config;
-}
-
-void setupScripts(const json& config) {
-	for (const auto& scriptDef : config) {
-		std::string name = scriptDef["name"];
-		std::string path = "UserScripts/" + std::string(scriptDef["Path"]);
-
-		if (scripts.find(name) != scripts.end())
-			continue;
-
-		ScriptEngine* engine = new ScriptEngine(name, path);
-
-		// Run init functions
-		if (scriptDef.contains("init")) {
-			for (const auto& func : scriptDef["init"]) {
-				engine->runFunction(func);
-			}
-		}
-
-		ScriptInfo info{ engine };
-		if (scriptDef.contains("loop")) {
-			for (const auto& func : scriptDef["loop"]) {
-				info.loopFunctions.push_back(func);
-			}
-		}
-
-		scripts[name] = info;
-	}
-}
-
-void runAllLoopFunctions() {
-	for (auto& [name, info] : scripts) {
-		for (const auto& func : info.loopFunctions) {
-			info.engine->runFunction(func);
-		}
-	}
-}
-
 //Main Function
 int main()
 {
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 	init::initLog();// init logs (should always be before priniting anything)
-	json config = loadScriptConfig("UserScripts/LuaStartup.json");
-	setupScripts(config);
-
+	ScriptRunner::init();
 	init::initGLFW(); // initialize glfw
 	std::thread storageThread1(loadSettings);
 	// Get the video mode of the primary monitor
@@ -803,7 +770,6 @@ int main()
 	storageThread2.join();
 
 	LoadPlayerConfig();
-
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	if (init::LogALL || init::LogSystems) std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
@@ -811,7 +777,7 @@ int main()
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
 		DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC)
-		runAllLoopFunctions();
+		ScriptRunner::update();
 
 		glm::vec3 cameraPos = Camera::s_PositionMatrix;
 		glm::vec3 feetpos = glm::vec3(Camera::s_PositionMatrix.x, (Camera::s_PositionMatrix.y - PlayerHeightCurrent), Camera::s_PositionMatrix.z);

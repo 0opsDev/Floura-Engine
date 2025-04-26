@@ -23,7 +23,6 @@ void UF::Float4(GLuint shader, const char* uniform, GLfloat uniFloat, GLfloat un
     glUniform4f(glGetUniformLocation(shader, uniform), uniFloat, uniFloat2, uniFloat3, uniFloat4);
 }
 
-
 void UF::Bool(GLuint shader, const char* uniform, bool uniformBool)
 {
 	GLint uniformLocation = glGetUniformLocation(shader, uniform);

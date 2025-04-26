@@ -186,6 +186,9 @@
     <ClCompile Include="src\Render\Shader\Cubemap.cpp">
       <Filter>Source Files\Render\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="src\Systems\utils\ScriptRunner.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Libraries\include\imgui\imconfig.h">
@@ -275,6 +278,9 @@
     <ClInclude Include="src\Render\Shader\Cubemap.h">
       <Filter>Header Files\Render\Shader</Filter>
     </ClInclude>
+    <ClInclude Include="src\Systems\utils\ScriptRunner.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Empty.shader">
@@ -346,20 +352,20 @@
     <None Include="Settings\PlayerController.json">
       <Filter>Text Files\Text</Filter>
     </None>
-    <None Include="UserScripts\Main.Lua">
-      <Filter>Source Files\UserScripts</Filter>
-    </None>
     <None Include="Settings\LogConfig.json">
       <Filter>Text Files\Text</Filter>
-    </None>
-    <None Include="UserScripts\Main\Test.Lua">
-      <Filter>Source Files\UserScripts</Filter>
     </None>
     <None Include="UserScripts\LuaStartup.json">
       <Filter>Source Files\UserScripts</Filter>
     </None>
     <None Include="Settings\imgui.ini">
       <Filter>Source Files\utils</Filter>
+    </None>
+    <None Include="UserScripts\Main\Main.Lua">
+      <Filter>Source Files\UserScripts</Filter>
+    </None>
+    <None Include="UserScripts\dbg\Test.Lua">
+      <Filter>Source Files\UserScripts</Filter>
     </None>
   </ItemGroup>
 </Project>
