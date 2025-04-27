@@ -82,9 +82,7 @@ float planeMinZ = -5.0f; // Front edge of the plane
 float planeMaxZ = 5.0f;  // Back edge of the plane
 float planeY = 0.0f;     // Y-position of the plane
 
-TimeAccumulator TA1;
-TimeAccumulator TA2;
-TimeAccumulator TA3;
+TimeAccumulator TA1; TimeAccumulator TA2; TimeAccumulator TA3;
 
 std::string mapName; // Map loading
 
