@@ -13,6 +13,7 @@ end
 
 function UpdateDelta() --updates at 60hz deltatime
 
+	return 60
 end
 
 function runOnce() --updates at 60hz deltatime

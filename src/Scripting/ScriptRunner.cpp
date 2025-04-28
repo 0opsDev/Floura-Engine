@@ -1,4 +1,4 @@
-#include "Systems/utils/ScriptRunner.h"
+#include "Scripting/ScriptRunner.h"
 
 struct ScriptInfo {
 	ScriptEngine* engine;

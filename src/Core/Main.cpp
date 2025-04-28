@@ -9,7 +9,6 @@
 #include <thread>
 #include <chrono>
 #include <Systems/utils/SettingsUtil.h>
-#include "Systems/utils/ScriptEngine.h"
 #include "Systems/utils/timeAccumulator.h"
 //temorary
 #include <OpenAL/al.h>
@@ -19,10 +18,12 @@
 #define STB_PERLIN_IMPLEMENTATION
 #include <stb/stb_perlin.h>
 #include "Render/Shader/Framebuffer.h"
-#include "Systems/utils/ScriptRunner.h"
+#include "Scripting/ScriptRunner.h"
 
 // Forward declaration of the function
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
+
+int Main::VertNum = 0, Main::FragNum = 0, Main::TempButton = 0;
 
 unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
 
@@ -34,7 +35,7 @@ float UniformFloat[3] = {}; // Zero-initialized array
 // Global Variables
 GLfloat ConeSI[3] = { 0.111f, 0.825f, 2.0f };
 GLfloat ConeRot[3] = { 0.0f, -1.0f, 0.0f };
-GLfloat LightTransform1[3] = { 0.0f, 5.0f, 0.0f };
+GLfloat LightTransform1[] = { 0.0f, 5.0f, 0.0f };
 GLfloat CameraXYZ[3] = { 0.0f, 0.0f, 0.0f }; // Initial camera position
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -48,12 +49,9 @@ std::array<std::string, 6> facesCubemap;
 bool doReflections = true;
 bool doFog = true;
 bool doVsync = false;
-bool frontFaceSide = false;
 bool isWireframe = false;
 
 // Shader settings
-int VertNum = 0;
-int FragNum = 2;
 bool Stencil = false;
 float stencilSize = 0.009f;
 GLfloat stencilColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -61,10 +59,9 @@ float gamma = 2.2f;
 
 float resolutionScale = 1;
 unsigned int width = 800, height = 600, ViewPortWidth = 800, ViewPortHeight = 600;
-int windowedPosX = 0, windowedPosY = 0, windowedWidth = 0, windowedHeight = 0, widthI = 0, heightI = 0;
+int windowedWidth = 0, windowedHeight = 0, widthI = 0, heightI = 0;
 bool isFullscreen = false;
 
-int TempButton = 0;
 bool Panels[5] = { true, true, true, true, true}; // ImGui Panels
 
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
@@ -93,7 +90,7 @@ void Main::updateModelLua(
 	std::vector<float> ScaleX, std::vector<float> ScaleY, std::vector<float> ScaleZ
 )	
 {
-	if (false) { //turn true for debugging
+	if (true) { //turn true for debugging
 		for (size_t i = 0; i < modelName.size(); i++) {
 			std::cout << "Received modelName: " << modelName[i] << std::endl;
 			if (false) {
@@ -146,7 +143,10 @@ std::pair<std::string, std::string> getShaderPaths(int vertIndex, int fragIndex)
 	return { vertPath, fragPath };
 }
 
-void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) {
+void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) { //shader program switcher
+
+	shaderProgram.Delete();
+
 	try {
 		std::pair<std::string, std::string> shaderPaths = getShaderPaths(VertNum, FragNum);
 		std::string vertFile = shaderPaths.first;
@@ -318,8 +318,8 @@ void loadEngineSettings() {
 
 		doReflections = engineDefaultData[0]["doReflections"];
 		doFog = engineDefaultData[0]["doFog"];
-		VertNum = engineDefaultData[0]["VertNum"];
-		FragNum = engineDefaultData[0]["FragNum"];
+		Main::VertNum = engineDefaultData[0]["VertNum"];
+		Main::FragNum = engineDefaultData[0]["FragNum"];
 
 		cameraSettings[1] = std::stof(engineDefaultData[0]["NearPlane"].get<std::string>());
 		cameraSettings[2] = std::stof(engineDefaultData[0]["FarPlane"].get<std::string>());
@@ -445,7 +445,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			}
 			if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 			{
-				ScreenUtils::toggleFullscreen(window, monitorT, isFullscreen, windowedPosX, windowedPosY, windowedWidth, windowedHeight);
+				ScreenUtils::toggleFullscreen(window, monitorT, isFullscreen, windowedWidth, windowedHeight);
 			} //Toggle Fullscreen
 
 
@@ -456,9 +456,9 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			//Optimisation And Shaders
 			ImGui::Checkbox("Enable Stencil Buffer", &Stencil);
 			ImGui::DragFloat("Stencil Size", &stencilSize);
-			ImGui::DragInt("Shader Number (Vert)", &VertNum);
-			ImGui::DragInt("Shader Number (Frag)", &FragNum); // Shader Switching
-			if (ImGui::SmallButton("Apply Shader?")) { shaderProgramT.Delete(); TempButton = -1; } // apply shader
+			ImGui::DragInt("Shader Number (Vert)", &Main::VertNum);
+			ImGui::DragInt("Shader Number (Frag)", &Main::FragNum); // Shader Switching
+			if (ImGui::SmallButton("Apply Shader?")) { Main::TempButton = -1; } // apply shader
 			ImGui::DragFloat("Gamma", &gamma);
 			ImGui::Checkbox("doReflections", &doReflections);
 			ImGui::Checkbox("doFog", &doFog); 		//Toggles
@@ -510,9 +510,9 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		ImGui::Begin("Camera Settings"); // ImGUI window creation
 		if (ImGui::TreeNode("Controls")) {
 			ImGui::Text("Transform");
-			if (ImGui::SmallButton("Reset Camera")) { TempButton = 1; } // reset cam pos
+			if (ImGui::SmallButton("Reset Camera")) { Main::TempButton = 1; } // reset cam pos
 			ImGui::DragFloat3("Camera Transform", CameraXYZ); // set cam pos
-			if (ImGui::SmallButton("Set")) { TempButton = 2; } // apply cam pos
+			if (ImGui::SmallButton("Set")) { Main::TempButton = 2; } // apply cam pos
 			ImGui::DragFloat("Camera Speed", &Camera::s_scrollSpeed); //Camera
 			
 			ImGui::Spacing();
@@ -717,7 +717,7 @@ int main()
 	shaderProgram.Delete(); // clean the shader prog for memory management
 
 
-	loadShaderProgram(VertNum, FragNum, shaderProgram);// feed the shader prog real data
+	loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram);// feed the shader prog real data
 	shaderProgram.Activate(); // activate new shader program for use
 
 	Shader outlineShaderProgram("Shaders/PostProcess/outlining.vert", "Shaders/PostProcess/outlining.frag");
@@ -733,7 +733,7 @@ int main()
 
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
-	init::initGLenable(frontFaceSide);
+	init::initGLenable(false); //bool for direction of polys
 
 	// INITIALIZE CAMERA
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
@@ -854,10 +854,10 @@ int main()
 		glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear with colour
 		glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
 
-		switch (TempButton) {
-		case -1: { loadShaderProgram(VertNum, FragNum, shaderProgram); TempButton = 0; break; }
-		case 1: { camera.Position = glm::vec3(0, 0, 0); TempButton = 0; break; }
-		case 2: { camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); TempButton = 0; break; }
+		switch (Main::TempButton) {
+		case -1: { loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram); Main::TempButton = 0; break; }
+		case 1: { camera.Position = glm::vec3(0, 0, 0); Main::TempButton = 0; break; }
+		case 2: { camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); Main::TempButton = 0; break; }
 		}
 
 		// Convert variables to glm variables which hold data like a table

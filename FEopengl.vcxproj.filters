@@ -100,6 +100,21 @@
     <Filter Include="Source Files\UserScripts">
       <UniqueIdentifier>{7968ca2d-4921-4b76-ac28-dd1ea9edb422}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scripting">
+      <UniqueIdentifier>{5212ba28-a4f3-45bc-a5d8-1db7767b92e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripting\functions">
+      <UniqueIdentifier>{946f0760-cc03-4251-aa54-7f6b67b0c46a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripting\functions\Model">
+      <UniqueIdentifier>{0241d877-2240-4af9-9494-02015177f24d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripting\functions\Screen">
+      <UniqueIdentifier>{0f7da3f6-aa0d-44aa-8cdc-eb1a3c4e0ef3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripting\functions\Shader">
+      <UniqueIdentifier>{260acb11-bc07-4b0f-baf2-894de66a45d6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -174,9 +189,6 @@
     <ClCompile Include="src\Systems\file\FileClass.cpp">
       <Filter>Source Files\file</Filter>
     </ClCompile>
-    <ClCompile Include="src\Systems\utils\ScriptEngine.cpp">
-      <Filter>Source Files\utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\Systems\utils\timeAccumulator.cpp">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
@@ -186,8 +198,20 @@
     <ClCompile Include="src\Render\Shader\Cubemap.cpp">
       <Filter>Source Files\Render\Shader</Filter>
     </ClCompile>
-    <ClCompile Include="src\Systems\utils\ScriptRunner.cpp">
-      <Filter>Source Files\utils</Filter>
+    <ClCompile Include="src\Scripting\ScriptEngine.cpp">
+      <Filter>Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\ScriptRunner.cpp">
+      <Filter>Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Functions\Model\LuaModel.cpp">
+      <Filter>Scripting\functions\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp">
+      <Filter>Scripting\functions\Screen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Functions\Shader\LuaShader.cpp">
+      <Filter>Scripting\functions\Shader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -266,9 +290,6 @@
     <ClInclude Include="src\Systems\file\FileClass.h">
       <Filter>Header Files\file</Filter>
     </ClInclude>
-    <ClInclude Include="src\Systems\utils\ScriptEngine.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
     <ClInclude Include="src\Systems\utils\timeAccumulator.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
@@ -278,8 +299,23 @@
     <ClInclude Include="src\Render\Shader\Cubemap.h">
       <Filter>Header Files\Render\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="src\Systems\utils\ScriptRunner.h">
-      <Filter>Header Files\utils</Filter>
+    <ClInclude Include="src\Scripting\ScriptRunner.h">
+      <Filter>Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\ScriptEngine.h">
+      <Filter>Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Functions\Model\LuaModel.h">
+      <Filter>Scripting\functions\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h">
+      <Filter>Scripting\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Functions\Screen\LuaScreen.h">
+      <Filter>Scripting\functions\Screen</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Functions\Shader\LuaShader.h">
+      <Filter>Scripting\functions\Shader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -365,6 +401,9 @@
       <Filter>Source Files\UserScripts</Filter>
     </None>
     <None Include="UserScripts\dbg\Test.Lua">
+      <Filter>Source Files\UserScripts</Filter>
+    </None>
+    <None Include="UserScripts\Main\Shader.Lua">
       <Filter>Source Files\UserScripts</Filter>
     </None>
   </ItemGroup>

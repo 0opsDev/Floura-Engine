@@ -8,6 +8,10 @@ class Main
 {
 public:
 
+	static int VertNum;
+	static int FragNum;
+	static int TempButton;
+
 	static void updateModelLua(	
 		std::vector<std::string> path,
 		std::vector<std::string> modelName,

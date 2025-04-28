@@ -1,14 +1,20 @@
 [
-  {
-    "name": "Main",
-    "Path": "Main/Main.Lua",
-    "init": [ "init" ],
-    "loop": [ "update", "UpdateDelta" ]
-  },
-  {
-    "name": "test",
-    "Path": "dbg/Test.Lua",
-    "init": [ "runOnce" ],
-    "loop": [ "update", "UpdateDelta" ]
-  }
+    {
+        "name": "Main",
+        "Path": "Main/Main.Lua",
+        "init": [ "init" ],
+        "loop": [ "update", "UpdateDelta" ]
+    },
+    {
+        "name": "Shader",
+        "Path": "Main/Shader.Lua",
+        "init": [ "init" ],
+        "loop": [ "update", "UpdateDelta" ]
+    },
+    {
+        "name": "test",
+        "Path": "dbg/Test.Lua",
+        "init": [ "runOnce" ],
+        "loop": [ "update", "UpdateDelta" ]
+    }
 ]

@@ -1,9 +1,9 @@
 #include "screenutils.h" 
 #include "Systems/utils/init.h"
+int windowedPosX= 0 , windowedPosY = 0;
 
-void ScreenUtils::toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor, bool isFullscreen, int windowedPosX, int windowedPosY, int windowedWidth, int windowedHeight)
+void ScreenUtils::toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor, bool isFullscreen, int windowedWidth, int windowedHeight)
 {
-
 	isFullscreen = !isFullscreen;
 	if (isFullscreen) {
 

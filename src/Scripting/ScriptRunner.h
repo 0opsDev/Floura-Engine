@@ -1,7 +1,7 @@
 #ifndef SCRIPT_RUNNER_H
 #define SCRIPT_RUNNER_H
 
-#include <Systems/utils/ScriptEngine.h>
+#include <Scripting/ScriptEngine.h>
 #include <json/json.hpp>
 
 using json = nlohmann::json;

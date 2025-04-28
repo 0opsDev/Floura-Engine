@@ -1,5 +1,3 @@
-
-
 function init()
 	io.write("[LUA] Main.Lua Running init \n")
 	return 0
@@ -13,10 +11,16 @@ function update() --updates GameLoop speed
 
 
 end
+--x = 0
+function UpdateDelta() --updates at 1hz deltatime
+--x = x + 1
 
-function UpdateDelta() --updates at 60hz deltatime
---	SetWindow("vsync", "true")
---	SetWindow("Title", "Value")
+--SetShader("frag", x)
+--io.write(""..x.."\n")
 
-	return 60
+--if (x >= 4) then 
+--x = 0
+--end
+
+	return 1
 end

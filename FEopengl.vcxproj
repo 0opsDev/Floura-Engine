@@ -160,11 +160,14 @@
     <ClCompile Include="src\Render\Shader\Cubemap.cpp" />
     <ClCompile Include="src\Render\Shader\Framebuffer.cpp" />
     <ClCompile Include="src\Render\shader\ShaderClass.cpp" />
+    <ClCompile Include="src\Scripting\Functions\Model\LuaModel.cpp" />
+    <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp" />
+    <ClCompile Include="src\Scripting\Functions\Shader\LuaShader.cpp" />
+    <ClCompile Include="src\Scripting\ScriptEngine.cpp" />
+    <ClCompile Include="src\Scripting\ScriptRunner.cpp" />
     <ClCompile Include="src\Systems\file\FileClass.cpp" />
     <ClCompile Include="src\Systems\utils\init.cpp" />
     <ClCompile Include="src\Systems\utils\ScreenUtils.cpp" />
-    <ClCompile Include="src\Systems\utils\ScriptEngine.cpp" />
-    <ClCompile Include="src\Systems\utils\ScriptRunner.cpp" />
     <ClCompile Include="src\Systems\utils\SettingsUtil.cpp" />
     <ClCompile Include="src\Systems\utils\timeAccumulator.cpp" />
     <ClCompile Include="src\Systems\utils\timeUtil.cpp" />
@@ -191,12 +194,16 @@
     <ClInclude Include="src\Render\Shader\Cubemap.h" />
     <ClInclude Include="src\Render\Shader\Framebuffer.h" />
     <ClInclude Include="src\Render\shader\shaderClass.h" />
+    <ClInclude Include="src\Scripting\Functions\Model\LuaModel.h" />
+    <ClInclude Include="src\Scripting\Functions\Screen\LuaScreen.h" />
+    <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h" />
+    <ClInclude Include="src\Scripting\Functions\Shader\LuaShader.h" />
+    <ClInclude Include="src\Scripting\ScriptEngine.h" />
+    <ClInclude Include="src\Scripting\ScriptRunner.h" />
     <ClInclude Include="src\Systems\file\FileClass.h" />
     <ClInclude Include="src\Systems\utils\include.h" />
     <ClInclude Include="src\Systems\utils\init.h" />
     <ClInclude Include="src\Systems\utils\ScreenUtils.h" />
-    <ClInclude Include="src\Systems\utils\ScriptEngine.h" />
-    <ClInclude Include="src\Systems\utils\ScriptRunner.h" />
     <ClInclude Include="src\Systems\utils\SettingsUtil.h" />
     <ClInclude Include="src\Systems\utils\timeAccumulator.h" />
     <ClInclude Include="src\Systems\utils\timeUtil.h" />
@@ -231,6 +238,7 @@
     <None Include="UserScripts\dbg\Test.Lua" />
     <None Include="UserScripts\LuaStartup.json" />
     <None Include="UserScripts\Main\Main.Lua" />
+    <None Include="UserScripts\Main\Shader.Lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

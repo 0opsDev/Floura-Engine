@@ -7,7 +7,7 @@ class ScreenUtils
 {
 public:
 
-	static void toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor, bool isFullscreen, int windowedPosX, int windowedPosY, int windowedWidth, int windowedHeight);
+	static void toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor, bool isFullscreen, int windowedWidth, int windowedHeight);
 
 	static void setVSync(bool enabled);
 
