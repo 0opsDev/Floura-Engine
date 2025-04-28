@@ -9,8 +9,12 @@
 #include "Systems/utils/timeAccumulator.h"
 // Constructor
 ScriptEngine::ScriptEngine(std::string FunctionName, std::string Path) { //creates object
-
+	auto startInitTime = std::chrono::high_resolution_clock::now();
+	if (init::LogALL || init::LogLua) { std::cout << "[CPP] Lua script created: " << FunctionName << std::endl; }
 	LoadLua(luaState, Path); //load lua file
+	auto stopInitTime = std::chrono::high_resolution_clock::now();
+	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
+	if (init::LogALL || init::LogLua) std::cout << "[CPP] Lua Interpret Duration: " << initDuration.count() / 1000000.0 << std::endl;
 }
 
 void ScriptEngine::LoadLua(sol::state& LuaState, std::string Path) {

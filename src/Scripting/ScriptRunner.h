@@ -14,6 +14,8 @@ public:
 
 	static void update();
 
+	static void clearScripts();
+
 };
 
 #endif // SCRIPT_ENGINE_H

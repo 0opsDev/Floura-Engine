@@ -768,6 +768,7 @@ int main()
 	storageThread2.join();
 
 	LoadPlayerConfig();
+
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	if (init::LogALL || init::LogSystems) std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
@@ -775,6 +776,8 @@ int main()
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
 		DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC)
+
+		if (glfwGetKey(window, GLFW_KEY_BACKSLASH) == GLFW_PRESS) { ScriptRunner::clearScripts(); ScriptRunner::init(); };
 		ScriptRunner::update();
 
 		glm::vec3 cameraPos = Camera::s_PositionMatrix;
