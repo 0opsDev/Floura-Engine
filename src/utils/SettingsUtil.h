@@ -1,7 +1,7 @@
 #ifndef SETTINGS_UTILS_CLASS_H
 #define SETTINGS_UTILS_CLASS_H
 
-#include <Systems/utils/include.h>
+#include <utils/include.h>
 
 class SettingsUtils
 {

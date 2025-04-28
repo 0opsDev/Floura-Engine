@@ -4,7 +4,7 @@
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
 #pragma comment(lib, "lua54.lib")
-#include "Systems/utils/init.h"
+#include "utils/init.h"
 
 class LuaGetKey
 {

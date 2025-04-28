@@ -1,5 +1,5 @@
 #include "mesh.h"
-#include "Systems/utils/init.h"
+#include "utils/init.h"
 
 Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
 {

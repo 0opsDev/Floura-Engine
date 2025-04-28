@@ -1,5 +1,5 @@
 #include "Texture.h"
-#include "Systems/utils/init.h"
+#include "utils/init.h"
 
 Texture::Texture(const char* image, const char* texType, GLuint slot)
 {

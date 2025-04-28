@@ -1,6 +1,6 @@
 #include "LuaScreen.h"
-#include "Systems/utils/screenutils.h" 
-#include "Systems/utils/SettingsUtil.h"
+#include "utils/screenutils.h" 
+#include "utils/SettingsUtil.h"
 
 void luaScreen::SetScreen(sol::state& luaState) {
 	luaState["SetWindow"] = [](std::string windowVariableType, std::string value) {

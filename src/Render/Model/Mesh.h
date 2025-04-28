@@ -4,7 +4,7 @@
 #include <string>
 #include "Render/Buffer/VAO.h"
 #include "Render/Buffer/EBO.h"
-#include "Render/Camera.h"
+#include "Camera/Camera.h"
 #include "Texture.h"
 #include <json/json.hpp>
 

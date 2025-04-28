@@ -1,6 +1,6 @@
 #include"Model.h"
 #include"Core/Main.h"
-#include "Systems/utils/init.h"
+#include "utils/init.h"
 
 int totalVert = 0;
 

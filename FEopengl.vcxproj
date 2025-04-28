@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\camera\Camera.cpp" />
     <ClCompile Include="src\Core\glad.c" />
     <ClCompile Include="src\Core\Main.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui.cpp" />
@@ -152,7 +153,6 @@
     <ClCompile Include="src\Render\Buffer\EBO.cpp" />
     <ClCompile Include="src\Render\Buffer\VAO.cpp" />
     <ClCompile Include="src\Render\Buffer\VBO.cpp" />
-    <ClCompile Include="src\Render\Camera.cpp" />
     <ClCompile Include="src\Render\model\Mesh.cpp" />
     <ClCompile Include="src\Render\model\Model.cpp" />
     <ClCompile Include="src\Render\model\stb.cpp" />
@@ -166,16 +166,16 @@
     <ClCompile Include="src\Scripting\Functions\Shader\LuaShader.cpp" />
     <ClCompile Include="src\Scripting\ScriptEngine.cpp" />
     <ClCompile Include="src\Scripting\ScriptRunner.cpp" />
-    <ClCompile Include="src\Systems\file\FileClass.cpp" />
-    <ClCompile Include="src\Systems\utils\init.cpp" />
-    <ClCompile Include="src\Systems\utils\InputUtil.cpp" />
-    <ClCompile Include="src\Systems\utils\ScreenUtils.cpp" />
-    <ClCompile Include="src\Systems\utils\SettingsUtil.cpp" />
-    <ClCompile Include="src\Systems\utils\timeAccumulator.cpp" />
-    <ClCompile Include="src\Systems\utils\timeUtil.cpp" />
-    <ClCompile Include="src\Systems\utils\UF.cpp" />
+    <ClCompile Include="src\utils\init.cpp" />
+    <ClCompile Include="src\utils\InputUtil.cpp" />
+    <ClCompile Include="src\utils\ScreenUtils.cpp" />
+    <ClCompile Include="src\utils\SettingsUtil.cpp" />
+    <ClCompile Include="src\utils\timeAccumulator.cpp" />
+    <ClCompile Include="src\utils\timeUtil.cpp" />
+    <ClCompile Include="src\utils\UF.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\camera\Camera.h" />
     <ClInclude Include="src\Core\Main.h" />
     <ClInclude Include="src\Libraries\include\imgui\imconfig.h" />
     <ClInclude Include="src\Libraries\include\imgui\imgui.h" />
@@ -189,7 +189,6 @@
     <ClInclude Include="src\Render\Buffer\EBO.h" />
     <ClInclude Include="src\Render\Buffer\VAO.h" />
     <ClInclude Include="src\Render\Buffer\VBO.h" />
-    <ClInclude Include="src\Render\Camera.h" />
     <ClInclude Include="src\Render\model\Mesh.h" />
     <ClInclude Include="src\Render\model\Model.h" />
     <ClInclude Include="src\Render\model\Texture.h" />
@@ -203,15 +202,14 @@
     <ClInclude Include="src\Scripting\Functions\Shader\LuaShader.h" />
     <ClInclude Include="src\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Scripting\ScriptRunner.h" />
-    <ClInclude Include="src\Systems\file\FileClass.h" />
-    <ClInclude Include="src\Systems\utils\include.h" />
-    <ClInclude Include="src\Systems\utils\init.h" />
-    <ClInclude Include="src\Systems\utils\InputUtil.h" />
-    <ClInclude Include="src\Systems\utils\ScreenUtils.h" />
-    <ClInclude Include="src\Systems\utils\SettingsUtil.h" />
-    <ClInclude Include="src\Systems\utils\timeAccumulator.h" />
-    <ClInclude Include="src\Systems\utils\timeUtil.h" />
-    <ClInclude Include="src\Systems\utils\UF.h" />
+    <ClInclude Include="src\utils\include.h" />
+    <ClInclude Include="src\utils\init.h" />
+    <ClInclude Include="src\utils\InputUtil.h" />
+    <ClInclude Include="src\utils\ScreenUtils.h" />
+    <ClInclude Include="src\utils\SettingsUtil.h" />
+    <ClInclude Include="src\utils\timeAccumulator.h" />
+    <ClInclude Include="src\utils\timeUtil.h" />
+    <ClInclude Include="src\utils\UF.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\imgui.ini" />

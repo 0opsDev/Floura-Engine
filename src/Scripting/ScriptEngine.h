@@ -1,7 +1,7 @@
 #ifndef SCRIPT_ENGINE_H
 #define SCRIPT_ENGINE_H
 
-#include <Systems/utils/include.h>
+#include <utils/include.h>
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
 #pragma comment(lib, "lua54.lib")

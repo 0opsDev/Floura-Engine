@@ -1,12 +1,12 @@
 #include "Scripting/ScriptEngine.h"
-#include "Systems/utils/init.h"
-#include "Systems/utils/timeUtil.h"
+#include "utils/init.h"
+#include "utils/timeUtil.h"
 #include <unordered_set>
 #include <vector>
 #include <string>
-#include "Systems/utils/SettingsUtil.h"
+#include "utils/SettingsUtil.h"
 #include "Scripting/Functions/ScriptIncludes.h"
-#include "Systems/utils/timeAccumulator.h"
+#include "utils/timeAccumulator.h"
 // Constructor
 ScriptEngine::ScriptEngine(std::string FunctionName, std::string Path) { //creates object
 	auto startInitTime = std::chrono::high_resolution_clock::now();

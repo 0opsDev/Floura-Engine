@@ -1,16 +1,16 @@
 #include"Render/Model/Model.h"
-#include "Render/Camera.h"
+#include "Camera/Camera.h"
 #include "Main.h"
-#include "Systems/utils/UF.h"
-#include "Systems/utils/Init.h"
-#include "Systems/utils/screenutils.h" 
+#include "utils/UF.h"
+#include "utils/Init.h"
+#include "utils/screenutils.h" 
 #include <glm/gtx/string_cast.hpp>
-#include "Systems/utils/timeUtil.h" 
+#include "utils/timeUtil.h" 
 #include <thread>
 #include <chrono>
-#include <Systems/utils/SettingsUtil.h>
-#include "Systems/utils/timeAccumulator.h"
-#include "Systems/utils/InputUtil.h"
+#include <utils/SettingsUtil.h>
+#include "utils/timeAccumulator.h"
+#include "utils/InputUtil.h"
 //temorary
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
@@ -63,7 +63,7 @@ unsigned int width = 800, height = 600, ViewPortWidth = 800, ViewPortHeight = 60
 int windowedWidth = 0, windowedHeight = 0, widthI = 0, heightI = 0;
 bool isFullscreen = false;
 
-bool Panels[5] = { true, true, true, true, true}; // ImGui Panels
+bool Panels[4] = { true, true, true, true}; // ImGui Panels
 
 float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
 

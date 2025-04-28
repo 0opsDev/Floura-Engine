@@ -1,92 +1,66 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{6068e48a-d111-4f34-8277-e62039207fc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core">
+      <UniqueIdentifier>{82b0a6da-ca65-40ad-b7b4-097700264782}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Camera">
+      <UniqueIdentifier>{5518a519-849a-42bf-a4b4-122bcedbdfd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render">
+      <UniqueIdentifier>{98e07985-015c-418e-b754-26beaf7664f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\Model">
+      <UniqueIdentifier>{da5d5fd1-0748-4fd1-93d0-970c877e7673}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\Shader">
+      <UniqueIdentifier>{a10ec773-04b2-444b-8c2b-da8a1ebf1308}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\Buffer">
+      <UniqueIdentifier>{6fc961bd-ce5d-4918-a0c5-963435c987fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scripting">
+      <UniqueIdentifier>{5212ba28-a4f3-45bc-a5d8-1db7767b92e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scripting\functions">
+      <UniqueIdentifier>{946f0760-cc03-4251-aa54-7f6b67b0c46a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scripting\functions\Model">
+      <UniqueIdentifier>{0241d877-2240-4af9-9494-02015177f24d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scripting\functions\Screen">
+      <UniqueIdentifier>{0f7da3f6-aa0d-44aa-8cdc-eb1a3c4e0ef3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scripting\functions\Shader">
+      <UniqueIdentifier>{260acb11-bc07-4b0f-baf2-894de66a45d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scripting\functions\Input">
+      <UniqueIdentifier>{2ae9180a-6503-4392-abcd-db983393c318}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\utils">
+      <UniqueIdentifier>{b5fe011a-526e-40ba-bd02-3a0f1eaa4bac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\settings">
+      <UniqueIdentifier>{51656b18-d3f8-4a06-9b4c-e04e4f1baa3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\UserScripts">
+      <UniqueIdentifier>{7968ca2d-4921-4b76-ac28-dd1ea9edb422}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\imgui">
+      <UniqueIdentifier>{126a8854-c9e5-4bc2-948d-6001410da2d9}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{79bdc380-f509-40f0-955b-b3704bf95f45}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Textures">
-      <UniqueIdentifier>{b321e6e8-2505-42d7-b439-081f10b4460e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\imgui">
-      <UniqueIdentifier>{126a8854-c9e5-4bc2-948d-6001410da2d9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\imgui">
-      <UniqueIdentifier>{36fd3c58-e113-499c-ab17-d424b8a67eaf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Models">
-      <UniqueIdentifier>{2fac693a-4137-4cad-af12-45fe5947ffa8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Shaders\Db">
       <UniqueIdentifier>{20b5557a-530c-429f-b02b-1a2ef8cafcbc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\main">
-      <UniqueIdentifier>{2056cd74-35c5-4625-92af-aed34477d283}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\control">
-      <UniqueIdentifier>{a181b63a-95ab-45b9-9d39-554546acd6c2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\file">
-      <UniqueIdentifier>{2036a713-b53e-4479-9b53-7cfc6850ea5c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\control">
-      <UniqueIdentifier>{3fb70cda-9e5e-4230-80b5-ca6ee05d31d2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\file">
-      <UniqueIdentifier>{40e61a2a-2db8-47f0-a425-197e5832a633}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\main">
-      <UniqueIdentifier>{c25f9ba6-1d6a-4773-9896-24f97f4c43bf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\utils">
-      <UniqueIdentifier>{9e7054d9-43c7-4a34-89c0-d2c5de312676}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\utils">
-      <UniqueIdentifier>{887285a0-4c12-411e-9dfe-2e4b6cd8e6c4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Text Files">
-      <UniqueIdentifier>{4af88813-d1f1-4671-9fb4-e54fbd5a6d30}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Text Files\Text">
-      <UniqueIdentifier>{1127e8f9-a6ef-4e08-aa57-9d56c9ea50d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\bullet">
-      <UniqueIdentifier>{66117c28-6c9d-4a30-8ae4-2983dcb3b0bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Render">
-      <UniqueIdentifier>{98e07985-015c-418e-b754-26beaf7664f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Render\Model">
-      <UniqueIdentifier>{da5d5fd1-0748-4fd1-93d0-970c877e7673}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Render\Shader">
-      <UniqueIdentifier>{a10ec773-04b2-444b-8c2b-da8a1ebf1308}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Render">
-      <UniqueIdentifier>{821fde3a-21d6-42ac-87fa-139e95542374}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Render\Model">
-      <UniqueIdentifier>{62b70578-7fd3-4375-b671-eb640e37ee97}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Render\Shader">
-      <UniqueIdentifier>{417df52d-3d0c-4fba-a8db-a13b74efa1be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Render\Buffer">
-      <UniqueIdentifier>{fea28de4-90a5-406a-acc9-d5d9c0063c12}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Render\Buffer">
-      <UniqueIdentifier>{6fc961bd-ce5d-4918-a0c5-963435c987fe}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\Shaders\Post Process">
       <UniqueIdentifier>{4057e73a-f53b-4cb2-9f85-a8deaf84f57f}</UniqueIdentifier>
@@ -97,240 +71,213 @@
     <Filter Include="Resource Files\Shaders\Skybox">
       <UniqueIdentifier>{e96aaa03-9abd-4e46-a63a-bb33a658f71a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\UserScripts">
-      <UniqueIdentifier>{7968ca2d-4921-4b76-ac28-dd1ea9edb422}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scripting">
-      <UniqueIdentifier>{5212ba28-a4f3-45bc-a5d8-1db7767b92e9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scripting\functions">
-      <UniqueIdentifier>{946f0760-cc03-4251-aa54-7f6b67b0c46a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scripting\functions\Model">
-      <UniqueIdentifier>{0241d877-2240-4af9-9494-02015177f24d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scripting\functions\Screen">
-      <UniqueIdentifier>{0f7da3f6-aa0d-44aa-8cdc-eb1a3c4e0ef3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scripting\functions\Shader">
-      <UniqueIdentifier>{260acb11-bc07-4b0f-baf2-894de66a45d6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scripting\functions\Input">
-      <UniqueIdentifier>{2ae9180a-6503-4392-abcd-db983393c318}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
-      <Filter>Source Files\imgui</Filter>
+      <Filter>Resource Files\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_opengl3.cpp">
-      <Filter>Source Files\imgui</Filter>
+      <Filter>Resource Files\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\Libraries\include\imgui\imgui_tables.cpp">
-      <Filter>Source Files\imgui</Filter>
+      <Filter>Resource Files\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\Libraries\include\imgui\imgui_widgets.cpp">
-      <Filter>Source Files\imgui</Filter>
+      <Filter>Resource Files\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\Libraries\include\imgui\imgui.cpp">
-      <Filter>Source Files\imgui</Filter>
+      <Filter>Resource Files\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\Libraries\include\imgui\imgui_demo.cpp">
-      <Filter>Source Files\imgui</Filter>
+      <Filter>Resource Files\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\Libraries\include\imgui\imgui_draw.cpp">
-      <Filter>Source Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\Camera.cpp">
-      <Filter>Source Files\control</Filter>
+      <Filter>Resource Files\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\shader\ShaderClass.cpp">
-      <Filter>Source Files\Render\Shader</Filter>
+      <Filter>src\Render\Shader</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\model\Mesh.cpp">
-      <Filter>Source Files\Render\Model</Filter>
+      <Filter>src\Render\Model</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\model\Model.cpp">
-      <Filter>Source Files\Render\Model</Filter>
+      <Filter>src\Render\Model</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\model\stb.cpp">
-      <Filter>Source Files\Render\Model</Filter>
+      <Filter>src\Render\Model</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\model\Texture.cpp">
-      <Filter>Source Files\Render\Model</Filter>
+      <Filter>src\Render\Model</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\Buffer\EBO.cpp">
-      <Filter>Source Files\Render\Buffer</Filter>
+      <Filter>src\Render\Buffer</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\Buffer\VAO.cpp">
-      <Filter>Source Files\Render\Buffer</Filter>
+      <Filter>src\Render\Buffer</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\Buffer\VBO.cpp">
-      <Filter>Source Files\Render\Buffer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\glad.c">
-      <Filter>Source Files\main</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Main.cpp">
-      <Filter>Source Files\main</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Systems\utils\init.cpp">
-      <Filter>Source Files\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Systems\utils\ScreenUtils.cpp">
-      <Filter>Source Files\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Systems\utils\SettingsUtil.cpp">
-      <Filter>Source Files\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Systems\utils\timeUtil.cpp">
-      <Filter>Source Files\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Systems\utils\UF.cpp">
-      <Filter>Source Files\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Systems\file\FileClass.cpp">
-      <Filter>Source Files\file</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Systems\utils\timeAccumulator.cpp">
-      <Filter>Source Files\utils</Filter>
+      <Filter>src\Render\Buffer</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\Shader\Framebuffer.cpp">
-      <Filter>Source Files\Render\Shader</Filter>
+      <Filter>src\Render\Shader</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\Shader\Cubemap.cpp">
-      <Filter>Source Files\Render\Shader</Filter>
+      <Filter>src\Render\Shader</Filter>
     </ClCompile>
     <ClCompile Include="src\Scripting\ScriptEngine.cpp">
-      <Filter>Scripting</Filter>
+      <Filter>src\Scripting</Filter>
     </ClCompile>
     <ClCompile Include="src\Scripting\ScriptRunner.cpp">
-      <Filter>Scripting</Filter>
+      <Filter>src\Scripting</Filter>
     </ClCompile>
     <ClCompile Include="src\Scripting\Functions\Model\LuaModel.cpp">
-      <Filter>Scripting\functions\Model</Filter>
+      <Filter>src\Scripting\functions\Model</Filter>
     </ClCompile>
     <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp">
-      <Filter>Scripting\functions\Screen</Filter>
+      <Filter>src\Scripting\functions\Screen</Filter>
     </ClCompile>
     <ClCompile Include="src\Scripting\Functions\Shader\LuaShader.cpp">
-      <Filter>Scripting\functions\Shader</Filter>
+      <Filter>src\Scripting\functions\Shader</Filter>
     </ClCompile>
     <ClCompile Include="src\Scripting\Functions\Input\LuaGetKey.cpp">
-      <Filter>Scripting\functions\Input</Filter>
+      <Filter>src\Scripting\functions\Input</Filter>
     </ClCompile>
-    <ClCompile Include="src\Systems\utils\InputUtil.cpp">
-      <Filter>Source Files\utils</Filter>
+    <ClCompile Include="src\camera\Camera.cpp">
+      <Filter>src\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\init.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\InputUtil.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\ScreenUtils.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\SettingsUtil.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\timeAccumulator.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\timeUtil.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\UF.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Main.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\glad.c">
+      <Filter>src\core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Libraries\include\imgui\imconfig.h">
-      <Filter>Header Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imgui.h">
-      <Filter>Header Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_glfw.h">
-      <Filter>Header Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_opengl3.h">
-      <Filter>Header Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_opengl3_loader.h">
-      <Filter>Header Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imgui_internal.h">
-      <Filter>Header Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imstb_rectpack.h">
-      <Filter>Header Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imstb_textedit.h">
-      <Filter>Header Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imstb_truetype.h">
-      <Filter>Header Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Camera.h">
-      <Filter>Header Files\control</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\shader\shaderClass.h">
-      <Filter>Header Files\Render\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\model\Mesh.h">
-      <Filter>Header Files\Render\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\model\Model.h">
-      <Filter>Header Files\Render\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\model\Texture.h">
-      <Filter>Header Files\Render\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Buffer\EBO.h">
-      <Filter>Header Files\Render\Buffer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Buffer\VAO.h">
-      <Filter>Header Files\Render\Buffer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Buffer\VBO.h">
-      <Filter>Header Files\Render\Buffer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Main.h">
-      <Filter>Header Files\main</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Systems\utils\include.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Systems\utils\init.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Systems\utils\ScreenUtils.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Systems\utils\SettingsUtil.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Systems\utils\timeUtil.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Systems\utils\UF.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Systems\file\FileClass.h">
-      <Filter>Header Files\file</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Systems\utils\timeAccumulator.h">
-      <Filter>Header Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Shader\Framebuffer.h">
-      <Filter>Header Files\Render\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Shader\Cubemap.h">
-      <Filter>Header Files\Render\Shader</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
-      <Filter>Scripting</Filter>
+      <Filter>src\Scripting</Filter>
     </ClInclude>
     <ClInclude Include="src\Scripting\ScriptEngine.h">
-      <Filter>Scripting</Filter>
+      <Filter>src\Scripting</Filter>
     </ClInclude>
     <ClInclude Include="src\Scripting\Functions\Model\LuaModel.h">
-      <Filter>Scripting\functions\Model</Filter>
+      <Filter>src\Scripting\functions\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h">
-      <Filter>Scripting\functions</Filter>
+      <Filter>src\Scripting\functions</Filter>
     </ClInclude>
     <ClInclude Include="src\Scripting\Functions\Screen\LuaScreen.h">
-      <Filter>Scripting\functions\Screen</Filter>
+      <Filter>src\Scripting\functions\Screen</Filter>
     </ClInclude>
     <ClInclude Include="src\Scripting\Functions\Shader\LuaShader.h">
-      <Filter>Scripting\functions\Shader</Filter>
+      <Filter>src\Scripting\functions\Shader</Filter>
     </ClInclude>
     <ClInclude Include="src\Scripting\Functions\Input\LuaGetKey.h">
-      <Filter>Scripting\functions\Input</Filter>
+      <Filter>src\Scripting\functions\Input</Filter>
     </ClInclude>
-    <ClInclude Include="src\Systems\utils\InputUtil.h">
-      <Filter>Header Files\utils</Filter>
+    <ClInclude Include="src\camera\Camera.h">
+      <Filter>src\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\include.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\init.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\InputUtil.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\ScreenUtils.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\SettingsUtil.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\timeAccumulator.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\timeUtil.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\UF.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Main.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imconfig.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imgui.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_glfw.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_opengl3.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imgui_internal.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imstb_rectpack.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imstb_textedit.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imstb_truetype.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\model\Texture.h">
+      <Filter>src\Render\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\model\Mesh.h">
+      <Filter>src\Render\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\model\Model.h">
+      <Filter>src\Render\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Shader\Cubemap.h">
+      <Filter>src\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Shader\Framebuffer.h">
+      <Filter>src\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\shader\shaderClass.h">
+      <Filter>src\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Buffer\EBO.h">
+      <Filter>src\Render\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Buffer\VAO.h">
+      <Filter>src\Render\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Buffer\VBO.h">
+      <Filter>src\Render\Buffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -339,12 +286,6 @@
     </None>
     <None Include="Shaders\Db\Depth.frag">
       <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\ShaderList.json">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Settings\Settings.json">
-      <Filter>Text Files\Text</Filter>
     </None>
     <None Include="Shaders\Db\solidColour.frag">
       <Filter>Resource Files\Shaders\Db</Filter>
@@ -400,26 +341,32 @@
     <None Include="Shaders\Skybox\skybox.frag">
       <Filter>Resource Files\Shaders\Skybox</Filter>
     </None>
-    <None Include="Settings\PlayerController.json">
-      <Filter>Text Files\Text</Filter>
-    </None>
-    <None Include="Settings\LogConfig.json">
-      <Filter>Text Files\Text</Filter>
-    </None>
     <None Include="UserScripts\LuaStartup.json">
-      <Filter>Source Files\UserScripts</Filter>
-    </None>
-    <None Include="Settings\imgui.ini">
-      <Filter>Source Files\utils</Filter>
+      <Filter>Resource Files\UserScripts</Filter>
     </None>
     <None Include="UserScripts\Main\Main.Lua">
-      <Filter>Source Files\UserScripts</Filter>
+      <Filter>Resource Files\UserScripts</Filter>
     </None>
     <None Include="UserScripts\dbg\Test.Lua">
-      <Filter>Source Files\UserScripts</Filter>
+      <Filter>Resource Files\UserScripts</Filter>
     </None>
     <None Include="UserScripts\Main\Shader.Lua">
-      <Filter>Source Files\UserScripts</Filter>
+      <Filter>Resource Files\UserScripts</Filter>
+    </None>
+    <None Include="Settings\imgui.ini">
+      <Filter>Resource Files\settings</Filter>
+    </None>
+    <None Include="Settings\Settings.json">
+      <Filter>Resource Files\settings</Filter>
+    </None>
+    <None Include="Settings\LogConfig.json">
+      <Filter>Resource Files\settings</Filter>
+    </None>
+    <None Include="Settings\PlayerController.json">
+      <Filter>Resource Files\settings</Filter>
+    </None>
+    <None Include="Shaders\ShaderList.json">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

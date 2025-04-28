@@ -1,7 +1,7 @@
 #ifndef TIME_ACCUMULATOR
 #define TIME_ACCUMULATOR
 
-#include "Systems/utils/timeUtil.h"
+#include "utils/timeUtil.h"
 
 class TimeAccumulator {
 public:

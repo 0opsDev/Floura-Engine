@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <vector>
-#include "Render/Camera.h"
+#include "Camera/Camera.h"
 class InputUtil
 {
 public:
