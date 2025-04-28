@@ -368,5 +368,8 @@
     <None Include="Shaders\ShaderList.json">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="UserScripts\Main\Shortcuts.Lua">
+      <Filter>Resource Files\UserScripts</Filter>
+    </None>
   </ItemGroup>
 </Project>

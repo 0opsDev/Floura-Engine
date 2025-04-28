@@ -33,6 +33,7 @@ Mouse Side Buttons: Zoom
 F2: Gravity and Collisions OFF
 F3: Gravity and Collisions ON
 Backslash: Re-run scripts
+Page Up/Down: change shader
 ~~~
 
 Screenshots:

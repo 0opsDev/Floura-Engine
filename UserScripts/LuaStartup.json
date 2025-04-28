@@ -16,5 +16,11 @@
         "Path": "dbg/Test.Lua",
         "init": [ "runOnce" ],
         "loop": [ "update", "UpdateDelta" ]
+    },
+    {
+        "name": "shortcut",
+        "Path": "Main/Shortcuts.Lua",
+        "init": [ "init" ],
+        "loop": [ "update", "UpdateDelta" ]
     }
 ]
