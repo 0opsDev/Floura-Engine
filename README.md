@@ -1,10 +1,8 @@
-#Farquhar Engine 
-
 Farquhar Engine is a Open Source C++ Game Engine created for the purpose of learning opengl,
 
 Checkout [documentation](https://github.com/0opsDev/Farquhar-Engine/blob/master/Documentation/documentation.md) for more
 
-#Features:
+Features:
 ---
 ~~~
 . glTF Model Loading
@@ -20,7 +18,7 @@ Checkout [documentation](https://github.com/0opsDev/Farquhar-Engine/blob/master/
 . Embedded Lua via sol2 (not in much of a useable state)
 ~~~
 
-#Controls:
+Controls:
 ---
 ~~~
 WASD: Move
