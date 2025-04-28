@@ -18,5 +18,10 @@ function UpdateDelta() --updates at 60hz deltatime
 --	SetWindow("vsync", "true")
 --	SetWindow("Title", "Value")
 
+
 	return 60
+end
+
+function FetchKey(key)
+	--io.write("[LUA] FetchKey: "..key.."\n")
 end

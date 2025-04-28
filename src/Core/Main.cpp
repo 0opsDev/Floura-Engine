@@ -10,6 +10,7 @@
 #include <chrono>
 #include <Systems/utils/SettingsUtil.h>
 #include "Systems/utils/timeAccumulator.h"
+#include "Systems/utils/InputUtil.h"
 //temorary
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
@@ -23,7 +24,7 @@
 // Forward declaration of the function
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
 
-int Main::VertNum = 0, Main::FragNum = 0, Main::TempButton = 0;
+int Main::VertNum = 0, Main::FragNum = 0, Main::TempButton = 0; 
 
 unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
 
@@ -776,9 +777,10 @@ int main()
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
 		DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC)
+		InputUtil::UpdateCurrentKey(window);
 
 		if (glfwGetKey(window, GLFW_KEY_BACKSLASH) == GLFW_PRESS) { ScriptRunner::clearScripts(); ScriptRunner::init(); };
-		ScriptRunner::update();
+		ScriptRunner::update(); 
 
 		glm::vec3 cameraPos = Camera::s_PositionMatrix;
 		glm::vec3 feetpos = glm::vec3(Camera::s_PositionMatrix.x, (Camera::s_PositionMatrix.y - PlayerHeightCurrent), Camera::s_PositionMatrix.z);

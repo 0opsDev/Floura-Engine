@@ -22,5 +22,10 @@ function UpdateDelta() --updates at 1hz deltatime
 --x = 0
 --end
 
+
 	return 1
+end
+
+function FetchKey(key)
+	--io.write("[LUA] FetchKey: "..key.."\n")
 end

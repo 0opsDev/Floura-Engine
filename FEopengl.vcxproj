@@ -160,6 +160,7 @@
     <ClCompile Include="src\Render\Shader\Cubemap.cpp" />
     <ClCompile Include="src\Render\Shader\Framebuffer.cpp" />
     <ClCompile Include="src\Render\shader\ShaderClass.cpp" />
+    <ClCompile Include="src\Scripting\Functions\Input\LuaGetKey.cpp" />
     <ClCompile Include="src\Scripting\Functions\Model\LuaModel.cpp" />
     <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp" />
     <ClCompile Include="src\Scripting\Functions\Shader\LuaShader.cpp" />
@@ -167,6 +168,7 @@
     <ClCompile Include="src\Scripting\ScriptRunner.cpp" />
     <ClCompile Include="src\Systems\file\FileClass.cpp" />
     <ClCompile Include="src\Systems\utils\init.cpp" />
+    <ClCompile Include="src\Systems\utils\InputUtil.cpp" />
     <ClCompile Include="src\Systems\utils\ScreenUtils.cpp" />
     <ClCompile Include="src\Systems\utils\SettingsUtil.cpp" />
     <ClCompile Include="src\Systems\utils\timeAccumulator.cpp" />
@@ -194,6 +196,7 @@
     <ClInclude Include="src\Render\Shader\Cubemap.h" />
     <ClInclude Include="src\Render\Shader\Framebuffer.h" />
     <ClInclude Include="src\Render\shader\shaderClass.h" />
+    <ClInclude Include="src\Scripting\Functions\Input\LuaGetKey.h" />
     <ClInclude Include="src\Scripting\Functions\Model\LuaModel.h" />
     <ClInclude Include="src\Scripting\Functions\Screen\LuaScreen.h" />
     <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h" />
@@ -203,6 +206,7 @@
     <ClInclude Include="src\Systems\file\FileClass.h" />
     <ClInclude Include="src\Systems\utils\include.h" />
     <ClInclude Include="src\Systems\utils\init.h" />
+    <ClInclude Include="src\Systems\utils\InputUtil.h" />
     <ClInclude Include="src\Systems\utils\ScreenUtils.h" />
     <ClInclude Include="src\Systems\utils\SettingsUtil.h" />
     <ClInclude Include="src\Systems\utils\timeAccumulator.h" />

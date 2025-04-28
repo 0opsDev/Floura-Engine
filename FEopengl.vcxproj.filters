@@ -115,6 +115,9 @@
     <Filter Include="Scripting\functions\Shader">
       <UniqueIdentifier>{260acb11-bc07-4b0f-baf2-894de66a45d6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scripting\functions\Input">
+      <UniqueIdentifier>{2ae9180a-6503-4392-abcd-db983393c318}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -212,6 +215,12 @@
     </ClCompile>
     <ClCompile Include="src\Scripting\Functions\Shader\LuaShader.cpp">
       <Filter>Scripting\functions\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Functions\Input\LuaGetKey.cpp">
+      <Filter>Scripting\functions\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\utils\InputUtil.cpp">
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -316,6 +325,12 @@
     </ClInclude>
     <ClInclude Include="src\Scripting\Functions\Shader\LuaShader.h">
       <Filter>Scripting\functions\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Functions\Input\LuaGetKey.h">
+      <Filter>Scripting\functions\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\utils\InputUtil.h">
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -19,3 +19,7 @@ end
 function runOnce() --updates at 60hz deltatime
 	io.write("[LUA S5] ran once\n")
 end
+
+function FetchKey(key)
+	--io.write("[LUA] FetchKey: "..key.."\n")
+end

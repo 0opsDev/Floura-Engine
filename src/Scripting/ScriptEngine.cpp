@@ -63,4 +63,5 @@ void ScriptEngine::luaFunctions(){
 	luaModel LModel; LModel.DrawModel(luaState);
 	luaScreen LScreen; LScreen.SetScreen(luaState);
 	luaShader Lshader; Lshader.SetShader(luaState);
+	LuaGetKey LGetKey; LGetKey.ProcessKeyPresses(luaState);
 }
