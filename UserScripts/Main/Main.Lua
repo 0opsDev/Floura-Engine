@@ -1,4 +1,4 @@
-
+newkey = ""
 
 function init()
 	io.write("[LUA] Main.Lua Running init \n")
@@ -11,17 +11,19 @@ function update() --updates GameLoop speed
 
 --	ModelDraw("NOTTmodelPath.gltf", "NOTTmodelName", false, 4, 2, 0, 0, 0, 0, 0, 1, 1, 1)
 
-
 end
 
 function UpdateDelta() --updates at 60hz deltatime
 --	SetWindow("vsync", "true")
 --	SetWindow("Title", "Value")
 
-
+	if newkey ~= "" then
+	io.write("[LUA] FetchKey: "..newkey.."\n")
+	end
 	return 60
 end
 
 function FetchKey(key)
+	newkey = key
 	--io.write("[LUA] FetchKey: "..key.."\n")
 end

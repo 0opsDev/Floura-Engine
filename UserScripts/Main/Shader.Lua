@@ -1,3 +1,5 @@
+newkey = ""
+
 function init()
 	io.write("[LUA] Main.Lua Running init \n")
 	return 0
@@ -22,10 +24,10 @@ function UpdateDelta() --updates at 1hz deltatime
 --x = 0
 --end
 
-
 	return 1
 end
 
 function FetchKey(key)
+	newkey = key
 	--io.write("[LUA] FetchKey: "..key.."\n")
 end

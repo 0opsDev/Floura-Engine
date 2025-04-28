@@ -1,7 +1,10 @@
 #include "InputUtil.h"
 #include <unordered_map>
+#include <vector>
 
 std::string InputUtil::CurrentKey;
+std::vector<std::string> pressedKeys;
+int currentIndex = 0;
 
 // Mapping GLFW key codes to readable names
 std::unordered_map<int, std::string> keyNames = {
@@ -126,10 +129,19 @@ std::unordered_map<int, std::string> keyNames = {
 };
 
 void InputUtil::UpdateCurrentKey(GLFWwindow* window) {
+    pressedKeys.clear(); // Clear previous frame's keys
+
     for (const auto& [key, name] : keyNames) {
         if (glfwGetKey(window, key) == GLFW_PRESS) {
-            CurrentKey = name;
-            //std::cout << CurrentKey << std::endl;
+            pressedKeys.push_back(name);
         }
+    }
+
+    if (!pressedKeys.empty()) {
+        CurrentKey = pressedKeys[currentIndex];
+        currentIndex = (currentIndex + 1) % pressedKeys.size(); // Cycle through keys
+    }
+    else {
+        CurrentKey = ""; // No keys being pressed
     }
 }
