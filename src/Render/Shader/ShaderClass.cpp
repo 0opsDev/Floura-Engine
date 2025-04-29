@@ -1,4 +1,5 @@
 #include "shaderClass.h"
+#include "utils/init.h"
 
 std::string get_file_contents(const char* filename)
 {
@@ -26,44 +27,61 @@ std::string get_file_contents(const char* filename)
 
 Shader::Shader(const char* vertexFile, const char* fragmentFile) 
 {
-    std::string vertexCode = get_file_contents(vertexFile);
-    std::string fragmentCode = get_file_contents(fragmentFile);
+    if (vertexFile == "skip" || fragmentFile == "skip") {
+        if (init::LogALL || init::LogSystems) { std::cout << "Shader: Skip" << std::endl; }
+        return;
+    }
+    else if (vertexFile == "") {
+        if (init::LogALL || init::LogSystems) { std::cout << "vertexFile Path is Empty" << std::endl; }
+        return;
+    }
+    else if (fragmentFile == "") {
+        if (init::LogALL || init::LogSystems) { std::cout << "fragmentFile Path is Empty" << std::endl; }
+        return;
+    }
 
-    const char* vertexSource = vertexCode.c_str();
-    const char* fragmentSource = fragmentCode.c_str();
+        // uses vertexFile which holds the shader file path and gets the contents of the file which is dumped into vertexCode
+        std::string vertexCode = get_file_contents(vertexFile); 
+        std::string fragmentCode = get_file_contents(fragmentFile);
 
-    //CREATE VERTEX SHADER
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER); //ep2
-    //feed vert shader data at line 5
-    glShaderSource(vertexShader, 1, &vertexSource, NULL); //ep2
-    //compile into machine code
-    glCompileShader(vertexShader); //ep2
-    //error checking
-    compileErrors(vertexShader, "VERTEX");
+        const char* vertexSource = vertexCode.c_str();
+        const char* fragmentSource = fragmentCode.c_str();
 
-    //CREATE FRAGMENT SHADER
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    //feed vert shader data at line 5
-    glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-    //compile into machine code
-    glCompileShader(fragmentShader); //ep2
-    //error checking
-    compileErrors(fragmentShader, "FRAGMENT");
+        //CREATE VERTEX SHADER
+        GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER); //ep2
+        //feed vert shader data at line 5
+        glShaderSource(vertexShader, 1, &vertexSource, NULL); //ep2
+        //compile into machine code
+        glCompileShader(vertexShader); //ep2
+        //error checking
+        compileErrors(vertexShader, "VERTEX");
 
-    //wrap then into shader 
-    //create shader program
-    ID = glCreateProgram(); //ep2
-    //attach vert shader and frag shader
-    glAttachShader(ID, vertexShader); //ep2
-    glAttachShader(ID, fragmentShader);//ep2
-    //wrap
-    glLinkProgram(ID);//ep2
-    //error checking
-    compileErrors(ID, "PROGRAM");
+        //CREATE FRAGMENT SHADER
+        GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        //feed vert shader data at line 5
+        glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+        //compile into machine code
+        glCompileShader(fragmentShader); //ep2
+        //error checking
+        compileErrors(fragmentShader, "FRAGMENT");
 
-    //delete shaders because its already in the program
-    glDeleteShader(vertexShader);//ep2
-    glDeleteShader(fragmentShader);//ep2
+        //wrap then into shader 
+        //create shader program
+        ID = glCreateProgram(); //ep2
+        //attach vert shader and frag shader
+        glAttachShader(ID, vertexShader); //ep2
+        glAttachShader(ID, fragmentShader);//ep2
+        //wrap
+        glLinkProgram(ID);//ep2
+        //error checking
+        compileErrors(ID, "PROGRAM");
+
+        //delete shaders because its already in the program
+        glDeleteShader(vertexShader);//ep2
+        glDeleteShader(fragmentShader);//ep2
+        if (init::LogALL || init::LogSystems) { std::cout << "Vert: " << vertexFile << "Frag: " << fragmentFile << std::endl; }
+
+   
 }
 
 void Shader::Activate()

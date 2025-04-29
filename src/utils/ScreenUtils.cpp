@@ -1,5 +1,8 @@
 #include "screenutils.h" 
 #include "utils/init.h"
+#include <iostream>
+#include <GLFW/glfw3.h>
+
 int windowedPosX= 0 , windowedPosY = 0;
 
 void ScreenUtils::toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor, bool isFullscreen, int windowedWidth, int windowedHeight)

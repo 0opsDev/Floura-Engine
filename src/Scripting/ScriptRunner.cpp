@@ -1,5 +1,6 @@
 #include "Scripting/ScriptRunner.h"
 #include "utils/init.h"
+#include <fstream>
 
 struct ScriptInfo {
 	ScriptEngine* engine;

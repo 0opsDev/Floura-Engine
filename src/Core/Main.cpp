@@ -20,6 +20,7 @@
 #include <stb/stb_perlin.h>
 #include "Render/Shader/Framebuffer.h"
 #include "Scripting/ScriptRunner.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 // Forward declaration of the function
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
@@ -52,15 +53,11 @@ bool doFog = true;
 bool doVsync = false;
 bool isWireframe = false;
 
-// Shader settings
-bool Stencil = false;
-float stencilSize = 0.009f;
-GLfloat stencilColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 float gamma = 2.2f;
 
 float resolutionScale = 1;
 unsigned int width = 800, height = 600, ViewPortWidth = 800, ViewPortHeight = 600;
-int windowedWidth = 0, windowedHeight = 0, widthI = 0, heightI = 0;
+int windowedWidth = 0, windowedHeight = 0, tempWidth, tempHeight;
 bool isFullscreen = false;
 
 bool Panels[4] = { true, true, true, true}; // ImGui Panels
@@ -236,10 +233,10 @@ void loadSettings() {
 		settingsFile >> settingsData;
 		settingsFile.close();
 
-		heightI = settingsData[0]["Height"];
-		widthI = settingsData[0]["Width"];
-		width = static_cast<unsigned int>(widthI);
-		height = static_cast<unsigned int>(heightI); // cast screenArea from screenAreaI
+		height = settingsData[0]["Height"];
+		width = settingsData[0]["Width"];
+		tempHeight = settingsData[0]["Height"];
+		tempWidth = settingsData[0]["Width"];
 
 		doVsync = settingsData[0]["Vsync"];
 		cameraSettings[0] = settingsData[0]["FOV"];
@@ -361,11 +358,20 @@ void LoadSkybox() {
 void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, Camera camera, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO, unsigned int& frameBufferTexture2) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
+	
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
-	ImGui::SetNextWindowSize(ImVec2(static_cast<unsigned int>(widthI), static_cast<unsigned int>(heightI)));
-	ImGui::Begin("Window"); // ImGUI window creation
+	// Create a full-screen docking space
 
+	// Main docking window
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
+	ImGui::Begin("Docking Window", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+
+	// Create a DockSpace
+	ImGuiID dockspace_id = ImGui::GetID("MainDockspace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
 	ImGui::End();
+
 	//Main Panel
 	ImGui::Begin("Panels"); // ImGUI window creation
 
@@ -429,20 +435,18 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			ImGui::Text("Framerate Limiters");
 			ImGui::Checkbox("Vsync", &doVsync); // Set the value of doVsync (bool)
 			// Screen
-			ImGui::DragInt("Width", &widthI);
-			ImGui::DragInt("Height", &heightI); // screen slider
+			ImGui::DragInt("Width", &tempWidth);
+			ImGui::DragInt("Height", &tempHeight); // screen slider
 
-			ImGui::SliderFloat("Resolution Scale", &resolutionScale, 0.009, 1);
+			ImGui::SliderFloat("Resolution Scale", &resolutionScale, 0.001, 1);
 			ImGui::Checkbox("Enable FB shader", &enableFB); // Set the value of doVsync (bool)
 
 			if (ImGui::SmallButton("Apply Changes?")) { // apply button
-				width = static_cast<unsigned int>(widthI);
-				height = static_cast<unsigned int>(heightI); // cast screenArea from screenAreaI
-				glViewport(0, 0, width * resolutionScale, height * resolutionScale); // real internal res
-				glfwSetWindowSize(window, width, height);
+				glViewport(0, 0, tempWidth * resolutionScale, tempHeight * resolutionScale); // real internal res
+				glfwSetWindowSize(window, tempWidth, tempHeight);
 				//ScreenUtils::SetScreenSize(window, width, height); // set window and viewport w&h
 				ScreenUtils::setVSync(doVsync); // Set Vsync to value of doVsync (bool)
-				updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, width, height); // Update frame buffer resolution
+				updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, tempWidth, tempHeight); // Update frame buffer resolution
 			}
 			if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 			{
@@ -455,8 +459,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 
 		if (ImGui::TreeNode("Shaders")) {
 			//Optimisation And Shaders
-			ImGui::Checkbox("Enable Stencil Buffer", &Stencil);
-			ImGui::DragFloat("Stencil Size", &stencilSize);
 			ImGui::DragInt("Shader Number (Vert)", &Main::VertNum);
 			ImGui::DragInt("Shader Number (Frag)", &Main::FragNum); // Shader Switching
 			if (ImGui::SmallButton("Apply Shader?")) { Main::TempButton = -1; } // apply shader
@@ -483,7 +485,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 				ImGui::ColorEdit4("sky RGBA", skyRGBA);
 				ImGui::ColorEdit4("light RGBA", lightRGBA);
 				ImGui::ColorEdit4("fog RGBA", fogRGBA);	// sky and light
-				ImGui::ColorEdit4("Stencil RGBA", stencilColor);
 				ImGui::TreePop();
 			}
 
@@ -555,12 +556,10 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	ImGui::Render(); // Renders the ImGUI elements
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
 // Holds DeltaTime Based Variables and Functions
 void DeltaMain(GLFWwindow* window) {
-	// Framerate tracking  
-
 	TA1.update();
-
 	// Update FPS and window title every second  
 	if (TA1.Counter >= 1.0f) {
 		glfwSetWindowTitle(window, (SettingsUtils::s_WindowTitle + " (FPS: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz) ) +
@@ -568,17 +567,6 @@ void DeltaMain(GLFWwindow* window) {
 			") (Foot Collision: " + std::to_string(footCollision) + ")" + " (Title updates at 1hz) ").c_str());
 
 		TA1.reset();
-		//timeAccumulator[0] = 0;
-	}
-
-	TA2.update();
-	if (TA2.Counter >= 1 / 60) {
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) cameraSettings[0] = std::min(cameraSettings[0] + 0.4f, 160.0f);
-
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) cameraSettings[0] = std::max(cameraSettings[0] - 0.4f, 0.1f);
-		
-		//if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) { isWireframe = !isWireframe; }
-		TA2.reset();
 	}
 }
 
@@ -666,13 +654,14 @@ void cubeboxTexture(unsigned int& cubemapTexture) {
 }
 
 //Main Function
-int main()
+int main() // global variables do not work with threads
 {
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 	init::initLog();// init logs (should always be before priniting anything)
 	ScriptRunner::init();
 	init::initGLFW(); // initialize glfw
-	std::thread storageThread1(loadSettings);
+	loadSettings();
+	loadEngineSettings();
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -682,13 +671,9 @@ int main()
 	const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
 	if (!videoMode) { std::cerr << "Failed to get video mode" << std::endl; glfwTerminate(); return -1; }
 
-	// second fallback
-	// Store the width and height in the test array
-	width = videoMode->width;
-	height = videoMode->height;
-
-	// Now call glfwGetMonitorPos with correct arguments
-	glfwGetMonitorPos(glfwGetPrimaryMonitor(), &widthI, &heightI);
+	// fall back values if height*width is null
+	if (std::isnan(width)){width = videoMode->width;}
+	if (std::isnan(height)){height = videoMode->height;} 
 
 	//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
 	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, SettingsUtils::s_WindowTitle.c_str(), NULL, NULL); // create window
@@ -711,17 +696,13 @@ int main()
 	// window logo creation and assignment
 	init::initLogo(window);
 	ScreenUtils::setVSync(doVsync); // Set Vsync to value of doVsync (bool)
-	std::thread storageThread2(loadEngineSettings);
-
 	// shaderprog init
-	Shader shaderProgram("Shaders/Empty.shader", "Shaders/Empty.shader"); // create a shader program and feed it Dummy shader and vertex files
-	shaderProgram.Delete(); // clean the shader prog for memory management
+	Shader shaderProgram("skip", ""); // create a shader program and feed it Dummy shader and vertex files
 
 
 	loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram);// feed the shader prog real data
 	shaderProgram.Activate(); // activate new shader program for use
 
-	Shader outlineShaderProgram("Shaders/PostProcess/outlining.vert", "Shaders/PostProcess/outlining.frag");
 	Shader LightProgram("Shaders/Lighting/light.vert", "Shaders/Lighting/light.frag");
 	Shader skyboxShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
 	Shader SolidColour("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
@@ -765,9 +746,6 @@ int main()
 	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = loadModelsFromJson(mapName + "ModelECSData.json"); // Load models from JSON file 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
-	storageThread1.join();
-	storageThread2.join();
-
 	LoadPlayerConfig();
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
@@ -780,6 +758,8 @@ int main()
 		InputUtil::UpdateCurrentKey(window);
 
 		if (glfwGetKey(window, GLFW_KEY_BACKSLASH) == GLFW_PRESS) { ScriptRunner::clearScripts(); ScriptRunner::init(); };
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) cameraSettings[0] = std::min(cameraSettings[0] + (50.0f * TimeUtil::s_DeltaTime), 160.0f);
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) cameraSettings[0] = std::max(cameraSettings[0] - (50.0f * TimeUtil::s_DeltaTime), 0.1f);
 		ScriptRunner::update(); 
 
 		glm::vec3 cameraPos = Camera::s_PositionMatrix;
@@ -885,10 +865,6 @@ int main()
 		camera.Inputs(window); // send Camera.cpp window inputs and delta time
 		camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
 
-		// draw the model
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		glStencilMask(0xFF);
-
 		if (isWireframe) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 			glClearColor(0, 0, 0, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -922,29 +898,6 @@ int main()
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
-		if (Stencil) {
-			glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
-			glStencilMask(0x00);
-			glDisable(GL_DEPTH_TEST);
-			outlineShaderProgram.Activate();
-			UF::Float(outlineShaderProgram.ID, "outlining", stencilSize);
-			UF::Float4(outlineShaderProgram.ID, "stencilColor", stencilColor[0], stencilColor[1], stencilColor[2], stencilColor[3]);
-			// add stencil buffer toggle tommorow
-			// draw
-			for (auto& modelTuple : models) {
-				Model& model = std::get<0>(modelTuple);
-				glm::vec3 translation = std::get<2>(modelTuple);
-				glm::quat rotation = std::get<3>(modelTuple);
-				glm::vec3 scale = std::get<4>(modelTuple);
-				model.Draw(outlineShaderProgram, camera, translation, rotation, scale);
-			}
-
-
-			glStencilMask(0xFF);
-			glStencilFunc(GL_ALWAYS, 0, 0xFF);
-			glEnable(GL_DEPTH_TEST);
-		}
-
 		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
@@ -974,11 +927,13 @@ int main()
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
 		}
+
 		// Switch back to the normal depth function
 
 		glDepthFunc(GL_LESS);
-
+		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 		frameBufferProgram.Activate();
 		UF::Float(frameBufferProgram.ID, "time", glfwGetTime());
@@ -1025,7 +980,6 @@ int main()
 	skyboxShader.Delete();
 	SolidColour.Delete();
 	shaderProgram.Delete(); // Delete Shader Prog
-	outlineShaderProgram.Delete();
 	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
 	return 0;
 }

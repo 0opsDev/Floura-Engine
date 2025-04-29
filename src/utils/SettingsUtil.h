@@ -1,7 +1,8 @@
 #ifndef SETTINGS_UTILS_CLASS_H
 #define SETTINGS_UTILS_CLASS_H
 
-#include <utils/include.h>
+#include<glad/glad.h>
+#include <string>
 
 class SettingsUtils
 {

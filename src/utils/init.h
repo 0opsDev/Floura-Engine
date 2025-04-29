@@ -1,7 +1,7 @@
 #ifndef INIT_CLASS_H
 #define INIT_CLASS_H
 
-#include <utils/include.h>
+#include "imgui/imgui_impl_glfw.h"
 
 class init
 {
@@ -20,8 +20,6 @@ public:
     static void initGLFW();
 
     static void initImGui(GLFWwindow* window);
-
-    static void initBullet();
 
     static void initGLenable(bool frontFaceSide);
 

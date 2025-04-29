@@ -202,7 +202,6 @@
     <ClInclude Include="src\Scripting\Functions\Shader\LuaShader.h" />
     <ClInclude Include="src\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Scripting\ScriptRunner.h" />
-    <ClInclude Include="src\utils\include.h" />
     <ClInclude Include="src\utils\init.h" />
     <ClInclude Include="src\utils\InputUtil.h" />
     <ClInclude Include="src\utils\ScreenUtils.h" />
@@ -231,8 +230,6 @@
     <None Include="Shaders\PostProcess\DITHERFB.frag" />
     <None Include="Shaders\PostProcess\framebuffer.frag" />
     <None Include="Shaders\PostProcess\framebuffer.vert" />
-    <None Include="Shaders\PostProcess\outlining.frag" />
-    <None Include="Shaders\PostProcess\outlining.vert" />
     <None Include="Shaders\PostProcess\TieDyeframebuffer.frag" />
     <None Include="Shaders\ShaderList.json" />
     <None Include="Shaders\Skybox\skybox.frag" />

@@ -18,8 +18,9 @@ function UpdateDelta() --updates at 60hz deltatime
 --	SetWindow("Title", "Value")
 
 	if newkey ~= "" then
-	io.write("[LUA] FetchKey: "..newkey.."\n")
+	--io.write("[LUA] FetchKey: "..newkey.."\n")
 	end
+
 	return 8
 end
 

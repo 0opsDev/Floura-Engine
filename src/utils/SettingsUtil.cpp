@@ -1,4 +1,5 @@
 #include "SettingsUtil.h"
+#include <string>
 
 SettingsUtils::SettingsUtils() 
 {

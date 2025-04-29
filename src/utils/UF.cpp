@@ -1,4 +1,5 @@
 #include "UF.h"
+#include<glad/glad.h>
 
 void UF::Int(GLuint shader, const char* uniform, int uniInt)
 {

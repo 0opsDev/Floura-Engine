@@ -1,6 +1,11 @@
 #include "Init.h"
 #include <json/json.hpp>
 #include <fstream>
+#include <iostream>
+#include <GLFW/glfw3.h>
+#include<stb/stb_image.h>
+#include "imgui/imgui_impl_opengl3.h"
+
 using json = nlohmann::json;
 
 bool init::LogALL = true;
@@ -40,7 +45,7 @@ void init::initGLFW() {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4), glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6); // Window Minimum and Maximum version
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //OpenGl Profile
-	glfwWindowHint(GLFW_RESIZABLE, 0); // Start Resizable
+	glfwWindowHint(GLFW_RESIZABLE, 1); // Start Resizable
 	glfwWindowHint(GLFW_MAXIMIZED, 0); // Start Maximized
 	glfwWindowHint(GLFW_DEPTH_BITS, 16); // DepthBuffer Bit
 }
@@ -98,10 +103,6 @@ void init::initImGui(GLFWwindow* window) {
 	Style.WindowPadding = ImVec2(8, 8);
 	Style.FramePadding = ImVec2(6, 3);
 	Style.ItemSpacing = ImVec2(7, 5);
-}
-
-void init::initBullet() {
-
 }
 
 void init::initGLenable(bool frontFaceSide ) {

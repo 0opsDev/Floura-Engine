@@ -1,8 +1,8 @@
 #ifndef UF_CLASS_H
 #define UF_CLASS_H
 
-#include <utils/include.h>
-
+#include<glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 class UF
 {
