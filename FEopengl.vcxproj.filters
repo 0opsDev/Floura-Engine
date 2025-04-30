@@ -71,6 +71,12 @@
     <Filter Include="Resource Files\Shaders\Skybox">
       <UniqueIdentifier>{e96aaa03-9abd-4e46-a63a-bb33a658f71a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\UI">
+      <UniqueIdentifier>{ae2232b3-13c0-48b3-9f18-c55b926f1396}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\UI\ImGui">
+      <UniqueIdentifier>{40f461af-3af1-4ee8-903c-1e8fa21ea181}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -171,6 +177,9 @@
     </ClCompile>
     <ClCompile Include="src\Core\glad.c">
       <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\ImGui\ImGuiWindow.cpp">
+      <Filter>src\UI\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -275,6 +284,9 @@
     </ClInclude>
     <ClInclude Include="src\Render\Buffer\VBO.h">
       <Filter>src\Render\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\ImGui\ImGuiWindow.h">
+      <Filter>src\UI\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

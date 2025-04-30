@@ -166,6 +166,7 @@
     <ClCompile Include="src\Scripting\Functions\Shader\LuaShader.cpp" />
     <ClCompile Include="src\Scripting\ScriptEngine.cpp" />
     <ClCompile Include="src\Scripting\ScriptRunner.cpp" />
+    <ClCompile Include="src\UI\ImGui\ImGuiWindow.cpp" />
     <ClCompile Include="src\utils\init.cpp" />
     <ClCompile Include="src\utils\InputUtil.cpp" />
     <ClCompile Include="src\utils\ScreenUtils.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="src\Scripting\Functions\Shader\LuaShader.h" />
     <ClInclude Include="src\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Scripting\ScriptRunner.h" />
+    <ClInclude Include="src\UI\ImGui\ImGuiWindow.h" />
     <ClInclude Include="src\utils\init.h" />
     <ClInclude Include="src\utils\InputUtil.h" />
     <ClInclude Include="src\utils\ScreenUtils.h" />

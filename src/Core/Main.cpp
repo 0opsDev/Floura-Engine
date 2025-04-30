@@ -30,6 +30,7 @@ int Main::VertNum = 0, Main::FragNum = 0, Main::TempButton = 0;
 unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
 
 bool enableFB = false; // Change this as needed
+bool enableLinearScaling = false;
 
 char UniformInput[64] = {}; // Zero-initialized buffer
 float UniformFloat[3] = {}; // Zero-initialized array
@@ -57,12 +58,11 @@ float gamma = 2.2f;
 
 float resolutionScale = 1;
 unsigned int width = 800, height = 600, ViewPortWidth = 800, ViewPortHeight = 600;
-int windowedWidth = 0, windowedHeight = 0, tempWidth, tempHeight;
-bool isFullscreen = false;
+int tempWidth, tempHeight;
 
 bool Panels[4] = { true, true, true, true}; // ImGui Panels
 
-float cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
+float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
 
 bool doPlayerCollision = true;
 bool footCollision = false;
@@ -77,7 +77,7 @@ float planeMinZ = -5.0f; // Front edge of the plane
 float planeMaxZ = 5.0f;  // Back edge of the plane
 float planeY = 0.0f;     // Y-position of the plane
 
-TimeAccumulator TA1; TimeAccumulator TA2; TimeAccumulator TA3;
+TimeAccumulator TA1; TimeAccumulator TA3;
 
 std::string mapName; // Map loading
 
@@ -239,7 +239,7 @@ void loadSettings() {
 		tempWidth = settingsData[0]["Width"];
 
 		doVsync = settingsData[0]["Vsync"];
-		cameraSettings[0] = settingsData[0]["FOV"];
+		Main::cameraSettings[0] = settingsData[0]["FOV"];
 		mapName = "Maps/" + settingsData[0]["MAP"].get<std::string>() + "/";
 
 		Camera::s_sensitivityY = settingsData[0]["SensitivityY"];
@@ -268,7 +268,7 @@ void saveSettings() {
 		settingsFile.close();
 
 		settingsData[0]["Vsync"] = doVsync;
-		settingsData[0]["FOV"] = cameraSettings[0];
+		settingsData[0]["FOV"] = Main::cameraSettings[0];
 
 		settingsData[0]["SensitivityY"] = Camera::s_sensitivityY;
 		settingsData[0]["SensitivityX"] = Camera::s_sensitivityX;
@@ -319,8 +319,8 @@ void loadEngineSettings() {
 		Main::VertNum = engineDefaultData[0]["VertNum"];
 		Main::FragNum = engineDefaultData[0]["FragNum"];
 
-		cameraSettings[1] = std::stof(engineDefaultData[0]["NearPlane"].get<std::string>());
-		cameraSettings[2] = std::stof(engineDefaultData[0]["FarPlane"].get<std::string>());
+		Main::cameraSettings[1] = std::stof(engineDefaultData[0]["NearPlane"].get<std::string>());
+		Main::cameraSettings[2] = std::stof(engineDefaultData[0]["FarPlane"].get<std::string>());
 
 		DepthDistance = engineDefaultData[0]["DepthDistance"];
 		DepthPlane[0] = engineDefaultData[0]["DepthPlane"][0];
@@ -353,6 +353,10 @@ void LoadSkybox() {
 		std::cerr << "Failed to open Skybox.json" << std::endl;
 	}
 }
+
+static float prevResolutionScale = 1.0f; // Initialize previous scale
+static float prevEnableLinearScaling = false; // Initialize previous scale
+//enableLinearScaling
 
 // Holds ImGui Variables and Windows
 void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, Camera camera, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO, unsigned int& frameBufferTexture2) {
@@ -439,18 +443,19 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			ImGui::DragInt("Height", &tempHeight); // screen slider
 
 			ImGui::SliderFloat("Resolution Scale", &resolutionScale, 0.001, 1);
-			ImGui::Checkbox("Enable FB shader", &enableFB); // Set the value of doVsync (bool)
+			//enableLinearScaling
+			ImGui::Checkbox("Enable Linear Scaling", &enableLinearScaling); // Set the value of enableLinearScaling (bool)
+			ImGui::Checkbox("Enable FB shader", &enableFB); // Set the value of enableFB (bool)
 
 			if (ImGui::SmallButton("Apply Changes?")) { // apply button
 				glViewport(0, 0, tempWidth * resolutionScale, tempHeight * resolutionScale); // real internal res
 				glfwSetWindowSize(window, tempWidth, tempHeight);
-				//ScreenUtils::SetScreenSize(window, width, height); // set window and viewport w&h
 				ScreenUtils::setVSync(doVsync); // Set Vsync to value of doVsync (bool)
 				updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, tempWidth, tempHeight); // Update frame buffer resolution
 			}
 			if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 			{
-				ScreenUtils::toggleFullscreen(window, monitorT, isFullscreen, windowedWidth, windowedHeight);
+				ScreenUtils::toggleFullscreen(window, monitorT, width, height); //needs to be fixed
 			} //Toggle Fullscreen
 
 
@@ -527,16 +532,12 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		if (ImGui::TreeNode("Perspective")) {
 			ImGui::Spacing();
 			ImGui::Text("View");
-			ImGui::SliderFloat("FOV", &cameraSettings[0], 0.1f, 160.0f); //FOV
-			ImGui::DragFloat2("Near and Far Plane", &cameraSettings[1], cameraSettings[2]); // Near and FarPlane
+			ImGui::SliderFloat("FOV", &Main::cameraSettings[0], 0.1f, 160.0f); //FOV
+			ImGui::DragFloat2("Near and Far Plane", &Main::cameraSettings[1], Main::cameraSettings[2]); // Near and FarPlane
 			ImGui::TreePop();
 		}
 		ImGui::Spacing();
 		ImGui::Checkbox("DoGravity: ", &Camera::s_DoGravity);
-
-		/*
-			doPlayerCollision = true;
-		*/
 
 		ImGui::End();
 	}
@@ -545,9 +546,18 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		ImGui::Begin("ViewPort");
 		const float window_width = ImGui::GetContentRegionAvail().x;
 		const float window_height = ImGui::GetContentRegionAvail().y;
-		updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, window_width, window_height); // Update frame buffer resolution
-		glViewport(0, 0, (window_width * resolutionScale), (window_height * resolutionScale));
 		ImGui::Image((ImTextureID)(uintptr_t)frameBufferTexture2, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
+
+		//prevEnableLinearScaling
+		ScreenUtils::UpdateViewportResize();
+		if (ScreenUtils::isResizing == true || resolutionScale != prevResolutionScale || enableLinearScaling != prevEnableLinearScaling) {
+			//std::cout << "Resolution scale changed!" << std::endl;
+			updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, window_width, window_height); // Update frame buffer resolution
+			glViewport(0, 0, (window_width* resolutionScale), (window_height* resolutionScale));
+		}
+		prevResolutionScale = resolutionScale; // Update the previous scale
+		prevEnableLinearScaling = enableLinearScaling;
+
 		ImGui::End();
 	}
 
@@ -576,7 +586,15 @@ void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int&
 	ViewPortHeight = height;
 		// Update first frame buffer texture
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (width * resolutionScale), (height * resolutionScale), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (width * resolutionScale), (height * resolutionScale), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		if (enableLinearScaling) {
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		}
+		else {
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		}
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// Update first render buffer storage
@@ -586,7 +604,15 @@ void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int&
 
 		// Update second frame buffer texture
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (width * resolutionScale), (height * resolutionScale), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (width * resolutionScale), (height * resolutionScale), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		if (enableLinearScaling) {
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		}
+		else {
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		}
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// Update second render buffer storage
@@ -758,8 +784,8 @@ int main() // global variables do not work with threads
 		InputUtil::UpdateCurrentKey(window);
 
 		if (glfwGetKey(window, GLFW_KEY_BACKSLASH) == GLFW_PRESS) { ScriptRunner::clearScripts(); ScriptRunner::init(); };
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) cameraSettings[0] = std::min(cameraSettings[0] + (50.0f * TimeUtil::s_DeltaTime), 160.0f);
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) cameraSettings[0] = std::max(cameraSettings[0] - (50.0f * TimeUtil::s_DeltaTime), 0.1f);
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) Main::cameraSettings[0] = std::min(Main::cameraSettings[0] + (50.0f * TimeUtil::s_DeltaTime), 160.0f);
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) Main::cameraSettings[0] = std::max(Main::cameraSettings[0] - (50.0f * TimeUtil::s_DeltaTime), 0.1f);
 		ScriptRunner::update(); 
 
 		glm::vec3 cameraPos = Camera::s_PositionMatrix;
@@ -863,7 +889,7 @@ int main() // global variables do not work with threads
 		//UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
 		// Camera
 		camera.Inputs(window); // send Camera.cpp window inputs and delta time
-		camera.updateMatrix(cameraSettings[0], cameraSettings[1], cameraSettings[2]); // Update: fov, near and far plane
+		camera.updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
 
 		if (isWireframe) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
@@ -910,7 +936,7 @@ int main() // global variables do not work with threads
 		// We make the mat4 into a mat3 and then a mat4 again in order to get rid of the last row and column
 		// The last row and column affect the translation of the skybox (which we don't want to affect)
 		view = glm::mat4(glm::mat3(glm::lookAt(camera.Position, camera.Position + camera.Orientation, camera.Up)));
-		projection = glm::perspective(glm::radians(cameraSettings[0]), (float)width / height, cameraSettings[1], cameraSettings[2]);
+		projection = glm::perspective(glm::radians(Main::cameraSettings[0]), (float)width / height, Main::cameraSettings[1], Main::cameraSettings[2]);
 		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
