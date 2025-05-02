@@ -25,7 +25,7 @@ function UpdateDelta()
 end
 
 function runOnce() --updates at 60hz deltatime
-	io.write("[LUA S5] ran once\n")
+	io.write("[LUA] ran once\n")
 end
 
 function FetchKey(key)

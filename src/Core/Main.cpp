@@ -25,7 +25,7 @@
 // Forward declaration of the function
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
 
-int Main::VertNum = 0, Main::FragNum = 0, Main::TempButton = 0; 
+int Main::VertNum = 0, Main::FragNum = 0, Main::TempButton = 0;
 
 unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
 
@@ -53,7 +53,6 @@ bool doReflections = true;
 bool doFog = true;
 bool doVsync = false;
 bool isWireframe = false;
-
 float gamma = 2.2f;
 
 float resolutionScale = 1;
@@ -515,6 +514,12 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	// Camera panel
 	if (Panels[2]) {
 		ImGui::Begin("Camera Settings"); // ImGUI window creation
+		//std::to_string(footCollision)
+		ImGui::Text( ("Camera Position: x: " + std::to_string(Camera::s_PositionMatrix.x) + "y: " + std::to_string(Camera::s_PositionMatrix.y) + "z: " + std::to_string(Camera::s_PositionMatrix.z)).c_str());
+		glm::quat cameraQuat = camera.Orientation; // Ensure Orientation is a quaternion
+		glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(cameraQuat));
+		ImGui::Text(("Camera Rotation: Yaw: " + std::to_string(eulerAngles.x) + " Pitch: " + std::to_string(eulerAngles.y) + " Roll: " + std::to_string(eulerAngles.z)).c_str());
+		ImGui::Spacing();
 		if (ImGui::TreeNode("Controls")) {
 			ImGui::Text("Transform");
 			if (ImGui::SmallButton("Reset Camera")) { Main::TempButton = 1; } // reset cam pos
@@ -528,12 +533,16 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			ImGui::DragFloat("Camera Sensitivity Y", &Camera::s_sensitivityY);
 			ImGui::TreePop();
 		}
-
+		ImGui::Spacing();
 		if (ImGui::TreeNode("Perspective")) {
-			ImGui::Spacing();
 			ImGui::Text("View");
 			ImGui::SliderFloat("FOV", &Main::cameraSettings[0], 0.1f, 160.0f); //FOV
 			ImGui::DragFloat2("Near and Far Plane", &Main::cameraSettings[1], Main::cameraSettings[2]); // Near and FarPlane
+			ImGui::TreePop();
+		}
+		ImGui::Spacing();
+		if (ImGui::TreeNode("Collision")) {
+			ImGui::Text(("Foot Collision: " + std::to_string(footCollision) ).c_str() );
 			ImGui::TreePop();
 		}
 		ImGui::Spacing();
@@ -565,19 +574,6 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	ImGui::End();
 	ImGui::Render(); // Renders the ImGUI elements
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-// Holds DeltaTime Based Variables and Functions
-void DeltaMain(GLFWwindow* window) {
-	TA1.update();
-	// Update FPS and window title every second  
-	if (TA1.Counter >= 1.0f) {
-		glfwSetWindowTitle(window, (SettingsUtils::s_WindowTitle + " (FPS: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz) ) +
-			" ) (at pos: " + std::to_string(Camera::s_PositionMatrix.x) + " " + std::to_string(Camera::s_PositionMatrix.y) + " " + std::to_string(Camera::s_PositionMatrix.z) +
-			") (Foot Collision: " + std::to_string(footCollision) + ")" + " (Title updates at 1hz) ").c_str());
-
-		TA1.reset();
-	}
 }
 
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height) {
@@ -747,11 +743,6 @@ int main() // global variables do not work with threads
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos //INIT CAMERA POSITION
 
-	/*
-	loading models from json is very taxing
-	consider putting this in a thread
-	*/
-
 	// Create VAO, VBO, and EBO for the skybox
 	unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
 	skyboxBuffer(skyboxVAO, skyboxVBO, skyboxEBO);
@@ -780,7 +771,14 @@ int main() // global variables do not work with threads
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
-		DeltaMain(window); // Calls the DeltaMain Method that Handles variables that require delta time (FrameTime, FPS, ETC)
+		TA1.update();
+		// Update FPS and window title every second  
+		if (TA1.Counter >= 1/1.0f) {
+			glfwSetWindowTitle(window, (SettingsUtils::s_WindowTitle + " (FPS: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz)) +
+				" ) (Title updates at 1hz) ").c_str());
+			//std::cout << "update" << std::endl;
+			TA1.reset();
+		}
 		InputUtil::UpdateCurrentKey(window);
 
 		if (glfwGetKey(window, GLFW_KEY_BACKSLASH) == GLFW_PRESS) { ScriptRunner::clearScripts(); ScriptRunner::init(); };
@@ -870,7 +868,6 @@ int main() // global variables do not work with threads
 		case 1: { camera.Position = glm::vec3(0, 0, 0); Main::TempButton = 0; break; }
 		case 2: { camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); Main::TempButton = 0; break; }
 		}
-
 		// Convert variables to glm variables which hold data like a table
 		glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
 		glm::mat4 lightModel = glm::mat4(1.0f); lightModel = glm::translate(lightModel, lightPos);
@@ -890,7 +887,6 @@ int main() // global variables do not work with threads
 		// Camera
 		camera.Inputs(window); // send Camera.cpp window inputs and delta time
 		camera.updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
-
 		if (isWireframe) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 			glClearColor(0, 0, 0, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -959,7 +955,6 @@ int main() // global variables do not work with threads
 		glDepthFunc(GL_LESS);
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 
 		frameBufferProgram.Activate();
 		UF::Float(frameBufferProgram.ID, "time", glfwGetTime());
