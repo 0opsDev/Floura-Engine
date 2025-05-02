@@ -11,6 +11,7 @@
 #include <utils/SettingsUtil.h>
 #include "utils/timeAccumulator.h"
 #include "utils/InputUtil.h"
+#include "Render/Shader/Cubemap.h"
 //temorary
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
@@ -46,8 +47,6 @@ GLfloat fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat DepthDistance = 100.0f;
 GLfloat DepthPlane[2] = { 0.1f, 100.0f };
 
-std::array<std::string, 6> facesCubemap;
-
 // Render settings
 bool doReflections = true;
 bool doFog = true;
@@ -77,8 +76,6 @@ float planeMaxZ = 5.0f;  // Back edge of the plane
 float planeY = 0.0f;     // Y-position of the plane
 
 TimeAccumulator TA1; TimeAccumulator TA3;
-
-std::string mapName; // Map loading
 
 void Main::updateModelLua( 
 	std::vector<std::string> path, std::vector<std::string> modelName, std::vector<bool> isCulling,
@@ -239,7 +236,7 @@ void loadSettings() {
 
 		doVsync = settingsData[0]["Vsync"];
 		Main::cameraSettings[0] = settingsData[0]["FOV"];
-		mapName = "Maps/" + settingsData[0]["MAP"].get<std::string>() + "/";
+		SettingsUtils::mapName = "Maps/" + settingsData[0]["MAP"].get<std::string>() + "/";
 
 		Camera::s_sensitivityY = settingsData[0]["SensitivityY"];
 		Camera::s_sensitivityX = settingsData[0]["SensitivityX"];
@@ -291,7 +288,7 @@ void saveSettings() {
 
 void loadEngineSettings() {
 	// Load EngineDefault.json
-	std::ifstream engineDefaultFile(mapName + "Engine.json");
+	std::ifstream engineDefaultFile(SettingsUtils::mapName + "Engine.json");
 	if (engineDefaultFile.is_open()) {
 		json engineDefaultData;
 		engineDefaultFile >> engineDefaultData;
@@ -328,28 +325,6 @@ void loadEngineSettings() {
 	}
 	else {
 		std::cerr << "Failed to open Settings/Default/EngineDefault.json" << std::endl;
-	}
-}
-
-void LoadSkybox() {
-	std::ifstream SkyboxJson(mapName + "Skybox.json");
-	if (SkyboxJson.is_open()) {
-		json SkyboxJsonData;
-		SkyboxJson >> SkyboxJsonData;
-		SkyboxJson.close();
-
-		std::string Path = SkyboxJsonData[0]["Path"].get<std::string>() + "/";
-
-		if (init::LogALL || init::LogModel) std::cout << "Skybox Path: " << Path << std::endl;
-
-		for (int i = 0; i < 6; i++)
-		{
-			facesCubemap[i] = Path + SkyboxJsonData[0]["Faces"][i].get<std::string>();
-			if (init::LogALL || init::LogModel) std::cout << "Skybox Face: " << facesCubemap[i] << std::endl;
-		}
-	}
-	else {
-		std::cerr << "Failed to open Skybox.json" << std::endl;
 	}
 }
 
@@ -634,47 +609,6 @@ void skyboxBuffer(unsigned int& skyboxVAO, unsigned int& skyboxVBO, unsigned int
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void cubeboxTexture(unsigned int& cubemapTexture) {
-	// Creates the cubemap texture object
-	glGenTextures(1, &cubemapTexture);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	// These are very important to prevent seams
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	// Cycles through all the textures and attaches them to the cubemap object
-	for (unsigned int i = 0; i < 6; i++)
-	{
-		int width, height, nrChannels;
-		unsigned char* data = stbi_load(facesCubemap[i].c_str(), &width, &height, &nrChannels, 0);
-		if (data)
-		{
-			stbi_set_flip_vertically_on_load(false);
-			glTexImage2D
-			(
-				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-				0,
-				GL_RGBA,
-				width,
-				height,
-				0,
-				GL_RGBA,
-				GL_UNSIGNED_BYTE,
-				data
-			);
-			stbi_image_free(data);
-		}
-		else
-		{
-			if (init::LogALL || init::LogModel) std::cout << "Failed to load texture: " << facesCubemap[i] << std::endl;
-			stbi_image_free(data);
-		}
-	}
-}
-
 //Main Function
 int main() // global variables do not work with threads
 {
@@ -721,7 +655,6 @@ int main() // global variables do not work with threads
 	// shaderprog init
 	Shader shaderProgram("skip", ""); // create a shader program and feed it Dummy shader and vertex files
 
-
 	loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram);// feed the shader prog real data
 	shaderProgram.Activate(); // activate new shader program for use
 
@@ -746,11 +679,11 @@ int main() // global variables do not work with threads
 	// Create VAO, VBO, and EBO for the skybox
 	unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
 	skyboxBuffer(skyboxVAO, skyboxVBO, skyboxEBO);
-
-	LoadSkybox();
+	Cubemap Skybox;
+	Skybox.LoadCubeMapTexture(SettingsUtils::mapName + "Skybox.json"); // update it to parse in string which is a path,
 	// Create and load a cubemap texture
 	unsigned int cubemapTexture;
-	cubeboxTexture(cubemapTexture);
+	Skybox.cubeboxTexture(cubemapTexture);
 
 	Framebuffer fb1;
 	
@@ -760,7 +693,7 @@ int main() // global variables do not work with threads
 	init::initImGui(window); // Initialize ImGUI
 
 	// Model Loader
-	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = loadModelsFromJson(mapName + "ModelECSData.json"); // Load models from JSON file 
+	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
 	LoadPlayerConfig();

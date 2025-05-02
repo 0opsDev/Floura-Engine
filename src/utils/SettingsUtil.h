@@ -12,6 +12,7 @@ public:
     static float s_ViewportVerticies[24];
     static float s_skyboxVertices[24]; // Adjust the size as needed
     static unsigned int s_skyboxIndices[36]; // Adjust the size as needed
+    static std::string mapName; // Map loading
 
     // GLfloat, Render, Camera, Light
     GLfloat ConeSI[3] = { 0.05f, 0.95f , 2.0f };
