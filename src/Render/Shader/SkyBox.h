@@ -13,15 +13,19 @@
 class Skybox
 {
 public:
-	unsigned int cubemapTexture;
-	unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
+	static unsigned int cubemapTexture;
+	static unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
 	static float s_skyboxVertices[24]; // Adjust the size as needed
 	static unsigned int s_skyboxIndices[36]; // Adjust the size as needed
-	Skybox();
 
-	void skyboxBuffer();
+	static void init(std::string PathName);
 
-	void skyboxdraw(Shader skyboxShader, Camera camera, GLfloat skyRGBA[], unsigned int width, unsigned int height);
+	static void LoadSkyBoxTexture(std::string PathName);
+
+	static void skyboxBuffer();
+
+
+	static void draw(Shader skyboxShader, Camera camera, GLfloat skyRGBA[], unsigned int width, unsigned int height);
 
 };
 

@@ -1,22 +1,23 @@
 [
-  {
-    "MapName": "Default",
-    "NearPlane": "0.1f",
-    "FarPlane": "100000.000f",
-    "Window": " Default",
+    {
+        "MapName": "Default",
+        "NearPlane": "0.1f",
+        "FarPlane": "100000.000f",
+        "Window": " Default",
+        "DefaultSkyboxPath": "Assets/Skybox/QwantaniNight/Skybox.json",
 
-    "skyRGBA": [ 0.711, 0.711, 1.000 ],
-    "lightRGBA": [ 1.0, 0.990, 0.824 ],
-    "fogRGBA": [ 0.295, 0.328, 0.436 ],
+        "skyRGBA": [ 0.711, 0.711, 1.000 ],
+        "lightRGBA": [ 1.0, 0.990, 0.824 ],
+        "fogRGBA": [ 0.295, 0.328, 0.436 ],
 
-    "doReflections": true,
-    "doFog": false,
-    "VertNum": 0,
-    "FragNum": 2,
+        "doReflections": true,
+        "doFog": false,
+        "VertNum": 0,
+        "FragNum": 2,
 
-    "ConeRot": [ 0, -1, 0 ],
+        "ConeRot": [ 0, -1, 0 ],
 
-    "DepthDistance": 100,
-    "DepthPlane": [ 0.100, 100 ]
-  }
+        "DepthDistance": 100,
+        "DepthPlane": [ 0.100, 100 ]
+    }
 ]

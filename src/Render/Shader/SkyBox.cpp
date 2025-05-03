@@ -3,12 +3,22 @@
 #include <utils/UF.h>
 #include "Cubemap.h"
 
-Skybox::Skybox() {
-	skyboxBuffer();
-	Cubemap Skybox;
-	Skybox.LoadCubeMapTexture(SettingsUtils::mapName + "Skybox.json"); // update it to parse in string which is a path,
+unsigned int Skybox::cubemapTexture;
+unsigned int Skybox::skyboxVAO;
+unsigned int Skybox::skyboxVBO;
+unsigned int Skybox::skyboxEBO;
+
+void Skybox::init(std::string PathName) {
+	skyboxBuffer(); // create buffer in memory for skybox
+	LoadSkyBoxTexture(PathName); // load skybox texture into buffer
+}
+
+void Skybox::LoadSkyBoxTexture(std::string PathName) {
+	Cubemap SkyboxCubemap;
+
+	SkyboxCubemap.LoadCubeMapTexture(PathName); // update it to parse in string which is a path,
 	// Create and load a cubemap texture
-	Skybox.cubeboxTexture(cubemapTexture);
+	SkyboxCubemap.cubeboxTexture(cubemapTexture);
 }
 
 void Skybox::skyboxBuffer() {
@@ -28,7 +38,7 @@ void Skybox::skyboxBuffer() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Skybox::skyboxdraw(Shader skyboxShader, Camera camera, GLfloat skyRGBA[], unsigned int width, unsigned int height) {
+void Skybox::draw(Shader skyboxShader, Camera camera, GLfloat skyRGBA[], unsigned int width, unsigned int height) {
 	// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 	glDepthFunc(GL_LEQUAL);
 

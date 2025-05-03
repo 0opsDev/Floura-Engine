@@ -1,22 +1,24 @@
 [
-  {
-    "MapName": "Template",
-    "NearPlane": "0.1f",
-    "FarPlane": "100000.000f",
-    "Window": "Template",
+    {
+        "MapName": "Template",
+        "NearPlane": "0.1f",
+        "FarPlane": "100000.000f",
+        "Window": "Template",
+        "DefaultSkyboxPath": "Assets/Skybox/Kloofendal48dPartlyCloudyPuresky/Skybox.json",
 
-    "skyRGBA": [ 1, 1, 1 ],
-    "lightRGBA": [ 1.0, 1.0, 1.0 ],
-    "fogRGBA": [ 0.295, 0.328, 0.436 ],
+        "skyRGBA": [ 1, 1, 1 ],
+        "lightRGBA": [ 1.0, 1.0, 1.0 ],
+        "fogRGBA": [ 0.295, 0.328, 0.436 ],
 
-    "doReflections": true,
-    "doFog": false,
-    "VertNum": 0,
-    "FragNum": 1,
+        "doReflections": true,
+        "doFog": false,
+        "VertNum": 0,
+        "FragNum": 1,
 
-    "ConeRot": [ 0, -1, 0 ],
+        "ConeRot": [ 0, -1, 0 ],
+        "z": null,
 
-    "DepthDistance": 100,
-    "DepthPlane": [ 0.100, 100 ]
-  }
+        "DepthDistance": 100,
+        "DepthPlane": [ 0.100, 100 ]
+    }
 ]

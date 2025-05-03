@@ -28,6 +28,7 @@
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
 
 int Main::VertNum = 0, Main::FragNum = 0, Main::TempButton = 0;
+std::string DefaultSkyboxPath;
 
 unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
 
@@ -323,6 +324,7 @@ void loadEngineSettings() {
 		DepthPlane[0] = engineDefaultData[0]["DepthPlane"][0];
 		DepthPlane[1] = engineDefaultData[0]["DepthPlane"][1];
 		SettingsUtils::s_WindowTitle = engineDefaultData[0]["Window"];
+		DefaultSkyboxPath = engineDefaultData[0]["DefaultSkyboxPath"];
 	}
 	else {
 		std::cerr << "Failed to open Settings/Default/EngineDefault.json" << std::endl;
@@ -660,8 +662,9 @@ int main() // global variables do not work with threads
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos //INIT CAMERA POSITION
 
-	// Create VAO, VBO, and EBO for the skybox
-	Skybox SkyboxObj;
+	Skybox::init(DefaultSkyboxPath);
+
+	// "Maps/Template/Skybox.json"
 
 	Framebuffer fb1;
 	
@@ -679,6 +682,7 @@ int main() // global variables do not work with threads
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	if (init::LogALL || init::LogSystems) std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
+
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
@@ -832,12 +836,14 @@ int main() // global variables do not work with threads
 		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
+		if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) { Skybox::LoadSkyBoxTexture("Assets/Skybox/Kloofendal48dPartlyCloudyPuresky/Skybox.json"); }
+		if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) { Skybox::LoadSkyBoxTexture("Assets/Skybox/QwantaniNight/Skybox.json"); }
+		if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) { Skybox::LoadSkyBoxTexture("Assets/Skybox/OvercastSoilPuresky/Skybox.json"); }
+
 		if (!isWireframe) {
-			SkyboxObj.skyboxdraw(skyboxShader, camera, skyRGBA, width, height);
+			Skybox::draw(skyboxShader, camera, skyRGBA, width, height);
 		}
-
 		// Switch back to the normal depth function
-
 		glDepthFunc(GL_LESS);
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -873,7 +879,6 @@ int main() // global variables do not work with threads
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, camera, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
-
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)

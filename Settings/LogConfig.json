@@ -1,8 +1,8 @@
 [
-  {
-    "LogALL": false,
-    "LogModel": false,
-    "LogSystems": false,
-    "LogLua": true
-  }
+    {
+        "LogALL": false,
+        "LogModel": false,
+        "LogSystems": true,
+        "LogLua": false
+    }
 ]
