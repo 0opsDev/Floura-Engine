@@ -16,7 +16,6 @@ public:
     static void Bool(GLuint shader, const char* uniform, bool uniformBool);
 
     //Use Of Uniform
-    static void MassUniforms(GLuint shader);
     static void DoUniforms(GLuint shader, int doReflections, int doFog);
     static void TrasformUniforms(GLuint shader, GLfloat ConeSI[], GLfloat ConeRot[], glm::vec3 lightPos);
     static void Depth(GLuint shader, GLfloat DepthDistance, GLfloat DepthPlane[]);

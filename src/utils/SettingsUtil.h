@@ -10,8 +10,6 @@ public:
     SettingsUtils();
     static std::string s_WindowTitle; //"OpenGL Window"
     static float s_ViewportVerticies[24];
-    static float s_skyboxVertices[24]; // Adjust the size as needed
-    static unsigned int s_skyboxIndices[36]; // Adjust the size as needed
     static std::string mapName; // Map loading
 
     // GLfloat, Render, Camera, Light

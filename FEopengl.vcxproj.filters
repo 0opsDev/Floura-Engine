@@ -181,6 +181,9 @@
     <ClCompile Include="src\UI\ImGui\ImGuiWindow.cpp">
       <Filter>src\UI\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="src\Render\Shader\SkyBox.cpp">
+      <Filter>src\Render\Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -287,6 +290,9 @@
     </ClInclude>
     <ClInclude Include="src\UI\ImGui\ImGuiWindow.h">
       <Filter>src\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Shader\SkyBox.h">
+      <Filter>src\Render\Shader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

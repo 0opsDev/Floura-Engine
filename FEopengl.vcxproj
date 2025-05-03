@@ -160,6 +160,7 @@
     <ClCompile Include="src\Render\Shader\Cubemap.cpp" />
     <ClCompile Include="src\Render\Shader\Framebuffer.cpp" />
     <ClCompile Include="src\Render\shader\ShaderClass.cpp" />
+    <ClCompile Include="src\Render\Shader\SkyBox.cpp" />
     <ClCompile Include="src\Scripting\Functions\Input\LuaGetKey.cpp" />
     <ClCompile Include="src\Scripting\Functions\Model\LuaModel.cpp" />
     <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="src\Render\Shader\Cubemap.h" />
     <ClInclude Include="src\Render\Shader\Framebuffer.h" />
     <ClInclude Include="src\Render\shader\shaderClass.h" />
+    <ClInclude Include="src\Render\Shader\SkyBox.h" />
     <ClInclude Include="src\Scripting\Functions\Input\LuaGetKey.h" />
     <ClInclude Include="src\Scripting\Functions\Model\LuaModel.h" />
     <ClInclude Include="src\Scripting\Functions\Screen\LuaScreen.h" />
