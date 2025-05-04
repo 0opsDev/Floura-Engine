@@ -7,8 +7,9 @@ function init()
 end
 
 function update() --updates GameLoop speed
-
-
+	if newkey == "F10"then 
+		SetCameraPos(0, 1, 0)
+	end
 end
 
 function UpdateDelta() --updates at 60hz deltatime
@@ -29,7 +30,20 @@ function UpdateDelta() --updates at 60hz deltatime
 			x = 0
 		elseif x < 0 then
 		x = 4
-		end
+	end
+
+	if newkey == "1"then 
+		SetSkybox("Assets/Skybox/Kloofendal48dPartlyCloudyPuresky/Skybox.json")
+	end
+	
+	if newkey == "2"then 
+		SetSkybox("Assets/Skybox/QwantaniNight/Skybox.json")
+	end
+
+	if newkey == "3"then 
+		SetSkybox("Assets/Skybox/OvercastSoilPuresky/Skybox.json")
+	end
+
 return 12
 end
 

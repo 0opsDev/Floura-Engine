@@ -742,7 +742,6 @@ int main() // global variables do not work with threads
 			else {
 				PlayerHeightCurrent = PlayerHeight;
 			}
-
 		}
 		else {
 			camera.DoJump = true;
@@ -761,10 +760,6 @@ int main() // global variables do not work with threads
 			else {
 				footCollision = false;
 			}
-		}
-
-		if (glfwGetKey(window, GLFW_KEY_F10) == GLFW_PRESS) {
-			camera.Position = glm::vec3(0, 0, 0);
 		}
 		//physics
 
@@ -835,10 +830,6 @@ int main() // global variables do not work with threads
 
 		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
-
-		if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) { Skybox::LoadSkyBoxTexture("Assets/Skybox/Kloofendal48dPartlyCloudyPuresky/Skybox.json"); }
-		if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) { Skybox::LoadSkyBoxTexture("Assets/Skybox/QwantaniNight/Skybox.json"); }
-		if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) { Skybox::LoadSkyBoxTexture("Assets/Skybox/OvercastSoilPuresky/Skybox.json"); }
 
 		if (!isWireframe) {
 			Skybox::draw(skyboxShader, camera, skyRGBA, width, height);

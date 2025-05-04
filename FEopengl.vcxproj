@@ -163,8 +163,10 @@
     <ClCompile Include="src\Render\Shader\SkyBox.cpp" />
     <ClCompile Include="src\Scripting\Functions\Input\LuaGetKey.cpp" />
     <ClCompile Include="src\Scripting\Functions\Model\LuaModel.cpp" />
+    <ClCompile Include="src\Scripting\Functions\Player\LuaCamera.cpp" />
     <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp" />
     <ClCompile Include="src\Scripting\Functions\Shader\LuaShader.cpp" />
+    <ClCompile Include="src\Scripting\Functions\Shader\LuaSkybox.cpp" />
     <ClCompile Include="src\Scripting\ScriptEngine.cpp" />
     <ClCompile Include="src\Scripting\ScriptRunner.cpp" />
     <ClCompile Include="src\UI\ImGui\ImGuiWindow.cpp" />
@@ -200,9 +202,11 @@
     <ClInclude Include="src\Render\Shader\SkyBox.h" />
     <ClInclude Include="src\Scripting\Functions\Input\LuaGetKey.h" />
     <ClInclude Include="src\Scripting\Functions\Model\LuaModel.h" />
+    <ClInclude Include="src\Scripting\Functions\Player\LuaCamera.h" />
     <ClInclude Include="src\Scripting\Functions\Screen\LuaScreen.h" />
     <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h" />
     <ClInclude Include="src\Scripting\Functions\Shader\LuaShader.h" />
+    <ClInclude Include="src\Scripting\Functions\Shader\LuaSkybox.h" />
     <ClInclude Include="src\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Scripting\ScriptRunner.h" />
     <ClInclude Include="src\UI\ImGui\ImGuiWindow.h" />

@@ -2,3 +2,5 @@
 #include "Screen/LuaScreen.h"
 #include "Shader/LuaShader.h"
 #include "Input/LuaGetKey.h"
+#include "Shader/LuaSkybox.h"
+#include "Player/LuaCamera.h"

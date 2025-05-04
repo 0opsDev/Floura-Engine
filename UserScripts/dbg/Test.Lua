@@ -13,14 +13,7 @@ end
 
 function UpdateDelta()
 	--io.write("[LUA S5] update\n")
-	--if newkey == "W"then 
-	--io.write("[LUA] FetchKey: "..newkey.."\n")
-	--end
-
-	--if newkey == "A"then 
-	--io.write("[LUA] FetchKey: "..newkey.."\n")
-	--end
-
+	
 	return 1
 end
 

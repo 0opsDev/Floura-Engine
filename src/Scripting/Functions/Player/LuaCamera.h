@@ -1,17 +1,17 @@
-#ifndef LUA_SHADER_H
-#define LUA_SHADER_H
+#ifndef LUA_CAMERA_H
+#define LUA_CAMERA_H
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
 #pragma comment(lib, "lua54.lib")
 #include "utils/init.h"
 
-class luaShader
+class LuaCamera
 {
 public:
 
-	void SetShader(sol::state& luaState);
+	void SetCameraPos(sol::state& luaState);
 
 };
 
-#endif // LUA_SHADER_H
+#endif // LUA_CAMERA_H

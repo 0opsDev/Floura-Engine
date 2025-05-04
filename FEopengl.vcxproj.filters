@@ -77,6 +77,9 @@
     <Filter Include="src\UI\ImGui">
       <UniqueIdentifier>{40f461af-3af1-4ee8-903c-1e8fa21ea181}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Scripting\functions\Player">
+      <UniqueIdentifier>{1c395904-ada3-44b2-823d-d7505c7cadd4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -183,6 +186,12 @@
     </ClCompile>
     <ClCompile Include="src\Render\Shader\SkyBox.cpp">
       <Filter>src\Render\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Functions\Shader\LuaSkybox.cpp">
+      <Filter>src\Scripting\functions\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Functions\Player\LuaCamera.cpp">
+      <Filter>src\Scripting\functions\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -293,6 +302,12 @@
     </ClInclude>
     <ClInclude Include="src\Render\Shader\SkyBox.h">
       <Filter>src\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Functions\Shader\LuaSkybox.h">
+      <Filter>src\Scripting\functions\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Functions\Player\LuaCamera.h">
+      <Filter>src\Scripting\functions\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

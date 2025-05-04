@@ -2,7 +2,7 @@
     {
         "LogALL": false,
         "LogModel": false,
-        "LogSystems": true,
-        "LogLua": false
+        "LogSystems": false,
+        "LogLua": true
     }
 ]
