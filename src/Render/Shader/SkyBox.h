@@ -24,9 +24,9 @@ public:
 
 	static void skyboxBuffer();
 
+	static void draw(Camera camera, GLfloat skyRGBA[], unsigned int width, unsigned int height);
 
-	static void draw(Shader skyboxShader, Camera camera, GLfloat skyRGBA[], unsigned int width, unsigned int height);
-
+	static void Delete();
 };
 
 #endif // SKYBOX_CLASS_H

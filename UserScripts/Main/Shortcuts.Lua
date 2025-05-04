@@ -10,6 +10,9 @@ function update() --updates GameLoop speed
 	if newkey == "F10"then 
 		SetCameraPos(0, 1, 0)
 	end
+	if newkey == "Right Shift" then
+	SetCameraSpeed(0)
+	end
 end
 
 function UpdateDelta() --updates at 60hz deltatime

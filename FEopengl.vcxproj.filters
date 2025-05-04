@@ -80,6 +80,9 @@
     <Filter Include="src\Scripting\functions\Player">
       <UniqueIdentifier>{1c395904-ada3-44b2-823d-d7505c7cadd4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\core\File">
+      <UniqueIdentifier>{8876711e-32c6-48f8-a1a0-9590543857ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -192,6 +195,9 @@
     </ClCompile>
     <ClCompile Include="src\Scripting\Functions\Player\LuaCamera.cpp">
       <Filter>src\Scripting\functions\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\File\File.cpp">
+      <Filter>src\core\File</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -308,6 +314,9 @@
     </ClInclude>
     <ClInclude Include="src\Scripting\Functions\Player\LuaCamera.h">
       <Filter>src\Scripting\functions\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\File\File.h">
+      <Filter>src\core\File</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

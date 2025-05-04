@@ -85,10 +85,6 @@ void Camera::Inputs(GLFWwindow* window)
         {
             speed = (5.0f + s_scrollSpeed);
         }
-        if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
-        {
-            s_scrollSpeed = 0;
-        }
 	}
     else {
         // Flattened forward direction (ignore Y component)

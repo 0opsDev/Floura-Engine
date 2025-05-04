@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\camera\Camera.cpp" />
+    <ClCompile Include="src\Core\File\File.cpp" />
     <ClCompile Include="src\Core\glad.c" />
     <ClCompile Include="src\Core\Main.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui.cpp" />
@@ -180,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera\Camera.h" />
+    <ClInclude Include="src\Core\File\File.h" />
     <ClInclude Include="src\Core\Main.h" />
     <ClInclude Include="src\Libraries\include\imgui\imconfig.h" />
     <ClInclude Include="src\Libraries\include\imgui\imgui.h" />

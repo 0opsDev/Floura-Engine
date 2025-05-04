@@ -66,5 +66,5 @@ void ScriptEngine::luaFunctions(){
 	luaShader Lshader; Lshader.SetShader(luaState);
 	LuaGetKey LGetKey; LGetKey.ProcessKeyPresses(luaState);
 	luaSkybox Lskybox; Lskybox.SetSkybox(luaState);
-	LuaCamera Lcamera; Lcamera.SetCameraPos(luaState);
+	LuaCamera Lcamera; Lcamera.SetCameraPos(luaState); Lcamera.SetCameraSpeed(luaState);
 }

@@ -23,6 +23,7 @@
 #include "Scripting/ScriptRunner.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "render/Shader/SkyBox.h"
+#include "File/File.h"
 
 // Forward declaration of the function
 void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
@@ -104,98 +105,6 @@ void Main::updateModelLua(
 			}
 		}
 	}
-}
-
-// Function to read a specific line from a file
-std::string readLineFromFile(const std::string& filePath, int lineNumber) {
-	// Shaders
-	std::ifstream file(filePath);
-	if (!file.is_open()) {
-		throw std::runtime_error("Failed to open file: " + filePath);
-	}
-
-	std::string line;
-	for (int i = 0; i <= lineNumber; ++i) {
-		if (!std::getline(file, line)) {
-			throw std::runtime_error("Line number out of range in file: " + filePath);
-		}
-	}
-	return line;
-}
-
-std::pair<std::string, std::string> getShaderPaths(int vertIndex, int fragIndex) {
-	std::ifstream file("Shaders/ShaderList.json"); // turn into string
-	if (!file.is_open()) {
-		throw std::runtime_error("Failed to open file: Shaders/ShaderList.json");
-	}
-
-	json shaderData;
-	file >> shaderData;
-	file.close();
-
-	std::string vertPath = shaderData[0]["Vert"].at(vertIndex); //check for paths (strings) in array at number index givin and return it
-	std::string fragPath = shaderData[0]["Frag"].at(fragIndex);
-
-	return { vertPath, fragPath };
-}
-
-void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) { //shader program switcher
-
-	shaderProgram.Delete();
-
-	try {
-		std::pair<std::string, std::string> shaderPaths = getShaderPaths(VertNum, FragNum);
-		std::string vertFile = shaderPaths.first;
-		std::string fragFile = shaderPaths.second;
-
-		if (init::LogALL || init::LogSystems) std::cout << "Vert: " << vertFile << " Frag: " << fragFile << std::endl;
-
-		shaderProgram = Shader(vertFile.c_str(), fragFile.c_str());
-	}
-	catch (const std::exception& e) {
-		std::cerr << "Error loading shader program: " << e.what() << std::endl;
-	}
-}
-
-// Function to load models from files
-std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> loadModelsFromJson(const std::string& jsonFilePath) {
-	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models;
-	std::ifstream file(jsonFilePath);
-	if (!file.is_open()) {
-		std::cerr << "Failed to open file: " << jsonFilePath << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		return models;
-	}
-
-	json modelData;
-	try {
-		file >> modelData;
-	}
-	catch (const std::exception& e) {
-		std::cerr << "Error parsing JSON file: " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		return models;
-	}
-	file.close();
-
-	try {
-		for (const auto& item : modelData) {
-			std::string name = item.at("name").get<std::string>();
-			std::string path = item.at("path").get<std::string>();
-			bool isCulling = item.at("isCulling").get<bool>();
-			glm::vec3 location = glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]);
-			glm::quat rotation = glm::quat(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2], item.at("Rotation")[3]);
-			glm::vec3 scale = glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]);
-			models.emplace_back(Model(("Assets/assets/" + path).c_str()), isCulling, location, rotation, scale);
-			if (init::LogALL || init::LogModel) std::cout << "Loaded model: " << '"' << name << '"' << " from path: " << path << " at location: " << glm::to_string(location) << std::endl;
-		}
-	}
-	catch (const std::exception& e) {
-		std::cerr << "Error processing JSON data: " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	}
-
-	return models;
 }
 
 void LoadPlayerConfig() {
@@ -641,14 +550,11 @@ int main() // global variables do not work with threads
 	// shaderprog init
 	Shader shaderProgram("skip", ""); // create a shader program and feed it Dummy shader and vertex files
 
-	loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram);// feed the shader prog real data
+	FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram);// feed the shader prog real data
 	shaderProgram.Activate(); // activate new shader program for use
 
 	Shader LightProgram("Shaders/Lighting/light.vert", "Shaders/Lighting/light.frag");
-	Shader skyboxShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
 	Shader SolidColour("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
-	skyboxShader.Activate();
-	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
 
 	Shader frameBufferProgram("Shaders/PostProcess/framebuffer.vert", "Shaders/PostProcess/framebuffer.frag");
 	frameBufferProgram.Activate();
@@ -674,7 +580,7 @@ int main() // global variables do not work with threads
 	init::initImGui(window); // Initialize ImGUI
 
 	// Model Loader
-	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
+	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = FileClass::loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
 	LoadPlayerConfig();
@@ -772,7 +678,7 @@ int main() // global variables do not work with threads
 		glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
 
 		switch (Main::TempButton) {
-		case -1: { loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram); Main::TempButton = 0; break; }
+		case -1: { FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram); Main::TempButton = 0; break; }
 		case 1: { camera.Position = glm::vec3(0, 0, 0); Main::TempButton = 0; break; }
 		case 2: { camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); Main::TempButton = 0; break; }
 		}
@@ -832,7 +738,7 @@ int main() // global variables do not work with threads
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 		if (!isWireframe) {
-			Skybox::draw(skyboxShader, camera, skyRGBA, width, height);
+			Skybox::draw(camera, skyRGBA, width, height);
 		}
 		// Switch back to the normal depth function
 		glDepthFunc(GL_LESS);
@@ -880,7 +786,7 @@ int main() // global variables do not work with threads
 
 	frameBufferProgram.Delete();
 	LightProgram.Delete();
-	skyboxShader.Delete();
+	Skybox::Delete();
 	SolidColour.Delete();
 	shaderProgram.Delete(); // Delete Shader Prog
 	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl

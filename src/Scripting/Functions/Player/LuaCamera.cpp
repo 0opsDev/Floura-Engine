@@ -8,3 +8,9 @@ void LuaCamera::SetCameraPos(sol::state& luaState) {
 		Camera::s_PositionMatrix.z = z;
 	};
 }
+
+void LuaCamera::SetCameraSpeed(sol::state& luaState) {
+	luaState["SetCameraSpeed"] = [](float Speed) {
+		Camera::s_scrollSpeed = Speed;
+	};
+}

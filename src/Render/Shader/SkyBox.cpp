@@ -8,8 +8,12 @@ unsigned int Skybox::cubemapTexture;
 unsigned int Skybox::skyboxVAO;
 unsigned int Skybox::skyboxVBO;
 unsigned int Skybox::skyboxEBO;
+Shader skyboxShader("skip", "");
 
 void Skybox::init(std::string PathName) {
+	skyboxShader = Shader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
+	skyboxShader.Activate();
+	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
 	skyboxBuffer(); // create buffer in memory for skybox
 	LoadSkyBoxTexture(PathName); // load skybox texture into buffer
 }
@@ -40,7 +44,7 @@ void Skybox::skyboxBuffer() {
 }
 float yaw = 1;
 
-void Skybox::draw(Shader skyboxShader, Camera camera, GLfloat skyRGBA[], unsigned int width, unsigned int height) {
+void Skybox::draw(Camera camera, GLfloat skyRGBA[], unsigned int width, unsigned int height) {
 
 	// Ensure depth function allows rendering skybox
 	glDepthFunc(GL_LEQUAL);
@@ -81,7 +85,9 @@ void Skybox::draw(Shader skyboxShader, Camera camera, GLfloat skyRGBA[], unsigne
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
-
+void Skybox::Delete() {
+	skyboxShader.Delete();
+}
 float Skybox::s_skyboxVertices[24] =
 {
 	//   Coordinates

@@ -12,6 +12,7 @@ public:
 
 	void SetCameraPos(sol::state& luaState);
 
+	void SetCameraSpeed(sol::state& luaState);
 };
 
 #endif // LUA_CAMERA_H
