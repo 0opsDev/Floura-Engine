@@ -819,7 +819,7 @@ int main() // global variables do not work with threads
 			if (!isWireframe) {
 				model.Draw(shaderProgram, camera, translation, rotation, scale);
 				glDisable(GL_CULL_FACE);
-				Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f));
+				Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(0.3f, 0.3f, 0.3f));
 			}
 			else {
 				SolidColour.Activate();
@@ -827,7 +827,7 @@ int main() // global variables do not work with threads
 
 				model.Draw(SolidColour, camera, translation, rotation, scale);
 				glDisable(GL_CULL_FACE);
-				Lightmodel.Draw(SolidColour, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(1.0f, 1.0f, 1.0f));
+				Lightmodel.Draw(SolidColour, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(0.3f, 0.3f, 0.3f));
 			}
 		}
 

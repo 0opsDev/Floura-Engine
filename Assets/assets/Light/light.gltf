@@ -1,6 +1,6 @@
 {
 	"asset":{
-		"generator":"Khronos glTF Blender I/O v4.3.47",
+		"generator":"Khronos glTF Blender I/O v4.4.56",
 		"version":"2.0"
 	},
 	"scene":0,
@@ -15,19 +15,14 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Plane",
-			"scale":[
-				0.5,
-				0.5,
-				0.5
-			]
+			"name":"Circle.001"
 		}
 	],
 	"materials":[
 		{
 			"alphaMode":"BLEND",
 			"doubleSided":true,
-			"name":"Material.001",
+			"name":"Material.002",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":0
@@ -39,15 +34,16 @@
 	],
 	"meshes":[
 		{
-			"name":"Plane",
+			"name":"Circle.001",
 			"primitives":[
 				{
 					"attributes":{
 						"POSITION":0,
 						"NORMAL":1,
-						"TEXCOORD_0":2
+						"TEXCOORD_0":2,
+						"TEXCOORD_1":3
 					},
-					"indices":3,
+					"indices":4,
 					"material":0
 				}
 			]
@@ -62,69 +58,81 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"Light_diffuse",
-			"uri":"texture/Light_diffuse.png"
+			"name":"bake2",
+			"uri":"bake2.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":304,
+			"count":7194,
 			"max":[
-				0.17549021542072296,
-				0.18745504319667816,
-				0.17549018561840057
+				0.992508053779602,
+				2.102391242980957,
+				1.0435848236083984
 			],
 			"min":[
-				-0.17549015581607819,
-				-0.19708873331546783,
-				-0.17549023032188416
+				-0.992508053779602,
+				-0.8849430084228516,
+				-1.0435848236083984
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":304,
+			"count":7194,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":304,
+			"count":7194,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
+			"componentType":5126,
+			"count":7194,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":4,
 			"componentType":5123,
-			"count":1188,
+			"count":25584,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":3648,
+			"byteLength":86328,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3648,
-			"byteOffset":3648,
+			"byteLength":86328,
+			"byteOffset":86328,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2432,
-			"byteOffset":7296,
+			"byteLength":57552,
+			"byteOffset":172656,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2376,
-			"byteOffset":9728,
+			"byteLength":57552,
+			"byteOffset":230208,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":51168,
+			"byteOffset":287760,
 			"target":34963
 		}
 	],
@@ -136,7 +144,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":12104,
+			"byteLength":338928,
 			"uri":"light.bin"
 		}
 	]

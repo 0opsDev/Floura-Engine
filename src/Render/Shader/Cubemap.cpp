@@ -27,6 +27,9 @@ void Cubemap::LoadCubeMapTexture(std::string PathName) {
 }
 
 void Cubemap::cubeboxTexture(unsigned int& cubemapTexture) {
+
+	glDeleteTextures(1, &cubemapTexture);
+
 	// Creates the cubemap texture object
 	glGenTextures(1, &cubemapTexture);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);

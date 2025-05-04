@@ -1,10 +1,10 @@
 [
-  {
-    "name": "Baseplate",
-    "path": "Models/Baseplate/plate.gltf",
-    "isCulling": true,
-    "Location": [ 0, 0, 0 ],
-    "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 1, 1, 1 ]
-  }
+    {
+        "name": "Baseplate",
+        "path": "Models/Baseplate/plate.gltf",
+        "isCulling": true,
+        "Location": [ 0, 0, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 1, 1, 1 ]
+    }
 ]

@@ -2,6 +2,7 @@
 #include <utils/SettingsUtil.h>
 #include <utils/UF.h>
 #include "Cubemap.h"
+#include "utils/timeUtil.h"
 
 unsigned int Skybox::cubemapTexture;
 unsigned int Skybox::skyboxVAO;
@@ -37,28 +38,43 @@ void Skybox::skyboxBuffer() {
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
+float yaw = 1;
 
 void Skybox::draw(Shader skyboxShader, Camera camera, GLfloat skyRGBA[], unsigned int width, unsigned int height) {
-	// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
+
+	// Ensure depth function allows rendering skybox
 	glDepthFunc(GL_LEQUAL);
 
 	skyboxShader.Activate();
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
-	// We make the mat4 into a mat3 and then a mat4 again in order to get rid of the last row and column
-	// The last row and column affect the translation of the skybox (which we don't want to affect)
+
+	// Base view matrix without translation
 	view = glm::mat4(glm::mat3(glm::lookAt(camera.Position, camera.Position + camera.Orientation, camera.Up)));
+	/*
+	if (yaw >= 360) {
+		yaw = 0;
+	}
+	else {
+		yaw += (0.5f * TimeUtil::s_DeltaTime);
+	}
+	std::cout << yaw << std::endl;
+	// Apply rotation around Y-axis using yaw
+	view = glm::rotate(view, glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+	*/
+
+	// Perspective projection settings
 	projection = glm::perspective(glm::radians(Main::cameraSettings[0]), (float)width / height, Main::cameraSettings[1], Main::cameraSettings[2]);
+
 	glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
+
+	// Activate shader and set skybox color
 	skyboxShader.Activate();
-	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
 	UF::Float3(skyboxShader.ID, "skyRGBA", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
 
-	// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
-	// where an object is present (a depth of 1.0f will always fail against any object's depth value)
-
+	// Draw cubemap as last object to optimize performance
 	glBindVertexArray(skyboxVAO);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
