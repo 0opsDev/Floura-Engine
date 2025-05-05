@@ -24,20 +24,13 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "render/Shader/SkyBox.h"
 #include "File/File.h"
-
-// Forward declaration of the function
-void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
+#include <UI/ImGui/ImGuiWindow.h>
 
 int Main::VertNum = 0, Main::FragNum = 0, Main::TempButton = 0;
 std::string DefaultSkyboxPath;
 
 unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
-
-bool enableFB = false; // Change this as needed
-bool enableLinearScaling = false;
-
-char UniformInput[64] = {}; // Zero-initialized buffer
-float UniformFloat[3] = {}; // Zero-initialized array
+// FBO init
 
 // Global Variables
 GLfloat ConeSI[3] = { 0.111f, 0.825f, 2.0f };
@@ -53,15 +46,9 @@ GLfloat DepthPlane[2] = { 0.1f, 100.0f };
 // Render settings
 bool doReflections = true;
 bool doFog = true;
-bool doVsync = false;
-bool isWireframe = false;
 float gamma = 2.2f;
 
-float resolutionScale = 1;
-unsigned int width = 800, height = 600, ViewPortWidth = 800, ViewPortHeight = 600;
-int tempWidth, tempHeight;
-
-bool Panels[4] = { true, true, true, true}; // ImGui Panels
+unsigned int width = 800, height = 600;
 
 float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
 
@@ -79,6 +66,8 @@ float planeMaxZ = 5.0f;  // Back edge of the plane
 float planeY = 0.0f;     // Y-position of the plane
 
 TimeAccumulator TA1; TimeAccumulator TA3;
+Shader shaderProgram("skip", ""); // create a shader program and feed it Dummy shader and vertex files
+Camera camera(width, height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 
 void Main::updateModelLua( 
 	std::vector<std::string> path, std::vector<std::string> modelName, std::vector<bool> isCulling,
@@ -90,160 +79,10 @@ void Main::updateModelLua(
 	if (true) { //turn true for debugging
 		for (size_t i = 0; i < modelName.size(); i++) {
 			std::cout << "Received modelName: " << modelName[i] << std::endl;
-			if (false) {
-				std::cout << "Received Path: " << path[i] << std::endl;
-				std::cout << "Received x: " << Modelx[i] << std::endl;
-				std::cout << "Received y: " << Modely[i] << std::endl;
-				std::cout << "Received z: " << Modelz[i] << std::endl;
-				std::cout << "Received RotW: " << RotW[i] << std::endl;
-				std::cout << "Received RotX: " << RotX[i] << std::endl;
-				std::cout << "Received RotY: " << RotY[i] << std::endl;
-				std::cout << "Received RotZ: " << RotZ[i] << std::endl;
-				std::cout << "Received ScaleX: " << ScaleX[i] << std::endl;
-				std::cout << "Received ScaleY: " << ScaleY[i] << std::endl;
-				std::cout << "Received ScaleZ: " << ScaleZ[i] << std::endl;
-			}
+			std::cout << "Received Path: " << path[i] << std::endl;
 		}
 	}
 }
-
-void LoadPlayerConfig() {
-	// Load PlayerConfig.json
-	std::ifstream playerConfigFile("Settings/PlayerController.json");
-	if (playerConfigFile.is_open()) {
-		json playerConfigData;
-		playerConfigFile >> playerConfigData;
-		playerConfigFile.close();
-
-		doPlayerCollision = playerConfigData[0]["PlayerCollision"];
-		if (init::LogALL || init::LogSystems) std::cout << "Player Collision: " << doPlayerCollision << std::endl;
-		Camera::s_DoGravity = playerConfigData[0]["DoGravity"];
-		if (init::LogALL || init::LogSystems) std::cout << "DoGravity: " << Camera::s_DoGravity << std::endl;
-
-		PlayerHeight = playerConfigData[0]["PlayerHeight"];
-		if (init::LogALL || init::LogSystems) std::cout << "PlayerHeight: " << PlayerHeight << std::endl;
-		CrouchHighDiff = playerConfigData[0]["CrouchHighDiff"];
-		if (init::LogALL || init::LogSystems) std::cout << "CrouchHighDiff: " << CrouchHighDiff << std::endl;
-
-		if (init::LogALL || init::LogSystems) std::cout << "Loaded Player Config from Settings/PlayerConfig.json" << std::endl;
-	}
-	else {
-		std::cerr << "Failed to open Settings/PlayerConfig.json" << std::endl;
-	}
-}
-
-void loadSettings() {
-	// Load Settings.json
-	std::ifstream settingsFile("Settings/Settings.json");
-	if (settingsFile.is_open()) {
-		json settingsData;
-		settingsFile >> settingsData;
-		settingsFile.close();
-
-		height = settingsData[0]["Height"];
-		width = settingsData[0]["Width"];
-		tempHeight = settingsData[0]["Height"];
-		tempWidth = settingsData[0]["Width"];
-
-		doVsync = settingsData[0]["Vsync"];
-		Main::cameraSettings[0] = settingsData[0]["FOV"];
-		SettingsUtils::mapName = "Maps/" + settingsData[0]["MAP"].get<std::string>() + "/";
-
-		Camera::s_sensitivityY = settingsData[0]["SensitivityY"];
-		Camera::s_sensitivityX = settingsData[0]["SensitivityX"];
-
-		Panels[0] = settingsData[0]["imGui"];
-
-		if (init::LogALL || init::LogSystems) std::cout << "Loaded settings from Settings.json" << std::endl;
-
-	}
-	else {
-		std::cerr << "Failed to open Settings/Settings.json" << std::endl;
-	}
-}
-
-void saveSettings() {
-	try {
-		// Load the settings file
-		std::ifstream settingsFile("Settings/Settings.json", std::ios::in);
-		if (!settingsFile.is_open()) {
-			if (init::LogALL || init::LogSystems) std::cout << "Failed to open Settings/Settings.json" << std::endl;
-		}
-
-		json settingsData;
-		settingsFile >> settingsData;
-		settingsFile.close();
-
-		settingsData[0]["Vsync"] = doVsync;
-		settingsData[0]["FOV"] = Main::cameraSettings[0];
-
-		settingsData[0]["SensitivityY"] = Camera::s_sensitivityY;
-		settingsData[0]["SensitivityX"] = Camera::s_sensitivityX;
-
-		// Write back to file
-		std::ofstream outFile("Settings/Settings.json", std::ios::out);
-		if (!outFile.is_open()) {
-			if (init::LogALL || init::LogSystems) std::cout << ("Failed to write to Settings.json") << std::endl;
-		}
-
-		outFile << settingsData.dump(4);
-		outFile.close();
-
-		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated Settings.json" << std::endl;
-
-	}
-	catch (const std::exception& e) {
-		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
-	}
-}
-
-void loadEngineSettings() {
-	// Load EngineDefault.json
-	std::ifstream engineDefaultFile(SettingsUtils::mapName + "Engine.json");
-	if (engineDefaultFile.is_open()) {
-		json engineDefaultData;
-		engineDefaultFile >> engineDefaultData;
-		engineDefaultFile.close();
-
-		skyRGBA[0] = engineDefaultData[0]["skyRGBA"][0];
-		skyRGBA[1] = engineDefaultData[0]["skyRGBA"][1];
-		skyRGBA[2] = engineDefaultData[0]["skyRGBA"][2];
-
-		lightRGBA[0] = engineDefaultData[0]["lightRGBA"][0];
-		lightRGBA[1] = engineDefaultData[0]["lightRGBA"][1];
-		lightRGBA[2] = engineDefaultData[0]["lightRGBA"][2];
-
-		fogRGBA[0] = engineDefaultData[0]["fogRGBA"][0];
-		fogRGBA[1] = engineDefaultData[0]["fogRGBA"][1];
-		fogRGBA[2] = engineDefaultData[0]["fogRGBA"][2];
-
-		ConeRot[0] = engineDefaultData[0]["ConeRot"][0];
-		ConeRot[1] = engineDefaultData[0]["ConeRot"][1];
-		ConeRot[2] = engineDefaultData[0]["ConeRot"][2];
-
-		doReflections = engineDefaultData[0]["doReflections"];
-		doFog = engineDefaultData[0]["doFog"];
-		Main::VertNum = engineDefaultData[0]["VertNum"];
-		Main::FragNum = engineDefaultData[0]["FragNum"];
-
-		Main::cameraSettings[1] = std::stof(engineDefaultData[0]["NearPlane"].get<std::string>());
-		Main::cameraSettings[2] = std::stof(engineDefaultData[0]["FarPlane"].get<std::string>());
-
-		DepthDistance = engineDefaultData[0]["DepthDistance"];
-		DepthPlane[0] = engineDefaultData[0]["DepthPlane"][0];
-		DepthPlane[1] = engineDefaultData[0]["DepthPlane"][1];
-		SettingsUtils::s_WindowTitle = engineDefaultData[0]["Window"];
-		DefaultSkyboxPath = engineDefaultData[0]["DefaultSkyboxPath"];
-	}
-	else {
-		std::cerr << "Failed to open Settings/Default/EngineDefault.json" << std::endl;
-	}
-}
-
-static float prevResolutionScale = 1.0f; // Initialize previous scale
-static float prevEnableLinearScaling = false; // Initialize previous scale
-//enableLinearScaling
-
 // Holds ImGui Variables and Windows
 void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, Camera camera, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO, unsigned int& frameBufferTexture2) {
 	//Tell Imgui a new frame is about to begin
@@ -266,15 +105,15 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 	ImGui::Begin("Panels"); // ImGUI window creation
 
 	ImGui::Text("Settings (Press escape to use mouse)");
-	if (ImGui::SmallButton("load")) { loadSettings(); loadEngineSettings(); } // load settings button
-	if (ImGui::SmallButton("save (just settings)")) { saveSettings(); } // save settings button
-	ImGui::Checkbox("Rendering", &Panels[1]);
-	ImGui::Checkbox("Camera Settings", &Panels[2]);
-	ImGui::Checkbox("ViewPort", &Panels[3]);
+	if (ImGui::SmallButton("load")) { Main::loadSettings(); Main::loadEngineSettings(); } // load settings button
+	if (ImGui::SmallButton("save (just settings)")) { Main::saveSettings(); } // save settings button
+	ImGui::Checkbox("Rendering", &ImGuiCamera::imGuiPanels[1]);
+	ImGui::Checkbox("Camera Settings", &ImGuiCamera::imGuiPanels[2]);
+	ImGui::Checkbox("ViewPort", &ImGuiCamera::imGuiPanels[3]);
 	//Panels
 	// Toggle ImGui Windows
 	// Rendering panel
-	if (Panels[1]) {
+	if (ImGuiCamera::imGuiPanels[1]) {
 
 		ImGui::Begin("Rendering"); // ImGUI window creation
 
@@ -285,7 +124,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			ImGui::Text("OpenGL Version: %s", version); // Display OpenGL version
 			ImGui::Text("Renderer: %s", renderer);  // Display GPU renderer
 
-			ImGui::Text( (std::string("ViewportSize: ") + std::to_string(static_cast<int>(ViewPortWidth * resolutionScale)) + "*" + std::to_string(static_cast<int>(ViewPortHeight * resolutionScale)) ).c_str() );
+			ImGui::Text( (std::string("ViewportSize: ") + std::to_string(static_cast<int>(Framebuffer::ViewPortWidth * ImGuiCamera::resolutionScale)) + "*" + std::to_string(static_cast<int>(Framebuffer::ViewPortHeight * ImGuiCamera::resolutionScale)) ).c_str() );
 
 			ImGui::Spacing();
 
@@ -318,26 +157,26 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		ImGui::TreePop();// Ends The ImGui Window
 		}
 
-		ImGui::Checkbox("isWireframe", &isWireframe);
+		ImGui::Checkbox("isWireframe", &ImGuiCamera::isWireframe);
 
 		ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
 		if (ImGui::TreeNode("Framerate And Resolution")) {
 			ImGui::Text("Framerate Limiters");
-			ImGui::Checkbox("Vsync", &doVsync); // Set the value of doVsync (bool)
+			ImGui::Checkbox("Vsync", &ScreenUtils::doVsync); // Set the value of doVsync (bool)
 			// Screen
-			ImGui::DragInt("Width", &tempWidth);
-			ImGui::DragInt("Height", &tempHeight); // screen slider
+			ImGui::DragInt("Width", &SettingsUtils::tempWidth);
+			ImGui::DragInt("Height", &SettingsUtils::tempHeight); // screen slider
 
-			ImGui::SliderFloat("Resolution Scale", &resolutionScale, 0.001, 1);
+			ImGui::SliderFloat("Resolution Scale", &ImGuiCamera::resolutionScale, 0.001, 1);
 			//enableLinearScaling
-			ImGui::Checkbox("Enable Linear Scaling", &enableLinearScaling); // Set the value of enableLinearScaling (bool)
-			ImGui::Checkbox("Enable FB shader", &enableFB); // Set the value of enableFB (bool)
+			ImGui::Checkbox("Enable Linear Scaling", &ImGuiCamera::enableLinearScaling); // Set the value of enableLinearScaling (bool)
+			ImGui::Checkbox("Enable FB shader", &ImGuiCamera::enableFB); // Set the value of enableFB (bool)
 
 			if (ImGui::SmallButton("Apply Changes?")) { // apply button
-				glViewport(0, 0, tempWidth * resolutionScale, tempHeight * resolutionScale); // real internal res
-				glfwSetWindowSize(window, tempWidth, tempHeight);
-				ScreenUtils::setVSync(doVsync); // Set Vsync to value of doVsync (bool)
-				updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, tempWidth, tempHeight); // Update frame buffer resolution
+				glViewport(0, 0, SettingsUtils::tempWidth * ImGuiCamera::resolutionScale, SettingsUtils::tempHeight * ImGuiCamera::resolutionScale); // real internal res
+				glfwSetWindowSize(window, SettingsUtils::tempWidth, SettingsUtils::tempHeight);
+				ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
+				Framebuffer::updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, SettingsUtils::tempWidth, SettingsUtils::tempHeight); // Update frame buffer resolution
 			}
 			if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 			{
@@ -361,10 +200,10 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			ImGui::DragFloat("Depth Distance (FOG)", &DepthDistance);
 			ImGui::DragFloat2("Near and Far Depth Plane", DepthPlane);
 
-			ImGui::InputText("Uniform Input", UniformInput, IM_ARRAYSIZE(UniformInput));
-			ImGui::DragFloat("UniformFloat", UniformFloat);
-			if (false & UniformInput != NULL) { // Debug
-				if (init::LogALL || init::LogSystems) std::cout << UniformInput << std::endl;
+			ImGui::InputText("Uniform Input", ImGuiCamera::UniformInput, IM_ARRAYSIZE(ImGuiCamera::UniformInput));
+			ImGui::DragFloat("UniformFloat", ImGuiCamera::UniformFloat);
+			if (false & ImGuiCamera::UniformInput != NULL) { // Debug
+				if (init::LogALL || init::LogSystems) std::cout << ImGuiCamera::UniformInput << std::endl;
 			}
 			ImGui::TreePop();// Ends The ImGui Window
 		}
@@ -399,7 +238,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		ImGui::End();
 	}
 	// Camera panel
-	if (Panels[2]) {
+	if (ImGuiCamera::imGuiPanels[2]) {
 		ImGui::Begin("Camera Settings"); // ImGUI window creation
 		//std::to_string(footCollision)
 		ImGui::Text( ("Camera Position: x: " + std::to_string(Camera::s_PositionMatrix.x) + "y: " + std::to_string(Camera::s_PositionMatrix.y) + "z: " + std::to_string(Camera::s_PositionMatrix.z)).c_str());
@@ -438,7 +277,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		ImGui::End();
 	}
 
-	if (Panels[3]) {
+	if (ImGuiCamera::imGuiPanels[3]) {
 		ImGui::Begin("ViewPort");
 		const float window_width = ImGui::GetContentRegionAvail().x;
 		const float window_height = ImGui::GetContentRegionAvail().y;
@@ -446,62 +285,19 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 
 		//prevEnableLinearScaling
 		ScreenUtils::UpdateViewportResize();
-		if (ScreenUtils::isResizing == true || resolutionScale != prevResolutionScale || enableLinearScaling != prevEnableLinearScaling) {
+		if (ScreenUtils::isResizing == true || ImGuiCamera::resolutionScale != ImGuiCamera::prevResolutionScale || ImGuiCamera::enableLinearScaling != ImGuiCamera::prevEnableLinearScaling) {
 			//std::cout << "Resolution scale changed!" << std::endl;
-			updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, window_width, window_height); // Update frame buffer resolution
-			glViewport(0, 0, (window_width* resolutionScale), (window_height* resolutionScale));
+			Framebuffer::updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, window_width, window_height); // Update frame buffer resolution
+			glViewport(0, 0, (window_width* ImGuiCamera::resolutionScale), (window_height* ImGuiCamera::resolutionScale));
 		}
-		prevResolutionScale = resolutionScale; // Update the previous scale
-		prevEnableLinearScaling = enableLinearScaling;
+		ImGuiCamera::prevResolutionScale = ImGuiCamera::resolutionScale; // Update the previous scale
+		ImGuiCamera::prevEnableLinearScaling = ImGuiCamera::ImGuiCamera::enableLinearScaling;
 
 		ImGui::End();
 	}
-
-
 	ImGui::End();
 	ImGui::Render(); // Renders the ImGUI elements
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height) {
-
-	ViewPortWidth = width;
-	ViewPortHeight = height;
-		// Update first frame buffer texture
-		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (width * resolutionScale), (height * resolutionScale), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		if (enableLinearScaling) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		}
-		else {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		}
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		// Update first render buffer storage
-		glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (width * resolutionScale), (height * resolutionScale));
-		glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-		// Update second frame buffer texture
-		glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (width * resolutionScale), (height * resolutionScale), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		if (enableLinearScaling) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		}
-		else {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		}
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		// Update second render buffer storage
-		glBindRenderbuffer(GL_RENDERBUFFER, RBO2);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (width * resolutionScale), (height * resolutionScale));
-		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
 //Main Function
@@ -511,8 +307,8 @@ int main() // global variables do not work with threads
 	init::initLog();// init logs (should always be before priniting anything)
 	ScriptRunner::init();
 	init::initGLFW(); // initialize glfw
-	loadSettings();
-	loadEngineSettings();
+	Main::loadSettings();
+	Main::loadEngineSettings();
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -546,9 +342,8 @@ int main() // global variables do not work with threads
 	if (init::LogALL || init::LogSystems) std::cout << "Primary monitor resolution: " << width << "x" << height << std::endl;
 	// window logo creation and assignment
 	init::initLogo(window);
-	ScreenUtils::setVSync(doVsync); // Set Vsync to value of doVsync (bool)
+	ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
 	// shaderprog init
-	Shader shaderProgram("skip", ""); // create a shader program and feed it Dummy shader and vertex files
 
 	FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram);// feed the shader prog real data
 	shaderProgram.Activate(); // activate new shader program for use
@@ -565,12 +360,10 @@ int main() // global variables do not work with threads
 	init::initGLenable(false); //bool for direction of polys
 
 	// INITIALIZE CAMERA
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
+	
 	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos //INIT CAMERA POSITION
 
 	Skybox::init(DefaultSkyboxPath);
-
-	// "Maps/Template/Skybox.json"
 
 	Framebuffer fb1;
 	
@@ -583,7 +376,7 @@ int main() // global variables do not work with threads
 	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = FileClass::loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
-	LoadPlayerConfig();
+	Main::LoadPlayerConfig();
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
@@ -630,7 +423,6 @@ int main() // global variables do not work with threads
 					else {
 						TA3.update();
 					}
-
 				}
 				else { //ground
 					camera.DoJump = true;
@@ -669,7 +461,7 @@ int main() // global variables do not work with threads
 		}
 		//physics
 
-		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { loadSettings(); loadEngineSettings(); }
+		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { Main::loadSettings(); Main::loadEngineSettings(); }
 
 		//FrameBuffer
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
@@ -701,7 +493,7 @@ int main() // global variables do not work with threads
 		// Camera
 		camera.Inputs(window); // send Camera.cpp window inputs and delta time
 		camera.updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
-		if (isWireframe) {
+		if (ImGuiCamera::isWireframe) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 			glClearColor(0, 0, 0, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		}
@@ -714,10 +506,10 @@ int main() // global variables do not work with threads
 			glm::vec3 scale = std::get<4>(modelTuple);
 
 			// Apply culling settings
-			if (cullingSetting == 1 && !isWireframe) { glEnable(GL_CULL_FACE); }
+			if (cullingSetting == 1 && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
 			else { glDisable(GL_CULL_FACE); }
 
-			if (!isWireframe) {
+			if (!ImGuiCamera::isWireframe) {
 				model.Draw(shaderProgram, camera, translation, rotation, scale);
 				glDisable(GL_CULL_FACE);
 				Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(0.3f, 0.3f, 0.3f));
@@ -737,45 +529,13 @@ int main() // global variables do not work with threads
 		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
-		if (!isWireframe) {
+		if (!ImGuiCamera::isWireframe) {
 			Skybox::draw(camera, skyRGBA, width, height);
 		}
-		// Switch back to the normal depth function
-		glDepthFunc(GL_LESS);
-		
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// copy contents of FB to FB2 and Display FB2 (we can not run this function here and just draw the buffer above if we arent using imgui for more speed, this hasnt been added yet)
+		Framebuffer::FBODraw(frameBufferProgram, frameBufferTexture, viewVAO, frameBufferTexture2, FBO2, ImGuiCamera::imGuiPanels[0]);
 
-		frameBufferProgram.Activate();
-		UF::Float(frameBufferProgram.ID, "time", glfwGetTime());
-		UF::Float(frameBufferProgram.ID, "deltaTime", TimeUtil::s_DeltaTime);
-
-		UF::Float(frameBufferProgram.ID, UniformInput, UniformFloat[0]);
-		UF::Bool(frameBufferProgram.ID, "enableFB", enableFB);
-
-		// draw the framebuffer
-		glBindVertexArray(viewVAO);
-		glDisable(GL_DEPTH_TEST); // stops culling on the rectangle the framebuffer is drawn on
-		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-
-		// Apply post-processing and render to the second FBO
-		glBindFramebuffer(GL_FRAMEBUFFER, FBO2);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		frameBufferProgram.Activate();
-		glBindVertexArray(viewVAO);
-		glDisable(GL_DEPTH_TEST);
-		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		// Copy the contents of the second FBO to the default FBO
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		frameBufferProgram.Activate();
-		glBindVertexArray(viewVAO);
-		glDisable(GL_DEPTH_TEST);
-		glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		if (Panels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, camera, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
+		if (ImGuiCamera::imGuiPanels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, camera, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
@@ -791,4 +551,137 @@ int main() // global variables do not work with threads
 	shaderProgram.Delete(); // Delete Shader Prog
 	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
 	return 0;
+}
+
+void Main::LoadPlayerConfig() {
+	// Load PlayerConfig.json
+	std::ifstream playerConfigFile("Settings/PlayerController.json");
+	if (playerConfigFile.is_open()) {
+		json playerConfigData;
+		playerConfigFile >> playerConfigData;
+		playerConfigFile.close();
+
+		doPlayerCollision = playerConfigData[0]["PlayerCollision"];
+		if (init::LogALL || init::LogSystems) std::cout << "Player Collision: " << doPlayerCollision << std::endl;
+		Camera::s_DoGravity = playerConfigData[0]["DoGravity"];
+		if (init::LogALL || init::LogSystems) std::cout << "DoGravity: " << Camera::s_DoGravity << std::endl;
+
+		PlayerHeight = playerConfigData[0]["PlayerHeight"];
+		if (init::LogALL || init::LogSystems) std::cout << "PlayerHeight: " << PlayerHeight << std::endl;
+		CrouchHighDiff = playerConfigData[0]["CrouchHighDiff"];
+		if (init::LogALL || init::LogSystems) std::cout << "CrouchHighDiff: " << CrouchHighDiff << std::endl;
+
+		if (init::LogALL || init::LogSystems) std::cout << "Loaded Player Config from Settings/PlayerConfig.json" << std::endl;
+	}
+	else {
+		std::cerr << "Failed to open Settings/PlayerConfig.json" << std::endl;
+	}
+}
+
+void Main::loadSettings() {
+	// Load Settings.json
+	std::ifstream settingsFile("Settings/Settings.json");
+	if (settingsFile.is_open()) {
+		json settingsData;
+		settingsFile >> settingsData;
+		settingsFile.close();
+
+		height = settingsData[0]["Height"];
+		width = settingsData[0]["Width"];
+		SettingsUtils::tempHeight = settingsData[0]["Height"];
+		SettingsUtils::tempWidth = settingsData[0]["Width"];
+
+		ScreenUtils::doVsync = settingsData[0]["Vsync"];
+		Main::cameraSettings[0] = settingsData[0]["FOV"];
+		SettingsUtils::mapName = "Maps/" + settingsData[0]["MAP"].get<std::string>() + "/";
+
+		Camera::s_sensitivityY = settingsData[0]["SensitivityY"];
+		Camera::s_sensitivityX = settingsData[0]["SensitivityX"];
+
+		ImGuiCamera::imGuiPanels[0] = settingsData[0]["imGui"];
+
+		if (init::LogALL || init::LogSystems) std::cout << "Loaded settings from Settings.json" << std::endl;
+
+	}
+	else {
+		std::cerr << "Failed to open Settings/Settings.json" << std::endl;
+	}
+}
+
+void Main::saveSettings() {
+	try {
+		// Load the settings file
+		std::ifstream settingsFile("Settings/Settings.json", std::ios::in);
+		if (!settingsFile.is_open()) {
+			if (init::LogALL || init::LogSystems) std::cout << "Failed to open Settings/Settings.json" << std::endl;
+		}
+
+		json settingsData;
+		settingsFile >> settingsData;
+		settingsFile.close();
+
+		settingsData[0]["Vsync"] = ScreenUtils::doVsync;
+		settingsData[0]["FOV"] = Main::cameraSettings[0];
+
+		settingsData[0]["SensitivityY"] = Camera::s_sensitivityY;
+		settingsData[0]["SensitivityX"] = Camera::s_sensitivityX;
+
+		// Write back to file
+		std::ofstream outFile("Settings/Settings.json", std::ios::out);
+		if (!outFile.is_open()) {
+			if (init::LogALL || init::LogSystems) std::cout << ("Failed to write to Settings.json") << std::endl;
+		}
+
+		outFile << settingsData.dump(4);
+		outFile.close();
+
+		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated Settings.json" << std::endl;
+
+	}
+	catch (const std::exception& e) {
+		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+	}
+}
+
+void Main::loadEngineSettings() {
+	// Load EngineDefault.json
+	std::ifstream engineDefaultFile(SettingsUtils::mapName + "Engine.json");
+	if (engineDefaultFile.is_open()) {
+		json engineDefaultData;
+		engineDefaultFile >> engineDefaultData;
+		engineDefaultFile.close();
+
+		skyRGBA[0] = engineDefaultData[0]["skyRGBA"][0];
+		skyRGBA[1] = engineDefaultData[0]["skyRGBA"][1];
+		skyRGBA[2] = engineDefaultData[0]["skyRGBA"][2];
+
+		lightRGBA[0] = engineDefaultData[0]["lightRGBA"][0];
+		lightRGBA[1] = engineDefaultData[0]["lightRGBA"][1];
+		lightRGBA[2] = engineDefaultData[0]["lightRGBA"][2];
+
+		fogRGBA[0] = engineDefaultData[0]["fogRGBA"][0];
+		fogRGBA[1] = engineDefaultData[0]["fogRGBA"][1];
+		fogRGBA[2] = engineDefaultData[0]["fogRGBA"][2];
+
+		ConeRot[0] = engineDefaultData[0]["ConeRot"][0];
+		ConeRot[1] = engineDefaultData[0]["ConeRot"][1];
+		ConeRot[2] = engineDefaultData[0]["ConeRot"][2];
+
+		doReflections = engineDefaultData[0]["doReflections"];
+		doFog = engineDefaultData[0]["doFog"];
+		Main::VertNum = engineDefaultData[0]["VertNum"];
+		Main::FragNum = engineDefaultData[0]["FragNum"];
+
+		Main::cameraSettings[1] = std::stof(engineDefaultData[0]["NearPlane"].get<std::string>());
+		Main::cameraSettings[2] = std::stof(engineDefaultData[0]["FarPlane"].get<std::string>());
+
+		DepthDistance = engineDefaultData[0]["DepthDistance"];
+		DepthPlane[0] = engineDefaultData[0]["DepthPlane"][0];
+		DepthPlane[1] = engineDefaultData[0]["DepthPlane"][1];
+		SettingsUtils::s_WindowTitle = engineDefaultData[0]["Window"];
+		DefaultSkyboxPath = engineDefaultData[0]["DefaultSkyboxPath"];
+	}
+	else {
+		std::cerr << "Failed to open Settings/Default/EngineDefault.json" << std::endl;
+	}
 }

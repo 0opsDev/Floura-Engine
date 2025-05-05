@@ -1,5 +1,5 @@
-newkey = ""
-
+local newkey = ""
+xVar = 5
 function init()
 	io.write("Test.Lua Running init \n")
 

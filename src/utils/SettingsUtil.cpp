@@ -19,3 +19,6 @@ float SettingsUtils::s_ViewportVerticies[24] = {
 	 1.0f, -1.0f,  1.0f, 0.0f,
 	-1.0f,  1.0f,  0.0f, 1.0f
 };
+
+int SettingsUtils::tempWidth = 0;
+int SettingsUtils::tempHeight = 0;

@@ -11,6 +11,8 @@ public:
 
 	static bool isResizing;
 
+	static bool doVsync;
+
 	static void toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor, int windowedWidth, int windowedHeight);
 
 	static void setVSync(bool enabled);
