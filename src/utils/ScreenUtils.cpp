@@ -53,3 +53,19 @@ void ScreenUtils::UpdateViewportResize(){
 	prevSize = currentSize; // Update the previous size
 	
 }
+
+void ScreenUtils::UpdateWindowResize(GLFWwindow* window) {
+	int width, height;
+	glfwGetFramebufferSize(window, &width, &height);
+	ImVec2 currentSize = ImVec2(width, height);
+
+	if (currentSize.x != prevSize.x || currentSize.y != prevSize.y) {
+		// Window size has changed
+		isResizing = true;
+	}
+	else {
+		isResizing = false;
+	}
+
+	prevSize = currentSize; // Update the previous size
+}

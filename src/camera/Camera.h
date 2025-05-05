@@ -39,7 +39,7 @@ public:
 
     // Camera constructor
     Camera(int width, int height, glm::vec3 position);
-
+    void SetViewportSize(int newWidth, int newHeight);
     // Updates and exports the camera matrix to the Vertex Shader
     void updateMatrix(float FOVdeg, float nearPlane, float farPlane);
     void Matrix(Shader& shader, const char* uniform);

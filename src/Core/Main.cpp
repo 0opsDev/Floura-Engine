@@ -58,6 +58,9 @@ float PlayerHeight = 1.8f;
 float CrouchHighDiff = 0.9f;
 float PlayerHeightCurrent;
 
+float window_width;
+float window_height;
+
 // Define the plane's boundaries
 float planeMinX = -5.0f; // Left edge of the plane
 float planeMaxX = 5.0f;  // Right edge of the plane
@@ -84,7 +87,7 @@ void Main::updateModelLua(
 	}
 }
 // Holds ImGui Variables and Windows
-void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, Camera camera, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO, unsigned int& frameBufferTexture2) {
+void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, Camera& camera, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO, unsigned int& frameBufferTexture2) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	
@@ -279,8 +282,8 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 
 	if (ImGuiCamera::imGuiPanels[3]) {
 		ImGui::Begin("ViewPort");
-		const float window_width = ImGui::GetContentRegionAvail().x;
-		const float window_height = ImGui::GetContentRegionAvail().y;
+		float window_width = ImGui::GetContentRegionAvail().x;
+		float window_height = ImGui::GetContentRegionAvail().y;
 		ImGui::Image((ImTextureID)(uintptr_t)frameBufferTexture2, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
 
 		//prevEnableLinearScaling
@@ -289,6 +292,10 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			//std::cout << "Resolution scale changed!" << std::endl;
 			Framebuffer::updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, window_width, window_height); // Update frame buffer resolution
 			glViewport(0, 0, (window_width* ImGuiCamera::resolutionScale), (window_height* ImGuiCamera::resolutionScale));
+
+			camera.SetViewportSize(window_width, window_height);
+			std::cout << window_width << " " << camera.width << std::endl;
+			std::cout << window_height << " " << camera.height << std::endl;
 		}
 		ImGuiCamera::prevResolutionScale = ImGuiCamera::resolutionScale; // Update the previous scale
 		ImGuiCamera::prevEnableLinearScaling = ImGuiCamera::ImGuiCamera::enableLinearScaling;
@@ -492,7 +499,9 @@ int main() // global variables do not work with threads
 		//UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
 		// Camera
 		camera.Inputs(window); // send Camera.cpp window inputs and delta time
+		//std::cout << "Before updateMatrix: " << camera.width << " x " << camera.height << std::endl;
 		camera.updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
+		//std::cout << "After updateMatrix: " << camera.width << " x " << camera.height << std::endl;
 		if (ImGuiCamera::isWireframe) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 			glClearColor(0, 0, 0, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -530,11 +539,10 @@ int main() // global variables do not work with threads
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 		if (!ImGuiCamera::isWireframe) {
-			Skybox::draw(camera, skyRGBA, width, height);
+			Skybox::draw(camera, skyRGBA, camera.width, camera.height); // cleanup later, put camera width and height inside skybox class since, they're already global
 		}
-		// copy contents of FB to FB2 and Display FB2 (we can not run this function here and just draw the buffer above if we arent using imgui for more speed, this hasnt been added yet)
-		Framebuffer::FBODraw(frameBufferProgram, frameBufferTexture, viewVAO, frameBufferTexture2, FBO2, ImGuiCamera::imGuiPanels[0]);
-
+		// Framebuffer logic
+		Framebuffer::FBODraw(frameBufferProgram, frameBufferTexture, viewVAO, frameBufferTexture2, FBO2, RBO, RBO2, ImGuiCamera::imGuiPanels[0], window_width, window_height, window, camera);
 		if (ImGuiCamera::imGuiPanels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, camera, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)

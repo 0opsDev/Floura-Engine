@@ -4,6 +4,12 @@
 #include<iostream>
 #include<glad/glad.h>
 #include<render/Shader/shaderClass.h>
+#include <GLFW/glfw3.h>
+#include "utils/init.h"
+#include <UI/ImGui/ImGuiWindow.h>
+#include <utils/UF.h>
+#include <utils/ScreenUtils.h>
+#include <camera/Camera.h>
 
 class Framebuffer
 {
@@ -20,8 +26,10 @@ public:
 
 	static void Framebuffer::FBO2Draw(Shader frameBufferProgram, unsigned int& frameBufferTexture, unsigned int& viewVAO, unsigned int& frameBufferTexture2, unsigned int& FBO2);
 
-	static void FBODraw(Shader frameBufferProgram, unsigned int& frameBufferTexture, unsigned int& viewVAO, unsigned int& frameBufferTexture2, unsigned int& FBO2, bool imGuiPanels);
-
+	static void FBODraw(
+		Shader frameBufferProgram, unsigned int& frameBufferTexture, unsigned int& viewVAO,
+		unsigned int& frameBufferTexture2, unsigned int& FBO2, unsigned int& RBO, unsigned int& RBO2,
+		bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window, Camera& camera);
 };
 
 #endif

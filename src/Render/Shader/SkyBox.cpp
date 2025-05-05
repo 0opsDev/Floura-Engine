@@ -3,6 +3,7 @@
 #include <utils/UF.h>
 #include "Cubemap.h"
 #include "utils/timeUtil.h"
+#include <glm/gtx/string_cast.hpp>
 
 unsigned int Skybox::cubemapTexture;
 unsigned int Skybox::skyboxVAO;
@@ -47,7 +48,7 @@ float yaw = 1;
 void Skybox::draw(Camera camera, GLfloat skyRGBA[], unsigned int width, unsigned int height) {
 	// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 	glDepthFunc(GL_LEQUAL);
-
+	//std::cout << "height" << height << std::endl;
 	skyboxShader.Activate();
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
@@ -55,6 +56,7 @@ void Skybox::draw(Camera camera, GLfloat skyRGBA[], unsigned int width, unsigned
 	// The last row and column affect the translation of the skybox (which we don't want to affect)
 	view = glm::mat4(glm::mat3(glm::lookAt(camera.Position, camera.Position + camera.Orientation, camera.Up)));
 	projection = glm::perspective(glm::radians(Main::cameraSettings[0]), (float)width / height, Main::cameraSettings[1], Main::cameraSettings[2]);
+	//std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
 	glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 

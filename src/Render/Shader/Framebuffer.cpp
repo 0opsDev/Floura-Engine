@@ -1,7 +1,5 @@
 #include "Render/Shader/Framebuffer.h"
-#include "utils/init.h"
-#include <UI/ImGui/ImGuiWindow.h>
-#include <utils/UF.h>
+
 unsigned int Framebuffer::ViewPortWidth = 800;
 unsigned int Framebuffer::ViewPortHeight = 600;
 
@@ -137,7 +135,41 @@ void Framebuffer::FBO2Draw(Shader frameBufferProgram, unsigned int& frameBufferT
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 };
 
-void Framebuffer::FBODraw(Shader frameBufferProgram, unsigned int& frameBufferTexture, unsigned int& viewVAO, unsigned int& frameBufferTexture2, unsigned int& FBO2, bool imGuiPanels) {
+float current_width = 0;
+float current_height = 0;
+
+void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
+	unsigned int Vheight, unsigned int& frameBufferTexture, unsigned int& RBO,
+	unsigned int& RBO2, unsigned int& frameBufferTexture2, Camera& camera) {
+	if (!imGuiPanels) {
+		ScreenUtils::UpdateWindowResize(window);
+		int newWidth, newHeight;
+		glfwGetFramebufferSize(window, &newWidth, &newHeight);
+
+		current_width = newWidth;
+		current_height = newHeight;
+		//camera.UpdateRes(newWidth, newHeight);
+		
+
+	}
+	// we need a way to make isResizing == true when opengl window is resized
+	if (ScreenUtils::isResizing == true || ImGuiCamera::resolutionScale != ImGuiCamera::prevResolutionScale || ImGuiCamera::enableLinearScaling != ImGuiCamera::prevEnableLinearScaling) {
+		std::cout << "Resolution scale changed!" << std::endl;
+		Framebuffer::updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, current_width, current_height); // Update frame buffer resolution
+		glViewport(0, 0, (current_width * ImGuiCamera::resolutionScale), (current_height * ImGuiCamera::resolutionScale));
+		camera.SetViewportSize(current_width, current_height);
+		std::cout << "External camera instance address: " << &camera << std::endl;
+		std::cout << current_width << " " << camera.width << std::endl;
+		std::cout << current_height << " " << camera.height << std::endl;
+	}
+	ImGuiCamera::prevResolutionScale = ImGuiCamera::resolutionScale; // Update the previous scale
+	ImGuiCamera::prevEnableLinearScaling = ImGuiCamera::ImGuiCamera::enableLinearScaling;
+}
+
+void Framebuffer::FBODraw(
+	Shader frameBufferProgram, unsigned int& frameBufferTexture, unsigned int& viewVAO,
+	unsigned int& frameBufferTexture2, unsigned int& FBO2, unsigned int& RBO, unsigned int& RBO2,
+	bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window, Camera& camera) {
 	// Switch back to the normal depth function
 	glDepthFunc(GL_LESS);
 
@@ -156,7 +188,9 @@ void Framebuffer::FBODraw(Shader frameBufferProgram, unsigned int& frameBufferTe
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
 	if (!imGuiPanels) {
-		// non imgui resizing goes here
+		ResizeLogic(imGuiPanels, window, Vwidth, Vheight, frameBufferTexture,
+		RBO, RBO2, frameBufferTexture2, camera);
+
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 	else{

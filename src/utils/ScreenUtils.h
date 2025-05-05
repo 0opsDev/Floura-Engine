@@ -21,6 +21,8 @@ public:
 
 	static void UpdateViewportResize();
 
+	static void UpdateWindowResize(GLFWwindow* window);
+
 
 };
 
