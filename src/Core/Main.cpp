@@ -68,7 +68,7 @@ float planeMinZ = -5.0f; // Front edge of the plane
 float planeMaxZ = 5.0f;  // Back edge of the plane
 float planeY = 0.0f;     // Y-position of the plane
 
-TimeAccumulator TA1; TimeAccumulator TA3;
+TimeAccumulator TA1; TimeAccumulator TA3; TimeAccumulator TA2;
 Shader shaderProgram("skip", ""); // create a shader program and feed it Dummy shader and vertex files
 Camera camera(width, height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 
@@ -388,7 +388,7 @@ int main() // global variables do not work with threads
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	if (init::LogALL || init::LogSystems) std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
-
+	//imGuiPanels[0]
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
@@ -401,7 +401,14 @@ int main() // global variables do not work with threads
 			TA1.reset();
 		}
 		InputUtil::UpdateCurrentKey(window);
-
+		//TA2
+		TA2.update();
+		// Update FPS and window title every second  
+		if (TA2.Counter >= 1 / 10.0f) {
+			if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) { ImGuiCamera::imGuiPanels[0] = !ImGuiCamera::imGuiPanels[0]; }
+			//std::cout << "update" << std::endl;
+			TA2.reset();
+		}
 		if (glfwGetKey(window, GLFW_KEY_BACKSLASH) == GLFW_PRESS) { ScriptRunner::clearScripts(); ScriptRunner::init(); };
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_5) == GLFW_PRESS) Main::cameraSettings[0] = std::min(Main::cameraSettings[0] + (50.0f * TimeUtil::s_DeltaTime), 160.0f);
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_4) == GLFW_PRESS) Main::cameraSettings[0] = std::max(Main::cameraSettings[0] - (50.0f * TimeUtil::s_DeltaTime), 0.1f);
