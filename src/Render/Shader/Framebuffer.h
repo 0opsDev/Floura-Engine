@@ -10,25 +10,24 @@
 #include <utils/UF.h>
 #include <utils/ScreenUtils.h>
 #include <camera/Camera.h>
+#include <utils/SettingsUtil.h>
 
 class Framebuffer
 {
 public:
 
-	static unsigned int ViewPortWidth;
-	static unsigned int ViewPortHeight;
+	static unsigned int ViewPortWidth, ViewPortHeight, viewVAO, viewVBO, FBO2, frameBufferTexture2, RBO2, frameBufferTexture, RBO, FBO;
 	
-	void setupMainFBO(unsigned int& viewVAO, unsigned int& viewVBO, unsigned int& FBO, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int width, unsigned int height, const float* ViewportVerticies);
+	static void setupMainFBO(unsigned int width, unsigned int height);
 
-	void setupSecondFBO(unsigned int& FBO, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int width, unsigned int height);
+	static void setupSecondFBO(unsigned int width, unsigned int height);
 
-	static void updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height);
+	static void updateFrameBufferResolution(unsigned int width, unsigned int height);
 
-	static void Framebuffer::FBO2Draw(Shader frameBufferProgram, unsigned int& frameBufferTexture, unsigned int& viewVAO, unsigned int& frameBufferTexture2, unsigned int& FBO2);
+	static void FBO2Draw(Shader frameBufferProgram);
 
 	static void FBODraw(
-		Shader frameBufferProgram, unsigned int& frameBufferTexture, unsigned int& viewVAO,
-		unsigned int& frameBufferTexture2, unsigned int& FBO2, unsigned int& RBO, unsigned int& RBO2,
+		Shader frameBufferProgram,
 		bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window, Camera& camera);
 };
 

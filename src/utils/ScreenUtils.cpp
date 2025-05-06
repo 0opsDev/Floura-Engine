@@ -9,7 +9,7 @@ bool ScreenUtils::isFullscreen;
 bool ScreenUtils::isResizing;
 bool ScreenUtils::doVsync = false;
 
-void ScreenUtils::toggleFullscreen(GLFWwindow* window, GLFWmonitor* monitor, int windowedWidth, int windowedHeight) // needs to be fixed
+void ScreenUtils::toggleFullscreen(GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight) // needs to be fixed
 {
 	isFullscreen = !isFullscreen;
 	if (isFullscreen) {

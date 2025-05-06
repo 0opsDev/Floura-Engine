@@ -1,15 +1,24 @@
 #include "Render/Shader/Framebuffer.h"
+#include <utils/SettingsUtil.h>
 
 unsigned int Framebuffer::ViewPortWidth = 800;
 unsigned int Framebuffer::ViewPortHeight = 600;
+unsigned int Framebuffer::viewVAO;
+unsigned int Framebuffer::viewVBO;
+unsigned int Framebuffer::FBO2;
+unsigned int Framebuffer::frameBufferTexture2;
+unsigned int Framebuffer::RBO2;
+unsigned int Framebuffer::frameBufferTexture;
+unsigned int Framebuffer::RBO;
+unsigned int Framebuffer::FBO;
 
-void Framebuffer::setupMainFBO(unsigned int& viewVAO, unsigned int& viewVBO, unsigned int& FBO, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int width, unsigned int height, const float* ViewportVerticies) {
+void Framebuffer::setupMainFBO(unsigned int width, unsigned int height) {
 	// Initialize viewport rectangle object drawn to viewport with framebuffer texture attached
 	glGenVertexArrays(1, &viewVAO);
 	glGenBuffers(1, &viewVBO);
 	glBindVertexArray(viewVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, viewVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(ViewportVerticies) * 6 * 4, ViewportVerticies, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(SettingsUtils::s_ViewportVerticies) * 6 * 4, SettingsUtils::s_ViewportVerticies, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
@@ -45,25 +54,25 @@ void Framebuffer::setupMainFBO(unsigned int& viewVAO, unsigned int& viewVBO, uns
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Framebuffer::setupSecondFBO(unsigned int& FBO, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int width, unsigned int height) {
-	glGenFramebuffers(1, &FBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+void Framebuffer::setupSecondFBO(unsigned int width, unsigned int height) {
+	glGenFramebuffers(1, &FBO2);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO2);
 
 	// Color buffer
-	glGenTextures(1, &frameBufferTexture);
-	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+	glGenTextures(1, &frameBufferTexture2);
+	glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture2, 0);
 
 	// Depth and stencil buffer
-	glGenRenderbuffers(1, &RBO);
-	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+	glGenRenderbuffers(1, &RBO2);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO2);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO2);
 
 	// Error checking
 	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -74,7 +83,7 @@ void Framebuffer::setupSecondFBO(unsigned int& FBO, unsigned int& frameBufferTex
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Framebuffer::updateFrameBufferResolution(unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& frameBufferTexture2, unsigned int& RBO2, unsigned int width, unsigned int height) {
+void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int height) {
 
 	Framebuffer::ViewPortWidth = width;
 	Framebuffer::ViewPortHeight = height;
@@ -115,7 +124,7 @@ void Framebuffer::updateFrameBufferResolution(unsigned int& frameBufferTexture, 
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-void Framebuffer::FBO2Draw(Shader frameBufferProgram, unsigned int& frameBufferTexture, unsigned int& viewVAO, unsigned int& frameBufferTexture2, unsigned int& FBO2) {
+void Framebuffer::FBO2Draw(Shader frameBufferProgram) {
 	// Apply post-processing and render to the second FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO2);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -139,8 +148,7 @@ float current_width = 0;
 float current_height = 0;
 
 void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
-	unsigned int Vheight, unsigned int& frameBufferTexture, unsigned int& RBO,
-	unsigned int& RBO2, unsigned int& frameBufferTexture2, Camera& camera) {
+	unsigned int Vheight, Camera& camera) {
 	if (!imGuiPanels) {
 		ScreenUtils::UpdateWindowResize(window);
 		int newWidth, newHeight;
@@ -155,7 +163,7 @@ void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
 	// we need a way to make isResizing == true when opengl window is resized
 	if (ScreenUtils::isResizing == true || ImGuiCamera::resolutionScale != ImGuiCamera::prevResolutionScale || ImGuiCamera::enableLinearScaling != ImGuiCamera::prevEnableLinearScaling) {
 		std::cout << "Resolution scale changed!" << std::endl;
-		Framebuffer::updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, current_width, current_height); // Update frame buffer resolution
+		Framebuffer::updateFrameBufferResolution(current_width, current_height); // Update frame buffer resolution
 		glViewport(0, 0, (current_width * ImGuiCamera::resolutionScale), (current_height * ImGuiCamera::resolutionScale));
 		camera.SetViewportSize(current_width, current_height);
 		std::cout << "External camera instance address: " << &camera << std::endl;
@@ -167,8 +175,7 @@ void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
 }
 
 void Framebuffer::FBODraw(
-	Shader frameBufferProgram, unsigned int& frameBufferTexture, unsigned int& viewVAO,
-	unsigned int& frameBufferTexture2, unsigned int& FBO2, unsigned int& RBO, unsigned int& RBO2,
+	Shader frameBufferProgram,
 	bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window, Camera& camera) {
 	// Switch back to the normal depth function
 	glDepthFunc(GL_LESS);
@@ -188,14 +195,14 @@ void Framebuffer::FBODraw(
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
 	if (!imGuiPanels) {
-		ResizeLogic(imGuiPanels, window, Vwidth, Vheight, frameBufferTexture,
-		RBO, RBO2, frameBufferTexture2, camera);
+		ResizeLogic(imGuiPanels, window, Vwidth, Vheight, camera);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 	else{
 		// copy contents of FB to FB2 and Display FB2
-		Framebuffer::FBO2Draw(frameBufferProgram, frameBufferTexture, viewVAO, frameBufferTexture2, FBO2);
+		Framebuffer::FBO2Draw(frameBufferProgram);
+		//(Shader frameBufferProgram, unsigned int& frameBufferTexture, unsigned int& frameBufferTexture2, unsigned int& FBO2)
 	}
 
 }

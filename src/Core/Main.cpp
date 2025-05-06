@@ -26,11 +26,9 @@
 #include "File/File.h"
 #include <UI/ImGui/ImGuiWindow.h>
 
-int Main::VertNum = 0, Main::FragNum = 0, Main::TempButton = 0;
+int Main::VertNum = 0, Main::FragNum = 0;
+bool Main::ApplyShader = true;
 std::string DefaultSkyboxPath;
-
-unsigned int FBO2, frameBufferTexture2, RBO2, viewVAO, viewVBO, FBO, frameBufferTexture, RBO; // FBO init
-// FBO init
 
 // Global Variables
 GLfloat ConeSI[3] = { 0.111f, 0.825f, 2.0f };
@@ -87,7 +85,8 @@ void Main::updateModelLua(
 	}
 }
 // Holds ImGui Variables and Windows
-void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT, Camera& camera, unsigned int& frameBufferTexture, unsigned int& RBO, unsigned int& FBO, unsigned int& frameBufferTexture2) {
+void imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
+	GLFWmonitor* monitorT, Camera& camera) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	
@@ -179,7 +178,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 				glViewport(0, 0, SettingsUtils::tempWidth * ImGuiCamera::resolutionScale, SettingsUtils::tempHeight * ImGuiCamera::resolutionScale); // real internal res
 				glfwSetWindowSize(window, SettingsUtils::tempWidth, SettingsUtils::tempHeight);
 				ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
-				Framebuffer::updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, SettingsUtils::tempWidth, SettingsUtils::tempHeight); // Update frame buffer resolution
+				Framebuffer::updateFrameBufferResolution(SettingsUtils::tempWidth, SettingsUtils::tempHeight); // Update frame buffer resolution
 			}
 			if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 			{
@@ -194,7 +193,7 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 			//Optimisation And Shaders
 			ImGui::DragInt("Shader Number (Vert)", &Main::VertNum);
 			ImGui::DragInt("Shader Number (Frag)", &Main::FragNum); // Shader Switching
-			if (ImGui::SmallButton("Apply Shader?")) { Main::TempButton = -1; } // apply shader
+			if (ImGui::SmallButton("Apply Shader?")) { Main::ApplyShader = true; } // apply shader
 			ImGui::DragFloat("Gamma", &gamma);
 			ImGui::Checkbox("doReflections", &doReflections);
 			ImGui::Checkbox("doFog", &doFog); 		//Toggles
@@ -251,9 +250,10 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		ImGui::Spacing();
 		if (ImGui::TreeNode("Controls")) {
 			ImGui::Text("Transform");
-			if (ImGui::SmallButton("Reset Camera")) { Main::TempButton = 1; } // reset cam pos
+			if (ImGui::SmallButton("Reset Camera")) {camera.s_PositionMatrix = glm::vec3(0, 0, 0);
+			} // reset cam pos
 			ImGui::DragFloat3("Camera Transform", CameraXYZ); // set cam pos
-			if (ImGui::SmallButton("Set")) { Main::TempButton = 2; } // apply cam pos
+			if (ImGui::SmallButton("Set")) { camera.s_PositionMatrix = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); } // apply cam pos
 			ImGui::DragFloat("Camera Speed", &Camera::s_scrollSpeed); //Camera
 			
 			ImGui::Spacing();
@@ -284,13 +284,13 @@ void imGuiMAIN(GLFWwindow* window, Shader shaderProgramT, GLFWmonitor* monitorT,
 		ImGui::Begin("ViewPort");
 		float window_width = ImGui::GetContentRegionAvail().x;
 		float window_height = ImGui::GetContentRegionAvail().y;
-		ImGui::Image((ImTextureID)(uintptr_t)frameBufferTexture2, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)(uintptr_t)Framebuffer::frameBufferTexture2, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
 
 		//prevEnableLinearScaling
 		ScreenUtils::UpdateViewportResize();
 		if (ScreenUtils::isResizing == true || ImGuiCamera::resolutionScale != ImGuiCamera::prevResolutionScale || ImGuiCamera::enableLinearScaling != ImGuiCamera::prevEnableLinearScaling) {
 			//std::cout << "Resolution scale changed!" << std::endl;
-			Framebuffer::updateFrameBufferResolution(frameBufferTexture, RBO, frameBufferTexture2, RBO2, window_width, window_height); // Update frame buffer resolution
+			Framebuffer::updateFrameBufferResolution(window_width, window_height); // Update frame buffer resolution
 			glViewport(0, 0, (window_width* ImGuiCamera::resolutionScale), (window_height* ImGuiCamera::resolutionScale));
 
 			camera.SetViewportSize(window_width, window_height);
@@ -358,6 +358,7 @@ int main() // global variables do not work with threads
 	Shader LightProgram("Shaders/Lighting/light.vert", "Shaders/Lighting/light.frag");
 	Shader SolidColour("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
 
+	// move to framebuffer class
 	Shader frameBufferProgram("Shaders/PostProcess/framebuffer.vert", "Shaders/PostProcess/framebuffer.frag");
 	frameBufferProgram.Activate();
 	UF::Int(frameBufferProgram.ID, "screenTexture", 0);
@@ -367,15 +368,13 @@ int main() // global variables do not work with threads
 	init::initGLenable(false); //bool for direction of polys
 
 	// INITIALIZE CAMERA
-	
 	camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); // camera ratio pos //INIT CAMERA POSITION
 
 	Skybox::init(DefaultSkyboxPath);
-
-	Framebuffer fb1;
 	
-	fb1.setupMainFBO(viewVAO, viewVBO, FBO, frameBufferTexture, RBO, width, height, SettingsUtils::s_ViewportVerticies);
-	fb1.setupSecondFBO(FBO2, frameBufferTexture2, RBO2, width, height);
+	// put in one function
+	Framebuffer::setupMainFBO(width, height);
+	Framebuffer::setupSecondFBO(width, height);
 
 	init::initImGui(window); // Initialize ImGUI
 
@@ -478,15 +477,14 @@ int main() // global variables do not work with threads
 		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { Main::loadSettings(); Main::loadEngineSettings(); }
 
 		//FrameBuffer
-		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 		// Clear BackBuffer
 		glClearColor(skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear with colour
 		glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
 
-		switch (Main::TempButton) {
-		case -1: { FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram); Main::TempButton = 0; break; }
-		case 1: { camera.Position = glm::vec3(0, 0, 0); Main::TempButton = 0; break; }
-		case 2: { camera.Position = glm::vec3(CameraXYZ[0], CameraXYZ[1], CameraXYZ[2]); Main::TempButton = 0; break; }
+		if (Main::ApplyShader) {
+		FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram); 
+		Main::ApplyShader = false;
 		}
 		// Convert variables to glm variables which hold data like a table
 		glm::vec3 lightPos = glm::vec3(LightTransform1[0], LightTransform1[1], LightTransform1[2]);
@@ -549,8 +547,8 @@ int main() // global variables do not work with threads
 			Skybox::draw(camera, skyRGBA, camera.width, camera.height); // cleanup later, put camera width and height inside skybox class since, they're already global
 		}
 		// Framebuffer logic
-		Framebuffer::FBODraw(frameBufferProgram, frameBufferTexture, viewVAO, frameBufferTexture2, FBO2, RBO, RBO2, ImGuiCamera::imGuiPanels[0], window_width, window_height, window, camera);
-		if (ImGuiCamera::imGuiPanels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, camera, frameBufferTexture, RBO, FBO, frameBufferTexture2); }
+		Framebuffer::FBODraw(frameBufferProgram, ImGuiCamera::imGuiPanels[0], window_width, window_height, window, camera);
+		if (ImGuiCamera::imGuiPanels[0]) { imGuiMAIN(window, shaderProgram, primaryMonitor, camera); }
 
 		glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)

@@ -20,6 +20,6 @@ void luaShader::SetShader(sol::state& luaState) {
 			if (init::LogALL || init::LogLua) std::cout << "[Lua] invalid shader type: " << std::endl;
 		}
 
-		Main::TempButton = -1;
+		Main::ApplyShader = true;
 		};
 }
