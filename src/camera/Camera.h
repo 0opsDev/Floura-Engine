@@ -23,6 +23,8 @@ public:
     static glm::vec3 s_PositionMatrix;
     glm::vec3 Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
+    static glm::vec3 PubOrientation;
+    static glm::vec3 PubUp;
     glm::mat4 cameraMatrix = glm::mat4(1.0f);
     static float s_scrollSpeed;
     static float s_sensitivityX;

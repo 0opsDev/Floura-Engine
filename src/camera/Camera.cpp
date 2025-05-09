@@ -9,6 +9,8 @@ float Camera::s_scrollSpeed = 0;
 float Camera::s_sensitivityX = 100;
 float Camera::s_sensitivityY = 100;
 glm::vec3 Camera::s_PositionMatrix = glm::vec3(0,0,0);
+glm::vec3 Camera::PubOrientation = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 Camera::PubUp = glm::vec3(0.0f, 1.0f, 0.0f);
 bool Camera::s_DoGravity = false;
 
 Camera::Camera(int width, int height, glm::vec3 position)
@@ -38,6 +40,8 @@ void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
     //std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
     cameraMatrix = projection * view;
     s_PositionMatrix = Position;
+    Camera::PubOrientation = Orientation;
+    Camera::PubUp = Up;
 }
 
 void Camera::Matrix(Shader& shader, const char* uniform)

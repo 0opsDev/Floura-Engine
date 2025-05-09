@@ -19,7 +19,10 @@ public:
 	void SetVolume(float Volume);
 	
 	void SetSoundPosition(float x, float y, float z);
+
 	void SetListenerPosition(float x, float y, float z);
+
+	void updateCameraPosition();
 
 	void StopSound();
 

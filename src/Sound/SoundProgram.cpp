@@ -1,5 +1,6 @@
 #include "SoundProgram.h"
 #include <thread>
+#include "camera/Camera.h"
 
 void SoundProgram::PlaySound(float Volume) {
     isPlay = true;
@@ -31,6 +32,19 @@ void SoundProgram::SetListenerPosition(float x, float y, float z) {
                               0.0f, 1.0f, 0.0f }; // Up
     alListenerfv(AL_ORIENTATION, orientation);
 }
+
+void SoundProgram::updateCameraPosition() {
+    // Update listener's position
+    SetListenerPosition(Camera::s_PositionMatrix.x, Camera::s_PositionMatrix.y, Camera::s_PositionMatrix.z);
+
+    // Use Camera orientation and up vector for 3D audio orientation
+    ALfloat orientation[] = {
+        Camera::PubOrientation.x, Camera::PubOrientation.y, Camera::PubOrientation.z,  // Forward
+        Camera::PubUp.x,         Camera::PubUp.y,         Camera::PubUp.z              // Up
+    };
+    alListenerfv(AL_ORIENTATION, orientation);
+}
+
 
 void SoundProgram::StopSound() {
     if (source && isPlay) {

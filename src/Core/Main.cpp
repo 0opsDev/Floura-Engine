@@ -390,8 +390,9 @@ int main() // global variables do not work with threads
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
 		if (!SoundH.isPlay) {
-			SoundH.PlaySound(0.5);
+			SoundH.PlaySound(1);
 		}
+		SoundH.updateCameraPosition();
 
 		TA1.update();
 		// Update FPS and window title every second  
@@ -559,6 +560,7 @@ int main() // global variables do not work with threads
 
 	ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
 
+	SoundH.DeleteSound();
 	frameBufferProgram.Delete();
 	LightProgram.Delete();
 	Skybox::Delete();
