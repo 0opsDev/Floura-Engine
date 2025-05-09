@@ -16,7 +16,7 @@ Features:
 . Basic Json Entity Component System
 . WireFrame View
 . Embedded Lua via sol2
-. 3D Directional Sound via openAL
+. 3D Directional Sound via openAL Soft
 ~~~
 
 Controls:
