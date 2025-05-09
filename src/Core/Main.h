@@ -11,6 +11,7 @@ public:
 	static int VertNum;
 	static int FragNum;
 	static bool ApplyShader;
+	static bool sleepState;
 	static float cameraSettings[3]; // FOV, near, far
 	static GLfloat CameraXYZ[3]; // Initial camera position
 

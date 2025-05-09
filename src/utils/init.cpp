@@ -12,6 +12,8 @@ bool init::LogALL = true;
 
 bool init::LogModel = true;
 
+bool init::LogSound = true;
+
 bool init::LogSystems = true;
 
 bool init::LogLua = true;
@@ -25,12 +27,14 @@ void init::initLog() {
 
 		LogALL = LogCfgData[0]["LogALL"];
 		LogSystems = LogCfgData[0]["LogSystems"];
+		LogSound = LogCfgData[0]["LogSound"];
 		LogModel = LogCfgData[0]["LogModel"];
 		LogLua = LogCfgData[0]["LogLua"];
 		if (LogALL || LogSystems) {
 			std::cout << "LogALL: " << LogALL << std::endl;
 			std::cout << "LogSystems: " << LogSystems << std::endl;
 			std::cout << "LogModel: " << LogModel << std::endl;
+			std::cout << "LogSound: " << LogSound << std::endl;
 			std::cout << "LogLua: " << LogLua << std::endl;
 			std::cout << "Loaded settings from LogConfig.json" << std::endl;
 		}

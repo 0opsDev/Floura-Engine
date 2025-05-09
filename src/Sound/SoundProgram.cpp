@@ -1,18 +1,21 @@
 #include "SoundProgram.h"
-#include <thread>
-#include "camera/Camera.h"
+#include <utils/init.h>
+
+
+ALCdevice* SoundProgram::device;
+ALCcontext* SoundProgram::context;
 
 void SoundProgram::PlaySound(float Volume) {
     isPlay = true;
     alSourcef(source, AL_GAIN, Volume); // set volume
     std::thread([this]() {
         alSourcePlay(source);
-        std::cout << "Sound played" << std::endl;
+        if (init::LogSound) std::cout << "Sound played" << std::endl;
         do {
             alGetSourcei(source, AL_SOURCE_STATE, &state);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));  // Sleep to avoid busy-waiting
-        } while (state == AL_PLAYING);
-        std::cout << "Sound stopped" << std::endl;
+        } while (state == AL_PLAYING && Main::sleepState);
+        if(init::LogSound) std::cout << "Sound stopped" << std::endl;
         isPlay = false;
         }).detach();  // Detach the thread so it runs independently
 }
@@ -49,24 +52,15 @@ void SoundProgram::updateCameraPosition() {
 void SoundProgram::StopSound() {
     if (source && isPlay) {
         alSourceStop(source);
-        std::cout << "StopSound: Sound stopped" << std::endl;
+        if (init::LogSound) std::cout << "StopSound: Sound stopped" << std::endl;
     }
     else if (!isPlay) {
-        std::cout << "StopSound: No Sound Playing" << std::endl;
+        if (init::LogSound) std::cout << "StopSound: No Sound Playing" << std::endl;
     }
 }
 
 
 void SoundProgram::CreateSound(std::string Path) {
-    // Open default device and create context
-    device = alcOpenDevice(nullptr);
-    if (!device) {
-        std::cerr << "Failed to open OpenAL device" << std::endl;
-        //return -1;
-    }
-    context = alcCreateContext(device, nullptr);
-    alcMakeContextCurrent(context);
-
     //Load Sound, Generate source and attach buffer
     ChangeSound(Path);
 }
@@ -94,9 +88,6 @@ void SoundProgram::DeleteSound() {
     state = 0;
     alDeleteSources(1, &source);
     alDeleteBuffers(1, &buffer);
-    alcMakeContextCurrent(nullptr);
-    alcDestroyContext(context);
-    alcCloseDevice(device);
 }
 
 // Helper function to load WAV file
@@ -107,7 +98,7 @@ bool SoundProgram::loadWavFile(const std::string& filename, ALuint* buffer) {
         return false;
     }
     else {
-        std::cout << "Loaded WAV file: " << filename << std::endl;
+        if (init::LogSound) std::cout << "Loaded WAV file: " << filename << std::endl;
     }
 
     char chunkId[4];
@@ -118,7 +109,7 @@ bool SoundProgram::loadWavFile(const std::string& filename, ALuint* buffer) {
     file.read(reinterpret_cast<char*>(&channels), 2);
 
     if (channels > 1) {
-        std::cout << "Directional sound only works with mono WAV files." << std::endl;
+        if (init::LogSound) std::cout << "Directional sound only works with mono WAV files." << std::endl;
     }
 
     int sampleRate;

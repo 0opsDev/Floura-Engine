@@ -205,6 +205,9 @@
     <ClCompile Include="src\Sound\SoundProgram.cpp">
       <Filter>src\Sound</Filter>
     </ClCompile>
+    <ClCompile Include="src\Sound\SoundRunner.cpp">
+      <Filter>src\Sound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -325,6 +328,9 @@
       <Filter>src\core\File</Filter>
     </ClInclude>
     <ClInclude Include="src\Sound\SoundProgram.h">
+      <Filter>src\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sound\SoundRunner.h">
       <Filter>src\Sound</Filter>
     </ClInclude>
   </ItemGroup>

@@ -173,6 +173,7 @@
     <ClCompile Include="src\Scripting\ScriptEngine.cpp" />
     <ClCompile Include="src\Scripting\ScriptRunner.cpp" />
     <ClCompile Include="src\Sound\SoundProgram.cpp" />
+    <ClCompile Include="src\Sound\SoundRunner.cpp" />
     <ClCompile Include="src\UI\ImGui\ImGuiWindow.cpp" />
     <ClCompile Include="src\utils\init.cpp" />
     <ClCompile Include="src\utils\InputUtil.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="src\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Scripting\ScriptRunner.h" />
     <ClInclude Include="src\Sound\SoundProgram.h" />
+    <ClInclude Include="src\Sound\SoundRunner.h" />
     <ClInclude Include="src\UI\ImGui\ImGuiWindow.h" />
     <ClInclude Include="src\utils\init.h" />
     <ClInclude Include="src\utils\InputUtil.h" />

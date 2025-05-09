@@ -11,6 +11,8 @@ public:
 
     static bool LogModel;
 
+    static bool LogSound;
+
     static bool LogSystems;
 
     static bool LogLua;

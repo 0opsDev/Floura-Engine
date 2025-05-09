@@ -21,9 +21,11 @@
 #include "File/File.h"
 #include <UI/ImGui/ImGuiWindow.h>
 #include "Sound/SoundProgram.h"
+#include <Sound/SoundRunner.h>
 
 int Main::VertNum = 0, Main::FragNum = 0;
 bool Main::ApplyShader = true;
+bool Main::sleepState = true;
 std::string DefaultSkyboxPath;
 
 // Global Variables
@@ -306,14 +308,20 @@ void imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 //Main Function
 int main() // global variables do not work with threads
 {
+	Main::sleepState = true;
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 	init::initLog();// init logs (should always be before priniting anything)
 	ScriptRunner::init();
 	init::initGLFW(); // initialize glfw
 	Main::loadSettings();
 	Main::loadEngineSettings();
-	SoundProgram SoundH;
-	SoundH.CreateSound("Assets/Sounds/brucedMono.wav");
+	SoundRunner::init();
+	SoundProgram Soundtrack;
+	SoundProgram FootSound;
+	SoundProgram Jump;
+	Soundtrack.CreateSound("Assets/Sounds/brucedMono.wav");
+	Jump.CreateSound("Assets/Sounds/jump.wav");
+	FootSound.CreateSound("Assets/Sounds/footstep.wav");
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -389,11 +397,10 @@ int main() // global variables do not work with threads
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
-		if (!SoundH.isPlay) {
-			SoundH.PlaySound(1);
+		if (!Soundtrack.isPlay) {
+			Soundtrack.PlaySound(1);
 		}
-		SoundH.updateCameraPosition();
-
+		Soundtrack.updateCameraPosition();
 		TA1.update();
 		// Update FPS and window title every second  
 		if (TA1.Counter >= 1/1.0f) {
@@ -418,6 +425,10 @@ int main() // global variables do not work with threads
 
 		glm::vec3 cameraPos = Camera::s_PositionMatrix;
 		glm::vec3 feetpos = glm::vec3(Camera::s_PositionMatrix.x, (Camera::s_PositionMatrix.y - PlayerHeightCurrent), Camera::s_PositionMatrix.z);
+
+		FootSound.SetSoundPosition(feetpos.x, feetpos.y, feetpos.z);
+		FootSound.updateCameraPosition();
+
 		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
 			Camera::s_DoGravity = false;
 			doPlayerCollision = false;
@@ -435,13 +446,24 @@ int main() // global variables do not work with threads
 					if (TA3.Counter >= 0.20f) {
 						camera.DoJump = false;
 						camera.Position = glm::vec3(cameraPos.x, (cameraPos.y - (10 * deltaTime)), cameraPos.z);
+						 if (FootSound.isPlay) FootSound.StopSound();
+						 if (Jump.isPlay) Jump.StopSound();
 					}
 					else {
+						if (!Jump.isPlay && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+							Jump.PlaySound(1);
+						}
+						Jump.updateCameraPosition();
+						Jump.SetSoundPosition(feetpos.x, feetpos.y, feetpos.z);
 						TA3.update();
 					}
 				}
 				else { //ground
 					camera.DoJump = true;
+					if (!FootSound.isPlay && (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && !(
+						glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)) {
+						FootSound.PlaySound(1);
+					}
 					TA3.reset();
 
 					if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) { //gravity
@@ -557,13 +579,18 @@ int main() // global variables do not work with threads
 		glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
 	}
 	// Cleanup: Delete all objects on close
+	Main::sleepState = false;
 
 	ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
 
-	SoundH.DeleteSound();
+	//FootSound.DeleteSound();
 	frameBufferProgram.Delete();
 	LightProgram.Delete();
 	Skybox::Delete();
+	Jump.DeleteSound();
+	Soundtrack.DeleteSound();
+	Jump.DeleteSound();
+	SoundRunner::Delete();
 	SolidColour.Delete();
 	shaderProgram.Delete(); // Delete Shader Prog
 	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl

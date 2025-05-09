@@ -2,6 +2,7 @@
     {
         "LogALL": false,
         "LogModel": false,
+        "LogSound": true,
         "LogSystems": false,
         "LogLua": true
     }

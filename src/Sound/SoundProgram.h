@@ -7,10 +7,15 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <thread>
+#include "camera/Camera.h"
 
 class SoundProgram
 {
 public:
+
+	static ALCdevice* device;
+	static ALCcontext* context;
 
 	bool isPlay = false;
 
@@ -33,13 +38,13 @@ public:
 	void DeleteSound();
 
 private:
-	ALCdevice* device;
-	ALCcontext* context;
+
 	ALuint buffer;
 	ALuint source;
 	ALint state;
 
 	bool loadWavFile(const std::string& filename, ALuint* buffer);
+
 };
 
 #endif //SOUND_CLASS_H
