@@ -12,11 +12,6 @@
 #include "utils/timeAccumulator.h"
 #include "utils/InputUtil.h"
 #include "Render/Shader/Cubemap.h"
-//temorary
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
-#include <OpenAL/efx.h>
-#include <OpenAL/efx-presets.h>
 #define STB_PERLIN_IMPLEMENTATION
 #include <stb/stb_perlin.h>
 #include "Render/Shader/Framebuffer.h"
@@ -25,6 +20,7 @@
 #include "render/Shader/SkyBox.h"
 #include "File/File.h"
 #include <UI/ImGui/ImGuiWindow.h>
+#include "Sound/SoundProgram.h"
 
 int Main::VertNum = 0, Main::FragNum = 0;
 bool Main::ApplyShader = true;
@@ -294,8 +290,8 @@ void imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 			glViewport(0, 0, (window_width* ImGuiCamera::resolutionScale), (window_height* ImGuiCamera::resolutionScale));
 
 			camera.SetViewportSize(window_width, window_height);
-			std::cout << window_width << " " << camera.width << std::endl;
-			std::cout << window_height << " " << camera.height << std::endl;
+			//std::cout << window_width << " " << camera.width << std::endl;
+			//std::cout << window_height << " " << camera.height << std::endl;
 		}
 		ImGuiCamera::prevResolutionScale = ImGuiCamera::resolutionScale; // Update the previous scale
 		ImGuiCamera::prevEnableLinearScaling = ImGuiCamera::ImGuiCamera::enableLinearScaling;
@@ -316,6 +312,8 @@ int main() // global variables do not work with threads
 	init::initGLFW(); // initialize glfw
 	Main::loadSettings();
 	Main::loadEngineSettings();
+	SoundProgram SoundH;
+	SoundH.CreateSound("Assets/Sounds/brucedMono.wav");
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -391,6 +389,10 @@ int main() // global variables do not work with threads
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
+		if (!SoundH.isPlay) {
+			SoundH.PlaySound(0.5);
+		}
+
 		TA1.update();
 		// Update FPS and window title every second  
 		if (TA1.Counter >= 1/1.0f) {

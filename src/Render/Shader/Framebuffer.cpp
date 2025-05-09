@@ -166,9 +166,9 @@ void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
 		Framebuffer::updateFrameBufferResolution(current_width, current_height); // Update frame buffer resolution
 		glViewport(0, 0, (current_width * ImGuiCamera::resolutionScale), (current_height * ImGuiCamera::resolutionScale));
 		camera.SetViewportSize(current_width, current_height);
-		std::cout << "External camera instance address: " << &camera << std::endl;
-		std::cout << current_width << " " << camera.width << std::endl;
-		std::cout << current_height << " " << camera.height << std::endl;
+		//std::cout << "External camera instance address: " << &camera << std::endl;
+		//std::cout << current_width << " " << camera.width << std::endl;
+		//std::cout << current_height << " " << camera.height << std::endl;
 	}
 	ImGuiCamera::prevResolutionScale = ImGuiCamera::resolutionScale; // Update the previous scale
 	ImGuiCamera::prevEnableLinearScaling = ImGuiCamera::ImGuiCamera::enableLinearScaling;

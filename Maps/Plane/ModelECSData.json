@@ -21,8 +21,8 @@
     "rigidbody": false
   },
   {
-    "name": "cube",
-    "path": "Models/cube/cube.gltf",
+    "name": "crate",
+    "path": "Models/crate/crate.gltf",
     "isCulling": true,
     "Location": [ 0, 5, 0 ],
     "Rotation": [ 0, 0, 0, 0 ],
@@ -30,5 +30,4 @@
     "Collider": false,
     "rigidbody": true
   }
-
 ]

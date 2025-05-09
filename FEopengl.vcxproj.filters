@@ -83,6 +83,9 @@
     <Filter Include="src\core\File">
       <UniqueIdentifier>{8876711e-32c6-48f8-a1a0-9590543857ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Sound">
+      <UniqueIdentifier>{5dc11c93-5e42-4225-81c4-4e40beb27d2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -198,6 +201,9 @@
     </ClCompile>
     <ClCompile Include="src\Core\File\File.cpp">
       <Filter>src\core\File</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sound\SoundProgram.cpp">
+      <Filter>src\Sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -317,6 +323,9 @@
     </ClInclude>
     <ClInclude Include="src\Core\File\File.h">
       <Filter>src\core\File</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sound\SoundProgram.h">
+      <Filter>src\Sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
