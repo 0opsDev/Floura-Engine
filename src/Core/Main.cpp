@@ -23,6 +23,7 @@
 #include "Sound/SoundProgram.h"
 #include <Sound/SoundRunner.h>
 
+bool anyCollision = false; // Track collision status
 int Main::VertNum = 0, Main::FragNum = 0;
 bool Main::ApplyShader = true;
 bool Main::sleepState = true;
@@ -32,7 +33,7 @@ std::string DefaultSkyboxPath;
 GLfloat ConeSI[3] = { 0.111f, 0.825f, 2.0f };
 GLfloat ConeRot[3] = { 0.0f, -1.0f, 0.0f };
 GLfloat LightTransform1[] = { 0.0f, 5.0f, 0.0f };
-GLfloat CameraXYZ[3] = { 0.0f, 0.0f, 0.0f }; // Initial camera position
+GLfloat CameraXYZ[3] = { 0.0f, 15.0f, 0.0f }; // Initial camera position
 GLfloat lightRGBA[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat skyRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat fogRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -43,13 +44,13 @@ GLfloat DepthPlane[2] = { 0.1f, 100.0f };
 bool doReflections = true;
 bool doFog = true;
 float gamma = 2.2f;
+float volume = 1;
 
 unsigned int width = 800, height = 600;
 
 float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
 
 bool doPlayerCollision = true;
-bool footCollision = false;
 float PlayerHeight = 1.8f;
 float CrouchHighDiff = 0.9f;
 float PlayerHeightCurrent;
@@ -57,14 +58,7 @@ float PlayerHeightCurrent;
 float window_width;
 float window_height;
 
-// Define the plane's boundaries
-float planeMinX = -5.0f; // Left edge of the plane
-float planeMaxX = 5.0f;  // Right edge of the plane
-float planeMinZ = -5.0f; // Front edge of the plane
-float planeMaxZ = 5.0f;  // Back edge of the plane
-float planeY = 0.0f;     // Y-position of the plane
-
-TimeAccumulator TA1; TimeAccumulator TA3; TimeAccumulator TA2;
+TimeAccumulator TA1; TimeAccumulator TA3; TimeAccumulator TA2; TimeAccumulator TA4;
 Shader shaderProgram("skip", ""); // create a shader program and feed it Dummy shader and vertex files
 Camera camera(width, height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 
@@ -82,6 +76,7 @@ void Main::updateModelLua(
 		}
 	}
 }
+
 // Holds ImGui Variables and Windows
 void imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 	GLFWmonitor* monitorT, Camera& camera) {
@@ -103,10 +98,10 @@ void imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 
 	//Main Panel
 	ImGui::Begin("Panels"); // ImGUI window creation
-
 	ImGui::Text("Settings (Press escape to use mouse)");
 	if (ImGui::SmallButton("load")) { Main::loadSettings(); Main::loadEngineSettings(); } // load settings button
 	if (ImGui::SmallButton("save (just settings)")) { Main::saveSettings(); } // save settings button
+	ImGui::SliderFloat("volume", &volume, 0, 1);
 	ImGui::Checkbox("Rendering", &ImGuiCamera::imGuiPanels[1]);
 	ImGui::Checkbox("Camera Settings", &ImGuiCamera::imGuiPanels[2]);
 	ImGui::Checkbox("ViewPort", &ImGuiCamera::imGuiPanels[3]);
@@ -269,7 +264,7 @@ void imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 		}
 		ImGui::Spacing();
 		if (ImGui::TreeNode("Collision")) {
-			ImGui::Text(("Foot Collision: " + std::to_string(footCollision) ).c_str() );
+			ImGui::Text(("Foot Collision: " + std::to_string(anyCollision) ).c_str() );
 			ImGui::TreePop();
 		}
 		ImGui::Spacing();
@@ -316,12 +311,13 @@ int main() // global variables do not work with threads
 	Main::loadSettings();
 	Main::loadEngineSettings();
 	SoundRunner::init();
-	SoundProgram Soundtrack;
-	SoundProgram FootSound;
-	SoundProgram Jump;
-	Soundtrack.CreateSound("Assets/Sounds/brucedMono.wav");
-	Jump.CreateSound("Assets/Sounds/jump.wav");
-	FootSound.CreateSound("Assets/Sounds/footstep.wav");
+
+	//Clair de Lune (Studio Version) 4.wav
+	SoundProgram Wind; Wind.CreateSound("Assets/Sounds/Cold wind sound effect 4.wav");
+	SoundProgram Soundtrack; Soundtrack.CreateSound("Assets/Sounds/Clair de Lune.wav");
+	SoundProgram FootSound; FootSound.CreateSound("Assets/Sounds/Footsteps.wav");
+	SoundProgram land; land.CreateSound("Assets/Sounds/land.wav");
+
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -387,6 +383,7 @@ int main() // global variables do not work with threads
 	// Model Loader
 	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3>> models = FileClass::loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
+	//Model Ground = "Assets/assets/Ground/Ground.gltf";
 
 	Main::LoadPlayerConfig();
 
@@ -397,15 +394,17 @@ int main() // global variables do not work with threads
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
-		if (!Soundtrack.isPlay) {
-			Soundtrack.PlaySound(1);
-		}
+		if (!Soundtrack.isPlay) {Soundtrack.PlaySound(volume);}
+		Soundtrack.SetVolume(volume);
 		Soundtrack.updateCameraPosition();
+		Soundtrack.SetSoundPosition(camera.s_PositionMatrix.x, camera.s_PositionMatrix.y, camera.s_PositionMatrix.z);
+		if (!Wind.isPlay) { Wind.PlaySound(0.7);}
+		Wind.updateCameraPosition();
+		Wind.SetSoundPosition(camera.s_PositionMatrix.x, camera.s_PositionMatrix.y, camera.s_PositionMatrix.z);
 		TA1.update();
 		// Update FPS and window title every second  
 		if (TA1.Counter >= 1/1.0f) {
-			glfwSetWindowTitle(window, (SettingsUtils::s_WindowTitle + " (FPS: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz)) +
-				" ) (Title updates at 1hz) ").c_str());
+			glfwSetWindowTitle(window, (SettingsUtils::s_WindowTitle + " (FPS: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz) ) ).c_str());
 			//std::cout << "update" << std::endl;
 			TA1.reset();
 		}
@@ -442,62 +441,11 @@ int main() // global variables do not work with threads
 		if (Camera::s_DoGravity) {
 
 			if (doPlayerCollision) { //testing collisions if touching ground
-				if (!footCollision) { //air
-					if (TA3.Counter >= 0.20f) {
-						camera.DoJump = false;
-						camera.Position = glm::vec3(cameraPos.x, (cameraPos.y - (10 * deltaTime)), cameraPos.z);
-						 if (FootSound.isPlay) FootSound.StopSound();
-						 if (Jump.isPlay) Jump.StopSound();
-					}
-					else {
-						if (!Jump.isPlay && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-							Jump.PlaySound(1);
-						}
-						Jump.updateCameraPosition();
-						Jump.SetSoundPosition(feetpos.x, feetpos.y, feetpos.z);
-						TA3.update();
-					}
-				}
-				else { //ground
-					camera.DoJump = true;
-					if (!FootSound.isPlay && (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && !(
-						glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)) {
-						FootSound.PlaySound(1);
-					}
-					TA3.reset();
-
-					if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) { //gravity
-						camera.Position = glm::vec3(cameraPos.x, (cameraPos.y - (10 * deltaTime)), cameraPos.z);
-					}
-				}
 			}
 			//crouch 
-			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-				PlayerHeightCurrent = CrouchHighDiff;
-			}
-			else {
-				PlayerHeightCurrent = PlayerHeight;
-			}
+			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {PlayerHeightCurrent = CrouchHighDiff;}
+			else {PlayerHeightCurrent = PlayerHeight;}
 		}
-		else {
-			camera.DoJump = true;
-			PlayerHeightCurrent = PlayerHeight;
-		}
-
-		// Check for collision
-		if (doPlayerCollision) {
-			if (feetpos.y <= planeY && cameraPos.y >= planeY && // Check if plane is between feetpos and cameraPos
-				feetpos.x >= planeMinX && feetpos.x <= planeMaxX && // Check X bounds
-				feetpos.z >= planeMinZ && feetpos.z <= planeMaxZ) { // Check Z bounds
-				// Collision detected
-				camera.Position = glm::vec3(cameraPos.x, PlayerHeightCurrent, cameraPos.z);
-				footCollision = true;
-			}
-			else {
-				footCollision = false;
-			}
-		}
-		//physics
 
 		if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS) { Main::loadSettings(); Main::loadEngineSettings(); }
 
@@ -527,15 +475,87 @@ int main() // global variables do not work with threads
 		LightProgram.Activate();
 		UF::Float4(LightProgram.ID, "lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 		//UniformH.Float3(LightProgram.ID, "Lightmodel", lightPos.x, lightPos.y, lightPos.z);
-		// Camera
-		camera.Inputs(window); // send Camera.cpp window inputs and delta time
-		//std::cout << "Before updateMatrix: " << camera.width << " x " << camera.height << std::endl;
-		camera.updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
 		//std::cout << "After updateMatrix: " << camera.width << " x " << camera.height << std::endl;
 		if (ImGuiCamera::isWireframe) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 			glClearColor(0, 0, 0, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		}
+		anyCollision = false;
+		for (auto& modelTuple : models) {
+			Model& model = std::get<0>(modelTuple);
+			glm::vec3 translation = std::get<2>(modelTuple);
+			glm::quat rotation = std::get<3>(modelTuple);
+			glm::vec3 scale = std::get<4>(modelTuple);
+
+				if (model.checkCollide(feetpos, translation, rotation, scale, 5)) {
+					anyCollision = true;
+
+					// Get collision triangle vertices
+					glm::vec3 v0 = model.lastCollisionFace[0];
+					glm::vec3 v1 = model.lastCollisionFace[1];
+					glm::vec3 v2 = model.lastCollisionFace[2];
+
+					// Compute triangle normal
+					glm::vec3 normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+
+					// Compute slope steepness (angle between normal and vertical axis)
+					float slopeSteepness = glm::degrees(glm::acos(glm::clamp(glm::dot(normal, glm::vec3(0, 1, 0)), -1.0f, 1.0f)));
+
+					// Compute surface Y height at feet X/Z using barycentric interpolation
+					glm::vec3 edge0 = v1 - v0;
+					glm::vec3 edge1 = v2 - v0;
+					glm::vec3 vp = glm::vec3(feetpos.x, 0.0f, feetpos.z) - glm::vec3(v0.x, 0.0f, v0.z);
+
+					float d00 = glm::dot(edge0, edge0);
+					float d01 = glm::dot(edge0, edge1);
+					float d11 = glm::dot(edge1, edge1);
+					float d20 = glm::dot(vp, edge0);
+					float d21 = glm::dot(vp, edge1);
+
+					float denom = d00 * d11 - d01 * d01;
+					float u = (d11 * d20 - d01 * d21) / denom;
+					float v = (d00 * d21 - d01 * d20) / denom;
+
+					float detectedSurfaceY = v0.y + u * (v1.y - v0.y) + v * (v2.y - v0.y);
+
+					// Force height correction
+					if (feetpos.y < detectedSurfaceY) {
+						feetpos.y = detectedSurfaceY + 0.05f; // Ensure player stays above the surface
+
+						// Scale push-back stronger for steeper slopes
+						float pushStrength = glm::mix(0.05f, 0.5f, slopeSteepness / 90.0f);
+						feetpos.x -= normal.x * pushStrength;
+						feetpos.z -= normal.z * pushStrength;
+					}
+					TA3.reset();
+					break; // Exit loop once collision is detected
+				}
+
+				// Apply Gravity to feetpos Only If No Collision Occurred
+				if (!anyCollision && Camera::s_DoGravity) {
+					feetpos.y -= (2 + TA3.Counter) * deltaTime; // Falling behavior
+					if (TA3.Counter >= (1 / 0.5)) {if (FootSound.isPlay) FootSound.StopSound();camera.DoJump = false;}
+					else {camera.DoJump = true;}
+
+					if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && !(
+						glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)) {
+						if (!FootSound.isPlay) {
+							FootSound.PlaySound(1);
+						}
+					}
+					else {
+						FootSound.StopSound();
+					}
+
+					TA3.update();
+				}
+		}
+		if (!Camera::s_DoGravity) { camera.DoJump = true; };
+
+		// Camera Always Stays Above Feet Position**
+		cameraPos.y = feetpos.y + PlayerHeightCurrent;
+		camera.Position = cameraPos;
+		Camera::s_PositionMatrix = glm::vec3(feetpos.x, feetpos.y + PlayerHeightCurrent, feetpos.z);
 
 		for (auto& modelTuple : models) {
 			Model& model = std::get<0>(modelTuple);
@@ -564,7 +584,11 @@ int main() // global variables do not work with threads
 		}
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
-
+		//Ground.Draw(shaderProgram, camera, feetpos, glm::quat(0, 0, 0, 0), glm::vec3(0.3f, 0.3f, 0.3f));
+		// Camera
+		camera.Inputs(window); // send Camera.cpp window inputs and delta time
+		//std::cout << "Before updateMatrix: " << camera.width << " x " << camera.height << std::endl;
+		camera.updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
 		camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 		camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
@@ -587,9 +611,9 @@ int main() // global variables do not work with threads
 	frameBufferProgram.Delete();
 	LightProgram.Delete();
 	Skybox::Delete();
-	Jump.DeleteSound();
+	land.DeleteSound();
 	Soundtrack.DeleteSound();
-	Jump.DeleteSound();
+	land.DeleteSound();
 	SoundRunner::Delete();
 	SolidColour.Delete();
 	shaderProgram.Delete(); // Delete Shader Prog

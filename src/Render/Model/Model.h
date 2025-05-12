@@ -11,17 +11,20 @@ public:
     Model(const char* file);
 
     void Draw(Shader& shader, Camera& camera, glm::vec3 translation, glm::quat rotation, glm::vec3 scale);
+    glm::vec3 lastCollisionPoint;
+    glm::vec3 lastCollisionFace[3]; // Stores the last triangle touched
+    bool checkCollide(glm::vec3 point, glm::vec3 globalTranslation, glm::quat globalRotation, glm::vec3 globalScale, float checkRadius);
+    std::vector<Mesh> meshes;
+    std::vector<glm::vec3> translationsMeshes;
+    std::vector<glm::quat> rotationsMeshes;
+    std::vector<glm::vec3> scalesMeshes;
+    std::vector<glm::mat4> matricesMeshes;
 
 private:
     const char* file;
     std::vector<unsigned char> data;
     json JSON;
 
-    std::vector<Mesh> meshes;
-    std::vector<glm::vec3> translationsMeshes;
-    std::vector<glm::quat> rotationsMeshes;
-    std::vector<glm::vec3> scalesMeshes;
-    std::vector<glm::mat4> matricesMeshes;
 
     std::vector<std::string> loadedTexName;
     std::vector<Texture> loadedTex;

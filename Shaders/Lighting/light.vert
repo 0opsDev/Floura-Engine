@@ -10,20 +10,22 @@ out vec3 Normal;
 out vec3 color;
 out vec2 texCoord;
 
-uniform mat4 camMatrix;
-uniform mat4 model;
-uniform mat4 translation;
-uniform mat4 rotation;
-uniform mat4 scale;
+uniform mat4 camMatrix;  // Camera view-projection matrix
+uniform mat4 model;      // Final model matrix (computed in C++)
+uniform mat4 normalMatrix; // To properly transform normals
 
 void main()
 {
-    // Alter the position of the model in xyz using Lightmodel
-    crntPos = vec3(model * translation * rotation * scale * vec4(aPos, 1.0f));
-    Normal = aNormal;
+    // Apply model transformation to vertex position
+    crntPos = vec3(model * vec4(aPos, 1.0));
+
+    // Transform normal using normal matrix (to handle scaling properly)
+    Normal = mat3(normalMatrix) * aNormal;
+
+    // Pass through color and texture coordinates
     color = aColor;
     texCoord = aTex;
 
-    // Outputs the positions/coordinates of all vertices
-    gl_Position = camMatrix * vec4(crntPos, 1.0f);
+    // Compute final vertex position in clip space
+    gl_Position = camMatrix * vec4(crntPos, 1.0);
 }

@@ -4,7 +4,7 @@
     "Height": 1080,
     "Vsync": false,
     "FOV": 80.0,
-    "MAP": "Plane",
+    "MAP": "Baked",
     "SensitivityX": 100.0,
     "SensitivityY": 100.0,
     "imGui": true

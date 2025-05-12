@@ -21,16 +21,107 @@ Model::Model(const char* file)
 	}
 }
 
-void Model::Draw(Shader& shader, Camera& camera, glm::vec3 translation, glm::quat rotation, glm::vec3 scale) // send transform thru arg here, translation needs to be sent thru per model
+void Model::Draw(Shader& shader, Camera& camera, glm::vec3 translation, glm::quat rotation, glm::vec3 scale)
 {
-	//glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-	//glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f); //temp vars
-	// Go over all meshes and draw each one
+	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), translation) *
+		glm::mat4_cast(rotation) *
+		glm::scale(glm::mat4(1.0f), scale);
+
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
-		meshes[i].Mesh::Draw(shader, camera, matricesMeshes[i], translation, rotation, scale);
+		glm::mat4 finalMatrix = modelMatrix * matricesMeshes[i]; // Local mesh transform applied
+		meshes[i].Draw(shader, camera, finalMatrix);
 	}
 }
+
+glm::vec3 closestPointOnTriangle(glm::vec3 P, glm::vec3 A, glm::vec3 B, glm::vec3 C) {
+	glm::vec3 ab = B - A;
+	glm::vec3 ac = C - A;
+	glm::vec3 ap = P - A;
+
+	float d1 = glm::dot(ab, ap);
+	float d2 = glm::dot(ac, ap);
+	if (d1 <= 0.0f && d2 <= 0.0f) return A; // Closest to A
+
+	glm::vec3 bp = P - B;
+	float d3 = glm::dot(ab, bp);
+	float d4 = glm::dot(ac, bp);
+	if (d3 >= 0.0f && d4 <= d3) return B; // Closest to B
+
+	glm::vec3 cp = P - C;
+	float d5 = glm::dot(ab, cp);
+	float d6 = glm::dot(ac, cp);
+	if (d6 >= 0.0f && d5 <= d6) return C; // Closest to C
+
+	// **Compute projection onto the triangle plane**
+	glm::vec3 normal = glm::normalize(glm::cross(ab, ac));
+	float distance = glm::dot(normal, P - A);
+	glm::vec3 projectedPoint = P - normal * distance;
+
+	// **Check barycentric coordinates to determine if inside the triangle**
+	glm::vec3 edge0 = B - A;
+	glm::vec3 edge1 = C - A;
+	glm::vec3 vp = projectedPoint - A;
+
+	float d00 = glm::dot(edge0, edge0);
+	float d01 = glm::dot(edge0, edge1);
+	float d11 = glm::dot(edge1, edge1);
+	float d20 = glm::dot(vp, edge0);
+	float d21 = glm::dot(vp, edge1);
+
+	float denom = d00 * d11 - d01 * d01;
+	float u = (d11 * d20 - d01 * d21) / denom;
+	float v = (d00 * d21 - d01 * d20) / denom;
+
+	if (u >= -0.05f && v >= -0.05f && (u + v) <= 1.05f) { // Tolerance for floating point error
+		return projectedPoint; // Closest point inside triangle
+	}
+
+	return A + u * ab + v * ac; // Closest edge point
+}
+
+bool triangleSphereIntersection(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec3 sphereCenter, float radius) {
+	glm::vec3 closestPoint = closestPointOnTriangle(sphereCenter, v0, v1, v2);
+	return glm::distance(sphereCenter, closestPoint) <= radius;
+}
+
+bool Model::checkCollide(glm::vec3 point, glm::vec3 globalTranslation, glm::quat globalRotation, glm::vec3 globalScale, float checkRadius) {
+	bool collisionDetected = false;
+
+	for (size_t i = 0; i < meshes.size(); i++) {
+		glm::mat4 nodeTransformMatrix = glm::translate(glm::mat4(1.0f), translationsMeshes[i]) *
+			glm::mat4_cast(rotationsMeshes[i]) *
+			glm::scale(glm::mat4(1.0f), scalesMeshes[i]);
+
+		glm::mat4 fullTransformMatrix = glm::translate(glm::mat4(1.0f), globalTranslation) *
+			glm::mat4_cast(globalRotation) *
+			glm::scale(glm::mat4(1.0f), globalScale) *
+			nodeTransformMatrix;
+
+		for (size_t j = 0; j < meshes[i].indices.size(); j += 3) {
+			glm::vec3 v0 = glm::vec3(fullTransformMatrix * glm::vec4(meshes[i].vertices[meshes[i].indices[j]].position, 1.0f));
+			glm::vec3 v1 = glm::vec3(fullTransformMatrix * glm::vec4(meshes[i].vertices[meshes[i].indices[j + 1]].position, 1.0f));
+			glm::vec3 v2 = glm::vec3(fullTransformMatrix * glm::vec4(meshes[i].vertices[meshes[i].indices[j + 2]].position, 1.0f));
+
+			glm::vec3 triangleCenter = (v0 + v1 + v2) / 3.0f;
+			float distanceToFeet = glm::distance(point, triangleCenter);
+
+			if (distanceToFeet <= checkRadius) { // Only check triangles within radius
+				if (triangleSphereIntersection(v0, v1, v2, point, 50.0f)) { // if you have issues, just increase this at the helm of preformance
+					collisionDetected = true;
+					lastCollisionPoint = point;
+					lastCollisionFace[0] = v0;
+					lastCollisionFace[1] = v1;
+					lastCollisionFace[2] = v2;
+				}
+			}
+		}
+	}
+
+	std::cout << collisionDetected << std::endl;
+	return collisionDetected;
+}
+
 
 void Model::loadMesh(unsigned int indMesh)
 {
