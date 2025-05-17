@@ -1,0 +1,39 @@
+[
+    {
+        "name": "castle1",
+        "path": "Models/castle/stonemarket1.gltf",
+        "isCulling": true,
+        "isCollider": true,
+        "Location": [ 0, 0, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 0.3, 0.3, 0.3 ]
+    },
+    {
+        "name": "castle2",
+        "path": "Models/castle/stonemarket2.gltf",
+        "isCulling": true,
+        "isCollider": true,
+        "Location": [ -18, 4, 10 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 0.3, 0.3, 0.3 ]
+    },
+    {
+        "name": "castle3",
+        "path": "Models/castle/stonemarket3.gltf",
+        "isCulling": true,
+        "isCollider": true,
+        "Location": [ 0, 0, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 0.3, 0.3, 0.3 ]
+    },
+    {
+        "name": "cloud",
+        "path": "Models/cloud.gltf",
+        "isCulling": false,
+        "isCollider": false,
+        "Location": [ 0, 100, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 1000, 1000, 1000 ]
+    }
+
+]

@@ -2,6 +2,7 @@
 #define INIT_CLASS_H
 
 #include "imgui/imgui_impl_glfw.h"
+#include <string>
 
 class init
 {
@@ -25,7 +26,7 @@ public:
 
     static void initGLenable(bool frontFaceSide);
 
-    static void initLogo(GLFWwindow* window);
+    static void initLogo(GLFWwindow* window, std::string path);
 
 };
 

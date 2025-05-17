@@ -38,7 +38,6 @@ void init::initLog() {
 			std::cout << "LogLua: " << LogLua << std::endl;
 			std::cout << "Loaded settings from LogConfig.json" << std::endl;
 		}
-
 	}
 	else {
 		std::cout << "Failed to open Settings/LogConfig.json" << std::endl;
@@ -125,13 +124,13 @@ void init::initGLenable(bool frontFaceSide ) {
     }
 }
 
-void init::initLogo(GLFWwindow* window) {
+void init::initLogo(GLFWwindow* window, std::string path) {
 	// change window icon
 	// Icon Creation
 	int iconW, iconH; // Width and Depth
 	int iconChannels; // Image number (1)
 	stbi_set_flip_vertically_on_load(false); // Disable Image Flipping On Load
-	unsigned char* pixelsIcon = stbi_load("assets/Icons/Icon.png", &iconW, &iconH, &iconChannels, STBI_rgb_alpha); // create var with imnage inside - tga because fast (hardly any compression)
+	unsigned char* pixelsIcon = stbi_load((path).c_str(), &iconW, &iconH, &iconChannels, STBI_rgb_alpha); // create var with imnage inside - tga because fast (hardly any compression)
 
 	GLFWimage Iconinages[1]; // Create New "GLFWimage" VAR with "Iconinages at Channel (1)"
 	Iconinages[0].width = iconW, Iconinages[0].height = iconH, Iconinages[0].pixels = pixelsIcon; // Write Aspect Ratio and Fragnment to photo 

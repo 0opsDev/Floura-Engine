@@ -57,10 +57,10 @@ void runAllLoopFunctions() {
 	}
 }
 
-void ScriptRunner::init() {
+void ScriptRunner::init(std::string path) {
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 
-	json config = loadScriptConfig("UserScripts/LuaStartup.json");
+	json config = loadScriptConfig(path);
 	setupScripts(config);
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();

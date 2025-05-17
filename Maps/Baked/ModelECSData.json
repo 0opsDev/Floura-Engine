@@ -1,25 +1,19 @@
 [
     {
-        "name": "Baked",
-        "path": "Models/bakedTest/bakedTestnorm.gltf",
-        "isCulling": true,
-        "Location": [ 0, 0, 0 ],
+        "name": "BakedCornellbox",
+        "path": "Models/BakedCornellbox.gltf",
+        "isCulling": false,
+        "isCollider": true,
+        "Location": [ 0, 12, 0 ],
         "Rotation": [ 0, 0, 0, 0 ],
         "Scale": [ 1, 1, 1 ]
     },
     {
-        "name": "Baked2",
-        "path": "Models/bakedTest/bakedTest30samp.gltf",
-        "isCulling": true,
-        "Location": [ -20, 0, 0 ],
-        "Rotation": [ 0, 0, 0, 0 ],
-        "Scale": [ 1, 1, 1 ]
-    },
-    {
-        "name": "Baked3",
-        "path": "Models/bakedTest/bakedTest30sampDE.gltf",
-        "isCulling": true,
-        "Location": [ -40, 0, 0 ],
+        "name": "Cornellbox",
+        "path": "Models/Cornellbox.gltf",
+        "isCulling": false,
+        "isCollider": true,
+        "Location": [ 0, 12, 12 ],
         "Rotation": [ 0, 0, 0, 0 ],
         "Scale": [ 1, 1, 1 ]
     }

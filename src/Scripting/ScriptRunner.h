@@ -10,7 +10,7 @@ class ScriptRunner
 {
 public:
 
-	static void init();
+	static void init(std::string path);
 
 	static void update();
 

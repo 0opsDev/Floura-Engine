@@ -10,6 +10,7 @@ unsigned int Skybox::skyboxVAO;
 unsigned int Skybox::skyboxVBO;
 unsigned int Skybox::skyboxEBO;
 Shader skyboxShader("skip", "");
+std::string Skybox::DefaultSkyboxPath;
 
 void Skybox::init(std::string PathName) {
 	skyboxShader = Shader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");

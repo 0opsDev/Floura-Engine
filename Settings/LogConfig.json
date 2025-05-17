@@ -4,6 +4,6 @@
         "LogModel": false,
         "LogSound": false,
         "LogSystems": false,
-        "LogLua": false
+        "LogLua": true
     }
 ]

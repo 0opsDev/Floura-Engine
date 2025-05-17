@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include "Camera/Camera.h"
+
 class Main
 {
 public:
@@ -14,6 +15,8 @@ public:
 	static bool sleepState;
 	static float cameraSettings[3]; // FOV, near, far
 	static GLfloat CameraXYZ[3]; // Initial camera position
+	static void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
+		GLFWmonitor* monitorT);
 
 	static void updateModelLua(	
 		std::vector<std::string> path,

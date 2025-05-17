@@ -98,29 +98,34 @@ bool Model::checkCollide(glm::vec3 point, glm::vec3 globalTranslation, glm::quat
 			glm::scale(glm::mat4(1.0f), globalScale) *
 			nodeTransformMatrix;
 
+
+
 		for (size_t j = 0; j < meshes[i].indices.size(); j += 3) {
+			// **Transform polygon vertices**
 			glm::vec3 v0 = glm::vec3(fullTransformMatrix * glm::vec4(meshes[i].vertices[meshes[i].indices[j]].position, 1.0f));
 			glm::vec3 v1 = glm::vec3(fullTransformMatrix * glm::vec4(meshes[i].vertices[meshes[i].indices[j + 1]].position, 1.0f));
 			glm::vec3 v2 = glm::vec3(fullTransformMatrix * glm::vec4(meshes[i].vertices[meshes[i].indices[j + 2]].position, 1.0f));
 
+			// **Compute triangle center and distance from player**
 			glm::vec3 triangleCenter = (v0 + v1 + v2) / 3.0f;
 			float distanceToFeet = glm::distance(point, triangleCenter);
 
-			if (distanceToFeet <= checkRadius) { // Only check triangles within radius
-				if (triangleSphereIntersection(v0, v1, v2, point, 50.0f)) { // if you have issues, just increase this at the helm of preformance
-					collisionDetected = true;
-					lastCollisionPoint = point;
-					lastCollisionFace[0] = v0;
-					lastCollisionFace[1] = v1;
-					lastCollisionFace[2] = v2;
-				}
+			// **Early exit: Skip triangles outside the radius**
+			if (distanceToFeet > 5.0f) continue;
+
+			if (triangleSphereIntersection(v0, v1, v2, point, checkRadius)) {
+				collisionDetected = true;
+				lastCollisionPoint = point;
+				lastCollisionFace[0] = v0;
+				lastCollisionFace[1] = v1;
+				lastCollisionFace[2] = v2;
 			}
 		}
 	}
-
-	std::cout << collisionDetected << std::endl;
 	return collisionDetected;
 }
+
+
 
 
 void Model::loadMesh(unsigned int indMesh)

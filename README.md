@@ -29,13 +29,9 @@ Space: Fly Up/Jump
 ctrl: Fly Down/Crouch
 Arrow UP/Down: Increase/Decrease Speed
 Right Shift: Reset Speed
-Home: Load Settings
-Mouse Side Buttons: Zoom 
 F1: Toggle Imgui
 F2: Gravity and Collisions OFF
 F3: Gravity and Collisions ON
-Backslash: Re-run scripts
-Page Up/Down: change shader
 ~~~
 
 Screenshots:

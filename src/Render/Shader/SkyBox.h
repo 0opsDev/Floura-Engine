@@ -17,6 +17,7 @@ public:
 	static unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
 	static float s_skyboxVertices[24]; // Adjust the size as needed
 	static unsigned int s_skyboxIndices[36]; // Adjust the size as needed
+	static std::string DefaultSkyboxPath;
 
 	static void init(std::string PathName);
 

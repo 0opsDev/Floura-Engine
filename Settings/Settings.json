@@ -1,12 +1,12 @@
 [
-  {
-    "Width": 1920,
-    "Height": 1080,
-    "Vsync": false,
-    "FOV": 80.0,
-    "MAP": "Baked",
-    "SensitivityX": 100.0,
-    "SensitivityY": 100.0,
-    "imGui": true
-  }
+    {
+        "FOV": 80.0,
+        "Height": 1080,
+        "MAP": "Retro",
+        "SensitivityX": 100.0,
+        "SensitivityY": 100.0,
+        "Vsync": false,
+        "Width": 1920,
+        "imGui": true
+    }
 ]

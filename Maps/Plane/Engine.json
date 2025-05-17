@@ -18,6 +18,7 @@
         "ConeRot": [ 3, -1, 5 ],
 
         "DepthDistance": 100,
-        "DepthPlane": [ 0.100, 250 ]
+        "DepthPlane": [ 0.100, 250 ],
+        "DefaultCameraPos": [ 0, 1, 0 ]
     }
 ]

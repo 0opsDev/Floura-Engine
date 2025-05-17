@@ -86,6 +86,9 @@
     <Filter Include="src\Sound">
       <UniqueIdentifier>{5dc11c93-5e42-4225-81c4-4e40beb27d2a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Scripting\functions\Sound">
+      <UniqueIdentifier>{000d8735-3881-4218-bde8-dbbe838582f1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -207,6 +210,12 @@
     </ClCompile>
     <ClCompile Include="src\Sound\SoundRunner.cpp">
       <Filter>src\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Functions\Sound\LuaSound.cpp">
+      <Filter>src\Scripting\functions\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Render.cpp">
+      <Filter>src\core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -332,6 +341,12 @@
     </ClInclude>
     <ClInclude Include="src\Sound\SoundRunner.h">
       <Filter>src\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Functions\Sound\LuaSound.h">
+      <Filter>src\Scripting\functions\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Render.h">
+      <Filter>src\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

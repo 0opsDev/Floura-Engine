@@ -146,6 +146,7 @@
     <ClCompile Include="src\Core\File\File.cpp" />
     <ClCompile Include="src\Core\glad.c" />
     <ClCompile Include="src\Core\Main.cpp" />
+    <ClCompile Include="src\Core\Render.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui_draw.cpp" />
@@ -170,6 +171,7 @@
     <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp" />
     <ClCompile Include="src\Scripting\Functions\Shader\LuaShader.cpp" />
     <ClCompile Include="src\Scripting\Functions\Shader\LuaSkybox.cpp" />
+    <ClCompile Include="src\Scripting\Functions\Sound\LuaSound.cpp" />
     <ClCompile Include="src\Scripting\ScriptEngine.cpp" />
     <ClCompile Include="src\Scripting\ScriptRunner.cpp" />
     <ClCompile Include="src\Sound\SoundProgram.cpp" />
@@ -187,6 +189,7 @@
     <ClInclude Include="src\camera\Camera.h" />
     <ClInclude Include="src\Core\File\File.h" />
     <ClInclude Include="src\Core\Main.h" />
+    <ClInclude Include="src\Core\Render.h" />
     <ClInclude Include="src\Libraries\include\imgui\imconfig.h" />
     <ClInclude Include="src\Libraries\include\imgui\imgui.h" />
     <ClInclude Include="src\Libraries\include\imgui\imgui_impl_glfw.h" />
@@ -213,6 +216,7 @@
     <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h" />
     <ClInclude Include="src\Scripting\Functions\Shader\LuaShader.h" />
     <ClInclude Include="src\Scripting\Functions\Shader\LuaSkybox.h" />
+    <ClInclude Include="src\Scripting\Functions\Sound\LuaSound.h" />
     <ClInclude Include="src\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Scripting\ScriptRunner.h" />
     <ClInclude Include="src\Sound\SoundProgram.h" />
