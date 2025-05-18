@@ -1,5 +1,5 @@
-#ifndef CUBEVISUALIZER_CLASS_H
-#define CUBEVISUALIZER_CLASS_H
+#ifndef BILLBOARD_CLASS_H
+#define BILLBOARD_CLASS_H
 
 #include<iostream>
 #include<glad/glad.h>
@@ -10,19 +10,22 @@
 #include "render/Shader/shaderClass.h"
 #include <camera/Camera.h>
 
-class CubeVisualizer
+class BillBoard
 {
 public:
 	unsigned int cubeVAO, cubeVBO, cubeEBO;
 	std::string DefaultSkyboxPath;
+	unsigned int BBTexture;
 
-	void init();
+	void init(std::string path);
+
+	void LoadBillBoardTexture(std::string path);
 
 	void skyboxBuffer();
 
-	void draw(Camera& camera, float x, float y, float z, float ScaleX, float ScaleY, float ScaleZ);
+	void draw(Camera& camera, bool doPitch, float x, float y, float z, float ScaleX, float ScaleY, float ScaleZ);
 
 	void Delete();
 };
 
-#endif // CUBEVISUALIZER_CLASS_H
+#endif // BILLBOARD_CLASS_H

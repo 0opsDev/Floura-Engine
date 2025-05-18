@@ -223,6 +223,9 @@
     <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp">
       <Filter>src\Render\Cube</Filter>
     </ClCompile>
+    <ClCompile Include="src\Render\Cube\Billboard.cpp">
+      <Filter>src\Render\Cube</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -357,6 +360,9 @@
     <ClInclude Include="src\Render\Cube\CubeVisualizer.h">
       <Filter>src\Render\Cube</Filter>
     </ClInclude>
+    <ClInclude Include="src\Render\Cube\Billboard.h">
+      <Filter>src\Render\Cube</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Empty.shader">
@@ -444,6 +450,12 @@
       <Filter>Resource Files\UserScripts</Filter>
     </None>
     <None Include="Shaders\Db\OrangeHitbox.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Shaders\Db\BillBoard.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Shaders\Db\BillBoard.vert">
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
   </ItemGroup>

@@ -66,7 +66,7 @@ void CubeVisualizer::skyboxBuffer() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void CubeVisualizer::draw(Camera& camera, GLfloat skyRGBA[], float x, float y, float z,
+void CubeVisualizer::draw(Camera& camera, float x, float y, float z,
 	float ScaleX, float ScaleY, float ScaleZ) {
 	// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 	glEnable(GL_DEPTH_TEST);
