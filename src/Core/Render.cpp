@@ -16,6 +16,7 @@ GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
 glm::vec3 RenderClass::CameraXYZ = glm::vec3( 0.0f, 0.0f, 0.0f ); // Initial camera position
 CubeVisualizer cv;
 BillBoard  bv1;
+BillBoard  bv2;
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
 	ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
@@ -26,6 +27,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 
 	cv.init();
 	bv1.init("Assets/Sprites/pot.png");
+	bv2.initSeq("Assets/Sprites/animatedBillboards/fire/fire.json");
 	Skybox::init(Skybox::DefaultSkyboxPath);
 
 	// put in one function
@@ -91,7 +93,8 @@ void RenderClass::Render(GLFWwindow* window, Camera& camera, Shader frameBufferP
 	camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 	camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 	bv1.draw(camera, false, 0, 0.45, 3, 0.5, 0.5, 0.5);
-
+	bv2.UpdateSequence(12);
+	bv2.draw(camera, true, 5, 5, 5, 1, 1, 1);
 	cv.draw(camera, 0,0,0,1, 2, 1); // is rendering , depth is just messing with it
 
 	if (!ImGuiCamera::isWireframe) {

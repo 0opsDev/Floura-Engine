@@ -43,8 +43,8 @@ void Cubemap::cubeboxTexture(unsigned int& cubemapTexture) {
 	// Cycles through all the textures and attaches them to the cubemap object
 	for (unsigned int i = 0; i < 6; i++)
 	{
-		int width, height, nrChannels;
-		unsigned char* data = stbi_load(facesCubemap[i].c_str(), &width, &height, &nrChannels, 0);
+		int width, height, numColCh;
+		unsigned char* data = stbi_load(facesCubemap[i].c_str(), &width, &height, &numColCh, 0);
 		if (data)
 		{
 			stbi_set_flip_vertically_on_load(false);

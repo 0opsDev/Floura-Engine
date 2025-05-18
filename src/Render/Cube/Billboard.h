@@ -16,10 +16,18 @@ public:
 	unsigned int cubeVAO, cubeVBO, cubeEBO;
 	std::string DefaultSkyboxPath;
 	unsigned int BBTexture;
+	unsigned int iteration;
+
+	std::string TexturePath;
+	std::vector<std::string> TextureNames;
 
 	void init(std::string path);
+	// this path is json
+	void initSeq(std::string path);
 
 	void LoadBillBoardTexture(std::string path);
+	void LoadSequence(std::string path);
+	void UpdateSequence(int tickrate);
 
 	void skyboxBuffer();
 

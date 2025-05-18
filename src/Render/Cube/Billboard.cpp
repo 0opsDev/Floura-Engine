@@ -16,6 +16,8 @@ float s_Plane_Vertices[] = {
 	-1.0f,  1.0f, 0.0f,  0.0f, 1.0f   // Top-left
 };
 
+float TimeAccumulatorBillboard;
+
 unsigned int s_Plane_Indices[6] =
 {
 	0, 1, 2, // First triangle
@@ -29,6 +31,14 @@ void BillBoard::init(std::string path) {
 	skyboxBuffer(); // create buffer in memory for skybox
 
 	LoadBillBoardTexture(path);
+}
+void BillBoard::initSeq(std::string path) { 
+	PlaneShader = Shader("Shaders/Db/BillBoard.vert", "Shaders/Db/BillBoard.frag");
+	PlaneShader.Activate();
+	glUniform1i(glGetUniformLocation(PlaneShader.ID, "skybox"), 0);
+	skyboxBuffer(); // create buffer in memory for skybox
+
+	LoadSequence(path);
 }
 
 void BillBoard::LoadBillBoardTexture(std::string path) {
@@ -74,6 +84,51 @@ void BillBoard::LoadBillBoardTexture(std::string path) {
 
 	// Reset flip behavior to avoid unexpected issues later
 	stbi_set_flip_vertically_on_load(false);
+}
+
+void BillBoard::LoadSequence(std::string path) {
+	std::ifstream seqFile(path);
+	if (seqFile.is_open()) {
+		json seqData;
+		seqFile >> seqData;
+		seqFile.close();
+
+		// Extract TexturePath
+		TexturePath = seqData[0]["TexturePath"];
+	//	std::cout << "TexturePath: " << TexturePath << std::endl;
+
+		// Extract and sort texture filenames
+		TextureNames = seqData[0]["textures"];
+		std::sort(TextureNames.begin(), TextureNames.end());
+		//iteration = TextureNames.size();
+		//std::cout << "interations: " << iteration << std::endl;
+		// Print sorted texture filenames
+		//std::cout << "Sorted texture filenames:\n";
+	}
+	else {
+		std::cerr << "Failed to open: " << path << std::endl;
+
+	}
+}
+
+void BillBoard::UpdateSequence(int tickrate) {
+	TimeAccumulatorBillboard += TimeUtil::s_DeltaTime;
+	//because of deltatime we wont use a for loop
+	if (TimeAccumulatorBillboard >= (1.0f / tickrate)) {
+		iteration++;
+
+		if (iteration <= TextureNames.size()) {
+		//	std::cout << iteration << std::endl;
+		//	std::cout << TexturePath << TextureNames[(iteration - 1)] << std::endl;
+			LoadBillBoardTexture(TexturePath + TextureNames[(iteration - 1)]);
+		}
+		else {
+			iteration = 0;
+
+		}
+		TimeAccumulatorBillboard = 0;
+	}
+
 }
 
 void BillBoard::skyboxBuffer() {
