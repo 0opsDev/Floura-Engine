@@ -1,4 +1,5 @@
 #include "Render.h"
+#include <Render/Cube/CubeVisualizer.h>
 
 float RenderClass::gamma = 2.2f;
 bool RenderClass::doReflections = true;
@@ -12,7 +13,8 @@ GLfloat RenderClass::LightTransform1[] = { 0.0f, 5.0f, 0.0f };
 GLfloat RenderClass::ConeSI[3] = { 0.111f, 0.825f, 2.0f };
 GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
 glm::vec3 RenderClass::CameraXYZ = glm::vec3( 0.0f, 0.0f, 0.0f ); // Initial camera position
-
+CubeVisualizer cv;
+CubeVisualizer cv2;
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
 	ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
@@ -21,6 +23,8 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init::initGLenable(false); //bool for direction of polys
 
+	cv.init();
+	cv2.init();
 	Skybox::init(Skybox::DefaultSkyboxPath);
 
 	// put in one function
@@ -85,6 +89,9 @@ void RenderClass::Render(GLFWwindow* window, Camera& camera, Shader frameBufferP
 	// Camera
 	camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 	camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
+
+	cv.draw(camera, RenderClass::lightRGBA, 0,0,0,1, 2, 1); // is rendering , depth is just messing with it
+	cv2.draw(camera, RenderClass::lightRGBA, 5, 0, 0, 1, 2, 5); // is rendering , depth is just messing with it
 
 	if (!ImGuiCamera::isWireframe) {
 		Skybox::draw(camera, RenderClass::skyRGBA, camera.width, camera.height); // cleanup later, put camera width and height inside skybox class since, they're already global

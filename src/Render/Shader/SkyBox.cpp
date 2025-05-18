@@ -46,7 +46,7 @@ void Skybox::skyboxBuffer() {
 }
 float yaw = 1;
 
-void Skybox::draw(Camera camera, GLfloat skyRGBA[], unsigned int width, unsigned int height) {
+void Skybox::draw(Camera& camera, GLfloat skyRGBA[], unsigned int width, unsigned int height) {
 	// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 	glDepthFunc(GL_LEQUAL);
 	//std::cout << "height" << height << std::endl;

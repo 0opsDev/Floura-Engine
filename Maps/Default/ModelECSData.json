@@ -1,74 +1,65 @@
 [
-  {
-    "name": "mod1",
-    "path": "Models/Modern/mod1.gltf",
-    "isCulling": true,
-    "Location": [ 0, 0, 0 ],
-    "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 1, 1, 1 ]
-  },
-  {
-    "name": "mod2",
-    "path": "Models/Modern/mod2.gltf",
-    "isCulling": true,
-    "Location": [ 0, 0, 0 ],
-    "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 1, 1, 1 ]
-  },
-  {
-    "name": "mod3",
-    "path": "Models/Modern/mod3.gltf",
-    "isCulling": true,
-    "Location": [ 0, 0, 0 ],
-    "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 1, 1, 1 ]
-  },
-  {
-    "name": "Vase",
-    "path": "Models/vase/vase.gltf",
-    "isCulling": true,
-    "Location": [ -1, -0.7, 2.5 ],
-    "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0.5, 0.5, 0.5 ]
-  },
-  {
-    "name": "Vase",
-    "path": "Models/vase/vase.gltf",
-    "isCulling": true,
-    "Location": [ -13.5, -1.05, 2.7 ],
-    "Rotation": [ 0.5, 0.5, 0.5, 0.5 ],
-    "Scale": [ 0.5, 0.5, 0.5 ]
-  },
-  {
-    "name": "Vase",
-    "path": "Models/vase/vase.gltf",
-    "isCulling": true,
-    "Location": [ -0.5, -0.7, 6.5 ],
-    "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 0.5, 0.5, 0.5 ]
-  },
-  {
-    "name": "combined",
-    "path": "Models/Modern/combine.gltf",
-    "isCulling": true,
-    "Location": [ 500, 0, 0 ],
-    "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 1, 1, 1 ]
-  },
-  {
-    "name": "fence",
-    "path": "Models/fence/fence.gltf",
-    "isCulling": false,
-    "Location": [ -11, -1.8, 6 ],
-    "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 1, 1, 1.8 ]
-  },
-  {
-    "name": "fence",
-    "path": "Models/fence/fence.gltf",
-    "isCulling": false,
-    "Location": [ 1.727, -1.8, 15 ],
-    "Rotation": [ 1, 0, 0.707, 0 ],
-    "Scale": [ 1, 1, 1.8 ]
-  }
+    {
+        "name": "mod1",
+        "path": "Models/Modern/mod1.gltf",
+        "isCulling": true,
+        "isCollider": true,
+        "Location": [ 0, 0, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 1, 1, 1 ]
+    },
+    {
+        "name": "mod2",
+        "path": "Models/Modern/mod2.gltf",
+        "isCulling": true,
+        "isCollider": true,
+        "Location": [ 0, 0, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 1, 1, 1 ]
+    },
+    {
+        "name": "mod3",
+        "path": "Models/Modern/mod3.gltf",
+        "isCulling": true,
+        "isCollider": true,
+        "Location": [ 0, 0, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 1, 1, 1 ]
+    },
+    {
+        "name": "Vase",
+        "path": "Models/vase/vase.gltf",
+        "isCulling": true,
+        "isCollider": true,
+        "Location": [ -1, -0.7, 2.5 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 0.5, 0.5, 0.5 ]
+    },
+    {
+        "name": "Vase",
+        "path": "Models/vase/vase.gltf",
+        "isCulling": true,
+        "isCollider": true,
+        "Location": [ -13.5, -1.05, 2.7 ],
+        "Rotation": [ 0.5, 0.5, 0.5, 0.5 ],
+        "Scale": [ 0.5, 0.5, 0.5 ]
+    },
+    {
+        "name": "Vase",
+        "path": "Models/vase/vase.gltf",
+        "isCulling": true,
+        "isCollider": true,
+        "Location": [ -0.5, -0.7, 6.5 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 0.5, 0.5, 0.5 ]
+    },
+    {
+        "name": "combined",
+        "path": "Models/Modern/combine.gltf",
+        "isCulling": true,
+        "isCollider": true,
+        "Location": [ 50, 0, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 1, 1, 1 ]
+    },
 ]

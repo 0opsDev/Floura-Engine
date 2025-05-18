@@ -23,6 +23,7 @@
 #include "Sound/SoundProgram.h"
 #include <Sound/SoundRunner.h>
 #include "Render.h"
+#include "Render/Cube/CubeVisualizer.h"
 
 bool anyCollision = false; // Track collision status
 int Main::VertNum = 0, Main::FragNum = 0;
@@ -132,7 +133,6 @@ int main() // global variables do not work with threads
 	// INITIALIZE CAMERA
 	camera.Position = RenderClass::CameraXYZ; // camera ratio pos //INIT CAMERA POSITION
 	Camera::s_PositionMatrix = RenderClass::CameraXYZ;
-
 	RenderClass::init(window, width, height);
 	// Model Loader
 	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3, int>> models = FileClass::loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
@@ -269,7 +269,6 @@ int main() // global variables do not work with threads
 		cameraPos.y = feetpos.y + PlayerHeightCurrent;
 		camera.Position = cameraPos;
 		Camera::s_PositionMatrix = glm::vec3(feetpos.x, feetpos.y + PlayerHeightCurrent, feetpos.z);
-
 		RenderClass::Render(window, camera, frameBufferProgram, shaderProgram, LightProgram, SolidColour, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), Lightmodel, models);
 		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, shaderProgram, primaryMonitor); }
 

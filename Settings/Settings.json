@@ -2,7 +2,7 @@
     {
         "FOV": 80.0,
         "Height": 1080,
-        "MAP": "Retro",
+        "MAP": "Template",
         "SensitivityX": 100.0,
         "SensitivityY": 100.0,
         "Vsync": false,

@@ -89,6 +89,9 @@
     <Filter Include="src\Scripting\functions\Sound">
       <UniqueIdentifier>{000d8735-3881-4218-bde8-dbbe838582f1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Render\Cube">
+      <UniqueIdentifier>{7864b883-1de1-427b-91f5-6e8a809cce13}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -216,6 +219,9 @@
     </ClCompile>
     <ClCompile Include="src\Core\Render.cpp">
       <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp">
+      <Filter>src\Render\Cube</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -348,6 +354,9 @@
     <ClInclude Include="src\Core\Render.h">
       <Filter>src\core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Render\Cube\CubeVisualizer.h">
+      <Filter>src\Render\Cube</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Empty.shader">
@@ -433,6 +442,9 @@
     </None>
     <None Include="UserScripts\Main\Shortcuts.Lua">
       <Filter>Resource Files\UserScripts</Filter>
+    </None>
+    <None Include="Shaders\Db\OrangeHitbox.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
     </None>
   </ItemGroup>
 </Project>
