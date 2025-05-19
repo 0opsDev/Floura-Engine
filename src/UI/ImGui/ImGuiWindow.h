@@ -32,6 +32,7 @@ public:
 	static void ShaderWindow();
 	static void LightWindow();
 	static void PanelsWindow();
+	static void PhysicsWindow();
 
 };
 

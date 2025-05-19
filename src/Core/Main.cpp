@@ -24,12 +24,12 @@
 #include <Sound/SoundRunner.h>
 #include "Render.h"
 #include "Render/Cube/CubeVisualizer.h"
+#include <Physics/CubeCollider.h>
 
 bool anyCollision = false; // Track collision status
 int Main::VertNum = 0, Main::FragNum = 0;
 bool Main::ApplyShader = true;
 bool Main::sleepState = true;
-glm::vec3 cameraPos;
 
 // Global Variables
 
@@ -42,14 +42,12 @@ float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
 bool doPlayerCollision = true;
 float PlayerHeight = 1.8f;
 float CrouchHighDiff = 0.9f;
-float PlayerHeightCurrent;
 
 float window_width;
 float window_height;
 
 TimeAccumulator TA3; TimeAccumulator TA2;
 Shader shaderProgram("skip", ""); // create a shader program and feed it Dummy shader and vertex files
-Camera camera(width, height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
 
 void Main::updateModelLua( 
 	std::vector<std::string> path, std::vector<std::string> modelName, std::vector<bool> isCulling,
@@ -78,9 +76,7 @@ int main() // global variables do not work with threads
 	ScriptRunner::init(SettingsUtils::mapName + "/LuaStartup.json");
 	SoundRunner::init();
 
-	//Clair de Lune (Studio Version) 4.wav
-	SoundProgram Wind; Wind.CreateSound("Assets/Sounds/Cold wind sound effect 4.wav");
-	SoundProgram Soundtrack; Soundtrack.CreateSound("Assets/Sounds/WhiteNoise.wav");
+	SoundProgram Soundtrack; Soundtrack.CreateSound("Assets/Sounds/Cold wind sound effect 4.wav");
 	SoundProgram FootSound; FootSound.CreateSound("Assets/Sounds/Footsteps.wav");
 	SoundProgram land; land.CreateSound("Assets/Sounds/land.wav");
 
@@ -131,15 +127,15 @@ int main() // global variables do not work with threads
 	init::initLogo(window, "assets/Icons/Icon.png");
 
 	// INITIALIZE CAMERA
-	camera.Position = RenderClass::CameraXYZ; // camera ratio pos //INIT CAMERA POSITION
-	Camera::s_PositionMatrix = RenderClass::CameraXYZ;
+	Camera::InitCamera(width, height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
+	Camera::Position = RenderClass::CameraXYZ; // camera ratio pos //INIT CAMERA POSITION
 	RenderClass::init(window, width, height);
 	// Model Loader
 	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3, int>> models = FileClass::loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
 	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
 	Main::LoadPlayerConfig();
-	glm::vec3 feetpos = glm::vec3(Camera::s_PositionMatrix.x, (Camera::s_PositionMatrix.y - PlayerHeightCurrent), Camera::s_PositionMatrix.z);
+	glm::vec3 feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	if (init::LogALL || init::LogSystems) std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
@@ -149,7 +145,6 @@ int main() // global variables do not work with threads
 		ScriptRunner::update();
 		InputUtil::UpdateCurrentKey(window);
 
-
 		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
 			Camera::s_DoGravity = false;
 			doPlayerCollision = false;
@@ -157,18 +152,6 @@ int main() // global variables do not work with threads
 		if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
 			Camera::s_DoGravity = true;
 			doPlayerCollision = true;
-		}
-
-		if (!Soundtrack.isPlay) {Soundtrack.PlaySound(volume);}
-		Soundtrack.SetVolume(volume);
-		Soundtrack.updateCameraPosition();
-		Soundtrack.SetSoundPosition(camera.s_PositionMatrix.x, camera.s_PositionMatrix.y, camera.s_PositionMatrix.z);
-		if (!Wind.isPlay) { Wind.PlaySound(0.7);}
-		Wind.updateCameraPosition();
-		Wind.SetSoundPosition(camera.s_PositionMatrix.x, camera.s_PositionMatrix.y, camera.s_PositionMatrix.z);
-		if (Main::ApplyShader) {
-			FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram);
-			Main::ApplyShader = false;
 		}
 		//TA2
 		TA2.update();
@@ -178,9 +161,16 @@ int main() // global variables do not work with threads
 			//std::cout << "update" << std::endl;
 			TA2.reset();
 		}
+		if (!Soundtrack.isPlay) {Soundtrack.PlaySound(volume);}
+		Soundtrack.SetVolume(volume);
+		Soundtrack.updateCameraPosition();
+		Soundtrack.SetSoundPosition(Camera::Position.x, Camera::Position.y, Camera::Position.z);
+		if (Main::ApplyShader) {
+			FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram);
+			Main::ApplyShader = false;
+		}
 
-		feetpos = glm::vec3(Camera::s_PositionMatrix.x, (Camera::s_PositionMatrix.y - PlayerHeightCurrent), Camera::s_PositionMatrix.z);
-		cameraPos = Camera::s_PositionMatrix;
+		feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 
 		FootSound.SetSoundPosition(feetpos.x, feetpos.y, feetpos.z);
 		FootSound.updateCameraPosition();
@@ -188,8 +178,8 @@ int main() // global variables do not work with threads
 		//physics
 		if (Camera::s_DoGravity) {
 			//crouch 
-			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {PlayerHeightCurrent = CrouchHighDiff;}
-			else {PlayerHeightCurrent = PlayerHeight;}
+			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) { Camera::PlayerHeightCurrent = CrouchHighDiff;}
+			else { Camera::PlayerHeightCurrent = PlayerHeight;}
 		}
 
 		if (doPlayerCollision) { //testing collisions if touching ground
@@ -248,8 +238,8 @@ int main() // global variables do not work with threads
 		// Apply Gravity to feetpos Only If No Collision Occurred
 		if (!anyCollision && Camera::s_DoGravity) {
 			feetpos.y -= (2 + TA3.Counter) * deltaTime; // Falling behavior
-			if (TA3.Counter >= (1 / 0.5)) { if (FootSound.isPlay) FootSound.StopSound();camera.DoJump = false; }
-			else { camera.DoJump = true; }
+			if (TA3.Counter >= (1 / 0.5)) { if (FootSound.isPlay) FootSound.StopSound();Camera::DoJump = false; }
+			else { Camera::DoJump = true; }
 
 			if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && !(
 				glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)) {
@@ -263,16 +253,14 @@ int main() // global variables do not work with threads
 
 			TA3.update();
 		}
-		if (!Camera::s_DoGravity) { camera.DoJump = true; };
+		if (!Camera::s_DoGravity) { Camera::DoJump = true; };
 
 		// Camera Always Stays Above Feet Position**
-		cameraPos.y = feetpos.y + PlayerHeightCurrent;
-		camera.Position = cameraPos;
-		Camera::s_PositionMatrix = glm::vec3(feetpos.x, feetpos.y + PlayerHeightCurrent, feetpos.z);
-		RenderClass::Render(window, camera, frameBufferProgram, shaderProgram, LightProgram, SolidColour, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), Lightmodel, models);
+		Camera::Position = glm::vec3(feetpos.x, feetpos.y + Camera::PlayerHeightCurrent, feetpos.z);
+		RenderClass::Render(window, frameBufferProgram, shaderProgram, LightProgram, SolidColour, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), Lightmodel, models);
 		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, shaderProgram, primaryMonitor); }
 
-		RenderClass::Swapchain(window, camera, frameBufferProgram, shaderProgram, primaryMonitor); // tip to self, work down to up (lines)
+		RenderClass::Swapchain(window, frameBufferProgram, shaderProgram, primaryMonitor); // tip to self, work down to up (lines)
 	}
 	// Cleanup: Delete all objects on close
 	Main::sleepState = false;
@@ -469,18 +457,18 @@ void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 	if (ImGuiCamera::imGuiPanels[2]) {
 		ImGui::Begin("Camera Settings"); // ImGUI window creation
 		//std::to_string(footCollision)
-		ImGui::Text(("Camera Position: x: " + std::to_string(Camera::s_PositionMatrix.x) + "y: " + std::to_string(Camera::s_PositionMatrix.y) + "z: " + std::to_string(Camera::s_PositionMatrix.z)).c_str());
-		glm::quat cameraQuat = camera.Orientation; // Ensure Orientation is a quaternion
+		ImGui::Text(("Camera Position: x: " + std::to_string(Camera::Position.x) + "y: " + std::to_string(Camera::Position.y) + "z: " + std::to_string(Camera::Position.z)).c_str());
+		glm::quat cameraQuat = Camera::Orientation; // Ensure Orientation is a quaternion
 		glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(cameraQuat));
 		ImGui::Text(("Camera Rotation: Yaw: " + std::to_string(eulerAngles.x) + " Pitch: " + std::to_string(eulerAngles.y) + " Roll: " + std::to_string(eulerAngles.z)).c_str());
 		ImGui::Spacing();
 		if (ImGui::TreeNode("Controls")) {
 			ImGui::Text("Transform");
 			if (ImGui::SmallButton("Reset Camera")) {
-				camera.Position = glm::vec3(0, 0, 0);
+				Camera::Position = glm::vec3(0, 0, 0);
 			} // reset cam pos
 			ImGui::DragFloat3("Camera Transform", &RenderClass::CameraXYZ.x, RenderClass::CameraXYZ.y, RenderClass::CameraXYZ.z); // set cam pos
-			if (ImGui::SmallButton("Set")) { camera.Position = glm::vec3(RenderClass::CameraXYZ.x, RenderClass::CameraXYZ.y, RenderClass::CameraXYZ.z); } // apply cam pos
+			if (ImGui::SmallButton("Set")) { Camera::Position = glm::vec3(RenderClass::CameraXYZ.x, RenderClass::CameraXYZ.y, RenderClass::CameraXYZ.z); } // apply cam pos
 			ImGui::DragFloat("Camera Speed", &Camera::s_scrollSpeed); //Camera
 
 			ImGui::Spacing();
@@ -500,6 +488,7 @@ void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 		if (ImGui::TreeNode("Collision")) {
 			ImGui::Text(("Foot Collision: " + std::to_string(anyCollision)).c_str());
 			ImGui::Checkbox("doPlayerCollision: ", &doPlayerCollision);
+			ImGui::Checkbox("doPlayerBoxCollision: ", &CubeCollider::CollideWithCamera);
 			ImGui::TreePop();
 		}
 		ImGui::Spacing();
@@ -521,7 +510,7 @@ void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 			Framebuffer::updateFrameBufferResolution(window_width, window_height); // Update frame buffer resolution
 			glViewport(0, 0, (window_width * ImGuiCamera::resolutionScale), (window_height * ImGuiCamera::resolutionScale));
 
-			camera.SetViewportSize(window_width, window_height);
+			Camera::SetViewportSize(window_width, window_height);
 			//std::cout << window_width << " " << camera.width << std::endl;
 			//std::cout << window_height << " " << camera.height << std::endl;
 		}
@@ -547,6 +536,10 @@ void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 		ImGui::Begin("Details");
 		ImGui::SliderFloat("volume (temp)", &volume, 0, 1);
 		ImGui::End();
+	}
+
+	if (ImGuiCamera::imGuiPanels[5]) {
+		ImGuiCamera::PhysicsWindow();
 	}
 	ImGui::Render(); // Renders the ImGUI elements
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

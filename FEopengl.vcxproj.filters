@@ -92,6 +92,12 @@
     <Filter Include="src\Render\Cube">
       <UniqueIdentifier>{7864b883-1de1-427b-91f5-6e8a809cce13}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Gameplay">
+      <UniqueIdentifier>{cdbd80a8-a2ca-49dc-9ca6-613f3b6c6a48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Physics">
+      <UniqueIdentifier>{07bd4dd7-56dd-4548-9f1e-638f788b53af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -225,6 +231,12 @@
     </ClCompile>
     <ClCompile Include="src\Render\Cube\Billboard.cpp">
       <Filter>src\Render\Cube</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Gameplay\BillboardObject.cpp">
+      <Filter>src\Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Physics\CubeCollider.cpp">
+      <Filter>src\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -362,6 +374,12 @@
     </ClInclude>
     <ClInclude Include="src\Render\Cube\Billboard.h">
       <Filter>src\Render\Cube</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Gameplay\BillboardObject.h">
+      <Filter>src\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Physics\CubeCollider.h">
+      <Filter>src\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

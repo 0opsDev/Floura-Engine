@@ -21,7 +21,7 @@ public:
     Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures);
 
     // Draws the mesh
-    void Draw(Shader& shader, Camera& camera, glm::mat4 modelMatrix);
+    void Draw(Shader& shader, glm::mat4 modelMatrix);
 };
 
 #endif

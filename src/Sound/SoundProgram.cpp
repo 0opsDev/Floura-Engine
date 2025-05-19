@@ -38,7 +38,7 @@ void SoundProgram::SetListenerPosition(float x, float y, float z) {
 
 void SoundProgram::updateCameraPosition() {
     // Update listener's position
-    SetListenerPosition(Camera::s_PositionMatrix.x, Camera::s_PositionMatrix.y, Camera::s_PositionMatrix.z);
+    SetListenerPosition(Camera::Position.x, Camera::Position.y, Camera::Position.z);
 
     // Use Camera orientation and up vector for 3D audio orientation
     ALfloat orientation[] = {

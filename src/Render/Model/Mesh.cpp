@@ -37,7 +37,7 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vec
     EBO.Unbind();
 }
 
-void Mesh::Draw(Shader& shader, Camera& camera, glm::mat4 modelMatrix)
+void Mesh::Draw(Shader& shader, glm::mat4 modelMatrix)
 {
     shader.Activate();
     VAO.Bind();
@@ -66,8 +66,8 @@ void Mesh::Draw(Shader& shader, Camera& camera, glm::mat4 modelMatrix)
     }
 
     // Camera Matrix
-    glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-    camera.Matrix(shader, "camMatrix");
+    glUniform3f(glGetUniformLocation(shader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
+    Camera::Matrix(shader, "camMatrix");
 
     // Push model matrix to the vertex shader
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));

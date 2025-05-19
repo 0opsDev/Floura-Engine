@@ -17,37 +17,36 @@ class Camera
 {
 public:
     // Stores camera transform
-    glm::vec3 Position;
-	bool DoJump = true;
+    static glm::vec3 Position;
+    static bool DoJump;
+    static glm::vec3 Orientation;
+    static glm::vec3 Up;
     static bool s_DoGravity;
-    static glm::vec3 s_PositionMatrix;
-    glm::vec3 Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
     static glm::vec3 PubOrientation;
     static glm::vec3 PubUp;
-    glm::mat4 cameraMatrix = glm::mat4(1.0f);
+    static glm::mat4 cameraMatrix;
     static float s_scrollSpeed;
     static float s_sensitivityX;
     static float s_sensitivityY;
+    static float PlayerHeightCurrent;
 
     // Prevents the camera from jumping around when first clicking left click
-    bool firstClick = true;
-
+    static bool firstClick;
     // Camera resolution
-    int width;
-    int height;
-
-    float speed = 0.1f;
+    static int width;
+    static int height;
+    static float speed;
+    
 
     // Camera constructor
-    Camera(int width, int height, glm::vec3 position);
-    void SetViewportSize(int newWidth, int newHeight);
+    void static InitCamera(int width, int height, glm::vec3 position);
+    void static SetViewportSize(int newWidth, int newHeight);
     // Updates and exports the camera matrix to the Vertex Shader
-    void updateMatrix(float FOVdeg, float nearPlane, float farPlane);
-    void Matrix(Shader& shader, const char* uniform);
+    void static updateMatrix(float FOVdeg, float nearPlane, float farPlane);
+    void static Matrix(Shader& shader, const char* uniform);
 
     // Handles camera inputs
-    void Inputs(GLFWwindow* window);
+    void static Inputs(GLFWwindow* window);
 };
 
 #endif

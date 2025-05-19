@@ -157,7 +157,7 @@ void BillBoard::skyboxBuffer() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void BillBoard::draw(Camera& camera, bool doPitch, float x, float y, float z,
+void BillBoard::draw(bool doPitch, float x, float y, float z,
 	float ScaleX, float ScaleY, float ScaleZ) {
 
 	// Enable depth testing
@@ -168,7 +168,7 @@ void BillBoard::draw(Camera& camera, bool doPitch, float x, float y, float z,
 	PlaneShader.Activate();
 
 	// Compute the forward vector towards the camera
-	glm::vec3 camForward = glm::normalize(camera.Position - glm::vec3(x, y, z));
+	glm::vec3 camForward = glm::normalize(Camera::Position - glm::vec3(x, y, z));
 
 	// Lock pitch if `doPitch == false`
 	if (!doPitch) {
@@ -192,8 +192,8 @@ void BillBoard::draw(Camera& camera, bool doPitch, float x, float y, float z,
 	PlaneShader.Activate();
 	// Pass transformations to shader
 	glUniformMatrix4fv(glGetUniformLocation(PlaneShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(glGetUniformLocation(PlaneShader.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(camera.cameraMatrix));
-	glUniform3f(glGetUniformLocation(PlaneShader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+	glUniformMatrix4fv(glGetUniformLocation(PlaneShader.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(Camera::cameraMatrix));
+	glUniform3f(glGetUniformLocation(PlaneShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
 
 	// Render the billboard
 	glBindVertexArray(cubeVAO);

@@ -21,7 +21,7 @@ Model::Model(const char* file)
 	}
 }
 
-void Model::Draw(Shader& shader, Camera& camera, glm::vec3 translation, glm::quat rotation, glm::vec3 scale)
+void Model::Draw(Shader& shader, glm::vec3 translation, glm::quat rotation, glm::vec3 scale)
 {
 	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), translation) *
 		glm::mat4_cast(rotation) *
@@ -30,7 +30,7 @@ void Model::Draw(Shader& shader, Camera& camera, glm::vec3 translation, glm::qua
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
 		glm::mat4 finalMatrix = modelMatrix * matricesMeshes[i]; // Local mesh transform applied
-		meshes[i].Draw(shader, camera, finalMatrix);
+		meshes[i].Draw(shader, finalMatrix);
 	}
 }
 

@@ -66,7 +66,7 @@ void CubeVisualizer::skyboxBuffer() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void CubeVisualizer::draw(Camera& camera, float x, float y, float z,
+void CubeVisualizer::draw(float x, float y, float z,
 	float ScaleX, float ScaleY, float ScaleZ) {
 	// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 	glEnable(GL_DEPTH_TEST);
@@ -84,8 +84,8 @@ void CubeVisualizer::draw(Camera& camera, float x, float y, float z,
 	glUniformMatrix4fv(glGetUniformLocation(boxShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	//feed model matrix known as inside the shader "model"
 
-	glUniformMatrix4fv(glGetUniformLocation(boxShader.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(camera.cameraMatrix));
-	glUniform3f(glGetUniformLocation(boxShader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+	glUniformMatrix4fv(glGetUniformLocation(boxShader.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(Camera::cameraMatrix));
+	glUniform3f(glGetUniformLocation(boxShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
 
 	glBindVertexArray(cubeVAO);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);

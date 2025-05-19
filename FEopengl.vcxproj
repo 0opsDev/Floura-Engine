@@ -147,6 +147,7 @@
     <ClCompile Include="src\Core\glad.c" />
     <ClCompile Include="src\Core\Main.cpp" />
     <ClCompile Include="src\Core\Render.cpp" />
+    <ClCompile Include="src\Gameplay\BillboardObject.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui_draw.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Physics\CubeCollider.cpp" />
     <ClCompile Include="src\Render\Buffer\EBO.cpp" />
     <ClCompile Include="src\Render\Buffer\VAO.cpp" />
     <ClCompile Include="src\Render\Buffer\VBO.cpp" />
@@ -192,6 +194,7 @@
     <ClInclude Include="src\Core\File\File.h" />
     <ClInclude Include="src\Core\Main.h" />
     <ClInclude Include="src\Core\Render.h" />
+    <ClInclude Include="src\Gameplay\BillboardObject.h" />
     <ClInclude Include="src\Libraries\include\imgui\imconfig.h" />
     <ClInclude Include="src\Libraries\include\imgui\imgui.h" />
     <ClInclude Include="src\Libraries\include\imgui\imgui_impl_glfw.h" />
@@ -201,6 +204,7 @@
     <ClInclude Include="src\Libraries\include\imgui\imstb_rectpack.h" />
     <ClInclude Include="src\Libraries\include\imgui\imstb_textedit.h" />
     <ClInclude Include="src\Libraries\include\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\Physics\CubeCollider.h" />
     <ClInclude Include="src\Render\Buffer\EBO.h" />
     <ClInclude Include="src\Render\Buffer\VAO.h" />
     <ClInclude Include="src\Render\Buffer\VBO.h" />

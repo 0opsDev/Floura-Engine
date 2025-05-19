@@ -28,7 +28,7 @@ public:
 
 	static void FBODraw(
 		Shader frameBufferProgram,
-		bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window, Camera& camera);
+		bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window);
 };
 
 #endif

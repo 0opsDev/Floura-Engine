@@ -8,12 +8,21 @@ float timeAccumulator = 0;
 float Camera::s_scrollSpeed = 0;
 float Camera::s_sensitivityX = 100;
 float Camera::s_sensitivityY = 100;
-glm::vec3 Camera::s_PositionMatrix = glm::vec3(0,0,0);
 glm::vec3 Camera::PubOrientation = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 Camera::PubUp = glm::vec3(0.0f, 1.0f, 0.0f);
 bool Camera::s_DoGravity = false;
+glm::mat4 Camera::cameraMatrix = glm::mat4(1.0f);
+glm::vec3 Camera::Position;
+bool Camera::DoJump = true;
+glm::vec3 Camera::Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 Camera::Up = glm::vec3(0.0f, 1.0f, 0.0f);
+bool Camera::firstClick = true;
+int Camera::width;
+int Camera::height;
+float Camera::speed = 0.1f;
+float Camera::PlayerHeightCurrent;
 
-Camera::Camera(int width, int height, glm::vec3 position)
+void Camera::InitCamera(int width, int height, glm::vec3 position)
 {
     Camera::width = width;
     Camera::height = height;
@@ -39,7 +48,6 @@ void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
 
     //std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
     cameraMatrix = projection * view;
-    s_PositionMatrix = Position;
     Camera::PubOrientation = Orientation;
     Camera::PubUp = Up;
 }

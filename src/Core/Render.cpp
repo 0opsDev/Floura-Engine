@@ -1,5 +1,6 @@
 #include "Render.h"
 #include <Render/Cube/CubeVisualizer.h>
+#include "Gameplay/BillboardObject.h"
 #include <Render/Cube/Billboard.h>
 
 float RenderClass::gamma = 2.2f;
@@ -14,9 +15,9 @@ GLfloat RenderClass::LightTransform1[] = { 0.0f, 5.0f, 0.0f };
 GLfloat RenderClass::ConeSI[3] = { 0.111f, 0.825f, 2.0f };
 GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
 glm::vec3 RenderClass::CameraXYZ = glm::vec3( 0.0f, 0.0f, 0.0f ); // Initial camera position
-CubeVisualizer cv;
-BillBoard  bv1;
 BillBoard  bv2;
+BillBoardObject BBOJ2;
+BillBoardObject BBOJ;
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
 	ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
@@ -25,9 +26,14 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init::initGLenable(false); //bool for direction of polys
 
-	cv.init();
-	bv1.init("Assets/Sprites/pot.png");
-	bv2.initSeq("Assets/Sprites/animatedBillboards/fire/fire.json");
+	BBOJ2.CreateObject("Animated", "Assets/Sprites/animatedBillboards/fire/fire.json", "fire");
+	BBOJ2.doPitch = true;
+	BBOJ2.transform = glm::vec3(5, 5, 5);
+	BBOJ2.scale = glm::vec3(1, 1, 1);
+	BBOJ.CreateObject("Static", "Assets/Sprites/pot.png", "pot");
+	BBOJ.doPitch = false;
+	BBOJ.transform = glm::vec3(0, 0.45, 3);
+	BBOJ.scale = glm::vec3(0.5, 0.5, 0.5);
 	Skybox::init(Skybox::DefaultSkyboxPath);
 
 	// put in one function
@@ -37,7 +43,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	init::initImGui(window); // Initialize ImGUI
 }
 
-void RenderClass::Render(GLFWwindow* window, Camera& camera, Shader frameBufferProgram, Shader shaderProgram, Shader LightProgram, Shader SolidColour, float window_width, float window_height, glm::vec3 lightPos, Model Lightmodel,
+void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, Shader LightProgram, Shader SolidColour, float window_width, float window_height, glm::vec3 lightPos, Model Lightmodel,
 	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3, int>> models) {
 
 	//FrameBuffer
@@ -74,42 +80,45 @@ void RenderClass::Render(GLFWwindow* window, Camera& camera, Shader frameBufferP
 		else { glDisable(GL_CULL_FACE); }
 
 		if (!ImGuiCamera::isWireframe) {
-			model.Draw(shaderProgram, camera, translation, rotation, scale);
+			model.Draw(shaderProgram, translation, rotation, scale);
 			glDisable(GL_CULL_FACE);
-			Lightmodel.Draw(LightProgram, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(0.3f, 0.3f, 0.3f));
+			Lightmodel.Draw(LightProgram, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(0.3f, 0.3f, 0.3f));
 		}
 		else {
 			SolidColour.Activate();
 			UF::Depth(SolidColour.ID, 50, RenderClass::DepthPlane);
 
-			model.Draw(SolidColour, camera, translation, rotation, scale);
+			model.Draw(SolidColour, translation, rotation, scale);
 			glDisable(GL_CULL_FACE);
-			Lightmodel.Draw(SolidColour, camera, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(0.3f, 0.3f, 0.3f));
+			Lightmodel.Draw(SolidColour, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(0.3f, 0.3f, 0.3f));
 		}
 	}
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 	// Camera
-	camera.Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
-	camera.Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
-	bv1.draw(camera, false, 0, 0.45, 3, 0.5, 0.5, 0.5);
-	bv2.UpdateSequence(12);
-	bv2.draw(camera, true, 5, 5, 5, 1, 1, 1);
-	cv.draw(camera, 0,0,0,1, 2, 1); // is rendering , depth is just messing with it
+	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
+	Camera::Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
+	BBOJ2.draw();
+	BBOJ2.UpdateCollider();
+	BBOJ2.UpdateCameraCollider();
+	BBOJ.draw();
+	BBOJ.UpdateCollider();
+	BBOJ.UpdateCameraCollider();
+
 
 	if (!ImGuiCamera::isWireframe) {
-		Skybox::draw(camera, RenderClass::skyRGBA, camera.width, camera.height); // cleanup later, put camera width and height inside skybox class since, they're already global
+		Skybox::draw(RenderClass::skyRGBA, Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global
 	}
 
 	// Framebuffer logic
-	Framebuffer::FBODraw(frameBufferProgram, ImGuiCamera::imGuiPanels[0], window_width, window_height, window, camera);
+	Framebuffer::FBODraw(frameBufferProgram, ImGuiCamera::imGuiPanels[0], window_width, window_height, window);
 }
 
-void RenderClass::Swapchain(GLFWwindow* window, Camera& camera, Shader frameBufferProgram, Shader shaderProgram, GLFWmonitor* primaryMonitor) {
+void RenderClass::Swapchain(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, GLFWmonitor* primaryMonitor) {
 
 	// Camera
-	camera.Inputs(window); // send Camera.cpp window inputs and delta time
-	camera.updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
+	Camera::Inputs(window); // send Camera.cpp window inputs and delta time
+	Camera::updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
 
 	glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 	glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)

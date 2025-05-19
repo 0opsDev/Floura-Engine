@@ -31,7 +31,7 @@ public:
 
 	void skyboxBuffer();
 
-	void draw(Camera& camera, bool doPitch, float x, float y, float z, float ScaleX, float ScaleY, float ScaleZ);
+	void draw(bool doPitch, float x, float y, float z, float ScaleX, float ScaleY, float ScaleZ);
 
 	void Delete();
 };

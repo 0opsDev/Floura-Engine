@@ -10,7 +10,7 @@ class Model {
 public:
     Model(const char* file);
 
-    void Draw(Shader& shader, Camera& camera, glm::vec3 translation, glm::quat rotation, glm::vec3 scale);
+    void Draw(Shader& shader, glm::vec3 translation, glm::quat rotation, glm::vec3 scale);
     glm::vec3 lastCollisionPoint;
     glm::vec3 lastCollisionFace[3]; // Stores the last triangle touched
     bool checkCollide(glm::vec3 point, glm::vec3 globalTranslation, glm::quat globalRotation, glm::vec3 globalScale, float checkRadius);

@@ -1,6 +1,7 @@
 #include "ImGuiWindow.h"
 #include <Scripting/ScriptRunner.h>
-bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true }; // ImGui Panels
+#include <Physics/CubeCollider.h>
+bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true }; // ImGui Panels
 std::string ImGuiCamera::FileTabs = "Model";
 bool ImGuiCamera::enableFB = false; // Change this as needed
 bool ImGuiCamera::enableLinearScaling = false;
@@ -158,5 +159,13 @@ void ImGuiCamera::PanelsWindow() {
 	ImGui::Checkbox("Camera Settings", &ImGuiCamera::imGuiPanels[2]);
 	ImGui::Checkbox("ViewPort", &ImGuiCamera::imGuiPanels[3]);
 	ImGui::Checkbox("File Viewer", &ImGuiCamera::imGuiPanels[4]);
+	ImGui::Checkbox("Physics Settings", &ImGuiCamera::imGuiPanels[5]);
+	ImGui::End();
+}
+
+void ImGuiCamera::PhysicsWindow(){
+	ImGui::Begin("Physics"); // ImGUI window creation
+	ImGui::Checkbox("showBoxCollider", &CubeCollider::showBoxCollider);
+	
 	ImGui::End();
 }

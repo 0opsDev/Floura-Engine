@@ -148,7 +148,7 @@ float current_width = 0;
 float current_height = 0;
 
 void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
-	unsigned int Vheight, Camera& camera) {
+	unsigned int Vheight) {
 	if (!imGuiPanels) {
 		ScreenUtils::UpdateWindowResize(window);
 		int newWidth, newHeight;
@@ -165,7 +165,7 @@ void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
 		std::cout << "Resolution scale changed!" << std::endl;
 		Framebuffer::updateFrameBufferResolution(current_width, current_height); // Update frame buffer resolution
 		glViewport(0, 0, (current_width * ImGuiCamera::resolutionScale), (current_height * ImGuiCamera::resolutionScale));
-		camera.SetViewportSize(current_width, current_height);
+		Camera::SetViewportSize(current_width, current_height);
 		//std::cout << "External camera instance address: " << &camera << std::endl;
 		//std::cout << current_width << " " << camera.width << std::endl;
 		//std::cout << current_height << " " << camera.height << std::endl;
@@ -176,7 +176,7 @@ void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
 
 void Framebuffer::FBODraw(
 	Shader frameBufferProgram,
-	bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window, Camera& camera) {
+	bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window) {
 	// Switch back to the normal depth function
 	glDepthFunc(GL_LESS);
 
@@ -195,7 +195,7 @@ void Framebuffer::FBODraw(
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
 	if (!imGuiPanels) {
-		ResizeLogic(imGuiPanels, window, Vwidth, Vheight, camera);
+		ResizeLogic(imGuiPanels, window, Vwidth, Vheight);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
