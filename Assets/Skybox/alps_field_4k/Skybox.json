@@ -1,0 +1,14 @@
+[
+    {
+        "Path": "Assets/Skybox/alps_field_4k",
+
+        "Faces": [
+            "px.png",
+            "nx.png",
+            "py.png",
+            "ny.png",
+            "pz.png",
+            "nz.png"
+        ]
+    }
+]

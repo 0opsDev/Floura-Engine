@@ -2,6 +2,7 @@
 #include <Render/Cube/CubeVisualizer.h>
 #include "Gameplay/BillboardObject.h"
 #include <Render/Cube/Billboard.h>
+#include "Gameplay/ModelObject.h"
 
 float RenderClass::gamma = 2.2f;
 bool RenderClass::doReflections = true;
@@ -15,9 +16,10 @@ GLfloat RenderClass::LightTransform1[] = { 0.0f, 5.0f, 0.0f };
 GLfloat RenderClass::ConeSI[3] = { 0.111f, 0.825f, 2.0f };
 GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
 glm::vec3 RenderClass::CameraXYZ = glm::vec3( 0.0f, 0.0f, 0.0f ); // Initial camera position
-BillBoard  bv2;
 BillBoardObject BBOJ2;
 BillBoardObject BBOJ;
+BillBoard LightIcon;
+ModelObject test;
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
 	ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
@@ -26,16 +28,22 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init::initGLenable(false); //bool for direction of polys
 
-	BBOJ2.CreateObject("Animated", "Assets/Sprites/animatedBillboards/fire/fire.json", "fire");
+	BBOJ2.CreateObject("Animated", "Assets/Sprites/animatedBillboards/realistic fire/fire.json", "fire");
+	BBOJ2.tickrate = 20;
 	BBOJ2.doPitch = true;
 	BBOJ2.transform = glm::vec3(5, 5, 5);
 	BBOJ2.scale = glm::vec3(1, 1, 1);
+	BBOJ2.isCollider = true;
 	BBOJ.CreateObject("Static", "Assets/Sprites/pot.png", "pot");
 	BBOJ.doPitch = false;
 	BBOJ.transform = glm::vec3(0, 0.45, 3);
 	BBOJ.scale = glm::vec3(0.5, 0.5, 0.5);
+	BBOJ.isCollider = true;
+	LightIcon.init("Assets/Dependants/LB.png");
 	Skybox::init(Skybox::DefaultSkyboxPath);
-
+	test.CreateObject("LOD", "Assets/LodModel/Vase/VaseLod.json", "test");
+	test.transform = glm::vec3(5, 2, 0);
+	test.isCollider = true;
 	// put in one function
 	Framebuffer::setupMainFBO(width, height);
 	Framebuffer::setupSecondFBO(width, height);
@@ -43,7 +51,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	init::initImGui(window); // Initialize ImGUI
 }
 
-void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, Shader LightProgram, Shader SolidColour, float window_width, float window_height, glm::vec3 lightPos, Model Lightmodel,
+void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, Shader LightProgram, Shader SolidColour, float window_width, float window_height, glm::vec3 lightPos,
 	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3, int>> models) {
 
 	//FrameBuffer
@@ -82,7 +90,6 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 		if (!ImGuiCamera::isWireframe) {
 			model.Draw(shaderProgram, translation, rotation, scale);
 			glDisable(GL_CULL_FACE);
-			Lightmodel.Draw(LightProgram, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(0.3f, 0.3f, 0.3f));
 		}
 		else {
 			SolidColour.Activate();
@@ -90,9 +97,11 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 
 			model.Draw(SolidColour, translation, rotation, scale);
 			glDisable(GL_CULL_FACE);
-			Lightmodel.Draw(SolidColour, lightPos, glm::quat(0, 0, 0, 0), glm::vec3(0.3f, 0.3f, 0.3f));
 		}
 	}
+	test.UpdateCollider();
+	test.UpdateCameraCollider();
+	test.draw(shaderProgram);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 	// Camera
@@ -104,7 +113,9 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	BBOJ.draw();
 	BBOJ.UpdateCollider();
 	BBOJ.UpdateCameraCollider();
+	LightIcon.draw(true, lightPos.x, lightPos.y, lightPos.z, 0.3, 0.3, 0.3);
 
+	glDisable(GL_CULL_FACE);
 
 	if (!ImGuiCamera::isWireframe) {
 		Skybox::draw(RenderClass::skyRGBA, Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global

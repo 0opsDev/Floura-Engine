@@ -25,6 +25,7 @@
 #include "Render.h"
 #include "Render/Cube/CubeVisualizer.h"
 #include <Physics/CubeCollider.h>
+#include "Render/Cube/Billboard.h"
 
 bool anyCollision = false; // Track collision status
 int Main::VertNum = 0, Main::FragNum = 0;
@@ -132,7 +133,6 @@ int main() // global variables do not work with threads
 	RenderClass::init(window, width, height);
 	// Model Loader
 	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3, int>> models = FileClass::loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
-	Model Lightmodel = "Assets/assets/Light/light.gltf";
 
 	Main::LoadPlayerConfig();
 	glm::vec3 feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
@@ -238,7 +238,7 @@ int main() // global variables do not work with threads
 		// Apply Gravity to feetpos Only If No Collision Occurred
 		if (!anyCollision && Camera::s_DoGravity) {
 			feetpos.y -= (2 + TA3.Counter) * deltaTime; // Falling behavior
-			if (TA3.Counter >= (1 / 0.5)) { if (FootSound.isPlay) FootSound.StopSound();Camera::DoJump = false; }
+			if (TA3.Counter >= (1 / 2)) { if (FootSound.isPlay) FootSound.StopSound();Camera::DoJump = false; }
 			else { Camera::DoJump = true; }
 
 			if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && !(
@@ -257,7 +257,7 @@ int main() // global variables do not work with threads
 
 		// Camera Always Stays Above Feet Position**
 		Camera::Position = glm::vec3(feetpos.x, feetpos.y + Camera::PlayerHeightCurrent, feetpos.z);
-		RenderClass::Render(window, frameBufferProgram, shaderProgram, LightProgram, SolidColour, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), Lightmodel, models);
+		RenderClass::Render(window, frameBufferProgram, shaderProgram, LightProgram, SolidColour, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), models);
 		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, shaderProgram, primaryMonitor); }
 
 		RenderClass::Swapchain(window, frameBufferProgram, shaderProgram, primaryMonitor); // tip to self, work down to up (lines)

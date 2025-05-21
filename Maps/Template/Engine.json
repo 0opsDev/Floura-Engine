@@ -4,7 +4,7 @@
         "NearPlane": "0.1f",
         "FarPlane": "100000.000f",
         "Window": "Template",
-        "DefaultSkyboxPath": "Assets/Skybox/Kloofendal48dPartlyCloudyPuresky/Skybox.json",
+        "DefaultSkyboxPath": "Assets/Skybox/alps_field_4k/Skybox.json",
 
         "skyRGBA": [ 1, 1, 1 ],
         "lightRGBA": [ 1.0, 1.0, 1.0 ],

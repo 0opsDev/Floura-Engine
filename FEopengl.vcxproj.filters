@@ -238,6 +238,9 @@
     <ClCompile Include="src\Physics\CubeCollider.cpp">
       <Filter>src\Physics</Filter>
     </ClCompile>
+    <ClCompile Include="src\Gameplay\ModelObject.cpp">
+      <Filter>src\Gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -380,6 +383,9 @@
     </ClInclude>
     <ClInclude Include="src\Physics\CubeCollider.h">
       <Filter>src\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Gameplay\ModelObject.h">
+      <Filter>src\Gameplay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

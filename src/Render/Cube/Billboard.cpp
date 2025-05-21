@@ -159,7 +159,6 @@ void BillBoard::skyboxBuffer() {
 
 void BillBoard::draw(bool doPitch, float x, float y, float z,
 	float ScaleX, float ScaleY, float ScaleZ) {
-
 	// Enable depth testing
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);

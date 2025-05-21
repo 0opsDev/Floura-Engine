@@ -18,7 +18,6 @@ void BillBoardObject::CreateObject(std::string type, std::string path, std::stri
 void BillBoardObject::UpdateCollider() {
 	switch (isCollider) {
 		case true: {
-
 			break;
 		}
 		case false: {

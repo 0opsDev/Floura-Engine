@@ -6,6 +6,15 @@
         "isCollider": true,
         "Location": [ 0, 0, 0 ],
         "Rotation": [ 0, 0, 0, 0 ],
-        "Scale": [ 1, 1, 1 ]
+        "Scale": [ 10, 10, 10 ]
+    },
+    {
+        "name": "Pistol",
+        "path": "Models/Pistol/pistol.gltf",
+        "isCulling": true,
+        "isCollider": false,
+        "Location": [ 0, 3, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 0.3, 0.3, 0.3 ]
     }
 ]
