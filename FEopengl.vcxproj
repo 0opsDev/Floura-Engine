@@ -251,6 +251,7 @@
     <None Include="Shaders\Db\solidColour.frag" />
     <None Include="Shaders\Db\OrangeHitbox.frag" />
     <None Include="Shaders\Empty.shader" />
+    <None Include="Shaders\Lighting\albedo.frag" />
     <None Include="Shaders\Lighting\Default.geom" />
     <None Include="Shaders\Lighting\Default.vert" />
     <None Include="Shaders\Lighting\direcLight.frag" />

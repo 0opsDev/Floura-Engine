@@ -11,12 +11,14 @@
 #include <utils/ScreenUtils.h>
 #include <camera/Camera.h>
 #include <utils/SettingsUtil.h>
+#include <Render/Model/Model.h>
 
 class Framebuffer
 {
 public:
 
-	static unsigned int ViewPortWidth, ViewPortHeight, viewVAO, viewVBO, FBO2, frameBufferTexture2, RBO2, frameBufferTexture, RBO, FBO;
+	static unsigned int ViewPortWidth, ViewPortHeight, viewVAO, viewVBO, FBO2, frameBufferTexture2, RBO2, frameBufferTexture, RBO, FBO,
+		depthTexture, depthTexture2;
 	
 	static void setupMainFBO(unsigned int width, unsigned int height);
 

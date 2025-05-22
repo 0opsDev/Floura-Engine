@@ -97,6 +97,7 @@ void ModelObject::draw(Shader &Shader) {
 			model.Draw(Shader, transform, rotation, scale);
 		}
 	}
+	glDisable(GL_CULL_FACE);
 	CubeCollider.draw();
 }
 

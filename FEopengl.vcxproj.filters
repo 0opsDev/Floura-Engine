@@ -482,5 +482,8 @@
     <None Include="Shaders\Db\BillBoard.vert">
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
+    <None Include="Shaders\Lighting\albedo.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
   </ItemGroup>
 </Project>
