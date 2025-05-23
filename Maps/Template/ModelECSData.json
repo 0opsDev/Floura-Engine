@@ -1,12 +1,12 @@
 [
     {
-        "name": "Baseplate",
-        "path": "Models/Baseplate/plate.gltf",
-        "isCulling": true,
+        "name": "map",
+        "path": "Models/Baseplate/map.gltf",
+        "isCulling": false,
         "isCollider": true,
         "Location": [ 0, 0, 0 ],
         "Rotation": [ 0, 0, 0, 0 ],
-        "Scale": [ 10, 10, 10 ]
+        "Scale": [ 1, 1, 1 ]
     },
     {
         "name": "Pistol",

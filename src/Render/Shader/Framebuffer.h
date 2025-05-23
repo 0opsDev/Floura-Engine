@@ -18,7 +18,9 @@ class Framebuffer
 public:
 
 	static unsigned int ViewPortWidth, ViewPortHeight, viewVAO, viewVBO, FBO2, frameBufferTexture2, RBO2, frameBufferTexture, RBO, FBO,
-		depthTexture, depthTexture2;
+		depthTexture, depthTexture2, gBuffer, gAlbedoSpec, gNormal, gPosition, DBO;
+
+	static void setupGbuffers(unsigned int width, unsigned int height);
 	
 	static void setupMainFBO(unsigned int width, unsigned int height);
 

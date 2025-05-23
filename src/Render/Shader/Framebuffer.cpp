@@ -13,6 +13,56 @@ unsigned int Framebuffer::RBO;
 unsigned int Framebuffer::FBO;
 unsigned int Framebuffer::depthTexture;
 unsigned int Framebuffer::depthTexture2;
+unsigned int Framebuffer::gBuffer;
+unsigned int Framebuffer::gAlbedoSpec;
+unsigned int Framebuffer::gNormal;
+unsigned int Framebuffer::gPosition;
+unsigned int Framebuffer::DBO;
+
+void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
+
+	//generate buffer in memory and bind
+	glGenFramebuffers(1, &gBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+
+	// - position color buffer
+	glGenTextures(1, &gPosition);
+	glBindTexture(GL_TEXTURE_2D, gPosition);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gPosition, 0);
+
+
+	// - normal color buffer
+	glGenTextures(1, &gNormal);
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gNormal, 0);
+
+	glGenTextures(1, &gAlbedoSpec);
+	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gAlbedoSpec, 0);
+
+	glGenRenderbuffers(1, &DBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, DBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, DBO);
+
+	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+	glDrawBuffers(3, attachments);
+
+	    // finally check if framebuffer is complete
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer not complete!" << std::endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+}
 
 void Framebuffer::setupMainFBO(unsigned int width, unsigned int height) {
 	// Initialize viewport rectangle object drawn to viewport with framebuffer texture attached
@@ -147,6 +197,7 @@ void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int h
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
+
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -225,27 +276,43 @@ void Framebuffer::FBODraw(
 	//glBindTexture(GL_TEXTURE_2D, albedoTexture);
 	//glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "albedoMap"), 3);
 	frameBufferProgram.Activate();
+
 	glActiveTexture(GL_TEXTURE1); // Use a different texture unit than your color texture
+	glBindTexture(GL_TEXTURE_2D, gPosition);
+	glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "gPosition"), 1);
+
+	glActiveTexture(GL_TEXTURE2); // Use a different texture unit than your color texture
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+	glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "gNormal"), 2);
+
+	glActiveTexture(GL_TEXTURE3); // Use a different texture unit than your color texture
+	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+	glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "gAlbedoSpec"), 3);
+
+	glActiveTexture(GL_TEXTURE5); // Use a different texture unit than your color texture
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
+
 	if (!imGuiPanels) {
 
 		frameBufferProgram.Activate();
-		glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "depthMap"), 1);
+		glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "depthMap"), 5);
 		ResizeLogic(imGuiPanels, window, Vwidth, Vheight);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 	else{
 
-		glActiveTexture(GL_TEXTURE2); // Use a different texture unit than your color texture
+		glActiveTexture(GL_TEXTURE6); // Use a different texture unit than your color texture
 		glBindTexture(GL_TEXTURE_2D, depthTexture2);
 		frameBufferProgram.Activate();
-		glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "depthMap"), 1);
+		glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "depthMap"), 5);
 
 		// copy contents of FB to FB2 and Display FB2
 		Framebuffer::FBO2Draw(frameBufferProgram);
 		//(Shader frameBufferProgram, unsigned int& frameBufferTexture, unsigned int& frameBufferTexture2, unsigned int& FBO2)
 	}
 
+	//std::cout << "gAlbedoSpec Texture ID: " << gAlbedoSpec << std::endl;
+	//std::cout << "Albedo Uniform Location: " << glGetUniformLocation(frameBufferProgram.ID, "gAlbedoSpec") << std::endl;
 
 }

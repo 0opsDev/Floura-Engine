@@ -9,17 +9,18 @@
     "Collider": "Mesh",
     "rigidbody": false
   },
-  {
-    "name": "Baseplate",
-    "path": "Models/Baseplate/plate.gltf",
-    "isCulling": true,
-    "Location": [ 0, 0, 0 ],
-    "Rotation": [ 0, 0, 0, 0 ],
-    "Scale": [ 1, 0.1, 1 ],
-    "Collider": "Box",
-    "Boxsize": [1, 1, 1],
-    "rigidbody": false
-  },
+    {
+        "name": "Baseplate",
+        "path": "Models/Baseplate/plate.gltf",
+        "isCulling": true,
+        "Location": [ 0, 0, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 1, 0.1, 1 ],
+        "Collider": "Box",
+        "Boxsize": [ 1, 1, 1 ],
+        "rigidbody": false
+    },
+
     {
         "name": "crate",
         "path": "Models/crate/crate.gltf",

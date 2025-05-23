@@ -98,6 +98,9 @@
     <Filter Include="src\Physics">
       <UniqueIdentifier>{07bd4dd7-56dd-4548-9f1e-638f788b53af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\gBuffer">
+      <UniqueIdentifier>{d6d77359-9a36-46f6-b25d-4261aef74e5f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -484,6 +487,12 @@
     </None>
     <None Include="Shaders\Lighting\albedo.frag">
       <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\gBuffer\geometryPass.frag">
+      <Filter>Resource Files\Shaders\gBuffer</Filter>
+    </None>
+    <None Include="Shaders\gBuffer\geometryPass.vert">
+      <Filter>Resource Files\Shaders\gBuffer</Filter>
     </None>
   </ItemGroup>
 </Project>

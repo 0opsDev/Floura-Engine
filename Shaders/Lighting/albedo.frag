@@ -15,8 +15,6 @@ in vec2 texCoord;
 // Gets the Texture Units from the main function
 uniform sampler2D diffuse0;
 
-uniform vec3 camPos;
-
 uniform float gamma;
 
 vec4 unShaded()
