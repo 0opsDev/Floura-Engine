@@ -12,7 +12,7 @@ out vec3 color;
 out vec2 texCoord;
 
 uniform mat4 camMatrix;
-uniform mat4 model; // Final model matrix combining all transformations
+uniform mat4 model;
 
 void main()
 {

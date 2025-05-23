@@ -23,5 +23,5 @@ void main()
     gAlbedoSpec.rgb = texture(diffuse0, texCoord).rgb;
 
     // Ensure alpha is correctly fetched
-    gAlbedoSpec.a = texture(specular0, texCoord).a; // Using `.a` instead of `.r`
+    gAlbedoSpec.a = texture(specular0, texCoord).r;
 }

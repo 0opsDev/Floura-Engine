@@ -26,7 +26,7 @@ void main()
     vec3 Diffuse = texture(gAlbedoSpec, texCoords).rgb;
     float Spec = texture(gAlbedoSpec, texCoords).a;
     vec3 PositionM = texture(gPosition, texCoords).rgb;
-    vec3 Normals = texture(gNormal, texCoords).rgb; // FIXED! Use gNormal instead of gPosition
+    vec3 Normals = texture(gNormal, texCoords).rgb; 
 
     float depthValue = texture(depthMap, texCoords).r;
     float linearDepth = linearizeDepth(depthValue);
@@ -34,8 +34,8 @@ void main()
     //FragColorT = vec4(vec3(linearDepth / far), 1.0);
     //FragColorT = vec4(Diffuse, 1.0);
     //FragColorT = vec4(PositionM, 1.0);
-    FragColorT = vec4(Normals, 1.0);
-   // FragColorT = vec4(vec3(Spec), 1.0); // Converts float into RGB (same value for all)
+    //FragColorT = vec4(Normals, 1.0);
+    FragColorT = vec4(vec3(Spec), 1.0);
         
     if (!enableFB)
     {
