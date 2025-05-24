@@ -12,6 +12,7 @@
 #include <camera/Camera.h>
 #include <utils/SettingsUtil.h>
 #include <Render/Model/Model.h>
+#include "utils/noise.h"
 
 class Framebuffer
 {
@@ -20,8 +21,12 @@ public:
 	static unsigned int ViewPortWidth, ViewPortHeight, viewVAO, viewVBO, FBO2, frameBufferTexture2, RBO2, frameBufferTexture, RBO, FBO,
 		depthTexture, depthTexture2, gBuffer, gAlbedoSpec, gNormal, gPosition, DBO;
 
+	static GLuint noiseMapTexture;
+
+	static void setupNoiseMap();
+
 	static void setupGbuffers(unsigned int width, unsigned int height);
-	
+
 	static void setupMainFBO(unsigned int width, unsigned int height);
 
 	static void setupSecondFBO(unsigned int width, unsigned int height);

@@ -50,6 +50,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	Framebuffer::setupMainFBO(width, height);
 	Framebuffer::setupSecondFBO(width, height);
 	Framebuffer::setupGbuffers(width, height);
+	Framebuffer::setupNoiseMap();
 
 	init::initImGui(window); // Initialize ImGUI
 }

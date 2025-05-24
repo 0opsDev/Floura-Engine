@@ -184,6 +184,7 @@
     <ClCompile Include="src\UI\ImGui\ImGuiWindow.cpp" />
     <ClCompile Include="src\utils\init.cpp" />
     <ClCompile Include="src\utils\InputUtil.cpp" />
+    <ClCompile Include="src\utils\noise.cpp" />
     <ClCompile Include="src\utils\ScreenUtils.cpp" />
     <ClCompile Include="src\utils\SettingsUtil.cpp" />
     <ClCompile Include="src\utils\timeAccumulator.cpp" />
@@ -234,6 +235,7 @@
     <ClInclude Include="src\UI\ImGui\ImGuiWindow.h" />
     <ClInclude Include="src\utils\init.h" />
     <ClInclude Include="src\utils\InputUtil.h" />
+    <ClInclude Include="src\utils\noise.h" />
     <ClInclude Include="src\utils\ScreenUtils.h" />
     <ClInclude Include="src\utils\SettingsUtil.h" />
     <ClInclude Include="src\utils\timeAccumulator.h" />

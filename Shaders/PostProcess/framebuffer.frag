@@ -8,6 +8,7 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
 uniform sampler2D screenTexture;
+uniform sampler2D noiseMapTexture;
 uniform float time;
 uniform bool enableFB;
 
@@ -27,14 +28,14 @@ void main()
     float Spec = texture(gAlbedoSpec, texCoords).a;
     vec3 PositionM = texture(gPosition, texCoords).rgb;
     vec3 Normals = texture(gNormal, texCoords).rgb; 
-
+    vec4 noiseTex = texture(noiseMapTexture, texCoords);
     float depthValue = texture(depthMap, texCoords).r;
     float linearDepth = linearizeDepth(depthValue);
 
     //FragColorT = vec4(vec3(linearDepth / far), 1.0);
     //FragColorT = vec4(Diffuse, 1.0);
     //FragColorT = vec4(PositionM, 1.0);
-    FragColorT = vec4(Normals, 1.0);
+    //FragColorT = vec4(Normals, 1.0);
     //FragColorT = vec4(vec3(Spec), 1.0);
         
     if (!enableFB)

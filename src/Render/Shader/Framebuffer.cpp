@@ -1,6 +1,5 @@
 #include "Render/Shader/Framebuffer.h"
 #include <utils/SettingsUtil.h>
-
 unsigned int Framebuffer::ViewPortWidth = 800;
 unsigned int Framebuffer::ViewPortHeight = 600;
 unsigned int Framebuffer::viewVAO;
@@ -18,6 +17,9 @@ unsigned int Framebuffer::gAlbedoSpec;
 unsigned int Framebuffer::gNormal;
 unsigned int Framebuffer::gPosition;
 unsigned int Framebuffer::DBO;
+GLuint Framebuffer::noiseMapTexture;
+
+
 Shader gPassShader("skip", "");
 
 void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
@@ -62,6 +64,11 @@ void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "Framebuffer not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+}
+
+void Framebuffer::setupNoiseMap() {
+	NoiseH::generateNoise(noiseMapTexture, 256, 256, 0.05f, 42);
 
 }
 
@@ -307,10 +314,13 @@ void Framebuffer::FBODraw(
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
 	frameBufferProgram.Activate();
-	//glActiveTexture(GL_TEXTURE3);
-	//glBindTexture(GL_TEXTURE_2D, albedoTexture);
-	//glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "albedoMap"), 3);
 	frameBufferProgram.Activate();
+
+	//noiseMapTexture
+
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_2D, noiseMapTexture);
+	glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "noiseMapTexture"), 7);
 
 	// gPass textures bound to FB
 

@@ -12,8 +12,6 @@
 #include "utils/timeAccumulator.h"
 #include "utils/InputUtil.h"
 #include "Render/Shader/Cubemap.h"
-#define STB_PERLIN_IMPLEMENTATION
-#include <stb/stb_perlin.h>
 #include "Render/Shader/Framebuffer.h"
 #include "Scripting/ScriptRunner.h"
 #include "imgui/imgui_impl_opengl3.h"

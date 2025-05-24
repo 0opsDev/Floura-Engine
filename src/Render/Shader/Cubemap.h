@@ -7,10 +7,8 @@
 #include<array>
 #include <stb/stb_image.h>
 #include <utils/init.h>
-#include<string>
 #include<fstream>
 #include<sstream>
-#include<iostream>
 #include<cerrno>
 #include <json/json.hpp>
 
