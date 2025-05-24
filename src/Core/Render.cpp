@@ -20,7 +20,7 @@ BillBoardObject BBOJ2;
 BillBoardObject BBOJ;
 BillBoard LightIcon;
 ModelObject test;
-Shader AlbedoShader("skip", "");
+Shader gPassShader2("skip", "");
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
 	ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
@@ -45,7 +45,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	test.CreateObject("LOD", "Assets/LodModel/Vase/VaseLod.json", "test");
 	test.transform = glm::vec3(5, 2, 0);
 	test.isCollider = true;
-	AlbedoShader = Shader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
+	gPassShader2 = Shader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
 	// put in one function
 	Framebuffer::setupMainFBO(width, height);
 	Framebuffer::setupSecondFBO(width, height);
@@ -60,22 +60,25 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	// Camera
 	Camera::Inputs(window); // send Camera.cpp window inputs and delta time
 	glClearColor(RenderClass::skyRGBA[0], RenderClass::skyRGBA[1], RenderClass::skyRGBA[2],RenderClass::skyRGBA[3]);
-	AlbedoShader.Activate();
-	UF::Float(AlbedoShader.ID, "gamma", RenderClass::gamma);
+	//AlbedoShader.Activate();
+	//UF::Float(AlbedoShader.ID, "gamma", RenderClass::gamma);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear with colour
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glDisable(GL_CULL_FACE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LESS);
+	//glDisable(GL_CULL_FACE);
 	for (auto& modelTuple : models) {
 		Model& model = std::get<0>(modelTuple);
 		glm::vec3 translation = std::get<2>(modelTuple);
 		glm::quat rotation = std::get<3>(modelTuple);
 		glm::vec3 scale = std::get<4>(modelTuple);
 
-			model.Draw(AlbedoShader, translation, rotation, scale);
+		Framebuffer::gPassDraw(model, translation, rotation, scale);
+			//model.Draw(AlbedoShader, translation, rotation, scale);
 	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	// Clear BackBuffer

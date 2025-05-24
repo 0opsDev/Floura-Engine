@@ -18,9 +18,10 @@ unsigned int Framebuffer::gAlbedoSpec;
 unsigned int Framebuffer::gNormal;
 unsigned int Framebuffer::gPosition;
 unsigned int Framebuffer::DBO;
+Shader gPassShader("skip", "");
 
 void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
-
+	gPassShader = Shader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
 	//generate buffer in memory and bind
 	glGenFramebuffers(1, &gBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
@@ -351,4 +352,19 @@ void Framebuffer::FBODraw(
 	//std::cout << "gAlbedoSpec Texture ID: " << gAlbedoSpec << std::endl;
 	//std::cout << "Albedo Uniform Location: " << glGetUniformLocation(frameBufferProgram.ID, "gAlbedoSpec") << std::endl;
 
+}
+void Framebuffer::gPassDraw(Model& model, glm::vec3 Transform, glm::quat Rotation, glm::vec3 Scale) {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	gPassShader.Activate();
+	UF::Float(gPassShader.ID, "gamma", RenderClass::gamma);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glDisable(GL_CULL_FACE);
+	
+	model.Draw(gPassShader, Transform, Rotation, Scale);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//FrameBuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 }

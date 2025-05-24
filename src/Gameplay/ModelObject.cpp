@@ -95,6 +95,7 @@ void ModelObject::draw(Shader &Shader) {
 		//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
 		if (iteration == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
 			model.Draw(Shader, transform, rotation, scale);
+			Framebuffer::gPassDraw(model, transform, rotation, scale);
 		}
 	}
 	glDisable(GL_CULL_FACE);
