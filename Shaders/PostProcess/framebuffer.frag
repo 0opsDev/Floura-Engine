@@ -34,8 +34,8 @@ void main()
     //FragColorT = vec4(vec3(linearDepth / far), 1.0);
     //FragColorT = vec4(Diffuse, 1.0);
     //FragColorT = vec4(PositionM, 1.0);
-    //FragColorT = vec4(Normals, 1.0);
-    FragColorT = vec4(vec3(Spec), 1.0);
+    FragColorT = vec4(Normals, 1.0);
+    //FragColorT = vec4(vec3(Spec), 1.0);
         
     if (!enableFB)
     {

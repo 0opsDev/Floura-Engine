@@ -128,12 +128,6 @@ void Framebuffer::setupSecondFBO(unsigned int width, unsigned int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture2, 0);
 
-	// Depth and stencil buffer
-	//glGenRenderbuffers(1, &RBO2);
-	//glBindRenderbuffer(GL_RENDERBUFFER, RBO2);
-	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO2);
-
 	glGenTextures(1, &depthTexture2);
 	glBindTexture(GL_TEXTURE_2D, depthTexture2);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
@@ -185,9 +179,9 @@ void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int h
 
 	// Update depth textures
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width * ImGuiCamera::resolutionScale, height * ImGuiCamera::resolutionScale, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 	glBindTexture(GL_TEXTURE_2D, depthTexture2);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width * ImGuiCamera::resolutionScale, height * ImGuiCamera::resolutionScale, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 
 	if (ImGuiCamera::enableLinearScaling) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -198,6 +192,46 @@ void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int h
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindTexture(GL_TEXTURE_2D, gPosition);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width * ImGuiCamera::resolutionScale, height * ImGuiCamera::resolutionScale, 0, GL_RGBA, GL_FLOAT, NULL);
+
+	if (ImGuiCamera::enableLinearScaling) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+	else {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width * ImGuiCamera::resolutionScale, height * ImGuiCamera::resolutionScale, 0, GL_RGBA, GL_FLOAT, NULL);
+
+	if (ImGuiCamera::enableLinearScaling) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+	else {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width * ImGuiCamera::resolutionScale, height * ImGuiCamera::resolutionScale, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+	if (ImGuiCamera::enableLinearScaling) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+	else {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -277,19 +311,21 @@ void Framebuffer::FBODraw(
 	//glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "albedoMap"), 3);
 	frameBufferProgram.Activate();
 
-	glActiveTexture(GL_TEXTURE1); // Use a different texture unit than your color texture
+	// gPass textures bound to FB
+
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, gPosition);
 	glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "gPosition"), 1);
 
-	glActiveTexture(GL_TEXTURE2); // Use a different texture unit than your color texture
+	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, gNormal);
 	glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "gNormal"), 2);
 
-	glActiveTexture(GL_TEXTURE3); // Use a different texture unit than your color texture
+	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
 	glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "gAlbedoSpec"), 3);
 
-	glActiveTexture(GL_TEXTURE5); // Use a different texture unit than your color texture
+	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
 
 	if (!imGuiPanels) {
@@ -302,7 +338,7 @@ void Framebuffer::FBODraw(
 	}
 	else{
 
-		glActiveTexture(GL_TEXTURE6); // Use a different texture unit than your color texture
+		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, depthTexture2);
 		frameBufferProgram.Activate();
 		glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "depthMap"), 5);
