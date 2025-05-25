@@ -1,7 +1,7 @@
 #include "ImGuiWindow.h"
 #include <Scripting/ScriptRunner.h>
 #include <Physics/CubeCollider.h>
-bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true }; // ImGui Panels
+bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true, true }; // ImGui Panels
 std::string ImGuiCamera::FileTabs = "Model";
 bool ImGuiCamera::enableFB = false; // Change this as needed
 bool ImGuiCamera::enableLinearScaling = false;
@@ -14,6 +14,11 @@ char ImGuiCamera::UniformInput[64] = {}; // Zero-initialized buffer
 float ImGuiCamera::UniformFloat[3] = {}; // Zero-initialized array
 
 bool ImGuiCamera::isWireframe = false;
+
+float ImGuiCamera::gPassTime = 0;
+float ImGuiCamera::lPassTime = 0;
+float ImGuiCamera::Render = 0;
+float ImGuiCamera::physicsTime = 0;
 
 void ImGuiCamera::SystemInfomation() {
 	if (ImGui::TreeNode("System Infomation")) {
@@ -160,6 +165,7 @@ void ImGuiCamera::PanelsWindow() {
 	ImGui::Checkbox("ViewPort", &ImGuiCamera::imGuiPanels[3]);
 	ImGui::Checkbox("File Viewer", &ImGuiCamera::imGuiPanels[4]);
 	ImGui::Checkbox("Physics Settings", &ImGuiCamera::imGuiPanels[5]);
+	ImGui::Checkbox("Preformance Profiler", &ImGuiCamera::imGuiPanels[6]);
 	ImGui::End();
 }
 
@@ -167,5 +173,17 @@ void ImGuiCamera::PhysicsWindow(){
 	ImGui::Begin("Physics"); // ImGUI window creation
 	ImGui::Checkbox("showBoxCollider", &CubeCollider::showBoxCollider);
 	
+	ImGui::End();
+}
+
+void ImGuiCamera::PreformanceProfiler() {
+	ImGui::Begin("Preformance Profiler"); // ImGUI window creation
+	ImGui::Text(("gPass: " + std::to_string(gPassTime) + " ms").c_str());
+	ImGui::Text(("lPass: " + std::to_string(lPassTime) + " ms").c_str());
+	ImGui::Text(("Render: " + std::to_string(Render) + " ms").c_str());
+	ImGui::Text(("Physics: " + std::to_string(physicsTime) + " ms").c_str());
+	float totalTime = ((Render + physicsTime));
+	ImGui::Text(("Total (Render + physicsTime): " + std::to_string(totalTime) + " ms").c_str());
+
 	ImGui::End();
 }

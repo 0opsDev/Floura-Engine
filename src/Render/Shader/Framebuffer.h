@@ -7,7 +7,6 @@
 #include <GLFW/glfw3.h>
 #include "utils/init.h"
 #include <UI/ImGui/ImGuiWindow.h>
-#include <utils/UF.h>
 #include <utils/ScreenUtils.h>
 #include <camera/Camera.h>
 #include <utils/SettingsUtil.h>

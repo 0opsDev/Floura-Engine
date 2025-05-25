@@ -59,12 +59,20 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 
 void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, Shader LightProgram, float window_width, float window_height, glm::vec3 lightPos,
 	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3, int>> models) {
+	test.UpdateCollider();
+	test.UpdateCameraCollider();
+	BBOJ2.UpdateCollider();
+	BBOJ2.UpdateCameraCollider();
+	BBOJ.UpdateCollider();
+	BBOJ.UpdateCameraCollider();
 
 	// Camera
 	Camera::Inputs(window); // send Camera.cpp window inputs and delta time
 	glClearColor(RenderClass::skyRGBA[0], RenderClass::skyRGBA[1], RenderClass::skyRGBA[2],RenderClass::skyRGBA[3]);
 	//AlbedoShader.Activate();
 	//UF::Float(AlbedoShader.ID, "gamma", RenderClass::gamma);
+
+	auto startInitTime = std::chrono::high_resolution_clock::now();
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear with colour
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -83,6 +91,11 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	}
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
+
+	auto stopInitTime = std::chrono::high_resolution_clock::now();
+	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
+	ImGuiCamera::gPassTime = (initDuration.count() / 1000.0);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	// Clear BackBuffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear with colour
@@ -110,7 +123,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 		glClearColor(0, 0, 0, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
-
+	auto startInitTime2 = std::chrono::high_resolution_clock::now();
 	for (auto& modelTuple : models) {
 		Model& model = std::get<0>(modelTuple);
 		int cullingSetting = std::get<1>(modelTuple);
@@ -136,8 +149,9 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 			glDisable(GL_CULL_FACE);
 		}
 	}
-	test.UpdateCollider();
-	test.UpdateCameraCollider();
+	auto stopInitTime2 = std::chrono::high_resolution_clock::now();
+	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
+	ImGuiCamera::lPassTime = (initDuration2.count() / 1000.0);
 	test.draw(shaderProgram);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
@@ -145,11 +159,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 	Camera::Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 	BBOJ2.draw();
-	BBOJ2.UpdateCollider();
-	BBOJ2.UpdateCameraCollider();
 	BBOJ.draw();
-	BBOJ.UpdateCollider();
-	BBOJ.UpdateCameraCollider();
 	LightIcon.draw(true, lightPos.x, lightPos.y, lightPos.z, 0.3, 0.3, 0.3);
 
 	glDisable(GL_CULL_FACE);

@@ -255,10 +255,17 @@ int main() // global variables do not work with threads
 
 		// Camera Always Stays Above Feet Position**
 		Camera::Position = glm::vec3(feetpos.x, feetpos.y + Camera::PlayerHeightCurrent, feetpos.z);
+
+		auto startInitTime2 = std::chrono::high_resolution_clock::now();
+
 		RenderClass::Render(window, frameBufferProgram, shaderProgram, LightProgram, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), models);
 		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, shaderProgram, primaryMonitor); }
 
 		RenderClass::Swapchain(window, frameBufferProgram, shaderProgram, primaryMonitor); // tip to self, work down to up (lines)
+
+		auto stopInitTime2 = std::chrono::high_resolution_clock::now();
+		auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
+		ImGuiCamera::Render = (initDuration2.count() / 1000.0);
 	}
 	// Cleanup: Delete all objects on close
 	Main::sleepState = false;
@@ -538,6 +545,10 @@ void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 
 	if (ImGuiCamera::imGuiPanels[5]) {
 		ImGuiCamera::PhysicsWindow();
+	}
+
+	if (ImGuiCamera::imGuiPanels[6]) {
+		ImGuiCamera::PreformanceProfiler();
 	}
 	ImGui::Render(); // Renders the ImGUI elements
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

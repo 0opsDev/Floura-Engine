@@ -27,12 +27,18 @@ public:
 	static float UniformFloat[3]; // Zero-initialized array
 	static bool isWireframe;
 
+	static float gPassTime;
+	static float lPassTime;
+	static float Render;
+	static float physicsTime;
+
 	static void SystemInfomation();
 	static void RenderWindow(GLFWwindow*& window, GLFWmonitor*& monitor, int windowedWidth, int windowedHeight);
 	static void ShaderWindow();
 	static void LightWindow();
 	static void PanelsWindow();
 	static void PhysicsWindow();
+	static void PreformanceProfiler();
 
 };
 

@@ -1,6 +1,5 @@
 #include"SkyBox.h"
 #include <utils/SettingsUtil.h>
-#include <utils/UF.h>
 #include "Cubemap.h"
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
