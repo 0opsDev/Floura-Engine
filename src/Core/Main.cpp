@@ -1,7 +1,6 @@
 #include "Main.h"
 #include"Render/Model/Model.h"
 #include "Camera/Camera.h"
-#include "utils/UF.h"
 #include "utils/Init.h"
 #include "utils/screenutils.h" 
 #include <glm/gtx/string_cast.hpp>
@@ -46,7 +45,7 @@ float window_width;
 float window_height;
 
 TimeAccumulator TA3; TimeAccumulator TA2;
-Shader shaderProgram("skip", ""); // create a shader program and feed it Dummy shader and vertex files
+Shader shaderProgram; // create a shader program and feed it Dummy shader and vertex files
 
 void Main::updateModelLua( 
 	std::vector<std::string> path, std::vector<std::string> modelName, std::vector<bool> isCulling,
@@ -105,13 +104,14 @@ int main() // global variables do not work with threads
 	FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram);// feed the shader prog real data
 	shaderProgram.Activate(); // activate new shader program for use
 
-	Shader LightProgram("Shaders/Lighting/light.vert", "Shaders/Lighting/light.frag");
-	Shader SolidColour("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
+	Shader LightProgram;
+	LightProgram.LoadShader("Shaders/Lighting/light.vert", "Shaders/Lighting/light.frag");
 
 	// move to framebuffer class
-	Shader frameBufferProgram("Shaders/PostProcess/framebuffer.vert", "Shaders/PostProcess/framebuffer.frag");
+	Shader frameBufferProgram;
+	frameBufferProgram.LoadShader("Shaders/PostProcess/framebuffer.vert", "Shaders/PostProcess/framebuffer.frag");
 	frameBufferProgram.Activate();
-	UF::Int(frameBufferProgram.ID, "screenTexture", 0);
+	frameBufferProgram.setInt("screenTexture", 0);
 
 	//area of open gl we want to render in
 	//screen assignment after fallback
@@ -255,7 +255,7 @@ int main() // global variables do not work with threads
 
 		// Camera Always Stays Above Feet Position**
 		Camera::Position = glm::vec3(feetpos.x, feetpos.y + Camera::PlayerHeightCurrent, feetpos.z);
-		RenderClass::Render(window, frameBufferProgram, shaderProgram, LightProgram, SolidColour, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), models);
+		RenderClass::Render(window, frameBufferProgram, shaderProgram, LightProgram, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), models);
 		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, shaderProgram, primaryMonitor); }
 
 		RenderClass::Swapchain(window, frameBufferProgram, shaderProgram, primaryMonitor); // tip to self, work down to up (lines)
@@ -274,7 +274,7 @@ int main() // global variables do not work with threads
 	Soundtrack.DeleteSound();
 	land.DeleteSound();	
 	SoundRunner::Delete();
-	SolidColour.Delete();
+	//SolidColour.Delete();
 	shaderProgram.Delete(); // Delete Shader Prog
 	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
 	return 0;

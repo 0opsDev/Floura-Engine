@@ -5,7 +5,7 @@
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
 
-Shader boxShader("skip", "");
+Shader boxShader;
 
 float s_Cube_Vertices[24] =
 {
@@ -43,9 +43,7 @@ unsigned int s_Cube_Indices[36] =
 };
 
 void CubeVisualizer::init() {
-	boxShader = Shader("Shaders/Lighting/Default.vert", "Shaders/Db/OrangeHitbox.frag");
-	boxShader.Activate();
-	glUniform1i(glGetUniformLocation(boxShader.ID, "skybox"), 0);
+	boxShader.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/OrangeHitbox.frag");
 	skyboxBuffer(); // create buffer in memory for skybox
 }
 
@@ -81,10 +79,9 @@ void CubeVisualizer::draw(float x, float y, float z,
 	model = glm::translate(model, glm::vec3(x, y, z));
 	// Apply scaling
 	model = glm::scale(model, glm::vec3(ScaleX, ScaleY, ScaleZ));
-	glUniformMatrix4fv(glGetUniformLocation(boxShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	boxShader.setMat4("model",model);
 	//feed model matrix known as inside the shader "model"
-
-	glUniformMatrix4fv(glGetUniformLocation(boxShader.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(Camera::cameraMatrix));
+	boxShader.setMat4("camMatrix", Camera::cameraMatrix);
 	glUniform3f(glGetUniformLocation(boxShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
 
 	glBindVertexArray(cubeVAO);

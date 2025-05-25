@@ -193,9 +193,6 @@
     <ClCompile Include="src\utils\timeUtil.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\UF.cpp">
-      <Filter>src\utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\Core\Main.cpp">
       <Filter>src\core</Filter>
     </ClCompile>
@@ -289,9 +286,6 @@
       <Filter>src\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\timeUtil.h">
-      <Filter>src\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\UF.h">
       <Filter>src\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Main.h">

@@ -5,7 +5,7 @@
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
 
-Shader PlaneShader("skip", "");
+Shader PlaneShader;
 std::string singleTexturePath;
 
 float s_Plane_Vertices[] = {
@@ -25,15 +25,13 @@ unsigned int s_Plane_Indices[6] =
 };
 
 void BillBoard::init(std::string path) {
-	PlaneShader = Shader("Shaders/Db/BillBoard.vert", "Shaders/Db/BillBoard.frag");
-	PlaneShader.Activate();
-	glUniform1i(glGetUniformLocation(PlaneShader.ID, "skybox"), 0);
+	PlaneShader.LoadShader("Shaders/Db/BillBoard.vert", "Shaders/Db/BillBoard.frag");
 	skyboxBuffer(); // create buffer in memory for skybox
 
 	LoadBillBoardTexture(path);
 }
 void BillBoard::initSeq(std::string path) { 
-	PlaneShader = Shader("Shaders/Db/BillBoard.vert", "Shaders/Db/BillBoard.frag");
+	PlaneShader.LoadShader("Shaders/Db/BillBoard.vert", "Shaders/Db/BillBoard.frag");
 	PlaneShader.Activate();
 	glUniform1i(glGetUniformLocation(PlaneShader.ID, "skybox"), 0);
 	skyboxBuffer(); // create buffer in memory for skybox
@@ -190,8 +188,8 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 
 	PlaneShader.Activate();
 	// Pass transformations to shader
-	glUniformMatrix4fv(glGetUniformLocation(PlaneShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(glGetUniformLocation(PlaneShader.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(Camera::cameraMatrix));
+	PlaneShader.setMat4("model", model);
+	PlaneShader.setMat4("camMatrix", Camera::cameraMatrix);
 	glUniform3f(glGetUniformLocation(PlaneShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
 
 	// Render the billboard

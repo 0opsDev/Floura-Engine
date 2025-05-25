@@ -20,10 +20,10 @@ unsigned int Framebuffer::DBO;
 GLuint Framebuffer::noiseMapTexture;
 
 
-Shader gPassShader("skip", "");
+Shader gPassShader;
 
 void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
-	gPassShader = Shader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
+	gPassShader.LoadShader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
 	//generate buffer in memory and bind
 	glGenFramebuffers(1, &gBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
@@ -302,11 +302,13 @@ void Framebuffer::FBODraw(
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glEnable(GL_DEPTH_TEST);
 	frameBufferProgram.Activate();
-	UF::Float(frameBufferProgram.ID, "time", glfwGetTime());
-	UF::Float(frameBufferProgram.ID, "deltaTime", TimeUtil::s_DeltaTime);
-
-	UF::Float(frameBufferProgram.ID, ImGuiCamera::UniformInput, ImGuiCamera::UniformFloat[0]);
-	UF::Bool(frameBufferProgram.ID, "enableFB", ImGuiCamera::enableFB);
+	frameBufferProgram.setMat4("view", Camera::view);
+	frameBufferProgram.setMat4("projection", Camera::projection);
+	frameBufferProgram.setMat4("cameraMatrix", Camera::cameraMatrix);
+	frameBufferProgram.setFloat("time", glfwGetTime());
+	frameBufferProgram.setFloat("deltaTime", TimeUtil::s_DeltaTime);
+	frameBufferProgram.setFloat(ImGuiCamera::UniformInput, ImGuiCamera::UniformFloat[0]);
+	frameBufferProgram.setBool("enableFB", ImGuiCamera::enableFB);
 
 	// draw the framebuffer
 	glBindVertexArray(viewVAO);
@@ -314,27 +316,26 @@ void Framebuffer::FBODraw(
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 
 	frameBufferProgram.Activate();
-	frameBufferProgram.Activate();
 
 	//noiseMapTexture
 
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_2D, noiseMapTexture);
-	glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "noiseMapTexture"), 7);
+	frameBufferProgram.setInt("noiseMapTexture", 7);
 
 	// gPass textures bound to FB
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, gPosition);
-	glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "gPosition"), 1);
+	frameBufferProgram.setInt("gPosition", 1);
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, gNormal);
-	glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "gNormal"), 2);
+	frameBufferProgram.setInt("gNormal", 2);
 
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
-	glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "gAlbedoSpec"), 3);
+	frameBufferProgram.setInt("gAlbedoSpec", 3);
 
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
@@ -342,7 +343,7 @@ void Framebuffer::FBODraw(
 	if (!imGuiPanels) {
 
 		frameBufferProgram.Activate();
-		glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "depthMap"), 5);
+		frameBufferProgram.setInt("depthMap", 5);
 		ResizeLogic(imGuiPanels, window, Vwidth, Vheight);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -352,7 +353,7 @@ void Framebuffer::FBODraw(
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, depthTexture2);
 		frameBufferProgram.Activate();
-		glUniform1i(glGetUniformLocation(frameBufferProgram.ID, "depthMap"), 5);
+		frameBufferProgram.setInt("depthMap", 5);
 
 		// copy contents of FB to FB2 and Display FB2
 		Framebuffer::FBO2Draw(frameBufferProgram);
@@ -366,8 +367,8 @@ void Framebuffer::FBODraw(
 void Framebuffer::gPassDraw(Model& model, glm::vec3 Transform, glm::quat Rotation, glm::vec3 Scale) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	gPassShader.Activate();
-	UF::Float(gPassShader.ID, "gamma", RenderClass::gamma);
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
+	gPassShader.setFloat("gamma", RenderClass::gamma);
+	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDisable(GL_CULL_FACE);
@@ -376,5 +377,5 @@ void Framebuffer::gPassDraw(Model& model, glm::vec3 Transform, glm::quat Rotatio
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 }

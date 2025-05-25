@@ -67,7 +67,7 @@ void FileClass::loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgra
 
 		if (init::LogALL || init::LogSystems) std::cout << "Vert: " << vertFile << " Frag: " << fragFile << std::endl;
 
-		shaderProgram = Shader(vertFile.c_str(), fragFile.c_str());
+		shaderProgram.LoadShader(vertFile.c_str(), fragFile.c_str());
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error loading shader program: " << e.what() << std::endl;

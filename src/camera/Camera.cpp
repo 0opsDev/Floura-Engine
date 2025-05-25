@@ -8,8 +8,6 @@ float timeAccumulator = 0;
 float Camera::s_scrollSpeed = 0;
 float Camera::s_sensitivityX = 100;
 float Camera::s_sensitivityY = 100;
-glm::vec3 Camera::PubOrientation = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 Camera::PubUp = glm::vec3(0.0f, 1.0f, 0.0f);
 bool Camera::s_DoGravity = false;
 glm::mat4 Camera::cameraMatrix = glm::mat4(1.0f);
 glm::vec3 Camera::Position;
@@ -21,6 +19,8 @@ int Camera::width;
 int Camera::height;
 float Camera::speed = 0.1f;
 float Camera::PlayerHeightCurrent;
+glm::mat4 Camera::view = glm::mat4(1.0f);
+glm::mat4 Camera::projection = glm::mat4(1.0f);
 
 void Camera::InitCamera(int width, int height, glm::vec3 position)
 {
@@ -38,8 +38,6 @@ void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
 {
     //std::cout << "Internal camera instance address: " << this << std::endl;
     // Initializes matrices
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 projection = glm::mat4(1.0f);
 
     // Makes camera look in the right direction from the right position
     view = glm::lookAt(Position, Position + Orientation, Up);
@@ -48,8 +46,6 @@ void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
 
     //std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
     cameraMatrix = projection * view;
-    Camera::PubOrientation = Orientation;
-    Camera::PubUp = Up;
 }
 
 void Camera::Matrix(Shader& shader, const char* uniform)

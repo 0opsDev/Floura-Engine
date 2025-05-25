@@ -20,7 +20,8 @@ BillBoardObject BBOJ2;
 BillBoardObject BBOJ;
 BillBoard LightIcon;
 ModelObject test;
-Shader gPassShader2("skip", "");
+Shader gPassShader2;
+Shader SolidColour;
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
 	ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
@@ -45,7 +46,8 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	test.CreateObject("LOD", "Assets/LodModel/Vase/VaseLod.json", "test");
 	test.transform = glm::vec3(5, 2, 0);
 	test.isCollider = true;
-	gPassShader2 = Shader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
+	gPassShader2.LoadShader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
+	SolidColour.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
 	// put in one function
 	Framebuffer::setupMainFBO(width, height);
 	Framebuffer::setupSecondFBO(width, height);
@@ -55,7 +57,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	init::initImGui(window); // Initialize ImGUI
 }
 
-void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, Shader LightProgram, Shader SolidColour, float window_width, float window_height, glm::vec3 lightPos,
+void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, Shader LightProgram, float window_width, float window_height, glm::vec3 lightPos,
 	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3, int>> models) {
 
 	// Camera
@@ -88,14 +90,21 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 
 	// Send Variables to shader (GPU)
 	shaderProgram.Activate(); // activate shaderprog to send uniforms to gpu
-	UF::Bool(shaderProgram.ID, "doReflect", RenderClass::doReflections);
-	UF::Bool(shaderProgram.ID, "doFog", RenderClass::doFog);
-	UF::TrasformUniforms(shaderProgram.ID, RenderClass::ConeSI, RenderClass::ConeRot, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]));
-	UF::Depth(shaderProgram.ID, RenderClass::DepthDistance, RenderClass::DepthPlane);
-	UF::ColourUniforms(shaderProgram.ID, RenderClass::fogRGBA, RenderClass::skyRGBA, RenderClass::lightRGBA, RenderClass::gamma);
+	shaderProgram.setBool("doReflect", doReflections);
+	shaderProgram.setBool("doFog", doFog);
+	shaderProgram.setFloat3("InnerLight1", ConeSI[1] - ConeSI[0], ConeSI[1], ConeSI[2]);
+	shaderProgram.setFloat3("spotLightRot", ConeRot[0], ConeRot[1], ConeRot[2]);
+	shaderProgram.setFloat3("lightPos", lightPos.x, lightPos.y, lightPos.z);
+	shaderProgram.setFloat("DepthDistance", DepthDistance);
+	shaderProgram.setFloat("NearPlane", DepthPlane[0]);
+	shaderProgram.setFloat("FarPlane", DepthPlane[1]);
+	shaderProgram.setFloat3("fogColor", fogRGBA[0], fogRGBA[1], fogRGBA[2]);
+	shaderProgram.setFloat4("skyColor", skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
+	shaderProgram.setFloat4("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
+	shaderProgram.setFloat("gamma", gamma);
 
 	LightProgram.Activate();
-	UF::Float4(LightProgram.ID, "lightColor", RenderClass::lightRGBA[0], RenderClass::lightRGBA[1], RenderClass::lightRGBA[2], RenderClass::lightRGBA[3]);
+	LightProgram.setFloat4("lightColor", RenderClass::lightRGBA[0], RenderClass::lightRGBA[1], RenderClass::lightRGBA[2], RenderClass::lightRGBA[3]);
 
 	if (ImGuiCamera::isWireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
@@ -119,7 +128,9 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 		}
 		else {
 			SolidColour.Activate();
-			UF::Depth(SolidColour.ID, 50, RenderClass::DepthPlane);
+			SolidColour.setFloat("DepthDistance", 50);
+			SolidColour.setFloat("NearPlane", RenderClass::DepthPlane[0]);
+			SolidColour.setFloat("FarPlane", RenderClass::DepthPlane[1]);
 
 			model.Draw(SolidColour, translation, rotation, scale);
 			glDisable(GL_CULL_FACE);

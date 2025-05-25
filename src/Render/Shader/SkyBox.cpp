@@ -9,11 +9,11 @@ unsigned int Skybox::cubemapTexture;
 unsigned int Skybox::skyboxVAO;
 unsigned int Skybox::skyboxVBO;
 unsigned int Skybox::skyboxEBO;
-Shader skyboxShader("skip", "");
+Shader skyboxShader;
 std::string Skybox::DefaultSkyboxPath;
 
 void Skybox::init(std::string PathName) {
-	skyboxShader = Shader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
+	skyboxShader.LoadShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
 	skyboxShader.Activate();
 	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
 	skyboxBuffer(); // create buffer in memory for skybox
@@ -52,18 +52,16 @@ void Skybox::draw(GLfloat skyRGBA[], unsigned int width, unsigned int height) {
 	//std::cout << "height" << height << std::endl;
 	skyboxShader.Activate();
 	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
 	// We make the mat4 into a mat3 and then a mat4 again in order to get rid of the last row and column
 	// The last row and column affect the translation of the skybox (which we don't want to affect)
 	view = glm::mat4(glm::mat3(glm::lookAt(Camera::Position, Camera::Position + Camera::Orientation, Camera::Up)));
-	projection = glm::perspective(glm::radians(Main::cameraSettings[0]), (float)width / height, Main::cameraSettings[1], Main::cameraSettings[2]);
 	//std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
-	glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	skyboxShader.setMat4("view", view);
+	skyboxShader.setMat4("projection", Camera::projection);
 
 	skyboxShader.Activate();
-	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
-	UF::Float3(skyboxShader.ID, "skyRGBA", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
+	skyboxShader.setInt( "skybox", 0);
+	skyboxShader.setFloat3("skyRGBA", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
 
 	// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
 	// where an object is present (a depth of 1.0f will always fail against any object's depth value)

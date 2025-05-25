@@ -42,8 +42,8 @@ void SoundProgram::updateCameraPosition() {
 
     // Use Camera orientation and up vector for 3D audio orientation
     ALfloat orientation[] = {
-        Camera::PubOrientation.x, Camera::PubOrientation.y, Camera::PubOrientation.z,  // Forward
-        Camera::PubUp.x,         Camera::PubUp.y,         Camera::PubUp.z              // Up
+        Camera::Orientation.x, Camera::Orientation.y, Camera::Orientation.z,  // Forward
+        Camera::Up.x,         Camera::Up.y,         Camera::Up.z              // Up
     };
     alListenerfv(AL_ORIENTATION, orientation);
 }

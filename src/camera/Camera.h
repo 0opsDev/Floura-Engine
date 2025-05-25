@@ -22,13 +22,13 @@ public:
     static glm::vec3 Orientation;
     static glm::vec3 Up;
     static bool s_DoGravity;
-    static glm::vec3 PubOrientation;
-    static glm::vec3 PubUp;
     static glm::mat4 cameraMatrix;
     static float s_scrollSpeed;
     static float s_sensitivityX;
     static float s_sensitivityY;
     static float PlayerHeightCurrent;
+    static glm::mat4 view;
+    static glm::mat4 projection;
 
     // Prevents the camera from jumping around when first clicking left click
     static bool firstClick;

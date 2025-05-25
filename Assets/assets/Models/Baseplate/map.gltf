@@ -31,7 +31,6 @@
 				"baseColorTexture":{
 					"index":0
 				},
-				"metallicFactor":0,
 				"metallicRoughnessTexture":{
 					"index":1
 				}

@@ -1,6 +1,7 @@
 #include "shaderClass.h"
 #include "utils/init.h"
 
+
 std::string get_file_contents(const char* filename)
 {
     std::ifstream in(filename, std::ios::binary);
@@ -24,8 +25,7 @@ std::string get_file_contents(const char* filename)
     throw std::runtime_error("Failed to open file: " + std::string(filename));
 }
 
-
-Shader::Shader(const char* vertexFile, const char* fragmentFile) 
+void Shader::LoadShader(const char* vertexFile, const char* fragmentFile)
 {
     if (vertexFile == "skip" || fragmentFile == "skip") {
         if (init::LogALL || init::LogSystems) { std::cout << "Shader: Skip" << std::endl; }
@@ -113,3 +113,61 @@ void Shader::compileErrors(unsigned int shader, const char* type) {
     }
 }
 
+void Shader::setInt(const char* uniform, int uniforIint) {
+    glUniform1i(glGetUniformLocation(ID, uniform), uniforIint);
+}
+void Shader::setInt2(const char* uniform, int uniforIint1, int uniforIint2) {
+    glUniform2i(glGetUniformLocation(ID, uniform), uniforIint1, uniforIint2);
+}
+void Shader::setInt3(const char* uniform, int uniforIint1, int uniforIint2, int uniforIint3) {
+    glUniform3i(glGetUniformLocation(ID, uniform), uniforIint1, uniforIint2, uniforIint3);
+}
+void Shader::setInt4(const char* uniform, int uniforIint1, int uniforIint2, int uniforIint3, int uniforIint4) {
+    glUniform4i(glGetUniformLocation(ID, uniform), uniforIint1, uniforIint2, uniforIint3, uniforIint4);
+}
+
+void Shader::setFloat(const char* uniform, GLfloat uniFloat)
+{
+    glUniform1f(glGetUniformLocation(ID, uniform), uniFloat);
+}
+void Shader::setFloat2(const char* uniform, GLfloat uniFloat, GLfloat uniFloat2)
+{
+    glUniform2f(glGetUniformLocation(ID, uniform), uniFloat, uniFloat2);
+}
+void Shader::setFloat3(const char* uniform, GLfloat uniFloat, GLfloat uniFloat2, GLfloat uniFloat3)
+{
+    glUniform3f(glGetUniformLocation(ID, uniform), uniFloat, uniFloat2, uniFloat3);
+}
+void Shader::setFloat4(const char* uniform, GLfloat uniFloat, GLfloat uniFloat2, GLfloat uniFloat3, GLfloat uniFloat4)
+{
+    glUniform4f(glGetUniformLocation(ID, uniform), uniFloat, uniFloat2, uniFloat3, uniFloat4);
+}
+
+void Shader::setFloatVector(const char* uniform, GLsizei count, const GLfloat* value)
+{
+    glUniform1fv(glGetUniformLocation(ID, uniform), count, value);
+}
+void Shader::setFloat2Vector(const char* uniform, GLsizei count, const GLfloat* value)
+{
+    glUniform2fv(glGetUniformLocation(ID, uniform), count, value);
+}
+void Shader::setFloat3Vector(const char* uniform, GLsizei count, const GLfloat* value)
+{
+    glUniform3fv(glGetUniformLocation(ID, uniform), count, value);
+}
+void Shader::setFloat4Vector(const char* uniform, GLsizei count, const GLfloat* value)
+{
+    glUniform4fv(glGetUniformLocation(ID, uniform), count, value);
+}
+
+void Shader::setMat4(const char* uniform, glm::mat4 uniformMat4)
+{
+    glUniformMatrix4fv(glGetUniformLocation(ID, uniform), 1, GL_FALSE, glm::value_ptr(uniformMat4));
+}
+
+
+void Shader::setBool(const char* uniform, bool uniformBool)
+{
+    GLint uniformLocation = glGetUniformLocation(ID, uniform);
+    glUniform1i(uniformLocation, uniformBool ? 1 : 0);
+}
