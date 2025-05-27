@@ -149,6 +149,7 @@
     <ClCompile Include="src\Core\Render.cpp" />
     <ClCompile Include="src\Gameplay\BillboardObject.cpp" />
     <ClCompile Include="src\Gameplay\ModelObject.cpp" />
+    <ClCompile Include="src\Gameplay\Player.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui_draw.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="src\Core\Render.h" />
     <ClInclude Include="src\Gameplay\BillboardObject.h" />
     <ClInclude Include="src\Gameplay\ModelObject.h" />
+    <ClInclude Include="src\Gameplay\Player.h" />
     <ClInclude Include="src\Libraries\include\imgui\imconfig.h" />
     <ClInclude Include="src\Libraries\include\imgui\imgui.h" />
     <ClInclude Include="src\Libraries\include\imgui\imgui_impl_glfw.h" />

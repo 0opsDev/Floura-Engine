@@ -18,8 +18,6 @@ unsigned int Framebuffer::gNormal;
 unsigned int Framebuffer::gPosition;
 unsigned int Framebuffer::DBO;
 GLuint Framebuffer::noiseMapTexture;
-
-
 Shader gPassShader;
 
 void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
@@ -35,7 +33,6 @@ void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gPosition, 0);
-
 
 	// - normal color buffer
 	glGenTextures(1, &gNormal);
@@ -69,7 +66,6 @@ void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
 
 void Framebuffer::setupNoiseMap() {
 	NoiseH::generateNoise(noiseMapTexture, 256, 256, 0.05f, 42);
-
 }
 
 void Framebuffer::setupMainFBO(unsigned int width, unsigned int height) {
@@ -97,13 +93,6 @@ void Framebuffer::setupMainFBO(unsigned int width, unsigned int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
-
-	// DepthBuffer + StencilBuffer
-	// RenderBuffer Object
-	//glGenRenderbuffers(1, &RBO);
-//	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
 
 	// Create Depth Texture **(NEW)**
 	glGenTextures(1, &depthTexture);
@@ -158,89 +147,42 @@ void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int h
 
 	// Update first frame buffer texture
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (width * ImGuiCamera::resolutionScale), (height * ImGuiCamera::resolutionScale), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-	// Apply texture filtering settings
-	if (ImGuiCamera::enableLinearScaling) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-	else {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Update second framebuffer texture
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, (width * ImGuiCamera::resolutionScale), (height * ImGuiCamera::resolutionScale), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-	if (ImGuiCamera::enableLinearScaling) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-	else {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Update depth textures
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width * ImGuiCamera::resolutionScale, height * ImGuiCamera::resolutionScale, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 	glBindTexture(GL_TEXTURE_2D, depthTexture2);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width * ImGuiCamera::resolutionScale, height * ImGuiCamera::resolutionScale, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-
-	if (ImGuiCamera::enableLinearScaling) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-	else {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
-
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	// Update G-buffer textures
+
+	// gPosition
 	glBindTexture(GL_TEXTURE_2D, gPosition);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width * ImGuiCamera::resolutionScale, height * ImGuiCamera::resolutionScale, 0, GL_RGBA, GL_FLOAT, NULL);
-
-	if (ImGuiCamera::enableLinearScaling) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-	else {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
-
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	// gNormal
 	glBindTexture(GL_TEXTURE_2D, gNormal);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width * ImGuiCamera::resolutionScale, height * ImGuiCamera::resolutionScale, 0, GL_RGBA, GL_FLOAT, NULL);
-
-	if (ImGuiCamera::enableLinearScaling) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-	else {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	// gAlbedoSpec
 	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width * ImGuiCamera::resolutionScale, height * ImGuiCamera::resolutionScale, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-	if (ImGuiCamera::enableLinearScaling) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-	else {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// DBO
+	glBindRenderbuffer(GL_RENDERBUFFER, DBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
 void Framebuffer::FBO2Draw(Shader frameBufferProgram) {
@@ -280,17 +222,15 @@ void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
 
 	}
 	// we need a way to make isResizing == true when opengl window is resized
-	if (ScreenUtils::isResizing == true || ImGuiCamera::resolutionScale != ImGuiCamera::prevResolutionScale || ImGuiCamera::enableLinearScaling != ImGuiCamera::prevEnableLinearScaling) {
+	if (ScreenUtils::isResizing == true) {
 		std::cout << "Resolution scale changed!" << std::endl;
 		Framebuffer::updateFrameBufferResolution(current_width, current_height); // Update frame buffer resolution
-		glViewport(0, 0, (current_width * ImGuiCamera::resolutionScale), (current_height * ImGuiCamera::resolutionScale));
+		glViewport(0, 0, (current_width), (current_height ));
 		Camera::SetViewportSize(current_width, current_height);
 		//std::cout << "External camera instance address: " << &camera << std::endl;
 		//std::cout << current_width << " " << camera.width << std::endl;
 		//std::cout << current_height << " " << camera.height << std::endl;
 	}
-	ImGuiCamera::prevResolutionScale = ImGuiCamera::resolutionScale; // Update the previous scale
-	ImGuiCamera::prevEnableLinearScaling = ImGuiCamera::ImGuiCamera::enableLinearScaling;
 }
 
 void Framebuffer::FBODraw(
@@ -324,7 +264,7 @@ void Framebuffer::FBODraw(
 	frameBufferProgram.setInt("noiseMapTexture", 7);
 
 	// gPass textures bound to FB
-
+	// send gPass textures to shader
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, gPosition);
 	frameBufferProgram.setInt("gPosition", 1);
@@ -357,11 +297,7 @@ void Framebuffer::FBODraw(
 
 		// copy contents of FB to FB2 and Display FB2
 		Framebuffer::FBO2Draw(frameBufferProgram);
-		//(Shader frameBufferProgram, unsigned int& frameBufferTexture, unsigned int& frameBufferTexture2, unsigned int& FBO2)
 	}
-
-	//std::cout << "gAlbedoSpec Texture ID: " << gAlbedoSpec << std::endl;
-	//std::cout << "Albedo Uniform Location: " << glGetUniformLocation(frameBufferProgram.ID, "gAlbedoSpec") << std::endl;
 
 }
 void Framebuffer::gPassDraw(Model& model, glm::vec3 Transform, glm::quat Rotation, glm::vec3 Scale) {
@@ -371,10 +307,11 @@ void Framebuffer::gPassDraw(Model& model, glm::vec3 Transform, glm::quat Rotatio
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-	glDisable(GL_CULL_FACE);
 	
+	Camera::Matrix(gPassShader, "camMatrix"); // Send Camera Matrix To Shader Prog
 	model.Draw(gPassShader, Transform, Rotation, Scale);
 
+	glDisable(GL_CULL_FACE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);

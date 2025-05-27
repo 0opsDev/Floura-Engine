@@ -2,13 +2,11 @@
 #include <Scripting/ScriptRunner.h>
 #include <Physics/CubeCollider.h>
 bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true, true }; // ImGui Panels
+
+bool ImGuiCamera::DebugPanels[] = { false, false}; // ImGui Panels
+
 std::string ImGuiCamera::FileTabs = "Model";
 bool ImGuiCamera::enableFB = false; // Change this as needed
-bool ImGuiCamera::enableLinearScaling = false;
-
-float ImGuiCamera::prevResolutionScale = 1.0f; // Initialize previous scale
-float ImGuiCamera::prevEnableLinearScaling = false; // Initialize previous scale
-float ImGuiCamera::resolutionScale = 1;
 
 char ImGuiCamera::UniformInput[64] = {}; // Zero-initialized buffer
 float ImGuiCamera::UniformFloat[3] = {}; // Zero-initialized array
@@ -28,7 +26,7 @@ void ImGuiCamera::SystemInfomation() {
 		ImGui::Text("OpenGL Version: %s", version); // Display OpenGL version
 		ImGui::Text("Renderer: %s", renderer);  // Display GPU renderer
 
-		ImGui::Text((std::string("ViewportSize: ") + std::to_string(static_cast<int>(Framebuffer::ViewPortWidth * ImGuiCamera::resolutionScale)) + "*" + std::to_string(static_cast<int>(Framebuffer::ViewPortHeight * ImGuiCamera::resolutionScale))).c_str());
+		ImGui::Text((std::string("ViewportSize: ") + std::to_string(static_cast<int>(Framebuffer::ViewPortWidth)) + "*" + std::to_string(static_cast<int>(Framebuffer::ViewPortHeight))).c_str());
 
 		ImGui::Spacing();
 
@@ -76,14 +74,11 @@ void ImGuiCamera::RenderWindow(GLFWwindow*& window, GLFWmonitor*& monitor, int w
 		// Screen
 		ImGui::DragInt("Width", &SettingsUtils::tempWidth);
 		ImGui::DragInt("Height", &SettingsUtils::tempHeight); // screen slider
-
-		ImGui::SliderFloat("Resolution Scale", &ImGuiCamera::resolutionScale, 0.001, 1);
 		//enableLinearScaling
-		ImGui::Checkbox("Enable Linear Scaling", &ImGuiCamera::enableLinearScaling); // Set the value of enableLinearScaling (bool)
 		ImGui::Checkbox("Enable FB shader", &ImGuiCamera::enableFB); // Set the value of enableFB (bool)
 
 		if (ImGui::SmallButton("Apply Changes?")) { // apply button
-			glViewport(0, 0, SettingsUtils::tempWidth * ImGuiCamera::resolutionScale, SettingsUtils::tempHeight * ImGuiCamera::resolutionScale); // real internal res
+			glViewport(0, 0, SettingsUtils::tempWidth, SettingsUtils::tempHeight); // real internal res
 			glfwSetWindowSize(window, SettingsUtils::tempWidth, SettingsUtils::tempHeight);
 			ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
 			Framebuffer::updateFrameBufferResolution(SettingsUtils::tempWidth, SettingsUtils::tempHeight); // Update frame buffer resolution
@@ -165,7 +160,7 @@ void ImGuiCamera::PanelsWindow() {
 	ImGui::Checkbox("ViewPort", &ImGuiCamera::imGuiPanels[3]);
 	ImGui::Checkbox("File Viewer", &ImGuiCamera::imGuiPanels[4]);
 	ImGui::Checkbox("Physics Settings", &ImGuiCamera::imGuiPanels[5]);
-	ImGui::Checkbox("Preformance Profiler", &ImGuiCamera::imGuiPanels[6]);
+	ImGui::Checkbox("Debug Window", &ImGuiCamera::imGuiPanels[6]);
 	ImGui::End();
 }
 
@@ -173,6 +168,13 @@ void ImGuiCamera::PhysicsWindow(){
 	ImGui::Begin("Physics"); // ImGUI window creation
 	ImGui::Checkbox("showBoxCollider", &CubeCollider::showBoxCollider);
 	
+	ImGui::End();
+}
+
+void ImGuiCamera::DebugWindow() {
+	ImGui::Begin("Debug Window"); // ImGUI window creation
+	ImGui::Checkbox("Preformance Profiler", &DebugPanels[0]);
+	if (DebugPanels[0]) { PreformanceProfiler();}
 	ImGui::End();
 }
 

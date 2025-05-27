@@ -15,13 +15,9 @@ class ImGuiCamera
 public:
 
 	static bool imGuiPanels[]; // ImGui Panels
+	static bool DebugPanels[];
 	static std::string FileTabs; // ImGui FileTabs
 	static bool enableFB; // Change this as needed
-	static bool enableLinearScaling;
-
-	static float resolutionScale;
-	static float prevResolutionScale; // Initialize previous scale
-	static float prevEnableLinearScaling; // Initialize previous scale
 
 	static char UniformInput[64]; // Zero-initialized buffer
 	static float UniformFloat[3]; // Zero-initialized array
@@ -38,6 +34,9 @@ public:
 	static void LightWindow();
 	static void PanelsWindow();
 	static void PhysicsWindow();
+
+	static void DebugWindow();
+
 	static void PreformanceProfiler();
 
 };

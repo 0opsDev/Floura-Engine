@@ -244,6 +244,9 @@
     <ClCompile Include="src\utils\noise.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\Gameplay\Player.cpp">
+      <Filter>src\Gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -389,6 +392,9 @@
     </ClInclude>
     <ClInclude Include="src\utils\noise.h">
       <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Gameplay\Player.h">
+      <Filter>src\Gameplay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

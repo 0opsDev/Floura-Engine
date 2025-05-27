@@ -510,17 +510,15 @@ void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 
 		//prevEnableLinearScaling
 		ScreenUtils::UpdateViewportResize();
-		if (ScreenUtils::isResizing == true || ImGuiCamera::resolutionScale != ImGuiCamera::prevResolutionScale || ImGuiCamera::enableLinearScaling != ImGuiCamera::prevEnableLinearScaling) {
+		if (ScreenUtils::isResizing == true) {
 			//std::cout << "Resolution scale changed!" << std::endl;
 			Framebuffer::updateFrameBufferResolution(window_width, window_height); // Update frame buffer resolution
-			glViewport(0, 0, (window_width * ImGuiCamera::resolutionScale), (window_height * ImGuiCamera::resolutionScale));
+			glViewport(0, 0, (window_width), (window_height));
 
 			Camera::SetViewportSize(window_width, window_height);
 			//std::cout << window_width << " " << camera.width << std::endl;
 			//std::cout << window_height << " " << camera.height << std::endl;
 		}
-		ImGuiCamera::prevResolutionScale = ImGuiCamera::resolutionScale; // Update the previous scale
-		ImGuiCamera::prevEnableLinearScaling = ImGuiCamera::ImGuiCamera::enableLinearScaling;
 
 		ImGui::End();
 	}
@@ -548,7 +546,7 @@ void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 	}
 
 	if (ImGuiCamera::imGuiPanels[6]) {
-		ImGuiCamera::PreformanceProfiler();
+		ImGuiCamera::DebugWindow();
 	}
 	ImGui::Render(); // Renders the ImGUI elements
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

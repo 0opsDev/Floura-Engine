@@ -1,8 +1,8 @@
 [
     {
         "name": "map",
-        "path": "Models/Baseplate/map.gltf",
-        "isCulling": false,
+        "path": "Models/pool/poolmap2.gltf",
+        "isCulling": true,
         "isCollider": true,
         "Location": [ 0, 0, 0 ],
         "Rotation": [ 0, 0, 0, 0 ],

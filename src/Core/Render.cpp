@@ -20,7 +20,6 @@ BillBoardObject BBOJ2;
 BillBoardObject BBOJ;
 BillBoard LightIcon;
 ModelObject test;
-Shader gPassShader2;
 Shader SolidColour;
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
@@ -46,7 +45,6 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	test.CreateObject("LOD", "Assets/LodModel/Vase/VaseLod.json", "test");
 	test.transform = glm::vec3(5, 2, 0);
 	test.isCollider = true;
-	gPassShader2.LoadShader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
 	SolidColour.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
 	// put in one function
 	Framebuffer::setupMainFBO(width, height);
@@ -82,12 +80,15 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	//glDisable(GL_CULL_FACE);
 	for (auto& modelTuple : models) {
 		Model& model = std::get<0>(modelTuple);
+		int cullingSetting = std::get<1>(modelTuple);
 		glm::vec3 translation = std::get<2>(modelTuple);
 		glm::quat rotation = std::get<3>(modelTuple);
 		glm::vec3 scale = std::get<4>(modelTuple);
+		// Apply culling settings
+		if (cullingSetting == 1 && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
+		else { glDisable(GL_CULL_FACE); }
 
 		Framebuffer::gPassDraw(model, translation, rotation, scale);
-			//model.Draw(AlbedoShader, translation, rotation, scale);
 	}
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
