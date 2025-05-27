@@ -44,6 +44,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	Skybox::init(Skybox::DefaultSkyboxPath);
 	test.CreateObject("LOD", "Assets/LodModel/Vase/VaseLod.json", "test");
 	test.transform = glm::vec3(5, 2, 0);
+	test.rotation = glm::vec4(90, 0, 0, 1);
 	test.isCollider = true;
 	SolidColour.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
 	// put in one function
@@ -56,7 +57,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 }
 
 void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, Shader LightProgram, float window_width, float window_height, glm::vec3 lightPos,
-	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3, int>> models) {
+	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models) {
 	test.UpdateCollider();
 	test.UpdateCameraCollider();
 	BBOJ2.UpdateCollider();
@@ -82,7 +83,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 		Model& model = std::get<0>(modelTuple);
 		int cullingSetting = std::get<1>(modelTuple);
 		glm::vec3 translation = std::get<2>(modelTuple);
-		glm::quat rotation = std::get<3>(modelTuple);
+		glm::vec4 rotation = std::get<3>(modelTuple);
 		glm::vec3 scale = std::get<4>(modelTuple);
 		// Apply culling settings
 		if (cullingSetting == 1 && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
@@ -129,7 +130,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 		Model& model = std::get<0>(modelTuple);
 		int cullingSetting = std::get<1>(modelTuple);
 		glm::vec3 translation = std::get<2>(modelTuple);
-		glm::quat rotation = std::get<3>(modelTuple);
+		glm::vec4 rotation = std::get<3>(modelTuple);
 		glm::vec3 scale = std::get<4>(modelTuple);
 
 		// Apply culling settings

@@ -130,7 +130,7 @@ int main() // global variables do not work with threads
 	Camera::Position = RenderClass::CameraXYZ; // camera ratio pos //INIT CAMERA POSITION
 	RenderClass::init(window, width, height);
 	// Model Loader
-	std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3, int>> models = FileClass::loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
+	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models = FileClass::loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
 
 	Main::LoadPlayerConfig();
 	glm::vec3 feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
@@ -185,10 +185,10 @@ int main() // global variables do not work with threads
 			for (auto& modelTuple : models) {
 				Model& model = std::get<0>(modelTuple);
 				glm::vec3 translation = std::get<2>(modelTuple);
-				glm::quat rotation = std::get<3>(modelTuple);
+				glm::vec4 rotation = std::get<3>(modelTuple);
 				glm::vec3 scale = std::get<4>(modelTuple);
 				int isCollider = std::get<5>(modelTuple);
-				if (isCollider == 1 && model.checkCollide(feetpos, translation, rotation, scale, 2)) {
+				if (isCollider == 1 && model.checkCollide(feetpos, translation, glm::quat(rotation.x, rotation.y, rotation.z, rotation.w), scale, 2)) {
 					anyCollision = true;
 
 					// Get collision triangle vertices

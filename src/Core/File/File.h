@@ -21,7 +21,7 @@ class FileClass
 public:
 	static std::pair<std::string, std::string> getShaderPaths(int vertIndex, int fragIndex);
 
-	static std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3, int>> loadModelsFromJson(const std::string& jsonFilePath);
+	static std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> loadModelsFromJson(const std::string& jsonFilePath);
 
 	static void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram); //shader program switcher
 

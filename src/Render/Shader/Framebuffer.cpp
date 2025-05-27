@@ -300,7 +300,7 @@ void Framebuffer::FBODraw(
 	}
 
 }
-void Framebuffer::gPassDraw(Model& model, glm::vec3 Transform, glm::quat Rotation, glm::vec3 Scale) {
+void Framebuffer::gPassDraw(Model& model, glm::vec3 Transform, glm::vec4 Rotation, glm::vec3 Scale) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	gPassShader.Activate();
 	gPassShader.setFloat("gamma", RenderClass::gamma);

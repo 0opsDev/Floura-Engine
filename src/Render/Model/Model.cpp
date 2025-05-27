@@ -21,10 +21,17 @@ Model::Model(const char* file)
 	}
 }
 
-void Model::Draw(Shader& shader, glm::vec3 translation, glm::quat rotation, glm::vec3 scale)
+void Model::Draw(Shader& shader, glm::vec3 translation, glm::vec4 rotation, glm::vec3 scale)
 {
+	// Convert rotation data into a quaternion
+	glm::quat newrotation = glm::angleAxis(glm::radians(rotation.x), glm::vec3(rotation.y, rotation.z, rotation.w));
+
+	// Convert quaternion to rotation matrix
+	glm::mat4 rotationMatrix = glm::toMat4(newrotation);
+
+	// Construct the model matrix
 	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), translation) *
-		glm::mat4_cast(rotation) *
+		rotationMatrix *
 		glm::scale(glm::mat4(1.0f), scale);
 
 	for (unsigned int i = 0; i < meshes.size(); i++)

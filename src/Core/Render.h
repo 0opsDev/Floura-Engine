@@ -28,7 +28,7 @@ public:
 	static void init(GLFWwindow* window, unsigned int width, unsigned int height);
 
 	static void Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, Shader LightProgram, float window_width, float window_height, glm::vec3 lightPos,
-		std::vector<std::tuple<Model, int, glm::vec3, glm::quat, glm::vec3, int>> models);
+		std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models);
 
 	static void Swapchain(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, GLFWmonitor* primaryMonitor);
 
