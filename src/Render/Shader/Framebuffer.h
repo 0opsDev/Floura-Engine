@@ -37,8 +37,6 @@ public:
 	static void FBODraw(
 		Shader frameBufferProgram,
 		bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window);
-
-	static void gPassDraw(Model& model, glm::vec3 Transform, glm::vec4 Rotation, glm::vec3 Scale);
 };
 
 #endif

@@ -3,7 +3,10 @@
 #include "Gameplay/BillboardObject.h"
 #include <Render/Cube/Billboard.h>
 #include "Gameplay/ModelObject.h"
+#include <Sound/SoundProgram.h>
 
+
+Shader gPassShader;
 float RenderClass::gamma = 2.2f;
 bool RenderClass::doReflections = true;
 bool RenderClass::doFog = true;
@@ -18,9 +21,12 @@ GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
 glm::vec3 RenderClass::CameraXYZ = glm::vec3(0.0f, 0.0f, 0.0f); // Initial camera position
 BillBoardObject BBOJ2;
 BillBoardObject BBOJ;
+CubeCollider flatplane;
 BillBoard LightIcon;
+ModelObject test2;
 ModelObject test;
 Shader SolidColour;
+
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
 	ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
@@ -28,7 +34,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init::initGLenable(false); //bool for direction of polys
-
+	gPassShader.LoadShader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
 	BBOJ2.CreateObject("Animated", "Assets/Sprites/animatedBillboards/realistic fire/fire.json", "fire");
 	BBOJ2.tickrate = 20;
 	BBOJ2.doPitch = true;
@@ -42,11 +48,25 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	BBOJ.isCollider = true;
 	LightIcon.init("Assets/Dependants/LB.png");
 	Skybox::init(Skybox::DefaultSkyboxPath);
-	test.CreateObject("LOD", "Assets/LodModel/Vase/VaseLod.json", "test");
-	test.transform = glm::vec3(5, 2, 0);
-	test.rotation = glm::vec4(90, 0, 0, 1);
+	test2.CreateObject("LOD", "Assets/LodModel/Vase/VaseLod.json", "test2");
+	test2.transform = glm::vec3(-3, 2, 5);
+	test2.scale = glm::vec3(1, 1, 1);
+	test2.rotation = glm::vec4(0, 0, 0, 1);
+	test2.isCollider = true;
+
+	test.CreateObject("Static", "Assets/LodModel/Vase/vaseLOD4.gltf", "test");
+	test.transform = glm::vec3(-5, 2, 3);
+	test.scale = glm::vec3(1, 1, 1);
+	test.rotation = glm::vec4(0, 0, 0, 1);
 	test.isCollider = true;
+
+	flatplane.init();
+	flatplane.colliderScale = glm::vec3(100, 1, 100); // Set collider scale for flat plane
+	flatplane.colliderXYZ = glm::vec3(0, -1, 0); // Set collider transform for flat plane
+	flatplane.CollideWithCamera = true;
+
 	SolidColour.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
+
 	// put in one function
 	Framebuffer::setupMainFBO(width, height);
 	Framebuffer::setupSecondFBO(width, height);
@@ -56,14 +76,17 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	init::initImGui(window); // Initialize ImGUI
 }
 
-void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, Shader LightProgram, float window_width, float window_height, glm::vec3 lightPos,
+void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, float window_width, float window_height, glm::vec3 lightPos,
 	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models) {
+	test2.UpdateCollider();
+	test2.UpdateCameraCollider();
 	test.UpdateCollider();
 	test.UpdateCameraCollider();
 	BBOJ2.UpdateCollider();
 	BBOJ2.UpdateCameraCollider();
 	BBOJ.UpdateCollider();
 	BBOJ.UpdateCameraCollider();
+	flatplane.update();
 
 	// Camera
 	Camera::Inputs(window); // send Camera.cpp window inputs and delta time
@@ -89,7 +112,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 		if (cullingSetting == 1 && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
 		else { glDisable(GL_CULL_FACE); }
 
-		Framebuffer::gPassDraw(model, translation, rotation, scale);
+		gPassDraw(model, translation, rotation, scale);
 	}
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
@@ -117,9 +140,6 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	shaderProgram.setFloat4("skyColor", skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
 	shaderProgram.setFloat4("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 	shaderProgram.setFloat("gamma", gamma);
-
-	LightProgram.Activate();
-	LightProgram.setFloat4("lightColor", RenderClass::lightRGBA[0], RenderClass::lightRGBA[1], RenderClass::lightRGBA[2], RenderClass::lightRGBA[3]);
 
 	if (ImGuiCamera::isWireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
@@ -154,15 +174,16 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	auto stopInitTime2 = std::chrono::high_resolution_clock::now();
 	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
 	ImGuiCamera::lPassTime = (initDuration2.count() / 1000.0);
-	test.draw(shaderProgram);
 
+	test2.draw(shaderProgram);
+	test.draw(shaderProgram);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 	// Camera
 	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
-	Camera::Matrix(LightProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 	BBOJ2.draw();
 	BBOJ.draw();
 	LightIcon.draw(true, lightPos.x, lightPos.y, lightPos.z, 0.3, 0.3, 0.3);
+	flatplane.draw();
 
 	glDisable(GL_CULL_FACE);
 
@@ -185,4 +206,21 @@ void RenderClass::Swapchain(GLFWwindow* window, Shader frameBufferProgram, Shade
 
 void RenderClass::Cleanup() {
 
+}
+
+void RenderClass::gPassDraw(Model& model, glm::vec3 Transform, glm::vec4 Rotation, glm::vec3 Scale) {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	gPassShader.Activate();
+	gPassShader.setFloat("gamma", RenderClass::gamma);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	Camera::Matrix(gPassShader, "camMatrix"); // Send Camera Matrix To Shader Prog
+	model.Draw(gPassShader, Transform, Rotation, Scale);
+
+	glDisable(GL_CULL_FACE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//FrameBuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 }

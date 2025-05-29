@@ -104,9 +104,6 @@ int main() // global variables do not work with threads
 	FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram);// feed the shader prog real data
 	shaderProgram.Activate(); // activate new shader program for use
 
-	Shader LightProgram;
-	LightProgram.LoadShader("Shaders/Lighting/light.vert", "Shaders/Lighting/light.frag");
-
 	// move to framebuffer class
 	Shader frameBufferProgram;
 	frameBufferProgram.LoadShader("Shaders/PostProcess/framebuffer.vert", "Shaders/PostProcess/framebuffer.frag");
@@ -258,11 +255,11 @@ int main() // global variables do not work with threads
 
 		auto startInitTime2 = std::chrono::high_resolution_clock::now();
 
-		RenderClass::Render(window, frameBufferProgram, shaderProgram, LightProgram, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), models);
+		RenderClass::Render(window, frameBufferProgram, shaderProgram, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), models);
 		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, shaderProgram, primaryMonitor); }
 
 		RenderClass::Swapchain(window, frameBufferProgram, shaderProgram, primaryMonitor); // tip to self, work down to up (lines)
-
+		
 		auto stopInitTime2 = std::chrono::high_resolution_clock::now();
 		auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
 		ImGuiCamera::Render = (initDuration2.count() / 1000.0);
@@ -275,7 +272,6 @@ int main() // global variables do not work with threads
 	RenderClass::Cleanup();
 	//FootSound.DeleteSound();
 	frameBufferProgram.Delete();
-	LightProgram.Delete();
 	Skybox::Delete();
 	land.DeleteSound();
 	Soundtrack.DeleteSound();

@@ -27,11 +27,13 @@ public:
 
 	static void init(GLFWwindow* window, unsigned int width, unsigned int height);
 
-	static void Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, Shader LightProgram, float window_width, float window_height, glm::vec3 lightPos,
+	static void Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, float window_width, float window_height, glm::vec3 lightPos,
 		std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models);
 
 	static void Swapchain(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, GLFWmonitor* primaryMonitor);
 
 	static void Cleanup();
+
+	static void gPassDraw(Model& model, glm::vec3 Transform, glm::vec4 Rotation, glm::vec3 Scale);
 };
 #endif

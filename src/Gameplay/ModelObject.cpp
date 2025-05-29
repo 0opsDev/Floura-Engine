@@ -39,15 +39,47 @@ std::vector<std::tuple<Model, unsigned int>> ModelObject::loadLODmodelsFromJson(
 	return models;
 }
 
+std::vector<std::tuple<Model>> ModelObject::loadmodelFromJson(const std::string& ModelFilePath) {
+	std::vector<std::tuple<Model >> models;
+	std::ifstream file(ModelFilePath);
+	if (!file.is_open()) {
+		std::cerr << "Failed to open file: " << ModelFilePath << std::endl;
+		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"));
+		return models;
+	}
+
+	json modelData;
+	try {
+		file >> modelData;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error parsing JSON file: " << e.what() << std::endl;
+		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"));
+		return models;
+	}
+	file.close();
+	try {
+			models.emplace_back(Model(((ModelFilePath).c_str())));
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error processing JSON data (ModelObject): " << e.what() << std::endl;
+		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"));
+	}
+
+	return models;
+}
+
 
 void ModelObject::CreateObject(std::string type, std::string path, std::string ObjectName) {
 	if (type == "LOD" || type == "lod" || type == "Lod") {
 		CubeCollider.init();
 		LodFileReader(path);
 		modelOBJ = loadLODmodelsFromJson(path);
+		IsLod = true;
 	}
 	else if (type == "Static" || type == "STATIC") {
-		//ModelLODS.emplace_back(path);
+		SingleModel = loadmodelFromJson(path);
+		IsLod = false;
 	}
 	else {
 		std::cout << "ModelObject type: " << type << " not found" << std::endl;
@@ -89,13 +121,27 @@ void ModelObject::draw(Shader &Shader) {
 	if (DoCulling == true && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
 	else { glDisable(GL_CULL_FACE); }
 
-	for (auto& modelTuple : modelOBJ) {
-		Model& model = std::get<0>(modelTuple);
-		unsigned int iteration = std::get<1>(modelTuple);
-		//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
-		if (iteration == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
+	switch (IsLod) {
+	case true: {
+		for (auto& modelTuple : modelOBJ) {
+			Model& model = std::get<0>(modelTuple);
+			unsigned int iteration = std::get<1>(modelTuple);
+			//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
+			if (iteration == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
+				model.Draw(Shader, transform, rotation, scale);
+				RenderClass::gPassDraw(model, transform, rotation, scale);
+			}
+		}
+		break;
+		}
+	case false: {
+		for (auto& modelTuple : SingleModel) {
+			Model& model = std::get<0>(modelTuple);
+			//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
 			model.Draw(Shader, transform, rotation, scale);
-			Framebuffer::gPassDraw(model, transform, rotation, scale);
+			RenderClass::gPassDraw(model, transform, rotation, scale);
+		}
+		break;
 		}
 	}
 	glDisable(GL_CULL_FACE);

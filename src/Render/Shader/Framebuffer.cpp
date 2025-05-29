@@ -18,10 +18,8 @@ unsigned int Framebuffer::gNormal;
 unsigned int Framebuffer::gPosition;
 unsigned int Framebuffer::DBO;
 GLuint Framebuffer::noiseMapTexture;
-Shader gPassShader;
 
 void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
-	gPassShader.LoadShader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
 	//generate buffer in memory and bind
 	glGenFramebuffers(1, &gBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
@@ -299,20 +297,4 @@ void Framebuffer::FBODraw(
 		Framebuffer::FBO2Draw(frameBufferProgram);
 	}
 
-}
-void Framebuffer::gPassDraw(Model& model, glm::vec3 Transform, glm::vec4 Rotation, glm::vec3 Scale) {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	gPassShader.Activate();
-	gPassShader.setFloat("gamma", RenderClass::gamma);
-	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	
-	Camera::Matrix(gPassShader, "camMatrix"); // Send Camera Matrix To Shader Prog
-	model.Draw(gPassShader, Transform, Rotation, Scale);
-
-	glDisable(GL_CULL_FACE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//FrameBuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 }
