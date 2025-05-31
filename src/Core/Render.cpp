@@ -24,7 +24,6 @@ BillBoardObject BBOJ;
 CubeCollider flatplane;
 BillBoard LightIcon;
 ModelObject test2;
-ModelObject test;
 Shader SolidColour;
 
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
@@ -54,12 +53,6 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	test2.rotation = glm::vec4(0, 0, 0, 1);
 	test2.isCollider = true;
 
-	test.CreateObject("Static", "Assets/LodModel/Vase/vaseLOD4.gltf", "test");
-	test.transform = glm::vec3(-5, 2, 3);
-	test.scale = glm::vec3(1, 1, 1);
-	test.rotation = glm::vec4(0, 0, 0, 1);
-	test.isCollider = true;
-
 	flatplane.init();
 	flatplane.colliderScale = glm::vec3(100, 1, 100); // Set collider scale for flat plane
 	flatplane.colliderXYZ = glm::vec3(0, -1, 0); // Set collider transform for flat plane
@@ -80,8 +73,6 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models) {
 	test2.UpdateCollider();
 	test2.UpdateCameraCollider();
-	test.UpdateCollider();
-	test.UpdateCameraCollider();
 	BBOJ2.UpdateCollider();
 	BBOJ2.UpdateCameraCollider();
 	BBOJ.UpdateCollider();
@@ -176,7 +167,9 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	ImGuiCamera::lPassTime = (initDuration2.count() / 1000.0);
 
 	test2.draw(shaderProgram);
-	test.draw(shaderProgram);
+
+	//test.rotation.x += 300 * TimeUtil::s_DeltaTime;
+	//if (test.rotation.x >= 360) { test.rotation.x = 0; } // Reset rotation to prevent overflow
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 	// Camera
 	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog

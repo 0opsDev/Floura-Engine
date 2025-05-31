@@ -20,6 +20,9 @@ public:
     std::vector<glm::vec3> scalesMeshes;
     std::vector<glm::mat4> matricesMeshes;
 
+    int getVertexCount() const;
+    int getIndiceCount() const;
+
 private:
     const char* file;
     std::vector<unsigned char> data;

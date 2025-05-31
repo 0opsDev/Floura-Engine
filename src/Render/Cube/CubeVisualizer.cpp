@@ -88,6 +88,7 @@ void CubeVisualizer::draw(float x, float y, float z,
 	glBindVertexArray(0);
 	glLineWidth(1.0f); // Adjust the width as needed
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
+	glDepthFunc(GL_LESS);
 }
 
 void CubeVisualizer::Delete() {

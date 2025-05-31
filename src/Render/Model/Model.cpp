@@ -41,6 +41,27 @@ void Model::Draw(Shader& shader, glm::vec3 translation, glm::vec4 rotation, glm:
 	}
 }
 
+int Model::getVertexCount() const
+{
+	int size = 0;
+	for (size_t i = 0; i < meshes.size(); i++) {
+		for (size_t j = 0; j < meshes[i].vertices.size(); j++) {
+			size++;
+		}
+	}
+	return size;
+}
+int Model::getIndiceCount() const
+{
+	int x = 0;
+	for (size_t i = 0; i < meshes.size(); i++) {
+		for (size_t j = 0; j < meshes[i].indices.size(); j++) {
+			x++;
+		}
+	}
+	return x;
+}
+
 glm::vec3 closestPointOnTriangle(glm::vec3 P, glm::vec3 A, glm::vec3 B, glm::vec3 C) {
 	glm::vec3 ab = B - A;
 	glm::vec3 ac = C - A;
@@ -131,9 +152,6 @@ bool Model::checkCollide(glm::vec3 point, glm::vec3 globalTranslation, glm::quat
 	}
 	return collisionDetected;
 }
-
-
-
 
 void Model::loadMesh(unsigned int indMesh)
 {

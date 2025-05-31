@@ -4,7 +4,7 @@
         "NearPlane": "0.1f",
         "FarPlane": "100000.000f",
         "Window": "Template",
-        "DefaultSkyboxPath": "Assets/Skybox/alps_field_4k/Skybox.json",
+        "DefaultSkyboxPath": "Assets/Skybox/sunset/Skybox.json",
 
         "skyRGBA": [ 1, 1, 1 ],
         "lightRGBA": [ 1.0, 1.0, 1.0 ],

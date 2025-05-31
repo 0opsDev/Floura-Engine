@@ -78,6 +78,7 @@ void ModelObject::CreateObject(std::string type, std::string path, std::string O
 		IsLod = true;
 	}
 	else if (type == "Static" || type == "STATIC") {
+		CubeCollider.init();
 		SingleModel = loadmodelFromJson(path);
 		IsLod = false;
 	}

@@ -167,6 +167,10 @@ void ImGuiCamera::PanelsWindow() {
 void ImGuiCamera::PhysicsWindow(){
 	ImGui::Begin("Physics"); // ImGUI window creation
 	ImGui::Checkbox("showBoxCollider", &CubeCollider::showBoxCollider);
+	if (ImGui::TreeNode("Collision")) {
+		ImGui::Checkbox("doPlayerBoxCollision: ", &CubeCollider::CollideWithCamera);
+		ImGui::TreePop();
+	}
 	
 	ImGui::End();
 }
