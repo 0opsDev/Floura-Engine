@@ -1,0 +1,11 @@
+[
+    {
+        "name": "plane",
+        "path": "Models/GRASSLANDS/GRASS.gltf",
+        "isCulling": true,
+        "isCollider": true,
+        "Location": [ 0, 0, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 1, 1, 1 ]
+    }
+]

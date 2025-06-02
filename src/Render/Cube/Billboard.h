@@ -17,6 +17,7 @@ public:
 	std::string DefaultSkyboxPath;
 	unsigned int BBTexture;
 	unsigned int iteration;
+	float TimeAccumulatorBillboard;
 
 	std::string TexturePath;
 	std::vector<std::string> TextureNames;

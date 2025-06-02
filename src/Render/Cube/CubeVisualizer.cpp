@@ -65,30 +65,32 @@ void CubeVisualizer::skyboxBuffer() {
 
 void CubeVisualizer::draw(float x, float y, float z,
 	float ScaleX, float ScaleY, float ScaleZ) {
-	// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_ALWAYS);
-	glLineWidth(5.0f); // Adjust the width as needed
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
-	//std::cout << "height" << height << std::endl;
-	boxShader.Activate();
+	if (Camera::isBoxInFrustum(glm::vec3(x,y,z), glm::vec3(ScaleX, ScaleY, ScaleZ) ) || ScaleX + ScaleY + ScaleZ >= 30) {
+		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_ALWAYS);
+		glLineWidth(5.0f); // Adjust the width as needed
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
+		//std::cout << "height" << height << std::endl;
+		boxShader.Activate();
 
-	glm::mat4 model = glm::mat4(1.0f);
-	// Apply translation
-	model = glm::translate(model, glm::vec3(x, y, z));
-	// Apply scaling
-	model = glm::scale(model, glm::vec3(ScaleX, ScaleY, ScaleZ));
-	boxShader.setMat4("model",model);
-	//feed model matrix known as inside the shader "model"
-	boxShader.setMat4("camMatrix", Camera::cameraMatrix);
-	glUniform3f(glGetUniformLocation(boxShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
+		glm::mat4 model = glm::mat4(1.0f);
+		// Apply translation
+		model = glm::translate(model, glm::vec3(x, y, z));
+		// Apply scaling
+		model = glm::scale(model, glm::vec3(ScaleX, ScaleY, ScaleZ));
+		boxShader.setMat4("model", model);
+		//feed model matrix known as inside the shader "model"
+		boxShader.setMat4("camMatrix", Camera::cameraMatrix);
+		glUniform3f(glGetUniformLocation(boxShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
 
-	glBindVertexArray(cubeVAO);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-	glLineWidth(1.0f); // Adjust the width as needed
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
-	glDepthFunc(GL_LESS);
+		glBindVertexArray(cubeVAO);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glLineWidth(1.0f); // Adjust the width as needed
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
+		glDepthFunc(GL_LESS);
+	}
 }
 
 void CubeVisualizer::Delete() {

@@ -202,3 +202,54 @@ void Camera::Inputs(GLFWwindow* window)
         firstClick = true;
     }
 }
+
+bool Camera::isPointInFrustum(const glm::vec3& worldPos)
+{
+    glm::vec3 camPos = Camera::Position;
+
+    glm::vec4 clipPos = Camera::cameraMatrix * glm::vec4(worldPos, 1.0f);
+    if (clipPos.w <= 0.0f) return false;
+
+    glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
+
+    return ndc.x >= -1.0f && ndc.x <= 1.0f &&
+        ndc.y >= -1.0f && ndc.y <= 1.0f &&
+        ndc.z >= -1.0f && ndc.z <= 1.0f;
+}
+
+bool Camera::isRadiusInFrustum(const glm::vec3& worldPos, const float radius)
+{
+    glm::vec3 camPos = Camera::Position;
+    glm::vec4 clipPos = Camera::cameraMatrix * glm::vec4(worldPos, 1.0f);
+    if (clipPos.w <= 0.0f) return false;
+
+    float ndcRadius = radius / clipPos.w;
+
+    float ndcRadiusX = ndcRadius;
+    float ndcRadiusY = ndcRadius;
+    float ndcRadiusZ = ndcRadius; 
+
+    glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
+
+    return ndc.x + ndcRadiusX >= -1.0f && ndc.x - ndcRadiusX <= 1.0f &&
+        ndc.y + ndcRadiusY >= -1.0f && ndc.y - ndcRadiusY <= 1.0f &&
+        ndc.z + ndcRadiusZ >= -1.0f && ndc.z - ndcRadiusZ <= 1.0f;
+}
+
+bool Camera::isBoxInFrustum(const glm::vec3& worldPos, const glm::vec3& Scale)
+{
+    glm::vec3 camPos = Camera::Position;
+    glm::vec4 clipPos = Camera::cameraMatrix * glm::vec4(worldPos, 1.0f);
+    if (clipPos.w <= 0.0f) return false;
+
+    glm::vec3 ndcRadius;
+    ndcRadius.x = Scale.x / clipPos.w;
+    ndcRadius.y = Scale.y / clipPos.w;
+    ndcRadius.z = Scale.z / clipPos.w;
+
+    glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
+
+    return ndc.x + ndcRadius.x >= -1.0f && ndc.x - ndcRadius.x <= 1.0f &&
+        ndc.y + ndcRadius.y >= -1.0f && ndc.y - ndcRadius.y <= 1.0f &&
+        ndc.z + ndcRadius.z >= -1.0f && ndc.z - ndcRadius.y <= 1.0f;
+}

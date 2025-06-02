@@ -40,6 +40,10 @@ public:
 	glm::vec3 BoxColliderTransform = glm::vec3(0, 0, 0);
 	glm::vec3 BoxColliderScale = glm::vec3(1, 1, 1);
 
+	bool DoFrustumCull = false;
+	glm::vec3 frustumBoxTransform = glm::vec3(0, 0, 0);
+	glm::vec3 frustumBoxScale = glm::vec3(1, 1, 1);
+
 	void CreateObject(std::string type, std::string path, std::string ObjectName); // type LOD or Regular
 
 	void UpdateCollider();

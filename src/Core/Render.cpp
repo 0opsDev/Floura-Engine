@@ -1,4 +1,4 @@
-#include "Render.h"
+﻿#include "Render.h"
 #include <Render/Cube/CubeVisualizer.h>
 #include "Gameplay/BillboardObject.h"
 #include <Render/Cube/Billboard.h>
@@ -52,6 +52,9 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	test2.scale = glm::vec3(1, 1, 1);
 	test2.rotation = glm::vec4(0, 0, 0, 1);
 	test2.isCollider = true;
+	test2.DoFrustumCull = true;
+	test2.frustumBoxTransform = test2.BoxColliderTransform;
+	test2.frustumBoxScale = test2.BoxColliderScale;
 
 	flatplane.init();
 	flatplane.colliderScale = glm::vec3(100, 1, 100); // Set collider scale for flat plane
@@ -71,8 +74,6 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 
 void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, float window_width, float window_height, glm::vec3 lightPos,
 	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models) {
-	test2.UpdateCollider();
-	test2.UpdateCameraCollider();
 	BBOJ2.UpdateCollider();
 	BBOJ2.UpdateCameraCollider();
 	BBOJ.UpdateCollider();
@@ -166,7 +167,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
 	ImGuiCamera::lPassTime = (initDuration2.count() / 1000.0);
 
-	test2.draw(shaderProgram);
+	
 
 	//test.rotation.x += 300 * TimeUtil::s_DeltaTime;
 	//if (test.rotation.x >= 360) { test.rotation.x = 0; } // Reset rotation to prevent overflow
@@ -175,8 +176,20 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 	BBOJ2.draw();
 	BBOJ.draw();
+	for (size_t i = 0; i < 5; i++)
+	{
+		for (size_t i2 = 0; i2 < 5; i2++) {
+			test2.transform.x = i;
+			test2.transform.z = i2;
+			test2.UpdateCollider();
+			test2.UpdateCameraCollider();
+			test2.draw(shaderProgram);
+		}
+	}
+	
 	LightIcon.draw(true, lightPos.x, lightPos.y, lightPos.z, 0.3, 0.3, 0.3);
 	flatplane.draw();
+
 
 	glDisable(GL_CULL_FACE);
 

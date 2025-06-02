@@ -7,7 +7,7 @@ public:
     static float s_lastFrameTime;
     static float s_frameRate;
     static float s_frameRate1hz;
-
+    static float TimeAccumulator;
     static void updateDeltaTime();
 };
 

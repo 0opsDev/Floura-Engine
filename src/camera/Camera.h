@@ -47,6 +47,13 @@ public:
 
     // Handles camera inputs
     void static Inputs(GLFWwindow* window);
+
+    static bool isPointInFrustum(const glm::vec3& worldPos);
+
+    static bool isRadiusInFrustum(const glm::vec3& worldPos, const float radius);
+
+    static bool isBoxInFrustum(const glm::vec3& worldPos, const glm::vec3& Scale);
+
 };
 
 #endif

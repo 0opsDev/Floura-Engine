@@ -32,10 +32,21 @@ void BillBoardObject::UpdateCameraCollider() {
 	CubeCollider.update();
 }
 void BillBoardObject::draw() {
-	if (doUpdateSequence && type == "animated" || doUpdateSequence && type == "Animated") {
-		BillBoardRenderObject.UpdateSequence(tickrate);
+	if (DoFrustumCull) {
+
+		if (Camera::isBoxInFrustum(glm::vec3(transform.x, transform.y, transform.z), glm::vec3(scale.x, scale.y, scale.z))) {
+			if (doUpdateSequence && type == "animated" || doUpdateSequence && type == "Animated") {
+				BillBoardRenderObject.UpdateSequence(tickrate);
+			}
+			BillBoardRenderObject.draw(doPitch, transform.x, transform.y, transform.z, scale.x, scale.y, scale.z);
+		}
 	}
-	BillBoardRenderObject.draw(doPitch, transform.x, transform.y, transform.z, scale.x, scale.y, scale.z);
+	else {
+		if (doUpdateSequence && type == "animated" || doUpdateSequence && type == "Animated") {
+			BillBoardRenderObject.UpdateSequence(tickrate);
+		}
+		BillBoardRenderObject.draw(doPitch, transform.x, transform.y, transform.z, scale.x, scale.y, scale.z);
+	}
 	CubeCollider.draw();
 }
 

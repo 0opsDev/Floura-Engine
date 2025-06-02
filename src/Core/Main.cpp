@@ -232,7 +232,7 @@ int main() // global variables do not work with threads
 		}
 		// Apply Gravity to feetpos Only If No Collision Occurred
 		if (!anyCollision && Camera::s_DoGravity) {
-			feetpos.y -= (2 + TA3.Counter) * deltaTime; // Falling behavior
+			feetpos.y -= (2) * deltaTime; // Falling behavior
 			if (TA3.Counter >= (1 / 2)) { if (FootSound.isPlay) FootSound.StopSound();Camera::DoJump = false; }
 			else { Camera::DoJump = true; }
 

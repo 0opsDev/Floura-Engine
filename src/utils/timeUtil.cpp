@@ -5,8 +5,8 @@ float TimeUtil::s_DeltaTime = 0.0f;
 float TimeUtil::s_lastFrameTime = 0.0f;
 float TimeUtil::s_frameRate = 0;
 float TimeUtil::s_frameRate1hz = 0;
+float TimeUtil::TimeAccumulator= 0;
 
-float TimeAccumulator = 0;
 void TimeUtil::updateDeltaTime() {
     float currentFrameTime = static_cast<float>(glfwGetTime());
     s_DeltaTime = currentFrameTime - s_lastFrameTime;

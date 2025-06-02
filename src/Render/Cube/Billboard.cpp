@@ -15,8 +15,6 @@ float s_Plane_Vertices[] = {
 	-1.0f,  1.0f, 0.0f,  0.0f, 1.0f   // Top-left
 };
 
-float TimeAccumulatorBillboard;
-
 unsigned int s_Plane_Indices[6] =
 {
 	0, 1, 2, // First triangle
@@ -156,48 +154,48 @@ void BillBoard::skyboxBuffer() {
 
 void BillBoard::draw(bool doPitch, float x, float y, float z,
 	float ScaleX, float ScaleY, float ScaleZ) {
-	// Enable depth testing
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
+		// Enable depth testing
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
 
-	// Activate shader
-	PlaneShader.Activate();
+		// Activate shader
+		PlaneShader.Activate();
 
-	// Compute the forward vector towards the camera
-	glm::vec3 camForward = glm::normalize(Camera::Position - glm::vec3(x, y, z));
+		// Compute the forward vector towards the camera
+		glm::vec3 camForward = glm::normalize(Camera::Position - glm::vec3(x, y, z));
 
-	// Lock pitch if `doPitch == false`
-	if (!doPitch) {
-		camForward.y = 0.0f;
-		camForward = glm::normalize(camForward);
-	}
+		// Lock pitch if `doPitch == false`
+		if (!doPitch) {
+			camForward.y = 0.0f;
+			camForward = glm::normalize(camForward);
+		}
 
-	// Compute right & up vectors
-	glm::vec3 camRight = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), camForward));
-	glm::vec3 camUp = glm::normalize(glm::cross(camForward, camRight));
+		// Compute right & up vectors
+		glm::vec3 camRight = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), camForward));
+		glm::vec3 camUp = glm::normalize(glm::cross(camForward, camRight));
 
-	// Construct billboard rotation matrix
-	glm::mat4 billboardRotation = glm::mat4(glm::mat3(camRight, camUp, camForward));
+		// Construct billboard rotation matrix
+		glm::mat4 billboardRotation = glm::mat4(glm::mat3(camRight, camUp, camForward));
 
-	// Apply transformations: translation -> rotation -> scale
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(x, y, z));
-	model = model * billboardRotation;  // Ensure billboard rotation before scaling
-	model = glm::scale(model, glm::vec3(ScaleX, ScaleY, ScaleZ));
+		// Apply transformations: translation -> rotation -> scale
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(x, y, z));
+		model = model * billboardRotation;  // Ensure billboard rotation before scaling
+		model = glm::scale(model, glm::vec3(ScaleX, ScaleY, ScaleZ));
 
-	PlaneShader.Activate();
-	// Pass transformations to shader
-	PlaneShader.setMat4("model", model);
-	PlaneShader.setMat4("camMatrix", Camera::cameraMatrix);
-	glUniform3f(glGetUniformLocation(PlaneShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
+		PlaneShader.Activate();
+		// Pass transformations to shader
+		PlaneShader.setMat4("model", model);
+		PlaneShader.setMat4("camMatrix", Camera::cameraMatrix);
+		glUniform3f(glGetUniformLocation(PlaneShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
 
-	// Render the billboard
-	glBindVertexArray(cubeVAO);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, BBTexture);
-	glUniform1i(glGetUniformLocation(PlaneShader.ID, "texture0"), 0);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+		// Render the billboard
+		glBindVertexArray(cubeVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, BBTexture);
+		glUniform1i(glGetUniformLocation(PlaneShader.ID, "texture0"), 0);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 }
 
 void BillBoard::Delete() {

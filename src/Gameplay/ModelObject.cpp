@@ -119,33 +119,67 @@ unsigned int CalculateLOD(const glm::vec3& cameraPos, const glm::vec3& transform
 
 
 void ModelObject::draw(Shader &Shader) {
-	if (DoCulling == true && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
-	else { glDisable(GL_CULL_FACE); }
 
-	switch (IsLod) {
-	case true: {
-		for (auto& modelTuple : modelOBJ) {
-			Model& model = std::get<0>(modelTuple);
-			unsigned int iteration = std::get<1>(modelTuple);
-			//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
-			if (iteration == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
+	if (DoFrustumCull) {
+		if (Camera::isBoxInFrustum((frustumBoxTransform + transform), frustumBoxScale) ) {
+			if (DoCulling == true && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
+			else { glDisable(GL_CULL_FACE); }
+
+			switch (IsLod) {
+			case true: {
+				for (auto& modelTuple : modelOBJ) {
+					Model& model = std::get<0>(modelTuple);
+					unsigned int iteration = std::get<1>(modelTuple);
+					//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
+					if (iteration == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
+						model.Draw(Shader, transform, rotation, scale);
+						RenderClass::gPassDraw(model, transform, rotation, scale);
+					}
+				}
+				break;
+			}
+			case false: {
+				for (auto& modelTuple : SingleModel) {
+					Model& model = std::get<0>(modelTuple);
+					//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
+					model.Draw(Shader, transform, rotation, scale);
+					RenderClass::gPassDraw(model, transform, rotation, scale);
+				}
+				break;
+			}
+			}
+			glDisable(GL_CULL_FACE);
+		}
+	}
+	else {
+		if (DoCulling == true && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
+		else { glDisable(GL_CULL_FACE); }
+
+		switch (IsLod) {
+		case true: {
+			for (auto& modelTuple : modelOBJ) {
+				Model& model = std::get<0>(modelTuple);
+				unsigned int iteration = std::get<1>(modelTuple);
+				//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
+				if (iteration == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
+					model.Draw(Shader, transform, rotation, scale);
+					RenderClass::gPassDraw(model, transform, rotation, scale);
+				}
+			}
+			break;
+		}
+		case false: {
+			for (auto& modelTuple : SingleModel) {
+				Model& model = std::get<0>(modelTuple);
+				//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
 				model.Draw(Shader, transform, rotation, scale);
 				RenderClass::gPassDraw(model, transform, rotation, scale);
 			}
+			break;
 		}
-		break;
 		}
-	case false: {
-		for (auto& modelTuple : SingleModel) {
-			Model& model = std::get<0>(modelTuple);
-			//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
-			model.Draw(Shader, transform, rotation, scale);
-			RenderClass::gPassDraw(model, transform, rotation, scale);
-		}
-		break;
-		}
+		glDisable(GL_CULL_FACE);
 	}
-	glDisable(GL_CULL_FACE);
 	CubeCollider.draw();
 }
 
