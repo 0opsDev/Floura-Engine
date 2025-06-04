@@ -7,5 +7,32 @@
         "Location": [ 0, 0, 0 ],
         "Rotation": [ 0, 0, 0, 0 ],
         "Scale": [ 1, 1, 1 ]
+    },
+    {
+        "name": "farplane",
+        "path": "Models/GRASSLANDS/farlands.gltf",
+        "isCulling": true,
+        "isCollider": false,
+        "Location": [ 0, -5, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 2000, 2000, 2000 ]
+    },
+    {
+        "name": "stand",
+        "path": "Models/GRASSLANDS/stand.gltf",
+        "isCulling": true,
+        "isCollider": false,
+        "Location": [ 3, 1.5, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 0.5, 0.5, 0.5 ]
+    },
+    {
+        "name": "farplane",
+        "path": "Models/castle/stonemarket2.gltf",
+        "isCulling": true,
+        "isCollider": false,
+        "Location": [ 0, 3, 15 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 0.2, 0.2, 0.2 ]
     }
 ]

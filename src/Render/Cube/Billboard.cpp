@@ -29,8 +29,6 @@ void BillBoard::init(std::string path) {
 }
 void BillBoard::initSeq(std::string path) { 
 	PlaneShader.LoadShader("Shaders/Db/BillBoard.vert", "Shaders/Db/BillBoard.frag");
-	PlaneShader.Activate();
-	glUniform1i(glGetUniformLocation(PlaneShader.ID, "skybox"), 0);
 	skyboxBuffer(); // create buffer in memory for skybox
 
 	LoadSequence(path);

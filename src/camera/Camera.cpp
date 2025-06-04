@@ -21,6 +21,7 @@ float Camera::speed = 0.1f;
 float Camera::PlayerHeightCurrent;
 glm::mat4 Camera::view = glm::mat4(1.0f);
 glm::mat4 Camera::projection = glm::mat4(1.0f);
+float Camera::fov = 60;
 
 void Camera::InitCamera(int width, int height, glm::vec3 position)
 {
@@ -41,6 +42,7 @@ void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
 
     // Makes camera look in the right direction from the right position
     view = glm::lookAt(Position, Position + Orientation, Up);
+    fov = FOVdeg;
     // Adds perspective to the scene
     projection = glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
 
@@ -205,8 +207,6 @@ void Camera::Inputs(GLFWwindow* window)
 
 bool Camera::isPointInFrustum(const glm::vec3& worldPos)
 {
-    glm::vec3 camPos = Camera::Position;
-
     glm::vec4 clipPos = Camera::cameraMatrix * glm::vec4(worldPos, 1.0f);
     if (clipPos.w <= 0.0f) return false;
 
@@ -219,15 +219,14 @@ bool Camera::isPointInFrustum(const glm::vec3& worldPos)
 
 bool Camera::isRadiusInFrustum(const glm::vec3& worldPos, const float radius)
 {
-    glm::vec3 camPos = Camera::Position;
     glm::vec4 clipPos = Camera::cameraMatrix * glm::vec4(worldPos, 1.0f);
     if (clipPos.w <= 0.0f) return false;
 
     float ndcRadius = radius / clipPos.w;
 
-    float ndcRadiusX = ndcRadius;
-    float ndcRadiusY = ndcRadius;
-    float ndcRadiusZ = ndcRadius; 
+    float ndcRadiusX = (ndcRadius + 1 + (fov * 0.1));
+    float ndcRadiusY = (ndcRadius + 1 + (fov * 0.1));
+    float ndcRadiusZ = (ndcRadius + 1 + (fov * 0.1));
 
     glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
 
@@ -238,14 +237,13 @@ bool Camera::isRadiusInFrustum(const glm::vec3& worldPos, const float radius)
 
 bool Camera::isBoxInFrustum(const glm::vec3& worldPos, const glm::vec3& Scale)
 {
-    glm::vec3 camPos = Camera::Position;
     glm::vec4 clipPos = Camera::cameraMatrix * glm::vec4(worldPos, 1.0f);
     if (clipPos.w <= 0.0f) return false;
 
     glm::vec3 ndcRadius;
-    ndcRadius.x = Scale.x / clipPos.w;
-    ndcRadius.y = Scale.y / clipPos.w;
-    ndcRadius.z = Scale.z / clipPos.w;
+    ndcRadius.x = (Scale.x + 1 + (fov * 0.1)) / clipPos.w;
+    ndcRadius.y = (Scale.y + 1 + (fov * 0.1)) / clipPos.w;
+    ndcRadius.z = (Scale.z + 1 + (fov * 0.1)) / clipPos.w;
 
     glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
 

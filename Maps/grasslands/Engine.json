@@ -6,12 +6,12 @@
         "Window": "Template",
         "DefaultSkyboxPath": "Assets/Skybox/sunset/Skybox.json",
 
-        "skyRGBA": [ 1, 1, 1 ],
+        "skyRGBA": [ 0.995, 0.601, 0.517 ],
         "lightRGBA": [ 1.0, 1.0, 1.0 ],
-        "fogRGBA": [ 0.295, 0.328, 0.436 ],
+        "fogRGBA": [ 0.523, 0.143, 0.574 ],
 
         "doReflections": true,
-        "doFog": false,
+        "doFog": true,
         "VertNum": 0,
         "FragNum": 1,
 

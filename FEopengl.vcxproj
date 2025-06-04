@@ -190,6 +190,7 @@
     <ClCompile Include="src\utils\SettingsUtil.cpp" />
     <ClCompile Include="src\utils\timeAccumulator.cpp" />
     <ClCompile Include="src\utils\timeUtil.cpp" />
+    <ClCompile Include="src\utils\VisibilityChecker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera\Camera.h" />
@@ -241,6 +242,7 @@
     <ClInclude Include="src\utils\SettingsUtil.h" />
     <ClInclude Include="src\utils\timeAccumulator.h" />
     <ClInclude Include="src\utils\timeUtil.h" />
+    <ClInclude Include="src\utils\VisibilityChecker.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\imgui.ini" />

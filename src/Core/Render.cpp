@@ -4,6 +4,10 @@
 #include <Render/Cube/Billboard.h>
 #include "Gameplay/ModelObject.h"
 #include <Sound/SoundProgram.h>
+#include <utils/VisibilityChecker.h>
+#include <glm/ext/vector_float3.hpp>
+#include <glm/gtx/norm.hpp>
+
 
 
 Shader gPassShader;
@@ -42,17 +46,19 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	BBOJ2.isCollider = true;
 	BBOJ.CreateObject("Static", "Assets/Sprites/pot.png", "pot");
 	BBOJ.doPitch = false;
-	BBOJ.transform = glm::vec3(0, 0.45, 3);
+	//45
+	BBOJ.transform = glm::vec3(2.6, 1.33, 1.8);
 	BBOJ.scale = glm::vec3(0.5, 0.5, 0.5);
 	BBOJ.isCollider = true;
 	LightIcon.init("Assets/Dependants/LB.png");
 	Skybox::init(Skybox::DefaultSkyboxPath);
 	test2.CreateObject("LOD", "Assets/LodModel/Vase/VaseLod.json", "test2");
-	test2.transform = glm::vec3(-3, 2, 5);
-	test2.scale = glm::vec3(1, 1, 1);
+	test2.transform = glm::vec3(5, 0.65, 3);
+	test2.scale = glm::vec3(0.3, 0.3, 0.3);
 	test2.rotation = glm::vec4(0, 0, 0, 1);
 	test2.isCollider = true;
 	test2.DoFrustumCull = true;
+	test2.BoxColliderScale = glm::vec3(0.3, 0.65, 0.3);
 	test2.frustumBoxTransform = test2.BoxColliderTransform;
 	test2.frustumBoxScale = test2.BoxColliderScale;
 
@@ -78,6 +84,8 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	BBOJ2.UpdateCameraCollider();
 	BBOJ.UpdateCollider();
 	BBOJ.UpdateCameraCollider();
+	test2.UpdateCollider();
+	test2.UpdateCameraCollider();
 	flatplane.update();
 
 	// Camera
@@ -167,7 +175,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
 	ImGuiCamera::lPassTime = (initDuration2.count() / 1000.0);
 
-	
+	test2.draw(shaderProgram);
 
 	//test.rotation.x += 300 * TimeUtil::s_DeltaTime;
 	//if (test.rotation.x >= 360) { test.rotation.x = 0; } // Reset rotation to prevent overflow
@@ -175,21 +183,9 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	// Camera
 	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 	BBOJ2.draw();
-	BBOJ.draw();
-	for (size_t i = 0; i < 5; i++)
-	{
-		for (size_t i2 = 0; i2 < 5; i2++) {
-			test2.transform.x = i;
-			test2.transform.z = i2;
-			test2.UpdateCollider();
-			test2.UpdateCameraCollider();
-			test2.draw(shaderProgram);
-		}
-	}
-	
+	BBOJ.draw();	
 	LightIcon.draw(true, lightPos.x, lightPos.y, lightPos.z, 0.3, 0.3, 0.3);
 	flatplane.draw();
-
 
 	glDisable(GL_CULL_FACE);
 

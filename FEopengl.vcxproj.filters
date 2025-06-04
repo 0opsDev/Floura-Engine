@@ -145,9 +145,6 @@
     <ClCompile Include="src\Render\Buffer\VAO.cpp">
       <Filter>src\Render\Buffer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\Buffer\VBO.cpp">
-      <Filter>src\Render\Buffer</Filter>
-    </ClCompile>
     <ClCompile Include="src\Render\Shader\Framebuffer.cpp">
       <Filter>src\Render\Shader</Filter>
     </ClCompile>
@@ -246,6 +243,12 @@
     </ClCompile>
     <ClCompile Include="src\Gameplay\Player.cpp">
       <Filter>src\Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\VisibilityChecker.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Buffer\VBO.cpp">
+      <Filter>src\Render\Buffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -395,6 +398,9 @@
     </ClInclude>
     <ClInclude Include="src\Gameplay\Player.h">
       <Filter>src\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\VisibilityChecker.h">
+      <Filter>src\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
