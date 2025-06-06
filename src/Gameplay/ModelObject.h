@@ -60,7 +60,7 @@ private:
 	void LodFileReader(std::string path);
 
 	std::vector<std::tuple<Model, unsigned int>> loadLODmodelsFromJson(const std::string& jsonFilePath);
-	std::vector<std::tuple<Model>> ModelObject::loadmodelFromJson(const std::string& ModelFilePath);
+	std::vector<std::tuple<Model>> loadmodelFromJson(const std::string& ModelFilePath);
 
 	std::vector<std::tuple<Model>> SingleModel;
 	std::vector<std::tuple<Model, unsigned int>> modelOBJ;

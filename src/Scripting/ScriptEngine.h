@@ -12,7 +12,7 @@ public:
 
 	float TimeAccumulator;
 
-	float ScriptEngine::tickrate = 30;
+	float tickrate = 30;
 
 	ScriptEngine(std::string Name, std::string Path); //Constructor
 

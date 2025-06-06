@@ -1,4 +1,31 @@
 #include "File.h"
+
+std::string FileClass::currentPath = "";
+std::string FileClass::Contents = "";
+
+void FileClass::saveContents() {
+	std::ofstream file(currentPath, std::ios::trunc);
+	if (!file.is_open()) {
+		std::cout << "Failed to open file for writing: " << currentPath << std::endl;
+		return;
+	}
+	file << Contents;
+	file.close();
+	if (init::LogALL || init::LogSystems) {std::cout << "Saved contents to: " << currentPath << std::endl;}
+}
+void FileClass::loadContents() {
+	std::ifstream file(currentPath);
+	if (!file.is_open()) {
+		std::cout << "Failed to open file: " << currentPath << std::endl;
+		return;
+	}
+	std::stringstream buffer;
+	buffer << file.rdbuf();
+	Contents = buffer.str();
+	file.close();
+	if (init::LogALL || init::LogSystems) std::cout << "Loaded contents from: " << currentPath << std::endl;
+}
+
 std::pair<std::string, std::string> FileClass::getShaderPaths(int vertIndex, int fragIndex) {
 	std::ifstream file("Shaders/ShaderList.json"); // turn into string
 	if (!file.is_open()) {

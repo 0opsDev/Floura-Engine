@@ -7,7 +7,7 @@ class TimeAccumulator {
 public:
 
 	// multiply this by 1/framerate
-	float TimeAccumulator::Counter;
+	float Counter;
 
 	// Increase timer
 	void update();

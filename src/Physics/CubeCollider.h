@@ -17,7 +17,7 @@ public:
 	glm::vec3 lastHit;
 	static bool CollideWithCamera;
 	static bool showBoxCollider;
-	bool checkcollide(glm::vec3& victimXYZ, glm::vec3& victimScale);
+	bool checkcollide(glm::vec3 victimXYZ, glm::vec3 victimScale);
 	void init();
 	void update();
 	void draw();

@@ -1,7 +1,7 @@
 #include "CubeCollider.h"
 
 
-bool CubeCollider::checkcollide(glm::vec3& victimXYZ, glm::vec3& victimScale) {
+bool CubeCollider::checkcollide(glm::vec3 victimXYZ, glm::vec3 victimScale) {
     glm::vec3 colliderMin = colliderXYZ - colliderScale;
     glm::vec3 colliderMax = colliderXYZ + colliderScale;
     glm::vec3 victimMin = victimXYZ - victimScale * 0.5f;

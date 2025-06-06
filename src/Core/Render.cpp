@@ -128,6 +128,19 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 
 	// Send Variables to shader (GPU)
 	shaderProgram.Activate(); // activate shaderprog to send uniforms to gpu
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, Framebuffer::gPosition);
+	shaderProgram.setInt("gPosition", 1);
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, Framebuffer::gNormal);
+	shaderProgram.setInt("gNormal", 2);
+
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, Framebuffer::gAlbedoSpec);
+	shaderProgram.setInt("gAlbedoSpec", 3);
+
 	shaderProgram.setBool("doReflect", doReflections);
 	shaderProgram.setBool("doFog", doFog);
 	shaderProgram.setFloat3("InnerLight1", ConeSI[1] - ConeSI[0], ConeSI[1], ConeSI[2]);

@@ -1,14 +1,15 @@
 #include "ImGuiWindow.h"
 #include <Scripting/ScriptRunner.h>
 #include <Physics/CubeCollider.h>
-bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true, true }; // ImGui Panels
+#include <Core/File/File.h>
+bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true, true, true }; // ImGui Panels
 
 bool ImGuiCamera::DebugPanels[] = { false, false}; // ImGui Panels
 
 std::string ImGuiCamera::FileTabs = "Model";
 bool ImGuiCamera::enableFB = false; // Change this as needed
 
-char ImGuiCamera::UniformInput[64] = {}; // Zero-initialized buffer
+char ImGuiCamera::UniformInput[64] = {""}; // Zero-initialized buffer
 float ImGuiCamera::UniformFloat[3] = {}; // Zero-initialized array
 
 bool ImGuiCamera::isWireframe = false;
@@ -17,6 +18,9 @@ float ImGuiCamera::gPassTime = 0;
 float ImGuiCamera::lPassTime = 0;
 float ImGuiCamera::Render = 0;
 float ImGuiCamera::physicsTime = 0;
+
+// Temporary buffer for path editing
+static char pathBuffer[256]; // Ensure the size is appropriate
 
 void ImGuiCamera::SystemInfomation() {
 	if (ImGui::TreeNode("System Infomation")) {
@@ -161,6 +165,7 @@ void ImGuiCamera::PanelsWindow() {
 	ImGui::Checkbox("File Viewer", &ImGuiCamera::imGuiPanels[4]);
 	ImGui::Checkbox("Physics Settings", &ImGuiCamera::imGuiPanels[5]);
 	ImGui::Checkbox("Debug Window", &ImGuiCamera::imGuiPanels[6]);
+	ImGui::Checkbox("Text Editor", &ImGuiCamera::imGuiPanels[7]);
 	ImGui::End();
 }
 
@@ -190,6 +195,39 @@ void ImGuiCamera::PreformanceProfiler() {
 	ImGui::Text(("Physics: " + std::to_string(physicsTime) + " ms").c_str());
 	float totalTime = ((Render + physicsTime));
 	ImGui::Text(("Total (Render + physicsTime): " + std::to_string(totalTime) + " ms").c_str());
+
+	ImGui::End();
+}
+void ImGuiCamera::TextEditor() {
+	ImGui::Begin("Text Editor"); // ImGUI window creation
+	ImGui::Text("Text Editor");
+
+	strncpy(pathBuffer, FileClass::currentPath.c_str(), sizeof(pathBuffer) - 1);
+	pathBuffer[sizeof(pathBuffer) - 1] = '\0';
+
+	// Input for the path to the text file
+	if (ImGui::InputText("Path", pathBuffer, sizeof(pathBuffer))) {
+		FileClass::currentPath = pathBuffer;
+	}
+
+	if (ImGui::Button("Load")) {
+		FileClass::loadContents(); // Load contents of text editor
+	}
+	if (ImGui::Button("Save")) {
+		FileClass::saveContents(); // Save contents of text editor
+	}
+
+	std::vector<char> contentBuffer(FileClass::Contents.size() + 256);
+	strncpy(contentBuffer.data(), FileClass::Contents.c_str(), contentBuffer.size());
+	contentBuffer[contentBuffer.size() - 1] = '\0';
+
+	ImVec2 textSize = ImGui::CalcTextSize(FileClass::Contents.c_str());
+	ImVec2 boxSize(std::max(textSize.x + 20, 300.0f), std::max(textSize.y + 50, 150.0f));
+
+	// Main Text Editor Input
+	if (ImGui::InputTextMultiline("Text Box", contentBuffer.data(), contentBuffer.size(), boxSize)) {
+		FileClass::Contents = std::string(contentBuffer.data());
+	}
 
 	ImGui::End();
 }

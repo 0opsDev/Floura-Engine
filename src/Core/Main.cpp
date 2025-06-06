@@ -134,8 +134,10 @@ int main() // global variables do not work with threads
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	if (init::LogALL || init::LogSystems) std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
+
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
+
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
 		ScriptRunner::update();
 		InputUtil::UpdateCurrentKey(window);
@@ -543,6 +545,10 @@ void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 
 	if (ImGuiCamera::imGuiPanels[6]) {
 		ImGuiCamera::DebugWindow();
+	}
+
+	if (ImGuiCamera::imGuiPanels[7]) {
+		ImGuiCamera::TextEditor();
 	}
 	ImGui::Render(); // Renders the ImGUI elements
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

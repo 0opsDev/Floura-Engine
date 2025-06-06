@@ -19,6 +19,15 @@ using json = nlohmann::json;
 class FileClass
 {
 public:
+
+	// Text editor
+	static std::string currentPath; // Current working directory path
+	static std::string Contents;
+
+	static void saveContents();
+	static void loadContents();
+
+	// General
 	static std::pair<std::string, std::string> getShaderPaths(int vertIndex, int fragIndex);
 
 	static std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> loadModelsFromJson(const std::string& jsonFilePath);
