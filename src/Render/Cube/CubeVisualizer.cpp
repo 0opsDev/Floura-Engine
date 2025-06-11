@@ -83,7 +83,8 @@ void CubeVisualizer::draw(float x, float y, float z,
 		//feed model matrix known as inside the shader "model"
 		boxShader.setMat4("camMatrix", Camera::cameraMatrix);
 		glUniform3f(glGetUniformLocation(boxShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
-
+		
+		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindVertexArray(cubeVAO);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);

@@ -163,6 +163,7 @@
     <ClCompile Include="src\Render\Buffer\VBO.cpp" />
     <ClCompile Include="src\Render\Cube\Billboard.cpp" />
     <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp" />
+    <ClCompile Include="src\Render\Cube\RenderQuad.cpp" />
     <ClCompile Include="src\Render\model\Mesh.cpp" />
     <ClCompile Include="src\Render\model\Model.cpp" />
     <ClCompile Include="src\Render\model\stb.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="src\Render\Buffer\VBO.h" />
     <ClInclude Include="src\Render\Cube\Billboard.h" />
     <ClInclude Include="src\Render\Cube\CubeVisualizer.h" />
+    <ClInclude Include="src\Render\Cube\RenderQuad.h" />
     <ClInclude Include="src\Render\model\Mesh.h" />
     <ClInclude Include="src\Render\model\Model.h" />
     <ClInclude Include="src\Render\model\Texture.h" />
@@ -252,6 +254,8 @@
     <None Include="Shaders\Db\BillBoard.frag" />
     <None Include="Shaders\Db\BillBoard.vert" />
     <None Include="Shaders\Db\Depth.frag" />
+    <None Include="Shaders\Db\RenderQuad.frag" />
+    <None Include="Shaders\Db\RenderQuad.vert" />
     <None Include="Shaders\Db\solidColour.frag" />
     <None Include="Shaders\Db\OrangeHitbox.frag" />
     <None Include="Shaders\Empty.shader" />

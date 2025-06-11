@@ -7,8 +7,7 @@
 #include <utils/VisibilityChecker.h>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtx/norm.hpp>
-
-
+#include "Render/Cube/RenderQuad.h"
 
 Shader gPassShader;
 float RenderClass::gamma = 2.2f;
@@ -29,6 +28,10 @@ CubeCollider flatplane;
 BillBoard LightIcon;
 ModelObject test2;
 Shader SolidColour;
+RenderQuad flatplanez;
+Shader shader;
+bool RenderClass::LightingPass = false; // Toggle for lighting pass
+bool RenderClass::RegularPass = true; // Toggle for regular pass
 
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
@@ -67,13 +70,17 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	flatplane.colliderXYZ = glm::vec3(0, -1, 0); // Set collider transform for flat plane
 	flatplane.CollideWithCamera = true;
 
+	flatplanez.init();
+
 	SolidColour.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
+
+	shader.LoadShader("Shaders/Db/RenderQuad.vert", "Shaders/Db/RenderQuad.frag");
 
 	// put in one function
 	Framebuffer::setupMainFBO(width, height);
 	Framebuffer::setupSecondFBO(width, height);
 	Framebuffer::setupGbuffers(width, height);
-	Framebuffer::setupNoiseMap();
+	//Framebuffer::setupNoiseMap();
 
 	init::initImGui(window); // Initialize ImGUI
 }
@@ -139,7 +146,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, Framebuffer::gAlbedoSpec);
-	shaderProgram.setInt("gAlbedoSpec", 3);
+	shaderProgram.setInt("gAlbedoSpec", 3);	
 
 	shaderProgram.setBool("doReflect", doReflections);
 	shaderProgram.setBool("doFog", doFog);
@@ -153,45 +160,45 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	shaderProgram.setFloat4("skyColor", skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
 	shaderProgram.setFloat4("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 	shaderProgram.setFloat("gamma", gamma);
-
 	if (ImGuiCamera::isWireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 		glClearColor(0, 0, 0, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
 	auto startInitTime2 = std::chrono::high_resolution_clock::now();
-	for (auto& modelTuple : models) {
-		Model& model = std::get<0>(modelTuple);
-		int cullingSetting = std::get<1>(modelTuple);
-		glm::vec3 translation = std::get<2>(modelTuple);
-		glm::vec4 rotation = std::get<3>(modelTuple);
-		glm::vec3 scale = std::get<4>(modelTuple);
+	if (RegularPass) {
+		
+		for (auto& modelTuple : models) {
+			Model& model = std::get<0>(modelTuple);
+			int cullingSetting = std::get<1>(modelTuple);
+			glm::vec3 translation = std::get<2>(modelTuple);
+			glm::vec4 rotation = std::get<3>(modelTuple);
+			glm::vec3 scale = std::get<4>(modelTuple);
 
-		// Apply culling settings
-		if (cullingSetting == 1 && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
-		else { glDisable(GL_CULL_FACE); }
+			// Apply culling settings
+			if (cullingSetting == 1 && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
+			else { glDisable(GL_CULL_FACE); }
 
-		if (!ImGuiCamera::isWireframe) {
-			model.Draw(shaderProgram, translation, rotation, scale);
-			glDisable(GL_CULL_FACE);
-		}
-		else {
-			SolidColour.Activate();
-			SolidColour.setFloat("DepthDistance", 50);
-			SolidColour.setFloat("NearPlane", RenderClass::DepthPlane[0]);
-			SolidColour.setFloat("FarPlane", RenderClass::DepthPlane[1]);
+			if (!ImGuiCamera::isWireframe) {
+				model.Draw(shaderProgram, translation, rotation, scale);
+				glDisable(GL_CULL_FACE);
+			}
+			else {
+				SolidColour.Activate();
+				SolidColour.setFloat("DepthDistance", 50);
+				SolidColour.setFloat("NearPlane", RenderClass::DepthPlane[0]);
+				SolidColour.setFloat("FarPlane", RenderClass::DepthPlane[1]);
 
-			model.Draw(SolidColour, translation, rotation, scale);
-			glDisable(GL_CULL_FACE);
+				model.Draw(SolidColour, translation, rotation, scale);
+				glDisable(GL_CULL_FACE);
+			}
 		}
 	}
-	auto stopInitTime2 = std::chrono::high_resolution_clock::now();
-	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
-	ImGuiCamera::lPassTime = (initDuration2.count() / 1000.0);
 
 	test2.draw(shaderProgram);
 
-	//test.rotation.x += 300 * TimeUtil::s_DeltaTime;
-	//if (test.rotation.x >= 360) { test.rotation.x = 0; } // Reset rotation to prevent overflow
+	test2.rotation.x += 300 * TimeUtil::s_DeltaTime;
+	if (test2.rotation.x >= 360) { test2.rotation.x = 0; } // Reset rotation to prevent overflow
+
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 	// Camera
 	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
@@ -199,6 +206,37 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	BBOJ.draw();	
 	LightIcon.draw(true, lightPos.x, lightPos.y, lightPos.z, 0.3, 0.3, 0.3);
 	flatplane.draw();
+
+	if (LightingPass) {
+		glDisable(GL_CULL_FACE);
+		shader.Activate();
+		// gPass textures bound to FB
+		// send gPass textures to shader
+		glActiveTexture(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, Framebuffer::gPosition);
+		shader.setInt("gPosition", 1);
+
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, Framebuffer::gNormal);
+		shader.setInt("gNormal", 2);
+
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, Framebuffer::gAlbedoSpec);
+		shader.setInt("gAlbedoSpec", 3);
+
+		shader.setFloat3("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2]);
+		shader.setFloat3("skyColor", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
+		shader.setFloat3("orientation", Camera::Orientation.x, Camera::Orientation.y, Camera::Orientation.z);
+		shader.setFloat3("cameraPos", Camera::Position.x, Camera::Position.y, Camera::Position.z);
+		//shader.
+		flatplanez.draw(shader);
+	}
+	auto stopInitTime2 = std::chrono::high_resolution_clock::now();
+	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
+	ImGuiCamera::lPassTime = (initDuration2.count() / 1000.0);
 
 	glDisable(GL_CULL_FACE);
 
@@ -227,12 +265,16 @@ void RenderClass::gPassDraw(Model& model, glm::vec3 Transform, glm::vec4 Rotatio
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	gPassShader.Activate();
 	gPassShader.setFloat("gamma", RenderClass::gamma);
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_2D, Framebuffer::noiseMapTexture);
+	gPassShader.setInt("noiseMapTexture", 7);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
 	Camera::Matrix(gPassShader, "camMatrix"); // Send Camera Matrix To Shader Prog
 	model.Draw(gPassShader, Transform, Rotation, Scale);
+
 
 	glDisable(GL_CULL_FACE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

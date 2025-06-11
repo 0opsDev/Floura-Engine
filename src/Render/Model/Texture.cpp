@@ -20,7 +20,7 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
         std::cerr << "\nFailed to load texture: " << image << "\n" << std::endl;
         // load fallback texture
         widthImg = 2; heightImg = 2; numColCh = 3;
-        bytes = stbi_load("Assets/assets/fallback/model/placeholder/texture/placeholder_unshaded.png", &widthImg, &heightImg, &numColCh, 0);
+        bytes = stbi_load("Assets/Dependants/placeholder/texture/placeholder_unshaded.png", &widthImg, &heightImg, &numColCh, 0);
         //throw std::runtime_error("Failed to load texture: " + std::string(image));
     }
 

@@ -25,6 +25,9 @@ public:
 	static GLfloat ConeRot[];
 	static glm::vec3 CameraXYZ; // Initial camera position
 
+	static bool RenderClass::LightingPass; // Toggle for lighting pass
+	static bool RenderClass::RegularPass; // Toggle for regular pass
+
 	static void init(GLFWwindow* window, unsigned int width, unsigned int height);
 
 	static void Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, float window_width, float window_height, glm::vec3 lightPos,

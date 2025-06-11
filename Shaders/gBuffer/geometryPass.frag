@@ -12,6 +12,7 @@ in vec2 texCoord;
 
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
+uniform sampler2D noiseMapTexture;
 
 void main()
 {
@@ -20,6 +21,7 @@ void main()
     gNormal = normalize(Normal); // Using the vertex normal directly instead of transformed
 
     // Assign Albedo RGB from texture
+    //gAlbedoSpec.rgb = texture(diffuse0, texCoord).rgb * (texture(noiseMapTexture, texCoord) * 5).rgb;
     gAlbedoSpec.rgb = texture(diffuse0, texCoord).rgb;
 
     // Ensure alpha is correctly fetched

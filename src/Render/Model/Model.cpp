@@ -175,7 +175,11 @@ void Model::loadMesh(unsigned int indMesh)
 	// Combine all the vertex components and also get the indices and textures
 	std::vector<Vertex> vertices = assembleVertices(positions, normals, texUVs);
 	std::vector<GLuint> indices = getIndices(JSON["accessors"][indAccInd]);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	std::vector<Texture> textures = getTexturesForMesh(indMesh);
+	//std::vector<Texture> textures = getTextures();
 
 	// Combine the vertices, indices, and textures into a mesh
 	meshes.push_back(Mesh(vertices, indices, textures));
@@ -402,8 +406,8 @@ std::vector<Texture> Model::getTextures()
 		if (!skip)
 		{
 			if (init::LogALL || init::LogModel) std::cout << "\nModel.cpp" << std::endl;
-			// Determine the texture type based on the filename
-			const char* texType = "diffuse"; // Default to diffuse
+			// Determine the texture type based on the name
+			const char* texType;
 			if (texPath.find("baseColor") != std::string::npos)
 			{
 				texType = "diffuse";
@@ -413,12 +417,6 @@ std::vector<Texture> Model::getTextures()
 			{
 				texType = "specular";
 				if (init::LogALL || init::LogModel) std::cout << "model.cpp - Texture type: specular" << std::endl;
-			}
-			else if (texPath.find("unshaded") != std::string::npos)
-			{
-				//sent to mesh.cpp
-				texType = "unshaded";
-				if (init::LogALL || init::LogModel) std::cout << "model.cpp - Texture type: unshaded" << std::endl;
 			}
 
 			// Load the texture
@@ -437,22 +435,22 @@ std::vector<Texture> Model::getTextures()
 std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 {
 	std::vector<Texture> textures;
-
 	// Check if the mesh has a material
 	if (JSON["meshes"][indMesh]["primitives"][0].find("material") != JSON["meshes"][indMesh]["primitives"][0].end())
 	{
 		unsigned int materialIndex = JSON["meshes"][indMesh]["primitives"][0]["material"];
 		json material = JSON["materials"][materialIndex];
 
-		// Check if the material has a baseColorTexture
+		std::string fileStr = std::string(file);
+		std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
+
+		// diffuse
 		if (material["pbrMetallicRoughness"].find("baseColorTexture") != material["pbrMetallicRoughness"].end())
 		{
 			unsigned int textureIndex = material["pbrMetallicRoughness"]["baseColorTexture"]["index"];
-			if (!JSON["images"][textureIndex]["uri"].is_null()) // Handle null values
+			if (!JSON["images"][textureIndex]["uri"].is_null())
 			{
 				std::string texturePath = JSON["images"][textureIndex]["uri"];
-
-				// Check if the texture is already loaded
 				bool skip = false;
 				for (unsigned int i = 0; i < loadedTexName.size(); i++)
 				{
@@ -463,23 +461,69 @@ std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 						break;
 					}
 				}
-
-				// If the texture is not loaded, load it
 				if (!skip)
 				{
-					std::string fileStr = std::string(file);
-					std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
-					Texture texture = Texture((fileDirectory + texturePath).c_str(), "diffuse", loadedTex.size());
+					Texture texture((fileDirectory + texturePath).c_str(), "diffuse", loadedTex.size());
 					textures.push_back(texture);
 					loadedTex.push_back(texture);
 					loadedTexName.push_back(texturePath);
 				}
 			}
 		}
+
+		// specular
+		if (material["pbrMetallicRoughness"].find("metallicRoughnessTexture") != material["pbrMetallicRoughness"].end())
+		{
+			unsigned int textureIndex = material["pbrMetallicRoughness"]["metallicRoughnessTexture"]["index"];
+			if (!JSON["images"][textureIndex]["uri"].is_null())
+			{
+				std::string texturePath = JSON["images"][textureIndex]["uri"];
+				bool skip = false;
+				for (unsigned int i = 0; i < loadedTexName.size(); i++)
+				{
+					if (loadedTexName[i] == texturePath)
+					{
+						textures.push_back(loadedTex[i]);
+						skip = true;
+						break;
+					}
+				}
+				if (!skip)
+				{
+					Texture texture((fileDirectory + texturePath).c_str(), "specular", loadedTex.size());
+					textures.push_back(texture);
+					loadedTex.push_back(texture);
+					loadedTexName.push_back(texturePath);
+				}
+			}
+		}
+		else
+		{
+			// fallback
+			std::string fallbackPath = "Assets/Dependants/black.png";
+			bool skip = false;
+			for (unsigned int i = 0; i < loadedTexName.size(); i++)
+			{
+				if (loadedTexName[i] == fallbackPath)
+				{
+					textures.push_back(loadedTex[i]);
+					skip = true;
+					break;
+				}
+			}
+			if (!skip)
+			{
+				Texture fallbackTexture(fallbackPath.c_str(), "specular", loadedTex.size());
+				textures.push_back(fallbackTexture);
+				loadedTex.push_back(fallbackTexture);
+				loadedTexName.push_back(fallbackPath);
+			}
+		}
 	}
 
 	return textures;
 }
+
 
 std::vector<Vertex> Model::assembleVertices
 (

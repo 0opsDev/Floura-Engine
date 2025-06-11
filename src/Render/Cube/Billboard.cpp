@@ -185,7 +185,6 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 		// Pass transformations to shader
 		PlaneShader.setMat4("model", model);
 		PlaneShader.setMat4("camMatrix", Camera::cameraMatrix);
-		glUniform3f(glGetUniformLocation(PlaneShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
 
 		// Render the billboard
 		glBindVertexArray(cubeVAO);
@@ -194,6 +193,7 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 		glUniform1i(glGetUniformLocation(PlaneShader.ID, "texture0"), 0);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void BillBoard::Delete() {

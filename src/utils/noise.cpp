@@ -4,6 +4,7 @@
 
 void NoiseH::generateNoise(GLuint& texture, int width, int height, float scale, int seed) {
     std::vector<float> noiseData(width * height * 3);
+    glDeleteTextures(1, &texture); // Delete the texture if it already exists
 
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
@@ -28,4 +29,5 @@ void NoiseH::generateNoise(GLuint& texture, int width, int height, float scale, 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	noiseData.clear(); // Clear the vector to free memory
 }

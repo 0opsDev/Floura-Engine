@@ -36,6 +36,7 @@ public:
 	void setFloat3Vector(const char* uniform, GLsizei count, const GLfloat* value);
 	void setFloat4Vector(const char* uniform, GLsizei count, const GLfloat* value);
 
+	void setMat3(const char* uniform, glm::mat4 uniformMat3);
 	void setMat4(const char* uniform, glm::mat4 uniformMat4);
 	void setBool(const char* uniform, bool uniformBool);
 private:

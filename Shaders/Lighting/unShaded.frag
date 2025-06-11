@@ -15,7 +15,7 @@ in vec2 texCoord;
 // Gets the Texture Units from the main function
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
-uniform sampler2D unshaded0;
+uniform sampler2D empty;
 // Gets the color of the light from the main function
 uniform vec4 lightColor;
 uniform vec3 fogColor;
@@ -39,13 +39,8 @@ vec4 unShaded()
 	diffuseColor.rgb = pow(diffuseColor.rgb, vec3(gamma)); // Correct the gamma
 
 	float specularColor = pow(texture(specular0, texCoord).r, 1.0 / gamma);
-	vec4 unshadedColor = texture(unshaded0, texCoord) * skyColor;
 
     // If the unshaded0 texture is being used, return its color directly
-    if (isUnshaded0 == 1)
-    {
-        return unshadedColor;
-    }
 	// ambient lighting
 	float ambient = 0.20f;
 
@@ -72,7 +67,7 @@ vec4 unShaded()
 	return (diffuseColor + specularColor * specular) * skyColor;
 	break;
 	case 2:
-	return (specularColor * specular) * skyColor;
+	return (vec4(specularColor));
 	break;
 	}
 	

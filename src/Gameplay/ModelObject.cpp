@@ -6,7 +6,7 @@ std::vector<std::tuple<Model, unsigned int>> ModelObject::loadLODmodelsFromJson(
 	std::ifstream file(jsonFilePath);
 	if (!file.is_open()) {
 		std::cerr << "Failed to open file: " << jsonFilePath << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0);
+		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"), 0);
 		return models;
 	}
 
@@ -16,7 +16,7 @@ std::vector<std::tuple<Model, unsigned int>> ModelObject::loadLODmodelsFromJson(
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error parsing JSON file: " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0);
+		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"), 0);
 		return models;
 	}
 	file.close();
@@ -34,7 +34,7 @@ std::vector<std::tuple<Model, unsigned int>> ModelObject::loadLODmodelsFromJson(
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error processing JSON data (ModelObject): " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"), 0);
+		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"), 0);
 	}
 
 	return models;
@@ -45,7 +45,7 @@ std::vector<std::tuple<Model>> ModelObject::loadmodelFromJson(const std::string&
 	std::ifstream file(ModelFilePath);
 	if (!file.is_open()) {
 		std::cerr << "Failed to open file: " << ModelFilePath << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"));
+		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"));
 		return models;
 	}
 
@@ -55,7 +55,7 @@ std::vector<std::tuple<Model>> ModelObject::loadmodelFromJson(const std::string&
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error parsing JSON file: " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"));
+		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"));
 		return models;
 	}
 	file.close();
@@ -64,7 +64,7 @@ std::vector<std::tuple<Model>> ModelObject::loadmodelFromJson(const std::string&
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error processing JSON data (ModelObject): " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/assets/fallback/model/placeholder/placeholder.gltf"));
+		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"));
 	}
 
 	return models;

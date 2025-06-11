@@ -44,7 +44,6 @@ void Mesh::Draw(Shader& shader, glm::mat4 modelMatrix)
 
     unsigned int numDiffuse = 0;
     unsigned int numSpecular = 0;
-    unsigned int numUnshaded = 0;
 
     for (unsigned int i = 0; i < textures.size(); i++)
     {
@@ -56,13 +55,9 @@ void Mesh::Draw(Shader& shader, glm::mat4 modelMatrix)
         else if (type == "specular") {
             num = std::to_string(numSpecular++);
         }
-        else if (type == "unshaded") {
-            num = std::to_string(numUnshaded++);
-        }
 
         textures[i].texUnit(shader, (type + num).c_str(), i);
         textures[i].Bind();
-        glUniform1i(glGetUniformLocation(shader.ID, ("isUnshaded" + std::to_string(i)).c_str()), type == "unshaded");
     }
 
     // Camera Matrix

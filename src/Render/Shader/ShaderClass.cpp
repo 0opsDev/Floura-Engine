@@ -165,6 +165,12 @@ void Shader::setMat4(const char* uniform, glm::mat4 uniformMat4)
     glUniformMatrix4fv(glGetUniformLocation(ID, uniform), 1, GL_FALSE, glm::value_ptr(uniformMat4));
 }
 
+void Shader::setMat3(const char* uniform, glm::mat4 uniformMat3)
+{
+    glUniformMatrix3fv(glGetUniformLocation(ID, uniform), 1, GL_FALSE, glm::value_ptr(uniformMat3));
+}
+
+
 
 void Shader::setBool(const char* uniform, bool uniformBool)
 {

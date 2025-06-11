@@ -17,6 +17,7 @@ unsigned int Framebuffer::gAlbedoSpec;
 unsigned int Framebuffer::gNormal;
 unsigned int Framebuffer::gPosition;
 unsigned int Framebuffer::DBO;
+unsigned int Framebuffer::gNoise;
 GLuint Framebuffer::noiseMapTexture;
 
 void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
@@ -63,7 +64,8 @@ void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
 }
 
 void Framebuffer::setupNoiseMap() {
-	NoiseH::generateNoise(noiseMapTexture, 256, 256, 0.05f, 42);
+	// *TimeUtil::s_DeltaTime)
+	NoiseH::generateNoise(noiseMapTexture, 1024, 1024, 0.05f, 42);
 }
 
 void Framebuffer::setupMainFBO(unsigned int width, unsigned int height) {
@@ -234,6 +236,7 @@ void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
 void Framebuffer::FBODraw(
 	Shader frameBufferProgram,
 	bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window) {
+
 	// Switch back to the normal depth function
 	glDepthFunc(GL_LESS);
 

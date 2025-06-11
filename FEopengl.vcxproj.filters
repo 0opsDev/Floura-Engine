@@ -250,6 +250,9 @@
     <ClCompile Include="src\Render\Buffer\VBO.cpp">
       <Filter>src\Render\Buffer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Render\Cube\RenderQuad.cpp">
+      <Filter>src\Render\Cube</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -402,6 +405,9 @@
     <ClInclude Include="src\utils\VisibilityChecker.h">
       <Filter>src\utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\Render\Cube\RenderQuad.h">
+      <Filter>src\Render\Cube</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Empty.shader">
@@ -505,6 +511,12 @@
     </None>
     <None Include="Shaders\gBuffer\geometryPass.vert">
       <Filter>Resource Files\Shaders\gBuffer</Filter>
+    </None>
+    <None Include="Shaders\Db\RenderQuad.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Shaders\Db\RenderQuad.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
     </None>
   </ItemGroup>
 </Project>

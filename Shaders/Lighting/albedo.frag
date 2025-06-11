@@ -15,28 +15,26 @@ in vec2 texCoord;
 // Gets the Texture Units from the main function
 uniform sampler2D diffuse0;
 
+uniform float gamma;
+
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
 
-uniform float gamma;
-
-vec3 unShaded()
+vec4 unShaded()
 {
-	vec4 diffuseColor = texture(diffuse0, texCoord);
-	vec3 albedo = texture(gAlbedoSpec, texCoord).rgb;
+vec4 diffuseColor = texture(diffuse0, texCoord);
+diffuseColor.rgb = pow(diffuseColor.rgb, vec3(gamma)); // Correct the gamma
 
-	diffuseColor.rgb = pow(diffuseColor.rgb, vec3(gamma)); // Correct the gamma
+if (diffuseColor.a < 0.1)
+discard;
 
-	if (diffuseColor.a < 0.1)
-	discard;
+    return diffuseColor;
 
-    return albedo;
-	
 }
 void main()
 {
-    FragColor = vec4(unShaded(), 1.0f);
-	// Apply final gamma correction before output
+    FragColor = unShaded();
+// Apply final gamma correction before output
     FragColor.rgb = pow(FragColor.rgb, vec3(1.0 / gamma)); 
 }

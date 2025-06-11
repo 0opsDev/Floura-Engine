@@ -20,6 +20,6 @@
 
         "DepthDistance": 100,
         "DepthPlane": [ 0.100, 100 ],
-        "DefaultCameraPos": [ 0, 5, 0 ]
+        "DefaultCameraPos": [ 0, 15, 0 ]
     }
 ]
