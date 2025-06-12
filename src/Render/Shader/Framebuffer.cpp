@@ -6,12 +6,10 @@ unsigned int Framebuffer::viewVAO;
 unsigned int Framebuffer::viewVBO;
 unsigned int Framebuffer::FBO2;
 unsigned int Framebuffer::frameBufferTexture2;
-unsigned int Framebuffer::RBO2;
 unsigned int Framebuffer::frameBufferTexture;
 unsigned int Framebuffer::RBO;
 unsigned int Framebuffer::FBO;
 unsigned int Framebuffer::depthTexture;
-unsigned int Framebuffer::depthTexture2;
 unsigned int Framebuffer::gBuffer;
 unsigned int Framebuffer::gAlbedoSpec;
 unsigned int Framebuffer::gNormal;
@@ -53,8 +51,16 @@ void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, DBO);
 
-	unsigned int attachments[3] = { GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
-	glDrawBuffers(3, attachments);
+	// Create Depth Texture
+	glGenTextures(1, &depthTexture);
+	glBindTexture(GL_TEXTURE_2D, depthTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+
+	unsigned int attachments[4] = { GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
+	glDrawBuffers(4, attachments);
 
 	    // finally check if framebuffer is complete
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -65,7 +71,7 @@ void Framebuffer::setupGbuffers(unsigned int width, unsigned int height) {
 
 void Framebuffer::setupNoiseMap() {
 	// *TimeUtil::s_DeltaTime)
-	NoiseH::generateNoise(noiseMapTexture, 1024, 1024, 0.05f, 42);
+	NoiseH::generateNoise(noiseMapTexture, 256, 256, 0.05f, 42);
 }
 
 void Framebuffer::setupMainFBO(unsigned int width, unsigned int height) {
@@ -94,13 +100,11 @@ void Framebuffer::setupMainFBO(unsigned int width, unsigned int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture, 0);
 
-	// Create Depth Texture **(NEW)**
-	glGenTextures(1, &depthTexture);
-	glBindTexture(GL_TEXTURE_2D, depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+	// Depth buffer
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, RBO);
 
 	// Error checking
 	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -124,13 +128,6 @@ void Framebuffer::setupSecondFBO(unsigned int width, unsigned int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameBufferTexture2, 0);
-
-	glGenTextures(1, &depthTexture2);
-	glBindTexture(GL_TEXTURE_2D, depthTexture2);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture2, 0);
 
 	// Error checking
 	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -158,9 +155,10 @@ void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int h
 	// Update depth textures
 	glBindTexture(GL_TEXTURE_2D, depthTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-	glBindTexture(GL_TEXTURE_2D, depthTexture2);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	// Update G-buffer textures
 
@@ -188,7 +186,7 @@ void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int h
 void Framebuffer::FBO2Draw(Shader frameBufferProgram) {
 	// Apply post-processing and render to the second FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO2);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	frameBufferProgram.Activate();
 	glBindVertexArray(viewVAO);
 	glDisable(GL_DEPTH_TEST);
@@ -197,7 +195,7 @@ void Framebuffer::FBO2Draw(Shader frameBufferProgram) {
 
 	// Copy the contents of the second FBO to the default FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	frameBufferProgram.Activate();
 	glBindVertexArray(viewVAO);
 	glDisable(GL_DEPTH_TEST);
@@ -283,19 +281,19 @@ void Framebuffer::FBODraw(
 
 	if (!imGuiPanels) {
 
+
 		frameBufferProgram.Activate();
 		frameBufferProgram.setInt("depthMap", 5);
+
 		ResizeLogic(imGuiPanels, window, Vwidth, Vheight);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 	else{
-
 		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, depthTexture2);
+		glBindTexture(GL_TEXTURE_2D, depthTexture);
 		frameBufferProgram.Activate();
 		frameBufferProgram.setInt("depthMap", 5);
-
 		// copy contents of FB to FB2 and Display FB2
 		Framebuffer::FBO2Draw(frameBufferProgram);
 	}

@@ -196,8 +196,8 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 
 	test2.draw(shaderProgram);
 
-	test2.rotation.x += 300 * TimeUtil::s_DeltaTime;
-	if (test2.rotation.x >= 360) { test2.rotation.x = 0; } // Reset rotation to prevent overflow
+	//test2.rotation.x += 300 * TimeUtil::s_DeltaTime;
+	//if (test2.rotation.x >= 360) { test2.rotation.x = 0; } // Reset rotation to prevent overflow
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 	// Camera
@@ -265,9 +265,6 @@ void RenderClass::gPassDraw(Model& model, glm::vec3 Transform, glm::vec4 Rotatio
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	gPassShader.Activate();
 	gPassShader.setFloat("gamma", RenderClass::gamma);
-	glActiveTexture(GL_TEXTURE7);
-	glBindTexture(GL_TEXTURE_2D, Framebuffer::noiseMapTexture);
-	gPassShader.setInt("noiseMapTexture", 7);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);

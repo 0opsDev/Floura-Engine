@@ -12,13 +12,20 @@ in vec2 texCoord;
 
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
-uniform sampler2D noiseMapTexture;
+uniform sampler2D normal0;
+//uniform sampler2D noiseMapTexture;
 
 void main()
 {
     gPosition = crntPos; // Output position as-is
+    vec3 gNormalTex = texture(normal0, texCoord).rgb; // Fetch normal from texture
 
-    gNormal = normalize(Normal); // Using the vertex normal directly instead of transformed
+    gNormal = normalize(gNormalTex * Normal);
+    if (gNormalTex == vec3(0,0,0)){
+    gNormal = Normal; // Default normal if texture is black
+    }
+    //gNormal = normalize(gNormalTex);
+    
 
     // Assign Albedo RGB from texture
     //gAlbedoSpec.rgb = texture(diffuse0, texCoord).rgb * (texture(noiseMapTexture, texCoord) * 5).rgb;

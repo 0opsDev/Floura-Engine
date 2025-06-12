@@ -418,6 +418,11 @@ std::vector<Texture> Model::getTextures()
 				texType = "specular";
 				if (init::LogALL || init::LogModel) std::cout << "model.cpp - Texture type: specular" << std::endl;
 			}
+			else if (texPath.find("normalTexture") != std::string::npos)
+			{
+				texType = "normal";
+				if (init::LogALL || init::LogModel) std::cout << "model.cpp - Texture type: normal" << std::endl;
+			}
 
 			// Load the texture
 			if (init::LogALL || init::LogModel) std::cout << "model.cpp - Loading texture: " << fileDirectory + texPath << std::endl;
@@ -464,6 +469,33 @@ std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 				if (!skip)
 				{
 					Texture texture((fileDirectory + texturePath).c_str(), "diffuse", loadedTex.size());
+					textures.push_back(texture);
+					loadedTex.push_back(texture);
+					loadedTexName.push_back(texturePath);
+				}
+			}
+		}
+
+		// normal
+		if (material.find("normalTexture") != material.end())
+		{
+			unsigned int textureIndex = material["normalTexture"]["index"];
+			if (!JSON["images"][textureIndex]["uri"].is_null())
+			{
+				std::string texturePath = JSON["images"][textureIndex]["uri"];
+				bool skip = false;
+				for (unsigned int i = 0; i < loadedTexName.size(); i++)
+				{
+					if (loadedTexName[i] == texturePath)
+					{
+						textures.push_back(loadedTex[i]);
+						skip = true;
+						break;
+					}
+				}
+				if (!skip)
+				{
+					Texture texture((fileDirectory + texturePath).c_str(), "normal", loadedTex.size());
 					textures.push_back(texture);
 					loadedTex.push_back(texture);
 					loadedTexName.push_back(texturePath);
@@ -520,6 +552,8 @@ std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 			}
 		}
 	}
+
+
 
 	return textures;
 }
