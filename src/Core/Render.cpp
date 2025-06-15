@@ -41,7 +41,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init::initGLenable(false); //bool for direction of polys
 	gPassShader.LoadShader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
-	BBOJ2.CreateObject("Animated", "Assets/Sprites/animatedBillboards/realistic fire/fire.json", "fire");
+	BBOJ2.CreateObject("Animated", "Assets/Sprites/animatedBillboards/fire/fire.json", "fire");
 	BBOJ2.tickrate = 20;
 	BBOJ2.doPitch = true;
 	BBOJ2.transform = glm::vec3(5, 5, 5);
