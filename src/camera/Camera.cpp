@@ -224,9 +224,9 @@ bool Camera::isRadiusInFrustum(const glm::vec3& worldPos, const float radius)
 
     float ndcRadius = radius / clipPos.w;
 
-    float ndcRadiusX = (ndcRadius + 1 + (fov * 0.1));
-    float ndcRadiusY = (ndcRadius + 1 + (fov * 0.1));
-    float ndcRadiusZ = (ndcRadius + 1 + (fov * 0.1));
+    float ndcRadiusX = (ndcRadius + 1 + (0.1));
+    float ndcRadiusY = (ndcRadius + 1 + (0.1));
+    float ndcRadiusZ = (ndcRadius + 1 + (0.1));
 
     glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
 
@@ -241,9 +241,9 @@ bool Camera::isBoxInFrustum(const glm::vec3& worldPos, const glm::vec3& Scale)
     if (clipPos.w <= 0.0f) return false;
 
     glm::vec3 ndcRadius;
-    ndcRadius.x = (Scale.x + 1 + (fov * 0.1)) / clipPos.w;
-    ndcRadius.y = (Scale.y + 1 + (fov * 0.1)) / clipPos.w;
-    ndcRadius.z = (Scale.z + 1 + (fov * 0.1)) / clipPos.w;
+    ndcRadius.x = (Scale.x + 1 + (0.1)) / clipPos.w;
+    ndcRadius.y = (Scale.y + 1 + (0.1)) / clipPos.w;
+    ndcRadius.z = (Scale.z + 1 + (0.1)) / clipPos.w;
 
     glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
 

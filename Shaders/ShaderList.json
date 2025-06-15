@@ -1,7 +1,6 @@
 [
   {
     "Frag": [
-        "Shaders/Db/Depth.frag",
         "Shaders/Lighting/unShaded.frag",
         "Shaders/Lighting/spotLight.frag",
         "Shaders/Lighting/direcLight.frag",

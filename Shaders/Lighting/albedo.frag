@@ -14,12 +14,9 @@ in vec2 texCoord;
 
 // Gets the Texture Units from the main function
 uniform sampler2D diffuse0;
+uniform sampler2D specular0;
 
 uniform float gamma;
-
-uniform sampler2D gPosition;
-uniform sampler2D gNormal;
-uniform sampler2D gAlbedoSpec;
 
 vec4 unShaded()
 {

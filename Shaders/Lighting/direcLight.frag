@@ -15,7 +15,6 @@ in vec2 texCoord;
 // Gets the Texture Units from the main function
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
-uniform sampler2D unshaded0;
 // Gets the color of the light from the main function
 uniform vec4 lightColor;
 uniform vec3 fogColor;
@@ -50,13 +49,6 @@ vec4 direcLight()
     diffuseColor.rgb = pow(diffuseColor.rgb, vec3(gamma)); // Correct the gamma
 
     float specularColor = pow(texture(specular0, texCoord).r, 1.0 / gamma);
-    vec4 unshadedColor = (texture(unshaded0, texCoord) * skyColor);
-
-    if (isUnshaded0 == 1)
-    {
-        unshadedColor.a = 1.0; // Force unshaded texture alpha
-        return unshadedColor;
-    }
 
     float sRotx = spotLightRot.x;
     float sRoty = spotLightRot.y;

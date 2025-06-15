@@ -122,7 +122,7 @@ unsigned int CalculateLOD(const glm::vec3& cameraPos, const glm::vec3& transform
 void ModelObject::draw(Shader &Shader) {
 
 	if (DoFrustumCull) {
-		if (Camera::isBoxInFrustum((frustumBoxTransform + transform), frustumBoxScale) || VisibilityChecker::isInRange((frustumBoxTransform + transform), Camera::Position, 1 + (Camera::fov * 0.1))) {
+		if (Camera::isBoxInFrustum((frustumBoxTransform + transform), frustumBoxScale) || VisibilityChecker::isInRange((frustumBoxTransform + transform), Camera::Position, 1 + (0.1))) {
 			if (DoCulling == true && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
 			else { glDisable(GL_CULL_FACE); }
 

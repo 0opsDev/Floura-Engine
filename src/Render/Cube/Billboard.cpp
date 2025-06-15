@@ -34,7 +34,7 @@ void BillBoard::initSeq(std::string path) {
 	LoadSequence(path);
 }
 
-void BillBoard::LoadBillBoardTexture(std::string path) {
+void BillBoard::LoadBillBoardTexture(std::string path) { // should load all textures into memory to begin with instead of regenerating buffers << array of textures
 	singleTexturePath = path;
 	glDeleteTextures(1, &BBTexture);
 
