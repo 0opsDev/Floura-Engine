@@ -3,18 +3,23 @@
 #include "Cubemap.h"
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
+#include <Core/Render.h>
 
 unsigned int Skybox::cubemapTexture;
 unsigned int Skybox::skyboxVAO;
 unsigned int Skybox::skyboxVBO;
 unsigned int Skybox::skyboxEBO;
 Shader skyboxShader;
+Shader skyboxgPassShader;
 std::string Skybox::DefaultSkyboxPath;
 
 void Skybox::init(std::string PathName) {
 	skyboxShader.LoadShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
 	skyboxShader.Activate();
 	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
+	skyboxgPassShader.LoadShader("Shaders/gBuffer/geometryPassSkybox.vert", "Shaders/gBuffer/geometryPassSkybox.frag");
+	skyboxgPassShader.Activate();
+	glUniform1i(glGetUniformLocation(skyboxgPassShader.ID, "skybox"), 0);
 	skyboxBuffer(); // create buffer in memory for skybox
 	LoadSkyBoxTexture(PathName); // load skybox texture into buffer
 }
@@ -43,37 +48,83 @@ void Skybox::skyboxBuffer() {
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
-float yaw = 1;
 
 void Skybox::draw(GLfloat skyRGBA[], unsigned int width, unsigned int height) {
-	// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
-	glDepthFunc(GL_LEQUAL);
-	//std::cout << "height" << height << std::endl;
-	skyboxShader.Activate();
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glDisable(GL_CULL_FACE);
 	glm::mat4 view = glm::mat4(1.0f);
 	// We make the mat4 into a mat3 and then a mat4 again in order to get rid of the last row and column
 	// The last row and column affect the translation of the skybox (which we don't want to affect)
 	view = glm::mat4(glm::mat3(glm::lookAt(Camera::Position, Camera::Position + Camera::Orientation, Camera::Up)));
 	//std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
-	skyboxShader.setMat4("view", view);
-	skyboxShader.setMat4("projection", Camera::projection);
 
-	skyboxShader.Activate();
-	skyboxShader.setInt( "skybox", 0);
-	skyboxShader.setFloat3("skyRGBA", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
 
-	// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
-	// where an object is present (a depth of 1.0f will always fail against any object's depth value)
+	if (RenderClass::RegularPass) {
 
-	glBindVertexArray(skyboxVAO);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
+		glDepthFunc(GL_LEQUAL);
+		//std::cout << "height" << height << std::endl;
+		skyboxShader.Activate();
+		skyboxShader.setMat4("view", view);
+		skyboxShader.setMat4("projection", Camera::projection);
+
+		skyboxShader.Activate();
+		skyboxShader.setInt("skybox", 0);
+		skyboxShader.setFloat3("skyRGBA", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
+
+		// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
+		// where an object is present (a depth of 1.0f will always fail against any object's depth value)
+
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	}
+	if (RenderClass::LightingPass) {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		skyboxgPassShader.Activate();
+		skyboxgPassShader.setFloat("gamma", RenderClass::gamma);
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
+		glEnable(GL_DEPTH_TEST);
+
+		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
+		glDepthFunc(GL_LEQUAL);
+		//std::cout << "height" << height << std::endl;
+		skyboxgPassShader.Activate();
+		skyboxgPassShader.setMat4("view", view);
+		skyboxgPassShader.setMat4("projection", Camera::projection);
+
+		skyboxgPassShader.Activate();
+		skyboxgPassShader.setInt("skybox", 0);
+		skyboxgPassShader.setFloat3("skyRGBA", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
+
+		// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
+		// where an object is present (a depth of 1.0f will always fail against any object's depth value)
+
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glDisable(GL_CULL_FACE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 }
 
 void Skybox::Delete() {
 	skyboxShader.Delete();
+	skyboxgPassShader.Delete();
 }
 float Skybox::s_skyboxVertices[24] =
 {

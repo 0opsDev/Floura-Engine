@@ -8,6 +8,7 @@
 #include <UI/ImGui/ImGuiWindow.h>
 #include <Render/Shader/SkyBox.h>
 #include <Render/Model/Model.h>
+#include <Render/Cube/Billboard.h>
 
 class RenderClass
 {
@@ -38,5 +39,6 @@ public:
 	static void Cleanup();
 
 	static void gPassDraw(Model& model, glm::vec3 Transform, glm::vec4 Rotation, glm::vec3 Scale);
+
 };
 #endif

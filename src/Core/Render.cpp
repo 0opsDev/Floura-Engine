@@ -1,7 +1,6 @@
 ﻿#include "Render.h"
 #include <Render/Cube/CubeVisualizer.h>
 #include "Gameplay/BillboardObject.h"
-#include <Render/Cube/Billboard.h>
 #include "Gameplay/ModelObject.h"
 #include <Sound/SoundProgram.h>
 #include <utils/VisibilityChecker.h>
@@ -22,7 +21,7 @@ GLfloat RenderClass::LightTransform1[] = { 0.0f, 5.0f, 0.0f };
 GLfloat RenderClass::ConeSI[3] = { 0.111f, 0.825f, 2.0f };
 GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
 glm::vec3 RenderClass::CameraXYZ = glm::vec3(0.0f, 0.0f, 0.0f); // Initial camera position
-BillBoardObject BBOJ2;
+//BillBoardObject BBOJ2;
 BillBoardObject BBOJ;
 CubeCollider flatplane;
 BillBoard LightIcon;
@@ -41,16 +40,15 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init::initGLenable(false); //bool for direction of polys
 	gPassShader.LoadShader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
-	BBOJ2.CreateObject("Animated", "Assets/Sprites/animatedBillboards/fire/fire.json", "fire");
-	BBOJ2.tickrate = 20;
-	BBOJ2.doPitch = true;
-	BBOJ2.transform = glm::vec3(5, 5, 5);
-	BBOJ2.scale = glm::vec3(1, 1, 1);
-	BBOJ2.isCollider = true;
+	//BBOJ2.CreateObject("Animated", "Assets/Sprites/animatedBillboards/fire/fire.json", "fire");
+	//BBOJ2.tickrate = 20;
+	//BBOJ2.doPitch = true;
+	//BBOJ2.transform = glm::vec3(5, 5, 5);
+	//BBOJ2.scale = glm::vec3(1, 1, 1);
+	//BBOJ2.isCollider = true;
 	BBOJ.CreateObject("Static", "Assets/Sprites/pot.png", "pot");
 	BBOJ.doPitch = false;
-	//45
-	BBOJ.transform = glm::vec3(2.6, 1.33, 1.8);
+	BBOJ.transform = glm::vec3(-3, 0, 1.8);
 	BBOJ.scale = glm::vec3(0.5, 0.5, 0.5);
 	BBOJ.isCollider = true;
 	LightIcon.init("Assets/Dependants/LB.png");
@@ -87,8 +85,8 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 
 void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, float window_width, float window_height, glm::vec3 lightPos,
 	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models) {
-	BBOJ2.UpdateCollider();
-	BBOJ2.UpdateCameraCollider();
+	//BBOJ2.UpdateCollider();
+	//BBOJ2.UpdateCameraCollider();
 	BBOJ.UpdateCollider();
 	BBOJ.UpdateCameraCollider();
 	test2.UpdateCollider();
@@ -127,7 +125,6 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	ImGuiCamera::gPassTime = (initDuration.count() / 1000.0);
-
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	// Clear BackBuffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear with colour
@@ -202,12 +199,20 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 	// Camera
 	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
-	BBOJ2.draw();
+	//BBOJ2.draw();
 	BBOJ.draw();	
 	LightIcon.draw(true, lightPos.x, lightPos.y, lightPos.z, 0.3, 0.3, 0.3);
 	flatplane.draw();
 
+	if (!ImGuiCamera::isWireframe) {
+		Skybox::draw(RenderClass::skyRGBA, Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+
+	}
+	//glEnable(GL_CULL_FACE);
 	if (LightingPass) {
+		//glDisable(GL_DEPTH_TEST);
+		//glDepthFunc(GL_LESS);
 		glDisable(GL_CULL_FACE);
 		shader.Activate();
 		// gPass textures bound to FB
@@ -238,11 +243,12 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
 	ImGuiCamera::lPassTime = (initDuration2.count() / 1000.0);
 
+	//glDepthFunc(GL_LEQUAL);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	//glBindVertexArray(0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_CULL_FACE);
-
-	if (!ImGuiCamera::isWireframe) {
-		Skybox::draw(RenderClass::skyRGBA, Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global
-	}
 
 	// Framebuffer logic
 	Framebuffer::FBODraw(frameBufferProgram, ImGuiCamera::imGuiPanels[0], window_width, window_height, window);

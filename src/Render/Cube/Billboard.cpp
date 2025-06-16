@@ -3,8 +3,11 @@
 #include "render/Shader/Cubemap.h"
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
+#include <Render/Shader/Framebuffer.h>
+#include <Core/Render.h>
 
 Shader PlaneShader;
+Shader gPassShaderBillBoard;
 std::string singleTexturePath;
 
 float s_Plane_Vertices[] = {
@@ -23,12 +26,14 @@ unsigned int s_Plane_Indices[6] =
 
 void BillBoard::init(std::string path) {
 	PlaneShader.LoadShader("Shaders/Db/BillBoard.vert", "Shaders/Db/BillBoard.frag");
+	gPassShaderBillBoard.LoadShader("Shaders/gBuffer/geometryPassBillboard.vert", "Shaders/gBuffer/geometryPassBillboard.frag");
 	skyboxBuffer(); // create buffer in memory for skybox
 
 	LoadBillBoardTexture(path);
 }
 void BillBoard::initSeq(std::string path) { 
 	PlaneShader.LoadShader("Shaders/Db/BillBoard.vert", "Shaders/Db/BillBoard.frag");
+	gPassShaderBillBoard.LoadShader("Shaders/gBuffer/geometryPassBillboard.vert", "Shaders/gBuffer/geometryPassBillboard.frag");
 	skyboxBuffer(); // create buffer in memory for skybox
 
 	LoadSequence(path);
@@ -152,34 +157,36 @@ void BillBoard::skyboxBuffer() {
 
 void BillBoard::draw(bool doPitch, float x, float y, float z,
 	float ScaleX, float ScaleY, float ScaleZ) {
+
+	if (!RenderClass::RegularPass && !RenderClass::LightingPass) {
+		return; // Skip rendering if not in regular or lighting pass
+	}
+	// Compute the forward vector towards the camera
+	glm::vec3 camForward = glm::normalize(Camera::Position - glm::vec3(x, y, z));
+
+	// Lock pitch if `doPitch == false`
+	if (!doPitch) {
+		camForward.y = 0.0f;
+		camForward = glm::normalize(camForward);
+	}
+
+	// Compute right & up vectors
+	glm::vec3 camRight = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), camForward));
+	glm::vec3 camUp = glm::normalize(glm::cross(camForward, camRight));
+
+	// Construct billboard rotation matrix
+	glm::mat4 billboardRotation = glm::mat4(glm::mat3(camRight, camUp, camForward));
+
+	// Apply transformations: translation -> rotation -> scale
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(x, y, z));
+	model = model * billboardRotation;  // Ensure billboard rotation before scaling
+	model = glm::scale(model, glm::vec3(ScaleX, ScaleY, ScaleZ));
+
+	if (RenderClass::RegularPass) {
 		// Enable depth testing
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
-
-		// Activate shader
-		PlaneShader.Activate();
-
-		// Compute the forward vector towards the camera
-		glm::vec3 camForward = glm::normalize(Camera::Position - glm::vec3(x, y, z));
-
-		// Lock pitch if `doPitch == false`
-		if (!doPitch) {
-			camForward.y = 0.0f;
-			camForward = glm::normalize(camForward);
-		}
-
-		// Compute right & up vectors
-		glm::vec3 camRight = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), camForward));
-		glm::vec3 camUp = glm::normalize(glm::cross(camForward, camRight));
-
-		// Construct billboard rotation matrix
-		glm::mat4 billboardRotation = glm::mat4(glm::mat3(camRight, camUp, camForward));
-
-		// Apply transformations: translation -> rotation -> scale
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(x, y, z));
-		model = model * billboardRotation;  // Ensure billboard rotation before scaling
-		model = glm::scale(model, glm::vec3(ScaleX, ScaleY, ScaleZ));
 
 		PlaneShader.Activate();
 		// Pass transformations to shader
@@ -194,8 +201,47 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+		//
+		//
+		// Gpass
+	if (RenderClass::LightingPass) {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		gPassShaderBillBoard.Activate();
+		gPassShaderBillBoard.setFloat("gamma", RenderClass::gamma);
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
+		Camera::Matrix(gPassShaderBillBoard, "camMatrix"); // Send Camera Matrix To Shader Prog
+		//billboard.Draw(gPassShader, Transform, Rotation, Scale);
+		// draw goes here
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+
+		gPassShaderBillBoard.Activate();
+		// Pass transformations to shader
+		gPassShaderBillBoard.setMat4("model", model);
+		gPassShaderBillBoard.setMat4("camMatrix", Camera::cameraMatrix);
+
+		// Render the billboard
+		glBindVertexArray(cubeVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, BBTexture);
+		glUniform1i(glGetUniformLocation(gPassShaderBillBoard.ID, "texture0"), 0);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glDisable(GL_CULL_FACE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//FrameBuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	}
 }
 
 void BillBoard::Delete() {
 	PlaneShader.Delete();
+	gPassShaderBillBoard.Delete();
 }

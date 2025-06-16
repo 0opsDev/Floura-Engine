@@ -17,6 +17,11 @@ uniform sampler2D normal0;
 
 void main()
 {
+    vec4 albedoTex = texture(diffuse0, texCoord);
+    // Discard fragment if alpha is too low
+    if (albedoTex.a < 0.1) // Adjust threshold if needed
+    discard;
+
     gPosition = crntPos; // Output position as-is
     vec3 gNormalTex = texture(normal0, texCoord).rgb; // Fetch normal from texture
 
@@ -29,7 +34,7 @@ void main()
 
     // Assign Albedo RGB from texture
     //gAlbedoSpec.rgb = texture(diffuse0, texCoord).rgb * (texture(noiseMapTexture, texCoord) * 5).rgb;
-    gAlbedoSpec.rgb = texture(diffuse0, texCoord).rgb;
+    gAlbedoSpec.rgb = albedoTex.rgb;
 
     // Ensure alpha is correctly fetched
     gAlbedoSpec.a = texture(specular0, texCoord).r;

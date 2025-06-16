@@ -64,6 +64,7 @@ private:
 
 	std::vector<std::tuple<Model>> SingleModel;
 	std::vector<std::tuple<Model, unsigned int>> modelOBJ;
+	void renderLogic(Shader& Shader);
 	
 };
 

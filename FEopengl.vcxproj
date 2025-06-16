@@ -260,6 +260,10 @@
     <None Include="Shaders\Empty.shader" />
     <None Include="Shaders\gBuffer\geometryPass.frag" />
     <None Include="Shaders\gBuffer\geometryPass.vert" />
+    <None Include="Shaders\gBuffer\geometryPassBillBoard.frag" />
+    <None Include="Shaders\gBuffer\geometryPassBillBoard.vert" />
+    <None Include="Shaders\gBuffer\geometryPassSkybox.frag" />
+    <None Include="Shaders\gBuffer\geometryPassSkybox.vert" />
     <None Include="Shaders\Lighting\albedo.frag" />
     <None Include="Shaders\Lighting\Default.geom" />
     <None Include="Shaders\Lighting\Default.vert" />
