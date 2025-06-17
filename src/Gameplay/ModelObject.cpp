@@ -133,7 +133,12 @@ void ModelObject::renderLogic(Shader& Shader) {
 			unsigned int iteration = std::get<1>(modelTuple);
 			//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
 			if (iteration == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
-				if (RenderClass::RegularPass) { model.Draw(Shader, transform, rotation, scale); }
+				if (RenderClass::RegularPass) { 
+					glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+					model.Draw(Shader, transform, rotation, scale); 
+					glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				}
+					
 				if (RenderClass::LightingPass) { RenderClass::gPassDraw(model, transform, rotation, scale); }
 
 			}
@@ -144,11 +149,16 @@ void ModelObject::renderLogic(Shader& Shader) {
 		for (auto& modelTuple : SingleModel) {
 			Model& model = std::get<0>(modelTuple);
 			//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
-			if (RenderClass::RegularPass) { model.Draw(Shader, transform, rotation, scale); }
+			if (RenderClass::RegularPass) {
+				glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+				model.Draw(Shader, transform, rotation, scale);
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			}
 			if (RenderClass::LightingPass) { RenderClass::gPassDraw(model, transform, rotation, scale); }
 		}
 		break;
 	}
+			 
 	}
 	glDisable(GL_CULL_FACE);
 }

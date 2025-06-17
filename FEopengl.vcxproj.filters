@@ -253,6 +253,9 @@
     <ClCompile Include="src\Render\Cube\RenderQuad.cpp">
       <Filter>src\Render\Cube</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\scene.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -407,6 +410,9 @@
     </ClInclude>
     <ClInclude Include="src\Render\Cube\RenderQuad.h">
       <Filter>src\Render\Cube</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\scene.h">
+      <Filter>src\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

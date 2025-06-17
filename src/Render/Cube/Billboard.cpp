@@ -184,6 +184,8 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 	model = glm::scale(model, glm::vec3(ScaleX, ScaleY, ScaleZ));
 
 	if (RenderClass::RegularPass) {
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 		// Enable depth testing
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
@@ -201,6 +203,8 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 		//
@@ -237,8 +241,8 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 		glDisable(GL_CULL_FACE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		//FrameBuffer
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	}
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 }
 
 void BillBoard::Delete() {

@@ -23,6 +23,7 @@
 #include "Render/Cube/CubeVisualizer.h"
 #include <Physics/CubeCollider.h>
 #include "Render/Cube/Billboard.h"
+#include "scene.h"
 
 bool anyCollision = false; // Track collision status
 int Main::VertNum = 0, Main::FragNum = 0;
@@ -45,7 +46,6 @@ float window_width;
 float window_height;
 
 TimeAccumulator TA3; TimeAccumulator TA2;
-Shader shaderProgram; // create a shader program and feed it Dummy shader and vertex files
 
 void Main::updateModelLua( 
 	std::vector<std::string> path, std::vector<std::string> modelName, std::vector<bool> isCulling,
@@ -101,8 +101,8 @@ int main() // global variables do not work with threads
 
 	gladLoadGL(); // load open gl config
 
-	FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram);// feed the shader prog real data
-	shaderProgram.Activate(); // activate new shader program for use
+	FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram);// feed the shader prog real data
+	RenderClass::shaderProgram.Activate(); // activate new shader program for use
 
 	// move to framebuffer class
 	Shader frameBufferProgram;
@@ -130,6 +130,8 @@ int main() // global variables do not work with threads
 	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models = FileClass::loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
 
 	Main::LoadPlayerConfig();
+
+	Scene::init(); // Initialize scene
 	glm::vec3 feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
@@ -137,10 +139,13 @@ int main() // global variables do not work with threads
 
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
+		RenderClass::ClearFramebuffers(); // Clear Framebuffers
 
 		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
 		ScriptRunner::update();
 		InputUtil::UpdateCurrentKey(window);
+
+		Scene::Update(); // Update scene
 
 		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
 			Camera::s_DoGravity = false;
@@ -163,7 +168,7 @@ int main() // global variables do not work with threads
 		Soundtrack.updateCameraPosition();
 		Soundtrack.SetSoundPosition(Camera::Position.x, Camera::Position.y, Camera::Position.z);
 		if (Main::ApplyShader) {
-			FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, shaderProgram);
+			FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram);
 			Main::ApplyShader = false;
 		}
 
@@ -257,10 +262,10 @@ int main() // global variables do not work with threads
 
 		auto startInitTime2 = std::chrono::high_resolution_clock::now();
 
-		RenderClass::Render(window, frameBufferProgram, shaderProgram, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), models);
-		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, shaderProgram, primaryMonitor); }
+		RenderClass::Render(window, frameBufferProgram, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), models);
+		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, RenderClass::shaderProgram, primaryMonitor); }
 
-		RenderClass::Swapchain(window, frameBufferProgram, shaderProgram, primaryMonitor); // tip to self, work down to up (lines)
+		RenderClass::Swapchain(window, frameBufferProgram, primaryMonitor); // tip to self, work down to up (lines)
 		
 		auto stopInitTime2 = std::chrono::high_resolution_clock::now();
 		auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
@@ -280,7 +285,6 @@ int main() // global variables do not work with threads
 	land.DeleteSound();	
 	SoundRunner::Delete();
 	//SolidColour.Delete();
-	shaderProgram.Delete(); // Delete Shader Prog
 	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
 	return 0;
 }

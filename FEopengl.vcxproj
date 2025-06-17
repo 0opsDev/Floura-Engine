@@ -147,6 +147,7 @@
     <ClCompile Include="src\Core\glad.c" />
     <ClCompile Include="src\Core\Main.cpp" />
     <ClCompile Include="src\Core\Render.cpp" />
+    <ClCompile Include="src\Core\scene.cpp" />
     <ClCompile Include="src\Gameplay\BillboardObject.cpp" />
     <ClCompile Include="src\Gameplay\ModelObject.cpp" />
     <ClCompile Include="src\Gameplay\Player.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="src\Core\File\File.h" />
     <ClInclude Include="src\Core\Main.h" />
     <ClInclude Include="src\Core\Render.h" />
+    <ClInclude Include="src\Core\scene.h" />
     <ClInclude Include="src\Gameplay\BillboardObject.h" />
     <ClInclude Include="src\Gameplay\ModelObject.h" />
     <ClInclude Include="src\Gameplay\Player.h" />

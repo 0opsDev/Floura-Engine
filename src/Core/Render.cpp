@@ -7,8 +7,10 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtx/norm.hpp>
 #include "Render/Cube/RenderQuad.h"
+#include "scene.h"
 
 Shader gPassShader;
+Shader RenderClass::shaderProgram;
 float RenderClass::gamma = 2.2f;
 bool RenderClass::doReflections = true;
 bool RenderClass::doFog = true;
@@ -21,11 +23,8 @@ GLfloat RenderClass::LightTransform1[] = { 0.0f, 5.0f, 0.0f };
 GLfloat RenderClass::ConeSI[3] = { 0.111f, 0.825f, 2.0f };
 GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
 glm::vec3 RenderClass::CameraXYZ = glm::vec3(0.0f, 0.0f, 0.0f); // Initial camera position
-//BillBoardObject BBOJ2;
-BillBoardObject BBOJ;
-CubeCollider flatplane;
+
 BillBoard LightIcon;
-ModelObject test2;
 Shader SolidColour;
 RenderQuad flatplanez;
 Shader shader;
@@ -40,33 +39,9 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init::initGLenable(false); //bool for direction of polys
 	gPassShader.LoadShader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
-	//BBOJ2.CreateObject("Animated", "Assets/Sprites/animatedBillboards/fire/fire.json", "fire");
-	//BBOJ2.tickrate = 20;
-	//BBOJ2.doPitch = true;
-	//BBOJ2.transform = glm::vec3(5, 5, 5);
-	//BBOJ2.scale = glm::vec3(1, 1, 1);
-	//BBOJ2.isCollider = true;
-	BBOJ.CreateObject("Static", "Assets/Sprites/pot.png", "pot");
-	BBOJ.doPitch = false;
-	BBOJ.transform = glm::vec3(-3, 0, 1.8);
-	BBOJ.scale = glm::vec3(0.5, 0.5, 0.5);
-	BBOJ.isCollider = true;
+
 	LightIcon.init("Assets/Dependants/LB.png");
 	Skybox::init(Skybox::DefaultSkyboxPath);
-	test2.CreateObject("LOD", "Assets/LodModel/Vase/VaseLod.json", "test2");
-	test2.transform = glm::vec3(5, 0.65, 3);
-	test2.scale = glm::vec3(0.3, 0.3, 0.3);
-	test2.rotation = glm::vec4(0, 0, 0, 1);
-	test2.isCollider = true;
-	test2.DoFrustumCull = true;
-	test2.BoxColliderScale = glm::vec3(0.3, 0.65, 0.3);
-	test2.frustumBoxTransform = test2.BoxColliderTransform;
-	test2.frustumBoxScale = test2.BoxColliderScale;
-
-	flatplane.init();
-	flatplane.colliderScale = glm::vec3(100, 1, 100); // Set collider scale for flat plane
-	flatplane.colliderXYZ = glm::vec3(0, -1, 0); // Set collider transform for flat plane
-	flatplane.CollideWithCamera = true;
 
 	flatplanez.init();
 
@@ -83,15 +58,26 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	init::initImGui(window); // Initialize ImGUI
 }
 
-void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, float window_width, float window_height, glm::vec3 lightPos,
+void RenderClass::ClearFramebuffers() {
+
+	// Clear first framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear with colour
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// Clear second framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO2);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear with colour
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// Clear GBuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear with colour
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float window_width, float window_height, glm::vec3 lightPos,
 	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models) {
-	//BBOJ2.UpdateCollider();
-	//BBOJ2.UpdateCameraCollider();
-	BBOJ.UpdateCollider();
-	BBOJ.UpdateCameraCollider();
-	test2.UpdateCollider();
-	test2.UpdateCameraCollider();
-	flatplane.update();
 
 	// Camera
 	Camera::Inputs(window); // send Camera.cpp window inputs and delta time
@@ -100,9 +86,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	//UF::Float(AlbedoShader.ID, "gamma", RenderClass::gamma);
 
 	auto startInitTime = std::chrono::high_resolution_clock::now();
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear with colour
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	// Bind the framebuffer for the geometry pass// g pass draw was here still some logic below
 
 	//glEnable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_LESS);
@@ -126,8 +110,6 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	ImGuiCamera::gPassTime = (initDuration.count() / 1000.0);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
-	// Clear BackBuffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear with colour
 	glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
 
 	// Send Variables to shader (GPU)
@@ -191,18 +173,15 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 		}
 	}
 
-	test2.draw(shaderProgram);
-
 	//test2.rotation.x += 300 * TimeUtil::s_DeltaTime;
 	//if (test2.rotation.x >= 360) { test2.rotation.x = 0; } // Reset rotation to prevent overflow
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 	// Camera
 	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
-	//BBOJ2.draw();
-	BBOJ.draw();	
+
+
 	LightIcon.draw(true, lightPos.x, lightPos.y, lightPos.z, 0.3, 0.3, 0.3);
-	flatplane.draw();
 
 	if (!ImGuiCamera::isWireframe) {
 		Skybox::draw(RenderClass::skyRGBA, Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global
@@ -254,7 +233,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, Shader s
 	Framebuffer::FBODraw(frameBufferProgram, ImGuiCamera::imGuiPanels[0], window_width, window_height, window);
 }
 
-void RenderClass::Swapchain(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, GLFWmonitor* primaryMonitor) {
+void RenderClass::Swapchain(GLFWwindow* window, Shader frameBufferProgram, GLFWmonitor* primaryMonitor) {
 
 
 	Camera::updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
@@ -264,7 +243,7 @@ void RenderClass::Swapchain(GLFWwindow* window, Shader frameBufferProgram, Shade
 }
 
 void RenderClass::Cleanup() {
-
+	shaderProgram.Delete(); // Delete Shader Prog
 }
 
 void RenderClass::gPassDraw(Model& model, glm::vec3 Transform, glm::vec4 Rotation, glm::vec3 Scale) {

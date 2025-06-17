@@ -13,6 +13,7 @@
 class RenderClass
 {
 public:
+	static Shader shaderProgram;
 	static float gamma;
 	static bool doReflections;
 	static bool doFog;
@@ -26,15 +27,17 @@ public:
 	static GLfloat ConeRot[];
 	static glm::vec3 CameraXYZ; // Initial camera position
 
-	static bool RenderClass::LightingPass; // Toggle for lighting pass
-	static bool RenderClass::RegularPass; // Toggle for regular pass
+	static bool LightingPass; // Toggle for lighting pass
+	static bool RegularPass; // Toggle for regular pass
 
 	static void init(GLFWwindow* window, unsigned int width, unsigned int height);
 
-	static void Render(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, float window_width, float window_height, glm::vec3 lightPos,
+	static void ClearFramebuffers();
+
+	static void Render(GLFWwindow* window, Shader frameBufferProgram, float window_width, float window_height, glm::vec3 lightPos,
 		std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models);
 
-	static void Swapchain(GLFWwindow* window, Shader frameBufferProgram, Shader shaderProgram, GLFWmonitor* primaryMonitor);
+	static void Swapchain(GLFWwindow* window, Shader frameBufferProgram, GLFWmonitor* primaryMonitor);
 
 	static void Cleanup();
 
