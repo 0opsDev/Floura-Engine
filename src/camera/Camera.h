@@ -30,6 +30,7 @@ public:
     static glm::mat4 view;
     static glm::mat4 projection;
     static float fov;
+    static bool isMoving;
 
     // Prevents the camera from jumping around when first clicking left click
     static bool firstClick;

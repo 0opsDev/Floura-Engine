@@ -126,6 +126,12 @@ void ModelObject::renderLogic(Shader& Shader) {
 	if (DoCulling == true && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
 	else { glDisable(GL_CULL_FACE); }
 
+	//if (InsideFaceDirection) { glFrontFace(GL_CW); }
+	//else { glFrontFace(GL_CCW); }
+
+	if (CullFrontFace) { glCullFace(GL_FRONT); }
+	else { glCullFace(GL_BACK); }
+
 	switch (IsLod) {
 	case true: {
 		for (auto& modelTuple : modelOBJ) {
@@ -140,9 +146,7 @@ void ModelObject::renderLogic(Shader& Shader) {
 					model.Draw(Shader, transform, rotation, scale); 
 					glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				}
-					
 				if (RenderClass::LightingPass) { RenderClass::gPassDraw(model, transform, rotation, scale); }
-
 			}
 		}
 		break;
@@ -162,8 +166,10 @@ void ModelObject::renderLogic(Shader& Shader) {
 		}
 		break;
 	}
-			 
+
 	}
+	//glFrontFace(GL_CCW);
+	glCullFace(GL_BACK); // Reset culling to default
 	glDisable(GL_CULL_FACE);
 }
 

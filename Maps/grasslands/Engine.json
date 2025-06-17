@@ -3,7 +3,7 @@
         "MapName": "Template",
         "NearPlane": "0.1f",
         "FarPlane": "100000.000f",
-        "Window": "Template",
+        "Window": "Test",
         "DefaultSkyboxPath": "Assets/Skybox/sunset/Skybox.json",
 
         "skyRGBA": [ 0.995, 0.601, 0.517 ],

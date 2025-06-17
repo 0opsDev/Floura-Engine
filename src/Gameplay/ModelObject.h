@@ -35,6 +35,7 @@ public:
 	glm::vec3 transform = glm::vec3(0, 0, 0);
 	glm::vec3 scale = glm::vec3(1, 1, 1);
 	glm::vec4 rotation = glm::vec4(0,0,0,0);
+	bool CullFrontFace = false;
 
 	bool isCollider = false;
 	glm::vec3 BoxColliderTransform = glm::vec3(0, 0, 0);

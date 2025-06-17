@@ -47,7 +47,7 @@ void Scene::init(){
 void Scene::Update() {
 	// sound
 
-	if (!Soundtrack.isPlay) { Soundtrack.PlaySound(SoundRunner::MusicVolume); }
+	//if (!Soundtrack.isPlay) { Soundtrack.PlaySound(SoundRunner::MusicVolume); }
 	Soundtrack.SetVolume(SoundRunner::MusicVolume);
 	Soundtrack.updateCameraPosition();
 	//Soundtrack.SetSoundPosition(2, 1, 0);

@@ -1,4 +1,5 @@
 #include "CubeCollider.h"
+#include <Gameplay/Player.h>
 
 
 bool CubeCollider::checkcollide(glm::vec3 victimXYZ, glm::vec3 victimScale) {
@@ -41,6 +42,7 @@ bool CubeCollider::showBoxCollider = false;
 void CubeCollider::update() {
     if (CollideWithCamera) {
         if (checkcollide((glm::vec3(Camera::Position.x, (Camera::Position.y - (Camera::PlayerHeightCurrent / 2.0f)), Camera::Position.z)), glm::vec3(1, (Camera::PlayerHeightCurrent), 1))) {
+			Player::isColliding = true; // Set collision state
             Camera::Position = glm::vec3(lastHit.x, (lastHit.y + (Camera::PlayerHeightCurrent / 2.0f)), lastHit.z);
         }
     }

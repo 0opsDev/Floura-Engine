@@ -22,6 +22,7 @@ float Camera::PlayerHeightCurrent;
 glm::mat4 Camera::view = glm::mat4(1.0f);
 glm::mat4 Camera::projection = glm::mat4(1.0f);
 float Camera::fov = 60;
+bool Camera::isMoving = false;
 
 void Camera::InitCamera(int width, int height, glm::vec3 position)
 {
@@ -59,7 +60,7 @@ void Camera::Inputs(GLFWwindow* window)
 {
     float deltaTime = TimeUtil::s_DeltaTime;
     float adjustedSpeed = speed * deltaTime;
-
+	glm::vec3 lastpos = Position;
 	if (!s_DoGravity)
 	{
         // Handles inputs
@@ -141,6 +142,14 @@ void Camera::Inputs(GLFWwindow* window)
             Position += ((speed) * deltaTime) * Up;
         }
     }
+    
+    if (lastpos != Position && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ||
+        lastpos != Position && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ||
+        lastpos != Position && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
+        lastpos != Position && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		isMoving = true;
+    }
+    else { isMoving = false; }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {

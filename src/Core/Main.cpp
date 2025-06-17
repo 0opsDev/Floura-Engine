@@ -24,8 +24,8 @@
 #include <Physics/CubeCollider.h>
 #include "Render/Cube/Billboard.h"
 #include "scene.h"
+#include <Gameplay/Player.h>
 
-bool anyCollision = false; // Track collision status
 int Main::VertNum = 0, Main::FragNum = 0;
 bool Main::ApplyShader = true;
 bool Main::sleepState = true;
@@ -120,11 +120,11 @@ int main() // global variables do not work with threads
 	Main::LoadPlayerConfig();
 
 	Scene::init(); // Initialize scene
+	Player::init();
 
-	SoundProgram FootSound; FootSound.CreateSound("Assets/Sounds/Footsteps.wav");
 	SoundProgram land; land.CreateSound("Assets/Sounds/land.wav");
 
-	glm::vec3 feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
+	Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	if (init::LogALL || init::LogSystems) std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
@@ -138,6 +138,7 @@ int main() // global variables do not work with threads
 		InputUtil::UpdateCurrentKey(window);
 
 		Scene::Update(); // Update scene
+		Player::update();
 
 		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
 			Camera::s_DoGravity = false;
@@ -161,10 +162,7 @@ int main() // global variables do not work with threads
 			Main::ApplyShader = false;
 		}
 
-		feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
-
-		FootSound.SetSoundPosition(feetpos.x, feetpos.y, feetpos.z);
-		FootSound.updateCameraPosition();
+		Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 
 		//physics
 		if (Camera::s_DoGravity) {
@@ -174,15 +172,14 @@ int main() // global variables do not work with threads
 		}
 
 		if (doPlayerCollision) { //testing collisions if touching ground
-			anyCollision = false;
 			for (auto& modelTuple : models) {
 				Model& model = std::get<0>(modelTuple);
 				glm::vec3 translation = std::get<2>(modelTuple);
 				glm::vec4 rotation = std::get<3>(modelTuple);
 				glm::vec3 scale = std::get<4>(modelTuple);
 				int isCollider = std::get<5>(modelTuple);
-				if (isCollider == 1 && model.checkCollide(feetpos, translation, glm::quat(rotation.x, rotation.y, rotation.z, rotation.w), scale, 2)) {
-					anyCollision = true;
+				if (isCollider == 1 && model.checkCollide(Player::feetpos, translation, glm::quat(rotation.x, rotation.y, rotation.z, rotation.w), scale, 2)) {
+					Player::isColliding = true;
 
 					// Get collision triangle vertices
 					glm::vec3 v0 = model.lastCollisionFace[0];
@@ -198,7 +195,7 @@ int main() // global variables do not work with threads
 					// Compute surface Y height at feet X/Z using barycentric interpolation
 					glm::vec3 edge0 = v1 - v0;
 					glm::vec3 edge1 = v2 - v0;
-					glm::vec3 vp = glm::vec3(feetpos.x, 0.0f, feetpos.z) - glm::vec3(v0.x, 0.0f, v0.z);
+					glm::vec3 vp = glm::vec3(Player::feetpos.x, 0.0f, Player::feetpos.z) - glm::vec3(v0.x, 0.0f, v0.z);
 
 					float d00 = glm::dot(edge0, edge0);
 					float d01 = glm::dot(edge0, edge1);
@@ -213,41 +210,24 @@ int main() // global variables do not work with threads
 					float detectedSurfaceY = v0.y + u * (v1.y - v0.y) + v * (v2.y - v0.y);
 
 					// Force height correction
-					if (feetpos.y < detectedSurfaceY) {
-						feetpos.y = detectedSurfaceY; // Ensure player stays above the surface
+					if (Player::feetpos.y < detectedSurfaceY) {
+						Player::feetpos.y = detectedSurfaceY; // Ensure player stays above the surface
 
 						// Scale push-back stronger for steeper slopes
 						float pushStrength = glm::mix(0.05f, 0.5f, slopeSteepness / 90.0f);
-						feetpos.x -= normal.x * pushStrength;
-						feetpos.z -= normal.z * pushStrength;
+						Player::feetpos.x -= normal.x * pushStrength;
+						Player::feetpos.z -= normal.z * pushStrength;
 					}
 					TA3.reset();
 					break; // Exit loop once collision is detected
 				}
 			}
 		}
-		// Apply Gravity to feetpos Only If No Collision Occurred
-		if (!anyCollision && Camera::s_DoGravity) {
-			feetpos.y -= (2) * deltaTime; // Falling behavior
-			if (TA3.Counter >= (1 / 2)) { if (FootSound.isPlay) FootSound.StopSound();Camera::DoJump = false; }
-			else { Camera::DoJump = true; }
 
-			if ((glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) && !(
-				glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)) {
-				if (!FootSound.isPlay) {
-					FootSound.PlaySound(1);
-				}
-			}
-			else {
-				FootSound.StopSound();
-			}
-
-			TA3.update();
-		}
 		if (!Camera::s_DoGravity) { Camera::DoJump = true; };
 
 		// Camera Always Stays Above Feet Position**
-		Camera::Position = glm::vec3(feetpos.x, feetpos.y + Camera::PlayerHeightCurrent, feetpos.z);
+		Camera::Position = glm::vec3(Player::feetpos.x, Player::feetpos.y + Camera::PlayerHeightCurrent, Player::feetpos.z);
 
 		auto startInitTime2 = std::chrono::high_resolution_clock::now();
 
@@ -259,6 +239,9 @@ int main() // global variables do not work with threads
 		auto stopInitTime2 = std::chrono::high_resolution_clock::now();
 		auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
 		ImGuiCamera::Render = (initDuration2.count() / 1000.0);
+	
+		//Player::isGrounded = false;
+		Player::isColliding = false;
 	}
 	// Cleanup: Delete all objects on close
 	Main::sleepState = false;
@@ -482,7 +465,7 @@ void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 		}
 		ImGui::Spacing();
 		if (ImGui::TreeNode("Collision")) {
-			ImGui::Text(("Foot Collision: " + std::to_string(anyCollision)).c_str());
+			ImGui::Text(("Foot Collision: " + std::to_string(Player::isColliding)).c_str());
 			ImGui::Checkbox("doPlayerCollision: ", &doPlayerCollision);
 			ImGui::Checkbox("doPlayerBoxCollision: ", &CubeCollider::CollideWithCamera);
 			ImGui::TreePop();

@@ -10,38 +10,16 @@
 class Player
 {
 public:
-	//Player states
-	static bool IsPlay;
-	static std::string PlayerState;
 
-	//Position stats
-	static float walkSpeed;
-	static float SprintSpeed;
-	static float CrouchSpeed;
-	static float JumpHeight;
+	static bool isGrounded;
+	static bool isColliding;
 
-	static bool isJumping;
-	static bool isCrouching;
-	static bool isSprinting;
+	static glm::vec3 feetpos;
 
-	// Player stats
-	static float Health;
-	static float shield;
-	static float stamina;
+	static void init();
 
-	// weapon stats
-	struct WeaponStats {
-		std::string name;
-		float damage;
-		float range;
-		float fireRate;
-		float reloadTime;
-		int magazineSize;
-		int currentAmmo;
-		bool isReloading;
-	};
-	static std::string currentWeapon;
-	static std::vector<WeaponStats> weaponInventory;
+	static void update();
+
 };
 
 #endif
