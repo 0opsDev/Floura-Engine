@@ -135,6 +135,8 @@ void ModelObject::renderLogic(Shader& Shader) {
 			if (iteration == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
 				if (RenderClass::RegularPass) { 
 					glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+					glEnable(GL_DEPTH_TEST);
+					glDepthFunc(GL_LESS);
 					model.Draw(Shader, transform, rotation, scale); 
 					glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				}
@@ -151,6 +153,8 @@ void ModelObject::renderLogic(Shader& Shader) {
 			//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
 			if (RenderClass::RegularPass) {
 				glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+				glEnable(GL_DEPTH_TEST);
+				glDepthFunc(GL_LESS);
 				model.Draw(Shader, transform, rotation, scale);
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
@@ -164,7 +168,6 @@ void ModelObject::renderLogic(Shader& Shader) {
 }
 
 void ModelObject::draw(Shader &Shader) {
-
 	if (DoFrustumCull) {
 		if (Camera::isBoxInFrustum((frustumBoxTransform + transform), frustumBoxScale) || VisibilityChecker::isInRange((frustumBoxTransform + transform), Camera::Position, 1 + (0.1))) {
 			renderLogic(Shader);
@@ -173,6 +176,10 @@ void ModelObject::draw(Shader &Shader) {
 	else {
 		renderLogic(Shader);
 	}
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	CubeCollider.draw();
 }
 

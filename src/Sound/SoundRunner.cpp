@@ -1,6 +1,16 @@
 #include "SoundRunner.h"
 #include "SoundProgram.h"
 
+bool SoundRunner::VisualizeSound = false;
+
+float SoundRunner::GlobalVolume = 1;
+
+float SoundRunner::MusicVolume = 1;
+
+float SoundRunner::environmentVolume = 1;
+
+float SoundRunner::entityVolume = 1;
+
 void SoundRunner::init() {
     // Open default device and create context
     SoundProgram::device = alcOpenDevice(nullptr);

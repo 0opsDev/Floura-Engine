@@ -2,7 +2,8 @@
 #include <Scripting/ScriptRunner.h>
 #include <Physics/CubeCollider.h>
 #include <Core/File/File.h>
-bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true, true, true }; // ImGui Panels
+#include <Sound/SoundRunner.h>
+bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true, true, true, true }; // ImGui Panels
 
 bool ImGuiCamera::DebugPanels[] = { false, false}; // ImGui Panels
 
@@ -166,6 +167,7 @@ void ImGuiCamera::PanelsWindow() {
 	ImGui::Checkbox("Physics Settings", &ImGuiCamera::imGuiPanels[5]);
 	ImGui::Checkbox("Debug Window", &ImGuiCamera::imGuiPanels[6]);
 	ImGui::Checkbox("Text Editor", &ImGuiCamera::imGuiPanels[7]);
+	ImGui::Checkbox("Audio", &ImGuiCamera::imGuiPanels[8]); // Audio window
 	ImGui::End();
 }
 
@@ -229,6 +231,25 @@ void ImGuiCamera::TextEditor() {
 	// Main Text Editor Input
 	if (ImGui::InputTextMultiline("Text Box", contentBuffer.data(), contentBuffer.size(), boxSize)) {
 		FileClass::Contents = std::string(contentBuffer.data());
+	}
+
+	ImGui::End();
+}
+
+void ImGuiCamera::audio() {
+	ImGui::Begin("audio window"); // ImGUI window creation
+	ImGui::Checkbox("Visualize Audio", &SoundRunner::VisualizeSound);
+	if (ImGui::TreeNode("Volume")) {
+		ImGui::Spacing();
+		ImGui::SliderFloat("Global Volume", &SoundRunner::GlobalVolume, 0, 1);
+		ImGui::Spacing();
+		ImGui::SliderFloat("Music Volume", &SoundRunner::MusicVolume, 0, 1);
+		ImGui::Spacing();
+		ImGui::SliderFloat("Environment Volume", &SoundRunner::environmentVolume, 0, 1);
+		ImGui::Spacing();
+		ImGui::SliderFloat("Entity Volume", &SoundRunner::entityVolume, 0, 1);
+
+		ImGui::TreePop();
 	}
 
 	ImGui::End();

@@ -14,6 +14,7 @@ public:
 
 	static void Update();
 
+	static void Delete();
 private:
 };
 #endif

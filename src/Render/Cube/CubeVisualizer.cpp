@@ -77,6 +77,7 @@ void CubeVisualizer::draw(float x, float y, float z,
 			// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_ALWAYS);
+			glBindVertexArray(0);
 			glLineWidth(5.0f); // Adjust the width as needed
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 			//std::cout << "height" << height << std::endl;
@@ -99,6 +100,7 @@ void CubeVisualizer::draw(float x, float y, float z,
 			glLineWidth(1.0f); // Adjust the width as needed
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 			glDepthFunc(GL_LESS);
+
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 			return;

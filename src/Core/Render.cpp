@@ -53,6 +53,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	Framebuffer::setupMainFBO(width, height);
 	Framebuffer::setupSecondFBO(width, height);
 	Framebuffer::setupGbuffers(width, height);
+	// need to add debug buffers at some point
 	//Framebuffer::setupNoiseMap();
 
 	init::initImGui(window); // Initialize ImGUI
@@ -257,8 +258,6 @@ void RenderClass::gPassDraw(Model& model, glm::vec3 Transform, glm::vec4 Rotatio
 	Camera::Matrix(gPassShader, "camMatrix"); // Send Camera Matrix To Shader Prog
 	model.Draw(gPassShader, Transform, Rotation, Scale);
 
-
-	glDisable(GL_CULL_FACE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);

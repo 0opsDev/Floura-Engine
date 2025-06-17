@@ -40,6 +40,8 @@ public:
 	static void PreformanceProfiler();
 
 	static void TextEditor();
+
+	static void audio();
 };
 
 #endif // SCREEN_UTILS_CLASS_H

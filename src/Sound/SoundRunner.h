@@ -14,6 +14,16 @@ class SoundRunner
 {
 public:
 
+	static bool VisualizeSound;
+
+	static float GlobalVolume;
+
+	static float MusicVolume;
+
+	static float environmentVolume;
+
+	static float entityVolume;
+
 	static void init();
 
 	static void Delete();

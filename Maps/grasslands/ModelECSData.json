@@ -3,7 +3,7 @@
         "name": "plane",
         "path": "Models/Baseplate/plate.gltf",
         "isCulling": true,
-        "isCollider": true,
+        "isCollider": false,
         "Location": [ 0, 0, 0 ],
         "Rotation": [ 0, 0, 0, 0 ],
         "Scale": [ 5, 5, 5 ]

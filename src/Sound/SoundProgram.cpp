@@ -1,9 +1,13 @@
 #include "SoundProgram.h"
 #include <utils/init.h>
+#include <Render/Cube/Billboard.h>
+#include <utils/VisibilityChecker.h>
+#include "SoundRunner.h"
 
 
 ALCdevice* SoundProgram::device;
 ALCcontext* SoundProgram::context;
+BillBoard SoundIcon;
 
 void SoundProgram::PlaySound(float Volume) {
     isPlay = true;
@@ -21,10 +25,11 @@ void SoundProgram::PlaySound(float Volume) {
 }
 
 void SoundProgram::SetVolume(float Volume) {
-    alSourcef(source, AL_GAIN, Volume); // set volume
+    alSourcef(source, AL_GAIN, Volume * SoundRunner::GlobalVolume); // set volume
 }
 
 void SoundProgram::SetSoundPosition(float x, float y, float z) {
+    SoundPosition = glm::vec3(x, y, z);
     alSource3f(source, AL_POSITION, x, y, z);
 }
 
@@ -46,6 +51,11 @@ void SoundProgram::updateCameraPosition() {
         Camera::Up.x,         Camera::Up.y,         Camera::Up.z              // Up
     };
     alListenerfv(AL_ORIENTATION, orientation);
+    if (SoundRunner::VisualizeSound) {
+        if (!VisibilityChecker::isInRange(SoundPosition, Camera::Position, 1)) {
+            SoundIcon.draw(true, SoundPosition.x, SoundPosition.y, SoundPosition.z, 1,1,1);
+        }
+    }
 }
 
 
@@ -80,6 +90,7 @@ void SoundProgram::ChangeSound(std::string path) {
     loadWavFile(path, &buffer);
     alGenSources(1, &source);
     alSourcei(source, AL_BUFFER, buffer);
+    SoundIcon.init("assets/Dependants/sound.png");
 }
 
 void SoundProgram::DeleteSound() {

@@ -17,6 +17,8 @@ public:
 	static ALCdevice* device;
 	static ALCcontext* context;
 
+	glm::vec3 SoundPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+
 	bool isPlay = false;
 
 	void PlaySound(float Volume);

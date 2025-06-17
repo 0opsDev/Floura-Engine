@@ -30,10 +30,6 @@ int Main::VertNum = 0, Main::FragNum = 0;
 bool Main::ApplyShader = true;
 bool Main::sleepState = true;
 
-// Global Variables
-
-float volume = 1;
-
 unsigned int width = 800, height = 600;
 
 float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
@@ -74,10 +70,6 @@ int main() // global variables do not work with threads
 	ScriptRunner::init(SettingsUtils::mapName + "/LuaStartup.json");
 	SoundRunner::init();
 
-	SoundProgram Soundtrack; Soundtrack.CreateSound("Assets/Sounds/Cold wind sound effect 4.wav");
-	SoundProgram FootSound; FootSound.CreateSound("Assets/Sounds/Footsteps.wav");
-	SoundProgram land; land.CreateSound("Assets/Sounds/land.wav");
-
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -115,10 +107,6 @@ int main() // global variables do not work with threads
 	ScreenUtils::SetScreenSize(window, width, height);  // set window and viewport w&h
 	if (init::LogALL || init::LogSystems) std::cout << "Primary monitor resolution: " << width << "x" << height << std::endl;
 
-	// Enable depth testing
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
 	// window logo creation and assignment
 	init::initLogo(window, "assets/Icons/Icon.png");
 
@@ -132,6 +120,10 @@ int main() // global variables do not work with threads
 	Main::LoadPlayerConfig();
 
 	Scene::init(); // Initialize scene
+
+	SoundProgram FootSound; FootSound.CreateSound("Assets/Sounds/Footsteps.wav");
+	SoundProgram land; land.CreateSound("Assets/Sounds/land.wav");
+
 	glm::vec3 feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
@@ -163,10 +155,7 @@ int main() // global variables do not work with threads
 			//std::cout << "update" << std::endl;
 			TA2.reset();
 		}
-		if (!Soundtrack.isPlay) {Soundtrack.PlaySound(volume);}
-		Soundtrack.SetVolume(volume);
-		Soundtrack.updateCameraPosition();
-		Soundtrack.SetSoundPosition(Camera::Position.x, Camera::Position.y, Camera::Position.z);
+		
 		if (Main::ApplyShader) {
 			FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram);
 			Main::ApplyShader = false;
@@ -281,8 +270,8 @@ int main() // global variables do not work with threads
 	frameBufferProgram.Delete();
 	Skybox::Delete();
 	land.DeleteSound();
-	Soundtrack.DeleteSound();
 	land.DeleteSound();	
+	Scene::Delete(); // Delete scene
 	SoundRunner::Delete();
 	//SolidColour.Delete();
 	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
@@ -539,7 +528,6 @@ void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 		if (ImGui::SmallButton("Add")) {};
 		ImGui::End();
 		ImGui::Begin("Details");
-		ImGui::SliderFloat("volume (temp)", &volume, 0, 1);
 		ImGui::End();
 	}
 
@@ -553,6 +541,10 @@ void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 
 	if (ImGuiCamera::imGuiPanels[7]) {
 		ImGuiCamera::TextEditor();
+	}
+
+	if (ImGuiCamera::imGuiPanels[8]) {
+		ImGuiCamera::audio();
 	}
 	ImGui::Render(); // Renders the ImGUI elements
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
