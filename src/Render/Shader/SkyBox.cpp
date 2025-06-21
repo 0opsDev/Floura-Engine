@@ -4,6 +4,7 @@
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
 #include <Core/Render.h>
+#include <Render/passes/geometry/geometryPass.h>
 
 unsigned int Skybox::cubemapTexture;
 unsigned int Skybox::skyboxVAO;
@@ -63,7 +64,7 @@ void Skybox::draw(GLfloat skyRGBA[], unsigned int width, unsigned int height) {
 	//std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
 
 
-	if (RenderClass::RegularPass) {
+	if (RenderClass::DoForwardLightingPass) {
 
 		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 		glDepthFunc(GL_LEQUAL);
@@ -87,11 +88,10 @@ void Skybox::draw(GLfloat skyRGBA[], unsigned int width, unsigned int height) {
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
 	}
-	if (RenderClass::LightingPass) {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		skyboxgPassShader.Activate();
 		skyboxgPassShader.setFloat("gamma", RenderClass::gamma);
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, GeometryPass::gBuffer);
 		glEnable(GL_DEPTH_TEST);
 
 		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
@@ -119,7 +119,6 @@ void Skybox::draw(GLfloat skyRGBA[], unsigned int width, unsigned int height) {
 
 		glDisable(GL_CULL_FACE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
 }
 
 void Skybox::Delete() {

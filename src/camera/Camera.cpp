@@ -80,7 +80,7 @@ void Camera::Inputs(GLFWwindow* window)
         {
             Position += adjustedSpeed * glm::normalize(glm::cross(Orientation, Up));
         }
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && DoJump) //jump
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) //jump
         {
             Position += adjustedSpeed * Up;
         }

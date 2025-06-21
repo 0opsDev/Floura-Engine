@@ -186,8 +186,8 @@ void ImGuiCamera::DebugWindow() {
 	ImGui::Begin("Debug Window"); // ImGUI window creation
 	ImGui::Checkbox("Preformance Profiler", &DebugPanels[0]);
 	if (DebugPanels[0]) { PreformanceProfiler();}
-	ImGui::Checkbox("LightingPass", &RenderClass::LightingPass);
-	ImGui::Checkbox("RegularPass", &RenderClass::RegularPass);
+	ImGui::Checkbox("DoDeferredLightingPass", &RenderClass::DoDeferredLightingPass);
+	ImGui::Checkbox("DoForwardLightingPass", &RenderClass::DoForwardLightingPass);
 	ImGui::End();
 }
 

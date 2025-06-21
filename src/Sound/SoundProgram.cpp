@@ -9,9 +9,8 @@ ALCdevice* SoundProgram::device;
 ALCcontext* SoundProgram::context;
 BillBoard SoundIcon;
 
-void SoundProgram::PlaySound(float Volume) {
+void SoundProgram::PlaySound() {
     isPlay = true;
-    alSourcef(source, AL_GAIN, Volume); // set volume
     std::thread([this]() {
         alSourcePlay(source);
         if (init::LogSound) std::cout << "Sound played" << std::endl;
@@ -26,6 +25,10 @@ void SoundProgram::PlaySound(float Volume) {
 
 void SoundProgram::SetVolume(float Volume) {
     alSourcef(source, AL_GAIN, Volume * SoundRunner::GlobalVolume); // set volume
+}
+
+void SoundProgram::SetPitch(float pitch) {
+    alSourcef(source, AL_PITCH, pitch);
 }
 
 void SoundProgram::SetSoundPosition(float x, float y, float z) {

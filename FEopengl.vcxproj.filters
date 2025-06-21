@@ -101,6 +101,21 @@
     <Filter Include="Resource Files\Shaders\gBuffer">
       <UniqueIdentifier>{d6d77359-9a36-46f6-b25d-4261aef74e5f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Render\passes">
+      <UniqueIdentifier>{ac0274bb-9aa7-46af-bf89-af23776bfe37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\passes\post">
+      <UniqueIdentifier>{23e8c4a8-d6ac-4844-b727-491308c74ffc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\passes\geometry">
+      <UniqueIdentifier>{704351ba-9e9b-4b09-bc18-4c7b4daef533}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\passes\lighting">
+      <UniqueIdentifier>{2a9a4610-76c8-4f24-80c5-efb4705ba378}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\passes\dbg">
+      <UniqueIdentifier>{5457fc8a-6ff0-497f-8c4a-2bda7506bfe0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -255,6 +270,18 @@
     </ClCompile>
     <ClCompile Include="src\Core\scene.cpp">
       <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\passes\dbg\dbgPass.cpp">
+      <Filter>src\Render\passes\dbg</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\passes\geometry\geometryPass.cpp">
+      <Filter>src\Render\passes\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\passes\post\PostProcess.cpp">
+      <Filter>src\Render\passes\post</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\passes\lighting\LightingPass.cpp">
+      <Filter>src\Render\passes\lighting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -413,6 +440,18 @@
     </ClInclude>
     <ClInclude Include="src\Core\scene.h">
       <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\passes\dbg\dbgPass.h">
+      <Filter>src\Render\passes\dbg</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\passes\geometry\geometryPass.h">
+      <Filter>src\Render\passes\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\passes\post\PostProcess.h">
+      <Filter>src\Render\passes\post</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\passes\lighting\LightingPass.h">
+      <Filter>src\Render\passes\lighting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

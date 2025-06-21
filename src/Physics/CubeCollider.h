@@ -21,6 +21,8 @@ public:
 	void init();
 	void update();
 	void draw();
+private:
+	static bool isCollide;
 };
 
 #endif // CubeCollider_H

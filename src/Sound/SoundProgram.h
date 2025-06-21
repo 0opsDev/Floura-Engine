@@ -21,7 +21,9 @@ public:
 
 	bool isPlay = false;
 
-	void PlaySound(float Volume);
+	void PlaySound();
+
+	void SetPitch(float pitch);
 
 	void SetVolume(float Volume);
 	

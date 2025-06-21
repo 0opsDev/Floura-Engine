@@ -20,7 +20,7 @@ public:
 
 	void skyboxBuffer();
 
-	void draw(float x, float y, float z, float ScaleX, float ScaleY, float ScaleZ);
+	void draw(float x, float y, float z, float ScaleX, float ScaleY, float ScaleZ, glm::vec3 colour);
 
 	void Delete();
 };

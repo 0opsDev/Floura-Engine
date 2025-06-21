@@ -5,6 +5,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <Render/Shader/Framebuffer.h>
 #include <Core/Render.h>
+#include <Render/passes/geometry/geometryPass.h>
 
 Shader PlaneShader;
 Shader gPassShaderBillBoard;
@@ -158,7 +159,7 @@ void BillBoard::skyboxBuffer() {
 void BillBoard::draw(bool doPitch, float x, float y, float z,
 	float ScaleX, float ScaleY, float ScaleZ) {
 
-	if (!RenderClass::RegularPass && !RenderClass::LightingPass) {
+	if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
 		return; // Skip rendering if not in regular or lighting pass
 	}
 	// Compute the forward vector towards the camera
@@ -183,7 +184,7 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 	model = model * billboardRotation;  // Ensure billboard rotation before scaling
 	model = glm::scale(model, glm::vec3(ScaleX, ScaleY, ScaleZ));
 
-	if (RenderClass::RegularPass) {
+	if (RenderClass::DoForwardLightingPass) {
 		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 		// Enable depth testing
@@ -210,11 +211,10 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 		//
 		//
 		// Gpass
-	if (RenderClass::LightingPass) {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		gPassShaderBillBoard.Activate();
 		gPassShaderBillBoard.setFloat("gamma", RenderClass::gamma);
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, GeometryPass::gBuffer);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
@@ -241,7 +241,8 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 		glDisable(GL_CULL_FACE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		//FrameBuffer
-	}
+
+	// got just to reset the framebuffer to default
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 }
 

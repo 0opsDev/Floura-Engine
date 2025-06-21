@@ -17,8 +17,7 @@ class Framebuffer
 {
 public:
 
-	static unsigned int ViewPortWidth, ViewPortHeight, viewVAO, viewVBO, FBO2, frameBufferTexture2, frameBufferTexture, RBO, FBO,
-		depthTexture, gBuffer, gAlbedoSpec, gNormal, gPosition, DBO, gNoise;
+	static unsigned int ViewPortWidth, ViewPortHeight, viewVAO, viewVBO, FBO2, frameBufferTexture2, frameBufferTexture, RBO, FBO;
 
 	static GLuint noiseMapTexture;
 

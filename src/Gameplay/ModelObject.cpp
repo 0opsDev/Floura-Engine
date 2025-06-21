@@ -1,5 +1,6 @@
 #include "ModelObject.h"
 #include <utils/VisibilityChecker.h>
+#include <Render/passes/geometry/geometryPass.h>
 
 std::vector<std::tuple<Model, unsigned int>> ModelObject::loadLODmodelsFromJson(const std::string& jsonFilePath) {
 	std::vector<std::tuple<Model, unsigned int>> models;
@@ -119,7 +120,7 @@ unsigned int CalculateLOD(const glm::vec3& cameraPos, const glm::vec3& transform
 }
 
 void ModelObject::renderLogic(Shader& Shader) {
-	if (!RenderClass::RegularPass && !RenderClass::LightingPass) {
+	if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
 		return; // Skip rendering if not in regular or lighting pass
 	}
 
@@ -139,14 +140,14 @@ void ModelObject::renderLogic(Shader& Shader) {
 			unsigned int iteration = std::get<1>(modelTuple);
 			//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
 			if (iteration == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
-				if (RenderClass::RegularPass) { 
+				if (RenderClass::DoForwardLightingPass) {
 					glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 					glEnable(GL_DEPTH_TEST);
 					glDepthFunc(GL_LESS);
 					model.Draw(Shader, transform, rotation, scale); 
 					glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				}
-				if (RenderClass::LightingPass) { RenderClass::gPassDraw(model, transform, rotation, scale); }
+				GeometryPass::gPassDraw(model, transform, rotation, scale);
 			}
 		}
 		break;
@@ -155,14 +156,14 @@ void ModelObject::renderLogic(Shader& Shader) {
 		for (auto& modelTuple : SingleModel) {
 			Model& model = std::get<0>(modelTuple);
 			//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
-			if (RenderClass::RegularPass) {
+			if (RenderClass::DoForwardLightingPass) {
 				glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 				glEnable(GL_DEPTH_TEST);
 				glDepthFunc(GL_LESS);
 				model.Draw(Shader, transform, rotation, scale);
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
-			if (RenderClass::LightingPass) { RenderClass::gPassDraw(model, transform, rotation, scale); }
+			GeometryPass::gPassDraw(model, transform, rotation, scale);
 		}
 		break;
 	}

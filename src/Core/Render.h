@@ -27,8 +27,8 @@ public:
 	static GLfloat ConeRot[];
 	static glm::vec3 CameraXYZ; // Initial camera position
 
-	static bool LightingPass; // Toggle for lighting pass
-	static bool RegularPass; // Toggle for regular pass
+	static bool DoDeferredLightingPass; // Toggle for lighting pass
+	static bool DoForwardLightingPass; // Toggle for regular pass
 
 	static void init(GLFWwindow* window, unsigned int width, unsigned int height);
 
@@ -37,11 +37,15 @@ public:
 	static void Render(GLFWwindow* window, Shader frameBufferProgram, float window_width, float window_height, glm::vec3 lightPos,
 		std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models);
 
+	static void ForwardLightingPass();
+
+	static void DeferredLightingPass();
+
+	static void HybridLightingPass();
+
 	static void Swapchain(GLFWwindow* window, Shader frameBufferProgram, GLFWmonitor* primaryMonitor);
 
 	static void Cleanup();
-
-	static void gPassDraw(Model& model, glm::vec3 Transform, glm::vec4 Rotation, glm::vec3 Scale);
 
 };
 #endif

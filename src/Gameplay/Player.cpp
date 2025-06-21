@@ -1,6 +1,7 @@
 #include "Player.h"
 #include <Sound/SoundProgram.h>
 #include <Sound/SoundRunner.h>
+#include <algorithm>
 
 bool Player::isGrounded = false;
 bool Player::isColliding = false;
@@ -17,12 +18,20 @@ void Player::update() {
 	FootSound.updateCameraPosition();
 
 
-
 	if (isColliding && Camera::isMoving) {
+		FootSound.SetVolume(SoundRunner::entityVolume);
+
+		float minSpeed = 5.0f;  // minimum speed
+		float maxSpeed = 20.0f;  // maximum speed
+		float normalizedSpeed = (Camera::speed - minSpeed) / (maxSpeed - minSpeed);
+
+		// Clamp the value at 1.0
+		normalizedSpeed = std::clamp(normalizedSpeed, 0.0f, 1.0f);
+		FootSound.SetPitch(1 + normalizedSpeed);
+
 		if (!FootSound.isPlay) {
-			FootSound.PlaySound(SoundRunner::entityVolume);
+			FootSound.PlaySound();
 		}
-		
 	}
 	else 
 	{

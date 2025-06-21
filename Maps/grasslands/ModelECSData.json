@@ -25,5 +25,14 @@
         "Location": [ 0, 0.6, 3 ],
         "Rotation": [ 0, 0, 0, 0 ],
         "Scale": [ 0.3, 0.3, 0.3 ]
+    },
+    {
+        "name": "container",
+        "path": "Models/fps/shipment.gltf",
+        "isCulling": true,
+        "isCollider": false,
+        "Location": [ 15, 0, 0 ],
+        "Rotation": [ 0, 0, 0, 0 ],
+        "Scale": [ 0.5, 0.5, 0.5 ]
     }
 ]

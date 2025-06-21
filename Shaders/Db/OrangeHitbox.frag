@@ -1,10 +1,11 @@
 #version 460 core
 out vec4 FragColor;
+//probably should change file name
+
+uniform vec3 colour;
 
 void main()
 {
-    vec3 color = vec3(1.0, 0.412, 0.0);
-
     // Set the fragment color
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(colour, 1.0);
 }

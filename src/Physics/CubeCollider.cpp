@@ -1,6 +1,7 @@
 #include "CubeCollider.h"
 #include <Gameplay/Player.h>
 
+bool CubeCollider::isCollide = false;
 
 bool CubeCollider::checkcollide(glm::vec3 victimXYZ, glm::vec3 victimScale) {
     glm::vec3 colliderMin = colliderXYZ - colliderScale;
@@ -29,10 +30,10 @@ bool CubeCollider::checkcollide(glm::vec3 victimXYZ, glm::vec3 victimScale) {
         else if (minDist == topDist) lastHit = glm::vec3(victimXYZ.x, colliderMax.y + victimScale.y * 0.5f, victimXYZ.z);
         else if (minDist == frontDist) lastHit = glm::vec3(victimXYZ.x, victimXYZ.y, colliderMin.z - victimScale.z * 0.5f);
         else if (minDist == backDist) lastHit = glm::vec3(victimXYZ.x, victimXYZ.y, colliderMax.z + victimScale.z * 0.5f);
-
+        isCollide = true;
         return true;
     }
-
+    isCollide = false;
     return false;
 }
 
@@ -50,9 +51,10 @@ void CubeCollider::update() {
 
 void CubeCollider::draw() {
     if (showBoxCollider) {
-        CubeVisualizerRenderObject.draw(colliderXYZ.x, colliderXYZ.y, colliderXYZ.z, colliderScale.x, colliderScale.y, colliderScale.z);
+        if (isCollide) {// was 1.0, 0.412, 0.0 
+            CubeVisualizerRenderObject.draw(colliderXYZ.x, colliderXYZ.y, colliderXYZ.z, colliderScale.x, colliderScale.y, colliderScale.z, glm::vec3(1.0, 0.0, 0.0));}
+        else {CubeVisualizerRenderObject.draw(colliderXYZ.x, colliderXYZ.y, colliderXYZ.z, colliderScale.x, colliderScale.y, colliderScale.z, glm::vec3(1.0, 1.0, 1.0));}   
     }
-    
 }
 
 void CubeCollider::init() {

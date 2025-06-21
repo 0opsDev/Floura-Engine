@@ -8,8 +8,8 @@
 #include <glm/gtx/norm.hpp>
 #include "Render/Cube/RenderQuad.h"
 #include "scene.h"
+#include <Render/passes/geometry/geometryPass.h>
 
-Shader gPassShader;
 Shader RenderClass::shaderProgram;
 float RenderClass::gamma = 2.2f;
 bool RenderClass::doReflections = true;
@@ -26,10 +26,10 @@ glm::vec3 RenderClass::CameraXYZ = glm::vec3(0.0f, 0.0f, 0.0f); // Initial camer
 
 BillBoard LightIcon;
 Shader SolidColour;
-RenderQuad flatplanez;
+RenderQuad lightingRenderQuad;
 Shader shader;
-bool RenderClass::LightingPass = false; // Toggle for lighting pass
-bool RenderClass::RegularPass = true; // Toggle for regular pass
+bool RenderClass::DoDeferredLightingPass = false; // Toggle for lighting pass
+bool RenderClass::DoForwardLightingPass = true; // Toggle for regular pass
 
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
@@ -38,12 +38,11 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init::initGLenable(false); //bool for direction of polys
-	gPassShader.LoadShader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
-
+	GeometryPass::init(); // Initialize geometry pass settings
 	LightIcon.init("Assets/Dependants/LB.png");
 	Skybox::init(Skybox::DefaultSkyboxPath);
 
-	flatplanez.init();
+	lightingRenderQuad.init();
 
 	SolidColour.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
 
@@ -52,7 +51,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	// put in one function
 	Framebuffer::setupMainFBO(width, height);
 	Framebuffer::setupSecondFBO(width, height);
-	Framebuffer::setupGbuffers(width, height);
+	GeometryPass::setupGbuffers(width, height); // here
 	// need to add debug buffers at some point
 	//Framebuffer::setupNoiseMap();
 
@@ -72,7 +71,7 @@ void RenderClass::ClearFramebuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Clear GBuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, GeometryPass::gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear with colour
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -102,7 +101,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 		if (cullingSetting == 1 && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
 		else { glDisable(GL_CULL_FACE); }
 
-		gPassDraw(model, translation, rotation, scale);
+		GeometryPass::gPassDraw(model, translation, rotation, scale);
 	}
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
@@ -117,15 +116,15 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	shaderProgram.Activate(); // activate shaderprog to send uniforms to gpu
 
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, Framebuffer::gPosition);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gPosition);
 	shaderProgram.setInt("gPosition", 1);
 
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, Framebuffer::gNormal);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
 	shaderProgram.setInt("gNormal", 2);
 
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, Framebuffer::gAlbedoSpec);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gAlbedoSpec);
 	shaderProgram.setInt("gAlbedoSpec", 3);	
 
 	shaderProgram.setBool("doReflect", doReflections);
@@ -145,7 +144,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 		glClearColor(0, 0, 0, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
 	auto startInitTime2 = std::chrono::high_resolution_clock::now();
-	if (RegularPass) {
+	if (DoForwardLightingPass) {
 		
 		for (auto& modelTuple : models) {
 			Model& model = std::get<0>(modelTuple);
@@ -189,36 +188,10 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 
 	}
-	//glEnable(GL_CULL_FACE);
-	if (LightingPass) {
-		//glDisable(GL_DEPTH_TEST);
-		//glDepthFunc(GL_LESS);
-		glDisable(GL_CULL_FACE);
-		shader.Activate();
-		// gPass textures bound to FB
-		// send gPass textures to shader
-		glActiveTexture(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, Framebuffer::gPosition);
-		shader.setInt("gPosition", 1);
-
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, Framebuffer::gNormal);
-		shader.setInt("gNormal", 2);
-
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, Framebuffer::gAlbedoSpec);
-		shader.setInt("gAlbedoSpec", 3);
-
-		shader.setFloat3("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2]);
-		shader.setFloat3("skyColor", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
-		shader.setFloat3("orientation", Camera::Orientation.x, Camera::Orientation.y, Camera::Orientation.z);
-		shader.setFloat3("cameraPos", Camera::Position.x, Camera::Position.y, Camera::Position.z);
-		//shader.
-		flatplanez.draw(shader);
+	if (DoDeferredLightingPass) {
+		DeferredLightingPass(); // Forward Lighting Pass
 	}
+
 	auto stopInitTime2 = std::chrono::high_resolution_clock::now();
 	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
 	ImGuiCamera::lPassTime = (initDuration2.count() / 1000.0);
@@ -234,6 +207,48 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	Framebuffer::FBODraw(frameBufferProgram, ImGuiCamera::imGuiPanels[0], window_width, window_height, window);
 }
 
+void RenderClass::ForwardLightingPass() {
+	
+}
+
+void RenderClass::DeferredLightingPass() {
+	//glEnable(GL_CULL_FACE);
+		//glDisable(GL_DEPTH_TEST);
+		//glDepthFunc(GL_LESS);
+	glDisable(GL_CULL_FACE);
+	shader.Activate();
+	// gPass textures bound to FB
+	// send gPass textures to shader
+	glActiveTexture(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gPosition);
+	shader.setInt("gPosition", 1);
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
+	shader.setInt("gNormal", 2);
+
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gAlbedoSpec);
+	shader.setInt("gAlbedoSpec", 3);
+
+	shader.setFloat3("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2]);
+	shader.setFloat3("skyColor", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
+	shader.setFloat3("orientation", Camera::Orientation.x, Camera::Orientation.y, Camera::Orientation.z);
+	shader.setFloat3("cameraPos", Camera::Position.x, Camera::Position.y, Camera::Position.z);
+	//shader.
+	lightingRenderQuad.draw(shader);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+
+}
+
+void RenderClass::HybridLightingPass() {
+
+}
+
 void RenderClass::Swapchain(GLFWwindow* window, Shader frameBufferProgram, GLFWmonitor* primaryMonitor) {
 
 
@@ -245,20 +260,4 @@ void RenderClass::Swapchain(GLFWwindow* window, Shader frameBufferProgram, GLFWm
 
 void RenderClass::Cleanup() {
 	shaderProgram.Delete(); // Delete Shader Prog
-}
-
-void RenderClass::gPassDraw(Model& model, glm::vec3 Transform, glm::vec4 Rotation, glm::vec3 Scale) {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	gPassShader.Activate();
-	gPassShader.setFloat("gamma", RenderClass::gamma);
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::gBuffer);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
-	Camera::Matrix(gPassShader, "camMatrix"); // Send Camera Matrix To Shader Prog
-	model.Draw(gPassShader, Transform, Rotation, Scale);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//FrameBuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 }
