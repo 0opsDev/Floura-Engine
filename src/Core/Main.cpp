@@ -231,7 +231,8 @@ int main() // global variables do not work with threads
 
 		auto startInitTime2 = std::chrono::high_resolution_clock::now();
 
-		RenderClass::Render(window, frameBufferProgram, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), models);
+		RenderClass::Render(window, frameBufferProgram, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0],
+			RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), models, width, height);
 		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, RenderClass::shaderProgram, primaryMonitor); }
 
 		RenderClass::Swapchain(window, frameBufferProgram, primaryMonitor); // tip to self, work down to up (lines)

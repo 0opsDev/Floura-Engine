@@ -73,7 +73,8 @@ void RenderQuad::draw(Shader shader) {
 		//glBindTexture(GL_TEXTURE_2D, 0); // unbind tex
 		// Render the billboard
 		glBindVertexArray(cubeVAO);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 }

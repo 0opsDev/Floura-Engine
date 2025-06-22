@@ -1,6 +1,7 @@
 #include "Render/Shader/Framebuffer.h"
 #include <utils/SettingsUtil.h>
 #include <Render/passes/geometry/geometryPass.h>
+#include <Render/passes/lighting/LightingPass.h>
 unsigned int Framebuffer::ViewPortWidth = 800;
 unsigned int Framebuffer::ViewPortHeight = 600;
 unsigned int Framebuffer::viewVAO;
@@ -101,6 +102,8 @@ void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int h
 	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	LightingPass::resizeTexture(width, height);
 }
 
 void Framebuffer::FBO2Draw(Shader frameBufferProgram) {

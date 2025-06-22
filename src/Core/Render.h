@@ -29,13 +29,14 @@ public:
 
 	static bool DoDeferredLightingPass; // Toggle for lighting pass
 	static bool DoForwardLightingPass; // Toggle for regular pass
+	static bool DoComputeLightingPass;
 
 	static void init(GLFWwindow* window, unsigned int width, unsigned int height);
 
 	static void ClearFramebuffers();
 
 	static void Render(GLFWwindow* window, Shader frameBufferProgram, float window_width, float window_height, glm::vec3 lightPos,
-		std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models);
+		std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models, unsigned int width, unsigned int height);
 
 	static void ForwardLightingPass();
 

@@ -572,6 +572,12 @@
     <None Include="Shaders\gBuffer\geometryPassSkybox.vert">
       <Filter>Resource Files\Shaders\gBuffer</Filter>
     </None>
+    <None Include="Shaders\Db\ComputeRenderQuad.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Shaders\Db\emptycomputeShader.comp">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
     <None Include="Shaders\Db\computeShader.comp">
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>

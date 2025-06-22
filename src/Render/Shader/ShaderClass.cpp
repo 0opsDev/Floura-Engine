@@ -86,29 +86,45 @@ void Shader::LoadShader(const char* vertexFile, const char* fragmentFile)
 
 void Shader::LoadComputeShader(const char* computeFile) {
     std::string computeCode = get_file_contents(computeFile);
-	const char* computeSource = computeCode.c_str();
+    const char* computeSource = computeCode.c_str();
 
     GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
-	glShaderSource(computeShader, 1, &computeSource, NULL);
-	glCompileShader(computeShader);
-
-	GLuint computeProgram = glCreateProgram();
-	glAttachShader(computeProgram, computeShader);
-	glLinkProgram(computeProgram);
-
-	compileErrors(computeProgram, "COMPUTE");
+    glShaderSource(computeShader, 1, &computeSource, NULL);
+    glCompileShader(computeShader);
+    compileErrors(computeShader, "COMPUTE");
 
     ID = glCreateProgram();
     glAttachShader(ID, computeShader);
-    // wrap
     glLinkProgram(ID);
-    // error checking
     compileErrors(ID, "PROGRAM");
 
-    // delete shaders because its already in the program
     glDeleteShader(computeShader);
 
-    if (init::LogALL || init::LogSystems) { std::cout << "Compute: " << computeFile << std::endl; }
+    int work_grp_cnt[3];
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &work_grp_cnt[0]);
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &work_grp_cnt[1]);
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &work_grp_cnt[2]);
+    std::cout << "Max work groups per compute shader" <<
+    	" x:" << work_grp_cnt[0] <<
+    	" y:" << work_grp_cnt[1] <<
+    	" z:" << work_grp_cnt[2] << "\n";
+
+    int work_grp_size[3];
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &work_grp_size[0]);
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &work_grp_size[1]);
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_size[2]);
+    std::cout << "Max work group sizes" <<
+    	" x:" << work_grp_size[0] <<
+    	" y:" << work_grp_size[1] <<
+    	" z:" << work_grp_size[2] << "\n";
+
+    int work_grp_inv;
+    glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &work_grp_inv);
+    std::cout << "Max invocations count per work group: " << work_grp_inv << "\n";
+
+    if (init::LogALL || init::LogSystems) {
+        std::cout << "Compute: " << computeFile << std::endl;
+    }
 }
 
 void Shader::Activate()

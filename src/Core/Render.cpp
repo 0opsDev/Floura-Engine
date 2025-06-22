@@ -9,6 +9,7 @@
 #include "Render/Cube/RenderQuad.h"
 #include "scene.h"
 #include <Render/passes/geometry/geometryPass.h>
+#include <Render/passes/lighting/LightingPass.h>
 
 Shader RenderClass::shaderProgram;
 float RenderClass::gamma = 2.2f;
@@ -28,9 +29,10 @@ BillBoard LightIcon;
 Shader SolidColour;
 RenderQuad lightingRenderQuad;
 Shader shader;
-Shader testCompute;
+
 bool RenderClass::DoDeferredLightingPass = false; // Toggle for lighting pass
 bool RenderClass::DoForwardLightingPass = true; // Toggle for regular pass
+bool RenderClass::DoComputeLightingPass = false;
 
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
@@ -48,11 +50,11 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	SolidColour.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
 
 	shader.LoadShader("Shaders/Db/RenderQuad.vert", "Shaders/Db/RenderQuad.frag");
-	testCompute.LoadComputeShader("Shaders/Db/computeShader.comp");
 	// put in one function
 	Framebuffer::setupMainFBO(width, height);
 	Framebuffer::setupSecondFBO(width, height);
 	GeometryPass::setupGbuffers(width, height); // here
+	LightingPass::initcomputeShader(width, height); // Initialize compute shader for lighting pass
 	// need to add debug buffers at some point
 	//Framebuffer::setupNoiseMap();
 
@@ -78,7 +80,7 @@ void RenderClass::ClearFramebuffers() {
 }
 
 void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float window_width, float window_height, glm::vec3 lightPos,
-	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models) {
+	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models, unsigned int width, unsigned int height) {
 
 	// Camera
 	Camera::Inputs(window); // send Camera.cpp window inputs and delta time
@@ -192,12 +194,13 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	if (DoDeferredLightingPass) {
 		DeferredLightingPass(); // Forward Lighting Pass
 	}
+	if (DoComputeLightingPass) {
+		LightingPass::computeRender(); // Run compute shader for lighting pass
+	}
 
 	auto stopInitTime2 = std::chrono::high_resolution_clock::now();
 	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
 	ImGuiCamera::lPassTime = (initDuration2.count() / 1000.0);
-
-	testCompute.ActivateCompute(1, 1, 1);
 
 	//glDepthFunc(GL_LEQUAL);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
@@ -215,6 +218,7 @@ void RenderClass::ForwardLightingPass() {
 }
 
 void RenderClass::DeferredLightingPass() {
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	//glEnable(GL_CULL_FACE);
 		//glDisable(GL_DEPTH_TEST);
 		//glDepthFunc(GL_LESS);
