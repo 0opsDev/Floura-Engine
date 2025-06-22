@@ -28,6 +28,7 @@ BillBoard LightIcon;
 Shader SolidColour;
 RenderQuad lightingRenderQuad;
 Shader shader;
+Shader testCompute;
 bool RenderClass::DoDeferredLightingPass = false; // Toggle for lighting pass
 bool RenderClass::DoForwardLightingPass = true; // Toggle for regular pass
 
@@ -47,7 +48,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	SolidColour.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
 
 	shader.LoadShader("Shaders/Db/RenderQuad.vert", "Shaders/Db/RenderQuad.frag");
-
+	testCompute.LoadComputeShader("Shaders/Db/computeShader.comp");
 	// put in one function
 	Framebuffer::setupMainFBO(width, height);
 	Framebuffer::setupSecondFBO(width, height);
@@ -195,6 +196,8 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	auto stopInitTime2 = std::chrono::high_resolution_clock::now();
 	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
 	ImGuiCamera::lPassTime = (initDuration2.count() / 1000.0);
+
+	testCompute.ActivateCompute(1, 1, 1);
 
 	//glDepthFunc(GL_LEQUAL);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);

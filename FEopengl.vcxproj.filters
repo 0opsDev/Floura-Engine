@@ -572,5 +572,8 @@
     <None Include="Shaders\gBuffer\geometryPassSkybox.vert">
       <Filter>Resource Files\Shaders\gBuffer</Filter>
     </None>
+    <None Include="Shaders\Db\computeShader.comp">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
   </ItemGroup>
 </Project>

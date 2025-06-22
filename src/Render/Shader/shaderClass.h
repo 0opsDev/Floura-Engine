@@ -2,6 +2,7 @@
 #define SHADER_CLASS_H
 
 #include<glad/glad.h>
+#include"GLFW/glfw3.h"
 #include<string>
 #include<fstream>
 #include<sstream>
@@ -19,7 +20,10 @@ public:
 	GLuint ID;
 	void LoadShader(const char* vertexFile, const char* fragmentFile);
 
+	void LoadComputeShader(const char* computeFile);
+
 	void Activate();
+	void ActivateCompute(int x, int y, int z);
 	void Delete();
 
 	void setInt(const char* uniform, int uniforIint);

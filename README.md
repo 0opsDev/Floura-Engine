@@ -6,6 +6,8 @@ Features:
 ---
 ~~~
 . glTF Model Loading
+. Billboard Models
+. Gbuffer
 . Cubemaps
 . FrameBuffer Vertex and Fragment Shader Support
 . Settings Files

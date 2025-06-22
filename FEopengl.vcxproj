@@ -263,6 +263,7 @@
     <None Include="Settings\Settings.json" />
     <None Include="Shaders\Db\BillBoard.frag" />
     <None Include="Shaders\Db\BillBoard.vert" />
+    <None Include="Shaders\Db\computeShader.comp" />
     <None Include="Shaders\Db\RenderQuad.frag" />
     <None Include="Shaders\Db\RenderQuad.vert" />
     <None Include="Shaders\Db\solidColour.frag" />

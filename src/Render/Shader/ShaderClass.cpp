@@ -84,9 +84,43 @@ void Shader::LoadShader(const char* vertexFile, const char* fragmentFile)
    
 }
 
+void Shader::LoadComputeShader(const char* computeFile) {
+    std::string computeCode = get_file_contents(computeFile);
+	const char* computeSource = computeCode.c_str();
+
+    GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
+	glShaderSource(computeShader, 1, &computeSource, NULL);
+	glCompileShader(computeShader);
+
+	GLuint computeProgram = glCreateProgram();
+	glAttachShader(computeProgram, computeShader);
+	glLinkProgram(computeProgram);
+
+	compileErrors(computeProgram, "COMPUTE");
+
+    ID = glCreateProgram();
+    glAttachShader(ID, computeShader);
+    // wrap
+    glLinkProgram(ID);
+    // error checking
+    compileErrors(ID, "PROGRAM");
+
+    // delete shaders because its already in the program
+    glDeleteShader(computeShader);
+
+    if (init::LogALL || init::LogSystems) { std::cout << "Compute: " << computeFile << std::endl; }
+}
+
 void Shader::Activate()
 {
     glUseProgram(ID);
+}
+// just making a seperate function for compute shaders to skip a if check
+void Shader::ActivateCompute(int x, int y, int z) {
+	glUseProgram(ID);
+	// Dispatch the compute shader with the specified work group size
+	glDispatchCompute(x, y, z);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
 void Shader::Delete()
@@ -169,8 +203,6 @@ void Shader::setMat3(const char* uniform, glm::mat4 uniformMat3)
 {
     glUniformMatrix3fv(glGetUniformLocation(ID, uniform), 1, GL_FALSE, glm::value_ptr(uniformMat3));
 }
-
-
 
 void Shader::setBool(const char* uniform, bool uniformBool)
 {
