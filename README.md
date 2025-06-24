@@ -38,6 +38,9 @@ F3: Gravity and Collisions ON
 
 Screenshots:
 ---
+some raytraced reflections
+![image](https://github.com/user-attachments/assets/6d5e7668-fb02-490b-9f27-035b30554f3f)
+---
 ![image](https://github.com/user-attachments/assets/07719cea-7554-490c-9e99-a242be7d05df)
 ---
 ![image](https://github.com/user-attachments/assets/4f785c12-f6bf-456c-bc49-c00d743fe079)
