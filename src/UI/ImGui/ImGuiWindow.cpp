@@ -103,7 +103,7 @@ void ImGuiCamera::ShaderWindow() {
 		//Optimisation And Shaders
 		ImGui::DragInt("Shader Number (Vert)", &Main::VertNum);
 		ImGui::DragInt("Shader Number (Frag)", &Main::FragNum); // Shader Switching
-		if (ImGui::SmallButton("Apply Shader?")) { Main::ApplyShader = true; } // apply shader
+			if (ImGui::SmallButton("Apply Shader?")) { FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram); } // apply shader
 		ImGui::DragFloat("Gamma", &RenderClass::gamma);
 		ImGui::Checkbox("doReflections", &RenderClass::doReflections);
 		ImGui::Checkbox("doFog", &RenderClass::doFog); 		//Toggles

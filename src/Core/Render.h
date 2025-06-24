@@ -25,7 +25,6 @@ public:
 	static GLfloat LightTransform1[];
 	static GLfloat ConeSI[];
 	static GLfloat ConeRot[];
-	static glm::vec3 CameraXYZ; // Initial camera position
 
 	static bool DoDeferredLightingPass; // Toggle for lighting pass
 	static bool DoForwardLightingPass; // Toggle for regular pass

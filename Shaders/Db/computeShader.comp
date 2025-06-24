@@ -2,33 +2,218 @@
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 
 layout(rgba32f, binding = 0) uniform image2D screen;
+
+uniform vec4 u_BaseColour;
+uniform mat4 u_ViewMatrix;
+uniform mat4 u_ProjectionMatrix;
+uniform vec3 cameraPosition;
+uniform int u_MaxSamples;
+
+// Define 3D grid dimensions and properties directly in the shader
+#define GRID_DIM 4
+#define CUBE_SIDE_HALF 0.45 // Half the side length of the cube (similar scale to sphere radius)
+#define SPACING 1.8
+
+#define START_OFFSET_X -(float(GRID_DIM - 1) * SPACING / 2.0)
+#define START_OFFSET_Y -(float(GRID_DIM - 1) * SPACING / 2.0) + 4
+#define START_OFFSET_Z -10.0
+
+// Ray tracing parameters
+#define MAX_REFLECTION_BOUNCES 2  // Max explicit reflection bounces
+#define EPSILON 0.001           // Small offset to prevent self-intersection
+
+struct HitInfo {
+    float t;         // Distance to hit point
+    vec3 normal;      // Surface normal at hit point
+    vec4 color;       // Base color of the hit object
+    bool hit;         // Did the ray hit anything?
+};
+
+// Simple hash function for pseudo-random numbers
+uint hash(uint x) {
+    x += (x << 10);
+    x ^= (x >> 6);
+    x += (x << 3);
+    x ^= (x >> 11);
+    x += (x << 15);
+    return x;
+}
+
+// Function to generate a pseudo-random color based on grid coordinates
+vec3 randomColor(int x, int y, int z) {
+    uint seed = hash(uint(x) * 73856093U + uint(y) * 19349663U + uint(z) * 83492791U);
+    float r = float(hash(seed)) / float(0xFFFFFFFFU);
+    float g = float(hash(seed + 1)) / float(0xFFFFFFFFU); // Use slightly different seeds for components
+    float b = float(hash(seed + 2)) / float(0xFFFFFFFFU);
+    return vec3(r, g, b);
+}
+
+// Ray-AABB (Axis-Aligned Bounding Box) intersection function
+// Adapted from a common algorithm (e.g., "AABB Intersection by Andrew Kensler" or "Slab Method")
+HitInfo intersectAABB(vec3 ray_o, vec3 ray_d, vec3 box_min, vec3 box_max) {
+    HitInfo info;
+    info.t = 1e30; // Initialize with a very large number
+    info.hit = false;
+
+    vec3 inv_d = 1.0 / ray_d;
+    vec3 t0s = (box_min - ray_o) * inv_d;
+    vec3 t1s = (box_max - ray_o) * inv_d;
+
+    vec3 t_min_vec = min(t0s, t1s);
+    vec3 t_max_vec = max(t0s, t1s);
+
+    float t_enter = max(max(t_min_vec.x, t_min_vec.y), t_min_vec.z);
+    float t_exit = min(min(t_max_vec.x, t_max_vec.y), t_max_vec.z);
+
+    if (t_enter < t_exit && t_exit > EPSILON) { // Check for valid intersection
+        float t_hit = t_enter;
+        if (t_hit < EPSILON) { // If ray starts inside, take the exit point
+            t_hit = t_exit;
+        }
+
+        if (t_hit > EPSILON && t_hit < info.t) {
+            info.t = t_hit;
+            info.hit = true;
+
+            // Calculate normal based on which face was hit
+            vec3 hit_point = ray_o + ray_d * t_hit;
+            vec3 center = (box_min + box_max) * 0.5;
+            vec3 p_local = hit_point - center;
+            vec3 extent = (box_max - box_min) * 0.5; // Half dimensions
+
+            // Determine normal by finding the largest component of p_local relative to extent
+            // This is a common way to find the face normal for an AABB hit.
+            if (abs(p_local.x) > abs(p_local.y) && abs(p_local.x) > abs(p_local.z)) {
+                info.normal = vec3(sign(p_local.x), 0.0, 0.0);
+            } else if (abs(p_local.y) > abs(p_local.z)) {
+                info.normal = vec3(0.0, sign(p_local.y), 0.0);
+            } else {
+                info.normal = vec3(0.0, 0.0, sign(p_local.z));
+            }
+        }
+    }
+    return info;
+}
+
+
+// Function to find the closest intersection in the scene
+HitInfo intersectScene(vec3 ray_o, vec3 ray_d) {
+    HitInfo info;
+    info.t = 1e30; // Initialize with a very large number
+    info.hit = false;
+
+    for (int z = 0; z < GRID_DIM; ++z)
+    {
+        for (int y = 0; y < GRID_DIM; ++y)
+        {
+            for (int x = 0; x < GRID_DIM; ++x)
+            {
+                vec3 cube_center = vec3(
+                    START_OFFSET_X + x * SPACING,
+                    START_OFFSET_Y + y * SPACING,
+                    START_OFFSET_Z + z * SPACING
+                );
+
+                vec3 box_min = cube_center - CUBE_SIDE_HALF;
+                vec3 box_max = cube_center + CUBE_SIDE_HALF;
+
+                vec4 current_object_base_color = vec4(randomColor(x, y, z), 1.0);
+
+                HitInfo current_hit = intersectAABB(ray_o, ray_d, box_min, box_max);
+
+                if (current_hit.hit && current_hit.t < info.t) // If this cube is closer AND valid
+                {
+                    info.t = current_hit.t;
+                    info.normal = current_hit.normal;
+                    info.color = current_object_base_color;
+                    info.hit = true;
+                }
+            }
+        }
+    }
+    return info;
+}
+
+
 void main()
 {
-	vec4 pixel = vec4(0.075, 0.133, 0.173, 1.0);
-	ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-	
-	ivec2 dims = imageSize(screen);
-	float x = -(float(pixel_coords.x * 2 - dims.x) / dims.x); // transforms to [-1.0, 1.0]
-	float y = -(float(pixel_coords.y * 2 - dims.y) / dims.y); // transforms to [-1.0, 1.0]
+    ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 dims = imageSize(screen);
 
-	float fov = 90.0;
-	vec3 cam_o = vec3(0.0, 0.0, -tan(fov / 2.0));
-	vec3 ray_o = vec3(x, y, 0.0);
-	vec3 ray_d = normalize(ray_o - cam_o);
+    // Calculate normalized device coordinates (NDC) [-1, 1]
+    float ndcX = (float(pixel_coords.x * 2 - dims.x) / dims.x);
+    float ndcY = (float(pixel_coords.y * 2 - dims.y) / dims.y);
 
-	vec3 sphere_c = vec3(0.0, 0.0, -5.0);
-	float sphere_r = 1.0;
+    // Calculate inverse matrices in the shader
+    mat4 invProjectionMatrix = inverse(u_ProjectionMatrix);
+    mat4 invViewMatrix = inverse(u_ViewMatrix);
 
-	vec3 o_c = ray_o - sphere_c;
-	float b = dot(ray_d, o_c);
-	float c = dot(o_c, o_c) - sphere_r * sphere_r;
-	float intersectionState = b * b - c;
-	vec3 intersection = ray_o + ray_d * (-b + sqrt(b * b - c));
+    // Derive Ray Origin from Inverse View Matrix
+    vec3 current_ray_o = invViewMatrix[3].xyz;
 
-	if (intersectionState >= 0.0)
-	{
-		pixel = vec4((normalize(intersection - sphere_c) + 1.0) / 2.0, 1.0);
-	}
+    // Derive Ray Direction from Inverse View and Projection Matrices
+    vec4 clipCoords = vec4(ndcX, ndcY, -1.0, 1.0); // Z = -1.0 for near plane
+    vec4 viewCoords = invProjectionMatrix * clipCoords;
+    viewCoords.z = -1.0; // Ensure it points forward along the -Z axis in view space
+    viewCoords.w = 0.0;  // Set w to 0 to treat it as a direction vector
+    vec3 current_ray_d = normalize((invViewMatrix * viewCoords).xyz);
 
-	imageStore(screen, pixel_coords, pixel);
+    vec4 finalPixelColor = vec4(0.0); // Accumulated color for the pixel
+    vec3 throughput = vec3(1.0);      // Light energy carried by the ray, starts at full intensity
+
+    // Main ray tracing loop (simulating bounces)
+    for (int bounce = 0; bounce < u_MaxSamples; ++bounce) { // Use u_MaxSamples here
+        HitInfo hit = intersectScene(current_ray_o, current_ray_d);
+
+        if (hit.hit) {
+            vec3 hit_point = current_ray_o + current_ray_d * hit.t;
+            vec3 normal = hit.normal;
+            vec4 object_color = hit.color; // This is now the random color for the object
+
+            // Direct Lighting (Diffuse)
+            vec3 light_dir = normalize(vec3(0.5, 1.0, 0.5)); // Example: top-right-front light
+            float diffuse_intensity = max(dot(normal, light_dir), 0.0);
+
+            // Shadow Check
+            vec3 shadow_ray_o = hit_point + normal * EPSILON;
+            HitInfo shadow_hit = intersectScene(shadow_ray_o, light_dir);
+            bool in_shadow = shadow_hit.hit;
+
+            // Separate Ambient and Direct Contributions for clearer shadows
+            vec3 shaded_color = vec3(0.0);
+
+            // Ambient Light (always present, but reduced for better shadow contrast)
+            float ambient_factor = 0.05;
+            shaded_color += u_BaseColour.rgb * ambient_factor;
+
+            // Direct Light (only applied if not in shadow)
+            if (!in_shadow) {
+                shaded_color += object_color.rgb * diffuse_intensity;
+            }
+
+            // Add this bounce's contribution to the accumulated color, scaled by throughput
+            // When an object is hit, its alpha should be 1.0 (unless explicitly transparent)
+            finalPixelColor += vec4(shaded_color * throughput, 1.0); // Ensure alpha is 1 for objects
+
+            // Prepare for Next Bounce (Reflection)
+            if (bounce < MAX_REFLECTION_BOUNCES) { // Check if we are allowed more reflections
+                current_ray_d = reflect(current_ray_d, normal); // Calculate new reflection direction
+                current_ray_o = hit_point + normal * EPSILON;   // Set new ray origin
+
+                // Attenuate throughput for 50% reflection
+                throughput *= object_color.rgb * 0.5;
+            } else {
+                // If max reflection bounces reached, stop tracing this ray path
+                // This means the ray terminates on the object, no further transparency needed
+                break;
+            }
+        } else {
+            // Ray hit nothing in the scene (reached the "sky"), set alpha to 0.0
+            // The color part can be u_BaseColour or black, but the alpha MUST be 0.0
+            finalPixelColor += vec4(u_BaseColour.rgb * throughput, 0.0); // Set alpha to 0.0 here
+            break; // No more bounces possible after hitting the sky/background
+        }
+    }
+
+    imageStore(screen, pixel_coords, finalPixelColor);
 }

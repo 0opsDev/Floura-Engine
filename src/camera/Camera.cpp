@@ -10,7 +10,7 @@ float Camera::s_sensitivityX = 100;
 float Camera::s_sensitivityY = 100;
 bool Camera::s_DoGravity = false;
 glm::mat4 Camera::cameraMatrix = glm::mat4(1.0f);
-glm::vec3 Camera::Position;
+glm::vec3 Camera::Position = glm::vec3(0,0,0);
 bool Camera::DoJump = true;
 glm::vec3 Camera::Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 Camera::Up = glm::vec3(0.0f, 1.0f, 0.0f);

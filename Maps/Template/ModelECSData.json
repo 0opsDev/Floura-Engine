@@ -1,20 +1,11 @@
 [
     {
-        "name": "map",
-        "path": "Models/pool/poolmap2.gltf",
-        "isCulling": true,
-        "isCollider": true,
-        "Location": [ 0, 0, 0 ],
-        "Rotation": [ 0, 0, 0, 0 ],
-        "Scale": [ 1, 1, 1 ]
-    },
-    {
-        "name": "Pistol",
-        "path": "Models/Pistol/pistol.gltf",
+        "name": "plane",
+        "path": "Models/Baseplate/plate.gltf",
         "isCulling": true,
         "isCollider": false,
-        "Location": [ 0, 3, 0 ],
+        "Location": [ 0, 0, 0 ],
         "Rotation": [ 0, 0, 0, 0 ],
-        "Scale": [ 0.3, 0.3, 0.3 ]
+        "Scale": [ 15, 15, 15 ]
     }
 ]

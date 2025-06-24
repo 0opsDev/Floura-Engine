@@ -1,5 +1,7 @@
 #include "LuaShader.h"
 #include "core/Main.h"
+#include <Core/Render.h>
+#include <Core/File/File.h>
 
 void luaShader::SetShader(sol::state& luaState) {
 	luaState["SetShader"] = [](std::string ShaderType, int value) {
@@ -20,6 +22,6 @@ void luaShader::SetShader(sol::state& luaState) {
 			if (init::LogALL || init::LogLua) std::cout << "[Lua] invalid shader type: " << std::endl;
 		}
 
-		Main::ApplyShader = true;
+		FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram);
 		};
 }

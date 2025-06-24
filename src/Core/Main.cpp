@@ -27,7 +27,6 @@
 #include <Gameplay/Player.h>
 
 int Main::VertNum = 0, Main::FragNum = 0;
-bool Main::ApplyShader = true;
 bool Main::sleepState = true;
 
 unsigned int width = 800, height = 600;
@@ -40,6 +39,7 @@ float CrouchHighDiff = 0.9f;
 
 float window_width;
 float window_height;
+glm::vec3 initalCameraPos = glm::vec3(0,0,0);
 
 TimeAccumulator TA3; TimeAccumulator TA2;
 
@@ -50,12 +50,12 @@ void Main::updateModelLua(
 	std::vector<float> ScaleX, std::vector<float> ScaleY, std::vector<float> ScaleZ
 )	
 {
-	if (true) { //turn true for debugging
-		for (size_t i = 0; i < modelName.size(); i++) {
-			std::cout << "Received modelName: " << modelName[i] << std::endl;
-			std::cout << "Received Path: " << path[i] << std::endl;
-		}
-	}
+	//if (true) { //turn true for debugging
+	//	for (size_t i = 0; i < modelName.size(); i++) {
+	//		std::cout << "Received modelName: " << modelName[i] << std::endl;
+	//		std::cout << "Received Path: " << path[i] << std::endl;
+	//	}
+	//}
 }
 
 //Main Function
@@ -65,6 +65,7 @@ int main() // global variables do not work with threads
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 	init::initLog();// init logs (should always be before priniting anything)
 	init::initGLFW(); // initialize glfw
+	Main::LoadPlayerConfig();
 	Main::loadSettings();
 	Main::loadEngineSettings();
 	ScriptRunner::init(SettingsUtils::mapName + "/LuaStartup.json");
@@ -99,8 +100,6 @@ int main() // global variables do not work with threads
 	// move to framebuffer class
 	Shader frameBufferProgram;
 	frameBufferProgram.LoadShader("Shaders/PostProcess/framebuffer.vert", "Shaders/PostProcess/framebuffer.frag");
-	frameBufferProgram.Activate();
-	frameBufferProgram.setInt("screenTexture", 0);
 
 	//area of open gl we want to render in
 	//screen assignment after fallback
@@ -111,19 +110,17 @@ int main() // global variables do not work with threads
 	init::initLogo(window, "assets/Icons/Icon.png");
 
 	// INITIALIZE CAMERA
-	Camera::InitCamera(width, height, glm::vec3(0.0f, 0.0f, 50.0f)); 	// camera ratio pos
-	Camera::Position = RenderClass::CameraXYZ; // camera ratio pos //INIT CAMERA POSITION
+	Camera::InitCamera(width, height, initalCameraPos); 	// camera ratio pos
+	std::cout << initalCameraPos.x << " " << initalCameraPos.y << " " << initalCameraPos.z << std::endl;
+	std::cout << Camera::Position.x << " " << Camera::Position.y << " " << Camera::Position.z << std::endl;
 	RenderClass::init(window, width, height);
 	// Model Loader
 	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models = FileClass::loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
-
-	Main::LoadPlayerConfig();
 
 	Scene::init(); // Initialize scene
 	Player::init();
 
 	SoundProgram land; land.CreateSound("Assets/Sounds/land.wav");
-
 	Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
@@ -131,15 +128,17 @@ int main() // global variables do not work with threads
 
 	while (!glfwWindowShouldClose(window)) // GAME LOOP
 	{
+		//std::cout << RenderClass::CameraXYZ.x << " " << RenderClass::CameraXYZ.y << " " << RenderClass::CameraXYZ.z << std::endl;
+		//std::cout << Camera::Position.x << " " << Camera::Position.y << " " << Camera::Position.z << std::endl;
 		RenderClass::ClearFramebuffers(); // Clear Framebuffers
 
-		TimeUtil::updateDeltaTime(); float deltaTime = TimeUtil::s_DeltaTime; // Update delta time
+		TimeUtil::updateDeltaTime(); // Update delta time
 		ScriptRunner::update();
 		InputUtil::UpdateCurrentKey(window);
 
 		Scene::Update(); // Update scene
-		Player::update();
-
+		Player::update(); // phys freaking out due to this
+		
 		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
 			Camera::s_DoGravity = false;
 			doPlayerCollision = false;
@@ -156,11 +155,6 @@ int main() // global variables do not work with threads
 			//std::cout << "update" << std::endl;
 			TA2.reset();
 		}
-		
-		if (Main::ApplyShader) {
-			FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram);
-			Main::ApplyShader = false;
-		}
 
 		Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 
@@ -171,7 +165,7 @@ int main() // global variables do not work with threads
 			else { Camera::PlayerHeightCurrent = PlayerHeight;}
 		}
 
-		if (doPlayerCollision) { //testing collisions if touching ground
+		if (false) { //testing collisions if touching ground
 			for (auto& modelTuple : models) {
 				Model& model = std::get<0>(modelTuple);
 				glm::vec3 translation = std::get<2>(modelTuple);
@@ -360,9 +354,13 @@ void Main::loadEngineSettings() {
 		engineDefaultFile >> engineDefaultData;
 		engineDefaultFile.close();
 
-		RenderClass::CameraXYZ.x = engineDefaultData[0]["DefaultCameraPos"][0];
-		RenderClass::CameraXYZ.y = engineDefaultData[0]["DefaultCameraPos"][1];
-		RenderClass::CameraXYZ.z = engineDefaultData[0]["DefaultCameraPos"][2];
+		initalCameraPos = glm::vec3(static_cast<GLfloat>(engineDefaultData[0]["DefaultCameraPos"][0]),
+			static_cast<GLfloat>(engineDefaultData[0]["DefaultCameraPos"][1]),
+			static_cast<GLfloat>(engineDefaultData[0]["DefaultCameraPos"][2])
+		);
+		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][0];
+		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][1];
+		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][2];
 
 		RenderClass::skyRGBA[0] = engineDefaultData[0]["skyRGBA"][0];
 		RenderClass::skyRGBA[1] = engineDefaultData[0]["skyRGBA"][1];
@@ -447,8 +445,7 @@ void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
 			if (ImGui::SmallButton("Reset Camera")) {
 				Camera::Position = glm::vec3(0, 0, 0);
 			} // reset cam pos
-			ImGui::DragFloat3("Camera Transform", &RenderClass::CameraXYZ.x, RenderClass::CameraXYZ.y, RenderClass::CameraXYZ.z); // set cam pos
-			if (ImGui::SmallButton("Set")) { Camera::Position = glm::vec3(RenderClass::CameraXYZ.x, RenderClass::CameraXYZ.y, RenderClass::CameraXYZ.z); } // apply cam pos
+			ImGui::DragFloat3("Camera Transform", &Camera::Position.x, Camera::Position.y, Camera::Position.z); // set cam pos
 			ImGui::DragFloat("Camera Speed", &Camera::s_scrollSpeed); //Camera
 
 			ImGui::Spacing();

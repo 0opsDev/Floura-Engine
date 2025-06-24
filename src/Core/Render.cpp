@@ -23,16 +23,15 @@ GLfloat RenderClass::fogRGBA[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat RenderClass::LightTransform1[] = { 0.0f, 5.0f, 0.0f };
 GLfloat RenderClass::ConeSI[3] = { 0.111f, 0.825f, 2.0f };
 GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
-glm::vec3 RenderClass::CameraXYZ = glm::vec3(0.0f, 0.0f, 0.0f); // Initial camera position
 
 BillBoard LightIcon;
 Shader SolidColour;
 RenderQuad lightingRenderQuad;
 Shader shader;
 
-bool RenderClass::DoDeferredLightingPass = false; // Toggle for lighting pass
-bool RenderClass::DoForwardLightingPass = true; // Toggle for regular pass
-bool RenderClass::DoComputeLightingPass = false;
+bool RenderClass::DoDeferredLightingPass = true; // Toggle for lighting pass
+bool RenderClass::DoForwardLightingPass = false; // Toggle for regular pass
+bool RenderClass::DoComputeLightingPass = true;
 
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 

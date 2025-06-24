@@ -16,7 +16,6 @@ void LightingPass::init() {
 
 void LightingPass::initcomputeShader(unsigned int width, unsigned int height) {
 
-
 	ComputeQuad.init();
 
 	ComputeQuadShader.LoadShader("Shaders/Db/RenderQuad.vert", "Shaders/Db/ComputeRenderQuad.frag");
@@ -87,16 +86,34 @@ void LightingPass::computeRender() {
 
 //	GLuint groupCountX = (GLuint)ceil((float)width / 8.0f);
 //	GLuint groupCountY = (GLuint)ceil((float)height / 4.0f);
-	glBindImageTexture(0, computeTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	glUseProgram(testCompute.ID); 
-	glDispatchCompute(ceil(CurrentWidth / 8), ceil(CurrentHeight / 4), 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+//	glBindImageTexture(0, computeTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+	testCompute.ActivateCompute(ceil(CurrentWidth / 8), ceil(CurrentHeight / 4), 1);
+	testCompute.setFloat4("u_BaseColour", RenderClass::skyRGBA[0], RenderClass::skyRGBA[1], RenderClass::skyRGBA[2], RenderClass::skyRGBA[3]);
+
+	testCompute.setMat4("u_ViewMatrix", Camera::view);
+	testCompute.setMat4("u_ProjectionMatrix", Camera::projection);
+
+	//testCompute.setMat4("invCameraMatrix", glm::inverse(Camera::cameraMatrix));
+	//testCompute.setFloat("u_FOV", Camera::fov);
+	//float AspectRatio = static_cast<float>(CurrentWidth) / static_cast<float>(CurrentHeight);
+	//testCompute.setFloat("u_AspectRatio", AspectRatio);
+	testCompute.setFloat3("cameraPosition", Camera::Position.x, Camera::Position.y, Camera::Position.z);
+	//uniform int u_MaxSamples; // Declare the uniform for max samples
+	testCompute.setInt("u_MaxSamples", 3);
+	
+
+	//glUseProgram(testCompute.ID); 
+	//glDispatchCompute(ceil(CurrentWidth / 8), ceil(CurrentHeight / 4), 1);
+	//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	//glActiveTexture(GL_TEXTURE1);
 	//glBindTexture(GL_TEXTURE_2D, LightingPass::computeTexture); // using gpos as temp
 	//glBindTextureUnit(0, LightingPass::computeTexture);
 	//testCompute.setInt("screen", 1);
-
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	RenderComputeToQuad();
+	glDisable(GL_BLEND);
 
 }

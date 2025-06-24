@@ -28,7 +28,7 @@ void Scene::init(){
 	pot.isCollider = true;
 
 	flatplane.init();
-	flatplane.colliderScale = glm::vec3(100, 1, 100); // Set collider scale for flat plane
+	flatplane.colliderScale = glm::vec3(15, 1, 15); // Set collider scale for flat plane
 	flatplane.colliderXYZ = glm::vec3(0, -1, 0); // Set collider transform for flat plane
 	flatplane.CollideWithCamera = true;
 
