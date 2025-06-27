@@ -6,7 +6,7 @@
 #include <Render/passes/lighting/LightingPass.h>
 bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true, true, true, true }; // ImGui Panels
 
-bool ImGuiCamera::DebugPanels[] = { false, false}; // ImGui Panels
+bool ImGuiCamera::DebugPanels[] = { true, false}; // ImGui Panels
 
 std::string ImGuiCamera::FileTabs = "Model";
 bool ImGuiCamera::enableFB = false; // Change this as needed
@@ -34,42 +34,12 @@ void ImGuiCamera::SystemInfomation() {
 
 		ImGui::Text((std::string("ViewportSize: ") + std::to_string(static_cast<int>(Framebuffer::ViewPortWidth)) + "*" + std::to_string(static_cast<int>(Framebuffer::ViewPortHeight))).c_str());
 
-		ImGui::Spacing();
-
-		static float framerateValues[60] = { 0 };
-		static int frValues_offset = 0;
-		framerateValues[frValues_offset] = static_cast<float>(TimeUtil::s_frameRate);
-		frValues_offset = (frValues_offset + 1) % IM_ARRAYSIZE(framerateValues);
-
-		//Frame time graph
-		static float frameTimeValues[90] = { 0 }; //stores 90 snapshots of frametime
-
-		static int ftValues_offset = 0;
-		frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f; // Convert to milliseconds
-		ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
-		std::string frametimes = "LAT: " + std::to_string(frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f) + " ms";
-
-		ImGui::Text(("fps: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz))).c_str());
-		ImGui::Text(frametimes.c_str());
-		ImGui::Spacing();
-
-		//std::string stringFPS = "FPS: " + std::to_string(deltaTimeStr.frameRate1IHZ) + frametimes;
-		if (ImGui::TreeNode("FPS Graph"))
-		{
-			ImGui::PlotLines("Framerate (FPS) Graph", framerateValues, (IM_ARRAYSIZE(framerateValues)), frValues_offset, nullptr, 0.0f, TimeUtil::s_frameRate * 1.5f, ImVec2(0, 80));
-			ImGui::PlotLines("Frame Times (ms) Graph", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
-
-			ImGui::TreePop();// Ends The ImGui Window
-		}
-
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 
 }
 
 void ImGuiCamera::RenderWindow(GLFWwindow*& window, GLFWmonitor*& monitor, int windowedWidth, int windowedHeight) {
-
-	SystemInfomation();
 
 	ImGui::Checkbox("isWireframe", &ImGuiCamera::isWireframe);
 
@@ -196,6 +166,38 @@ void ImGuiCamera::DebugWindow() {
 
 void ImGuiCamera::PreformanceProfiler() {
 	ImGui::Begin("Preformance Profiler"); // ImGUI window creation
+
+	SystemInfomation();
+
+	ImGui::Spacing();
+
+	static float framerateValues[60] = { 0 };
+	static int frValues_offset = 0;
+	framerateValues[frValues_offset] = static_cast<float>(TimeUtil::s_frameRate);
+	frValues_offset = (frValues_offset + 1) % IM_ARRAYSIZE(framerateValues);
+
+	//Frame time graph
+	static float frameTimeValues[90] = { 0 }; //stores 90 snapshots of frametime
+
+	static int ftValues_offset = 0;
+	frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f; // Convert to milliseconds
+	ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
+	std::string frametimes = "LAT: " + std::to_string(frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f) + " ms";
+
+	ImGui::Text(("fps: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz))).c_str());
+	ImGui::Text(frametimes.c_str());
+	ImGui::Spacing();
+
+	//std::string stringFPS = "FPS: " + std::to_string(deltaTimeStr.frameRate1IHZ) + frametimes;
+	if (ImGui::TreeNode("FPS Graph"))
+	{
+		ImGui::PlotLines("Framerate (FPS) Graph", framerateValues, (IM_ARRAYSIZE(framerateValues)), frValues_offset, nullptr, 0.0f, TimeUtil::s_frameRate * 1.5f, ImVec2(0, 80));
+		ImGui::PlotLines("Frame Times (ms) Graph", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(0, 80));
+
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+	ImGui::Spacing();
+
 	ImGui::Text(("gPass: " + std::to_string(gPassTime) + " ms").c_str());
 	ImGui::Text(("lPass: " + std::to_string(lPassTime) + " ms").c_str());
 	ImGui::Text(("Render: " + std::to_string(Render) + " ms").c_str());
@@ -204,6 +206,8 @@ void ImGuiCamera::PreformanceProfiler() {
 	ImGui::Text(("Total (Render + physicsTime): " + std::to_string(totalTime) + " ms").c_str());
 
 	ImGui::End();
+
+
 }
 void ImGuiCamera::TextEditor() {
 	ImGui::Begin("Text Editor"); // ImGUI window creation
@@ -253,6 +257,27 @@ void ImGuiCamera::audio() {
 		ImGui::SliderFloat("Entity Volume", &SoundRunner::entityVolume, 0, 1);
 
 		ImGui::TreePop();
+	}
+
+	ImGui::End();
+}
+
+void ImGuiCamera::viewport() {
+	ImGui::Begin("ViewPort");
+	float window_width = ImGui::GetContentRegionAvail().x;
+	float window_height = ImGui::GetContentRegionAvail().y;
+	ImGui::Image((ImTextureID)(uintptr_t)Framebuffer::frameBufferTexture2, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
+
+	//prevEnableLinearScaling
+	ScreenUtils::UpdateViewportResize();
+	if (ScreenUtils::isResizing == true) {
+		//std::cout << "Resolution scale changed!" << std::endl;
+		Framebuffer::updateFrameBufferResolution(window_width, window_height); // Update frame buffer resolution
+		glViewport(0, 0, (window_width), (window_height));
+
+		Camera::SetViewportSize(window_width, window_height);
+		//std::cout << window_width << " " << camera.width << std::endl;
+		//std::cout << window_height << " " << camera.height << std::endl;
 	}
 
 	ImGui::End();

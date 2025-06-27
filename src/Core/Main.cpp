@@ -43,7 +43,7 @@ float window_height;
 glm::vec3 Main::initalCameraPos = glm::vec3(0,0,0);
 
 TimeAccumulator TA3; TimeAccumulator TA2;
-
+Scene scene;
 void Main::updateModelLua( 
 	std::vector<std::string> path, std::vector<std::string> modelName, std::vector<bool> isCulling,
 	std::vector<float> Modelx, std::vector<float> Modely, std::vector<float> Modelz,
@@ -68,7 +68,6 @@ int main() // global variables do not work with threads
 	init::initGLFW(); // initialize glfw
 	Main::LoadPlayerConfig();
 	Main::loadSettings();
-	Scene scene;
 	//Main::loadEngineSettings();
 	ScriptRunner::init(SettingsUtils::sceneName + "/LuaStartup.json");
 	SoundRunner::init();
@@ -96,7 +95,7 @@ int main() // global variables do not work with threads
 
 	gladLoadGL(); // load open gl config
 
-	scene.init(SettingsUtils::sceneName);
+	scene.LoadScene(SettingsUtils::sceneName);
 	FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram); // feed the shader prog real data << should take a shader file class
 	RenderClass::shaderProgram.Activate(); // activate new shader program for use
 
@@ -156,67 +155,11 @@ int main() // global variables do not work with threads
 
 		//Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 
-		//physics
 		if (Camera::s_DoGravity) {
 			//crouch 
 			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) { Camera::PlayerHeightCurrent = CrouchHighDiff;}
 			else { Camera::PlayerHeightCurrent = PlayerHeight;}
 		}
-
-		/*
-		if (false) { //testing collisions if touching ground
-			for (auto& modelTuple : models) {
-				Model& model = std::get<0>(modelTuple);
-				glm::vec3 translation = std::get<2>(modelTuple);
-				glm::vec4 rotation = std::get<3>(modelTuple);
-				glm::vec3 scale = std::get<4>(modelTuple);
-				int isCollider = std::get<5>(modelTuple);
-				if (isCollider == 1 && model.checkCollide(Player::feetpos, translation, glm::quat(rotation.x, rotation.y, rotation.z, rotation.w), scale, 2)) {
-					Player::isColliding = true;
-
-					// Get collision triangle vertices
-					glm::vec3 v0 = model.lastCollisionFace[0];
-					glm::vec3 v1 = model.lastCollisionFace[1];
-					glm::vec3 v2 = model.lastCollisionFace[2];
-
-					// Compute triangle normal
-					glm::vec3 normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
-
-					// Compute slope steepness (angle between normal and vertical axis)
-					float slopeSteepness = glm::degrees(glm::acos(glm::clamp(glm::dot(normal, glm::vec3(0, 1, 0)), -1.0f, 1.0f)));
-
-					// Compute surface Y height at feet X/Z using barycentric interpolation
-					glm::vec3 edge0 = v1 - v0;
-					glm::vec3 edge1 = v2 - v0;
-					glm::vec3 vp = glm::vec3(Player::feetpos.x, 0.0f, Player::feetpos.z) - glm::vec3(v0.x, 0.0f, v0.z);
-
-					float d00 = glm::dot(edge0, edge0);
-					float d01 = glm::dot(edge0, edge1);
-					float d11 = glm::dot(edge1, edge1);
-					float d20 = glm::dot(vp, edge0);
-					float d21 = glm::dot(vp, edge1);
-
-					float denom = d00 * d11 - d01 * d01;
-					float u = (d11 * d20 - d01 * d21) / denom;
-					float v = (d00 * d21 - d01 * d20) / denom;
-
-					float detectedSurfaceY = v0.y + u * (v1.y - v0.y) + v * (v2.y - v0.y);
-
-					// Force height correction
-					if (Player::feetpos.y < detectedSurfaceY) {
-						Player::feetpos.y = detectedSurfaceY; // Ensure player stays above the surface
-
-						// Scale push-back stronger for steeper slopes
-						float pushStrength = glm::mix(0.05f, 0.5f, slopeSteepness / 90.0f);
-						Player::feetpos.x -= normal.x * pushStrength;
-						Player::feetpos.z -= normal.z * pushStrength;
-					}
-					TA3.reset();
-					break; // Exit loop once collision is detected
-				}
-			}
-		}
-		*/
 
 		if (!Camera::s_DoGravity) { Camera::DoJump = true; };
 
@@ -225,10 +168,15 @@ int main() // global variables do not work with threads
 
 		auto startInitTime2 = std::chrono::high_resolution_clock::now();
 
-		Player::update(); // phys freaking out due to this
-		Camera::Inputs(window);
-		scene.Update();
+		scene.Update(); // keep scene above player
+		//for (size_t i = 0; i < scene.modelObjects.size(); i++)
+		//{
+		//	std::cout << scene.modelObjects[i].ObjectName << std::endl;
+		//}
+		
 		TempScene::Update(); // Update scene
+		Camera::Inputs(window);
+		Player::update();
 
 		RenderClass::Render(window, frameBufferProgram, window_width, window_height, width, height);
 		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, primaryMonitor); }
@@ -349,7 +297,9 @@ void Main::saveSettings() {
 	}
 }
 
-
+char name[32] = "Name";
+char Path[64] = "Assets/";
+bool LOD = false;
 // Holds ImGui Variables and Windows
 void Main::imGuiMAIN(GLFWwindow* window,
 	GLFWmonitor* monitorT) {
@@ -428,41 +378,7 @@ void Main::imGuiMAIN(GLFWwindow* window,
 	}
 
 	if (ImGuiCamera::imGuiPanels[3]) {
-		ImGui::Begin("ViewPort");
-		float window_width = ImGui::GetContentRegionAvail().x;
-		float window_height = ImGui::GetContentRegionAvail().y;
-		ImGui::Image((ImTextureID)(uintptr_t)Framebuffer::frameBufferTexture2, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
-
-		//prevEnableLinearScaling
-		ScreenUtils::UpdateViewportResize();
-		if (ScreenUtils::isResizing == true) {
-			//std::cout << "Resolution scale changed!" << std::endl;
-			Framebuffer::updateFrameBufferResolution(window_width, window_height); // Update frame buffer resolution
-			glViewport(0, 0, (window_width), (window_height));
-
-			Camera::SetViewportSize(window_width, window_height);
-			//std::cout << window_width << " " << camera.width << std::endl;
-			//std::cout << window_height << " " << camera.height << std::endl;
-		}
-
-		ImGui::End();
-	}
-
-	if (ImGuiCamera::imGuiPanels[4]) {
-		ImGui::Begin("Tabs");
-		if (ImGui::SmallButton("Model")) { ImGuiCamera::FileTabs = "Model"; }
-		if (ImGui::SmallButton("Audio")) { ImGuiCamera::FileTabs = "Audio"; }
-		if (ImGui::SmallButton("Skybox")) { ImGuiCamera::FileTabs = "Skybox"; }
-		if (ImGui::SmallButton("Shader")) { ImGuiCamera::FileTabs = "Shader"; }
-		if (ImGui::SmallButton("Script")) { ImGuiCamera::FileTabs = "Script"; }
-		if (ImGui::SmallButton("Settings")) { ImGuiCamera::FileTabs = "Settings"; }
-		ImGui::End();
-		ImGui::Begin("Folder");
-		ImGui::Text((ImGuiCamera::FileTabs + ":").c_str()); // find out how to display these two on the same line
-		if (ImGui::SmallButton("Add")) {};
-		ImGui::End();
-		ImGui::Begin("Details");
-		ImGui::End();
+		ImGuiCamera::viewport();
 	}
 
 	if (ImGuiCamera::imGuiPanels[5]) {
@@ -480,6 +396,52 @@ void Main::imGuiMAIN(GLFWwindow* window,
 	if (ImGuiCamera::imGuiPanels[8]) {
 		ImGuiCamera::audio();
 	}
+
+	if (ImGuiCamera::imGuiPanels[4]) {
+		ImGui::Begin("Scene hierarchy"); // ImGUI window creation
+		ImGui::Text("object hierarchy");
+
+		if (ImGui::SmallButton("Save")) {
+			scene.SaveScene(SettingsUtils::sceneName);
+		}
+
+		if (ImGui::TreeNode("Add New Object")) {
+			ImGui::Checkbox("LOD", &LOD);
+			ImGui::InputText("Path Input", Path, IM_ARRAYSIZE(Path));
+			ImGui::InputText("Name Input", name, IM_ARRAYSIZE(name));
+
+			if (ImGui::SmallButton("Create")) {
+				//scene.AddSceneModelObject("Static", "Assets/Models/barrel/barrel2.gltf", ("barrel" + std::to_string(scene.modelObjects.size())));
+				if (LOD) scene.AddSceneModelObject("LOD", Path, name);
+				else scene.AddSceneModelObject("Static", Path, name);
+
+			}
+			ImGui::TreePop();
+		}
+
+		for (size_t i = 0; i < scene.modelObjects.size(); i++)
+		{
+			// would be better if i can select one of the many objects and ill have a properties plane to edit the data instead of this
+			// also a add window would be nice for adding things
+			if (ImGui::TreeNode((scene.modelObjects[i].ObjectName).c_str())) {
+				// position
+				ImGui::DragFloat3(("Position " + std::to_string(i)).c_str(), &scene.modelObjects[i].transform.x,
+					scene.modelObjects[i].transform.y, scene.modelObjects[i].transform.z);
+
+				// scale
+				ImGui::DragFloat3(("Scale " + std::to_string(i)).c_str(), &scene.modelObjects[i].scale.x,
+					scene.modelObjects[i].scale.y, scene.modelObjects[i].scale.z);
+
+				if (ImGui::SmallButton("Delete")) {
+					scene.modelObjects.erase(scene.modelObjects.begin() + i);
+				}
+
+				ImGui::TreePop();
+			}
+		}
+	}
+	ImGui::End();
+	//scene
 	ImGui::Render(); // Renders the ImGUI elements
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

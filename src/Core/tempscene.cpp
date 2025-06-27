@@ -3,10 +3,10 @@
 #include <Sound/SoundRunner.h>
 
 //BillBoardObject BBOJ2;
-BillBoardObject pot;
-CubeCollider flatplane;
-ModelObject test2;
-ModelObject plane;
+//BillBoardObject pot;
+//CubeCollider flatplane;
+//ModelObject test2;
+//ModelObject plane;
 //SoundProgram Soundtrack;
 
 void TempScene::init(){
@@ -26,22 +26,22 @@ void TempScene::init(){
 	//pot.scale = glm::vec3(0.5, 0.5, 0.5);
 	//pot.isCollider = true;
 
-	flatplane.init();
-	flatplane.colliderScale = glm::vec3(15, 1, 15); // Set collider scale for flat plane
-	flatplane.colliderXYZ = glm::vec3(0, -1, 0); // Set collider transform for flat plane
-	flatplane.CollideWithCamera = true;
+	//flatplane.init();
+	//flatplane.colliderScale = glm::vec3(15, 1, 15); // Set collider scale for flat plane
+	//flatplane.colliderXYZ = glm::vec3(0, -1, 0); // Set collider transform for flat plane
+	//flatplane.CollideWithCamera = true;
 
 
-	plane.CreateObject("STATIC", "Assets/Models/Baseplate/plate.gltf", "plate");
-	plane.transform = glm::vec3(0, 0, 0);
-	plane.scale = glm::vec3(4, 0.1, 4);
-	plane.rotation = glm::vec4(0, 0, 0, 0);
-	plane.isCollider = true;
-	plane.DoFrustumCull = false;
-	plane.BoxColliderTransform = glm::vec3(0, -0.5, 0);
-	plane.BoxColliderScale = glm::vec3(4, 0.5, 4);
-	plane.frustumBoxTransform = plane.BoxColliderTransform;
-	plane.frustumBoxScale = plane.BoxColliderScale;
+	//plane.CreateObject("STATIC", "Assets/Models/Baseplate/plate.gltf", "plate");
+	//plane.transform = glm::vec3(0, 0, 0);
+	//plane.scale = glm::vec3(4, 0.1, 4);
+	//plane.rotation = glm::vec4(0, 0, 0, 0);
+	//plane.isCollider = true;
+	//plane.DoFrustumCull = false;
+	//plane.BoxColliderTransform = glm::vec3(0, -0.5, 0);
+	//plane.BoxColliderScale = glm::vec3(4, 0.5, 4);
+	//plane.frustumBoxTransform = plane.BoxColliderTransform;
+	//plane.frustumBoxScale = plane.BoxColliderScale;
 
 	//test2.CreateObject("LOD", "Assets/LodModel/Vase/VaseLod.json", "test2");
 	//test2.transform = glm::vec3(5, 0.65, 3);
@@ -87,9 +87,9 @@ void TempScene::Update() {
 
 	//pot.draw();
 
-	plane.UpdateCollider();
-	plane.UpdateCameraCollider();
-	plane.draw(RenderClass::shaderProgram);
+	//plane.UpdateCollider();
+	//plane.UpdateCameraCollider();
+	//plane.draw(RenderClass::shaderProgram);
 
 	//test2.UpdateCollider();
 	//test2.UpdateCameraCollider();

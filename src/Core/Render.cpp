@@ -148,36 +148,8 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 		glClearColor(0, 0, 0, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
 	auto startInitTime2 = std::chrono::high_resolution_clock::now();
-	if (DoForwardLightingPass) {
-		/*
-		for (auto& modelTuple : models) {
-			Model& model = std::get<0>(modelTuple);
-			int cullingSetting = std::get<1>(modelTuple);
-			glm::vec3 translation = std::get<2>(modelTuple);
-			glm::vec4 rotation = std::get<3>(modelTuple);
-			glm::vec3 scale = std::get<4>(modelTuple);
-
-			// Apply culling settings
-			if (cullingSetting == 1 && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
-			else { glDisable(GL_CULL_FACE); }
-
-			if (!ImGuiCamera::isWireframe) {
-				model.Draw(shaderProgram, translation, rotation, scale);
-				glDisable(GL_CULL_FACE);
-			}
-			else {
-				SolidColour.Activate();
-				SolidColour.setFloat("DepthDistance", 50);
-				SolidColour.setFloat("NearPlane", RenderClass::DepthPlane[0]);
-				SolidColour.setFloat("FarPlane", RenderClass::DepthPlane[1]);
-
-				model.Draw(SolidColour, translation, rotation, scale);
-				glDisable(GL_CULL_FACE);
-			}
-		}
-		*/
-		
-	}
+	//if (DoForwardLightingPass) {	
+	//}
 
 	//test2.rotation.x += 300 * TimeUtil::s_DeltaTime;
 	//if (test2.rotation.x >= 360) { test2.rotation.x = 0; } // Reset rotation to prevent overflow

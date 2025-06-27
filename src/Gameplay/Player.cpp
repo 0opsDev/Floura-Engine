@@ -21,8 +21,7 @@ void Player::update() {
 		feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 		FootSound.SetSoundPosition(feetpos.x, feetpos.y, feetpos.z);
 		FootSound.updateCameraPosition();
-
-
+		
 		if (isColliding && Camera::isMoving) {
 			FootSound.SetVolume(SoundRunner::entityVolume);
 
@@ -33,9 +32,10 @@ void Player::update() {
 			// Clamp the value at 1.0
 			normalizedSpeed = std::clamp(normalizedSpeed, 0.0f, 1.0f);
 			FootSound.SetPitch(1 + normalizedSpeed);
-
+			//std::cout << "footsound" << std::endl;
 			if (!FootSound.isPlay) {
 				FootSound.PlaySound();
+				
 			}
 		}
 		else

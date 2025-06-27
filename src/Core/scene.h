@@ -22,9 +22,15 @@ public:
 
 	Scene();
 
-	void init(std::string path);
+	void LoadScene(std::string path);
+
+	void SaveScene(std::string path);
 
 	void initJsonModelLoad(std::string path);
+
+	void JsonModelSave(std::string path);
+
+	void AddSceneModelObject(std::string type, std::string path, std::string name);
 
 	void initJsonBillBoardLoad(std::string path);
 

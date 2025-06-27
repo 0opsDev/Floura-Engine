@@ -102,7 +102,7 @@ vec3 sampleHemisphereCosine(vec3 normal, inout uint seed) {
 
 // Scene Intersection Functions
 
-// New: Function to intersect a ray with a sphere
+// Function to intersect a ray with a sphere
 HitInfo intersectSphere(vec3 ray_o, vec3 ray_d, vec3 sphere_center, float sphere_radius) {
     HitInfo info;
     info.t = 1e30; // Initialize with a very large number

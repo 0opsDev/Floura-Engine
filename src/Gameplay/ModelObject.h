@@ -45,7 +45,9 @@ public:
 	glm::vec3 frustumBoxTransform = glm::vec3(0, 0, 0);
 	glm::vec3 frustumBoxScale = glm::vec3(1, 1, 1);
 
-	void CreateObject(std::string type, std::string path, std::string ObjectName); // type LOD or Regular
+	std::string ModelPath;
+
+	void CreateObject(std::string type, std::string path, std::string ObjectNameT); // type LOD or Regular
 
 	void UpdateCollider();
 
@@ -55,8 +57,9 @@ public:
 
 	void Delete();
 
-private:
 	bool IsLod;
+private:
+	
 	std::string LodPath;
 	void LodFileReader(std::string path);
 

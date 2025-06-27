@@ -72,7 +72,9 @@ std::vector<std::tuple<Model>> ModelObject::loadmodelFromJson(const std::string&
 }
 
 
-void ModelObject::CreateObject(std::string type, std::string path, std::string ObjectName) {
+void ModelObject::CreateObject(std::string type, std::string path, std::string ObjectNameT) {
+	ObjectName = ObjectNameT;
+	ModelPath = path;
 	if (type == "LOD" || type == "lod" || type == "Lod") {
 		CubeCollider.init();
 		LodFileReader(path);

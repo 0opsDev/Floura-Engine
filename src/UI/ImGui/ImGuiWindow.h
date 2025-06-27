@@ -42,6 +42,8 @@ public:
 	static void TextEditor();
 
 	static void audio();
+
+	static void viewport();
 };
 
 #endif // SCREEN_UTILS_CLASS_H

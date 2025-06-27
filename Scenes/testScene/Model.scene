@@ -19,7 +19,7 @@
 	"frustumBoxScale":  [ 1.0, 1.0, 1.0 ]
     },
     {
-	"name": "vase",
+	"name": "vase1",
 	"type": "LOD",
 	"path": "Assets/LodModel/Vase/VaseLod.json",
 
