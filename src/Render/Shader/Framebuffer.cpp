@@ -144,7 +144,7 @@ void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
 	}
 	// we need a way to make isResizing == true when opengl window is resized
 	if (ScreenUtils::isResizing == true) {
-		std::cout << "Resolution scale changed!" << std::endl;
+		//std::cout << "Resolution scale changed!" << std::endl;
 		Framebuffer::updateFrameBufferResolution(current_width, current_height); // Update frame buffer resolution
 		glViewport(0, 0, (current_width), (current_height ));
 		Camera::SetViewportSize(current_width, current_height);

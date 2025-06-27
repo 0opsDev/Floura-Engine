@@ -9,6 +9,7 @@ Shader ComputeQuadShader;
 Shader testCompute;
 unsigned int CurrentWidth;
 unsigned int CurrentHeight;
+int LightingPass::samplecount = 3;
 
 void LightingPass::init() {
 
@@ -72,9 +73,6 @@ void RenderComputeToQuad() {
 	ComputeQuadShader.Activate();
 	glBindTextureUnit(0, LightingPass::computeTexture);
 
-	glUniform1i(glGetUniformLocation(ComputeQuadShader.ID, "screen"), 0);
-
-
 	ComputeQuad.draw(ComputeQuadShader);
 
 	glEnable(GL_CULL_FACE);
@@ -89,23 +87,13 @@ void LightingPass::computeRender() {
 //	glBindImageTexture(0, computeTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
 	testCompute.ActivateCompute(ceil(CurrentWidth / 8), ceil(CurrentHeight / 4), 1);
-	testCompute.setFloat4("u_BaseColour", RenderClass::skyRGBA[0], RenderClass::skyRGBA[1], RenderClass::skyRGBA[2], RenderClass::skyRGBA[3]);
 
+	testCompute.setFloat4("u_BaseColour", RenderClass::skyRGBA[0], RenderClass::skyRGBA[1], RenderClass::skyRGBA[2], RenderClass::skyRGBA[3]);
 	testCompute.setMat4("u_ViewMatrix", Camera::view);
 	testCompute.setMat4("u_ProjectionMatrix", Camera::projection);
-
-	//testCompute.setMat4("invCameraMatrix", glm::inverse(Camera::cameraMatrix));
-	//testCompute.setFloat("u_FOV", Camera::fov);
-	//float AspectRatio = static_cast<float>(CurrentWidth) / static_cast<float>(CurrentHeight);
-	//testCompute.setFloat("u_AspectRatio", AspectRatio);
 	testCompute.setFloat3("cameraPosition", Camera::Position.x, Camera::Position.y, Camera::Position.z);
-	//uniform int u_MaxSamples; // Declare the uniform for max samples
-	testCompute.setInt("u_MaxSamples", 3);
+	testCompute.setInt("u_MaxSamples", samplecount);
 	
-
-	//glUseProgram(testCompute.ID); 
-	//glDispatchCompute(ceil(CurrentWidth / 8), ceil(CurrentHeight / 4), 1);
-	//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	//glActiveTexture(GL_TEXTURE1);
 	//glBindTexture(GL_TEXTURE_2D, LightingPass::computeTexture); // using gpos as temp

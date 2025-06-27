@@ -99,7 +99,7 @@ void Shader::LoadComputeShader(const char* computeFile) {
     compileErrors(ID, "PROGRAM");
 
     glDeleteShader(computeShader);
-
+    /*
     int work_grp_cnt[3];
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &work_grp_cnt[0]);
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &work_grp_cnt[1]);
@@ -125,6 +125,7 @@ void Shader::LoadComputeShader(const char* computeFile) {
     if (init::LogALL || init::LogSystems) {
         std::cout << "Compute: " << computeFile << std::endl;
     }
+    */
 }
 
 void Shader::Activate()

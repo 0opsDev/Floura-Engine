@@ -3,32 +3,56 @@ layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 
 layout(rgba32f, binding = 0) uniform image2D screen;
 
-uniform vec4 u_BaseColour;
+uniform vec4 u_BaseColour; // Background color
 uniform mat4 u_ViewMatrix;
 uniform mat4 u_ProjectionMatrix;
 uniform vec3 cameraPosition;
-uniform int u_MaxSamples;
+uniform int u_MaxSamples; // This uniform can now be set to 1 for the main ray, as bounces are handled internally.
 
 // Define 3D grid dimensions and properties directly in the shader
 #define GRID_DIM 4
-#define CUBE_SIDE_HALF 0.45 // Half the side length of the cube (similar scale to sphere radius)
+#define SPHERE_RADIUS 0.7 // Radius of the spheres (was CUBE_SIDE_HALF)
 #define SPACING 1.8
 
 #define START_OFFSET_X -(float(GRID_DIM - 1) * SPACING / 2.0)
 #define START_OFFSET_Y -(float(GRID_DIM - 1) * SPACING / 2.0) + 4
-#define START_OFFSET_Z -10.0
+#define START_OFFSET_Z 0
 
 // Ray tracing parameters
-#define MAX_REFLECTION_BOUNCES 2  // Max explicit reflection bounces
 #define EPSILON 0.001           // Small offset to prevent self-intersection
 
+// Light source parameters (example directional light)
+#define LIGHT_DIRECTION normalize(vec3(0.5, 0.3, 0.5)) // Direction from surface to light
+
+// Global Ray Limits
+#define MAX_RAY_DEPTH 1             // Max total bounces for a primary (specular) ray
+#define MAX_PRIMARY_RAY_TOTAL_DISTANCE 10.0 // Max accumulated distance for the initial camera ray
+#define MAX_SUBSEQUENT_RAY_TOTAL_DISTANCE 3.0 // Max accumulated distance for ALL reflection rays
+
+// Segment distance for the first reflection ray (depth 1)
+#define MAX_FIRST_REFLECTION_SEGMENT_DISTANCE 2.0 // Max distance for the first segment of a reflection ray
+
+// New: Segment distance for reflections within reflections (2nd bounce / depth 2 and beyond)
+#define MAX_DEEPER_REFLECTION_SEGMENT_DISTANCE 1.0 // Max distance for segments of deeper reflection rays (2nd bounce +)
+
+// Shadow parameters
+#define MAX_SHADOW_RAY_DISTANCE 15.0 // Max distance a shadow ray will check for occluders (e.g., distance to light source)
+#define SHADOW_REFLECTION_ATTENUATION 0.1 // Factor to reduce reflection throughput in shadow (0.0 for no reflection)
+
+// Global Illumination parameters (for diffuse bounces)
+#define MAX_GI_BOUNCES 2            // Max number of bounces for each GI ray path
+#define NUM_GI_SAMPLES 4            // Number of GI rays to cast per hit point for Monte Carlo GI
+#define MAX_GI_PRIMARY_SEGMENT_DISTANCE 5.0 // Max distance for the FIRST GI ray segment
+#define MAX_GI_SEGMENT_DISTANCE 3.0 // Max distance for an individual GI ray segment (subsequent bounces)
+
 struct HitInfo {
-    float t;         // Distance to hit point
-    vec3 normal;      // Surface normal at hit point
-    vec4 color;       // Base color of the hit object
-    bool hit;         // Did the ray hit anything?
+    float t;             // Distance to hit point
+    vec3 normal;         // Surface normal at hit point
+    vec4 color;          // Base color of the hit object
+    bool hit;            // Did the ray hit anything?
 };
 
+// Random Number Generation
 // Simple hash function for pseudo-random numbers
 uint hash(uint x) {
     x += (x << 10);
@@ -39,90 +63,102 @@ uint hash(uint x) {
     return x;
 }
 
-// Function to generate a pseudo-random color based on grid coordinates
+// Function to generate a pseudo-random float [0, 1) using a mutable uint seed
+float randomFloat(inout uint seed) {
+    seed = hash(seed);
+    return float(seed) / float(0xFFFFFFFFU);
+}
+
+// Function to generate a random color based on grid coordinates for object base colors
 vec3 randomColor(int x, int y, int z) {
-    uint seed = hash(uint(x) * 73856093U + uint(y) * 19349663U + uint(z) * 83492791U);
-    float r = float(hash(seed)) / float(0xFFFFFFFFU);
-    float g = float(hash(seed + 1)) / float(0xFFFFFFFFU); // Use slightly different seeds for components
-    float b = float(hash(seed + 2)) / float(0xFFFFFFFFU);
+    uint seed_val = hash(uint(x) * 73856093U + uint(y) * 19349663U + uint(z) * 83492791U);
+    float r = randomFloat(seed_val);
+    float g = randomFloat(seed_val);
+    float b = randomFloat(seed_val);
     return vec3(r, g, b);
 }
 
-// Ray-AABB (Axis-Aligned Bounding Box) intersection function
-// Adapted from a common algorithm (e.g., "AABB Intersection by Andrew Kensler" or "Slab Method")
-HitInfo intersectAABB(vec3 ray_o, vec3 ray_d, vec3 box_min, vec3 box_max) {
+// Function to generate a cosine-weighted random direction on a hemisphere
+// Used for diffuse GI bounces
+vec3 sampleHemisphereCosine(vec3 normal, inout uint seed) {
+    float r1 = randomFloat(seed);
+    float r2 = randomFloat(seed);
+
+    float phi = 2.0 * 3.14159265359 * r1; // Azimuthal angle
+    float cosTheta = sqrt(r2);           // Cosine of elevation angle (for cosine-weighted distribution)
+    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+
+    // Create an orthonormal basis from the normal vector
+    vec3 up = abs(normal.y) < 0.999 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0); // Arbitrary non-parallel vector
+    vec3 tangent = normalize(cross(up, normal));
+    vec3 bitangent = cross(normal, tangent);
+
+    // Convert spherical coordinates to Cartesian in local space, then transform to world space
+    vec3 sampleDir = tangent * (cos(phi) * sinTheta) +
+                     bitangent * (sin(phi) * sinTheta) +
+                     normal * cosTheta;
+    return normalize(sampleDir);
+}
+
+// Scene Intersection Functions
+
+// New: Function to intersect a ray with a sphere
+HitInfo intersectSphere(vec3 ray_o, vec3 ray_d, vec3 sphere_center, float sphere_radius) {
     HitInfo info;
     info.t = 1e30; // Initialize with a very large number
     info.hit = false;
 
-    vec3 inv_d = 1.0 / ray_d;
-    vec3 t0s = (box_min - ray_o) * inv_d;
-    vec3 t1s = (box_max - ray_o) * inv_d;
+    vec3 oc = ray_o - sphere_center;
+    float a = dot(ray_d, ray_d);
+    float b = 2.0 * dot(oc, ray_d);
+    float c = dot(oc, oc) - sphere_radius * sphere_radius;
+    float discriminant = b * b - 4.0 * a * c;
 
-    vec3 t_min_vec = min(t0s, t1s);
-    vec3 t_max_vec = max(t0s, t1s);
+    if (discriminant >= 0.0) {
+        float sqrt_discriminant = sqrt(discriminant);
+        float t0 = (-b - sqrt_discriminant) / (2.0 * a);
+        float t1 = (-b + sqrt_discriminant) / (2.0 * a);
 
-    float t_enter = max(max(t_min_vec.x, t_min_vec.y), t_min_vec.z);
-    float t_exit = min(min(t_max_vec.x, t_max_vec.y), t_max_vec.z);
+        float t_hit = 1e30;
 
-    if (t_enter < t_exit && t_exit > EPSILON) { // Check for valid intersection
-        float t_hit = t_enter;
-        if (t_hit < EPSILON) { // If ray starts inside, take the exit point
-            t_hit = t_exit;
+        if (t0 > EPSILON) {
+            t_hit = t0;
+        } else if (t1 > EPSILON) {
+            t_hit = t1;
         }
 
-        if (t_hit > EPSILON && t_hit < info.t) {
+        if (t_hit < 1e30) {
             info.t = t_hit;
             info.hit = true;
-
-            // Calculate normal based on which face was hit
             vec3 hit_point = ray_o + ray_d * t_hit;
-            vec3 center = (box_min + box_max) * 0.5;
-            vec3 p_local = hit_point - center;
-            vec3 extent = (box_max - box_min) * 0.5; // Half dimensions
-
-            // Determine normal by finding the largest component of p_local relative to extent
-            // This is a common way to find the face normal for an AABB hit.
-            if (abs(p_local.x) > abs(p_local.y) && abs(p_local.x) > abs(p_local.z)) {
-                info.normal = vec3(sign(p_local.x), 0.0, 0.0);
-            } else if (abs(p_local.y) > abs(p_local.z)) {
-                info.normal = vec3(0.0, sign(p_local.y), 0.0);
-            } else {
-                info.normal = vec3(0.0, 0.0, sign(p_local.z));
-            }
+            info.normal = normalize(hit_point - sphere_center);
         }
     }
     return info;
 }
 
 
-// Function to find the closest intersection in the scene
+// Function to find the closest intersection in the scene (now with spheres)
 HitInfo intersectScene(vec3 ray_o, vec3 ray_d) {
     HitInfo info;
     info.t = 1e30; // Initialize with a very large number
     info.hit = false;
 
-    for (int z = 0; z < GRID_DIM; ++z)
-    {
-        for (int y = 0; y < GRID_DIM; ++y)
-        {
-            for (int x = 0; x < GRID_DIM; ++x)
-            {
-                vec3 cube_center = vec3(
+    for (int z = 0; z < GRID_DIM; ++z) {
+        for (int y = 0; y < GRID_DIM; ++y) {
+            for (int x = 0; x < GRID_DIM; ++x) {
+                vec3 sphere_center = vec3( // Now a sphere center
                     START_OFFSET_X + x * SPACING,
                     START_OFFSET_Y + y * SPACING,
                     START_OFFSET_Z + z * SPACING
                 );
 
-                vec3 box_min = cube_center - CUBE_SIDE_HALF;
-                vec3 box_max = cube_center + CUBE_SIDE_HALF;
-
                 vec4 current_object_base_color = vec4(randomColor(x, y, z), 1.0);
 
-                HitInfo current_hit = intersectAABB(ray_o, ray_d, box_min, box_max);
+                // Call intersectSphere instead of intersectAABB
+                HitInfo current_hit = intersectSphere(ray_o, ray_d, sphere_center, SPHERE_RADIUS);
 
-                if (current_hit.hit && current_hit.t < info.t) // If this cube is closer AND valid
-                {
+                if (current_hit.hit && current_hit.t < info.t) { // If this sphere is closer AND valid
                     info.t = current_hit.t;
                     info.normal = current_hit.normal;
                     info.color = current_object_base_color;
@@ -132,6 +168,69 @@ HitInfo intersectScene(vec3 ray_o, vec3 ray_d) {
         }
     }
     return info;
+}
+
+// Shadow Check Function
+// Determines if a point is in shadow from the main light source
+bool isInShadow(vec3 hit_point, vec3 light_dir) {
+    vec3 shadow_ray_o = hit_point + light_dir * EPSILON * 2.0; // Offset origin to avoid self-intersection
+    HitInfo shadow_hit = intersectScene(shadow_ray_o, light_dir);
+    // Point is in shadow if a hit occurred AND it's closer than the light source distance
+    return shadow_hit.hit && shadow_hit.t < MAX_SHADOW_RAY_DISTANCE;
+}
+
+// Global Illumination Calculation Function (FULLY ITERATIVE)
+// This function calculates indirect light by tracing multiple sample rays.
+// Each sample ray then follows its own path through multiple bounces using an inner loop.
+vec3 calculateGlobalIllumination(vec3 origin, vec3 normal, inout uint seed) {
+    vec3 total_indirect_light = vec3(0.0);
+
+    // Loop for multiple GI samples (Monte Carlo integration)
+    for (int i = 0; i < NUM_GI_SAMPLES; ++i) {
+        vec3 current_gi_ray_o = origin + normal * EPSILON; // Start of this sample's path
+        vec3 current_gi_ray_d = sampleHemisphereCosine(normal, seed); // Initial direction for this sample
+        vec3 current_path_throughput = vec3(1.0); // Throughput for this specific GI ray path
+        vec3 gi_sample_light = vec3(0.0); // Light collected by this single GI sample ray
+
+        // Loop for multiple bounces within this single GI ray path
+        for (int bounce = 0; bounce < MAX_GI_BOUNCES; ++bounce) {
+            // Determine the maximum allowed distance for the current GI segment
+            float current_gi_segment_max_distance = (bounce == 0) ? MAX_GI_PRIMARY_SEGMENT_DISTANCE : MAX_GI_SEGMENT_DISTANCE;
+
+            HitInfo gi_hit = intersectScene(current_gi_ray_o, current_gi_ray_d);
+
+            if (gi_hit.hit && gi_hit.t < current_gi_segment_max_distance) { // Use the determined max distance
+                vec3 gi_hit_point = current_gi_ray_o + current_gi_ray_d * gi_hit.t;
+                vec3 gi_hit_normal = gi_hit.normal;
+                vec4 gi_object_color = gi_hit.color;
+
+                // Calculate direct light for this hit point (source of light for this bounce)
+                // Contribution ONLY if NOT in shadow from the main light
+                float direct_factor = max(dot(gi_hit_normal, LIGHT_DIRECTION), 0.0);
+                vec3 direct_gi_color = vec3(0.0); // Initialize to black
+                if (!isInShadow(gi_hit_point, LIGHT_DIRECTION)) {
+                    direct_gi_color = gi_object_color.rgb * direct_factor;
+                }
+
+                // Add this direct light contribution, scaled by the path's throughput
+                gi_sample_light += direct_gi_color * current_path_throughput;
+
+                // Update throughput for the next bounce: diffuse reflectivity of the hit object
+                current_path_throughput *= gi_object_color.rgb * 0.7; // 70% diffuse reflectivity for GI bounces
+
+                // Prepare for next GI bounce: New origin and new random direction
+                current_gi_ray_o = gi_hit_point + gi_hit_normal * EPSILON;
+                current_gi_ray_d = sampleHemisphereCosine(gi_hit_normal, seed);
+            } else {
+                // Ray hit background (sky) or went beyond its max segment distance without hitting.
+                // Do NOT add u_BaseColour.rgb. Simply let the path throughput diminish.
+                // This implicitly means it contributes "black" from the sky or beyond range.
+                break; // End path for this sample as it's left the scene or gone too far
+            }
+        }
+        total_indirect_light += gi_sample_light; // Add this sample's total light to sum
+    }
+    return total_indirect_light / float(NUM_GI_SAMPLES); // Average all samples to get final indirect light
 }
 
 
@@ -148,7 +247,7 @@ void main()
     mat4 invProjectionMatrix = inverse(u_ProjectionMatrix);
     mat4 invViewMatrix = inverse(u_ViewMatrix);
 
-    // Derive Ray Origin from Inverse View Matrix
+    // Derive Ray Origin from Inverse View Matrix (camera position)
     vec3 current_ray_o = invViewMatrix[3].xyz;
 
     // Derive Ray Direction from Inverse View and Projection Matrices
@@ -158,62 +257,110 @@ void main()
     viewCoords.w = 0.0;  // Set w to 0 to treat it as a direction vector
     vec3 current_ray_d = normalize((invViewMatrix * viewCoords).xyz);
 
-    vec4 finalPixelColor = vec4(0.0); // Accumulated color for the pixel
-    vec3 throughput = vec3(1.0);      // Light energy carried by the ray, starts at full intensity
+    // Use pixel coordinates as a base seed for randomness for this pixel's ray path
+    uint seed = uint(pixel_coords.x) * 19349663U + uint(pixel_coords.y) * 83492791U;
 
-    // Main ray tracing loop (simulating bounces)
-    for (int bounce = 0; bounce < u_MaxSamples; ++bounce) { // Use u_MaxSamples here
+    vec4 finalPixelColor = vec4(0.0, 0.0, 0.0, 0.0); // Accumulated color for the pixel
+    vec3 throughput = vec3(1.0);      // Light energy carried by the ray, starts at full intensity
+    float accumulated_total_distance = 0.0; // Track accumulated TOTAL distance for this ray path
+
+    bool object_ever_hit_on_path = false; // Flag to track if any object was hit along the path
+
+    // Main ray tracing loop for specular reflections and local shading contributions
+
+
+    for (int depth = 0; depth < MAX_RAY_DEPTH; ++depth) {
         HitInfo hit = intersectScene(current_ray_o, current_ray_d);
 
+        // Determine the segment cutoff distance based on ray depth
+        float current_segment_cutoff_distance = 1e30; // Initialize with effectively no cutoff
+
+        if (depth == 1) { // First reflection ray (second ray in the path)
+            current_segment_cutoff_distance = MAX_FIRST_REFLECTION_SEGMENT_DISTANCE;
+        } else if (depth >= 2) { // Second reflection (third ray in the path) and beyond
+            current_segment_cutoff_distance = MAX_DEEPER_REFLECTION_SEGMENT_DISTANCE;
+        }
+
+        // Apply the segment cutoff distance if a hit occurred and it's beyond the limit
+        if (hit.hit && hit.t > current_segment_cutoff_distance) {
+            hit.hit = false; // Effectively no hit if beyond this segment limit
+        }
+
         if (hit.hit) {
+            object_ever_hit_on_path = true; // Mark that an object has been hit
             vec3 hit_point = current_ray_o + current_ray_d * hit.t;
             vec3 normal = hit.normal;
-            vec4 object_color = hit.color; // This is now the random color for the object
+            vec4 object_color = hit.color; // Base color of the hit sphere
 
-            // Direct Lighting (Diffuse)
-            vec3 light_dir = normalize(vec3(0.5, 1.0, 0.5)); // Example: top-right-front light
-            float diffuse_intensity = max(dot(normal, light_dir), 0.0);
+            accumulated_total_distance += hit.t; // Accumulate TOTAL distance for this path
 
-            // Shadow Check
-            vec3 shadow_ray_o = hit_point + normal * EPSILON;
-            HitInfo shadow_hit = intersectScene(shadow_ray_o, light_dir);
-            bool in_shadow = shadow_hit.hit;
+            // Determine the maximum allowed path distance for the current ray segment
+            float current_ray_max_total_distance = (depth == 0) ? MAX_PRIMARY_RAY_TOTAL_DISTANCE : MAX_SUBSEQUENT_RAY_TOTAL_DISTANCE;
 
-            // Separate Ambient and Direct Contributions for clearer shadows
-            vec3 shaded_color = vec3(0.0);
 
-            // Ambient Light (always present, but reduced for better shadow contrast)
-            float ambient_factor = 0.05;
-            shaded_color += u_BaseColour.rgb * ambient_factor;
+            // Local Shading Calculation at the current hit point
+            // This combines ambient, direct (with shadows), and indirect (GI) light
+            vec3 local_shading_component = vec3(0.0);
 
-            // Direct Light (only applied if not in shadow)
-            if (!in_shadow) {
-                shaded_color += object_color.rgb * diffuse_intensity;
+            // 1. Ambient Light (a small base light that affects everything)
+            local_shading_component += u_BaseColour.rgb * 0.05;
+
+            // 2. Direct Light (from the main light source, considering shadows)
+            float direct_intensity = max(dot(normal, LIGHT_DIRECTION), 0.0);
+            if (!isInShadow(hit_point, LIGHT_DIRECTION)) {
+                local_shading_component += object_color.rgb * direct_intensity;
+            } else {
+                // If in shadow, apply a dimmer direct light to avoid pure blackness
+                local_shading_component += object_color.rgb * direct_intensity * 0.1;
             }
 
-            // Add this bounce's contribution to the accumulated color, scaled by throughput
-            // When an object is hit, its alpha should be 1.0 (unless explicitly transparent)
-            finalPixelColor += vec4(shaded_color * throughput, 1.0); // Ensure alpha is 1 for objects
+            // 3. Global Illumination (Indirect Light bounced from other surfaces)
+            // ONLY calculate GI for the primary camera ray (depth 0) AND if the point is in shadow
+            if (depth == 0 && isInShadow(hit_point, LIGHT_DIRECTION)) {
+                local_shading_component += calculateGlobalIllumination(hit_point, normal, seed);
+            }
 
-            // Prepare for Next Bounce (Reflection)
-            if (bounce < MAX_REFLECTION_BOUNCES) { // Check if we are allowed more reflections
+
+            // Add the light contribution from this surface to the final pixel color.
+            // This `local_shading_component` is scaled by the `throughput` accumulated from previous reflections.
+            finalPixelColor.rgb += local_shading_component * throughput;
+            finalPixelColor.a = 1.0; // The pixel becomes opaque if an object is hit
+
+            // Prepare for the next specular reflection bounce
+            // Check if we are allowed more reflections based on total depth and accumulated distance
+            if (depth < MAX_RAY_DEPTH - 1 && accumulated_total_distance < current_ray_max_total_distance) {
                 current_ray_d = reflect(current_ray_d, normal); // Calculate new reflection direction
-                current_ray_o = hit_point + normal * EPSILON;   // Set new ray origin
+                current_ray_o = hit_point + normal * EPSILON;   // Set new ray origin for next bounce
 
-                // Attenuate throughput for 50% reflection
-                throughput *= object_color.rgb * 0.5;
+                float reflectivity = 0.7; // Base reflectivity for reflections
+                // Reduce reflectivity if the current hit point is in shadow
+                if (isInShadow(hit_point, LIGHT_DIRECTION)) {
+                    reflectivity = SHADOW_REFLECTION_ATTENUATION;
+                }
+
+                // Attenuate throughput for the next specular reflection.
+                // 'object_color.rgb' acts as the reflective tint for the surface.
+                throughput *= object_color.rgb * reflectivity;
             } else {
-                // If max reflection bounces reached, stop tracing this ray path
-                // This means the ray terminates on the object, no further transparency needed
-                break;
+                // Max reflections or total path distance reached for the main ray path.
+                throughput = vec3(0.0); // Stop further light contributions
+                break; // Terminate this ray path
             }
         } else {
-            // Ray hit nothing in the scene (reached the "sky"), set alpha to 0.0
-            // The color part can be u_BaseColour or black, but the alpha MUST be 0.0
-            finalPixelColor += vec4(u_BaseColour.rgb * throughput, 0.0); // Set alpha to 0.0 here
-            break; // No more bounces possible after hitting the sky/background
+            // Ray hit nothing in the scene ("sky") for this segment.
+            // Add the background color, attenuated by any accumulated reflection throughput.
+            finalPixelColor.rgb += u_BaseColour.rgb * throughput;
+
+            // Set alpha based on whether any object was hit previously along the path.
+            if (!object_ever_hit_on_path) {
+                finalPixelColor.a = 0.0; // Truly nothing was hit; the pixel is transparent background.
+            } else {
+                finalPixelColor.a = 1.0; // An object was hit, but the reflected ray went into the sky; the pixel is opaque.
+            }
+            break; // Terminate ray path
         }
     }
 
+    // Store the final computed pixel color to the screen image
     imageStore(screen, pixel_coords, finalPixelColor);
-}
+} // End of main function

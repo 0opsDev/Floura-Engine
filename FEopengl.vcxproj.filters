@@ -268,7 +268,7 @@
     <ClCompile Include="src\Render\Cube\RenderQuad.cpp">
       <Filter>src\Render\Cube</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\scene.cpp">
+    <ClCompile Include="src\Core\tempscene.cpp">
       <Filter>src\core</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\passes\dbg\dbgPass.cpp">
@@ -282,6 +282,9 @@
     </ClCompile>
     <ClCompile Include="src\Render\passes\lighting\LightingPass.cpp">
       <Filter>src\Render\passes\lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\scene.cpp">
+      <Filter>src\core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -438,7 +441,7 @@
     <ClInclude Include="src\Render\Cube\RenderQuad.h">
       <Filter>src\Render\Cube</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\scene.h">
+    <ClInclude Include="src\Core\tempscene.h">
       <Filter>src\core</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\passes\dbg\dbgPass.h">
@@ -452,6 +455,9 @@
     </ClInclude>
     <ClInclude Include="src\Render\passes\lighting\LightingPass.h">
       <Filter>src\Render\passes\lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\scene.h">
+      <Filter>src\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

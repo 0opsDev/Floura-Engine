@@ -15,7 +15,8 @@ public:
 	static bool sleepState;
 	static float cameraSettings[3]; // FOV, near, far
 	static GLfloat CameraXYZ[3]; // Initial camera position
-	static void imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
+	static glm::vec3 initalCameraPos;
+	static void imGuiMAIN(GLFWwindow* window,
 		GLFWmonitor* monitorT);
 
 	static void updateModelLua(	
@@ -40,8 +41,6 @@ public:
 	static void loadSettings();
 
 	static void saveSettings();
-
-	static void loadEngineSettings();
 
 private:
 };

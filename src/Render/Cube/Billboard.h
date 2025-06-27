@@ -18,6 +18,7 @@ public:
 	unsigned int BBTexture;
 	unsigned int iteration;
 	float TimeAccumulatorBillboard;
+	std::string singleTexturePath;
 
 	std::string TexturePath;
 	std::vector<std::string> TextureNames;

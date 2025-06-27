@@ -7,7 +7,7 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtx/norm.hpp>
 #include "Render/Cube/RenderQuad.h"
-#include "scene.h"
+#include "tempscene.h"
 #include <Render/passes/geometry/geometryPass.h>
 #include <Render/passes/lighting/LightingPass.h>
 
@@ -31,7 +31,7 @@ Shader shader;
 
 bool RenderClass::DoDeferredLightingPass = true; // Toggle for lighting pass
 bool RenderClass::DoForwardLightingPass = false; // Toggle for regular pass
-bool RenderClass::DoComputeLightingPass = true;
+bool RenderClass::DoComputeLightingPass = false;
 
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
@@ -78,11 +78,9 @@ void RenderClass::ClearFramebuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float window_width, float window_height, glm::vec3 lightPos,
-	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models, unsigned int width, unsigned int height) {
+void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float window_width, float window_height, unsigned int width,
+	unsigned int height) {
 
-	// Camera
-	Camera::Inputs(window); // send Camera.cpp window inputs and delta time
 	glClearColor(RenderClass::skyRGBA[0], RenderClass::skyRGBA[1], RenderClass::skyRGBA[2],RenderClass::skyRGBA[3]);
 	//AlbedoShader.Activate();
 	//UF::Float(AlbedoShader.ID, "gamma", RenderClass::gamma);
@@ -93,6 +91,8 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	//glEnable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_LESS);
 	//glDisable(GL_CULL_FACE);
+
+	/*
 	for (auto& modelTuple : models) {
 		Model& model = std::get<0>(modelTuple);
 		int cullingSetting = std::get<1>(modelTuple);
@@ -105,6 +105,8 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 
 		GeometryPass::gPassDraw(model, translation, rotation, scale);
 	}
+	*/
+	
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
 
@@ -133,12 +135,12 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	shaderProgram.setBool("doFog", doFog);
 	shaderProgram.setFloat3("InnerLight1", ConeSI[1] - ConeSI[0], ConeSI[1], ConeSI[2]);
 	shaderProgram.setFloat3("spotLightRot", ConeRot[0], ConeRot[1], ConeRot[2]);
-	shaderProgram.setFloat3("lightPos", lightPos.x, lightPos.y, lightPos.z);
 	shaderProgram.setFloat("DepthDistance", DepthDistance);
 	shaderProgram.setFloat("NearPlane", DepthPlane[0]);
 	shaderProgram.setFloat("FarPlane", DepthPlane[1]);
 	shaderProgram.setFloat3("fogColor", fogRGBA[0], fogRGBA[1], fogRGBA[2]);
 	shaderProgram.setFloat4("skyColor", skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
+	shaderProgram.setFloat3("lightPos",RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]);
 	shaderProgram.setFloat4("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 	shaderProgram.setFloat("gamma", gamma);
 	if (ImGuiCamera::isWireframe) {
@@ -147,7 +149,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	}
 	auto startInitTime2 = std::chrono::high_resolution_clock::now();
 	if (DoForwardLightingPass) {
-		
+		/*
 		for (auto& modelTuple : models) {
 			Model& model = std::get<0>(modelTuple);
 			int cullingSetting = std::get<1>(modelTuple);
@@ -173,6 +175,8 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 				glDisable(GL_CULL_FACE);
 			}
 		}
+		*/
+		
 	}
 
 	//test2.rotation.x += 300 * TimeUtil::s_DeltaTime;
@@ -183,7 +187,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 
-	LightIcon.draw(true, lightPos.x, lightPos.y, lightPos.z, 0.3, 0.3, 0.3);
+	LightIcon.draw(true, RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2], 0.3, 0.3, 0.3);
 
 	if (!ImGuiCamera::isWireframe) {
 		Skybox::draw(RenderClass::skyRGBA, Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global

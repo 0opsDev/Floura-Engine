@@ -23,6 +23,7 @@
 #include "Render/Cube/CubeVisualizer.h"
 #include <Physics/CubeCollider.h>
 #include "Render/Cube/Billboard.h"
+#include "tempscene.h"
 #include "scene.h"
 #include <Gameplay/Player.h>
 
@@ -39,7 +40,7 @@ float CrouchHighDiff = 0.9f;
 
 float window_width;
 float window_height;
-glm::vec3 initalCameraPos = glm::vec3(0,0,0);
+glm::vec3 Main::initalCameraPos = glm::vec3(0,0,0);
 
 TimeAccumulator TA3; TimeAccumulator TA2;
 
@@ -67,8 +68,9 @@ int main() // global variables do not work with threads
 	init::initGLFW(); // initialize glfw
 	Main::LoadPlayerConfig();
 	Main::loadSettings();
-	Main::loadEngineSettings();
-	ScriptRunner::init(SettingsUtils::mapName + "/LuaStartup.json");
+	Scene scene;
+	//Main::loadEngineSettings();
+	ScriptRunner::init(SettingsUtils::sceneName + "/LuaStartup.json");
 	SoundRunner::init();
 
 	// Get the video mode of the primary monitor
@@ -94,7 +96,8 @@ int main() // global variables do not work with threads
 
 	gladLoadGL(); // load open gl config
 
-	FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram);// feed the shader prog real data
+	scene.init(SettingsUtils::sceneName);
+	FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram); // feed the shader prog real data << should take a shader file class
 	RenderClass::shaderProgram.Activate(); // activate new shader program for use
 
 	// move to framebuffer class
@@ -110,18 +113,16 @@ int main() // global variables do not work with threads
 	init::initLogo(window, "assets/Icons/Icon.png");
 
 	// INITIALIZE CAMERA
-	Camera::InitCamera(width, height, initalCameraPos); 	// camera ratio pos
-	std::cout << initalCameraPos.x << " " << initalCameraPos.y << " " << initalCameraPos.z << std::endl;
-	std::cout << Camera::Position.x << " " << Camera::Position.y << " " << Camera::Position.z << std::endl;
+	Camera::InitCamera(width, height, Main::initalCameraPos); 	// camera ratio pos
+	//std::cout << initalCameraPos.x << " " << initalCameraPos.y << " " << initalCameraPos.z << std::endl;
+	//std::cout << Camera::Position.x << " " << Camera::Position.y << " " << Camera::Position.z << std::endl;
 	RenderClass::init(window, width, height);
 	// Model Loader
-	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models = FileClass::loadModelsFromJson(SettingsUtils::mapName + "ModelECSData.json"); // Load models from JSON file 
 
-	Scene::init(); // Initialize scene
+	TempScene::init(); // Initialize scene
 	Player::init();
 
-	SoundProgram land; land.CreateSound("Assets/Sounds/land.wav");
-	Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
+	//Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	if (init::LogALL || init::LogSystems) std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
@@ -135,9 +136,6 @@ int main() // global variables do not work with threads
 		TimeUtil::updateDeltaTime(); // Update delta time
 		ScriptRunner::update();
 		InputUtil::UpdateCurrentKey(window);
-
-		Scene::Update(); // Update scene
-		Player::update(); // phys freaking out due to this
 		
 		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
 			Camera::s_DoGravity = false;
@@ -156,7 +154,7 @@ int main() // global variables do not work with threads
 			TA2.reset();
 		}
 
-		Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
+		//Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 
 		//physics
 		if (Camera::s_DoGravity) {
@@ -165,6 +163,7 @@ int main() // global variables do not work with threads
 			else { Camera::PlayerHeightCurrent = PlayerHeight;}
 		}
 
+		/*
 		if (false) { //testing collisions if touching ground
 			for (auto& modelTuple : models) {
 				Model& model = std::get<0>(modelTuple);
@@ -217,17 +216,22 @@ int main() // global variables do not work with threads
 				}
 			}
 		}
+		*/
 
 		if (!Camera::s_DoGravity) { Camera::DoJump = true; };
 
 		// Camera Always Stays Above Feet Position**
-		Camera::Position = glm::vec3(Player::feetpos.x, Player::feetpos.y + Camera::PlayerHeightCurrent, Player::feetpos.z);
+		//Camera::Position = glm::vec3(Player::feetpos.x, Player::feetpos.y + Camera::PlayerHeightCurrent, Player::feetpos.z);
 
 		auto startInitTime2 = std::chrono::high_resolution_clock::now();
 
-		RenderClass::Render(window, frameBufferProgram, window_width, window_height, glm::vec3(RenderClass::LightTransform1[0],
-			RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]), models, width, height);
-		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, RenderClass::shaderProgram, primaryMonitor); }
+		Player::update(); // phys freaking out due to this
+		Camera::Inputs(window);
+		scene.Update();
+		TempScene::Update(); // Update scene
+
+		RenderClass::Render(window, frameBufferProgram, window_width, window_height, width, height);
+		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, primaryMonitor); }
 
 		RenderClass::Swapchain(window, frameBufferProgram, primaryMonitor); // tip to self, work down to up (lines)
 		
@@ -247,10 +251,9 @@ int main() // global variables do not work with threads
 	//FootSound.DeleteSound();
 	frameBufferProgram.Delete();
 	Skybox::Delete();
-	land.DeleteSound();
-	land.DeleteSound();	
-	Scene::Delete(); // Delete scene
+	TempScene::Delete(); // Delete scene
 	SoundRunner::Delete();
+	scene.Delete();
 	//SolidColour.Delete();
 	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
 	return 0;
@@ -296,7 +299,7 @@ void Main::loadSettings() {
 
 		ScreenUtils::doVsync = settingsData[0]["Vsync"];
 		Main::cameraSettings[0] = settingsData[0]["FOV"];
-		SettingsUtils::mapName = "Maps/" + settingsData[0]["MAP"].get<std::string>() + "/";
+		SettingsUtils::sceneName = "Scenes/" + settingsData[0]["Scene"].get<std::string>();
 
 		Camera::s_sensitivityY = settingsData[0]["SensitivityY"];
 		Camera::s_sensitivityX = settingsData[0]["SensitivityX"];
@@ -346,59 +349,9 @@ void Main::saveSettings() {
 	}
 }
 
-void Main::loadEngineSettings() {
-	// Load EngineDefault.json
-	std::ifstream engineDefaultFile(SettingsUtils::mapName + "Engine.json");
-	if (engineDefaultFile.is_open()) {
-		json engineDefaultData;
-		engineDefaultFile >> engineDefaultData;
-		engineDefaultFile.close();
-
-		initalCameraPos = glm::vec3(static_cast<GLfloat>(engineDefaultData[0]["DefaultCameraPos"][0]),
-			static_cast<GLfloat>(engineDefaultData[0]["DefaultCameraPos"][1]),
-			static_cast<GLfloat>(engineDefaultData[0]["DefaultCameraPos"][2])
-		);
-		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][0];
-		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][1];
-		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][2];
-
-		RenderClass::skyRGBA[0] = engineDefaultData[0]["skyRGBA"][0];
-		RenderClass::skyRGBA[1] = engineDefaultData[0]["skyRGBA"][1];
-		RenderClass::skyRGBA[2] = engineDefaultData[0]["skyRGBA"][2];
-
-		RenderClass::lightRGBA[0] = engineDefaultData[0]["lightRGBA"][0];
-		RenderClass::lightRGBA[1] = engineDefaultData[0]["lightRGBA"][1];
-		RenderClass::lightRGBA[2] = engineDefaultData[0]["lightRGBA"][2];
-
-		RenderClass::fogRGBA[0] = engineDefaultData[0]["fogRGBA"][0];
-		RenderClass::fogRGBA[1] = engineDefaultData[0]["fogRGBA"][1];
-		RenderClass::fogRGBA[2] = engineDefaultData[0]["fogRGBA"][2];
-
-		RenderClass::ConeRot[0] = engineDefaultData[0]["ConeRot"][0];
-		RenderClass::ConeRot[1] = engineDefaultData[0]["ConeRot"][1];
-		RenderClass::ConeRot[2] = engineDefaultData[0]["ConeRot"][2];
-
-		RenderClass::doReflections = engineDefaultData[0]["doReflections"];
-		RenderClass::doFog = engineDefaultData[0]["doFog"];
-		Main::VertNum = engineDefaultData[0]["VertNum"];
-		Main::FragNum = engineDefaultData[0]["FragNum"];
-
-		Main::cameraSettings[1] = std::stof(engineDefaultData[0]["NearPlane"].get<std::string>());
-		Main::cameraSettings[2] = std::stof(engineDefaultData[0]["FarPlane"].get<std::string>());
-
-		RenderClass::DepthDistance = engineDefaultData[0]["DepthDistance"];
-		RenderClass::DepthPlane[0] = engineDefaultData[0]["DepthPlane"][0];
-		RenderClass::DepthPlane[1] = engineDefaultData[0]["DepthPlane"][1];
-		SettingsUtils::s_WindowTitle = engineDefaultData[0]["Window"];
-		Skybox::DefaultSkyboxPath = engineDefaultData[0]["DefaultSkyboxPath"];
-	}
-	else {
-		std::cerr << "Failed to open Settings/Default/EngineDefault.json" << std::endl;
-	}
-}
 
 // Holds ImGui Variables and Windows
-void Main::imGuiMAIN(GLFWwindow* window, Shader& shaderProgramT,
+void Main::imGuiMAIN(GLFWwindow* window,
 	GLFWmonitor* monitorT) {
 	//Tell Imgui a new frame is about to begin
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();

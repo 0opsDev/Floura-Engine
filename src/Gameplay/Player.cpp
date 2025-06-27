@@ -12,8 +12,10 @@ float PlayerPhysicsAccum = 0.0f;
 void Player::init() {
 
 	FootSound.CreateSound("Assets/Sounds/Footsteps.wav");
+	FootSound.Set3D(true);
 }
 void Player::update() {
+
 	PlayerPhysicsAccum += TimeUtil::s_DeltaTime;
 	if (PlayerPhysicsAccum >= 0.016) {
 		feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
@@ -43,7 +45,7 @@ void Player::update() {
 		}
 		if (Camera::s_DoGravity && !isColliding) {
 			Camera::Position.y -= (0.3);
-			std::cout << TimeUtil::s_DeltaTime << std::endl;
+			//std::cout << TimeUtil::s_DeltaTime << std::endl;
 		}
 
 

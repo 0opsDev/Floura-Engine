@@ -191,7 +191,6 @@ void ModelObject::draw(Shader &Shader) {
 }
 
 void ModelObject::Delete() {
-
 }
 
 void ModelObject::LodFileReader(std::string path) {

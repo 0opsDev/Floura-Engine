@@ -9,7 +9,6 @@
 
 Shader PlaneShader;
 Shader gPassShaderBillBoard;
-std::string singleTexturePath;
 
 float s_Plane_Vertices[] = {
 	// Positions       // Texture Coordinates
@@ -41,8 +40,9 @@ void BillBoard::initSeq(std::string path) {
 }
 
 void BillBoard::LoadBillBoardTexture(std::string path) { // should load all textures into memory to begin with instead of regenerating buffers << array of textures
+	glBindTexture(GL_TEXTURE_2D, 0);
 	singleTexturePath = path;
-	glDeleteTextures(1, &BBTexture);
+	//glDeleteTextures(1, &BBTexture); // might have a leak
 
 	// Generate and bind the texture
 	glGenTextures(1, &BBTexture);
@@ -83,6 +83,7 @@ void BillBoard::LoadBillBoardTexture(std::string path) { // should load all text
 
 	// Reset flip behavior to avoid unexpected issues later
 	stbi_set_flip_vertically_on_load(false);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void BillBoard::LoadSequence(std::string path) {
@@ -158,7 +159,8 @@ void BillBoard::skyboxBuffer() {
 
 void BillBoard::draw(bool doPitch, float x, float y, float z,
 	float ScaleX, float ScaleY, float ScaleZ) {
-
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
 	if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
 		return; // Skip rendering if not in regular or lighting pass
 	}

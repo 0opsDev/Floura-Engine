@@ -7,7 +7,7 @@ SettingsUtils::SettingsUtils()
 
 std::string SettingsUtils::s_WindowTitle = "OpenGL Window";
 
-std::string SettingsUtils::mapName = ""; // Map loading
+std::string SettingsUtils::sceneName = ""; // Map loading
 
 float SettingsUtils::s_ViewportVerticies[24] = {
 	// Coords,   Texture cords

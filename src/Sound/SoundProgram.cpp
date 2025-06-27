@@ -15,6 +15,8 @@ void SoundProgram::PlaySound() {
         alSourcePlay(source);
         if (init::LogSound) std::cout << "Sound played" << std::endl;
         do {
+            alSourcef(source, AL_GAIN, currentvolume * SoundRunner::GlobalVolume); // set volume
+
             alGetSourcei(source, AL_SOURCE_STATE, &state);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));  // Sleep to avoid busy-waiting
         } while (state == AL_PLAYING && Main::sleepState);
@@ -24,11 +26,17 @@ void SoundProgram::PlaySound() {
 }
 
 void SoundProgram::SetVolume(float Volume) {
+    currentvolume = Volume;
     alSourcef(source, AL_GAIN, Volume * SoundRunner::GlobalVolume); // set volume
 }
 
 void SoundProgram::SetPitch(float pitch) {
     alSourcef(source, AL_PITCH, pitch);
+}
+
+void SoundProgram::Set3D(bool is3D) {
+    if (!is3D) alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
+    else alSourcei(source, AL_SOURCE_RELATIVE, AL_FALSE);
 }
 
 void SoundProgram::SetSoundPosition(float x, float y, float z) {
@@ -56,7 +64,7 @@ void SoundProgram::updateCameraPosition() {
     alListenerfv(AL_ORIENTATION, orientation);
     if (SoundRunner::VisualizeSound) {
         if (!VisibilityChecker::isInRange(SoundPosition, Camera::Position, 1)) {
-            SoundIcon.draw(true, SoundPosition.x, SoundPosition.y, SoundPosition.z, 1,1,1);
+            SoundIcon.draw(true, SoundPosition.x, SoundPosition.y, SoundPosition.z, 1, 1, 1);
         }
     }
 }
@@ -76,6 +84,7 @@ void SoundProgram::StopSound() {
 void SoundProgram::CreateSound(std::string Path) {
     //Load Sound, Generate source and attach buffer
     ChangeSound(Path);
+    //std::cout << Path << std::endl;
 }
 
 void SoundProgram::ChangeSound(std::string path) {

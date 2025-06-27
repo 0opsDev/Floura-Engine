@@ -1,97 +1,330 @@
 #include "scene.h"
-#include <Sound/SoundProgram.h>
-#include <Sound/SoundRunner.h>
 
-//BillBoardObject BBOJ2;
-BillBoardObject pot;
-CubeCollider flatplane;
-ModelObject test2;
-SoundProgram Soundtrack;
-SoundProgram Wind;
+//BillBoardObject BillBoardObjects;
+//CubeCollider ColliderObject;
+//SoundProgram SoundObjects;
+//std::vector<ModelObject> Scene::objects;
 
-void Scene::init(){
-
-	Wind.CreateSound("Assets/Sounds/Cold wind sound effect 4.wav");
-	Soundtrack.CreateSound("Assets/Sounds/Clair de Lune.wav");
-
-	//BBOJ2.CreateObject("Animated", "Assets/Sprites/animatedBillboards/fire/fire.json", "fire");
-	//BBOJ2.tickrate = 20;
-	//BBOJ2.doPitch = true;
-	//BBOJ2.transform = glm::vec3(5, 5, 5);
-	// BBOJ2.scale = glm::vec3(1, 1, 1);
-	//BBOJ2.isCollider = true;
-	
-	pot.CreateObject("Static", "Assets/Sprites/pot.png", "pot");
-	pot.doPitch = false;
-	pot.transform = glm::vec3(-3, 0, 1.8);
-	pot.scale = glm::vec3(0.5, 0.5, 0.5);
-	pot.isCollider = true;
-
-	flatplane.init();
-	flatplane.colliderScale = glm::vec3(15, 1, 15); // Set collider scale for flat plane
-	flatplane.colliderXYZ = glm::vec3(0, -1, 0); // Set collider transform for flat plane
-	flatplane.CollideWithCamera = true;
-
-	//test2.CreateObject("LOD", "Assets/LodModel/Vase/VaseLod.json", "test2");
-	//test2.transform = glm::vec3(5, 0.65, 3);
-	//test2.scale = glm::vec3(0.3, 0.3, 0.3);
-	//test2.rotation = glm::vec4(0, 0, 0, 1);
-	//test2.isCollider = true;
-	//test2.DoFrustumCull = true;
-	//test2.BoxColliderScale = glm::vec3(0.3, 0.65, 0.3);
-	//test2.frustumBoxTransform = test2.BoxColliderTransform;
-	//test2.frustumBoxScale = test2.BoxColliderScale;
+Scene::Scene() {
 
 }
 
-void Scene::Update() {
-	// sound
+void Scene::init(std::string path){
+	initJsonModelLoad(path + "/Model.scene");
+	initJsonBillBoardLoad(path + "/BillBoard.scene");
+	initJsonColliderLoad(path + "/Collider.scene");
+	initJsonSoundObjectLoad(path + "/Sound.scene");
+	initJsonSettingsLoad(path + "/Settings.scene");
+}
 
-	if (!Soundtrack.isPlay) { Soundtrack.PlaySound(); }
-	Soundtrack.SetVolume(SoundRunner::MusicVolume);
-	Soundtrack.updateCameraPosition();
-	//Soundtrack.SetSoundPosition(2, 1, 0);
-	Soundtrack.SetSoundPosition(Camera::Position.x, Camera::Position.y, Camera::Position.z);
-	if (!Wind.isPlay) { Wind.PlaySound(); }
-	Wind.SetVolume(SoundRunner::environmentVolume);
-	Wind.updateCameraPosition();
-	Wind.SetSoundPosition(0, 1, 0);
-	//Wind.SetSoundPosition(Camera::Position.x, Camera::Position.y, Camera::Position.z);
+void Scene::initJsonModelLoad(std::string path) {
+	std::ifstream file(path);
+	if (!file.is_open()) {
+		std::cout << "Failed to open file: " << path << std::endl;
+		return;
+	}
+	json modelFileData;
+	try {
+		file >> modelFileData;
+	}
+	catch (const nlohmann::json::parse_error& e) {
+		// This catch block specifically handles JSON parsing errors,
+		// which gives more precise error information from the library.
+		std::cout << "JSON Parse Error loading model data: " << e.what() << std::endl;
+		std::cout << "Error byte position: " << e.byte << std::endl; // Specific to nlohmann::json
+	}
+	catch (const std::ios_base::failure& e) {
+		// This catch block handles file I/O errors (e.g., file not found, permission issues).
+		std::cout << "File I/O Error loading model data: " << e.what() << std::endl;
+	}
+	catch (const std::exception& e) {
+		// A general catch-all for any other std::exception derived errors.
+		std::cout << "An unexpected error occurred loading model data: " << e.what() << std::endl;
+	}
+	file.close();
 	
-	//BBOJ2.UpdateCollider();
-	//BBOJ2.UpdateCameraCollider();
-	//BBOJ2.draw();
+	for (const auto& item : modelFileData) {
+		ModelObject newObject; // Create a temporary ModelObject
 
-	pot.UpdateCollider();
-	pot.UpdateCameraCollider();
+		std::string name = item.at("name").get<std::string>();
+		std::string type = item.at("type").get<std::string>();
+		std::string path = item.at("path").get<std::string>();
 
-	// move the pot towards the camera
+		glm::vec3 Location = glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]);
+		glm::vec4 rotation = glm::vec4(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2], item.at("Rotation")[3]);
+		glm::vec3 scale = glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]);
 
-	//float potFlySpeed = 1.0f; // Speed at which the pot moves towards the camera
+		glm::vec3 frustumBoxTransform = glm::vec3(item.at("frustumBoxTransform")[0],
+			item.at("frustumBoxTransform")[1], item.at("frustumBoxTransform")[2]);
+		glm::vec3 frustumBoxScale = glm::vec3(item.at("frustumBoxScale")[0],
+			item.at("frustumBoxScale")[1], item.at("frustumBoxScale")[2]);
 
-	//x
-	//if (pot.transform.x < Camera::Position.x){pot.transform.x += potFlySpeed * TimeUtil::s_DeltaTime;}
-	//else if (pot.transform.x > Camera::Position.x){pot.transform.x -= potFlySpeed * TimeUtil::s_DeltaTime;}
-	//y
-	//if (pot.transform.y < (Camera::Position.y - 1.3)){pot.transform.y += potFlySpeed * TimeUtil::s_DeltaTime;}
-	//else if (pot.transform.y > (Camera::Position.y - 1.3)){pot.transform.y -= potFlySpeed * TimeUtil::s_DeltaTime;}
-	// z
-	//if (pot.transform.z < Camera::Position.z){pot.transform.z += potFlySpeed * TimeUtil::s_DeltaTime;}
-	//else if (pot.transform.z > Camera::Position.z){pot.transform.z -= potFlySpeed * TimeUtil::s_DeltaTime;}
+		glm::vec3 BoxColliderTransform = glm::vec3(item.at("BoxColliderTransform")[0],
+			item.at("BoxColliderTransform")[1], item.at("BoxColliderTransform")[2]);
+		glm::vec3 BoxColliderScale = glm::vec3(item.at("BoxColliderScale")[0],
+			item.at("BoxColliderScale")[1], item.at("BoxColliderScale")[2]);
 
-	//pot.draw();
+		bool isCollider = item.at("isCollider").get<bool>();
+		bool isBackFaceCulling = item.at("isBackFaceCulling").get<bool>();
+		bool DoFrustumCull = item.at("DoFrustumCull").get<bool>();
 
-	flatplane.update();
-	flatplane.draw();
+		newObject.CreateObject(type, path, name);
 
-	//test2.UpdateCollider();
-	//test2.UpdateCameraCollider();
+		newObject.transform = Location;
+		newObject.rotation = rotation;
+		newObject.scale = scale;
+		newObject.isCollider = isCollider;
+		newObject.DoCulling = isBackFaceCulling;
+		newObject.DoFrustumCull = DoFrustumCull;
+		newObject.BoxColliderTransform = BoxColliderTransform;
+		newObject.BoxColliderScale = BoxColliderScale;
+		newObject.frustumBoxTransform = frustumBoxTransform;
+		newObject.frustumBoxScale = frustumBoxScale;
+		modelObjects.push_back(newObject); // Add the configured object to the vector
+		
+	}
+	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene Models from: " << path << std::endl;
+}
 
-	//test2.draw(RenderClass::shaderProgram);
+void Scene::initJsonBillBoardLoad(std::string path) {
+	std::ifstream file(path);
+	if (!file.is_open()) {
+		std::cout << "Failed to open file: " << path << std::endl;
+		return;
+	}
+	json BillBoardFileData;
+	try {
+		file >> BillBoardFileData;
+	}
+	catch (const nlohmann::json::parse_error& e) {
+		// This catch block specifically handles JSON parsing errors,
+		// which gives more precise error information from the library.
+		std::cout << "JSON Parse Error loading BillBoard data: " << e.what() << std::endl;
+		std::cout << "Error byte position: " << e.byte << std::endl; // Specific to nlohmann::json
+	}
+	catch (const std::ios_base::failure& e) {
+		// This catch block handles file I/O errors (e.g., file not found, permission issues).
+		std::cout << "File I/O Error loading BillBoard data: " << e.what() << std::endl;
+	}
+	catch (const std::exception& e) {
+		// A general catch-all for any other std::exception derived errors.
+		std::cout << "An unexpected error occurred loading BillBoard data: " << e.what() << std::endl;
+	}
+	file.close();
 
+	for (const auto& item : BillBoardFileData) {
+		
+		BillBoardObject newBillBoardObject;
+		std::string name = item.at("name").get<std::string>();
+		std::string type = item.at("type").get<std::string>();
+		std::string path = item.at("path").get<std::string>();
+
+		bool doPitch = item.at("doPitch").get<bool>();
+		bool isCollider = item.at("isCollider").get<bool>();
+		bool DoFrustumCull = item.at("DoFrustumCull").get<bool>();
+		bool doUpdateSequence;
+		if (item.contains("doUpdateSequence")) {
+			doUpdateSequence = item.at("doUpdateSequence").get<bool>();
+			newBillBoardObject.doUpdateSequence = doUpdateSequence;
+		}
+		unsigned int tickrate = 20;
+		if (item.contains("tickrate")) {
+			tickrate = item.at("tickrate").get<float>();
+			newBillBoardObject.tickrate = tickrate;
+		}
+
+		glm::vec3 position = glm::vec3(item.at("position")[0], item.at("position")[1], item.at("position")[2]);
+		glm::vec3 scale = glm::vec3(item.at("scale")[0], item.at("scale")[1], item.at("scale")[2]);
+
+		newBillBoardObject.CreateObject(type, path, name);
+		newBillBoardObject.doPitch = doPitch;
+		newBillBoardObject.isCollider = isCollider;
+		newBillBoardObject.DoFrustumCull = DoFrustumCull;
+		newBillBoardObject.transform = position;
+		newBillBoardObject.scale = scale;
+
+		BillBoardObjects.push_back(newBillBoardObject); // Add the configured object to the vector
+	}
+	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene BillBoards from: " << path << std::endl;
+}
+
+void Scene::initJsonColliderLoad(std::string path) {
+	std::ifstream file(path);
+	if (!file.is_open()) {
+		std::cout << "Failed to open file: " << path << std::endl;
+		return;
+	}
+	json CubeColliderFileData;
+	try {
+		file >> CubeColliderFileData;
+	}
+	catch (const nlohmann::json::parse_error& e) {
+		// This catch block specifically handles JSON parsing errors,
+		// which gives more precise error information from the library.
+		std::cout << "JSON Parse Error loading CubeCollider data: " << e.what() << std::endl;
+		std::cout << "Error byte position: " << e.byte << std::endl; // Specific to nlohmann::json
+	}
+	catch (const std::ios_base::failure& e) {
+		// This catch block handles file I/O errors (e.g., file not found, permission issues).
+		std::cout << "File I/O Error loading CubeCollider data: " << e.what() << std::endl;
+	}
+	catch (const std::exception& e) {
+		// A general catch-all for any other std::exception derived errors.
+		std::cout << "An unexpected error occurred loading CubeCollider data: " << e.what() << std::endl;
+	}
+	file.close();
+
+	for (const auto& item : CubeColliderFileData) {
+
+		CubeCollider newCubeCollider;
+		std::string name = item.at("name").get<std::string>();
+		glm::vec3 position = glm::vec3(item.at("position")[0], item.at("position")[1], item.at("position")[2]);
+		glm::vec3 scale = glm::vec3(item.at("scale")[0], item.at("scale")[1], item.at("scale")[2]);
+
+		newCubeCollider.init();
+		newCubeCollider.colliderXYZ = position;
+		newCubeCollider.colliderScale = scale;
+
+		CubeColliderObject.push_back(newCubeCollider); // Add the configured object to the vector
+	}
+	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene CubeColliders from: " << path << std::endl;
+}
+
+void Scene::initJsonSoundObjectLoad(std::string path) {
+	std::ifstream file(path);
+	if (!file.is_open()) {
+		std::cout << "Failed to open file: " << path << std::endl;
+		return;
+	}
+	json CubeColliderFileData;
+	try {
+		file >> CubeColliderFileData;
+	}
+	catch (const nlohmann::json::parse_error& e) {
+		// This catch block specifically handles JSON parsing errors,
+		// which gives more precise error information from the library.
+		std::cout << "JSON Parse Error loading SoundObject data: " << e.what() << std::endl;
+		std::cout << "Error byte position: " << e.byte << std::endl; // Specific to nlohmann::json
+	}
+	catch (const std::ios_base::failure& e) {
+		// This catch block handles file I/O errors (e.g., file not found, permission issues).
+		std::cout << "File I/O Error loading SoundObject data: " << e.what() << std::endl;
+	}
+	catch (const std::exception& e) {
+		// A general catch-all for any other std::exception derived errors.
+		std::cout << "An unexpected error occurred loading SoundObject data: " << e.what() << std::endl;
+	}
+	file.close();
+	for (const auto& item : CubeColliderFileData) {
+
+		SoundProgram newSoundObject;
+		std::string path = item.at("path").get<std::string>();
+		float pitch = item.at("pitch").get<float>();
+		float volume = item.at("volume").get<float>();
+		bool isLoop = item.at("isLoop").get<bool>();
+		glm::vec3 SoundPosition = glm::vec3(item.at("SoundPosition")[0],
+			item.at("SoundPosition")[1], item.at("SoundPosition")[2]);
+		bool is3DSound = item.at("is3Dsound").get<bool>();
+
+		newSoundObject.CreateSound(path);
+		newSoundObject.SetPitch(pitch);
+		newSoundObject.SetVolume(volume);
+		newSoundObject.SetSoundPosition(SoundPosition.x, SoundPosition.y, SoundPosition.z);
+		newSoundObject.Set3D(is3DSound); // seems the actual soundclass doesnt like this, so ill move on and fix this later down the line
+
+		isSoundLoop.push_back(isLoop);
+		SoundObjects.push_back(newSoundObject); // Add the configured object to the vector
+	}
+	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene SoundObject from: " << path << std::endl;
+}
+
+void Scene::initJsonSettingsLoad(std::string path) {
+	std::ifstream engineDefaultFile(path);
+	if (engineDefaultFile.is_open()) {
+		json engineDefaultData;
+		engineDefaultFile >> engineDefaultData;
+		engineDefaultFile.close();
+
+		Main::initalCameraPos = glm::vec3(static_cast<GLfloat>(engineDefaultData[0]["DefaultCameraPos"][0]),
+			static_cast<GLfloat>(engineDefaultData[0]["DefaultCameraPos"][1]),
+			static_cast<GLfloat>(engineDefaultData[0]["DefaultCameraPos"][2])
+		);
+		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][0];
+		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][1];
+		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][2];
+
+		RenderClass::skyRGBA[0] = engineDefaultData[0]["skyRGBA"][0];
+		RenderClass::skyRGBA[1] = engineDefaultData[0]["skyRGBA"][1];
+		RenderClass::skyRGBA[2] = engineDefaultData[0]["skyRGBA"][2];
+
+		RenderClass::lightRGBA[0] = engineDefaultData[0]["lightRGBA"][0];
+		RenderClass::lightRGBA[1] = engineDefaultData[0]["lightRGBA"][1];
+		RenderClass::lightRGBA[2] = engineDefaultData[0]["lightRGBA"][2];
+
+		RenderClass::fogRGBA[0] = engineDefaultData[0]["fogRGBA"][0];
+		RenderClass::fogRGBA[1] = engineDefaultData[0]["fogRGBA"][1];
+		RenderClass::fogRGBA[2] = engineDefaultData[0]["fogRGBA"][2];
+
+		RenderClass::ConeRot[0] = engineDefaultData[0]["ConeRot"][0];
+		RenderClass::ConeRot[1] = engineDefaultData[0]["ConeRot"][1];
+		RenderClass::ConeRot[2] = engineDefaultData[0]["ConeRot"][2];
+
+		RenderClass::doReflections = engineDefaultData[0]["doReflections"];
+		RenderClass::doFog = engineDefaultData[0]["doFog"];
+		Main::VertNum = engineDefaultData[0]["VertNum"];
+		Main::FragNum = engineDefaultData[0]["FragNum"];
+
+		Main::cameraSettings[1] = std::stof(engineDefaultData[0]["NearPlane"].get<std::string>());
+		Main::cameraSettings[2] = std::stof(engineDefaultData[0]["FarPlane"].get<std::string>());
+
+		RenderClass::DepthDistance = engineDefaultData[0]["DepthDistance"];
+		RenderClass::DepthPlane[0] = engineDefaultData[0]["DepthPlane"][0];
+		RenderClass::DepthPlane[1] = engineDefaultData[0]["DepthPlane"][1];
+		SettingsUtils::s_WindowTitle = engineDefaultData[0]["Window"];
+		Skybox::DefaultSkyboxPath = engineDefaultData[0]["DefaultSkyboxPath"];
+	}
+	else {
+		std::cerr << "Failed to open Settings/Default/EngineDefault.json" << std::endl;
+	}
+}
+
+void Scene::Update() {
+
+	// models
+	for (size_t i = 0; i < modelObjects.size(); i++)
+	{
+		modelObjects[i].UpdateCollider();
+		modelObjects[i].UpdateCameraCollider();
+		modelObjects[i].draw(RenderClass::shaderProgram);
+	}
+	// billboards
+	for (size_t i = 0; i < BillBoardObjects.size(); i++)
+	{
+		BillBoardObjects[i].UpdateCollider();
+		BillBoardObjects[i].UpdateCameraCollider();
+		BillBoardObjects[i].draw();
+	}
+
+	for (size_t i = 0; i < CubeColliderObject.size(); i++) {
+		CubeColliderObject[i].update();
+		CubeColliderObject[i].draw();
+
+	}
+
+	for (size_t i = 0; i < SoundObjects.size(); i++) {
+		//std::cout << (i + 1) << std::endl;
+		SoundObjects[i].updateCameraPosition();
+		if (!SoundObjects[i].isPlay) {
+			SoundObjects[i].PlaySound();
+		}
+	}
 }
 
 void Scene::Delete() {
 
-	Soundtrack.DeleteSound();
+	modelObjects.clear();
+	BillBoardObjects.clear();
+	CubeColliderObject.clear();
+	SoundObjects.clear();
+	isSoundLoop.clear();
 }

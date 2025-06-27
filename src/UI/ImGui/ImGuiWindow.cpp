@@ -3,6 +3,7 @@
 #include <Physics/CubeCollider.h>
 #include <Core/File/File.h>
 #include <Sound/SoundRunner.h>
+#include <Render/passes/lighting/LightingPass.h>
 bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true, true, true, true }; // ImGui Panels
 
 bool ImGuiCamera::DebugPanels[] = { false, false}; // ImGui Panels
@@ -107,6 +108,7 @@ void ImGuiCamera::ShaderWindow() {
 		ImGui::DragFloat("Gamma", &RenderClass::gamma);
 		ImGui::Checkbox("doReflections", &RenderClass::doReflections);
 		ImGui::Checkbox("doFog", &RenderClass::doFog); 		//Toggles
+		ImGui::DragInt("Sample Count", &LightingPass::samplecount);
 
 		ImGui::Text("DepthBuffer Settings (FOG)");
 		ImGui::DragFloat("Depth Distance (FOG)", &RenderClass::DepthDistance);
@@ -154,12 +156,12 @@ void ImGuiCamera::PanelsWindow() {
 	// Toggle ImGui Windows
 	ImGui::Begin("Panels"); // ImGUI window creation
 	ImGui::Text("Settings (Press escape to use mouse)");
-	if (ImGui::SmallButton("load")) { Main::loadSettings(); Main::loadEngineSettings(); } // load settings button
+	if (ImGui::SmallButton("load")) { Main::loadSettings(); } // load settings button
 	if (ImGui::SmallButton("save (just settings)")) { Main::saveSettings(); } // save settings button
 	ImGui::Text("Scripts:");
 	if (ImGui::SmallButton("Stop")) { ScriptRunner::clearScripts(); } // save settings button
-	if (ImGui::SmallButton("Start")) { ScriptRunner::init(SettingsUtils::mapName + "LuaStartup.json"); } // save settings button
-	if (ImGui::SmallButton("Restart")) { ScriptRunner::clearScripts(); ScriptRunner::init(SettingsUtils::mapName + "LuaStartup.json"); } // save settings button
+	if (ImGui::SmallButton("Start")) { ScriptRunner::init(SettingsUtils::sceneName + "LuaStartup.json"); } // save settings button
+	if (ImGui::SmallButton("Restart")) { ScriptRunner::clearScripts(); ScriptRunner::init(SettingsUtils::sceneName + "LuaStartup.json"); } // save settings button
 	ImGui::Checkbox("Rendering", &ImGuiCamera::imGuiPanels[1]);
 	ImGui::Checkbox("Camera Settings", &ImGuiCamera::imGuiPanels[2]);
 	ImGui::Checkbox("ViewPort", &ImGuiCamera::imGuiPanels[3]);

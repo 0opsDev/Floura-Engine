@@ -1,0 +1,28 @@
+[
+    {
+	"name": "pot",
+	"type": "static",
+	"path": "Assets/Sprites/pot.png",
+
+	"doPitch": false,
+	"isCollider": false,
+	"DoFrustumCull": true,
+	"doUpdateSequence": true,
+	"position": [0,0,0],
+	"scale": [0.5, 0.5, 0.5]
+    },
+    {
+	"name": "fire",
+	"type": "Animated",
+	"path": "Assets/Sprites/animatedBillboards/fire/fire.json",
+
+	"doPitch": true,
+	"isCollider": true,
+	"DoFrustumCull": true,
+	"doUpdateSequence": true,
+	"tickrate": 20,
+
+	"position": [2,0,0],
+	"scale": [0.5, 0.5, 0.5]
+    }
+]

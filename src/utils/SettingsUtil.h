@@ -10,7 +10,7 @@ public:
     SettingsUtils();
     static std::string s_WindowTitle; //"OpenGL Window"
     static float s_ViewportVerticies[24];
-    static std::string mapName; // Map loading
+    static std::string sceneName; // Map loading
 
     static int tempWidth;
     static int tempHeight;
