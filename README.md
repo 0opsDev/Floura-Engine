@@ -15,7 +15,7 @@ Features:
 . ImGui Implementation
 . OpenGL API
 . Diffuse and Specular Texture Support
-. Basic Json Entity Component System
+. Entity Component System
 . WireFrame View
 . Embedded Lua via sol2
 . 3D Directional Sound via openAL Soft
