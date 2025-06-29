@@ -20,6 +20,15 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vec
     Mesh::vertices = vertices;
     Mesh::indices = indices;
     Mesh::textures = textures;
+    //std::cout << "texture size for mesh: " << textures.size() << std::endl;
+    //for (size_t i = 0; i < textures.size(); i++)
+    //{
+    //    std::cout << "Type: " << textures[i].type << std::endl;
+    //    std::cout << "unit: " << textures[i].unit << std::endl;
+    //    std::cout << "ID: " << textures[i].ID << std::endl;
+    //}
+
+
 
     VAO.Bind();
 
@@ -37,7 +46,7 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vec
     EBO.Unbind();
 }
 
-void Mesh::Draw(Shader& shader, glm::mat4 modelMatrix)
+void Mesh::Draw(Shader& shader, glm::mat4 modelMatrix, int iter)
 {
     shader.Activate();
     VAO.Bind();
@@ -45,7 +54,13 @@ void Mesh::Draw(Shader& shader, glm::mat4 modelMatrix)
     unsigned int numDiffuse = 0;
     unsigned int numSpecular = 0;
 	unsigned int numNormal = 0;
-
+    //std::cout << " mesh render start" << std::endl;
+    //if (textures.size() > 3) {
+    //    std::cout << textures.size() << " tex" << std::endl;
+    //}
+    //indmesh
+    // std::cout << (indmesh) << " indmesh" << std::endl;
+   
     for (unsigned int i = 0; i < textures.size(); i++)
     {
         std::string num;
@@ -59,9 +74,11 @@ void Mesh::Draw(Shader& shader, glm::mat4 modelMatrix)
 		else if (type == "normal") {
 			num = std::to_string(numNormal++);
 		}
-
-        textures[i].texUnit(shader, (type + num).c_str(), i);
+        //std::cout << (type + num).c_str() << std::endl;
+        textures[i].texUnit(shader, (type + "0").c_str(), i);
         textures[i].Bind();
+        //std::cout << "Binding texture " << i << ": Type " << textures[i].type << ", Uniform: " << type << ", Texture Unit: " << i << ", GL ID: " << textures[i].ID << std::endl;
+       
     }
 
     // Camera Matrix
@@ -73,4 +90,5 @@ void Mesh::Draw(Shader& shader, glm::mat4 modelMatrix)
 
     // Draw the mesh
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
 }

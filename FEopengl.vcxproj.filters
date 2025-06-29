@@ -476,9 +476,6 @@
     <None Include="Shaders\PostProcess\framebuffer.vert">
       <Filter>Resource Files\Shaders\Post Process</Filter>
     </None>
-    <None Include="Shaders\PostProcess\TieDyeframebuffer.frag">
-      <Filter>Resource Files\Shaders\Post Process</Filter>
-    </None>
     <None Include="Shaders\PostProcess\4bitToDither.frag">
       <Filter>Resource Files\Shaders\Post Process</Filter>
     </None>

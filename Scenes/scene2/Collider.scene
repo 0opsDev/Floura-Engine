@@ -1,8 +1,2 @@
 [
-	{
-	"name": "test",
-	"position": [10,0,0],
-	"scale": [5,1,5],
-	"CollideWithCamera": true
-	}
 ]

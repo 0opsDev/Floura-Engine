@@ -93,22 +93,17 @@ void ModelObject::CreateObject(std::string type, std::string path, std::string O
 }
 
 void ModelObject::UpdateCollider() {
-	switch (isCollider) {
-	case true: {
-		break;
+	if (isCollider) {
+		//std::cout << transform.x << " " << transform.y << " " << transform.z << std::endl;
+		CubeCollider.colliderXYZ = transform + BoxColliderTransform;
+		CubeCollider.colliderScale = BoxColliderScale;
 	}
-	case false: {
-
-		break;
-	}
-	}
-	//std::cout << transform.x << " " << transform.y << " " << transform.z << std::endl;
-	CubeCollider.colliderXYZ = transform + BoxColliderTransform;
-	CubeCollider.colliderScale = BoxColliderScale;
 }
 
 void ModelObject::UpdateCameraCollider() {
-	CubeCollider.update();
+	if (isCollider) {
+		CubeCollider.update();
+	}
 }
 
 unsigned int CalculateLOD(const glm::vec3& cameraPos, const glm::vec3& transform, float LodDistance, unsigned int LodCount) {
@@ -134,6 +129,10 @@ void ModelObject::renderLogic(Shader& Shader) {
 
 	if (CullFrontFace) { glCullFace(GL_FRONT); }
 	else { glCullFace(GL_BACK); }
+
+	//if (ImGuiCamera::isWireframe) {
+	//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
+	//}
 
 	switch (IsLod) {
 	case true: {
@@ -163,6 +162,7 @@ void ModelObject::renderLogic(Shader& Shader) {
 				glEnable(GL_DEPTH_TEST);
 				glDepthFunc(GL_LESS);
 				model.Draw(Shader, transform, rotation, scale);
+				
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
 			GeometryPass::gPassDraw(model, transform, rotation, scale);

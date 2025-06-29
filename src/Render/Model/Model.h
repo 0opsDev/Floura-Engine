@@ -15,6 +15,7 @@ public:
     glm::vec3 lastCollisionFace[3]; // Stores the last triangle touched
     bool checkCollide(glm::vec3 point, glm::vec3 globalTranslation, glm::quat globalRotation, glm::vec3 globalScale, float checkRadius);
     std::vector<Mesh> meshes;
+    std::vector<Texture> textures2;
     std::vector<glm::vec3> translationsMeshes;
     std::vector<glm::quat> rotationsMeshes;
     std::vector<glm::vec3> scalesMeshes;

@@ -432,6 +432,29 @@ void Main::imGuiMAIN(GLFWwindow* window,
 				ImGui::DragFloat3(("Scale " + std::to_string(i)).c_str(), &scene.modelObjects[i].scale.x,
 					scene.modelObjects[i].scale.y, scene.modelObjects[i].scale.z);
 
+				ImGui::DragFloat4(("Rotation " + std::to_string(i)).c_str(), &scene.modelObjects[i].rotation.x,
+					scene.modelObjects[i].rotation.y, scene.modelObjects[i].rotation.z, scene.modelObjects[i].rotation.w);
+				
+				ImGui::Spacing();
+				ImGui::Checkbox("isCollider", &scene.modelObjects[i].isCollider);
+
+				ImGui::DragFloat3(("BoxColliderTransform " + std::to_string(i)).c_str(), &scene.modelObjects[i].BoxColliderTransform.x,
+					scene.modelObjects[i].BoxColliderTransform.y, scene.modelObjects[i].BoxColliderTransform.z);
+
+				ImGui::DragFloat3(("BoxColliderScale " + std::to_string(i)).c_str(), &scene.modelObjects[i].BoxColliderScale.x,
+					scene.modelObjects[i].BoxColliderScale.y, scene.modelObjects[i].BoxColliderScale.z);
+				
+				ImGui::Spacing();
+				ImGui::Checkbox("isBackFaceCulling", &scene.modelObjects[i].DoCulling);
+				ImGui::Checkbox("DoFrustumCull", &scene.modelObjects[i].DoFrustumCull);
+
+				ImGui::DragFloat3(("frustumBoxTransform " + std::to_string(i)).c_str(), &scene.modelObjects[i].frustumBoxTransform.x,
+					scene.modelObjects[i].frustumBoxTransform.y, scene.modelObjects[i].frustumBoxTransform.z);
+
+				ImGui::DragFloat3(("frustumBoxScale " + std::to_string(i)).c_str(), &scene.modelObjects[i].frustumBoxScale.x,
+					scene.modelObjects[i].frustumBoxScale.y, scene.modelObjects[i].frustumBoxScale.z);
+				
+				ImGui::Spacing();
 				if (ImGui::SmallButton("Delete")) {
 					scene.modelObjects.erase(scene.modelObjects.begin() + i);
 				}

@@ -4,7 +4,7 @@
 		"pitch": 1,
 		"volume": 1,
 		"isLoop": true,
-		"SoundPosition": [0,0,0],
-		"is3Dsound": false
+		"SoundPosition": [0,1,0],
+		"is3Dsound": true
 	}
 ]

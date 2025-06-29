@@ -1,20 +1,20 @@
 [
     {
         "BoxColliderScale": [
-            5.0,
-            0.5,
-            5.0
+            0.30000001192092896,
+            0.6000000238418579,
+            0.30000001192092896
         ],
         "BoxColliderTransform": [
             0.0,
-            -0.5,
+            0.0,
             0.0
         ],
-        "DoFrustumCull": false,
+        "DoFrustumCull": true,
         "Location": [
-            0.0,
-            0.0,
-            0.0
+            6.0,
+            0.699999988079071,
+            -1.0
         ],
         "Rotation": [
             0.0,
@@ -23,66 +23,22 @@
             0.0
         ],
         "Scale": [
-            5.0,
-            1.0,
-            5.0
+            0.30000001192092896,
+            0.30000001192092896,
+            0.30000001192092896
         ],
         "frustumBoxScale": [
-            5.0,
-            0.5,
-            5.0
+            0.30000001192092896,
+            0.6000000238418579,
+            0.30000001192092896
         ],
         "frustumBoxTransform": [
             0.0,
-            -0.5,
+            0.0,
             0.0
         ],
         "isBackFaceCulling": true,
         "isCollider": true,
-        "name": "plane",
-        "path": "Assets/Models/Baseplate/plate.gltf",
-        "type": "Static"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "Location": [
-            4.0,
-            1.0,
-            4.0
-        ],
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            0.5,
-            0.5,
-            0.5
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": false,
         "name": "barrel",
         "path": "Assets/Models/barrel/barrel2.gltf",
         "type": "Static"
@@ -90,19 +46,19 @@
     {
         "BoxColliderScale": [
             1.0,
-            1.0,
+            3.0,
             1.0
         ],
         "BoxColliderTransform": [
             0.0,
-            0.0,
+            3.0,
             0.0
         ],
         "DoFrustumCull": false,
         "Location": [
-            -4.0,
-            1.0,
-            0.0
+            3.0,
+            -0.30000001192092896,
+            -2.0999999046325684
         ],
         "Rotation": [
             0.0,
@@ -117,6 +73,182 @@
         ],
         "frustumBoxScale": [
             1.0,
+            3.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            3.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "gumtree",
+        "path": "Assets/Models/gumtree.gltf",
+        "type": "Static"
+    },
+    {
+        "BoxColliderScale": [
+            20.0,
+            0.4000000059604645,
+            20.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            -0.4000000059604645,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "Location": [
+            -5.0,
+            0.0,
+            0.0
+        ],
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            2.0,
+            0.4000000059604645,
+            2.0
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "grassplane",
+        "path": "Assets/Models/grassplane.gltf",
+        "type": "Static"
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            3.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            3.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "Location": [
+            5.300000190734863,
+            0.0,
+            5.0
+        ],
+        "Rotation": [
+            1.0,
+            12.0,
+            50.0,
+            0.0
+        ],
+        "Scale": [
+            0.5,
+            0.5,
+            0.5
+        ],
+        "frustumBoxScale": [
+            1.0,
+            3.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            3.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "gumtree Duplicate",
+        "path": "Assets/Models/gumtree.gltf",
+        "type": "Static"
+    },
+    {
+        "BoxColliderScale": [
+            50.0,
+            50.0,
+            50.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "Location": [
+            10.0,
+            2.0,
+            5.0
+        ],
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            50.0,
+            50.0,
+            50.0
+        ],
+        "frustumBoxScale": [
+            50.0,
+            50.0,
+            50.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "farlands",
+        "path": "Assets/Models/GRASSLANDS/farlands.gltf",
+        "type": "Static"
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "Location": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxScale": [
+            1.0,
             1.0,
             1.0
         ],
@@ -127,8 +259,52 @@
         ],
         "isBackFaceCulling": true,
         "isCollider": false,
-        "name": "barrel Duplicate",
-        "path": "Assets/Models/barrel/barrel2.gltf",
+        "name": "Name",
+        "path": "Assets/Models/tree.gltf",
+        "type": "Static"
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "Location": [
+            0.0,
+            3.0,
+            0.0
+        ],
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "Name Duplicate",
+        "path": "Assets/jay.gltf",
         "type": "Static"
     }
 ]

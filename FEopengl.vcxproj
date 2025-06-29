@@ -292,7 +292,6 @@
     <None Include="Shaders\PostProcess\DITHERFB.frag" />
     <None Include="Shaders\PostProcess\framebuffer.frag" />
     <None Include="Shaders\PostProcess\framebuffer.vert" />
-    <None Include="Shaders\PostProcess\TieDyeframebuffer.frag" />
     <None Include="Shaders\ShaderList.json" />
     <None Include="Shaders\Skybox\skybox.frag" />
     <None Include="Shaders\Skybox\skybox.vert" />
