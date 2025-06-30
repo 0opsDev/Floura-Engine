@@ -46,7 +46,7 @@ Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vec
     EBO.Unbind();
 }
 
-void Mesh::Draw(Shader& shader, glm::mat4 modelMatrix, int iter)
+void Mesh::Draw(Shader& shader, glm::mat4 modelMatrix)
 {
     shader.Activate();
     VAO.Bind();

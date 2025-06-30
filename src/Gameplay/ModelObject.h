@@ -61,13 +61,18 @@ public:
 private:
 	
 	std::string LodPath;
-	void LodFileReader(std::string path);
 
-	std::vector<std::tuple<Model, unsigned int>> loadLODmodelsFromJson(const std::string& jsonFilePath);
-	std::vector<std::tuple<Model>> loadmodelFromJson(const std::string& ModelFilePath);
+	std::vector<Model> LODModels;
+	Model ModelSingle;
 
-	std::vector<std::tuple<Model>> SingleModel;
-	std::vector<std::tuple<Model, unsigned int>> modelOBJ;
+	void LODModelLoad(std::string path);
+	void SingleModelLoad(std::string path);
+	
+	//std::vector<std::tuple<Model, unsigned int>> loadLODmodelsFromJson(const std::string& jsonFilePath);
+	//std::vector<std::tuple<Model>> loadmodelFromJson(const std::string& ModelFilePath);
+
+	//std::vector<std::tuple<Model>> SingleModel;
+	//std::vector<std::tuple<Model, unsigned int>> modelOBJ;
 	void renderLogic(Shader& Shader);
 	
 };

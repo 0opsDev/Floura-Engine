@@ -2,13 +2,16 @@
 #include <utils/VisibilityChecker.h>
 #include <Render/passes/geometry/geometryPass.h>
 
-std::vector<std::tuple<Model, unsigned int>> ModelObject::loadLODmodelsFromJson(const std::string& jsonFilePath) {
-	std::vector<std::tuple<Model, unsigned int>> models;
-	std::ifstream file(jsonFilePath);
+
+void ModelObject::LODModelLoad(std::string path) {
+	std::ifstream file(path);
 	if (!file.is_open()) {
-		std::cerr << "Failed to open file: " << jsonFilePath << std::endl;
-		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"), 0);
-		return models;
+		std::cout << "Failed to open file: " << path << std::endl;
+		Model TempLODModel;
+		TempLODModel.init("Assets/Dependants/placeholder/placeholder.gltf");
+		LODModels.push_back(TempLODModel);
+		LodCount = LODModels.size();
+		return;
 	}
 
 	json modelData;
@@ -16,38 +19,37 @@ std::vector<std::tuple<Model, unsigned int>> ModelObject::loadLODmodelsFromJson(
 		file >> modelData;
 	}
 	catch (const std::exception& e) {
-		std::cerr << "Error parsing JSON file: " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"), 0);
-		return models;
+		std::cout << "Error parsing JSON file: " << e.what() << std::endl;
+		Model TempLODModel;
+		TempLODModel.init("Assets/Dependants/placeholder/placeholder.gltf");
+		LODModels.push_back(TempLODModel);
+		LodCount = LODModels.size();
+		return;
+
 	}
 	file.close();
-	unsigned int iteration = 0;
-	try {
-		LodPath = modelData[0]["LodPath"];
-		ModelFileNames = modelData[0]["ModelFileNames"];
-		for (int i = 0; i < ModelFileNames.size(); i++)
-		{
-			iteration = i;
-			//std::cout << LodPath + ModelFileNames[i] << " " << iteration << std::endl;
-			models.emplace_back(Model(((LodPath + ModelFileNames[i]).c_str())), iteration);
-		}
-		LodCount = iteration;
+	//TempLODModel.init((path).c_str());
+	LodPath = modelData[0]["LodPath"];
+	ModelFileNames = modelData[0]["ModelFileNames"];
+	LodDistance = modelData[0]["LodDistance"];
+	for (int i = 0; i < ModelFileNames.size(); i++)
+	{
+		Model TempLODModel;
+		TempLODModel.init( (LodPath + ModelFileNames[i]).c_str());
+		//std::cout << LodPath + ModelFileNames[i] << " " << i << std::endl;
+		LODModels.push_back(TempLODModel);
+		LodCount = i;
 	}
-	catch (const std::exception& e) {
-		std::cerr << "Error processing JSON data (ModelObject): " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"), 0);
-	}
-
-	return models;
+	//std::cout << LODModels.size() << std::endl;
 }
 
-std::vector<std::tuple<Model>> ModelObject::loadmodelFromJson(const std::string& ModelFilePath) {
-	std::vector<std::tuple<Model >> models;
-	std::ifstream file(ModelFilePath);
+void ModelObject::SingleModelLoad(std::string path) {
+	std::ifstream file(path);
 	if (!file.is_open()) {
-		std::cerr << "Failed to open file: " << ModelFilePath << std::endl;
-		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"));
-		return models;
+		std::cerr << "Failed to open file: " << path << std::endl;
+		// << should return ? Model here
+		ModelSingle.init("Assets/Dependants/placeholder/placeholder.gltf");
+		return;
 	}
 
 	json modelData;
@@ -55,35 +57,26 @@ std::vector<std::tuple<Model>> ModelObject::loadmodelFromJson(const std::string&
 		file >> modelData;
 	}
 	catch (const std::exception& e) {
-		std::cerr << "Error parsing JSON file: " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"));
-		return models;
+		std::cout << "Error parsing JSON file: " << e.what() << std::endl;
+		ModelSingle.init("Assets/Dependants/placeholder/placeholder.gltf");
+		return;
+		
 	}
 	file.close();
-	try {
-			models.emplace_back(Model(((ModelFilePath).c_str())));
-	}
-	catch (const std::exception& e) {
-		std::cerr << "Error processing JSON data (ModelObject): " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"));
-	}
-
-	return models;
+	ModelSingle.init((path).c_str());
 }
-
-
+//init
 void ModelObject::CreateObject(std::string type, std::string path, std::string ObjectNameT) {
 	ObjectName = ObjectNameT;
 	ModelPath = path;
 	if (type == "LOD" || type == "lod" || type == "Lod") {
 		CubeCollider.init();
-		LodFileReader(path);
-		modelOBJ = loadLODmodelsFromJson(path);
+		LODModelLoad(path);
 		IsLod = true;
 	}
 	else if (type == "Static" || type == "STATIC") {
 		CubeCollider.init();
-		SingleModel = loadmodelFromJson(path);
+		SingleModelLoad(path);
 		IsLod = false;
 	}
 	else {
@@ -130,47 +123,44 @@ void ModelObject::renderLogic(Shader& Shader) {
 	if (CullFrontFace) { glCullFace(GL_FRONT); }
 	else { glCullFace(GL_BACK); }
 
-	//if (ImGuiCamera::isWireframe) {
-	//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
-	//}
-
+	if (ImGuiCamera::isWireframe) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
+	}
+	
 	switch (IsLod) {
 	case true: {
-		for (auto& modelTuple : modelOBJ) {
-			Model& model = std::get<0>(modelTuple);
-			unsigned int iteration = std::get<1>(modelTuple);
+		for (size_t i = 0; i < LODModels.size(); i++)
+		{			
 			//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
-			if (iteration == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
+			if (i == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
 				if (RenderClass::DoForwardLightingPass) {
 					glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 					glEnable(GL_DEPTH_TEST);
 					glDepthFunc(GL_LESS);
-					model.Draw(Shader, transform, rotation, scale); 
+					LODModels[i].Draw(Shader, glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
 					glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				}
-				GeometryPass::gPassDraw(model, transform, rotation, scale);
+
+				GeometryPass::gPassDraw(LODModels[i], glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
 			}
 		}
 		break;
 	}
 	case false: {
-		for (auto& modelTuple : SingleModel) {
-			Model& model = std::get<0>(modelTuple);
-			//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
 			if (RenderClass::DoForwardLightingPass) {
 				glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 				glEnable(GL_DEPTH_TEST);
 				glDepthFunc(GL_LESS);
-				model.Draw(Shader, transform, rotation, scale);
+				ModelSingle.Draw(Shader, transform, rotation, scale);
 				
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
-			GeometryPass::gPassDraw(model, transform, rotation, scale);
-		}
+			GeometryPass::gPassDraw(ModelSingle, transform, rotation, scale);
 		break;
 	}
-
+			  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Enable wireframe mode
 	}
+	
 	//glFrontFace(GL_CCW);
 	glCullFace(GL_BACK); // Reset culling to default
 	glDisable(GL_CULL_FACE);
@@ -193,30 +183,4 @@ void ModelObject::draw(Shader &Shader) {
 }
 
 void ModelObject::Delete() {
-}
-
-void ModelObject::LodFileReader(std::string path) {
-	std::ifstream LODConfigFile(path);
-	if (LODConfigFile.is_open()) {
-		json LODConfigData;
-		LODConfigFile >> LODConfigData;
-		LODConfigFile.close();
-
-		
-		LodDistance = LODConfigData[0]["LodDistance"];
-		DoCulling = LODConfigData[0]["DoCulling"];
-		
-		BoxColliderTransform.x = LODConfigData[0]["LocalBoxColliderLocation"][0];
-		BoxColliderTransform.y = LODConfigData[0]["LocalBoxColliderLocation"][1];
-		BoxColliderTransform.z = LODConfigData[0]["LocalBoxColliderLocation"][2];
-
-		BoxColliderScale.x = LODConfigData[0]["LocalBoxColliderSize"][0];
-		BoxColliderScale.y = LODConfigData[0]["LocalBoxColliderSize"][1];
-		BoxColliderScale.z = LODConfigData[0]["LocalBoxColliderSize"][2];
-
-
-	}
-	else {
-		std::cerr << "Failed to open LODConfig: " << path << std::endl;
-	}
 }

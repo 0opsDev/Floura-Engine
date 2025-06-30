@@ -2,10 +2,6 @@
     {
         "LodPath": "Assets/LodModel/Vase/",
         "LodDistance": 100.0,
-        "ModelFileNames": ["vaseLOD0.gltf", "vaseLOD1.gltf", "vaseLOD2.gltf", "vaseLOD3.gltf", "vaseLOD4.gltf"],
-        "DoCulling": true,
-
-        "LocalBoxColliderSize": [ 1.5, 2.0, 1.5 ],
-        "LocalBoxColliderLocation": [ 0, 0, 0 ]
+        "ModelFileNames": ["vaseLOD0.gltf", "vaseLOD1.gltf", "vaseLOD2.gltf", "vaseLOD3.gltf", "vaseLOD4.gltf"]
     }
 ]

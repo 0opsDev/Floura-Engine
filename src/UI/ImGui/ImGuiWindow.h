@@ -8,6 +8,7 @@
 #include <imgui/imgui_impl_opengl3.h>
 #include <Render/Shader/Framebuffer.h>
 #include <Core/Render.h>
+//#include <Core/scene.h>
 
 
 class ImGuiCamera
@@ -44,6 +45,7 @@ public:
 	static void audio();
 
 	static void viewport();
+
 };
 
 #endif // SCREEN_UTILS_CLASS_H

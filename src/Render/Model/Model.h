@@ -8,7 +8,8 @@ using json = nlohmann::json;
 
 class Model {
 public:
-    Model(const char* file);
+
+    void init(const char* file);
 
     void Draw(Shader& shader, glm::vec3 translation, glm::vec4 rotation, glm::vec3 scale);
     glm::vec3 lastCollisionPoint;

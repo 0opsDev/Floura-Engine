@@ -145,7 +145,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	shaderProgram.setFloat("gamma", gamma);
 	if (ImGuiCamera::isWireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
-		glClearColor(0, 0, 0, 1), glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glClearColor(0, 0, 0, 1);
 	}
 	auto startInitTime2 = std::chrono::high_resolution_clock::now();
 	//if (DoForwardLightingPass) {	

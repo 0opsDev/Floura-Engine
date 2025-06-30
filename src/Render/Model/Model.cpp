@@ -4,8 +4,7 @@
 
 int totalVert = 0;
 
-Model::Model(const char* file)
-{
+void Model::init(const char* file) {
 	// Make a JSON object
 	std::string text = get_file_contents(file);
 	JSON = json::parse(text);
@@ -38,7 +37,7 @@ void Model::Draw(Shader& shader, glm::vec3 translation, glm::vec4 rotation, glm:
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
 		glm::mat4 finalMatrix = modelMatrix * matricesMeshes[i]; // Local mesh transform applied
-		meshes[i].Draw(shader, finalMatrix, i);
+		meshes[i].Draw(shader, finalMatrix);
 	}
 }
 

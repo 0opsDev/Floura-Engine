@@ -9,7 +9,7 @@ Scene::Scene() {
 
 }
 
-void Scene::LoadScene(std::string path){
+void Scene::LoadScene(std::string path) {
 	initJsonModelLoad(path + "/Model.scene");
 	initJsonBillBoardLoad(path + "/BillBoard.scene");
 	initJsonColliderLoad(path + "/Collider.scene");
@@ -46,7 +46,7 @@ void Scene::initJsonModelLoad(std::string path) {
 		std::cout << "An unexpected error occurred loading model data: " << e.what() << std::endl;
 	}
 	file.close();
-	
+
 	for (const auto& item : modelFileData) {
 		ModelObject newObject; // Create a temporary ModelObject
 
@@ -85,7 +85,7 @@ void Scene::initJsonModelLoad(std::string path) {
 		newObject.frustumBoxTransform = frustumBoxTransform;
 		newObject.frustumBoxScale = frustumBoxScale;
 		modelObjects.push_back(newObject); // Add the configured object to the vector
-		
+
 	}
 	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene Models from: " << path << std::endl;
 }
@@ -184,7 +184,7 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 	file.close();
 
 	for (const auto& item : BillBoardFileData) {
-		
+
 		BillBoardObject newBillBoardObject;
 		std::string name = item.at("name").get<std::string>();
 		std::string type = item.at("type").get<std::string>();
@@ -304,7 +304,7 @@ void Scene::initJsonSoundObjectLoad(std::string path) {
 		newSoundObject.SetVolume(volume);
 		newSoundObject.SetSoundPosition(SoundPosition.x, SoundPosition.y, SoundPosition.z);
 		newSoundObject.Set3D(is3DSound); // seems the actual soundclass doesnt like this, so ill move on and fix this later down the line
-		
+
 		isSoundLoop.push_back(isLoop);
 		SoundObjects.push_back(newSoundObject); // Add the configured object to the vector
 	}

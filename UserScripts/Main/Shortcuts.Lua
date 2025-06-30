@@ -35,7 +35,7 @@ function UpdateDelta() --updates at 60hz deltatime
 	end
 
 	if newkey == "["then 
-		SetSkybox("Assets/Skybox/Kloofendal48dPartlyCloudyPuresky/Skybox.json")
+		SetSkybox("Assets/Skybox/clearsky/Skybox.json")
 	end
 
 	if newkey == "]"then 

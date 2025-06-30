@@ -42,47 +42,6 @@ std::pair<std::string, std::string> FileClass::getShaderPaths(int vertIndex, int
 	return { vertPath, fragPath };
 }
 
-std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> FileClass::loadModelsFromJson(const std::string& jsonFilePath) {
-	std::vector<std::tuple<Model, int, glm::vec3, glm::vec4, glm::vec3, int>> models;
-	std::ifstream file(jsonFilePath);
-	if (!file.is_open()) {
-		std::cerr << "Failed to open file: " << jsonFilePath << std::endl;
-		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0);
-		return models;
-	}
-
-	json modelData;
-	try {
-		file >> modelData;
-	}
-	catch (const std::exception& e) {
-		std::cerr << "Error parsing JSON file: " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0);
-		return models;
-	}
-	file.close();
-
-	try {
-		for (const auto& item : modelData) {
-			std::string name = item.at("name").get<std::string>();
-			std::string path = item.at("path").get<std::string>();
-			bool isCulling = item.at("isCulling").get<bool>();
-			glm::vec3 location = glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]);
-			glm::vec4 rotation = glm::vec4(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2], item.at("Rotation")[3]);
-			glm::vec3 scale = glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]);
-			bool isCollider = item.at("isCollider").get<bool>();
-			models.emplace_back(Model(("Assets/" + path).c_str()), isCulling, location, rotation, scale, isCollider);
-			if (init::LogALL || init::LogModel) std::cout << "Loaded model: " << '"' << name << '"' << " from path: " << path << " at location: " << glm::to_string(location) << std::endl;
-		}
-	}
-	catch (const std::exception& e) {
-		std::cerr << "Error processing JSON data: " << e.what() << std::endl;
-		models.emplace_back(Model("Assets/Dependants/placeholder/placeholder.gltf"), 0, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0);
-	}
-
-	return models;
-}
-
 void FileClass::loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram) { //shader program switcher
 
 	shaderProgram.Delete();

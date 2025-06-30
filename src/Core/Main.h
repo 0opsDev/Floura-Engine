@@ -19,7 +19,7 @@ public:
 	static void imGuiMAIN(GLFWwindow* window,
 		GLFWmonitor* monitorT);
 
-	static void updateModelLua(	
+	static void updateModelLua(
 		std::vector<std::string> path,
 		std::vector<std::string> modelName,
 		std::vector<bool> isCulling,

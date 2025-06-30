@@ -6,12 +6,12 @@
 #include <Render/passes/lighting/LightingPass.h>
 bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true, true, true, true }; // ImGui Panels
 
-bool ImGuiCamera::DebugPanels[] = { true, false}; // ImGui Panels
+bool ImGuiCamera::DebugPanels[] = { true, false }; // ImGui Panels
 
 std::string ImGuiCamera::FileTabs = "Model";
 bool ImGuiCamera::enableFB = false; // Change this as needed
 
-char ImGuiCamera::UniformInput[64] = {""}; // Zero-initialized buffer
+char ImGuiCamera::UniformInput[64] = { "" }; // Zero-initialized buffer
 float ImGuiCamera::UniformFloat[3] = {}; // Zero-initialized array
 
 bool ImGuiCamera::isWireframe = false;
@@ -74,7 +74,7 @@ void ImGuiCamera::ShaderWindow() {
 		//Optimisation And Shaders
 		ImGui::DragInt("Shader Number (Vert)", &Main::VertNum);
 		ImGui::DragInt("Shader Number (Frag)", &Main::FragNum); // Shader Switching
-			if (ImGui::SmallButton("Apply Shader?")) { FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram); } // apply shader
+		if (ImGui::SmallButton("Apply Shader?")) { FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram); } // apply shader
 		ImGui::DragFloat("Gamma", &RenderClass::gamma);
 		ImGui::Checkbox("doReflections", &RenderClass::doReflections);
 		ImGui::Checkbox("doFog", &RenderClass::doFog); 		//Toggles
@@ -143,21 +143,21 @@ void ImGuiCamera::PanelsWindow() {
 	ImGui::End();
 }
 
-void ImGuiCamera::PhysicsWindow(){
+void ImGuiCamera::PhysicsWindow() {
 	ImGui::Begin("Physics"); // ImGUI window creation
 	ImGui::Checkbox("showBoxCollider", &CubeCollider::showBoxCollider);
 	if (ImGui::TreeNode("Collision")) {
 		ImGui::Checkbox("doPlayerBoxCollision: ", &CubeCollider::CollideWithCamera);
 		ImGui::TreePop();
 	}
-	
+
 	ImGui::End();
 }
 
 void ImGuiCamera::DebugWindow() {
 	ImGui::Begin("Debug Window"); // ImGUI window creation
 	ImGui::Checkbox("Preformance Profiler", &DebugPanels[0]);
-	if (DebugPanels[0]) { PreformanceProfiler();}
+	if (DebugPanels[0]) { PreformanceProfiler(); }
 	ImGui::Checkbox("DoDeferredLightingPass", &RenderClass::DoDeferredLightingPass);
 	ImGui::Checkbox("DoForwardLightingPass", &RenderClass::DoForwardLightingPass);
 	ImGui::Checkbox("DoComputeLightingPass", &RenderClass::DoComputeLightingPass);

@@ -1,6 +1,5 @@
 [
   {
-    "PlayerCollision": true,
     "DoGravity": true,
 
     "PlayerHeight": 1.8,

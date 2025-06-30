@@ -34,7 +34,6 @@ unsigned int width = 800, height = 600;
 
 float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
 
-bool doPlayerCollision = true;
 float PlayerHeight = 1.8f;
 float CrouchHighDiff = 0.9f;
 
@@ -44,12 +43,12 @@ glm::vec3 Main::initalCameraPos = glm::vec3(0,0,0);
 
 TimeAccumulator TA3; TimeAccumulator TA2;
 Scene scene;
-void Main::updateModelLua( 
+void Main::updateModelLua(
 	std::vector<std::string> path, std::vector<std::string> modelName, std::vector<bool> isCulling,
 	std::vector<float> Modelx, std::vector<float> Modely, std::vector<float> Modelz,
 	std::vector<float> RotW, std::vector<float> RotX, std::vector<float> RotY, std::vector<float> RotZ,
 	std::vector<float> ScaleX, std::vector<float> ScaleY, std::vector<float> ScaleZ
-)	
+)
 {
 	//if (true) { //turn true for debugging
 	//	for (size_t i = 0; i < modelName.size(); i++) {
@@ -82,8 +81,8 @@ int main() // global variables do not work with threads
 	if (!videoMode) { std::cerr << "Failed to get video mode" << std::endl; glfwTerminate(); return -1; }
 
 	// fall back values if height*width is null
-	if (std::isnan(width)){width = videoMode->width;}
-	if (std::isnan(height)){height = videoMode->height;} 
+	if (std::isnan(width)) { width = videoMode->width; }
+	if (std::isnan(height)) { height = videoMode->height; }
 
 	//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
 	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, SettingsUtils::s_WindowTitle.c_str(), NULL, NULL); // create window
@@ -108,9 +107,6 @@ int main() // global variables do not work with threads
 	ScreenUtils::SetScreenSize(window, width, height);  // set window and viewport w&h
 	if (init::LogALL || init::LogSystems) std::cout << "Primary monitor resolution: " << width << "x" << height << std::endl;
 
-	// window logo creation and assignment
-	init::initLogo(window, "assets/Icons/Icon.png");
-
 	// INITIALIZE CAMERA
 	Camera::InitCamera(width, height, Main::initalCameraPos); 	// camera ratio pos
 	//std::cout << initalCameraPos.x << " " << initalCameraPos.y << " " << initalCameraPos.z << std::endl;
@@ -120,6 +116,9 @@ int main() // global variables do not work with threads
 
 	TempScene::init(); // Initialize scene
 	Player::init();
+
+	// window logo creation and assignment
+	init::initLogo(window, "assets/Icons/Icon.png");
 
 	//Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
@@ -135,14 +134,12 @@ int main() // global variables do not work with threads
 		TimeUtil::updateDeltaTime(); // Update delta time
 		ScriptRunner::update();
 		InputUtil::UpdateCurrentKey(window);
-		
+
 		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
 			Camera::s_DoGravity = false;
-			doPlayerCollision = false;
 		}
 		if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
 			Camera::s_DoGravity = true;
-			doPlayerCollision = true;
 		}
 		//TA2
 		TA2.update();
@@ -157,8 +154,8 @@ int main() // global variables do not work with threads
 
 		if (Camera::s_DoGravity) {
 			//crouch 
-			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) { Camera::PlayerHeightCurrent = CrouchHighDiff;}
-			else { Camera::PlayerHeightCurrent = PlayerHeight;}
+			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) { Camera::PlayerHeightCurrent = CrouchHighDiff; }
+			else { Camera::PlayerHeightCurrent = PlayerHeight; }
 		}
 
 		if (!Camera::s_DoGravity) { Camera::DoJump = true; };
@@ -173,7 +170,7 @@ int main() // global variables do not work with threads
 		//{
 		//	std::cout << scene.modelObjects[i].ObjectName << std::endl;
 		//}
-		
+
 		TempScene::Update(); // Update scene
 		Camera::Inputs(window);
 		Player::update();
@@ -182,11 +179,11 @@ int main() // global variables do not work with threads
 		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, primaryMonitor); }
 
 		RenderClass::Swapchain(window, frameBufferProgram, primaryMonitor); // tip to self, work down to up (lines)
-		
+
 		auto stopInitTime2 = std::chrono::high_resolution_clock::now();
 		auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
 		ImGuiCamera::Render = (initDuration2.count() / 1000.0);
-	
+
 		//Player::isGrounded = false;
 		Player::isColliding = false;
 	}
@@ -215,8 +212,6 @@ void Main::LoadPlayerConfig() {
 		playerConfigFile >> playerConfigData;
 		playerConfigFile.close();
 
-		doPlayerCollision = playerConfigData[0]["PlayerCollision"];
-		if (init::LogALL || init::LogSystems) std::cout << "Player Collision: " << doPlayerCollision << std::endl;
 		Camera::s_DoGravity = playerConfigData[0]["DoGravity"];
 		if (init::LogALL || init::LogSystems) std::cout << "DoGravity: " << Camera::s_DoGravity << std::endl;
 
@@ -348,7 +343,7 @@ void Main::imGuiMAIN(GLFWwindow* window,
 			if (ImGui::SmallButton("Reset Camera")) {
 				Camera::Position = glm::vec3(0, 0, 0);
 			} // reset cam pos
-			ImGui::DragFloat3("Camera Transform", &Camera::Position.x, Camera::Position.y, Camera::Position.z); // set cam pos
+			ImGui::DragFloat3("Camera Transform", &Camera::Position.x); // set cam pos
 			ImGui::DragFloat("Camera Speed", &Camera::s_scrollSpeed); //Camera
 
 			ImGui::Spacing();
@@ -361,13 +356,12 @@ void Main::imGuiMAIN(GLFWwindow* window,
 		if (ImGui::TreeNode("Perspective")) {
 			ImGui::Text("View");
 			ImGui::SliderFloat("FOV", &Main::cameraSettings[0], 0.1f, 160.0f); //FOV
-			ImGui::DragFloat2("Near and Far Plane", &Main::cameraSettings[1], Main::cameraSettings[2]); // Near and FarPlane
+			ImGui::DragFloat2("Near and Far Plane", &Main::cameraSettings[1]); // Near and FarPlane
 			ImGui::TreePop();
 		}
 		ImGui::Spacing();
 		if (ImGui::TreeNode("Collision")) {
 			ImGui::Text(("Foot Collision: " + std::to_string(Player::isColliding)).c_str());
-			ImGui::Checkbox("doPlayerCollision: ", &doPlayerCollision);
 			ImGui::Checkbox("doPlayerBoxCollision: ", &CubeCollider::CollideWithCamera);
 			ImGui::TreePop();
 		}
@@ -418,6 +412,7 @@ void Main::imGuiMAIN(GLFWwindow* window,
 			}
 			ImGui::TreePop();
 		}
+		if (ImGui::TreeNode("Models")) {
 
 		for (size_t i = 0; i < scene.modelObjects.size(); i++)
 		{
@@ -425,35 +420,28 @@ void Main::imGuiMAIN(GLFWwindow* window,
 			// also a add window would be nice for adding things
 			if (ImGui::TreeNode((scene.modelObjects[i].ObjectName).c_str())) {
 				// position
-				ImGui::DragFloat3(("Position " + std::to_string(i)).c_str(), &scene.modelObjects[i].transform.x,
-					scene.modelObjects[i].transform.y, scene.modelObjects[i].transform.z);
+				ImGui::DragFloat3(("Position " + std::to_string(i)).c_str(), &scene.modelObjects[i].transform.x);
 
 				// scale
-				ImGui::DragFloat3(("Scale " + std::to_string(i)).c_str(), &scene.modelObjects[i].scale.x,
-					scene.modelObjects[i].scale.y, scene.modelObjects[i].scale.z);
+				ImGui::DragFloat3(("Scale " + std::to_string(i)).c_str(), &scene.modelObjects[i].scale.x);
 
-				ImGui::DragFloat4(("Rotation " + std::to_string(i)).c_str(), &scene.modelObjects[i].rotation.x,
-					scene.modelObjects[i].rotation.y, scene.modelObjects[i].rotation.z, scene.modelObjects[i].rotation.w);
-				
+				ImGui::DragFloat4(("Rotation " + std::to_string(i)).c_str(), &scene.modelObjects[i].rotation.x);
+
 				ImGui::Spacing();
 				ImGui::Checkbox("isCollider", &scene.modelObjects[i].isCollider);
 
-				ImGui::DragFloat3(("BoxColliderTransform " + std::to_string(i)).c_str(), &scene.modelObjects[i].BoxColliderTransform.x,
-					scene.modelObjects[i].BoxColliderTransform.y, scene.modelObjects[i].BoxColliderTransform.z);
+				ImGui::DragFloat3(("BoxColliderTransform " + std::to_string(i)).c_str(), &scene.modelObjects[i].BoxColliderTransform.x);
 
-				ImGui::DragFloat3(("BoxColliderScale " + std::to_string(i)).c_str(), &scene.modelObjects[i].BoxColliderScale.x,
-					scene.modelObjects[i].BoxColliderScale.y, scene.modelObjects[i].BoxColliderScale.z);
-				
+				ImGui::DragFloat3(("BoxColliderScale " + std::to_string(i)).c_str(), &scene.modelObjects[i].BoxColliderScale.x);
+
 				ImGui::Spacing();
 				ImGui::Checkbox("isBackFaceCulling", &scene.modelObjects[i].DoCulling);
 				ImGui::Checkbox("DoFrustumCull", &scene.modelObjects[i].DoFrustumCull);
 
-				ImGui::DragFloat3(("frustumBoxTransform " + std::to_string(i)).c_str(), &scene.modelObjects[i].frustumBoxTransform.x,
-					scene.modelObjects[i].frustumBoxTransform.y, scene.modelObjects[i].frustumBoxTransform.z);
+				ImGui::DragFloat3(("frustumBoxTransform " + std::to_string(i)).c_str(), &scene.modelObjects[i].frustumBoxTransform.x);
 
-				ImGui::DragFloat3(("frustumBoxScale " + std::to_string(i)).c_str(), &scene.modelObjects[i].frustumBoxScale.x,
-					scene.modelObjects[i].frustumBoxScale.y, scene.modelObjects[i].frustumBoxScale.z);
-				
+				ImGui::DragFloat3(("frustumBoxScale " + std::to_string(i)).c_str(), &scene.modelObjects[i].frustumBoxScale.x);
+
 				ImGui::Spacing();
 				if (ImGui::SmallButton("Delete")) {
 					scene.modelObjects.erase(scene.modelObjects.begin() + i);
@@ -461,6 +449,9 @@ void Main::imGuiMAIN(GLFWwindow* window,
 
 				ImGui::TreePop();
 			}
+		}
+
+		ImGui::TreePop();
 		}
 	}
 	ImGui::End();
