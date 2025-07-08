@@ -21,6 +21,7 @@ public:
 	void init();
 	void update();
 	void draw();
+	void Delete();
 private:
 	static bool isCollide;
 };

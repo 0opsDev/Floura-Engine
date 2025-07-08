@@ -14,35 +14,37 @@ public:
 
 	using json = nlohmann::json;
 
-	std::vector<ModelObject> modelObjects;
-	std::vector<BillBoardObject> BillBoardObjects;
-	std::vector <CubeCollider> CubeColliderObject;
-	std::vector <SoundProgram> SoundObjects;
-	std::vector <bool> isSoundLoop;
+	static std::vector<ModelObject> modelObjects;
+	static std::vector<BillBoardObject> BillBoardObjects;
+	static std::vector <CubeCollider> CubeColliderObject;
+	static std::vector <SoundProgram> SoundObjects;
+	static std::vector <bool> isSoundLoop;
 
-	Scene();
+	static void LoadScene(std::string path);
 
-	void LoadScene(std::string path);
+	static void SaveScene(std::string path);
 
-	void SaveScene(std::string path);
+	static void initJsonModelLoad(std::string path);
 
-	void initJsonModelLoad(std::string path);
+	static void JsonModelSave(std::string path);
+	
+	static void JsonBillBoardSave(std::string path);
 
-	void JsonModelSave(std::string path);
+	static void AddSceneModelObject(std::string type, std::string path, std::string name);
 
-	void AddSceneModelObject(std::string type, std::string path, std::string name);
+	static void AddSceneBillBoardObject(std::string name, std::string type, std::string path);
 
-	void initJsonBillBoardLoad(std::string path);
+	static void initJsonBillBoardLoad(std::string path);
 
-	void initJsonColliderLoad(std::string path);
+	static void initJsonColliderLoad(std::string path);
 
-	void initJsonSoundObjectLoad(std::string path);
+	static void initJsonSoundObjectLoad(std::string path);
 
-	void initJsonSettingsLoad(std::string path);
+	static void initJsonSettingsLoad(std::string path);
 
-	void Update();
+	static void Update();
 
-	void Delete();
+	static void Delete();
 
 private:
 };

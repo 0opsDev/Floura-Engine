@@ -41,6 +41,31 @@ void Model::Draw(Shader& shader, glm::vec3 translation, glm::vec4 rotation, glm:
 	}
 }
 
+void Model::Delete() {
+	// Delete mesh first then clear all array inside model
+	for (size_t i = 0; i < meshes.size(); i++)
+	{meshes[i].Delete();
+	meshes.erase(meshes.begin() + i);
+	}
+	meshes.clear();
+
+	for (size_t i = 0; i < textures2.size(); i++)
+	{textures2[i].Delete();
+	textures2.erase(textures2.begin() + i);}
+	textures2.clear();
+	
+	for (size_t i = 0; i < loadedTex.size(); i++)
+	{loadedTex[i].Delete();
+	loadedTex.erase(loadedTex.begin() + i);}
+	loadedTex.clear();
+	
+	translationsMeshes.clear();
+	rotationsMeshes.clear();
+	scalesMeshes.clear();
+	matricesMeshes.clear();
+	loadedTexName.clear();
+}
+
 int Model::getVertexCount() const
 {
 	int size = 0;
@@ -187,12 +212,6 @@ void Model::loadMesh(unsigned int indMesh)
 	//if (textures2.size() > 3) textures2.clear();
 	//textures2.clear();
 	//std::cout << "prep end " << std::endl;
-	for (size_t i = 0; i < textures.size(); i++)
-	{	
-		// make it delete as many i from the array as priorTexSize has (in order)
-		textures2.push_back(textures[i]);
-		
-	}
 	//std::cout << loadedTexName.size() << "loadedTexNamesize" << std::endl;
 	//std::cout << loadedTex.size() << "loadedTexsize" << std::endl;
 	//std::cout << textures2.size() << "texsize" << std::endl;
@@ -203,7 +222,7 @@ void Model::loadMesh(unsigned int indMesh)
 
 	// maybe load the pbr textures into there own buffers and parse them thru
 	//std::cout << vertices.size() << "vert size at " << indMesh << std::endl;
-	meshes.push_back(Mesh(vertices, indices, textures2));
+	meshes.push_back(Mesh(vertices, indices, textures));
 }
 
 void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)

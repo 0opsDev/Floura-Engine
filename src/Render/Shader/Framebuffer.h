@@ -21,6 +21,8 @@ public:
 
 	static GLuint noiseMapTexture;
 
+	static Shader frameBufferProgram;
+
 	static void setupNoiseMap();
 
 	static void setupGbuffers(unsigned int width, unsigned int height);
@@ -31,10 +33,9 @@ public:
 
 	static void updateFrameBufferResolution(unsigned int width, unsigned int height);
 
-	static void FBO2Draw(Shader frameBufferProgram);
+	static void FBO2Draw();
 
 	static void FBODraw(
-		Shader frameBufferProgram,
 		bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window);
 };
 

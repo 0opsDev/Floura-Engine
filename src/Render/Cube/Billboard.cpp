@@ -7,9 +7,6 @@
 #include <Core/Render.h>
 #include <Render/passes/geometry/geometryPass.h>
 
-Shader PlaneShader;
-Shader gPassShaderBillBoard;
-
 float s_Plane_Vertices[] = {
 	// Positions       // Texture Coordinates
 	-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,  // Bottom-left
@@ -25,15 +22,11 @@ unsigned int s_Plane_Indices[6] =
 };
 
 void BillBoard::init(std::string path) {
-	PlaneShader.LoadShader("Shaders/Db/BillBoard.vert", "Shaders/Db/BillBoard.frag");
-	gPassShaderBillBoard.LoadShader("Shaders/gBuffer/geometryPassBillboard.vert", "Shaders/gBuffer/geometryPassBillboard.frag");
 	skyboxBuffer(); // create buffer in memory for skybox
 
 	LoadBillBoardTexture(path);
 }
 void BillBoard::initSeq(std::string path) { 
-	PlaneShader.LoadShader("Shaders/Db/BillBoard.vert", "Shaders/Db/BillBoard.frag");
-	gPassShaderBillBoard.LoadShader("Shaders/gBuffer/geometryPassBillboard.vert", "Shaders/gBuffer/geometryPassBillboard.frag");
 	skyboxBuffer(); // create buffer in memory for skybox
 
 	LoadSequence(path);
@@ -58,6 +51,14 @@ void BillBoard::LoadBillBoardTexture(std::string path) { // should load all text
 	int width, height, numColCh;
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load(singleTexturePath.c_str(), &width, &height, &numColCh, 0);
+	if (!data)
+	{
+		std::cerr << "Failed to load texture: " << singleTexturePath << std::endl;
+		// load fallback texture
+		width = 2; height = 2; numColCh = 3;
+		data = stbi_load("Assets/Dependants/placeholder/texture/placeholder_unshaded.png", &width, &height, &numColCh, 0);
+		//throw std::runtime_error("Failed to load texture: " + std::string(image));
+	}
 
 	if (data) {
 		GLenum format = GL_RGBA; // Default format
@@ -76,9 +77,6 @@ void BillBoard::LoadBillBoardTexture(std::string path) { // should load all text
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
 		stbi_image_free(data);
-	}
-	else {
-		std::cerr << "Failed to load texture: " << singleTexturePath << std::endl;
 	}
 
 	// Reset flip behavior to avoid unexpected issues later
@@ -193,16 +191,16 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
-		PlaneShader.Activate();
+		RenderClass::billBoardShader.Activate();
 		// Pass transformations to shader
-		PlaneShader.setMat4("model", model);
-		PlaneShader.setMat4("camMatrix", Camera::cameraMatrix);
+		RenderClass::billBoardShader.setMat4("model", model);
+		RenderClass::billBoardShader.setMat4("camMatrix", Camera::cameraMatrix);
 
 		// Render the billboard
 		glBindVertexArray(cubeVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, BBTexture);
-		glUniform1i(glGetUniformLocation(PlaneShader.ID, "texture0"), 0);
+		glUniform1i(glGetUniformLocation(RenderClass::billBoardShader.ID, "texture0"), 0);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -214,28 +212,28 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 		//
 		// Gpass
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		gPassShaderBillBoard.Activate();
-		gPassShaderBillBoard.setFloat("gamma", RenderClass::gamma);
+		RenderClass::gPassShaderBillBoard.Activate();
+		RenderClass::gPassShaderBillBoard.setFloat("gamma", RenderClass::gamma);
 		glBindFramebuffer(GL_FRAMEBUFFER, GeometryPass::gBuffer);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
-		Camera::Matrix(gPassShaderBillBoard, "camMatrix"); // Send Camera Matrix To Shader Prog
+		Camera::Matrix(RenderClass::gPassShaderBillBoard, "camMatrix"); // Send Camera Matrix To Shader Prog
 		//billboard.Draw(gPassShader, Transform, Rotation, Scale);
 		// draw goes here
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
-		gPassShaderBillBoard.Activate();
+		RenderClass::gPassShaderBillBoard.Activate();
 		// Pass transformations to shader
-		gPassShaderBillBoard.setMat4("model", model);
-		gPassShaderBillBoard.setMat4("camMatrix", Camera::cameraMatrix);
+		RenderClass::gPassShaderBillBoard.setMat4("model", model);
+		RenderClass::gPassShaderBillBoard.setMat4("camMatrix", Camera::cameraMatrix);
 
 		// Render the billboard
 		glBindVertexArray(cubeVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, BBTexture);
-		glUniform1i(glGetUniformLocation(gPassShaderBillBoard.ID, "texture0"), 0);
+		glUniform1i(glGetUniformLocation(RenderClass::gPassShaderBillBoard.ID, "texture0"), 0);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -249,6 +247,8 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 }
 
 void BillBoard::Delete() {
-	PlaneShader.Delete();
-	gPassShaderBillBoard.Delete();
+	glDeleteBuffers(1, &cubeVBO);
+	glDeleteBuffers(1, &cubeEBO);
+	glDeleteTextures(1, &BBTexture);
+	glDeleteVertexArrays(1, &cubeVAO);
 }

@@ -1,2 +1,112 @@
 [
+    {
+        "DoFrustumCull": true,
+        "doPitch": true,
+        "doUpdateSequence": true,
+        "isCollider": false,
+        "name": "fire animated ",
+        "path": "Assets/Sprites/animatedBillboards/fire/fire.json",
+        "position": [
+            14.0,
+            1.0,
+            11.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "tickrate": 16,
+        "type": "animated"
+    },
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "tree ",
+        "path": "Assets/Sprites/003-BryceElm1.png",
+        "position": [
+            28.0,
+            9.0,
+            -13.0
+        ],
+        "scale": [
+            5.0,
+            5.0,
+            5.0
+        ],
+        "type": "static"
+    },
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "grass",
+        "path": "Assets/Sprites/n_grass_diff_0_35.png",
+        "position": [
+            6.0,
+            1.0,
+            -9.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "type": "static"
+    },
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "grass2",
+        "path": "Assets/Sprites/n_grass_diff_0_35.png",
+        "position": [
+            7.0,
+            1.0,
+            -11.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "type": "static"
+    },
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "grass2 Duplicate",
+        "path": "Assets/Sprites/n_grass_diff_0_35.png",
+        "position": [
+            8.0,
+            0.5,
+            -11.0
+        ],
+        "scale": [
+            0.5,
+            0.5,
+            0.5
+        ],
+        "type": "static"
+    },
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "grass3",
+        "path": "Assets/Sprites/n_grass_diff_0_35.png",
+        "position": [
+            5.0,
+            1.0,
+            13.0
+        ],
+        "scale": [
+            0.5,
+            0.5,
+            0.5
+        ],
+        "type": "static"
+    }
 ]

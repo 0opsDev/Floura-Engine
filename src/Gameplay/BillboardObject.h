@@ -17,7 +17,8 @@ public:
 	BillBoard BillBoardRenderObject;
 	std::string ObjectName;
 	std::string type;
-	unsigned int tickrate = 12;
+	std::string path;
+	int tickrate = 12;
 	bool doUpdateSequence = true;
 	bool doPitch = true;
 	bool isCollider = false;

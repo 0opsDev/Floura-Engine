@@ -1,182 +1,6 @@
 [
     {
         "BoxColliderScale": [
-            0.20000000298023224,
-            4.0,
-            0.20000000298023224
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            4.0,
-            0.0
-        ],
-        "DoFrustumCull": true,
-        "Location": [
-            -2.0,
-            1.0,
-            3.0
-        ],
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            3.0,
-            5.0,
-            3.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            4.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "Name",
-        "path": "Assets/Models/tree.gltf",
-        "type": "Static"
-    },
-    {
-        "BoxColliderScale": [
-            0.20000000298023224,
-            4.0,
-            0.20000000298023224
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            4.0,
-            0.0
-        ],
-        "DoFrustumCull": true,
-        "Location": [
-            1.0,
-            0.0,
-            -3.0
-        ],
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            3.0,
-            5.0,
-            3.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            4.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "tree",
-        "path": "Assets/Models/tree.gltf",
-        "type": "Static"
-    },
-    {
-        "BoxColliderScale": [
-            0.20000000298023224,
-            4.0,
-            0.20000000298023224
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            4.0,
-            0.0
-        ],
-        "DoFrustumCull": true,
-        "Location": [
-            2.0,
-            0.0,
-            0.0
-        ],
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            3.0,
-            5.0,
-            3.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            4.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "tree2",
-        "path": "Assets/Models/tree.gltf",
-        "type": "Static"
-    },
-    {
-        "BoxColliderScale": [
-            0.20000000298023224,
-            4.0,
-            0.20000000298023224
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            4.0,
-            0.0
-        ],
-        "DoFrustumCull": true,
-        "Location": [
-            -2.0,
-            0.0,
-            -3.0
-        ],
-        "Rotation": [
-            1.0,
-            2.0,
-            69.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            3.0,
-            5.0,
-            3.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            4.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "tree3",
-        "path": "Assets/Models/tree.gltf",
-        "type": "Static"
-    },
-    {
-        "BoxColliderScale": [
             20.0,
             1.0,
             20.0
@@ -217,94 +41,6 @@
         "isCollider": true,
         "name": "land",
         "path": "Assets/Models/grassplane.gltf",
-        "type": "Static"
-    },
-    {
-        "BoxColliderScale": [
-            0.20000000298023224,
-            4.0,
-            0.20000000298023224
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            4.0,
-            0.0
-        ],
-        "DoFrustumCull": true,
-        "Location": [
-            0.0,
-            0.0,
-            5.0
-        ],
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            3.0,
-            5.0,
-            3.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            4.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "tree4",
-        "path": "Assets/Models/tree.gltf",
-        "type": "Static"
-    },
-    {
-        "BoxColliderScale": [
-            0.20000000298023224,
-            4.0,
-            0.20000000298023224
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            4.0,
-            0.0
-        ],
-        "DoFrustumCull": true,
-        "Location": [
-            -6.0,
-            0.30000001192092896,
-            -3.0
-        ],
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            3.0,
-            5.0,
-            3.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            4.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "tree5",
-        "path": "Assets/Models/tree.gltf",
         "type": "Static"
     },
     {
@@ -584,7 +320,7 @@
         ],
         "DoFrustumCull": false,
         "Location": [
-            15.0,
+            13.0,
             0.0,
             4.0
         ],
@@ -617,6 +353,138 @@
     },
     {
         "BoxColliderScale": [
+            0.5,
+            1.0,
+            0.5
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": true,
+        "Location": [
+            8.0,
+            1.100000023841858,
+            -10.0
+        ],
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.5,
+            0.5,
+            0.5
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "Name Duplicate",
+        "path": "Assets/LodModel/Vase/VaseLod.json",
+        "type": "LOD"
+    },
+    {
+        "BoxColliderScale": [
+            0.30000001192092896,
+            4.0,
+            0.30000001192092896
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            4.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "Location": [
+            -1.0,
+            0.0,
+            -4.0
+        ],
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxScale": [
+            3.0,
+            4.0,
+            3.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            4.0,
+            0.0
+        ],
+        "isBackFaceCulling": false,
+        "isCollider": true,
+        "name": "treeLOD",
+        "path": "Assets/LodModel/Tree/1/treeLOD.json",
+        "type": "LOD"
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": true,
+        "Location": [
+            6.0,
+            0.20000000298023224,
+            -5.0
+        ],
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": false,
+        "isCollider": false,
+        "name": "plant",
+        "path": "Assets/LodModel/plant/1/plantLOD.json",
+        "type": "LOD"
+    },
+    {
+        "BoxColliderScale": [
             1.0,
             1.0,
             1.0
@@ -628,9 +496,9 @@
         ],
         "DoFrustumCull": false,
         "Location": [
-            8.0,
-            2.0999999046325684,
-            -10.0
+            20.0,
+            0.0,
+            28.0
         ],
         "Rotation": [
             0.0,
@@ -655,8 +523,96 @@
         ],
         "isBackFaceCulling": true,
         "isCollider": false,
-        "name": "Name Duplicate",
-        "path": "Assets/LodModel/Vase/VaseLod.json",
-        "type": "LOD"
+        "name": "ao",
+        "path": "Assets/Models/Test/aoTest.gltf",
+        "type": "Static"
+    },
+    {
+        "BoxColliderScale": [
+            0.5,
+            1.0,
+            0.5
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": true,
+        "Location": [
+            6.0,
+            1.5,
+            12.0
+        ],
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.5,
+            0.5,
+            0.5
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "barrel",
+        "path": "Assets/Models/barrel/barrel2.gltf",
+        "type": "Static"
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "Location": [
+            5.0,
+            1.0,
+            12.0
+        ],
+        "Rotation": [
+            -32.0,
+            0.0,
+            1.0,
+            1.0
+        ],
+        "Scale": [
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "ar2",
+        "path": "Assets/Models/ar/m16baked.gltf",
+        "type": "Static"
     }
 ]

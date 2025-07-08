@@ -25,7 +25,7 @@ public:
 
 	static void skyboxBuffer();
 
-	static void draw(GLfloat skyRGBA[], unsigned int width, unsigned int height);
+	static void draw(unsigned int width, unsigned int height);
 
 	static void Delete();
 };

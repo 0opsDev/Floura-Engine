@@ -3,6 +3,8 @@
 void BillBoardObject::CreateObject(std::string type, std::string path, std::string ObjectName) {
 	CubeCollider.init();
 	BillBoardObject::type = type;
+	BillBoardObject::ObjectName = ObjectName;
+	BillBoardObject::path = path;
 	if (type == "static" || type == "Static") // takes image
 	{
 		BillBoardRenderObject.init(path);
@@ -16,20 +18,17 @@ void BillBoardObject::CreateObject(std::string type, std::string path, std::stri
 }
 
 void BillBoardObject::UpdateCollider() {
-	switch (isCollider) {
-		case true: {
-			break;
-		}
-		case false: {
 
-			break;
-		}
+	if (isCollider) {
+		CubeCollider.colliderXYZ = transform;
+		CubeCollider.colliderScale = scale;
 	}
-	CubeCollider.colliderXYZ = transform;
-	CubeCollider.colliderScale = scale;
 }
 void BillBoardObject::UpdateCameraCollider() {
+
+	if (isCollider) {
 	CubeCollider.update();
+	}
 }
 void BillBoardObject::draw() {
 	if (DoFrustumCull) {

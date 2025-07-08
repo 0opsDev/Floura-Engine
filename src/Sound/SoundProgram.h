@@ -16,8 +16,9 @@ public:
 
 	static ALCdevice* device;
 	static ALCcontext* context;
-
+	
 	glm::vec3 SoundPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+	std::string name;
 	float currentvolume;
 
 	bool isPlay = false;
@@ -38,7 +39,7 @@ public:
 
 	void StopSound();
 
-	void CreateSound(std::string Path);
+	void CreateSound(std::string Path, std::string name);
 
 	void ChangeSound(std::string path);
 

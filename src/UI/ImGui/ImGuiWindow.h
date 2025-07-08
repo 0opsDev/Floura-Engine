@@ -19,6 +19,7 @@ public:
 	static bool DebugPanels[];
 	static std::string FileTabs; // ImGui FileTabs
 	static bool enableFB; // Change this as needed
+	static bool enableDEF;
 
 	static char UniformInput[64]; // Zero-initialized buffer
 	static float UniformFloat[3]; // Zero-initialized array
@@ -31,7 +32,9 @@ public:
 
 	static void SystemInfomation();
 	static void RenderWindow(GLFWwindow*& window, GLFWmonitor*& monitor, int windowedWidth, int windowedHeight);
+	static void create();
 	static void ShaderWindow();
+	static void CameraWindow();
 	static void LightWindow();
 	static void PanelsWindow();
 	static void PhysicsWindow();
@@ -45,6 +48,10 @@ public:
 	static void audio();
 
 	static void viewport();
+
+	static void ModelH();
+
+	static void BillBoardH();
 
 };
 

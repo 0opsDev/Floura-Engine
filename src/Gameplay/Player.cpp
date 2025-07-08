@@ -11,7 +11,7 @@ float JumpTimeAccumulator = 0.0f;
 float PlayerPhysicsAccum = 0.0f;
 void Player::init() {
 
-	FootSound.CreateSound("Assets/Sounds/Footsteps.wav");
+	FootSound.CreateSound("Assets/Sounds/Footsteps.wav", "FootSound");
 	FootSound.Set3D(true);
 }
 void Player::update() {

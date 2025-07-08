@@ -27,6 +27,7 @@
 #include "scene.h"
 #include <Gameplay/Player.h>
 
+GLFWwindow* Main::window;
 int Main::VertNum = 0, Main::FragNum = 0;
 bool Main::sleepState = true;
 
@@ -42,21 +43,6 @@ float window_height;
 glm::vec3 Main::initalCameraPos = glm::vec3(0,0,0);
 
 TimeAccumulator TA3; TimeAccumulator TA2;
-Scene scene;
-void Main::updateModelLua(
-	std::vector<std::string> path, std::vector<std::string> modelName, std::vector<bool> isCulling,
-	std::vector<float> Modelx, std::vector<float> Modely, std::vector<float> Modelz,
-	std::vector<float> RotW, std::vector<float> RotX, std::vector<float> RotY, std::vector<float> RotZ,
-	std::vector<float> ScaleX, std::vector<float> ScaleY, std::vector<float> ScaleZ
-)
-{
-	//if (true) { //turn true for debugging
-	//	for (size_t i = 0; i < modelName.size(); i++) {
-	//		std::cout << "Received modelName: " << modelName[i] << std::endl;
-	//		std::cout << "Received Path: " << path[i] << std::endl;
-	//	}
-	//}
-}
 
 //Main Function
 int main() // global variables do not work with threads
@@ -70,7 +56,6 @@ int main() // global variables do not work with threads
 	//Main::loadEngineSettings();
 	ScriptRunner::init(SettingsUtils::sceneName + "/LuaStartup.json");
 	SoundRunner::init();
-
 	// Get the video mode of the primary monitor
 	// Get the primary monitor
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
@@ -85,47 +70,43 @@ int main() // global variables do not work with threads
 	if (std::isnan(height)) { height = videoMode->height; }
 
 	//    GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, "Farquhar Engine OPEN GL - 1.3", primaryMonitor, NULL);
-	GLFWwindow* window = glfwCreateWindow(videoMode->width, videoMode->height, SettingsUtils::s_WindowTitle.c_str(), NULL, NULL); // create window
+	Main::window = glfwCreateWindow(videoMode->width, videoMode->height, SettingsUtils::s_WindowTitle.c_str(), NULL, NULL); // create window
 
 	// error checking
-	if (window == NULL) { if (init::LogALL || init::LogSystems) std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
+	if (Main::window == NULL) { if (init::LogALL || init::LogSystems) std::cout << "failed to create window" << std::endl; glfwTerminate(); return -1; } // "failed to create window"
 
-	glfwMakeContextCurrent(window);	//make window current context
+	glfwMakeContextCurrent(Main::window);	//make window current context
 
 	gladLoadGL(); // load open gl config
 
-	scene.LoadScene(SettingsUtils::sceneName);
+	Scene::LoadScene(SettingsUtils::sceneName);
 	FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram); // feed the shader prog real data << should take a shader file class
 	RenderClass::shaderProgram.Activate(); // activate new shader program for use
 
-	// move to framebuffer class
-	Shader frameBufferProgram;
-	frameBufferProgram.LoadShader("Shaders/PostProcess/framebuffer.vert", "Shaders/PostProcess/framebuffer.frag");
-
 	//area of open gl we want to render in
 	//screen assignment after fallback
-	ScreenUtils::SetScreenSize(window, width, height);  // set window and viewport w&h
+	ScreenUtils::SetScreenSize(Main::window, width, height);  // set window and viewport w&h
 	if (init::LogALL || init::LogSystems) std::cout << "Primary monitor resolution: " << width << "x" << height << std::endl;
 
 	// INITIALIZE CAMERA
 	Camera::InitCamera(width, height, Main::initalCameraPos); 	// camera ratio pos
 	//std::cout << initalCameraPos.x << " " << initalCameraPos.y << " " << initalCameraPos.z << std::endl;
 	//std::cout << Camera::Position.x << " " << Camera::Position.y << " " << Camera::Position.z << std::endl;
-	RenderClass::init(window, width, height);
+	RenderClass::init(Main::window, width, height);
 	// Model Loader
 
 	TempScene::init(); // Initialize scene
 	Player::init();
 
 	// window logo creation and assignment
-	init::initLogo(window, "assets/Icons/Icon.png");
+	init::initLogo(Main::window, "assets/Icons/Icon.png");
 
 	//Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	if (init::LogALL || init::LogSystems) std::cout << "init Duration: " << initDuration.count() / 1000000.0 << std::endl;
 
-	while (!glfwWindowShouldClose(window)) // GAME LOOP
+	while (!glfwWindowShouldClose(Main::window)) // GAME LOOP
 	{
 		//std::cout << RenderClass::CameraXYZ.x << " " << RenderClass::CameraXYZ.y << " " << RenderClass::CameraXYZ.z << std::endl;
 		//std::cout << Camera::Position.x << " " << Camera::Position.y << " " << Camera::Position.z << std::endl;
@@ -133,52 +114,44 @@ int main() // global variables do not work with threads
 
 		TimeUtil::updateDeltaTime(); // Update delta time
 		ScriptRunner::update();
-		InputUtil::UpdateCurrentKey(window);
+		InputUtil::UpdateCurrentKey(Main::window);
 
-		if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
+		if (glfwGetKey(Main::window, GLFW_KEY_F2) == GLFW_PRESS) {
 			Camera::s_DoGravity = false;
+			CubeCollider::CollideWithCamera = false;
 		}
-		if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
+		if (glfwGetKey(Main::window, GLFW_KEY_F3) == GLFW_PRESS) {
 			Camera::s_DoGravity = true;
+			CubeCollider::CollideWithCamera = true;
 		}
 		//TA2
 		TA2.update();
-		// Update FPS and window title every second  
 		if (TA2.Counter >= 1 / 10.0f) {
-			if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) { ImGuiCamera::imGuiPanels[0] = !ImGuiCamera::imGuiPanels[0]; }
+			if (glfwGetKey(Main::window, GLFW_KEY_F1) == GLFW_PRESS) { ImGuiCamera::imGuiPanels[0] = !ImGuiCamera::imGuiPanels[0]; }
 			//std::cout << "update" << std::endl;
 			TA2.reset();
 		}
 
-		//Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
-
 		if (Camera::s_DoGravity) {
 			//crouch 
-			if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) { Camera::PlayerHeightCurrent = CrouchHighDiff; }
+			if (glfwGetKey(Main::window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) { Camera::PlayerHeightCurrent = CrouchHighDiff; }
 			else { Camera::PlayerHeightCurrent = PlayerHeight; }
 		}
 
 		if (!Camera::s_DoGravity) { Camera::DoJump = true; };
 
-		// Camera Always Stays Above Feet Position**
-		//Camera::Position = glm::vec3(Player::feetpos.x, Player::feetpos.y + Camera::PlayerHeightCurrent, Player::feetpos.z);
-
 		auto startInitTime2 = std::chrono::high_resolution_clock::now();
 
-		scene.Update(); // keep scene above player
-		//for (size_t i = 0; i < scene.modelObjects.size(); i++)
-		//{
-		//	std::cout << scene.modelObjects[i].ObjectName << std::endl;
-		//}
+		Scene::Update(); // keep scene above player
 
 		TempScene::Update(); // Update scene
-		Camera::Inputs(window);
+		Camera::Inputs(Main::window);
 		Player::update();
 
-		RenderClass::Render(window, frameBufferProgram, window_width, window_height, width, height);
-		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(window, primaryMonitor); }
+		RenderClass::Render(Main::window, window_width, window_height, width, height);
+		if (ImGuiCamera::imGuiPanels[0]) { Main::imGuiMAIN(Main::window, primaryMonitor); }
 
-		RenderClass::Swapchain(window, frameBufferProgram, primaryMonitor); // tip to self, work down to up (lines)
+		RenderClass::Swapchain(Main::window, primaryMonitor); // tip to self, work down to up (lines)
 
 		auto stopInitTime2 = std::chrono::high_resolution_clock::now();
 		auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
@@ -194,13 +167,12 @@ int main() // global variables do not work with threads
 
 	RenderClass::Cleanup();
 	//FootSound.DeleteSound();
-	frameBufferProgram.Delete();
 	Skybox::Delete();
 	TempScene::Delete(); // Delete scene
 	SoundRunner::Delete();
-	scene.Delete();
+	Scene::Delete();
 	//SolidColour.Delete();
-	glfwDestroyWindow(window), glfwTerminate(); // Kill opengl
+	glfwDestroyWindow(Main::window), glfwTerminate(); // Kill opengl
 	return 0;
 }
 
@@ -292,9 +264,7 @@ void Main::saveSettings() {
 	}
 }
 
-char name[32] = "Name";
-char Path[64] = "Assets/";
-bool LOD = false;
+
 // Holds ImGui Variables and Windows
 void Main::imGuiMAIN(GLFWwindow* window,
 	GLFWmonitor* monitorT) {
@@ -331,44 +301,8 @@ void Main::imGuiMAIN(GLFWwindow* window,
 	}
 	// Camera panel
 	if (ImGuiCamera::imGuiPanels[2]) {
-		ImGui::Begin("Camera Settings"); // ImGUI window creation
-		//std::to_string(footCollision)
-		ImGui::Text(("Camera Position: x: " + std::to_string(Camera::Position.x) + "y: " + std::to_string(Camera::Position.y) + "z: " + std::to_string(Camera::Position.z)).c_str());
-		glm::quat cameraQuat = Camera::Orientation; // Ensure Orientation is a quaternion
-		glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(cameraQuat));
-		ImGui::Text(("Camera Rotation: Yaw: " + std::to_string(eulerAngles.x) + " Pitch: " + std::to_string(eulerAngles.y) + " Roll: " + std::to_string(eulerAngles.z)).c_str());
-		ImGui::Spacing();
-		if (ImGui::TreeNode("Controls")) {
-			ImGui::Text("Transform");
-			if (ImGui::SmallButton("Reset Camera")) {
-				Camera::Position = glm::vec3(0, 0, 0);
-			} // reset cam pos
-			ImGui::DragFloat3("Camera Transform", &Camera::Position.x); // set cam pos
-			ImGui::DragFloat("Camera Speed", &Camera::s_scrollSpeed); //Camera
-
-			ImGui::Spacing();
-			ImGui::Text("Bindings");
-			ImGui::DragFloat("Camera Sensitivity X", &Camera::s_sensitivityX);
-			ImGui::DragFloat("Camera Sensitivity Y", &Camera::s_sensitivityY);
-			ImGui::TreePop();
-		}
-		ImGui::Spacing();
-		if (ImGui::TreeNode("Perspective")) {
-			ImGui::Text("View");
-			ImGui::SliderFloat("FOV", &Main::cameraSettings[0], 0.1f, 160.0f); //FOV
-			ImGui::DragFloat2("Near and Far Plane", &Main::cameraSettings[1]); // Near and FarPlane
-			ImGui::TreePop();
-		}
-		ImGui::Spacing();
-		if (ImGui::TreeNode("Collision")) {
-			ImGui::Text(("Foot Collision: " + std::to_string(Player::isColliding)).c_str());
-			ImGui::Checkbox("doPlayerBoxCollision: ", &CubeCollider::CollideWithCamera);
-			ImGui::TreePop();
-		}
-		ImGui::Spacing();
-		ImGui::Checkbox("DoGravity: ", &Camera::s_DoGravity);
-
-		ImGui::End();
+		ImGuiCamera::CameraWindow();
+		
 	}
 
 	if (ImGuiCamera::imGuiPanels[3]) {
@@ -395,63 +329,45 @@ void Main::imGuiMAIN(GLFWwindow* window,
 		ImGui::Begin("Scene hierarchy"); // ImGUI window creation
 		ImGui::Text("object hierarchy");
 
-		if (ImGui::SmallButton("Save")) {
-			scene.SaveScene(SettingsUtils::sceneName);
+		ImGui::Spacing();
+		if (ImGui::SmallButton("Save Current Scene")) {
+			Scene::SaveScene(SettingsUtils::sceneName);
 		}
+		ImGui::Spacing();
+		if (ImGui::SmallButton("Load Last Scene")) {
+			Scene::LoadScene(SettingsUtils::sceneName);
+		}
+		ImGui::Spacing();
+		if (ImGui::SmallButton("Unload Current Scene")) {
+			Scene::Delete();
+		}
+		ImGui::Spacing();
 
-		if (ImGui::TreeNode("Add New Object")) {
-			ImGui::Checkbox("LOD", &LOD);
-			ImGui::InputText("Path Input", Path, IM_ARRAYSIZE(Path));
-			ImGui::InputText("Name Input", name, IM_ARRAYSIZE(name));
+		ImGuiCamera::create();
 
-			if (ImGui::SmallButton("Create")) {
-				//scene.AddSceneModelObject("Static", "Assets/Models/barrel/barrel2.gltf", ("barrel" + std::to_string(scene.modelObjects.size())));
-				if (LOD) scene.AddSceneModelObject("LOD", Path, name);
-				else scene.AddSceneModelObject("Static", Path, name);
+		ImGui::Spacing();
 
+		ImGuiCamera::ModelH();
+
+		ImGui::Spacing();
+
+		ImGuiCamera::BillBoardH();
+
+		ImGui::Spacing();
+		if (ImGui::TreeNode("Sound")) {
+			for (size_t i = 0; i < Scene::SoundObjects.size(); i++) {
+				if (ImGui::TreeNode((Scene::SoundObjects[i].name).c_str())) {
+					//ImGui::DragFloat3(("Position " + std::to_string(i)).c_str(), &scene.SoundObjects[i].SoundPosition.x);
+					ImGui::TreePop();
+				}
 			}
+
 			ImGui::TreePop();
 		}
-		if (ImGui::TreeNode("Models")) {
+		ImGui::Spacing();
+		if (ImGui::TreeNode("Collider")) {
 
-		for (size_t i = 0; i < scene.modelObjects.size(); i++)
-		{
-			// would be better if i can select one of the many objects and ill have a properties plane to edit the data instead of this
-			// also a add window would be nice for adding things
-			if (ImGui::TreeNode((scene.modelObjects[i].ObjectName).c_str())) {
-				// position
-				ImGui::DragFloat3(("Position " + std::to_string(i)).c_str(), &scene.modelObjects[i].transform.x);
-
-				// scale
-				ImGui::DragFloat3(("Scale " + std::to_string(i)).c_str(), &scene.modelObjects[i].scale.x);
-
-				ImGui::DragFloat4(("Rotation " + std::to_string(i)).c_str(), &scene.modelObjects[i].rotation.x);
-
-				ImGui::Spacing();
-				ImGui::Checkbox("isCollider", &scene.modelObjects[i].isCollider);
-
-				ImGui::DragFloat3(("BoxColliderTransform " + std::to_string(i)).c_str(), &scene.modelObjects[i].BoxColliderTransform.x);
-
-				ImGui::DragFloat3(("BoxColliderScale " + std::to_string(i)).c_str(), &scene.modelObjects[i].BoxColliderScale.x);
-
-				ImGui::Spacing();
-				ImGui::Checkbox("isBackFaceCulling", &scene.modelObjects[i].DoCulling);
-				ImGui::Checkbox("DoFrustumCull", &scene.modelObjects[i].DoFrustumCull);
-
-				ImGui::DragFloat3(("frustumBoxTransform " + std::to_string(i)).c_str(), &scene.modelObjects[i].frustumBoxTransform.x);
-
-				ImGui::DragFloat3(("frustumBoxScale " + std::to_string(i)).c_str(), &scene.modelObjects[i].frustumBoxScale.x);
-
-				ImGui::Spacing();
-				if (ImGui::SmallButton("Delete")) {
-					scene.modelObjects.erase(scene.modelObjects.begin() + i);
-				}
-
-				ImGui::TreePop();
-			}
-		}
-
-		ImGui::TreePop();
+			ImGui::TreePop();
 		}
 	}
 	ImGui::End();

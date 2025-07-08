@@ -92,3 +92,14 @@ void Mesh::Draw(Shader& shader, glm::mat4 modelMatrix)
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
 }
+
+void Mesh::Delete() {
+    VAO.Delete();
+
+    for (size_t i = 0; i < textures.size(); i++)
+    {textures[i].Delete();}
+    textures.clear();
+
+    vertices.clear();
+    indices.clear();
+}

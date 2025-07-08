@@ -14,14 +14,19 @@ class RenderClass
 {
 public:
 	static Shader shaderProgram;
+
+	// billboard
+	static Shader billBoardShader;
+	static Shader gPassShaderBillBoard;
+	static Shader boxShader;
 	static float gamma;
 	static bool doReflections;
 	static bool doFog;
 	static GLfloat DepthDistance;
 	static GLfloat DepthPlane[];
 	static GLfloat lightRGBA[];
-	static GLfloat skyRGBA[];
-	static GLfloat fogRGBA[];
+	static glm::vec3 skyRGBA;
+	static glm::vec3 fogRGBA;
 	static GLfloat LightTransform1[];
 	static GLfloat ConeSI[];
 	static GLfloat ConeRot[];
@@ -32,9 +37,11 @@ public:
 
 	static void init(GLFWwindow* window, unsigned int width, unsigned int height);
 
+	static void initGlobalShaders();
+
 	static void ClearFramebuffers();
 
-	static void Render(GLFWwindow* window, Shader frameBufferProgram, float window_width, float window_height,
+	static void Render(GLFWwindow* window, float window_width, float window_height,
 		 unsigned int width, unsigned int height);
 
 	static void ForwardLightingPass();
@@ -43,7 +50,7 @@ public:
 
 	static void HybridLightingPass();
 
-	static void Swapchain(GLFWwindow* window, Shader frameBufferProgram, GLFWmonitor* primaryMonitor);
+	static void Swapchain(GLFWwindow* window, GLFWmonitor* primaryMonitor);
 
 	static void Cleanup();
 

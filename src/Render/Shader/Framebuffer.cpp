@@ -12,6 +12,7 @@ unsigned int Framebuffer::frameBufferTexture;
 unsigned int Framebuffer::RBO;
 unsigned int Framebuffer::FBO;
 GLuint Framebuffer::noiseMapTexture;
+Shader Framebuffer::frameBufferProgram;
 
 void Framebuffer::setupNoiseMap() {
 	// *TimeUtil::s_DeltaTime)
@@ -106,7 +107,7 @@ void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int h
 	LightingPass::resizeTexture(width, height);
 }
 
-void Framebuffer::FBO2Draw(Shader frameBufferProgram) {
+void Framebuffer::FBO2Draw() {
 	// Apply post-processing and render to the second FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO2);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -155,7 +156,6 @@ void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
 }
 
 void Framebuffer::FBODraw(
-	Shader frameBufferProgram,
 	bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window) {
 
 	// Switch back to the normal depth function
@@ -218,7 +218,7 @@ void Framebuffer::FBODraw(
 		frameBufferProgram.Activate();
 		frameBufferProgram.setInt("depthMap", 5);
 		// copy contents of FB to FB2 and Display FB2
-		Framebuffer::FBO2Draw(frameBufferProgram);
+		Framebuffer::FBO2Draw();
 	}
 
 }

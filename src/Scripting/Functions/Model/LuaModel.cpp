@@ -24,7 +24,7 @@ void luaModel::DrawModel(sol::state& luaState) {
 			isCulling2.push_back(isCulling);
 			existingNames.insert(modelName); // Mark the modelName as added
 		}
-		Main::updateModelLua(Path2, modelName2, isCulling2, Modelx2, Modely2, Modelz2, RotW2, RotX2, RotY2, RotZ2, ScaleX2, ScaleY2, ScaleZ2);
+		
 		return 0;
 		}; // needs to be made so it doesnt clear when re ran
 }

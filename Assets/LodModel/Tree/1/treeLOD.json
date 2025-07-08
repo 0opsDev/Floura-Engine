@@ -1,0 +1,7 @@
+[
+    {
+        "LodPath": "Assets/LodModel/Tree/1/",
+        "LodDistance": 10.0,
+        "ModelFileNames": [ "tree1.gltf", "tree2.gltf", "tree3.gltf" ]
+    }
+]

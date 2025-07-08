@@ -71,7 +71,7 @@ void SoundProgram::updateCameraPosition() {
 
 
 void SoundProgram::StopSound() {
-    if (source && isPlay) {
+    if (source && isPlay && Main::sleepState) {
         alSourceStop(source);
         if (init::LogSound) std::cout << "StopSound: Sound stopped" << std::endl;
     }
@@ -81,7 +81,9 @@ void SoundProgram::StopSound() {
 }
 
 
-void SoundProgram::CreateSound(std::string Path) {
+void SoundProgram::CreateSound(std::string Path, std::string name) {
+    SoundProgram::name = name;
+
     //Load Sound, Generate source and attach buffer
     ChangeSound(Path);
     //std::cout << Path << std::endl;
@@ -109,8 +111,8 @@ void SoundProgram::DeleteSound() {
     StopSound();
     isPlay = false;
     state = 0;
-    alDeleteSources(1, &source);
-    alDeleteBuffers(1, &buffer);
+    //alDeleteSources(1, &source);
+    //alDeleteBuffers(1, &buffer);
 }
 
 // Helper function to load WAV file

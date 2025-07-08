@@ -5,8 +5,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include <Core/Render.h>
 
-Shader boxShader;
-
 float s_Cube_Vertices[24] =
 {
 	//   Coordinates
@@ -43,7 +41,6 @@ unsigned int s_Cube_Indices[36] =
 };
 
 void CubeVisualizer::init() {
-	boxShader.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/OrangeHitbox.frag");
 	skyboxBuffer(); // create buffer in memory for skybox
 }
 
@@ -62,6 +59,7 @@ void CubeVisualizer::skyboxBuffer() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 }
 
 void CubeVisualizer::draw(float x, float y, float z,
@@ -80,20 +78,20 @@ void CubeVisualizer::draw(float x, float y, float z,
 			glLineWidth(1.0f); // Adjust the width as needed
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 			//std::cout << "height" << height << std::endl;
-			boxShader.Activate();
+			RenderClass::boxShader.Activate();
 
 			glm::mat4 model = glm::mat4(1.0f);
 			// Apply translation
 			model = glm::translate(model, glm::vec3(x, y, z));
 			// Apply scaling
 			model = glm::scale(model, glm::vec3(ScaleX, ScaleY, ScaleZ));
-			boxShader.setMat4("model", model);
+			RenderClass::boxShader.setMat4("model", model);
 			//feed model matrix known as inside the shader "model"
-			boxShader.setMat4("camMatrix", Camera::cameraMatrix);
+			RenderClass::boxShader.setMat4("camMatrix", Camera::cameraMatrix);
 
-			glUniform3f(glGetUniformLocation(boxShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
+			glUniform3f(glGetUniformLocation(RenderClass::boxShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
 
-			glUniform3f(glGetUniformLocation(boxShader.ID, "colour"), colour.x, colour.y, colour.z);
+			glUniform3f(glGetUniformLocation(RenderClass::boxShader.ID, "colour"), colour.x, colour.y, colour.z);
 
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glBindVertexArray(cubeVAO);
@@ -114,5 +112,8 @@ void CubeVisualizer::draw(float x, float y, float z,
 }
 
 void CubeVisualizer::Delete() {
-	boxShader.Delete();
+	
+	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteBuffers(1, &cubeVBO);
+	glDeleteBuffers(1, &cubeEBO);
 }

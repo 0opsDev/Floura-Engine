@@ -22,6 +22,8 @@ public:
 
     // Draws the mesh
     void Draw(Shader& shader, glm::mat4 modelMatrix);
+
+    void Delete();
 };
 
 #endif

@@ -183,4 +183,15 @@ void ModelObject::draw(Shader &Shader) {
 }
 
 void ModelObject::Delete() {
+	if (IsLod) {
+		for (size_t i = 0; i < LODModels.size(); i++)
+		{LODModels[i].Delete();}
+		LODModels.clear();
+
+		ModelFileNames.clear();
+	}
+	else {
+		ModelSingle.Delete();
+	}
+	CubeCollider.Delete();
 }

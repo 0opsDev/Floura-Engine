@@ -5,11 +5,17 @@
 //SoundProgram SoundObjects;
 //std::vector<ModelObject> Scene::objects;
 
-Scene::Scene() {
-
-}
+std::vector<ModelObject> Scene::modelObjects;
+std::vector<BillBoardObject> Scene::BillBoardObjects;
+std::vector <CubeCollider> Scene::CubeColliderObject;
+std::vector <SoundProgram> Scene::SoundObjects;
+std::vector <bool> Scene::isSoundLoop;
 
 void Scene::LoadScene(std::string path) {
+
+	// Attemp to delete previous scene
+	Delete();
+
 	initJsonModelLoad(path + "/Model.scene");
 	initJsonBillBoardLoad(path + "/BillBoard.scene");
 	initJsonColliderLoad(path + "/Collider.scene");
@@ -19,6 +25,7 @@ void Scene::LoadScene(std::string path) {
 
 void Scene::SaveScene(std::string path) {
 	JsonModelSave(path + "/Model.scene");
+	JsonBillBoardSave(path + "/BillBoard.scene");
 }
 
 void Scene::initJsonModelLoad(std::string path) {
@@ -141,6 +148,52 @@ void Scene::JsonModelSave(std::string path) {
 	}
 }
 
+void Scene::JsonBillBoardSave(std::string path) {
+	try {
+		json settingsData = json::array();  // New JSON array to hold model data
+
+		// Serialize each modelObject into JSON
+		for (const auto& obj : BillBoardObjects) {
+			json BillBoardJson;
+			BillBoardJson["name"] = obj.ObjectName;
+			BillBoardJson["type"] = obj.type;
+			BillBoardJson["path"] = obj.path;
+
+			BillBoardJson["doPitch"] = obj.doPitch;
+			BillBoardJson["isCollider"] = obj.isCollider;
+			BillBoardJson["DoFrustumCull"] = obj.DoFrustumCull;
+
+			if (obj.type == "animated" || obj.type == "Animated") {
+				BillBoardJson["doUpdateSequence"] = obj.doUpdateSequence;
+				BillBoardJson["tickrate"] = obj.tickrate;
+			}
+
+			BillBoardJson["position"] = { obj.transform.x, obj.transform.y, obj.transform.z };
+			BillBoardJson["scale"] = { obj.scale.x, obj.scale.y, obj.scale.z };
+
+
+			settingsData.push_back(BillBoardJson);
+		}
+
+		// Write to file
+		std::ofstream outFile(path, std::ios::out);
+		if (!outFile.is_open()) {
+			if (init::LogALL || init::LogSystems) std::cout << "Failed to write to " << path << std::endl;
+			return;
+		}
+
+		outFile << settingsData.dump(4);  // Pretty-print with indentation
+		outFile.close();
+
+		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+
+	}
+	catch (const std::exception& e) {
+		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+	}
+
+}
+
 void Scene::AddSceneModelObject(std::string type, std::string path, std::string name)
 {
 	std::string newName = name;
@@ -155,6 +208,20 @@ void Scene::AddSceneModelObject(std::string type, std::string path, std::string 
 	ModelObject newObject; // Create a temporary ModelObject
 	newObject.CreateObject(type, path, newName);
 	modelObjects.push_back(newObject); // Add the configured object to the vector
+}
+
+void Scene::AddSceneBillBoardObject(std::string name, std::string type, std::string path) {
+	std::string newName = name;
+	for (size_t i = 0; i < BillBoardObjects.size(); i++)
+	{
+		int numDupes = 0;
+		if (newName == BillBoardObjects[i].ObjectName) numDupes++;
+
+		if (numDupes > 0) newName = (newName + " Duplicate");
+	}
+	BillBoardObject newBillBoardObject; // Create a temporary BillBoardObject
+	newBillBoardObject.CreateObject(type, path, newName);
+	BillBoardObjects.push_back(newBillBoardObject);
 }
 
 void Scene::initJsonBillBoardLoad(std::string path) {
@@ -292,6 +359,7 @@ void Scene::initJsonSoundObjectLoad(std::string path) {
 
 		SoundProgram newSoundObject;
 		std::string path = item.at("path").get<std::string>();
+		std::string name = item.at("name").get<std::string>();
 		float pitch = item.at("pitch").get<float>();
 		float volume = item.at("volume").get<float>();
 		bool isLoop = item.at("isLoop").get<bool>();
@@ -299,7 +367,7 @@ void Scene::initJsonSoundObjectLoad(std::string path) {
 			item.at("SoundPosition")[1], item.at("SoundPosition")[2]);
 		bool is3DSound = item.at("is3Dsound").get<bool>();
 
-		newSoundObject.CreateSound(path);
+		newSoundObject.CreateSound(path, name);
 		newSoundObject.SetPitch(pitch);
 		newSoundObject.SetVolume(volume);
 		newSoundObject.SetSoundPosition(SoundPosition.x, SoundPosition.y, SoundPosition.z);
@@ -310,7 +378,7 @@ void Scene::initJsonSoundObjectLoad(std::string path) {
 	}
 	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene SoundObject from: " << path << std::endl;
 }
-
+	
 void Scene::initJsonSettingsLoad(std::string path) {
 	std::ifstream engineDefaultFile(path);
 	if (engineDefaultFile.is_open()) {
@@ -354,6 +422,8 @@ void Scene::initJsonSettingsLoad(std::string path) {
 		RenderClass::DepthPlane[0] = engineDefaultData[0]["DepthPlane"][0];
 		RenderClass::DepthPlane[1] = engineDefaultData[0]["DepthPlane"][1];
 		SettingsUtils::s_WindowTitle = engineDefaultData[0]["Window"];
+		// window name needs to be set here
+
 		Skybox::DefaultSkyboxPath = engineDefaultData[0]["DefaultSkyboxPath"];
 	}
 	else {
@@ -395,9 +465,19 @@ void Scene::Update() {
 
 void Scene::Delete() {
 
+	for (size_t i = 0; i < modelObjects.size(); i++)
+	{modelObjects[i].Delete();}
 	modelObjects.clear();
+
+	for (size_t i = 0; i < BillBoardObjects.size(); i++)
+	{ BillBoardObjects[i].Delete(); }
 	BillBoardObjects.clear();
+
 	CubeColliderObject.clear();
+
+	for (size_t i = 0; i < SoundObjects.size(); i++)
+	{SoundObjects[i].DeleteSound();}
 	SoundObjects.clear();
+
 	isSoundLoop.clear();
 }

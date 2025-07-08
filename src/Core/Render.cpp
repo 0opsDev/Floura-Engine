@@ -12,14 +12,18 @@
 #include <Render/passes/lighting/LightingPass.h>
 
 Shader RenderClass::shaderProgram;
+Shader RenderClass::billBoardShader;
+Shader RenderClass::gPassShaderBillBoard;
+Shader RenderClass::boxShader;
+
 float RenderClass::gamma = 2.2f;
 bool RenderClass::doReflections = true;
 bool RenderClass::doFog = true;
 GLfloat RenderClass::DepthDistance = 100.0f;
 GLfloat RenderClass::DepthPlane[] = { 0.1f, 100.0f };
 GLfloat RenderClass::lightRGBA[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-GLfloat RenderClass::skyRGBA[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-GLfloat RenderClass::fogRGBA[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+glm::vec3 RenderClass::skyRGBA = glm::vec3(1.0f, 1.0f, 1.0f);
+glm::vec3 RenderClass::fogRGBA = glm::vec3( 1.0f, 1.0f, 1.0f);
 GLfloat RenderClass::LightTransform1[] = { 0.0f, 5.0f, 0.0f };
 GLfloat RenderClass::ConeSI[3] = { 0.111f, 0.825f, 2.0f };
 GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
@@ -27,7 +31,8 @@ GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
 BillBoard LightIcon;
 Shader SolidColour;
 RenderQuad lightingRenderQuad;
-Shader shader;
+Shader GBLpass;
+
 
 bool RenderClass::DoDeferredLightingPass = true; // Toggle for lighting pass
 bool RenderClass::DoForwardLightingPass = false; // Toggle for regular pass
@@ -46,18 +51,28 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 
 	lightingRenderQuad.init();
 
-	SolidColour.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
-
-	shader.LoadShader("Shaders/Db/RenderQuad.vert", "Shaders/Db/RenderQuad.frag");
+	
 	// put in one function
 	Framebuffer::setupMainFBO(width, height);
 	Framebuffer::setupSecondFBO(width, height);
 	GeometryPass::setupGbuffers(width, height); // here
 	LightingPass::initcomputeShader(width, height); // Initialize compute shader for lighting pass
+
+	initGlobalShaders();
 	// need to add debug buffers at some point
 	//Framebuffer::setupNoiseMap();
 
 	init::initImGui(window); // Initialize ImGUI
+}
+
+void RenderClass::initGlobalShaders() {
+	// cube collider and billboard, oh yeah and framebuffer
+	billBoardShader.LoadShader("Shaders/Db/BillBoard.vert", "Shaders/Db/BillBoard.frag");
+	gPassShaderBillBoard.LoadShader("Shaders/gBuffer/geometryPassBillboard.vert", "Shaders/gBuffer/geometryPassBillboard.frag");
+	boxShader.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/OrangeHitbox.frag");
+	SolidColour.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
+	GBLpass.LoadShader("Shaders/Db/RenderQuad.vert", "Shaders/Db/RenderQuad.frag");
+	Framebuffer::frameBufferProgram.LoadShader("Shaders/PostProcess/framebuffer.vert", "Shaders/PostProcess/framebuffer.frag");
 }
 
 void RenderClass::ClearFramebuffers() {
@@ -78,7 +93,7 @@ void RenderClass::ClearFramebuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float window_width, float window_height, unsigned int width,
+void RenderClass::Render(GLFWwindow* window, float window_width, float window_height, unsigned int width,
 	unsigned int height) {
 
 	glClearColor(RenderClass::skyRGBA[0], RenderClass::skyRGBA[1], RenderClass::skyRGBA[2],RenderClass::skyRGBA[3]);
@@ -91,21 +106,6 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	//glEnable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_LESS);
 	//glDisable(GL_CULL_FACE);
-
-	/*
-	for (auto& modelTuple : models) {
-		Model& model = std::get<0>(modelTuple);
-		int cullingSetting = std::get<1>(modelTuple);
-		glm::vec3 translation = std::get<2>(modelTuple);
-		glm::vec4 rotation = std::get<3>(modelTuple);
-		glm::vec3 scale = std::get<4>(modelTuple);
-		// Apply culling settings
-		if (cullingSetting == 1 && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
-		else { glDisable(GL_CULL_FACE); }
-
-		GeometryPass::gPassDraw(model, translation, rotation, scale);
-	}
-	*/
 	
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
@@ -138,8 +138,8 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	shaderProgram.setFloat("DepthDistance", DepthDistance);
 	shaderProgram.setFloat("NearPlane", DepthPlane[0]);
 	shaderProgram.setFloat("FarPlane", DepthPlane[1]);
-	shaderProgram.setFloat3("fogColor", fogRGBA[0], fogRGBA[1], fogRGBA[2]);
-	shaderProgram.setFloat4("skyColor", skyRGBA[0], skyRGBA[1], skyRGBA[2], skyRGBA[3]);
+	shaderProgram.setFloat3("fogColor", fogRGBA.r, fogRGBA.g, fogRGBA.b);
+	shaderProgram.setFloat4("skyColor", skyRGBA.r, skyRGBA.g, skyRGBA.b, skyRGBA[3]);
 	shaderProgram.setFloat3("lightPos",RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]);
 	shaderProgram.setFloat4("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 	shaderProgram.setFloat("gamma", gamma);
@@ -162,7 +162,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	LightIcon.draw(true, RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2], 0.3, 0.3, 0.3);
 
 	if (!ImGuiCamera::isWireframe) {
-		Skybox::draw(RenderClass::skyRGBA, Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global
+		Skybox::draw(Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global
 		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 
 	}
@@ -185,7 +185,7 @@ void RenderClass::Render(GLFWwindow* window, Shader frameBufferProgram, float wi
 	glDisable(GL_CULL_FACE);
 
 	// Framebuffer logic
-	Framebuffer::FBODraw(frameBufferProgram, ImGuiCamera::imGuiPanels[0], window_width, window_height, window);
+	Framebuffer::FBODraw(ImGuiCamera::imGuiPanels[0], window_width, window_height, window);
 }
 
 void RenderClass::ForwardLightingPass() {
@@ -198,30 +198,57 @@ void RenderClass::DeferredLightingPass() {
 		//glDisable(GL_DEPTH_TEST);
 		//glDepthFunc(GL_LESS);
 	glDisable(GL_CULL_FACE);
-	shader.Activate();
+	GBLpass.Activate();
 	// gPass textures bound to FB
 	// send gPass textures to shader
 	glActiveTexture(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	GBLpass.setBool("DEFtoggle", ImGuiCamera::enableDEF);
+
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::gPosition);
-	shader.setInt("gPosition", 1);
+	GBLpass.setInt("gPosition", 1);
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
-	shader.setInt("gNormal", 2);
+	GBLpass.setInt("gNormal", 2);
 
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::gAlbedoSpec);
-	shader.setInt("gAlbedoSpec", 3);
+	GBLpass.setInt("gAlbedoSpec", 3);
 
-	shader.setFloat3("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2]);
-	shader.setFloat3("skyColor", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
-	shader.setFloat3("orientation", Camera::Orientation.x, Camera::Orientation.y, Camera::Orientation.z);
-	shader.setFloat3("cameraPos", Camera::Position.x, Camera::Position.y, Camera::Position.z);
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
+	GBLpass.setInt("depthMap", 5);
+
+	GBLpass.setFloat3("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2]);
+	GBLpass.setFloat3("skyColor", skyRGBA.r, skyRGBA.g, skyRGBA.b);
+
+	GBLpass.setFloat("DepthDistance", DepthDistance);
+	GBLpass.setFloat("NearPlane", DepthPlane[0]);
+	GBLpass.setFloat("FarPlane", DepthPlane[1]);
+	GBLpass.setBool("doFog", doFog);
+	GBLpass.setFloat3("fogColor", fogRGBA.r, fogRGBA.g, fogRGBA.b);
+
+	//mat4
+	GBLpass.setMat4("cameraMatrix", Camera::cameraMatrix);
+	GBLpass.setMat4("projectionMatrix", Camera::projection);
+
+	glm::mat4 inverseProjection = glm::inverse(Camera::projection);
+	GBLpass.setMat4("inverseProjection", inverseProjection);
+
+	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(Camera::cameraMatrix)));
+	GBLpass.setMat3("normalMatrix", normalMatrix);
+
+	GBLpass.setFloat3("orientation", Camera::Orientation.x, Camera::Orientation.y, Camera::Orientation.z);
+	GBLpass.setFloat3("cameraPos", Camera::Position.x, Camera::Position.y, Camera::Position.z);
+	GBLpass.setFloat3("cameraDirection", Camera::Orientation.x, Camera::Orientation.y, Camera::Orientation.z);
+	//std::cout << Camera::width << " " << Camera::height << std::endl;
+	GBLpass.setFloat2("screenSize", Camera::width, Camera::height);
+	GBLpass.setFloat("time", glfwGetTime());
 	//shader.
-	lightingRenderQuad.draw(shader);
+	lightingRenderQuad.draw(GBLpass);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 
@@ -231,7 +258,7 @@ void RenderClass::HybridLightingPass() {
 
 }
 
-void RenderClass::Swapchain(GLFWwindow* window, Shader frameBufferProgram, GLFWmonitor* primaryMonitor) {
+void RenderClass::Swapchain(GLFWwindow* window, GLFWmonitor* primaryMonitor) {
 
 
 	Camera::updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
@@ -242,4 +269,8 @@ void RenderClass::Swapchain(GLFWwindow* window, Shader frameBufferProgram, GLFWm
 
 void RenderClass::Cleanup() {
 	shaderProgram.Delete(); // Delete Shader Prog
+	billBoardShader.Delete();
+	gPassShaderBillBoard.Delete();
+	boxShader.Delete();
+	Framebuffer::frameBufferProgram.Delete();
 }

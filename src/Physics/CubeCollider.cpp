@@ -57,6 +57,10 @@ void CubeCollider::draw() {
     }
 }
 
+void CubeCollider::Delete() {
+    CubeVisualizerRenderObject.Delete();
+}
+
 void CubeCollider::init() {
     CubeVisualizerRenderObject.init();
 }

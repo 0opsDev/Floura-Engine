@@ -50,7 +50,7 @@ void Skybox::skyboxBuffer() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Skybox::draw(GLfloat skyRGBA[], unsigned int width, unsigned int height) {
+void Skybox::draw(unsigned int width, unsigned int height) {
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
@@ -75,7 +75,7 @@ void Skybox::draw(GLfloat skyRGBA[], unsigned int width, unsigned int height) {
 
 		skyboxShader.Activate();
 		skyboxShader.setInt("skybox", 0);
-		skyboxShader.setFloat3("skyRGBA", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
+		skyboxShader.setFloat3("skyRGBA", RenderClass::skyRGBA.r, RenderClass::skyRGBA.g, RenderClass::skyRGBA.b);
 
 		// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
 		// where an object is present (a depth of 1.0f will always fail against any object's depth value)
@@ -103,7 +103,7 @@ void Skybox::draw(GLfloat skyRGBA[], unsigned int width, unsigned int height) {
 
 		skyboxgPassShader.Activate();
 		skyboxgPassShader.setInt("skybox", 0);
-		skyboxgPassShader.setFloat3("skyRGBA", skyRGBA[0], skyRGBA[1], skyRGBA[2]);
+		skyboxShader.setFloat3("skyRGBA", RenderClass::skyRGBA.r, RenderClass::skyRGBA.g, RenderClass::skyRGBA.b);
 
 		// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
 		// where an object is present (a depth of 1.0f will always fail against any object's depth value)

@@ -1,0 +1,7 @@
+[
+    {
+        "LodPath": "Assets/LodModel/plant/1/",
+        "LodDistance": 5.0,
+        "ModelFileNames": [ "plant1.gltf", "plant2.gltf", "plant3.gltf" ]
+    }
+]

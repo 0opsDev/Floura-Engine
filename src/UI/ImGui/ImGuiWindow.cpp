@@ -4,12 +4,15 @@
 #include <Core/File/File.h>
 #include <Sound/SoundRunner.h>
 #include <Render/passes/lighting/LightingPass.h>
+#include <Core/scene.h>
+#include <Gameplay/Player.h>
 bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true, true, true, true }; // ImGui Panels
 
 bool ImGuiCamera::DebugPanels[] = { true, false }; // ImGui Panels
 
 std::string ImGuiCamera::FileTabs = "Model";
 bool ImGuiCamera::enableFB = false; // Change this as needed
+bool ImGuiCamera::enableDEF = true;
 
 char ImGuiCamera::UniformInput[64] = { "" }; // Zero-initialized buffer
 float ImGuiCamera::UniformFloat[3] = {}; // Zero-initialized array
@@ -42,6 +45,7 @@ void ImGuiCamera::SystemInfomation() {
 void ImGuiCamera::RenderWindow(GLFWwindow*& window, GLFWmonitor*& monitor, int windowedWidth, int windowedHeight) {
 
 	ImGui::Checkbox("isWireframe", &ImGuiCamera::isWireframe);
+	ImGui::Checkbox("enableDEF", &ImGuiCamera::enableDEF);
 
 	ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
 	if (ImGui::TreeNode("Framerate And Resolution")) {
@@ -75,6 +79,10 @@ void ImGuiCamera::ShaderWindow() {
 		ImGui::DragInt("Shader Number (Vert)", &Main::VertNum);
 		ImGui::DragInt("Shader Number (Frag)", &Main::FragNum); // Shader Switching
 		if (ImGui::SmallButton("Apply Shader?")) { FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram); } // apply shader
+
+		if (ImGui::SmallButton("Reload Shaders?")) RenderClass::initGlobalShaders();
+
+		
 		ImGui::DragFloat("Gamma", &RenderClass::gamma);
 		ImGui::Checkbox("doReflections", &RenderClass::doReflections);
 		ImGui::Checkbox("doFog", &RenderClass::doFog); 		//Toggles
@@ -93,13 +101,54 @@ void ImGuiCamera::ShaderWindow() {
 	}
 }
 
+void ImGuiCamera::CameraWindow() {
+	ImGui::Begin("Camera Settings"); // ImGUI window creation
+	//std::to_string(footCollision)
+	ImGui::Text(("Camera Position: x: " + std::to_string(Camera::Position.x) + "y: " + std::to_string(Camera::Position.y) + "z: " + std::to_string(Camera::Position.z)).c_str());
+	glm::quat cameraQuat = Camera::Orientation; // Ensure Orientation is a quaternion
+	glm::vec3 eulerAngles = glm::degrees(glm::eulerAngles(cameraQuat));
+	ImGui::Text(("Camera Rotation: Yaw: " + std::to_string(eulerAngles.x) + " Pitch: " + std::to_string(eulerAngles.y) + " Roll: " + std::to_string(eulerAngles.z)).c_str());
+	ImGui::Spacing();
+	if (ImGui::TreeNode("Controls")) {
+		ImGui::Text("Transform");
+		if (ImGui::SmallButton("Reset Camera")) {
+			Camera::Position = glm::vec3(0, 0, 0);
+		} // reset cam pos
+		ImGui::DragFloat3("Camera Transform", &Camera::Position.x); // set cam pos
+		ImGui::DragFloat("Camera Speed", &Camera::s_scrollSpeed); //Camera
+
+		ImGui::Spacing();
+		ImGui::Text("Bindings");
+		ImGui::DragFloat("Camera Sensitivity X", &Camera::s_sensitivityX);
+		ImGui::DragFloat("Camera Sensitivity Y", &Camera::s_sensitivityY);
+		ImGui::TreePop();
+	}
+	ImGui::Spacing();
+	if (ImGui::TreeNode("Perspective")) {
+		ImGui::Text("View");
+		ImGui::SliderFloat("FOV", &Main::cameraSettings[0], 0.1f, 160.0f); //FOV
+		ImGui::DragFloat2("Near and Far Plane", &Main::cameraSettings[1]); // Near and FarPlane
+		ImGui::TreePop();
+	}
+	ImGui::Spacing();
+	if (ImGui::TreeNode("Collision")) {
+		ImGui::Text(("Foot Collision: " + std::to_string(Player::isColliding)).c_str());
+		ImGui::Checkbox("doPlayerBoxCollision: ", &CubeCollider::CollideWithCamera);
+		ImGui::TreePop();
+	}
+	ImGui::Spacing();
+	ImGui::Checkbox("DoGravity: ", &Camera::s_DoGravity);
+
+	ImGui::End();
+}
+
 void ImGuiCamera::LightWindow() {
 	if (ImGui::TreeNode("Lighting")) {
 
 		if (ImGui::TreeNode("Colour")) {
-			ImGui::ColorEdit4("sky RGBA", RenderClass::skyRGBA);
+			ImGui::ColorEdit3("sky RGBA", &RenderClass::skyRGBA.r);
 			ImGui::ColorEdit4("light RGBA", RenderClass::lightRGBA);
-			ImGui::ColorEdit4("fog RGBA", RenderClass::fogRGBA);	// sky and light
+			ImGui::ColorEdit3("fog RGBA", &RenderClass::fogRGBA.r);	// sky and light
 			ImGui::TreePop();
 		}
 
@@ -209,6 +258,7 @@ void ImGuiCamera::PreformanceProfiler() {
 
 
 }
+
 void ImGuiCamera::TextEditor() {
 	ImGui::Begin("Text Editor"); // ImGUI window creation
 	ImGui::Text("Text Editor");
@@ -281,4 +331,133 @@ void ImGuiCamera::viewport() {
 	}
 
 	ImGui::End();
+}
+
+static const char* items[]{ "Models","BillBoards","Sound", "Collider"};
+static int Selecteditem = 0;
+
+char name[32] = "Name";
+char Path[64] = "Assets/";
+bool type = false;
+
+void ImGuiCamera::create() {
+	if (ImGui::TreeNode("Add New Object")) {
+		ImGui::Spacing();
+		ImGui::Combo("ObjectType", &Selecteditem, items, IM_ARRAYSIZE(items));
+		ImGui::InputText("Path Input", Path, IM_ARRAYSIZE(Path));
+		ImGui::InputText("Name Input", name, IM_ARRAYSIZE(name));
+		ImGui::Spacing();
+		if (Selecteditem == 0) {
+			ImGui::Text("Model");
+			ImGui::Checkbox("LOD", &type);
+
+			if (ImGui::SmallButton("Create")) {
+				if (type) Scene::AddSceneModelObject("LOD", Path, name);
+				else Scene::AddSceneModelObject("Static", Path, name);
+			}
+
+		}
+		else if (Selecteditem == 1) {
+			ImGui::Text("BillBoard");
+
+			ImGui::Checkbox("Animated", &type);
+			if (ImGui::SmallButton("Create")) {
+				if (type) Scene::AddSceneBillBoardObject(name, "animated", Path);
+				else Scene::AddSceneBillBoardObject(name, "static", Path);
+			}
+			else if (Selecteditem == 2) {
+				ImGui::Text("Sound");
+			}
+			else if (Selecteditem == 3) {
+				ImGui::Text("Collider");
+			}
+		}
+		ImGui::TreePop();
+		//std::cout << Selecteditem << std::endl;
+	}
+}
+
+void ImGuiCamera::ModelH() {
+	if (ImGui::TreeNode("Models")) {
+		
+		ImGui::Spacing();
+
+		for (size_t i = 0; i < Scene::modelObjects.size(); i++)
+		{
+			// would be better if i can select one of the many objects and ill have a properties plane to edit the data instead of this
+			// also a add window would be nice for adding things
+			if (ImGui::TreeNode((Scene::modelObjects[i].ObjectName).c_str())) {
+				// position
+				ImGui::DragFloat3("Position", &Scene::modelObjects[i].transform.x);
+
+				// scale
+				ImGui::DragFloat3("Scale", &Scene::modelObjects[i].scale.x);
+
+				ImGui::DragFloat4("Rotation", &Scene::modelObjects[i].rotation.x);
+
+				ImGui::Spacing();
+				ImGui::Checkbox("isCollider", &Scene::modelObjects[i].isCollider);
+
+				ImGui::DragFloat3("BoxColliderTransform", &Scene::modelObjects[i].BoxColliderTransform.x);
+
+				ImGui::DragFloat3("BoxColliderScale", &Scene::modelObjects[i].BoxColliderScale.x);
+
+				ImGui::Spacing();
+				ImGui::Checkbox("isBackFaceCulling", &Scene::modelObjects[i].DoCulling);
+				ImGui::Checkbox("DoFrustumCull", &Scene::modelObjects[i].DoFrustumCull);
+
+				ImGui::DragFloat3("frustumBoxTransform", &Scene::modelObjects[i].frustumBoxTransform.x);
+
+				ImGui::DragFloat3("frustumBoxScale", &Scene::modelObjects[i].frustumBoxScale.x);
+
+				ImGui::Spacing();
+				if (ImGui::SmallButton("Delete")) {
+					Scene::modelObjects[i].Delete();
+					Scene::modelObjects.erase(Scene::modelObjects.begin() + i);
+				}
+
+				ImGui::TreePop();
+			}
+		}
+
+		ImGui::TreePop();
+	}
+
+}
+
+void ImGuiCamera::BillBoardH() {
+	if (ImGui::TreeNode("BillBoards")) {
+
+		ImGui::Spacing();
+
+		for (size_t i = 0; i < Scene::BillBoardObjects.size(); i++) {
+			if (ImGui::TreeNode((Scene::BillBoardObjects[i].ObjectName).c_str())) {
+				ImGui::DragFloat3("Position", &Scene::BillBoardObjects[i].transform.x);
+				ImGui::DragFloat3("Scale", &Scene::BillBoardObjects[i].scale.x);
+
+				ImGui::Spacing();
+				ImGui::Checkbox("doPitch", &Scene::BillBoardObjects[i].doPitch);
+
+				if (Scene::BillBoardObjects[i].type == "animated" || Scene::BillBoardObjects[i].type == "Animated") {
+
+					ImGui::DragInt("tickrate", &Scene::BillBoardObjects[i].tickrate);
+					ImGui::Checkbox("doUpdateSequence", &Scene::BillBoardObjects[i].doUpdateSequence);
+				}
+
+				ImGui::Checkbox("isCollider", &Scene::BillBoardObjects[i].isCollider);
+				ImGui::Checkbox("DoFrustumCull", &Scene::BillBoardObjects[i].DoFrustumCull);
+
+				ImGui::Spacing();
+				if (ImGui::SmallButton("Delete")) {
+					Scene::BillBoardObjects[i].Delete();
+					Scene::BillBoardObjects.erase(Scene::BillBoardObjects.begin() + i);
+				}
+
+				ImGui::TreePop();
+			}
+		}
+
+		ImGui::TreePop();
+	}
+
 }
