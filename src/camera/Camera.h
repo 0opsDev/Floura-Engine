@@ -24,8 +24,7 @@ public:
     static bool s_DoGravity;
     static glm::mat4 cameraMatrix;
     static float s_scrollSpeed;
-    static float s_sensitivityX;
-    static float s_sensitivityY;
+    static glm::vec2 sensitivity;
     static float PlayerHeightCurrent;
     static glm::mat4 view;
     static glm::mat4 projection;

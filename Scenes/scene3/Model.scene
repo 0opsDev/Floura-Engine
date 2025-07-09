@@ -1,9 +1,9 @@
 [
     {
         "BoxColliderScale": [
-            20.0,
+            30.0,
             1.0,
-            20.0
+            30.0
         ],
         "BoxColliderTransform": [
             0.0,
@@ -23,14 +23,14 @@
             0.0
         ],
         "Scale": [
+            3.0,
             2.0,
-            2.0,
-            2.0
+            3.0
         ],
         "frustumBoxScale": [
-            20.0,
+            30.0,
             1.0,
-            20.0
+            30.0
         ],
         "frustumBoxTransform": [
             0.0,
@@ -265,94 +265,6 @@
     },
     {
         "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "Location": [
-            8.0,
-            -0.20000000298023224,
-            -13.600000381469727
-        ],
-        "Rotation": [
-            1.0,
-            0.0,
-            -40.0,
-            0.0
-        ],
-        "Scale": [
-            0.5,
-            0.5,
-            0.5
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": false,
-        "name": "coastal_cliff_02_1k",
-        "path": "Assets/Models/coastal_cliff_02_1k/coastal_cliff_02_1k.gltf",
-        "type": "Static"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "Location": [
-            13.0,
-            0.0,
-            4.0
-        ],
-        "Rotation": [
-            1.0,
-            0.0,
-            -94.0,
-            0.0
-        ],
-        "Scale": [
-            0.5,
-            0.5,
-            0.5
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": false,
-        "name": "coastal_cliff_02_1k 2",
-        "path": "Assets/Models/coastal_cliff_02_1k/coastal_cliff_02_1k.gltf",
-        "type": "Static"
-    },
-    {
-        "BoxColliderScale": [
             0.5,
             1.0,
             0.5
@@ -438,94 +350,6 @@
         "name": "treeLOD",
         "path": "Assets/LodModel/Tree/1/treeLOD.json",
         "type": "LOD"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": true,
-        "Location": [
-            6.0,
-            0.20000000298023224,
-            -5.0
-        ],
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "plant",
-        "path": "Assets/LodModel/plant/1/plantLOD.json",
-        "type": "LOD"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "Location": [
-            20.0,
-            0.0,
-            28.0
-        ],
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": false,
-        "name": "ao",
-        "path": "Assets/Models/Test/aoTest.gltf",
-        "type": "Static"
     },
     {
         "BoxColliderScale": [

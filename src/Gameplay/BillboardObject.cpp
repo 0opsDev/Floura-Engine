@@ -46,7 +46,10 @@ void BillBoardObject::draw() {
 		}
 		BillBoardRenderObject.draw(doPitch, transform.x, transform.y, transform.z, scale.x, scale.y, scale.z);
 	}
-	CubeCollider.draw();
+	if (isCollider) {
+		CubeCollider.draw();
+	}
+	
 }
 
 void BillBoardObject::Delete() {

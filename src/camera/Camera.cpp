@@ -6,8 +6,7 @@
 bool MouseState = true, toggleESC = true;
 float timeAccumulator = 0;
 float Camera::s_scrollSpeed = 0;
-float Camera::s_sensitivityX = 100;
-float Camera::s_sensitivityY = 100;
+glm::vec2 Camera::sensitivity;
 bool Camera::s_DoGravity = false;
 glm::mat4 Camera::cameraMatrix = glm::mat4(1.0f);
 glm::vec3 Camera::Position = glm::vec3(0,0,0);
@@ -184,8 +183,8 @@ void Camera::Inputs(GLFWwindow* window)
 
         // Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
         // and then "transforms" them into degrees 
-        float rotX = s_sensitivityY * (float)(mouseY - (height / 2)) / height;
-        float rotY = s_sensitivityX * (float)(mouseX - (width / 2)) / width;
+        float rotX = Camera::sensitivity.y * (float)(mouseY - (height / 2)) / height;
+        float rotY = Camera::sensitivity.x * (float)(mouseX - (width / 2)) / width;
         //float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
         //float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
        

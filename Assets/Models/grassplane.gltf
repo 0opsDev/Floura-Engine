@@ -92,61 +92,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":6943,
+			"count":6202,
 			"max":[
-				1.000619649887085,
-				0.10072354972362518,
-				1.0199463367462158
+				1.1037042140960693,
+				0.33505257964134216,
+				1.072774887084961
 			],
 			"min":[
-				-1.0285440683364868,
+				-1.055792212486267,
 				-0.2991587817668915,
-				-1.0007660388946533
+				-1.0198262929916382
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":6943,
+			"count":6202,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":6943,
+			"count":6202,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":35682,
+			"count":30738,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":83316,
+			"byteLength":74424,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":83316,
-			"byteOffset":83316,
+			"byteLength":74424,
+			"byteOffset":74424,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":55544,
-			"byteOffset":166632,
+			"byteLength":49616,
+			"byteOffset":148848,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":71364,
-			"byteOffset":222176,
+			"byteLength":61476,
+			"byteOffset":198464,
 			"target":34963
 		}
 	],
@@ -158,7 +158,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":293540,
+			"byteLength":259940,
 			"uri":"grassplane.bin"
 		}
 	]

@@ -5,8 +5,6 @@ SettingsUtils::SettingsUtils()
 {
 }
 
-std::string SettingsUtils::s_WindowTitle = "OpenGL Window";
-
 std::string SettingsUtils::sceneName = ""; // Map loading
 
 float SettingsUtils::s_ViewportVerticies[24] = {

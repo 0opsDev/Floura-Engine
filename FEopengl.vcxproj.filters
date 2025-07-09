@@ -116,6 +116,9 @@
     <Filter Include="src\Render\passes\dbg">
       <UniqueIdentifier>{5457fc8a-6ff0-497f-8c4a-2bda7506bfe0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Render\window">
+      <UniqueIdentifier>{8698ad57-7501-45ad-95b0-589b48a33176}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -285,6 +288,9 @@
     </ClCompile>
     <ClCompile Include="src\Core\scene.cpp">
       <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\window\WindowHandler.cpp">
+      <Filter>src\Render\window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -458,6 +464,9 @@
     </ClInclude>
     <ClInclude Include="src\Core\scene.h">
       <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\window\WindowHandler.h">
+      <Filter>src\Render\window</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

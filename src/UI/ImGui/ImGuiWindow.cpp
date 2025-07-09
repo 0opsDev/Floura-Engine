@@ -6,28 +6,29 @@
 #include <Render/passes/lighting/LightingPass.h>
 #include <Core/scene.h>
 #include <Gameplay/Player.h>
-bool ImGuiCamera::imGuiPanels[] = { true, true, true, true, true, true, true, true, true }; // ImGui Panels
+#include <Render/window/WindowHandler.h>
+bool ImGuiWindow::imGuiPanels[] = { true, true, true, true, true, true, true, true, true }; // ImGui Panels
 
-bool ImGuiCamera::DebugPanels[] = { true, false }; // ImGui Panels
+bool ImGuiWindow::DebugPanels[] = { true, false }; // ImGui Panels
 
-std::string ImGuiCamera::FileTabs = "Model";
-bool ImGuiCamera::enableFB = false; // Change this as needed
-bool ImGuiCamera::enableDEF = true;
+std::string ImGuiWindow::FileTabs = "Model";
+bool ImGuiWindow::enableFB = false; // Change this as needed
+bool ImGuiWindow::enableDEF = true;
 
-char ImGuiCamera::UniformInput[64] = { "" }; // Zero-initialized buffer
-float ImGuiCamera::UniformFloat[3] = {}; // Zero-initialized array
+char ImGuiWindow::UniformInput[64] = { "" }; // Zero-initialized buffer
+float ImGuiWindow::UniformFloat[3] = {}; // Zero-initialized array
 
-bool ImGuiCamera::isWireframe = false;
+bool ImGuiWindow::isWireframe = false;
 
-float ImGuiCamera::gPassTime = 0;
-float ImGuiCamera::lPassTime = 0;
-float ImGuiCamera::Render = 0;
-float ImGuiCamera::physicsTime = 0;
+float ImGuiWindow::gPassTime = 0;
+float ImGuiWindow::lPassTime = 0;
+float ImGuiWindow::Render = 0;
+float ImGuiWindow::physicsTime = 0;
 
 // Temporary buffer for path editing
 static char pathBuffer[256]; // Ensure the size is appropriate
 
-void ImGuiCamera::SystemInfomation() {
+void ImGuiWindow::SystemInfomation() {
 	if (ImGui::TreeNode("System Infomation")) {
 		const GLubyte* version = glGetString(GL_VERSION);
 		const GLubyte* renderer = glGetString(GL_RENDERER);
@@ -42,30 +43,30 @@ void ImGuiCamera::SystemInfomation() {
 
 }
 
-void ImGuiCamera::RenderWindow(GLFWwindow*& window, GLFWmonitor*& monitor, int windowedWidth, int windowedHeight) {
+void ImGuiWindow::RenderWindow(GLFWwindow*& window, int windowedWidth, int windowedHeight) {
 
-	ImGui::Checkbox("isWireframe", &ImGuiCamera::isWireframe);
-	ImGui::Checkbox("enableDEF", &ImGuiCamera::enableDEF);
+	ImGui::Checkbox("isWireframe", &ImGuiWindow::isWireframe);
+	ImGui::Checkbox("enableDEF", &ImGuiWindow::enableDEF);
 
 	ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
 	if (ImGui::TreeNode("Framerate And Resolution")) {
 		ImGui::Text("Framerate Limiters");
-		ImGui::Checkbox("Vsync", &ScreenUtils::doVsync); // Set the value of doVsync (bool)
+		ImGui::Checkbox("Vsync", &windowHandler::doVsync); // Set the value of doVsync (bool)
 		// Screen
 		ImGui::DragInt("Width", &SettingsUtils::tempWidth);
 		ImGui::DragInt("Height", &SettingsUtils::tempHeight); // screen slider
 		//enableLinearScaling
-		ImGui::Checkbox("Enable FB shader", &ImGuiCamera::enableFB); // Set the value of enableFB (bool)
+		ImGui::Checkbox("Enable FB shader", &ImGuiWindow::enableFB); // Set the value of enableFB (bool)
 
 		if (ImGui::SmallButton("Apply Changes?")) { // apply button
 			glViewport(0, 0, SettingsUtils::tempWidth, SettingsUtils::tempHeight); // real internal res
 			glfwSetWindowSize(window, SettingsUtils::tempWidth, SettingsUtils::tempHeight);
-			ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
+			windowHandler::setVSync(windowHandler::doVsync); // Set Vsync to value of doVsync (bool)
 			Framebuffer::updateFrameBufferResolution(SettingsUtils::tempWidth, SettingsUtils::tempHeight); // Update frame buffer resolution
 		}
 		if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 		{
-			ScreenUtils::toggleFullscreen(window, monitor, windowedWidth, windowedHeight); //needs to be fixed //GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight
+			ScreenUtils::toggleFullscreen(window, windowedWidth, windowedHeight); //needs to be fixed //GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight
 		} //Toggle Fullscreen
 
 
@@ -73,7 +74,7 @@ void ImGuiCamera::RenderWindow(GLFWwindow*& window, GLFWmonitor*& monitor, int w
 	}
 }
 
-void ImGuiCamera::ShaderWindow() {
+void ImGuiWindow::ShaderWindow() {
 	if (ImGui::TreeNode("Shaders")) {
 		//Optimisation And Shaders
 		ImGui::DragInt("Shader Number (Vert)", &Main::VertNum);
@@ -92,16 +93,16 @@ void ImGuiCamera::ShaderWindow() {
 		ImGui::DragFloat("Depth Distance (FOG)", &RenderClass::DepthDistance);
 		ImGui::DragFloat2("Near and Far Depth Plane", RenderClass::DepthPlane);
 
-		ImGui::InputText("Uniform Input", ImGuiCamera::UniformInput, IM_ARRAYSIZE(ImGuiCamera::UniformInput));
-		ImGui::DragFloat("UniformFloat", ImGuiCamera::UniformFloat);
-		if (false & ImGuiCamera::UniformInput != NULL) { // Debug
-			if (init::LogALL || init::LogSystems) std::cout << ImGuiCamera::UniformInput << std::endl;
+		ImGui::InputText("Uniform Input", ImGuiWindow::UniformInput, IM_ARRAYSIZE(ImGuiWindow::UniformInput));
+		ImGui::DragFloat("UniformFloat", ImGuiWindow::UniformFloat);
+		if (false & ImGuiWindow::UniformInput != NULL) { // Debug
+			if (init::LogALL || init::LogSystems) std::cout << ImGuiWindow::UniformInput << std::endl;
 		}
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 }
 
-void ImGuiCamera::CameraWindow() {
+void ImGuiWindow::CameraWindow() {
 	ImGui::Begin("Camera Settings"); // ImGUI window creation
 	//std::to_string(footCollision)
 	ImGui::Text(("Camera Position: x: " + std::to_string(Camera::Position.x) + "y: " + std::to_string(Camera::Position.y) + "z: " + std::to_string(Camera::Position.z)).c_str());
@@ -119,8 +120,8 @@ void ImGuiCamera::CameraWindow() {
 
 		ImGui::Spacing();
 		ImGui::Text("Bindings");
-		ImGui::DragFloat("Camera Sensitivity X", &Camera::s_sensitivityX);
-		ImGui::DragFloat("Camera Sensitivity Y", &Camera::s_sensitivityY);
+		//sensitivity
+		ImGui::DragFloat2("Camera Sensitivity", &Camera::sensitivity.x);
 		ImGui::TreePop();
 	}
 	ImGui::Spacing();
@@ -142,7 +143,7 @@ void ImGuiCamera::CameraWindow() {
 	ImGui::End();
 }
 
-void ImGuiCamera::LightWindow() {
+void ImGuiWindow::LightWindow() {
 	if (ImGui::TreeNode("Lighting")) {
 
 		if (ImGui::TreeNode("Colour")) {
@@ -171,7 +172,7 @@ void ImGuiCamera::LightWindow() {
 	}
 }
 
-void ImGuiCamera::PanelsWindow() {
+void ImGuiWindow::PanelsWindow() {
 	// Toggle ImGui Windows
 	ImGui::Begin("Panels"); // ImGUI window creation
 	ImGui::Text("Settings (Press escape to use mouse)");
@@ -181,18 +182,18 @@ void ImGuiCamera::PanelsWindow() {
 	if (ImGui::SmallButton("Stop")) { ScriptRunner::clearScripts(); } // save settings button
 	if (ImGui::SmallButton("Start")) { ScriptRunner::init(SettingsUtils::sceneName + "LuaStartup.json"); } // save settings button
 	if (ImGui::SmallButton("Restart")) { ScriptRunner::clearScripts(); ScriptRunner::init(SettingsUtils::sceneName + "LuaStartup.json"); } // save settings button
-	ImGui::Checkbox("Rendering", &ImGuiCamera::imGuiPanels[1]);
-	ImGui::Checkbox("Camera Settings", &ImGuiCamera::imGuiPanels[2]);
-	ImGui::Checkbox("ViewPort", &ImGuiCamera::imGuiPanels[3]);
-	ImGui::Checkbox("File Viewer", &ImGuiCamera::imGuiPanels[4]);
-	ImGui::Checkbox("Physics Settings", &ImGuiCamera::imGuiPanels[5]);
-	ImGui::Checkbox("Debug Window", &ImGuiCamera::imGuiPanels[6]);
-	ImGui::Checkbox("Text Editor", &ImGuiCamera::imGuiPanels[7]);
-	ImGui::Checkbox("Audio", &ImGuiCamera::imGuiPanels[8]); // Audio window
+	ImGui::Checkbox("Rendering", &ImGuiWindow::imGuiPanels[1]);
+	ImGui::Checkbox("Camera Settings", &ImGuiWindow::imGuiPanels[2]);
+	ImGui::Checkbox("ViewPort", &ImGuiWindow::imGuiPanels[3]);
+	ImGui::Checkbox("File Viewer", &ImGuiWindow::imGuiPanels[4]);
+	ImGui::Checkbox("Physics Settings", &ImGuiWindow::imGuiPanels[5]);
+	ImGui::Checkbox("Debug Window", &ImGuiWindow::imGuiPanels[6]);
+	ImGui::Checkbox("Text Editor", &ImGuiWindow::imGuiPanels[7]);
+	ImGui::Checkbox("Audio", &ImGuiWindow::imGuiPanels[8]); // Audio window
 	ImGui::End();
 }
 
-void ImGuiCamera::PhysicsWindow() {
+void ImGuiWindow::PhysicsWindow() {
 	ImGui::Begin("Physics"); // ImGUI window creation
 	ImGui::Checkbox("showBoxCollider", &CubeCollider::showBoxCollider);
 	if (ImGui::TreeNode("Collision")) {
@@ -203,7 +204,7 @@ void ImGuiCamera::PhysicsWindow() {
 	ImGui::End();
 }
 
-void ImGuiCamera::DebugWindow() {
+void ImGuiWindow::DebugWindow() {
 	ImGui::Begin("Debug Window"); // ImGUI window creation
 	ImGui::Checkbox("Preformance Profiler", &DebugPanels[0]);
 	if (DebugPanels[0]) { PreformanceProfiler(); }
@@ -213,7 +214,7 @@ void ImGuiCamera::DebugWindow() {
 	ImGui::End();
 }
 
-void ImGuiCamera::PreformanceProfiler() {
+void ImGuiWindow::PreformanceProfiler() {
 	ImGui::Begin("Preformance Profiler"); // ImGUI window creation
 
 	SystemInfomation();
@@ -259,7 +260,7 @@ void ImGuiCamera::PreformanceProfiler() {
 
 }
 
-void ImGuiCamera::TextEditor() {
+void ImGuiWindow::TextEditor() {
 	ImGui::Begin("Text Editor"); // ImGUI window creation
 	ImGui::Text("Text Editor");
 
@@ -293,7 +294,7 @@ void ImGuiCamera::TextEditor() {
 	ImGui::End();
 }
 
-void ImGuiCamera::audio() {
+void ImGuiWindow::audio() {
 	ImGui::Begin("audio window"); // ImGUI window creation
 	ImGui::Checkbox("Visualize Audio", &SoundRunner::VisualizeSound);
 	if (ImGui::TreeNode("Volume")) {
@@ -312,7 +313,7 @@ void ImGuiCamera::audio() {
 	ImGui::End();
 }
 
-void ImGuiCamera::viewport() {
+void ImGuiWindow::viewport() {
 	ImGui::Begin("ViewPort");
 	float window_width = ImGui::GetContentRegionAvail().x;
 	float window_height = ImGui::GetContentRegionAvail().y;
@@ -340,7 +341,7 @@ char name[32] = "Name";
 char Path[64] = "Assets/";
 bool type = false;
 
-void ImGuiCamera::create() {
+void ImGuiWindow::create() {
 	if (ImGui::TreeNode("Add New Object")) {
 		ImGui::Spacing();
 		ImGui::Combo("ObjectType", &Selecteditem, items, IM_ARRAYSIZE(items));
@@ -377,7 +378,7 @@ void ImGuiCamera::create() {
 	}
 }
 
-void ImGuiCamera::ModelH() {
+void ImGuiWindow::ModelH() {
 	if (ImGui::TreeNode("Models")) {
 		
 		ImGui::Spacing();
@@ -425,7 +426,7 @@ void ImGuiCamera::ModelH() {
 
 }
 
-void ImGuiCamera::BillBoardH() {
+void ImGuiWindow::BillBoardH() {
 	if (ImGui::TreeNode("BillBoards")) {
 
 		ImGui::Spacing();

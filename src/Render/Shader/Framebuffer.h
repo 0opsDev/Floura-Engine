@@ -35,8 +35,7 @@ public:
 
 	static void FBO2Draw();
 
-	static void FBODraw(
-		bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window);
+	static void FBODraw(bool imGuiPanels, GLFWwindow* window);
 };
 
 #endif

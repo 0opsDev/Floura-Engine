@@ -1,12 +1,10 @@
 [
     {
         "FOV": 80.0,
-        "Height": 1080,
         "Scene": "scene3",
-        "SensitivityX": 100.0,
-        "SensitivityY": 100.0,
+        "Sensitivity": [ 100.0, 100.0],
         "Vsync": false,
-        "Width": 1920,
+        "Resolution": [ 1920, 1080 ],
         "imGui": true
     }
 ]

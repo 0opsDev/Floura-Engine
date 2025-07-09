@@ -114,7 +114,7 @@ void ModelObject::renderLogic(Shader& Shader) {
 		return; // Skip rendering if not in regular or lighting pass
 	}
 
-	if (DoCulling == true && !ImGuiCamera::isWireframe) { glEnable(GL_CULL_FACE); }
+	if (DoCulling == true && !ImGuiWindow::isWireframe) { glEnable(GL_CULL_FACE); }
 	else { glDisable(GL_CULL_FACE); }
 
 	//if (InsideFaceDirection) { glFrontFace(GL_CW); }
@@ -123,7 +123,7 @@ void ModelObject::renderLogic(Shader& Shader) {
 	if (CullFrontFace) { glCullFace(GL_FRONT); }
 	else { glCullFace(GL_BACK); }
 
-	if (ImGuiCamera::isWireframe) {
+	if (ImGuiWindow::isWireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 	}
 	
@@ -179,7 +179,10 @@ void ModelObject::draw(Shader &Shader) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	CubeCollider.draw();
+	if (isCollider) {
+		CubeCollider.draw();
+	}
+
 }
 
 void ModelObject::Delete() {

@@ -11,7 +11,7 @@
 //#include <Core/scene.h>
 
 
-class ImGuiCamera
+class ImGuiWindow
 {
 public:
 
@@ -31,7 +31,7 @@ public:
 	static float physicsTime;
 
 	static void SystemInfomation();
-	static void RenderWindow(GLFWwindow*& window, GLFWmonitor*& monitor, int windowedWidth, int windowedHeight);
+	static void RenderWindow(GLFWwindow*& window, int windowedWidth, int windowedHeight);
 	static void create();
 	static void ShaderWindow();
 	static void CameraWindow();

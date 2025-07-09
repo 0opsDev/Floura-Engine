@@ -26,8 +26,6 @@ public:
 
     static void initGLenable(bool frontFaceSide);
 
-    static void initLogo(GLFWwindow* window, std::string path);
-
 };
 
 #endif // INIT_CLASS_H

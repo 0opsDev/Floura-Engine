@@ -2,6 +2,7 @@
 #include <utils/SettingsUtil.h>
 #include <Render/passes/geometry/geometryPass.h>
 #include <Render/passes/lighting/LightingPass.h>
+#include <Render/window/WindowHandler.h>
 unsigned int Framebuffer::ViewPortWidth = 800;
 unsigned int Framebuffer::ViewPortHeight = 600;
 unsigned int Framebuffer::viewVAO;
@@ -155,8 +156,7 @@ void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
 	}
 }
 
-void Framebuffer::FBODraw(
-	bool imGuiPanels, unsigned int Vwidth, unsigned int Vheight, GLFWwindow* window) {
+void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 
 	// Switch back to the normal depth function
 	glDepthFunc(GL_LESS);
@@ -169,8 +169,8 @@ void Framebuffer::FBODraw(
 	frameBufferProgram.setMat4("cameraMatrix", Camera::cameraMatrix);
 	frameBufferProgram.setFloat("time", glfwGetTime());
 	frameBufferProgram.setFloat("deltaTime", TimeUtil::s_DeltaTime);
-	frameBufferProgram.setFloat(ImGuiCamera::UniformInput, ImGuiCamera::UniformFloat[0]);
-	frameBufferProgram.setBool("enableFB", ImGuiCamera::enableFB);
+	frameBufferProgram.setFloat(ImGuiWindow::UniformInput, ImGuiWindow::UniformFloat[0]);
+	frameBufferProgram.setBool("enableFB", ImGuiWindow::enableFB);
 
 	// draw the framebuffer
 	glBindVertexArray(viewVAO);
@@ -208,7 +208,7 @@ void Framebuffer::FBODraw(
 		frameBufferProgram.Activate();
 		frameBufferProgram.setInt("depthMap", 5);
 
-		ResizeLogic(imGuiPanels, window, Vwidth, Vheight);
+		ResizeLogic(imGuiPanels, window, windowHandler::window_width, windowHandler::window_height);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}

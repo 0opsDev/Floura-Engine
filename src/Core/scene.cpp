@@ -1,4 +1,5 @@
 #include "scene.h"
+#include <Render/window/WindowHandler.h>
 
 //BillBoardObject BillBoardObjects;
 //CubeCollider ColliderObject;
@@ -421,7 +422,7 @@ void Scene::initJsonSettingsLoad(std::string path) {
 		RenderClass::DepthDistance = engineDefaultData[0]["DepthDistance"];
 		RenderClass::DepthPlane[0] = engineDefaultData[0]["DepthPlane"][0];
 		RenderClass::DepthPlane[1] = engineDefaultData[0]["DepthPlane"][1];
-		SettingsUtils::s_WindowTitle = engineDefaultData[0]["Window"];
+		windowHandler::s_WindowTitle = engineDefaultData[0]["Window"];
 		// window name needs to be set here
 
 		Skybox::DefaultSkyboxPath = engineDefaultData[0]["DefaultSkyboxPath"];

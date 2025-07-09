@@ -123,29 +123,3 @@ void init::initGLenable(bool frontFaceSide ) {
     case false: { glFrontFace(GL_CCW); break; } // outside facing
     }
 }
-
-void init::initLogo(GLFWwindow* window, std::string path) {
-	// change window icon
-	// Icon Creation
-	int iconW, iconH; // Width and Depth
-	int iconChannels; // Image number (1)
-	stbi_set_flip_vertically_on_load(false); // Disable Image Flipping On Load
-	//unsigned char* pixelsIcon = stbi_load((path).c_str(), &iconW, &iconH, &iconChannels, STBI_rgb_alpha); // create var with imnage inside - tga because fast (hardly any compression)
-
-	//GLFWimage Iconinages[1]; // Create New "GLFWimage" VAR with "Iconinages at Channel (1)"
-	//Iconinages[0].width = iconW, Iconinages[0].height = iconH, Iconinages[0].pixels = pixelsIcon; // Write Aspect Ratio and Fragnment to photo 
-
-	//glfwSetWindowIcon(window, 1, Iconinages); // set the glfw window icon ("window", "Channel", "Image")
-
-	unsigned char* pixelsIcon = stbi_load((path).c_str(), &iconW, &iconH, &iconChannels, STBI_rgb_alpha);
-
-	//change window icon
-	GLFWimage Iconinages[1];
-	//give glfw pixels, width and height
-	Iconinages[0].width = iconW;
-	Iconinages[0].height = iconH;
-	Iconinages[0].pixels = pixelsIcon;
-
-	//change to icon (what window, how many images, what image)
-	glfwSetWindowIcon(window, 1, Iconinages);
-}

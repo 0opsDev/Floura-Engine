@@ -10,6 +10,7 @@
 #include "tempscene.h"
 #include <Render/passes/geometry/geometryPass.h>
 #include <Render/passes/lighting/LightingPass.h>
+#include <Render/window/WindowHandler.h>
 
 Shader RenderClass::shaderProgram;
 Shader RenderClass::billBoardShader;
@@ -40,7 +41,7 @@ bool RenderClass::DoComputeLightingPass = false;
 
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
 
-	ScreenUtils::setVSync(ScreenUtils::doVsync); // Set Vsync to value of doVsync (bool)
+	windowHandler::setVSync(windowHandler::doVsync); // Set Vsync to value of doVsync (bool)
 
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
@@ -93,8 +94,7 @@ void RenderClass::ClearFramebuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderClass::Render(GLFWwindow* window, float window_width, float window_height, unsigned int width,
-	unsigned int height) {
+void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int height) {
 
 	glClearColor(RenderClass::skyRGBA[0], RenderClass::skyRGBA[1], RenderClass::skyRGBA[2],RenderClass::skyRGBA[3]);
 	//AlbedoShader.Activate();
@@ -112,7 +112,7 @@ void RenderClass::Render(GLFWwindow* window, float window_width, float window_he
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
-	ImGuiCamera::gPassTime = (initDuration.count() / 1000.0);
+	ImGuiWindow::gPassTime = (initDuration.count() / 1000.0);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
 
@@ -143,7 +143,7 @@ void RenderClass::Render(GLFWwindow* window, float window_width, float window_he
 	shaderProgram.setFloat3("lightPos",RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]);
 	shaderProgram.setFloat4("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 	shaderProgram.setFloat("gamma", gamma);
-	if (ImGuiCamera::isWireframe) {
+	if (ImGuiWindow::isWireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 		glClearColor(0, 0, 0, 1);
 	}
@@ -161,7 +161,7 @@ void RenderClass::Render(GLFWwindow* window, float window_width, float window_he
 
 	LightIcon.draw(true, RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2], 0.3, 0.3, 0.3);
 
-	if (!ImGuiCamera::isWireframe) {
+	if (!ImGuiWindow::isWireframe) {
 		Skybox::draw(Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global
 		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 
@@ -175,7 +175,7 @@ void RenderClass::Render(GLFWwindow* window, float window_width, float window_he
 
 	auto stopInitTime2 = std::chrono::high_resolution_clock::now();
 	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
-	ImGuiCamera::lPassTime = (initDuration2.count() / 1000.0);
+	ImGuiWindow::lPassTime = (initDuration2.count() / 1000.0);
 
 	//glDepthFunc(GL_LEQUAL);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
@@ -185,7 +185,7 @@ void RenderClass::Render(GLFWwindow* window, float window_width, float window_he
 	glDisable(GL_CULL_FACE);
 
 	// Framebuffer logic
-	Framebuffer::FBODraw(ImGuiCamera::imGuiPanels[0], window_width, window_height, window);
+	Framebuffer::FBODraw(ImGuiWindow::imGuiPanels[0], window);
 }
 
 void RenderClass::ForwardLightingPass() {
@@ -204,7 +204,7 @@ void RenderClass::DeferredLightingPass() {
 	glActiveTexture(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	GBLpass.setBool("DEFtoggle", ImGuiCamera::enableDEF);
+	GBLpass.setBool("DEFtoggle", ImGuiWindow::enableDEF);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::gPosition);
@@ -258,7 +258,7 @@ void RenderClass::HybridLightingPass() {
 
 }
 
-void RenderClass::Swapchain(GLFWwindow* window, GLFWmonitor* primaryMonitor) {
+void RenderClass::Swapchain(GLFWwindow* window) {
 
 
 	Camera::updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane

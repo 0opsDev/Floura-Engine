@@ -41,8 +41,7 @@ public:
 
 	static void ClearFramebuffers();
 
-	static void Render(GLFWwindow* window, float window_width, float window_height,
-		 unsigned int width, unsigned int height);
+	static void Render(GLFWwindow* window, unsigned int width, unsigned int height);
 
 	static void ForwardLightingPass();
 
@@ -50,7 +49,7 @@ public:
 
 	static void HybridLightingPass();
 
-	static void Swapchain(GLFWwindow* window, GLFWmonitor* primaryMonitor);
+	static void Swapchain(GLFWwindow* window);
 
 	static void Cleanup();
 
