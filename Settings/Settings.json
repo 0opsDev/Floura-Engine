@@ -1,7 +1,7 @@
 [
     {
         "FOV": 80.0,
-        "Scene": "scene3",
+        "Scene": "Default",
         "Sensitivity": [ 100.0, 100.0],
         "Vsync": false,
         "Resolution": [ 1920, 1080 ],

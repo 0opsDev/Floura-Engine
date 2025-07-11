@@ -15,6 +15,8 @@ public:
 	glm::vec3 colliderXYZ = glm::vec3(0,0,0);
 	glm::vec3 colliderScale = glm::vec3(1,1,1);
 	glm::vec3 lastHit;
+	std::string name;
+	bool enabled = true;
 	static bool CollideWithCamera;
 	static bool showBoxCollider;
 	bool checkcollide(glm::vec3 victimXYZ, glm::vec3 victimScale);

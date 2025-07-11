@@ -1,5 +1,4 @@
 #include "Main.h"
-#include"Render/Model/Model.h"
 #include "Camera/Camera.h"
 #include "utils/Init.h"
 #include "utils/screenutils.h" 
@@ -10,23 +9,18 @@
 #include <utils/SettingsUtil.h>
 #include "utils/timeAccumulator.h"
 #include "utils/InputUtil.h"
-#include "Render/Shader/Cubemap.h"
-#include "Render/Shader/Framebuffer.h"
 #include "Scripting/ScriptRunner.h"
 #include "imgui/imgui_impl_opengl3.h"
-#include "render/Shader/SkyBox.h"
 #include "File/File.h"
 #include <UI/ImGui/ImGuiWindow.h>
 #include "Sound/SoundProgram.h"
 #include <Sound/SoundRunner.h>
 #include "Render.h"
-#include "Render/Cube/CubeVisualizer.h"
-#include <Physics/CubeCollider.h>
-#include "Render/Cube/Billboard.h"
 #include "tempscene.h"
 #include "scene.h"
 #include <Gameplay/Player.h>
 #include <Render/window/WindowHandler.h>
+#include "ImGuiFileDialog/ImGuiFileDialog.h"
 
 int Main::VertNum = 0, Main::FragNum = 0;
 bool Main::sleepState = true;
@@ -254,17 +248,77 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
-	// Create a full-screen docking space
-
-	// Main docking window
-	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
-	ImGui::Begin("Docking Window", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
-	// Create a DockSpace
+	// Important flags for the main dockspace window
+	ImGuiWindowFlags window_flags =
+		ImGuiWindowFlags_MenuBar |          
+		ImGuiWindowFlags_NoDocking |
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus |
+		ImGuiWindowFlags_NoNavFocus;
+
+	// Begin the main docking window
+	ImGui::Begin("Docking Window", nullptr, window_flags);
+
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			ImGui::MenuItem("New Scene");
+			if (ImGui::MenuItem("Open Scene")) {
+				IGFD::FileDialogConfig config;
+				config.path = ".";
+				ImGuiFileDialog::Instance()->OpenDialog("LoadScene", "Choose Scene", ".*", config);
+			}
+
+				ImGui::MenuItem("Save Scene As");
+				if (ImGui::MenuItem("Save Scene")) Scene::SaveScene(SettingsUtils::sceneName);
+				if (ImGui::MenuItem("Reload Scene")) Scene::LoadScene(SettingsUtils::sceneName);
+
+				ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("View"))
+		{
+			ImGui::Checkbox("Wireframe", &ImGuiWindow::isWireframe);
+			ImGui::Checkbox("showBoxCollider", &CubeCollider::showBoxCollider);
+
+			//if (ImGui::MenuItem("Wireframe")) {
+			//	// Toggle some view state
+			//}
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Edit"))
+		{
+			if (ImGui::MenuItem("Reload Shaders?")) RenderClass::initGlobalShaders();
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+
+	// display
+	if (ImGuiFileDialog::Instance()->Display("LoadScene")) {
+		if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+			std::replace(filePath.begin(), filePath.end(), '\\', '/');
+			SettingsUtils::sceneName = filePath;
+			std::cout << filePath << std::endl;
+			Scene::LoadScene(filePath);
+		}
+		ImGuiFileDialog::Instance()->Close();
+	}
+
 	ImGuiID dockspace_id = ImGui::GetID("MainDockspace");
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+
 	ImGui::End();
+
+
 	//panel
 	ImGuiWindow::PanelsWindow();
 	// Rendering panel
@@ -327,32 +381,94 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 
 		ImGuiWindow::create();
 
-		ImGui::Spacing();
+		ImGuiWindow::HierarchyList();
+		ImGui::End();
+	}
+	if (ImGuiWindow::imGuiPanels[9]) {
+		ImGui::Begin("Inspector"); // ImGUI window creation
+		ImGui::Text("Inspector");
+		ImGui::Text(("Selected Object Type : " + ImGuiWindow::SelectedObjectType).c_str());
+		ImGui::Text(("Index: " + std::to_string(ImGuiWindow::SelectedObjectIndex)).c_str());
 
-		ImGuiWindow::ModelH();
+		if (ImGuiWindow::SelectedObjectType == "Model") {
 
-		ImGui::Spacing();
+			ImGui::Text((Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].ObjectName).c_str());
+			// position
+			ImGui::DragFloat3("Position", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].transform.x);
 
-		ImGuiWindow::BillBoardH();
+			// scale
+			ImGui::DragFloat3("Scale", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].scale.x);
 
-		ImGui::Spacing();
-		if (ImGui::TreeNode("Sound")) {
-			for (size_t i = 0; i < Scene::SoundObjects.size(); i++) {
-				if (ImGui::TreeNode((Scene::SoundObjects[i].name).c_str())) {
-					//ImGui::DragFloat3(("Position " + std::to_string(i)).c_str(), &scene.SoundObjects[i].SoundPosition.x);
-					ImGui::TreePop();
-				}
+			ImGui::DragFloat4("Rotation", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].rotation.x);
+
+			ImGui::Spacing();
+			ImGui::Checkbox("isCollider", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].isCollider);
+
+			ImGui::DragFloat3("BoxColliderTransform", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].BoxColliderTransform.x);
+
+			ImGui::DragFloat3("BoxColliderScale", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].BoxColliderScale.x);
+
+			ImGui::Spacing();
+			ImGui::Checkbox("isBackFaceCulling", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].DoCulling);
+			ImGui::Checkbox("DoFrustumCull", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].DoFrustumCull);
+
+			ImGui::DragFloat3("frustumBoxTransform", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].frustumBoxTransform.x);
+
+			ImGui::DragFloat3("frustumBoxScale", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].frustumBoxScale.x);
+
+			ImGui::Spacing();
+			if (ImGui::SmallButton("Delete")) {
+				Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].Delete();
+				Scene::modelObjects.erase(Scene::modelObjects.begin() + ImGuiWindow::SelectedObjectIndex);
+			}
+		}
+	
+		if (ImGuiWindow::SelectedObjectType == "BillBoard") {
+
+			ImGui::Text((Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].ObjectName).c_str());
+			ImGui::DragFloat3("Position", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].transform.x);
+			ImGui::DragFloat3("Scale", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].scale.x);
+
+			ImGui::Spacing();
+			ImGui::Checkbox("doPitch", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].doPitch);
+
+			if (Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].type == "animated" || Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].type == "Animated") {
+
+				ImGui::DragInt("tickrate", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].tickrate);
+				ImGui::Checkbox("doUpdateSequence", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].doUpdateSequence);
 			}
 
-			ImGui::TreePop();
-		}
-		ImGui::Spacing();
-		if (ImGui::TreeNode("Collider")) {
+			ImGui::Checkbox("isCollider", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].isCollider);
+			ImGui::Checkbox("DoFrustumCull", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].DoFrustumCull);
 
-			ImGui::TreePop();
+			ImGui::Spacing();
+			if (ImGui::SmallButton("Delete")) {
+				Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].Delete();
+				Scene::BillBoardObjects.erase(Scene::BillBoardObjects.begin() + ImGuiWindow::SelectedObjectIndex);
+			}
 		}
+
+		if (ImGuiWindow::SelectedObjectType == "Sound") {
+		}
+
+		if (ImGuiWindow::SelectedObjectType == "Collider") {
+			ImGui::Text((Scene::CubeColliderObject[ImGuiWindow::SelectedObjectIndex].name).c_str());
+
+			// position
+			ImGui::DragFloat3("Position", &Scene::CubeColliderObject[ImGuiWindow::SelectedObjectIndex].colliderXYZ.x);
+			// scale
+			ImGui::DragFloat3("Scale", &Scene::CubeColliderObject[ImGuiWindow::SelectedObjectIndex].colliderScale.x);
+
+			ImGui::Checkbox("Enabled", &Scene::CubeColliderObject[ImGuiWindow::SelectedObjectIndex].enabled);
+
+			if (ImGui::SmallButton("Delete")) {
+				Scene::CubeColliderObject[ImGuiWindow::SelectedObjectIndex].Delete();
+				Scene::CubeColliderObject.erase(Scene::CubeColliderObject.begin() + ImGuiWindow::SelectedObjectIndex);
+			}
+		}
+		ImGui::End();
 	}
-	ImGui::End();
+	
 	//scene
 	ImGui::Render(); // Renders the ImGUI elements
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

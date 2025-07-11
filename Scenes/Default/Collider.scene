@@ -1,0 +1,30 @@
+[
+    {
+        "enabled": true,
+        "name": "collider",
+        "position": [
+            0.0,
+            3.0,
+            3.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "enabled": true,
+        "name": "collider Duplicate",
+        "position": [
+            -2.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+]

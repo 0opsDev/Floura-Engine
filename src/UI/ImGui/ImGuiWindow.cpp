@@ -7,7 +7,8 @@
 #include <Core/scene.h>
 #include <Gameplay/Player.h>
 #include <Render/window/WindowHandler.h>
-bool ImGuiWindow::imGuiPanels[] = { true, true, true, true, true, true, true, true, true }; // ImGui Panels
+#include <ImGuiFileDialog/ImGuiFileDialog.h>
+bool ImGuiWindow::imGuiPanels[] = { true, true, true, true, true, true, true, true, true, true }; // ImGui Panels
 
 bool ImGuiWindow::DebugPanels[] = { true, false }; // ImGui Panels
 
@@ -19,6 +20,9 @@ char ImGuiWindow::UniformInput[64] = { "" }; // Zero-initialized buffer
 float ImGuiWindow::UniformFloat[3] = {}; // Zero-initialized array
 
 bool ImGuiWindow::isWireframe = false;
+
+std::string ImGuiWindow::SelectedObjectType;
+int ImGuiWindow::SelectedObjectIndex;
 
 float ImGuiWindow::gPassTime = 0;
 float ImGuiWindow::lPassTime = 0;
@@ -44,8 +48,6 @@ void ImGuiWindow::SystemInfomation() {
 }
 
 void ImGuiWindow::RenderWindow(GLFWwindow*& window, int windowedWidth, int windowedHeight) {
-
-	ImGui::Checkbox("isWireframe", &ImGuiWindow::isWireframe);
 	ImGui::Checkbox("enableDEF", &ImGuiWindow::enableDEF);
 
 	ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
@@ -185,11 +187,12 @@ void ImGuiWindow::PanelsWindow() {
 	ImGui::Checkbox("Rendering", &ImGuiWindow::imGuiPanels[1]);
 	ImGui::Checkbox("Camera Settings", &ImGuiWindow::imGuiPanels[2]);
 	ImGui::Checkbox("ViewPort", &ImGuiWindow::imGuiPanels[3]);
-	ImGui::Checkbox("File Viewer", &ImGuiWindow::imGuiPanels[4]);
+	ImGui::Checkbox("Scene Hierarchy", &ImGuiWindow::imGuiPanels[4]);
 	ImGui::Checkbox("Physics Settings", &ImGuiWindow::imGuiPanels[5]);
 	ImGui::Checkbox("Debug Window", &ImGuiWindow::imGuiPanels[6]);
 	ImGui::Checkbox("Text Editor", &ImGuiWindow::imGuiPanels[7]);
 	ImGui::Checkbox("Audio", &ImGuiWindow::imGuiPanels[8]); // Audio window
+	ImGui::Checkbox("Inspector", &ImGuiWindow::imGuiPanels[9]); // Audio window
 	ImGui::End();
 }
 
@@ -266,6 +269,28 @@ void ImGuiWindow::TextEditor() {
 
 	strncpy(pathBuffer, FileClass::currentPath.c_str(), sizeof(pathBuffer) - 1);
 	pathBuffer[sizeof(pathBuffer) - 1] = '\0';
+
+
+	if (ImGui::Button("Open File")) {
+		IGFD::FileDialogConfig config;
+		config.path = ".";
+		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".*", config);
+
+	}
+	// display
+	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+		if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+
+			FileClass::currentPath = filePathName; // Update current path
+
+			FileClass::loadContents();
+		}
+
+		// close
+		ImGuiFileDialog::Instance()->Close();
+	}
 
 	// Input for the path to the text file
 	if (ImGui::InputText("Path", pathBuffer, sizeof(pathBuffer))) {
@@ -373,92 +398,84 @@ void ImGuiWindow::create() {
 				ImGui::Text("Collider");
 			}
 		}
+		else if (Selecteditem == 2) {
+			ImGui::Text("Sound");
+		}
+		else if (Selecteditem == 3) {
+			ImGui::Text("Collider");
+			if (ImGui::SmallButton("Create")) {
+				Scene::AddSceneColliderObject(name);
+			}
+		}
 		ImGui::TreePop();
 		//std::cout << Selecteditem << std::endl;
 	}
 }
 
 void ImGuiWindow::ModelH() {
-	if (ImGui::TreeNode("Models")) {
-		
-		ImGui::Spacing();
-
-		for (size_t i = 0; i < Scene::modelObjects.size(); i++)
-		{
-			// would be better if i can select one of the many objects and ill have a properties plane to edit the data instead of this
-			// also a add window would be nice for adding things
-			if (ImGui::TreeNode((Scene::modelObjects[i].ObjectName).c_str())) {
-				// position
-				ImGui::DragFloat3("Position", &Scene::modelObjects[i].transform.x);
-
-				// scale
-				ImGui::DragFloat3("Scale", &Scene::modelObjects[i].scale.x);
-
-				ImGui::DragFloat4("Rotation", &Scene::modelObjects[i].rotation.x);
-
-				ImGui::Spacing();
-				ImGui::Checkbox("isCollider", &Scene::modelObjects[i].isCollider);
-
-				ImGui::DragFloat3("BoxColliderTransform", &Scene::modelObjects[i].BoxColliderTransform.x);
-
-				ImGui::DragFloat3("BoxColliderScale", &Scene::modelObjects[i].BoxColliderScale.x);
-
-				ImGui::Spacing();
-				ImGui::Checkbox("isBackFaceCulling", &Scene::modelObjects[i].DoCulling);
-				ImGui::Checkbox("DoFrustumCull", &Scene::modelObjects[i].DoFrustumCull);
-
-				ImGui::DragFloat3("frustumBoxTransform", &Scene::modelObjects[i].frustumBoxTransform.x);
-
-				ImGui::DragFloat3("frustumBoxScale", &Scene::modelObjects[i].frustumBoxScale.x);
-
-				ImGui::Spacing();
-				if (ImGui::SmallButton("Delete")) {
-					Scene::modelObjects[i].Delete();
-					Scene::modelObjects.erase(Scene::modelObjects.begin() + i);
-				}
-
-				ImGui::TreePop();
-			}
-		}
-
-		ImGui::TreePop();
-	}
+	
 
 }
 
 void ImGuiWindow::BillBoardH() {
+	
+
+}
+
+void ImGuiWindow::HierarchyList() {
+	ImGui::Spacing();
+	if (ImGui::TreeNode("Models")) {
+
+		
+		for (size_t i = 0; i < Scene::modelObjects.size(); i++)
+		{
+			if (ImGui::MenuItem((Scene::modelObjects[i].ObjectName).c_str())) {
+				ImGuiWindow::SelectedObjectType = "Model";
+				ImGuiWindow::SelectedObjectIndex = i;
+			}
+		}
+		ImGui::TreePop();
+	}
+	ImGui::Spacing();
 	if (ImGui::TreeNode("BillBoards")) {
-
-		ImGui::Spacing();
-
 		for (size_t i = 0; i < Scene::BillBoardObjects.size(); i++) {
-			if (ImGui::TreeNode((Scene::BillBoardObjects[i].ObjectName).c_str())) {
-				ImGui::DragFloat3("Position", &Scene::BillBoardObjects[i].transform.x);
-				ImGui::DragFloat3("Scale", &Scene::BillBoardObjects[i].scale.x);
 
-				ImGui::Spacing();
-				ImGui::Checkbox("doPitch", &Scene::BillBoardObjects[i].doPitch);
-
-				if (Scene::BillBoardObjects[i].type == "animated" || Scene::BillBoardObjects[i].type == "Animated") {
-
-					ImGui::DragInt("tickrate", &Scene::BillBoardObjects[i].tickrate);
-					ImGui::Checkbox("doUpdateSequence", &Scene::BillBoardObjects[i].doUpdateSequence);
-				}
-
-				ImGui::Checkbox("isCollider", &Scene::BillBoardObjects[i].isCollider);
-				ImGui::Checkbox("DoFrustumCull", &Scene::BillBoardObjects[i].DoFrustumCull);
-
-				ImGui::Spacing();
-				if (ImGui::SmallButton("Delete")) {
-					Scene::BillBoardObjects[i].Delete();
-					Scene::BillBoardObjects.erase(Scene::BillBoardObjects.begin() + i);
-				}
-
-				ImGui::TreePop();
+			if (ImGui::MenuItem((Scene::BillBoardObjects[i].ObjectName).c_str())) {
+				ImGuiWindow::SelectedObjectType = "BillBoard";
+				ImGuiWindow::SelectedObjectIndex = i;
 			}
 		}
 
 		ImGui::TreePop();
 	}
+
+	ImGui::Spacing();
+
+	if (ImGui::TreeNode("Sound")) {
+		for (size_t i = 0; i < Scene::SoundObjects.size(); i++) {
+			if (ImGui::MenuItem((Scene::SoundObjects[i].name).c_str())) {
+				ImGuiWindow::SelectedObjectType = "Sound";
+				ImGuiWindow::SelectedObjectIndex = i;
+			}
+		}
+
+		ImGui::TreePop();
+	}
+
+	ImGui::Spacing();
+
+	if (ImGui::TreeNode("Collider")) {
+
+		for (size_t i = 0; i < Scene::CubeColliderObject.size(); i++) {
+			if (ImGui::MenuItem((Scene::CubeColliderObject[i].name).c_str())) {
+				ImGuiWindow::SelectedObjectType = "Collider";
+				ImGuiWindow::SelectedObjectIndex = i;
+			}
+		}
+
+		ImGui::TreePop();
+	}
+
+	ImGui::Spacing();
 
 }

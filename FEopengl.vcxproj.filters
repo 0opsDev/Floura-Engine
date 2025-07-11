@@ -119,6 +119,9 @@
     <Filter Include="src\Render\window">
       <UniqueIdentifier>{8698ad57-7501-45ad-95b0-589b48a33176}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\ImGuiFileDialog">
+      <UniqueIdentifier>{3659b2c4-149e-4884-8ec9-3b15748bbefd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
@@ -291,6 +294,9 @@
     </ClCompile>
     <ClCompile Include="src\Render\window\WindowHandler.cpp">
       <Filter>src\Render\window</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ImGuiFileDialog\ImGuiFileDialog.cpp">
+      <Filter>Resource Files\ImGuiFileDialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -467,6 +473,12 @@
     </ClInclude>
     <ClInclude Include="src\Render\window\WindowHandler.h">
       <Filter>src\Render\window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\ImGuiFileDialog\ImGuiFileDialog.h">
+      <Filter>Resource Files\ImGuiFileDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\ImGuiFileDialog\ImGuiFileDialogConfig.h">
+      <Filter>Resource Files\ImGuiFileDialog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

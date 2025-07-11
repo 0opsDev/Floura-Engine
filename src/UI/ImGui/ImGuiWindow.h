@@ -25,6 +25,9 @@ public:
 	static float UniformFloat[3]; // Zero-initialized array
 	static bool isWireframe;
 
+	static std::string SelectedObjectType;
+	static int SelectedObjectIndex;
+
 	static float gPassTime;
 	static float lPassTime;
 	static float Render;
@@ -52,6 +55,8 @@ public:
 	static void ModelH();
 
 	static void BillBoardH();
+
+	static void HierarchyList();
 
 };
 

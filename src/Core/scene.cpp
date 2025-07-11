@@ -19,14 +19,17 @@ void Scene::LoadScene(std::string path) {
 
 	initJsonModelLoad(path + "/Model.scene");
 	initJsonBillBoardLoad(path + "/BillBoard.scene");
-	initJsonColliderLoad(path + "/Collider.scene");
 	initJsonSoundObjectLoad(path + "/Sound.scene");
+	initJsonColliderLoad(path + "/Collider.scene");
 	initJsonSettingsLoad(path + "/Settings.scene");
 }
 
 void Scene::SaveScene(std::string path) {
 	JsonModelSave(path + "/Model.scene");
 	JsonBillBoardSave(path + "/BillBoard.scene");
+	// sound load here
+	JsonColliderSave(path + "/Collider.scene");
+
 }
 
 void Scene::initJsonModelLoad(std::string path) {
@@ -195,6 +198,42 @@ void Scene::JsonBillBoardSave(std::string path) {
 
 }
 
+void Scene::JsonColliderSave(std::string path) {
+	try {
+		json settingsData = json::array();  // New JSON array to hold model data
+
+		// Serialize each modelObject into JSON
+		for (const auto& obj : CubeColliderObject) {
+			json CubeColliderJson;
+			CubeColliderJson["name"] = obj.name;
+
+			CubeColliderJson["enabled"] = obj.enabled;
+
+			CubeColliderJson["position"] = { obj.colliderXYZ.x, obj.colliderXYZ.y, obj.colliderXYZ.z };
+			CubeColliderJson["scale"] = { obj.colliderScale.x, obj.colliderScale.y, obj.colliderScale.z };
+
+
+			settingsData.push_back(CubeColliderJson);
+		}
+
+		// Write to file
+		std::ofstream outFile(path, std::ios::out);
+		if (!outFile.is_open()) {
+			if (init::LogALL || init::LogSystems) std::cout << "Failed to write to " << path << std::endl;
+			return;
+		}
+
+		outFile << settingsData.dump(4);  // Pretty-print with indentation
+		outFile.close();
+
+		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+
+	}
+	catch (const std::exception& e) {
+		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+	}
+}
+
 void Scene::AddSceneModelObject(std::string type, std::string path, std::string name)
 {
 	std::string newName = name;
@@ -223,6 +262,25 @@ void Scene::AddSceneBillBoardObject(std::string name, std::string type, std::str
 	BillBoardObject newBillBoardObject; // Create a temporary BillBoardObject
 	newBillBoardObject.CreateObject(type, path, newName);
 	BillBoardObjects.push_back(newBillBoardObject);
+}
+
+void Scene::AddSceneSoundObject(std::string name, std::string path) {
+
+}
+
+void Scene::AddSceneColliderObject(std::string name) {
+	std::string newName = name;
+	for (size_t i = 0; i < CubeColliderObject.size(); i++)
+	{
+		int numDupes = 0;
+		if (newName == CubeColliderObject[i].name) numDupes++;
+
+		if (numDupes > 0) newName = (newName + " Duplicate");
+	}
+	CubeCollider newCubeColliderObject; // Create a temporary CubeCollider
+	newCubeColliderObject.init();
+	newCubeColliderObject.name = newName;
+	CubeColliderObject.push_back(newCubeColliderObject);
 }
 
 void Scene::initJsonBillBoardLoad(std::string path) {
@@ -317,14 +375,15 @@ void Scene::initJsonColliderLoad(std::string path) {
 
 		CubeCollider newCubeCollider;
 		std::string name = item.at("name").get<std::string>();
-		bool CollideWithCamera = item.at("CollideWithCamera").get<bool>();
+		bool enabled = item.at("enabled").get<bool>();
 		glm::vec3 position = glm::vec3(item.at("position")[0], item.at("position")[1], item.at("position")[2]);
 		glm::vec3 scale = glm::vec3(item.at("scale")[0], item.at("scale")[1], item.at("scale")[2]);
 
 		newCubeCollider.init();
+		newCubeCollider.name = name;
 		newCubeCollider.colliderXYZ = position;
 		newCubeCollider.colliderScale = scale;
-		newCubeCollider.CollideWithCamera = CollideWithCamera;
+		newCubeCollider.enabled = enabled;
 
 		CubeColliderObject.push_back(newCubeCollider); // Add the configured object to the vector
 	}

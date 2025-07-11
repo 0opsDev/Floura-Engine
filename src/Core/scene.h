@@ -30,9 +30,15 @@ public:
 	
 	static void JsonBillBoardSave(std::string path);
 
+	static void JsonColliderSave(std::string path);
+
 	static void AddSceneModelObject(std::string type, std::string path, std::string name);
 
 	static void AddSceneBillBoardObject(std::string name, std::string type, std::string path);
+
+	static void AddSceneSoundObject(std::string name, std::string path);
+
+	static void AddSceneColliderObject(std::string name);
 
 	static void initJsonBillBoardLoad(std::string path);
 

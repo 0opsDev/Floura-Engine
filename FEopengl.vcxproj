@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\ImGuiFileDialog\ImGuiFileDialog.cpp" />
     <ClCompile Include="src\camera\Camera.cpp" />
     <ClCompile Include="src\Core\File\File.cpp" />
     <ClCompile Include="src\Core\glad.c" />
@@ -201,6 +202,8 @@
     <ClCompile Include="src\utils\VisibilityChecker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\ImGuiFileDialog\ImGuiFileDialog.h" />
+    <ClInclude Include="..\..\..\ImGuiFileDialog\ImGuiFileDialogConfig.h" />
     <ClInclude Include="src\camera\Camera.h" />
     <ClInclude Include="src\Core\File\File.h" />
     <ClInclude Include="src\Core\Main.h" />

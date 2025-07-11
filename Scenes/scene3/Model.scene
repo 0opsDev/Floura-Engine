@@ -38,7 +38,7 @@
             0.0
         ],
         "isBackFaceCulling": true,
-        "isCollider": true,
+        "isCollider": false,
         "name": "land",
         "path": "Assets/Models/grassplane.gltf",
         "type": "Static"
