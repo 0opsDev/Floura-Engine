@@ -1,0 +1,33 @@
+[
+    {
+        "colour": [
+            1.0,
+            1.0,
+            0.0
+        ],
+        "enabled": true,
+        "position": [
+            14.0,
+            4.0,
+            -1.0
+        ],
+        "power": 5.0,
+        "radius": 10.0,
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            1.0,
+            -1.0,
+            1.0
+        ],
+        "power": 0.0,
+        "radius": 0.0
+    }
+]

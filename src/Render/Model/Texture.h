@@ -13,7 +13,7 @@ public:
 	const char* type;
 	GLuint unit;
 
-	Texture(const char* image, const char* texType, GLuint slot);
+	void createTexture(const char* image, const char* texType, GLuint slot);
 
 	// Assigns a texture unit to a texture
 	void texUnit(Shader& shader, const char* uniform, GLuint unit);

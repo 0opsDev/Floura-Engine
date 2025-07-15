@@ -7,7 +7,6 @@
         "DefaultSkyboxPath": "Assets/Skybox/clearsky/Skybox.json",
 
         "skyRGBA": [ 1.0, 1.0, 1.0 ],
-        "lightRGBA": [ 1.0, 1.0, 1.0 ],
         "fogRGBA": [ 0.180, 0.221, 0.525 ],
 
         "doReflections": false,

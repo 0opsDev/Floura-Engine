@@ -467,7 +467,8 @@ std::vector<Texture> Model::getTextures()
 			// Load the texture
 			if (init::LogALL || init::LogModel) std::cout << "model.cpp - Loading texture: " << fileDirectory + texPath << std::endl;
 			if (init::LogALL || init::LogModel) std::cout << loadedTex.size() << std::endl;
-			Texture texture = Texture((fileDirectory + texPath).c_str(), texType, loadedTex.size());
+			Texture texture;
+			texture.createTexture((fileDirectory + texPath).c_str(), texType, loadedTex.size());
 			textures.push_back(texture);
 			loadedTex.push_back(texture);
 			loadedTexName.push_back(texPath);
@@ -497,7 +498,8 @@ std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 		}
 		if (!skip)
 		{
-			Texture fallbackTexture(fallbackPath.c_str(), "specular", loadedTex.size());
+			Texture fallbackTexture;
+			fallbackTexture.createTexture(fallbackPath.c_str(), "specular", loadedTex.size());
 			textures.push_back(fallbackTexture);
 			loadedTex.push_back(fallbackTexture);
 			loadedTexName.push_back(fallbackPath);
@@ -532,7 +534,8 @@ std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 					}
 					if (!skip)
 					{
-						Texture texture((fileDirectory + texturePath).c_str(), "diffuse", loadedTex.size());
+						Texture texture;
+						texture.createTexture((fileDirectory + texturePath).c_str(), "diffuse", loadedTex.size());
 						textures.push_back(texture);
 						loadedTex.push_back(texture);
 						//std::cout << "texturePath " << texturePath << std::endl;
@@ -560,7 +563,8 @@ std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 					}
 					if (!skip)
 					{
-						Texture texture((fileDirectory + texturePath).c_str(), "normal", loadedTex.size());
+						Texture texture;
+						texture.createTexture((fileDirectory + texturePath).c_str(), "normal", loadedTex.size());
 						textures.push_back(texture);
 						loadedTex.push_back(texture);
 						loadedTexName.push_back(texturePath);
@@ -587,7 +591,8 @@ std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 					}
 					if (!skip)
 					{
-						Texture texture((fileDirectory + texturePath).c_str(), "specular", loadedTex.size());
+						Texture texture;
+						texture.createTexture((fileDirectory + texturePath).c_str(), "specular", loadedTex.size());
 						textures.push_back(texture);
 						loadedTex.push_back(texture);
 						loadedTexName.push_back(texturePath);
@@ -610,7 +615,8 @@ std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 				}
 				if (!skip)
 				{
-					Texture fallbackTexture(fallbackPath.c_str(), "specular", loadedTex.size());
+					Texture fallbackTexture;
+					fallbackTexture.createTexture(fallbackPath.c_str(), "specular", loadedTex.size());
 					textures.push_back(fallbackTexture);
 					loadedTex.push_back(fallbackTexture);
 					loadedTexName.push_back(fallbackPath);

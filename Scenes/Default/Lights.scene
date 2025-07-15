@@ -1,0 +1,82 @@
+[
+    {
+        "colour": [
+            0.17647051811218262,
+            1.0,
+            0.0
+        ],
+        "enabled": true,
+        "position": [
+            14.0,
+            9.0,
+            1.0
+        ],
+        "power": 5.0,
+        "radius": 78.5999984741211,
+        "type": "pointlight"
+    },
+    {
+        "colour": [
+            1.0,
+            0.0,
+            0.0
+        ],
+        "enabled": true,
+        "position": [
+            -5.0,
+            4.0,
+            7.346950395217979e-39
+        ],
+        "power": 0.0,
+        "radius": 69.0999984741211,
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            1.0,
+            10.0,
+            11.0
+        ],
+        "power": 5.0,
+        "radius": 100.0,
+        "type": "pointlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -6.900000095367432,
+            6.0,
+            5.599999904632568
+        ],
+        "power": 5.0,
+        "radius": 100.0,
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -6.900000095367432,
+            5.0,
+            5.599999904632568
+        ],
+        "power": 5.0,
+        "radius": 20.0,
+        "type": "pointlight"
+    }
+]

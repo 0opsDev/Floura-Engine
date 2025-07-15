@@ -177,6 +177,10 @@ void Shader::setInt4(const char* uniform, int uniforIint1, int uniforIint2, int 
     glUniform4i(glGetUniformLocation(ID, uniform), uniforIint1, uniforIint2, uniforIint3, uniforIint4);
 }
 
+void Shader::setIntVector(const char* uniform, GLsizei count, const GLint* value) {
+    glUniform1iv(glGetUniformLocation(ID, uniform), count, value);
+}
+
 void Shader::setFloat(const char* uniform, GLfloat uniFloat)
 {
     glUniform1f(glGetUniformLocation(ID, uniform), uniFloat);
@@ -223,6 +227,5 @@ void Shader::setMat3(const char* uniform, glm::mat4 uniformMat3)
 
 void Shader::setBool(const char* uniform, bool uniformBool)
 {
-    GLint uniformLocation = glGetUniformLocation(ID, uniform);
-    glUniform1i(uniformLocation, uniformBool ? 1 : 0);
+    glUniform1i(glGetUniformLocation(ID, uniform), uniformBool ? 1 : 0);
 }

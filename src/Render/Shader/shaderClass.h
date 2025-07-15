@@ -31,6 +31,8 @@ public:
 	void setInt3(const char* uniform, int uniforIint1, int uniforIint2, int uniforIint3);
 	void setInt4(const char* uniform, int uniforIint1, int uniforIint2, int uniforIint3, int uniforIint4);
 
+	void setIntVector(const char* uniform, GLsizei count, const GLint* value);
+
 	void setFloat(const char* uniform, GLfloat uniFloat);
 	void setFloat2(const char* uniform, GLfloat uniFloat, GLfloat uniFloat2);
 	void setFloat3(const char* uniform, GLfloat uniFloat, GLfloat uniFloat2, GLfloat uniFloat3);
@@ -43,6 +45,7 @@ public:
 	void setMat3(const char* uniform, glm::mat4 uniformMat3);
 	void setMat4(const char* uniform, glm::mat4 uniformMat4);
 	void setBool(const char* uniform, bool uniformBool);
+
 private:
 	void compileErrors(unsigned int shader, const char* type);
 };

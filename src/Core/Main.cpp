@@ -60,10 +60,13 @@ int main() // global variables do not work with threads
 	//std::cout << initalCameraPos.x << " " << initalCameraPos.y << " " << initalCameraPos.z << std::endl;
 	//std::cout << Camera::Position.x << " " << Camera::Position.y << " " << Camera::Position.z << std::endl;
 	RenderClass::init(windowHandler::window, windowHandler::width, windowHandler::height);
+	Scene::init();
 	// Model Loader
 
 	TempScene::init(); // Initialize scene
 	Player::init();
+
+	ImGuiWindow::init();
 
 	//Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
@@ -241,6 +244,8 @@ void Main::saveSettings() {
 	}
 }
 
+static const char* lightTypes[]{ "Spotlight","Pointlight" };
+static int SelectedLight = 0;
 
 // Holds ImGui Variables and Windows
 void Main::imGuiMAIN(GLFWwindow* window) {
@@ -286,6 +291,7 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 		{
 			ImGui::Checkbox("Wireframe", &ImGuiWindow::isWireframe);
 			ImGui::Checkbox("showBoxCollider", &CubeCollider::showBoxCollider);
+			ImGui::Checkbox("showViewportIcons", &ImGuiWindow::showViewportIcons);
 
 			//if (ImGui::MenuItem("Wireframe")) {
 			//	// Toggle some view state
@@ -363,18 +369,15 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 
 	if (ImGuiWindow::imGuiPanels[4]) {
 		ImGui::Begin("Scene hierarchy"); // ImGUI window creation
-		ImGui::Text("object hierarchy");
-
-		ImGui::Spacing();
-		if (ImGui::SmallButton("Save Current Scene")) {
+		if (ImGui::ImageButton("##SaveIcon", (ImTextureID)ImGuiWindow::SaveIcon.ID, ImVec2(30, 30))) {
 			Scene::SaveScene(SettingsUtils::sceneName);
 		}
-		ImGui::Spacing();
-		if (ImGui::SmallButton("Load Last Scene")) {
+		ImGui::SameLine();
+		if (ImGui::ImageButton("##arrowIcon", (ImTextureID)ImGuiWindow::arrowIcon.ID, ImVec2(30, 30))) {
 			Scene::LoadScene(SettingsUtils::sceneName);
 		}
-		ImGui::Spacing();
-		if (ImGui::SmallButton("Unload Current Scene")) {
+		ImGui::SameLine();
+		if (ImGui::ImageButton("##crossIcon", (ImTextureID)ImGuiWindow::crossIcon.ID, ImVec2(30, 30))) {
 			Scene::Delete();
 		}
 		ImGui::Spacing();
@@ -384,6 +387,7 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 		ImGuiWindow::HierarchyList();
 		ImGui::End();
 	}
+
 	if (ImGuiWindow::imGuiPanels[9]) {
 		ImGui::Begin("Inspector"); // ImGUI window creation
 		ImGui::Text("Inspector");
@@ -420,6 +424,7 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 			if (ImGui::SmallButton("Delete")) {
 				Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].Delete();
 				Scene::modelObjects.erase(Scene::modelObjects.begin() + ImGuiWindow::SelectedObjectIndex);
+				ImGuiWindow::SelectedObjectType = "";
 			}
 		}
 	
@@ -445,6 +450,7 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 			if (ImGui::SmallButton("Delete")) {
 				Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].Delete();
 				Scene::BillBoardObjects.erase(Scene::BillBoardObjects.begin() + ImGuiWindow::SelectedObjectIndex);
+				ImGuiWindow::SelectedObjectType = "";
 			}
 		}
 
@@ -464,11 +470,75 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 			if (ImGui::SmallButton("Delete")) {
 				Scene::CubeColliderObject[ImGuiWindow::SelectedObjectIndex].Delete();
 				Scene::CubeColliderObject.erase(Scene::CubeColliderObject.begin() + ImGuiWindow::SelectedObjectIndex);
+				ImGuiWindow::SelectedObjectType = "";
+			}
+		}
+		//std::cout << Scene::enabled.size() << std::endl;
+		if (ImGuiWindow::SelectedObjectType == "Light") {
+			ImGui::DragFloat3("Position", &Scene::position[ImGuiWindow::SelectedObjectIndex].x);
+			ImGui::ColorEdit3("Color", &Scene::colour[ImGuiWindow::SelectedObjectIndex].x);
+			ImGui::DragFloat2("Range And Power", &Scene::radiusAndPower[ImGuiWindow::SelectedObjectIndex].x, 0.1f, 0.1f);
+			ImGui::Combo("LightType", &Scene::lightType[ImGuiWindow::SelectedObjectIndex], lightTypes, IM_ARRAYSIZE(lightTypes));
+
+			ImGui::Spacing();
+
+			//ImGui::Checkbox("Enabled", &Scene::LightObjectList[ImGuiWindow::SelectedObjectIndex].enabled);
+			if (Scene::enabled[ImGuiWindow::SelectedObjectIndex] == 0) {
+				if (ImGui::SmallButton("Enable")) {
+					Scene::enabled[ImGuiWindow::SelectedObjectIndex] = !Scene::enabled[ImGuiWindow::SelectedObjectIndex];
+				}
+			}
+			else if (Scene::enabled[ImGuiWindow::SelectedObjectIndex] == 1) {
+				if (ImGui::SmallButton("Disable")) {
+					Scene::enabled[ImGuiWindow::SelectedObjectIndex] = !Scene::enabled[ImGuiWindow::SelectedObjectIndex];
+				}
+			}
+			//std::cout << Scene::LightObjectList[ImGuiWindow::SelectedObjectIndex].enabled << std::endl;
+
+			//ImGui::Checkbox("Enabled", &Scene::enabled[ImGuiWindow::SelectedObjectIndex]);
+			
+			if (ImGui::SmallButton("Delete")) {
+
+				Scene::enabled.erase(Scene::enabled.begin() + ImGuiWindow::SelectedObjectIndex);
+				Scene::position.erase(Scene::position.begin() + ImGuiWindow::SelectedObjectIndex);
+				Scene::colour.erase(Scene::colour.begin() + ImGuiWindow::SelectedObjectIndex);
+				Scene::radiusAndPower.erase(Scene::radiusAndPower.begin() + ImGuiWindow::SelectedObjectIndex);
+				Scene::lightType.erase(Scene::lightType.begin() + ImGuiWindow::SelectedObjectIndex);
+
+				
+
+				ImGuiWindow::SelectedObjectIndex = 0; // reset index
+				ImGuiWindow::SelectedObjectType = "";
 			}
 		}
 		ImGui::End();
 	}
 	
+	if (ImGuiWindow::imGuiPanels[10]) {
+		ImGui::Begin("Content Folder"); // ImGUI window creation
+		if (ImGui::Button("ADD")) {
+
+		}
+
+		if (ImGui::ImageButton("##FolderIcon",(ImTextureID)ImGuiWindow::FolderIcon.ID, ImVec2(100, 100))) {
+
+		}
+		ImGui::SameLine();
+		if (ImGui::ImageButton("##SaveIcon", (ImTextureID)ImGuiWindow::SaveIcon.ID, ImVec2(100, 100))) {
+
+		}
+		ImGui::SameLine();
+		if (ImGui::ImageButton("##ObjectIcon", (ImTextureID)ImGuiWindow::ModelIcon.ID, ImVec2(100, 100))) {
+
+		}
+		ImGui::SameLine();
+		if (ImGui::ImageButton("##ColliderIcon", (ImTextureID)ImGuiWindow::colliderIcon.ID, ImVec2(100, 100))) {
+
+		}
+
+		ImGui::End();
+	}
+
 	//scene
 	ImGui::Render(); // Renders the ImGUI elements
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

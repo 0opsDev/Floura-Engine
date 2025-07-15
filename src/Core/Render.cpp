@@ -22,21 +22,18 @@ bool RenderClass::doReflections = true;
 bool RenderClass::doFog = true;
 GLfloat RenderClass::DepthDistance = 100.0f;
 GLfloat RenderClass::DepthPlane[] = { 0.1f, 100.0f };
-GLfloat RenderClass::lightRGBA[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 glm::vec3 RenderClass::skyRGBA = glm::vec3(1.0f, 1.0f, 1.0f);
 glm::vec3 RenderClass::fogRGBA = glm::vec3( 1.0f, 1.0f, 1.0f);
-GLfloat RenderClass::LightTransform1[] = { 0.0f, 5.0f, 0.0f };
 GLfloat RenderClass::ConeSI[3] = { 0.111f, 0.825f, 2.0f };
 GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
 
-BillBoard LightIcon;
 Shader SolidColour;
 RenderQuad lightingRenderQuad;
 Shader GBLpass;
 
 
-bool RenderClass::DoDeferredLightingPass = true; // Toggle for lighting pass
-bool RenderClass::DoForwardLightingPass = false; // Toggle for regular pass
+bool RenderClass::DoDeferredLightingPass = false; // Toggle for lighting pass
+bool RenderClass::DoForwardLightingPass = true; // Toggle for regular pass
 bool RenderClass::DoComputeLightingPass = false;
 
 void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
@@ -47,7 +44,7 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init::initGLenable(false); //bool for direction of polys
 	GeometryPass::init(); // Initialize geometry pass settings
-	LightIcon.init("Assets/Dependants/LB.png");
+	
 	Skybox::init(Skybox::DefaultSkyboxPath);
 
 	lightingRenderQuad.init();
@@ -140,8 +137,6 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	shaderProgram.setFloat("FarPlane", DepthPlane[1]);
 	shaderProgram.setFloat3("fogColor", fogRGBA.r, fogRGBA.g, fogRGBA.b);
 	shaderProgram.setFloat4("skyColor", skyRGBA.r, skyRGBA.g, skyRGBA.b, skyRGBA[3]);
-	shaderProgram.setFloat3("lightPos",RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2]);
-	shaderProgram.setFloat4("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2], lightRGBA[3]);
 	shaderProgram.setFloat("gamma", gamma);
 	if (ImGuiWindow::isWireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
@@ -158,8 +153,6 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	// Camera
 	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
-
-	LightIcon.draw(true, RenderClass::LightTransform1[0], RenderClass::LightTransform1[1], RenderClass::LightTransform1[2], 0.3, 0.3, 0.3);
 
 	if (!ImGuiWindow::isWireframe) {
 		Skybox::draw(Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global
@@ -193,6 +186,7 @@ void RenderClass::ForwardLightingPass() {
 }
 
 void RenderClass::DeferredLightingPass() {
+
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	//glEnable(GL_CULL_FACE);
 		//glDisable(GL_DEPTH_TEST);
@@ -221,9 +215,6 @@ void RenderClass::DeferredLightingPass() {
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
 	GBLpass.setInt("depthMap", 5);
-
-	GBLpass.setFloat3("lightColor", lightRGBA[0], lightRGBA[1], lightRGBA[2]);
-	GBLpass.setFloat3("skyColor", skyRGBA.r, skyRGBA.g, skyRGBA.b);
 
 	GBLpass.setFloat("DepthDistance", DepthDistance);
 	GBLpass.setFloat("NearPlane", DepthPlane[0]);

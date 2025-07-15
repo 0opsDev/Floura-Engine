@@ -8,7 +8,9 @@
 #include <Gameplay/Player.h>
 #include <Render/window/WindowHandler.h>
 #include <ImGuiFileDialog/ImGuiFileDialog.h>
-bool ImGuiWindow::imGuiPanels[] = { true, true, true, true, true, true, true, true, true, true }; // ImGui Panels
+
+bool ImGuiWindow::showViewportIcons = true;
+bool ImGuiWindow::imGuiPanels[] = { true, true, true, true, true, true, true, true, true, true, true }; // ImGui Panels
 
 bool ImGuiWindow::DebugPanels[] = { true, false }; // ImGui Panels
 
@@ -28,9 +30,32 @@ float ImGuiWindow::gPassTime = 0;
 float ImGuiWindow::lPassTime = 0;
 float ImGuiWindow::Render = 0;
 float ImGuiWindow::physicsTime = 0;
+Texture ImGuiWindow::FolderIcon; // Icon for folder in ImGui
+Texture ImGuiWindow::SaveIcon; // Icon for Save in ImGui
+Texture ImGuiWindow::ModelIcon; // Icon for Object in ImGui
+Texture ImGuiWindow::BillBoardIcon; // Icon for BillBoard in ImGui 
+Texture ImGuiWindow::colliderIcon; // Icon for Collider in ImGui 
+Texture ImGuiWindow::pointLightIcon; // Icon for pointLightIcon in ImGui
+Texture ImGuiWindow::spotLightIcon; // Icon for spotLightIcon in ImGui 
+Texture ImGuiWindow::arrowIcon; // Icon for arrow in ImGui 
+Texture ImGuiWindow::crossIcon; // Icon for cross in ImGui 
+
+// collideicon.png
 
 // Temporary buffer for path editing
 static char pathBuffer[256]; // Ensure the size is appropriate
+
+void ImGuiWindow::init() {
+	FolderIcon.createTexture("Assets/Icons/bindericon.png", "diffuse", 0);
+	SaveIcon.createTexture("Assets/Icons/saveicon.png", "diffuse", 1);
+	ModelIcon.createTexture("Assets/Icons/vertex.png", "diffuse", 2);
+	BillBoardIcon.createTexture("Assets/Icons/billboardicon.png", "diffuse", 3);
+	colliderIcon.createTexture("Assets/Icons/collideicon.png", "diffuse", 4);
+	pointLightIcon.createTexture("Assets/Icons/point.png", "diffuse", 5);
+	spotLightIcon.createTexture("Assets/Icons/spot.png", "diffuse", 6);
+	arrowIcon.createTexture("Assets/Icons/arrow.png", "diffuse", 7);
+	crossIcon.createTexture("Assets/Icons/cross.png", "diffuse", 8);
+}
 
 void ImGuiWindow::SystemInfomation() {
 	if (ImGui::TreeNode("System Infomation")) {
@@ -150,13 +175,11 @@ void ImGuiWindow::LightWindow() {
 
 		if (ImGui::TreeNode("Colour")) {
 			ImGui::ColorEdit3("sky RGBA", &RenderClass::skyRGBA.r);
-			ImGui::ColorEdit4("light RGBA", RenderClass::lightRGBA);
 			ImGui::ColorEdit3("fog RGBA", &RenderClass::fogRGBA.r);	// sky and light
 			ImGui::TreePop();
 		}
 
 		if (ImGui::TreeNode("Light Settings")) {
-			ImGui::DragFloat3("Light Transform", RenderClass::LightTransform1);
 			ImGui::DragFloat("light I", &RenderClass::ConeSI[2]);
 
 			// cone settings
@@ -193,6 +216,8 @@ void ImGuiWindow::PanelsWindow() {
 	ImGui::Checkbox("Text Editor", &ImGuiWindow::imGuiPanels[7]);
 	ImGui::Checkbox("Audio", &ImGuiWindow::imGuiPanels[8]); // Audio window
 	ImGui::Checkbox("Inspector", &ImGuiWindow::imGuiPanels[9]); // Audio window
+	ImGui::Checkbox("Content Folder", &ImGuiWindow::imGuiPanels[10]); // Audio window
+
 	ImGui::End();
 }
 
@@ -321,7 +346,6 @@ void ImGuiWindow::TextEditor() {
 
 void ImGuiWindow::audio() {
 	ImGui::Begin("audio window"); // ImGUI window creation
-	ImGui::Checkbox("Visualize Audio", &SoundRunner::VisualizeSound);
 	if (ImGui::TreeNode("Volume")) {
 		ImGui::Spacing();
 		ImGui::SliderFloat("Global Volume", &SoundRunner::GlobalVolume, 0, 1);
@@ -359,7 +383,7 @@ void ImGuiWindow::viewport() {
 	ImGui::End();
 }
 
-static const char* items[]{ "Models","BillBoards","Sound", "Collider"};
+static const char* items[]{ "Models","BillBoards","Sound", "Collider", "Light"};
 static int Selecteditem = 0;
 
 char name[32] = "Name";
@@ -367,6 +391,7 @@ char Path[64] = "Assets/";
 bool type = false;
 
 void ImGuiWindow::create() {
+
 	if (ImGui::TreeNode("Add New Object")) {
 		ImGui::Spacing();
 		ImGui::Combo("ObjectType", &Selecteditem, items, IM_ARRAYSIZE(items));
@@ -407,74 +432,94 @@ void ImGuiWindow::create() {
 				Scene::AddSceneColliderObject(name);
 			}
 		}
+		else if (Selecteditem == 4) {
+			ImGui::Text("Light");
+			if (ImGui::SmallButton("Create")) {
+				Scene::AddSceneLightObject();
+			}
+		}
+		//AddSceneLightObject
 		ImGui::TreePop();
 		//std::cout << Selecteditem << std::endl;
 	}
 }
 
-void ImGuiWindow::ModelH() {
-	
-
-}
-
-void ImGuiWindow::BillBoardH() {
-	
-
-}
-
 void ImGuiWindow::HierarchyList() {
 	ImGui::Spacing();
-	if (ImGui::TreeNode("Models")) {
 
-		
 		for (size_t i = 0; i < Scene::modelObjects.size(); i++)
 		{
-			if (ImGui::MenuItem((Scene::modelObjects[i].ObjectName).c_str())) {
+			ImGui::Image(
+				(ImTextureID)(intptr_t)ImGuiWindow::ModelIcon.ID,
+				ImVec2(20, 20)
+			);
+			ImGui::SameLine();
+			if (ImGui::MenuItem((Scene::modelObjects[i].ObjectName + "##" + std::to_string(i)).c_str())) {
 				ImGuiWindow::SelectedObjectType = "Model";
 				ImGuiWindow::SelectedObjectIndex = i;
 			}
 		}
-		ImGui::TreePop();
-	}
-	ImGui::Spacing();
-	if (ImGui::TreeNode("BillBoards")) {
 		for (size_t i = 0; i < Scene::BillBoardObjects.size(); i++) {
 
-			if (ImGui::MenuItem((Scene::BillBoardObjects[i].ObjectName).c_str())) {
+			ImGui::Image(
+				(ImTextureID)(intptr_t)ImGuiWindow::BillBoardIcon.ID,
+				ImVec2(20, 20),
+				ImVec2(0, 0),
+				ImVec2(1, 1),
+				ImVec4(1.0f, 0.5f, 0.0f, 1.0f) // tint
+			);
+			ImGui::SameLine();
+			if (ImGui::MenuItem((Scene::BillBoardObjects[i].ObjectName + "##" + std::to_string(i)).c_str())) {
 				ImGuiWindow::SelectedObjectType = "BillBoard";
 				ImGuiWindow::SelectedObjectIndex = i;
 			}
 		}
-
-		ImGui::TreePop();
-	}
-
-	ImGui::Spacing();
-
-	if (ImGui::TreeNode("Sound")) {
+		
+	//if (ImGui::TreeNode("Sound")) {
 		for (size_t i = 0; i < Scene::SoundObjects.size(); i++) {
-			if (ImGui::MenuItem((Scene::SoundObjects[i].name).c_str())) {
+			if (ImGui::MenuItem((Scene::SoundObjects[i].name + "##" + std::to_string(i)).c_str())) {
 				ImGuiWindow::SelectedObjectType = "Sound";
 				ImGuiWindow::SelectedObjectIndex = i;
 			}
 		}
 
-		ImGui::TreePop();
-	}
+		//ImGui::TreePop();
+	//}
 
-	ImGui::Spacing();
-
-	if (ImGui::TreeNode("Collider")) {
+	//if (ImGui::TreeNode("Collider")) {
 
 		for (size_t i = 0; i < Scene::CubeColliderObject.size(); i++) {
-			if (ImGui::MenuItem((Scene::CubeColliderObject[i].name).c_str())) {
+
+			ImGui::Image(
+				(ImTextureID)(intptr_t)ImGuiWindow::colliderIcon.ID, ImVec2(20, 20));
+			ImGui::SameLine();
+			if (ImGui::MenuItem((Scene::CubeColliderObject[i].name + "##" + std::to_string(i)).c_str())) {
 				ImGuiWindow::SelectedObjectType = "Collider";
 				ImGuiWindow::SelectedObjectIndex = i;
 			}
 		}
+		for (size_t i = 0; i < Scene::enabled.size(); i++) {
+			if (Scene::lightType[i] == 0) { // spot light
+				ImGui::Image(
+					(ImTextureID)(intptr_t)ImGuiWindow::spotLightIcon.ID, ImVec2(20, 20), ImVec2(0,0), ImVec2(1, 1), ImVec4(Scene::colour[i].x, Scene::colour[i].y, Scene::colour[i].z, 1.0f));
+			}
+			else if (Scene::lightType[i] == 1) { // point light
+				ImGui::Image(
+					(ImTextureID)(intptr_t)ImGuiWindow::pointLightIcon.ID, ImVec2(20, 20), ImVec2(0, 0), ImVec2(1, 1), ImVec4(Scene::colour[i].x, Scene::colour[i].y, Scene::colour[i].z, 1.0f));
+			}
+			ImGui::SameLine();
+			if (ImGui::MenuItem(("Light X:" + std::to_string(static_cast<int>(Scene::position[i].x))
+				+ " Y:" + std::to_string(static_cast<int>(Scene::position[i].y))
+				+ " Z:" + std::to_string(static_cast<int>(Scene::position[i].z))
+				+ ("##" + std::to_string(i) ) ).c_str() ) ) 
+			{
+				ImGuiWindow::SelectedObjectType = "Light";
+				ImGuiWindow::SelectedObjectIndex = i;
+			}
+		}
 
-		ImGui::TreePop();
-	}
+	//	ImGui::TreePop();
+	//}
 
 	ImGui::Spacing();
 

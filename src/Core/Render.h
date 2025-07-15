@@ -24,10 +24,8 @@ public:
 	static bool doFog;
 	static GLfloat DepthDistance;
 	static GLfloat DepthPlane[];
-	static GLfloat lightRGBA[];
 	static glm::vec3 skyRGBA;
 	static glm::vec3 fogRGBA;
-	static GLfloat LightTransform1[];
 	static GLfloat ConeSI[];
 	static GLfloat ConeRot[];
 

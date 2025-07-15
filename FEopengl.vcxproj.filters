@@ -515,12 +515,6 @@
     <None Include="Shaders\Lighting\Default.vert">
       <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
-    <None Include="Shaders\Lighting\direcLight.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Lighting\pointLight.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
     <None Include="Shaders\Lighting\spotLight.frag">
       <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
@@ -604,6 +598,9 @@
     </None>
     <None Include="Shaders\Db\computeShader.comp">
       <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Shaders\Lighting\combined.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
   </ItemGroup>
 </Project>

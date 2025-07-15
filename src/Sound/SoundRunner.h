@@ -14,8 +14,6 @@ class SoundRunner
 {
 public:
 
-	static bool VisualizeSound;
-
 	static float GlobalVolume;
 
 	static float MusicVolume;

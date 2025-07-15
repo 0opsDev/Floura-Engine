@@ -12,6 +12,21 @@ std::vector <CubeCollider> Scene::CubeColliderObject;
 std::vector <SoundProgram> Scene::SoundObjects;
 std::vector <bool> Scene::isSoundLoop;
 
+std::vector<glm::vec3> Scene::colour;
+std::vector<glm::vec3> Scene::position;
+std::vector<glm::vec2> Scene::radiusAndPower;
+std::vector<int> Scene::lightType;
+std::vector<int> Scene::enabled;
+
+
+BillBoard PointLightIcon;
+BillBoard SpotLightIcon;
+
+void Scene::init() {
+	PointLightIcon.init("Assets/Icons/point.png");
+	SpotLightIcon.init("Assets/Icons/spot.png");
+}
+
 void Scene::LoadScene(std::string path) {
 
 	// Attemp to delete previous scene
@@ -22,6 +37,7 @@ void Scene::LoadScene(std::string path) {
 	initJsonSoundObjectLoad(path + "/Sound.scene");
 	initJsonColliderLoad(path + "/Collider.scene");
 	initJsonSettingsLoad(path + "/Settings.scene");
+	initJsonLightObjectLoad(path + "/Lights.scene");
 }
 
 void Scene::SaveScene(std::string path) {
@@ -29,6 +45,7 @@ void Scene::SaveScene(std::string path) {
 	JsonBillBoardSave(path + "/BillBoard.scene");
 	// sound load here
 	JsonColliderSave(path + "/Collider.scene");
+	Scene::JsonLightSave(path + "/Lights.scene");
 
 }
 
@@ -200,7 +217,7 @@ void Scene::JsonBillBoardSave(std::string path) {
 
 void Scene::JsonColliderSave(std::string path) {
 	try {
-		json settingsData = json::array();  // New JSON array to hold model data
+		json ColliderData = json::array();  // New JSON array to hold model data
 
 		// Serialize each modelObject into JSON
 		for (const auto& obj : CubeColliderObject) {
@@ -213,7 +230,7 @@ void Scene::JsonColliderSave(std::string path) {
 			CubeColliderJson["scale"] = { obj.colliderScale.x, obj.colliderScale.y, obj.colliderScale.z };
 
 
-			settingsData.push_back(CubeColliderJson);
+			ColliderData.push_back(CubeColliderJson);
 		}
 
 		// Write to file
@@ -223,7 +240,63 @@ void Scene::JsonColliderSave(std::string path) {
 			return;
 		}
 
-		outFile << settingsData.dump(4);  // Pretty-print with indentation
+		outFile << ColliderData.dump(4);  // Pretty-print with indentation
+		outFile.close();
+
+		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+
+	}
+	catch (const std::exception& e) {
+		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+	}
+}
+
+void Scene::JsonLightSave(std::string path) {
+	try {
+		json lightData = json::array();  // New JSON array to hold model data
+
+		int iteration = 0;
+		// Serialize each modelObject into JSON
+		for (const auto& Write : enabled) {
+			json LightJson;
+
+			LightJson["position"] = { position[iteration].x, position[iteration].y, position[iteration].z };
+			LightJson["colour"] = { colour[iteration].x, colour[iteration].y, colour[iteration].z };
+
+			if (enabled[iteration] > 0) {
+				LightJson["enabled"] = true;
+			}
+			else{
+				LightJson["enabled"] = false;
+			}
+
+			if (lightType[iteration] == 1) {
+				LightJson["type"] = "pointlight";
+			}
+			else if (lightType[iteration] == 0) {
+				LightJson["type"] = "spotlight";
+			}
+
+			
+
+			LightJson["radius"] = radiusAndPower[iteration].x;
+			LightJson["power"] = radiusAndPower[iteration].y;
+
+			//LightJson["type"] = lightType[iteration];
+			
+			
+			lightData.push_back(LightJson);
+			iteration++;
+		}
+
+		// Write to file
+		std::ofstream outFile(path, std::ios::out);
+		if (!outFile.is_open()) {
+			if (init::LogALL || init::LogSystems) std::cout << "Failed to write to " << path << std::endl;
+			return;
+		}
+
+		outFile << lightData.dump(4);  // Pretty-print with indentation
 		outFile.close();
 
 		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
@@ -281,6 +354,14 @@ void Scene::AddSceneColliderObject(std::string name) {
 	newCubeColliderObject.init();
 	newCubeColliderObject.name = newName;
 	CubeColliderObject.push_back(newCubeColliderObject);
+}
+
+void Scene::AddSceneLightObject() {
+	colour.push_back(glm::vec3(1.0f, 1.0f, 1.0f)); // Default white color
+	position.push_back(glm::vec3(0.0f, 0.0f, 0.0f)); // Default position at origin
+	radiusAndPower.push_back(glm::vec2(100.0f, 5.0f)); // Default radius and power
+	lightType.push_back(1); // Default to Pointlight
+	enabled.push_back(1); // Default enabled state
 }
 
 void Scene::initJsonBillBoardLoad(std::string path) {
@@ -439,6 +520,63 @@ void Scene::initJsonSoundObjectLoad(std::string path) {
 	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene SoundObject from: " << path << std::endl;
 }
 	
+void Scene::initJsonLightObjectLoad(std::string path) {
+	std::ifstream file(path);
+	if (!file.is_open()) {
+		std::cout << "Failed to open file: " << path << std::endl;
+		return;
+	}
+	json LightObjectFileData;
+	try {
+		file >> LightObjectFileData;
+	}
+	catch (const nlohmann::json::parse_error& e) {
+		// This catch block specifically handles JSON parsing errors,
+		// which gives more precise error information from the library.
+		std::cout << "JSON Parse Error loading LightObject data: " << e.what() << std::endl;
+		std::cout << "Error byte position: " << e.byte << std::endl; // Specific to nlohmann::json
+	}
+	catch (const std::ios_base::failure& e) {
+		// This catch block handles file I/O errors (e.g., file not found, permission issues).
+		std::cout << "File I/O Error loading LightObject data: " << e.what() << std::endl;
+	}
+	catch (const std::exception& e) {
+		// A general catch-all for any other std::exception derived errors.
+		std::cout << "An unexpected error occurred loading LightObject data: " << e.what() << std::endl;
+	}
+	file.close();
+
+	for (const auto& item : LightObjectFileData) {
+		
+		glm::vec3 newPosition = glm::vec3(item.at("position")[0], item.at("position")[1], item.at("position")[2]);
+		glm::vec3 newColour = glm::vec3(item.at("colour")[0], item.at("colour")[1], item.at("colour")[2]);
+		std::string newType = item.at("type").get<std::string>();
+		bool newEnabled = item.at("enabled").get<bool>();
+
+		float newRadius = item.at("radius").get<float>();
+		float newPower = item.at("power").get<float>();
+
+
+		position.push_back(newPosition);
+		colour.push_back(newColour);
+		
+		if (newType == "pointlight" || newType == "Pointlight") {
+			lightType.push_back(1); // Point light
+		}
+		else if (newType == "spotlight" || newType == "Spotlight" ) {
+			lightType.push_back(0); // Spotlight
+		}
+		enabled.push_back(newEnabled);
+		radiusAndPower.push_back(glm::vec2(newRadius, newPower));
+		
+		// pushback here
+	}
+	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene LightObject from: " << path << std::endl;
+
+
+
+}
+
 void Scene::initJsonSettingsLoad(std::string path) {
 	std::ifstream engineDefaultFile(path);
 	if (engineDefaultFile.is_open()) {
@@ -457,10 +595,6 @@ void Scene::initJsonSettingsLoad(std::string path) {
 		RenderClass::skyRGBA[0] = engineDefaultData[0]["skyRGBA"][0];
 		RenderClass::skyRGBA[1] = engineDefaultData[0]["skyRGBA"][1];
 		RenderClass::skyRGBA[2] = engineDefaultData[0]["skyRGBA"][2];
-
-		RenderClass::lightRGBA[0] = engineDefaultData[0]["lightRGBA"][0];
-		RenderClass::lightRGBA[1] = engineDefaultData[0]["lightRGBA"][1];
-		RenderClass::lightRGBA[2] = engineDefaultData[0]["lightRGBA"][2];
 
 		RenderClass::fogRGBA[0] = engineDefaultData[0]["fogRGBA"][0];
 		RenderClass::fogRGBA[1] = engineDefaultData[0]["fogRGBA"][1];
@@ -521,6 +655,75 @@ void Scene::Update() {
 			SoundObjects[i].PlaySound();
 		}
 	}
+		
+		// range Scene::enabled
+		if (enabled.size() || true) {
+			RenderClass::shaderProgram.Activate();
+
+			RenderClass::shaderProgram.setFloat3Vector(
+				"lightPos2",
+				position.size(),
+				&position[0].x
+			);
+
+			RenderClass::shaderProgram.setFloat3Vector(
+				"colour2",
+				colour.size(),
+				&colour[0].x
+			);
+			//colour
+
+			RenderClass::shaderProgram.setInt(
+				"sizeOfLights",
+				enabled.size()
+			);
+
+			RenderClass::shaderProgram.setFloat2Vector(
+				"radiusAndPower",
+				radiusAndPower.size(),
+				&radiusAndPower[0].x
+			);
+
+			RenderClass::shaderProgram.setIntVector(
+				"lightType",
+				lightType.size(),
+				&lightType[0]
+			);
+			//radius
+			//std::cout << LightObjectList.size() << std::endl;
+			//
+			RenderClass::shaderProgram.setIntVector("enabled", enabled.size(), &enabled[0]);
+
+				
+
+
+			RenderClass::shaderProgram.setInt("lightCount", enabled.size());
+		}
+		
+
+
+
+
+	for (size_t i = 0; i < enabled.size(); i++)
+	{
+
+		if (ImGuiWindow::showViewportIcons) {
+
+				if (lightType[i] == 0) {
+					SpotLightIcon.draw(true, position[i].x, position[i].y, position[i].z, 0.3, 0.3, 0.3);
+				}
+				else if (lightType[i] == 1) {
+					PointLightIcon.draw(true, position[i].x, position[i].y, position[i].z, 0.3, 0.3, 0.3);
+				}
+				else if (lightType[i] == 2) {
+					//DirectionalLightIcon.draw(true, position[i].x, position[i].y, position[i].z, 0.3, 0.3, 0.3);
+				}
+		}
+
+		
+		//position
+		//LightObjectList[i].colour
+	}
 }
 
 void Scene::Delete() {
@@ -535,9 +738,21 @@ void Scene::Delete() {
 
 	CubeColliderObject.clear();
 
+	for (size_t i = 0; i < isSoundLoop.size(); i++) {
+		if (isSoundLoop[i]) {
+			SoundObjects[i].StopSound();
+		}
+	}
+
+	isSoundLoop.clear();
+
 	for (size_t i = 0; i < SoundObjects.size(); i++)
 	{SoundObjects[i].DeleteSound();}
 	SoundObjects.clear();
 
-	isSoundLoop.clear();
+	colour.clear();
+	position.clear();
+	radiusAndPower.clear();
+	lightType.clear();
+	enabled.clear();
 }

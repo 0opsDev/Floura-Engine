@@ -2,9 +2,7 @@
   {
     "Frag": [
         "Shaders/Lighting/unShaded.frag",
-        "Shaders/Lighting/spotLight.frag",
-        "Shaders/Lighting/direcLight.frag",
-        "Shaders/Lighting/pointLight.frag",
+        "Shaders/Lighting/combined.frag",
         "Shaders/Lighting/albedo.frag"
     ],
     "Vert": [

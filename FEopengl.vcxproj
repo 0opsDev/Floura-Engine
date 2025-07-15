@@ -285,12 +285,11 @@
     <None Include="Shaders\gBuffer\geometryPassSkybox.frag" />
     <None Include="Shaders\gBuffer\geometryPassSkybox.vert" />
     <None Include="Shaders\Lighting\albedo.frag" />
+    <None Include="Shaders\Lighting\combined.frag" />
     <None Include="Shaders\Lighting\Default.geom" />
     <None Include="Shaders\Lighting\Default.vert" />
-    <None Include="Shaders\Lighting\direcLight.frag" />
     <None Include="Shaders\Lighting\light.frag" />
     <None Include="Shaders\Lighting\light.vert" />
-    <None Include="Shaders\Lighting\pointLight.frag" />
     <None Include="Shaders\Lighting\spotLight.frag" />
     <None Include="Shaders\Lighting\unShaded.frag" />
     <None Include="Shaders\PostProcess\4bitToDither.frag" />

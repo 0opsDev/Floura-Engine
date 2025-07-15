@@ -1,7 +1,7 @@
 #include "Texture.h"
 #include "utils/init.h"
 
-Texture::Texture(const char* image, const char* texType, GLuint slot)
+void Texture::createTexture(const char* image, const char* texType, GLuint slot)
 {
     if (init::LogALL || init::LogModel) std::cout << "Texture loading 1: " << image << std::endl;
     // Assigns the type of the texture to the texture object

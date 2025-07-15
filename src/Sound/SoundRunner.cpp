@@ -1,8 +1,6 @@
 #include "SoundRunner.h"
 #include "SoundProgram.h"
 
-bool SoundRunner::VisualizeSound = false;
-
 float SoundRunner::GlobalVolume = 1;
 
 float SoundRunner::MusicVolume = 1;

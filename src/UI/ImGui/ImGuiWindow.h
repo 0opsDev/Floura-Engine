@@ -14,6 +14,7 @@
 class ImGuiWindow
 {
 public:
+	static bool showViewportIcons;
 
 	static bool imGuiPanels[]; // ImGui Panels
 	static bool DebugPanels[];
@@ -33,6 +34,18 @@ public:
 	static float Render;
 	static float physicsTime;
 
+	static Texture FolderIcon; // Icon for folder in ImGui
+	static Texture SaveIcon; // Icon for Save in ImGui
+	static Texture ModelIcon; // Icon for Model in ImGui
+	static Texture BillBoardIcon; // Icon for BillBoard in ImGui
+	static Texture colliderIcon; // Icon for Collider in ImGui 
+	static Texture pointLightIcon; // Icon for pointLightIcon in ImGui
+	static Texture spotLightIcon; // Icon for spotLightIcon in ImGui 
+	static Texture arrowIcon; // Icon for arrow in ImGui 
+	static Texture crossIcon; // Icon for cross in ImGui 
+
+	static void init();
+
 	static void SystemInfomation();
 	static void RenderWindow(GLFWwindow*& window, int windowedWidth, int windowedHeight);
 	static void create();
@@ -51,10 +64,6 @@ public:
 	static void audio();
 
 	static void viewport();
-
-	static void ModelH();
-
-	static void BillBoardH();
 
 	static void HierarchyList();
 
