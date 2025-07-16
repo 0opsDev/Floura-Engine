@@ -246,7 +246,7 @@ void Main::saveSettings() {
 
 static const char* lightTypes[]{ "Spotlight","Pointlight" };
 static int SelectedLight = 0;
-
+bool addContentBool = false;
 // Holds ImGui Variables and Windows
 void Main::imGuiMAIN(GLFWwindow* window) {
 	//Tell Imgui a new frame is about to begin
@@ -257,7 +257,7 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 
 	// Important flags for the main dockspace window
 	ImGuiWindowFlags window_flags =
-		ImGuiWindowFlags_MenuBar |          
+		ImGuiWindowFlags_MenuBar |
 		ImGuiWindowFlags_NoDocking |
 		ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoCollapse |
@@ -280,11 +280,11 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 				ImGuiFileDialog::Instance()->OpenDialog("LoadScene", "Choose Scene", ".*", config);
 			}
 
-				ImGui::MenuItem("Save Scene As");
-				if (ImGui::MenuItem("Save Scene")) Scene::SaveScene(SettingsUtils::sceneName);
-				if (ImGui::MenuItem("Reload Scene")) Scene::LoadScene(SettingsUtils::sceneName);
+			ImGui::MenuItem("Save Scene As");
+			if (ImGui::MenuItem("Save Scene")) Scene::SaveScene(SettingsUtils::sceneName);
+			if (ImGui::MenuItem("Reload Scene")) Scene::LoadScene(SettingsUtils::sceneName);
 
-				ImGui::EndMenu();
+			ImGui::EndMenu();
 		}
 
 		if (ImGui::BeginMenu("View"))
@@ -302,6 +302,23 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 		if (ImGui::BeginMenu("Edit"))
 		{
 			if (ImGui::MenuItem("Reload Shaders?")) RenderClass::initGlobalShaders();
+			ImGui::Text("Scripts:");
+			if (ImGui::SmallButton("Stop")) { ScriptRunner::clearScripts(); } // save settings button
+			if (ImGui::SmallButton("Start")) { ScriptRunner::init(SettingsUtils::sceneName + "LuaStartup.json"); } // save settings button
+			if (ImGui::SmallButton("Restart")) { ScriptRunner::clearScripts(); ScriptRunner::init(SettingsUtils::sceneName + "LuaStartup.json"); } // save settings button
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Panels")) {
+			//panel
+			ImGuiWindow::PanelsWindow();
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Debug")) {
+			ImGui::Checkbox("DoDeferredLightingPass", &RenderClass::DoDeferredLightingPass);
+			ImGui::Checkbox("DoForwardLightingPass", &RenderClass::DoForwardLightingPass);
+			ImGui::Checkbox("DoComputeLightingPass", &RenderClass::DoComputeLightingPass);
+			ImGui::Checkbox("doPlayerBoxCollision: ", &CubeCollider::CollideWithCamera);
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();
@@ -325,8 +342,6 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 	ImGui::End();
 
 
-	//panel
-	ImGuiWindow::PanelsWindow();
 	// Rendering panel
 	if (ImGuiWindow::imGuiPanels[1]) {
 
@@ -352,11 +367,11 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 	}
 
 	if (ImGuiWindow::imGuiPanels[5]) {
-		ImGuiWindow::PhysicsWindow();
+		
 	}
 
 	if (ImGuiWindow::imGuiPanels[6]) {
-		ImGuiWindow::DebugWindow();
+		ImGuiWindow::PreformanceProfiler();
 	}
 
 	if (ImGuiWindow::imGuiPanels[7]) {
@@ -380,6 +395,12 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 		if (ImGui::ImageButton("##crossIcon", (ImTextureID)ImGuiWindow::crossIcon.ID, ImVec2(30, 30))) {
 			Scene::Delete();
 		}
+		ImGui::Spacing();
+
+		ImGui::Text("Constant Objects:");
+		ImGui::Text("Camera goes here");
+		ImGui::Text("Direct Light Goes Here");
+		ImGui::Text("Skybox Goes Here");
 		ImGui::Spacing();
 
 		ImGuiWindow::create();
@@ -516,8 +537,11 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 	
 	if (ImGuiWindow::imGuiPanels[10]) {
 		ImGui::Begin("Content Folder"); // ImGUI window creation
-		if (ImGui::Button("ADD")) {
-
+		if (ImGui::ImageButton("##plusIcon", (ImTextureID)ImGuiWindow::plusIcon.ID, ImVec2(20, 20))) {
+			addContentBool = true;
+		}
+		if (addContentBool) {
+			ImGuiWindow::addWindow("content", addContentBool);
 		}
 
 		if (ImGui::ImageButton("##FolderIcon",(ImTextureID)ImGuiWindow::FolderIcon.ID, ImVec2(100, 100))) {

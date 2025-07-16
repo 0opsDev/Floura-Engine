@@ -17,13 +17,9 @@ public:
 	static bool showViewportIcons;
 
 	static bool imGuiPanels[]; // ImGui Panels
-	static bool DebugPanels[];
 	static std::string FileTabs; // ImGui FileTabs
 	static bool enableFB; // Change this as needed
 	static bool enableDEF;
-
-	static char UniformInput[64]; // Zero-initialized buffer
-	static float UniformFloat[3]; // Zero-initialized array
 	static bool isWireframe;
 
 	static std::string SelectedObjectType;
@@ -43,6 +39,7 @@ public:
 	static Texture spotLightIcon; // Icon for spotLightIcon in ImGui 
 	static Texture arrowIcon; // Icon for arrow in ImGui 
 	static Texture crossIcon; // Icon for cross in ImGui 
+	static Texture plusIcon; // Icon for plus in ImGui
 
 	static void init();
 
@@ -53,9 +50,6 @@ public:
 	static void CameraWindow();
 	static void LightWindow();
 	static void PanelsWindow();
-	static void PhysicsWindow();
-
-	static void DebugWindow();
 
 	static void PreformanceProfiler();
 
@@ -66,6 +60,8 @@ public:
 	static void viewport();
 
 	static void HierarchyList();
+
+	static void addWindow(std::string typeString, bool &isOpen);
 
 };
 

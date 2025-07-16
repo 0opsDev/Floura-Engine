@@ -12,14 +12,9 @@
 bool ImGuiWindow::showViewportIcons = true;
 bool ImGuiWindow::imGuiPanels[] = { true, true, true, true, true, true, true, true, true, true, true }; // ImGui Panels
 
-bool ImGuiWindow::DebugPanels[] = { true, false }; // ImGui Panels
-
 std::string ImGuiWindow::FileTabs = "Model";
 bool ImGuiWindow::enableFB = false; // Change this as needed
 bool ImGuiWindow::enableDEF = true;
-
-char ImGuiWindow::UniformInput[64] = { "" }; // Zero-initialized buffer
-float ImGuiWindow::UniformFloat[3] = {}; // Zero-initialized array
 
 bool ImGuiWindow::isWireframe = false;
 
@@ -39,6 +34,7 @@ Texture ImGuiWindow::pointLightIcon; // Icon for pointLightIcon in ImGui
 Texture ImGuiWindow::spotLightIcon; // Icon for spotLightIcon in ImGui 
 Texture ImGuiWindow::arrowIcon; // Icon for arrow in ImGui 
 Texture ImGuiWindow::crossIcon; // Icon for cross in ImGui 
+Texture ImGuiWindow::plusIcon; // Icon for plus in ImGui
 
 // collideicon.png
 
@@ -55,6 +51,7 @@ void ImGuiWindow::init() {
 	spotLightIcon.createTexture("Assets/Icons/spot.png", "diffuse", 6);
 	arrowIcon.createTexture("Assets/Icons/arrow.png", "diffuse", 7);
 	crossIcon.createTexture("Assets/Icons/cross.png", "diffuse", 8);
+	plusIcon.createTexture("Assets/Icons/plus.png", "diffuse", 9);
 }
 
 void ImGuiWindow::SystemInfomation() {
@@ -119,12 +116,6 @@ void ImGuiWindow::ShaderWindow() {
 		ImGui::Text("DepthBuffer Settings (FOG)");
 		ImGui::DragFloat("Depth Distance (FOG)", &RenderClass::DepthDistance);
 		ImGui::DragFloat2("Near and Far Depth Plane", RenderClass::DepthPlane);
-
-		ImGui::InputText("Uniform Input", ImGuiWindow::UniformInput, IM_ARRAYSIZE(ImGuiWindow::UniformInput));
-		ImGui::DragFloat("UniformFloat", ImGuiWindow::UniformFloat);
-		if (false & ImGuiWindow::UniformInput != NULL) { // Debug
-			if (init::LogALL || init::LogSystems) std::cout << ImGuiWindow::UniformInput << std::endl;
-		}
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 }
@@ -198,48 +189,19 @@ void ImGuiWindow::LightWindow() {
 }
 
 void ImGuiWindow::PanelsWindow() {
-	// Toggle ImGui Windows
-	ImGui::Begin("Panels"); // ImGUI window creation
 	ImGui::Text("Settings (Press escape to use mouse)");
 	if (ImGui::SmallButton("load")) { Main::loadSettings(); } // load settings button
 	if (ImGui::SmallButton("save (just settings)")) { Main::saveSettings(); } // save settings button
-	ImGui::Text("Scripts:");
-	if (ImGui::SmallButton("Stop")) { ScriptRunner::clearScripts(); } // save settings button
-	if (ImGui::SmallButton("Start")) { ScriptRunner::init(SettingsUtils::sceneName + "LuaStartup.json"); } // save settings button
-	if (ImGui::SmallButton("Restart")) { ScriptRunner::clearScripts(); ScriptRunner::init(SettingsUtils::sceneName + "LuaStartup.json"); } // save settings button
 	ImGui::Checkbox("Rendering", &ImGuiWindow::imGuiPanels[1]);
 	ImGui::Checkbox("Camera Settings", &ImGuiWindow::imGuiPanels[2]);
 	ImGui::Checkbox("ViewPort", &ImGuiWindow::imGuiPanels[3]);
 	ImGui::Checkbox("Scene Hierarchy", &ImGuiWindow::imGuiPanels[4]);
-	ImGui::Checkbox("Physics Settings", &ImGuiWindow::imGuiPanels[5]);
-	ImGui::Checkbox("Debug Window", &ImGuiWindow::imGuiPanels[6]);
+	ImGui::Checkbox("Does nothing", &ImGuiWindow::imGuiPanels[5]);
+	ImGui::Checkbox("Preformance Profiler", &ImGuiWindow::imGuiPanels[6]);
 	ImGui::Checkbox("Text Editor", &ImGuiWindow::imGuiPanels[7]);
 	ImGui::Checkbox("Audio", &ImGuiWindow::imGuiPanels[8]); // Audio window
 	ImGui::Checkbox("Inspector", &ImGuiWindow::imGuiPanels[9]); // Audio window
 	ImGui::Checkbox("Content Folder", &ImGuiWindow::imGuiPanels[10]); // Audio window
-
-	ImGui::End();
-}
-
-void ImGuiWindow::PhysicsWindow() {
-	ImGui::Begin("Physics"); // ImGUI window creation
-	ImGui::Checkbox("showBoxCollider", &CubeCollider::showBoxCollider);
-	if (ImGui::TreeNode("Collision")) {
-		ImGui::Checkbox("doPlayerBoxCollision: ", &CubeCollider::CollideWithCamera);
-		ImGui::TreePop();
-	}
-
-	ImGui::End();
-}
-
-void ImGuiWindow::DebugWindow() {
-	ImGui::Begin("Debug Window"); // ImGUI window creation
-	ImGui::Checkbox("Preformance Profiler", &DebugPanels[0]);
-	if (DebugPanels[0]) { PreformanceProfiler(); }
-	ImGui::Checkbox("DoDeferredLightingPass", &RenderClass::DoDeferredLightingPass);
-	ImGui::Checkbox("DoForwardLightingPass", &RenderClass::DoForwardLightingPass);
-	ImGui::Checkbox("DoComputeLightingPass", &RenderClass::DoComputeLightingPass);
-	ImGui::End();
 }
 
 void ImGuiWindow::PreformanceProfiler() {
@@ -292,15 +254,19 @@ void ImGuiWindow::TextEditor() {
 	ImGui::Begin("Text Editor"); // ImGUI window creation
 	ImGui::Text("Text Editor");
 
+	// Input for the path to the text file
+	if (ImGui::InputText("##Path", pathBuffer, sizeof(pathBuffer))) {
+		FileClass::currentPath = pathBuffer;
+	}
+	ImGui::SameLine();
+
 	strncpy(pathBuffer, FileClass::currentPath.c_str(), sizeof(pathBuffer) - 1);
 	pathBuffer[sizeof(pathBuffer) - 1] = '\0';
 
-
-	if (ImGui::Button("Open File")) {
+	if (ImGui::ImageButton("##FolderIcon", (ImTextureID)ImGuiWindow::FolderIcon.ID, ImVec2(15, 15))) {
 		IGFD::FileDialogConfig config;
 		config.path = ".";
 		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".*", config);
-
 	}
 	// display
 	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
@@ -317,18 +283,6 @@ void ImGuiWindow::TextEditor() {
 		ImGuiFileDialog::Instance()->Close();
 	}
 
-	// Input for the path to the text file
-	if (ImGui::InputText("Path", pathBuffer, sizeof(pathBuffer))) {
-		FileClass::currentPath = pathBuffer;
-	}
-
-	if (ImGui::Button("Load")) {
-		FileClass::loadContents(); // Load contents of text editor
-	}
-	if (ImGui::Button("Save")) {
-		FileClass::saveContents(); // Save contents of text editor
-	}
-
 	std::vector<char> contentBuffer(FileClass::Contents.size() + 256);
 	strncpy(contentBuffer.data(), FileClass::Contents.c_str(), contentBuffer.size());
 	contentBuffer[contentBuffer.size() - 1] = '\0';
@@ -339,6 +293,15 @@ void ImGuiWindow::TextEditor() {
 	// Main Text Editor Input
 	if (ImGui::InputTextMultiline("Text Box", contentBuffer.data(), contentBuffer.size(), boxSize)) {
 		FileClass::Contents = std::string(contentBuffer.data());
+	}
+	ImGui::Spacing();
+	// Save and Load buttons
+	if (ImGui::ImageButton("##SaveIcon", (ImTextureID)ImGuiWindow::SaveIcon.ID, ImVec2(20, 20))) {
+		FileClass::saveContents(); // Save contents of text editor
+	}
+	ImGui::SameLine();
+	if (ImGui::ImageButton("##arrowIcon", (ImTextureID)ImGuiWindow::arrowIcon.ID, ImVec2(20, 20))) {
+		FileClass::loadContents(); // Load contents of text editor
 	}
 
 	ImGui::End();
@@ -383,65 +346,18 @@ void ImGuiWindow::viewport() {
 	ImGui::End();
 }
 
-static const char* items[]{ "Models","BillBoards","Sound", "Collider", "Light"};
-static int Selecteditem = 0;
-
-char name[32] = "Name";
-char Path[64] = "Assets/";
-bool type = false;
+bool addWindowBool = false;
 
 void ImGuiWindow::create() {
 
-	if (ImGui::TreeNode("Add New Object")) {
-		ImGui::Spacing();
-		ImGui::Combo("ObjectType", &Selecteditem, items, IM_ARRAYSIZE(items));
-		ImGui::InputText("Path Input", Path, IM_ARRAYSIZE(Path));
-		ImGui::InputText("Name Input", name, IM_ARRAYSIZE(name));
-		ImGui::Spacing();
-		if (Selecteditem == 0) {
-			ImGui::Text("Model");
-			ImGui::Checkbox("LOD", &type);
-
-			if (ImGui::SmallButton("Create")) {
-				if (type) Scene::AddSceneModelObject("LOD", Path, name);
-				else Scene::AddSceneModelObject("Static", Path, name);
-			}
-
-		}
-		else if (Selecteditem == 1) {
-			ImGui::Text("BillBoard");
-
-			ImGui::Checkbox("Animated", &type);
-			if (ImGui::SmallButton("Create")) {
-				if (type) Scene::AddSceneBillBoardObject(name, "animated", Path);
-				else Scene::AddSceneBillBoardObject(name, "static", Path);
-			}
-			else if (Selecteditem == 2) {
-				ImGui::Text("Sound");
-			}
-			else if (Selecteditem == 3) {
-				ImGui::Text("Collider");
-			}
-		}
-		else if (Selecteditem == 2) {
-			ImGui::Text("Sound");
-		}
-		else if (Selecteditem == 3) {
-			ImGui::Text("Collider");
-			if (ImGui::SmallButton("Create")) {
-				Scene::AddSceneColliderObject(name);
-			}
-		}
-		else if (Selecteditem == 4) {
-			ImGui::Text("Light");
-			if (ImGui::SmallButton("Create")) {
-				Scene::AddSceneLightObject();
-			}
-		}
-		//AddSceneLightObject
-		ImGui::TreePop();
-		//std::cout << Selecteditem << std::endl;
+	if (ImGui::ImageButton("##plusIcon", (ImTextureID)ImGuiWindow::plusIcon.ID, ImVec2(20, 20))) {
+		addWindowBool = true;
 	}
+	if (addWindowBool) {
+		ImGuiWindow::addWindow("hierarchy", addWindowBool);
+	}
+
+
 }
 
 void ImGuiWindow::HierarchyList() {
@@ -523,4 +439,78 @@ void ImGuiWindow::HierarchyList() {
 
 	ImGui::Spacing();
 
+}
+
+
+static const char* items[]{ "Models","BillBoards","Sound", "Collider", "Light" };
+static int Selecteditem = 0;
+
+char name[32] = "Name";
+char Path[64] = "Assets/";
+bool type = false;
+
+void pathInput() {
+	ImGui::InputText("Path Input", Path, IM_ARRAYSIZE(Path));
+	
+}
+void nameInput() {
+	ImGui::InputText("Name Input", name, IM_ARRAYSIZE(name));
+}
+
+void ImGuiWindow::addWindow(std::string typeString, bool &isOpen) {
+	ImGui::Begin("Add");
+	if (typeString == "hierarchy") {
+		ImGui::Combo("ObjectType", &Selecteditem, items, IM_ARRAYSIZE(items));
+
+		ImGui::Spacing();
+		if (Selecteditem == 0) {
+			//ImGui::Text("Model");
+			pathInput();
+			nameInput();
+			ImGui::Checkbox("LOD", &type);
+
+			if (ImGui::ImageButton("##plusIcon", (ImTextureID)ImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
+				if (type) Scene::AddSceneModelObject("LOD", Path, name);
+				else Scene::AddSceneModelObject("Static", Path, name);
+			}
+
+		}
+		else if (Selecteditem == 1) {
+			//ImGui::Text("BillBoard");
+			pathInput();
+			nameInput();
+			ImGui::Checkbox("Animated", &type);
+			if (ImGui::ImageButton("##plusIcon", (ImTextureID)ImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
+				if (type) Scene::AddSceneBillBoardObject(name, "animated", Path);
+				else Scene::AddSceneBillBoardObject(name, "static", Path);
+			}
+		}
+		else if (Selecteditem == 2) {
+			ImGui::Text("Not functional rn");
+			pathInput();
+			nameInput();
+			if (ImGui::ImageButton("##plusIcon", (ImTextureID)ImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
+			}
+		}
+		else if (Selecteditem == 3) {
+			//ImGui::Text("Collider");
+			nameInput();
+			if (ImGui::ImageButton("##plusIcon", (ImTextureID)ImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
+				Scene::AddSceneColliderObject(name);
+			}
+		}
+		else if (Selecteditem == 4) {
+			//ImGui::Text("Light");
+			if (ImGui::ImageButton("##plusIcon", (ImTextureID)ImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
+				Scene::AddSceneLightObject();
+			}
+		}
+		//AddSceneLightObject
+		}
+		
+	ImGui::SameLine();
+	if (ImGui::ImageButton("##crossIcon", (ImTextureID)ImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
+		isOpen = false;
+	}
+	ImGui::End();
 }

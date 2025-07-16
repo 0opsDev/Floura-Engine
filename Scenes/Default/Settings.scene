@@ -4,12 +4,12 @@
         "NearPlane": "0.1f",
         "FarPlane": "100000.000f",
         "Window": "Test",
-        "DefaultSkyboxPath": "Assets/Skybox/clearsky/Skybox.json",
+        "DefaultSkyboxPath": "Assets/Skybox/sunset/Skybox.json",
 
-        "skyRGBA": [ 0.0,0.0,0.0 ],
+        "skyRGBA": [ 0.211,0.0,0.124 ],
         "fogRGBA": [ 0.180, 0.221, 0.525 ],
 
-        "doReflections": false,
+        "doReflections": true,
         "doFog": true,
         "VertNum": 0,
         "FragNum": 1,

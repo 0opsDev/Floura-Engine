@@ -169,7 +169,6 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	frameBufferProgram.setMat4("cameraMatrix", Camera::cameraMatrix);
 	frameBufferProgram.setFloat("time", glfwGetTime());
 	frameBufferProgram.setFloat("deltaTime", TimeUtil::s_DeltaTime);
-	frameBufferProgram.setFloat(ImGuiWindow::UniformInput, ImGuiWindow::UniformFloat[0]);
 	frameBufferProgram.setBool("enableFB", ImGuiWindow::enableFB);
 
 	// draw the framebuffer
