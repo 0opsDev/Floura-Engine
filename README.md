@@ -1,23 +1,23 @@
 Farquhar Engine is a Open Source C++ Game Engine created for the purpose of learning opengl,
 
-Checkout [documentation](https://github.com/0opsDev/Farquhar-Engine/blob/master/Documentation/documentation.md) for more
-
 Features:
 ---
 ~~~
 . glTF Model Loading
 . Billboard Models
 . Gbuffer
-. Cubemaps
-. FrameBuffer Vertex and Fragment Shader Support
-. Settings Files
-. Map Files with Map Settings
+. Scenes
 . ImGui Implementation
 . OpenGL API
-. Diffuse and Specular Texture Support
+. Diffuse, Specular and Normals
 . Entity Component System
+. Hierarchy Window
+. Content Viewer
+. Inspector Tab
 . WireFrame View
-. Embedded Lua via sol2
+. Icons for objects such as "Sound Objects, and Light Objects"
+. Point, Spot and soon Directional Lights
+. Lua Scripting via sol2 (not really implemented atm)
 . 3D Directional Sound via openAL Soft
 ~~~
 
@@ -39,10 +39,6 @@ F3: Gravity and Collisions ON
 Screenshots:
 ---
 some raytraced reflections
+<img width="2559" height="1439" alt="image" src="https://github.com/user-attachments/assets/7cfb457f-dd31-4752-a33d-28a65dbdd00e" />
+---
 ![image](https://github.com/user-attachments/assets/6d5e7668-fb02-490b-9f27-035b30554f3f)
----
-![image](https://github.com/user-attachments/assets/07719cea-7554-490c-9e99-a242be7d05df)
----
-![image](https://github.com/user-attachments/assets/4f785c12-f6bf-456c-bc49-c00d743fe079)
----
-![image](https://github.com/user-attachments/assets/b9ca279e-19a7-4f49-ae67-771ba146d92e)
