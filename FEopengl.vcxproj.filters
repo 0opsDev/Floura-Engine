@@ -545,9 +545,6 @@
     <None Include="Settings\LogConfig.json">
       <Filter>Resource Files\settings</Filter>
     </None>
-    <None Include="Settings\PlayerController.json">
-      <Filter>Resource Files\settings</Filter>
-    </None>
     <None Include="Shaders\ShaderList.json">
       <Filter>Resource Files\Shaders</Filter>
     </None>
@@ -600,6 +597,12 @@
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
     <None Include="Shaders\Lighting\combined.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\shadowMap.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\shadowMap.frag">
       <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
   </ItemGroup>

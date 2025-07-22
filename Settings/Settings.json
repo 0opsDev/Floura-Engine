@@ -1,8 +1,7 @@
 [
     {
-        "FOV": 80.0,
-        "Scene": "Default",
-        "Sensitivity": [ 100.0, 100.0],
+        "Scene": "Island",
+        "Sensitivity": [ 100.0, 100.0 ],
         "Vsync": false,
         "Resolution": [ 1920, 1080 ],
         "imGui": true

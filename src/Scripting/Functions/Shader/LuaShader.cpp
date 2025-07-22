@@ -12,9 +12,6 @@ void luaShader::SetShader(sol::state& luaState) {
 		else if (ShaderType == "frag") {
 			Main::FragNum = value;
 		}
-		else if (ShaderType == "vert") {
-			Main::VertNum = value;
-		}
 		else if (ShaderType == "framebuffer") {
 			if (init::LogALL || init::LogLua) std::cout << "[Lua] framebuffer not fully implemented yet" << std::endl;
 		}
@@ -22,6 +19,6 @@ void luaShader::SetShader(sol::state& luaState) {
 			if (init::LogALL || init::LogLua) std::cout << "[Lua] invalid shader type: " << std::endl;
 		}
 
-		FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram);
+		FileClass::loadShaderProgram(0, Main::FragNum, RenderClass::shaderProgram);
 		};
 }

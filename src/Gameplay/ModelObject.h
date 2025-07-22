@@ -34,7 +34,7 @@ public:
 	unsigned int LodCount;
 	glm::vec3 transform = glm::vec3(0, 0, 0);
 	glm::vec3 scale = glm::vec3(1, 1, 1);
-	glm::vec4 rotation = glm::vec4(0,0,0,0);
+	glm::vec3 rotation = glm::vec3(0,0,0);
 	bool CullFrontFace = false;
 
 	bool isCollider = false;
@@ -58,12 +58,15 @@ public:
 	void Delete();
 
 	bool IsLod;
+
+	Model ModelSingle; // should be private but im leaving it here just for now
+	std::vector<Model> LODModels;
 private:
 	
 	std::string LodPath;
 
-	std::vector<Model> LODModels;
-	Model ModelSingle;
+
+
 
 	void LODModelLoad(std::string path);
 	void SingleModelLoad(std::string path);

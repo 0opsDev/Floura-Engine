@@ -141,9 +141,10 @@ vec4 spotLight(int iteration)
 }
 
 vec4 lights(){
-
+	vec4 diffuseTex = texture(diffuse0, texCoord);
 	vec4 finalColour;
-
+	if (diffuseTex.a < 0.1)
+	discard;
 	for (int i = 0; i < sizeOfLights; i++){
 		if (enabled[i]){
 			if (lightType[i] == 0){
@@ -157,7 +158,7 @@ vec4 lights(){
 
 	}
 
-	return ((texture(diffuse0, texCoord) * skyColor) + finalColour);
+	return ((diffuseTex * skyColor) + finalColour);
 } 
 
 

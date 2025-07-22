@@ -1,23 +1,24 @@
 [
     {
-        "MapName": "Template",
-        "NearPlane": "0.1f",
-        "FarPlane": "100000.000f",
-        "Window": "Test",
         "DefaultSkyboxPath": "Assets/Skybox/sunset/Skybox.json",
-
-        "skyRGBA": [ 0.211,0.0,0.124 ],
-        "fogRGBA": [ 0.180, 0.221, 0.525 ],
-
-        "doReflections": true,
-        "doFog": true,
-        "VertNum": 0,
+        "DepthDistance": 100.0,
+        "DepthPlane": [
+            0.10000000149011612,
+            100.0
+        ],
         "FragNum": 1,
-
-        "ConeRot": [ 0, -1, 0 ],
-
-        "DepthDistance": 100,
-        "DepthPlane": [ 0.100, 100 ],
-        "DefaultCameraPos": [ 0, 15, 0 ]
+        "Window": "Default",
+        "doFog": true,
+        "doReflections": true,
+        "fogRGBA": [
+            0.18000000715255737,
+            0.22100000083446503,
+            0.5249999761581421
+        ],
+        "skyRGBA": [
+            1.0,
+            0.5,
+            0.7941176891326904
+        ]
     }
 ]

@@ -26,6 +26,8 @@ public:
 	static std::vector<int> lightType;
 	static std::vector<int> enabled;
 
+	static glm::vec3 initalCameraPos;
+
 	static void init();
 
 	static void LoadScene(std::string path);
@@ -41,6 +43,10 @@ public:
 	static void JsonColliderSave(std::string path);
 
 	static void JsonLightSave(std::string path);
+
+	static void JsonSettingsSave(std::string path);
+
+	static void JsonCameraSettingsSave(std::string path);
 
 	static void AddSceneModelObject(std::string type, std::string path, std::string name);
 
@@ -61,6 +67,8 @@ public:
 	static void initJsonLightObjectLoad(std::string path);
 
 	static void initJsonSettingsLoad(std::string path);
+
+	static void initCameraSettingsLoad(std::string path);
 
 	static void Update();
 

@@ -25,11 +25,11 @@ public:
     static glm::mat4 cameraMatrix;
     static float s_scrollSpeed;
     static glm::vec2 sensitivity;
-    static float PlayerHeightCurrent;
     static glm::mat4 view;
     static glm::mat4 projection;
     static float fov;
     static bool isMoving;
+    static glm::vec3 cameraColliderScale;
 
     // Prevents the camera from jumping around when first clicking left click
     static bool firstClick;

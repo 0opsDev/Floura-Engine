@@ -54,67 +54,117 @@ void init::initGLFW() {
 }
 
 void init::initImGui(GLFWwindow* window) {
-	IMGUI_CHECKVERSION(), ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io, ImGui::StyleColorsDark();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
-	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	ImGui_ImplGlfw_InitForOpenGL(window, true), ImGui_ImplOpenGL3_Init("#version 460");
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 460");
 
 	ImGuiStyle& Style = ImGui::GetStyle();
 
 	// General Colors
-	Style.Colors[ImGuiCol_Text] = ImVec4(0.88f, 0.88f, 0.88f, 1.0f);  // Light gray text
-	Style.Colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.0f);  // Dark background
-	Style.Colors[ImGuiCol_Border] = ImVec4(0.19f, 0.19f, 0.19f, 1.0f);  // Subtle dark gray border
+	Style.Colors[ImGuiCol_Text] = ImVec4(0.88f, 0.88f, 0.88f, 1.0f);
+	Style.Colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.0f);
+	Style.Colors[ImGuiCol_ChildBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.0f);
+	Style.Colors[ImGuiCol_PopupBg] = ImVec4(0.12f, 0.08f, 0.08f, 1.0f);
+
+	// Borders
+	Style.Colors[ImGuiCol_Border] = ImVec4(0.19f, 0.19f, 0.19f, 1.0f);
+	Style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+	Style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.50f, 0.20f, 0.20f, 1.0f);
+	Style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.70f, 0.30f, 0.30f, 1.0f);
+	Style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.90f, 0.30f, 0.30f, 1.0f);
+
+
+	// Frames
+	Style.Colors[ImGuiCol_FrameBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.0f);
+	Style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.70f, 0.30f, 0.30f, 1.0f);
+	Style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.60f, 0.25f, 0.25f, 1.0f);
 
 	// Buttons
-	Style.Colors[ImGuiCol_Button] = ImVec4(0.26f, 0.29f, 0.48f, 1.0f);  // Discord blue
-	Style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.34f, 0.38f, 0.68f, 1.0f);  // Lighter blue on hover
-	Style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.20f, 0.22f, 0.38f, 1.0f);  // Darker blue when clicked
+	Style.Colors[ImGuiCol_Button] = ImVec4(0.50f, 0.20f, 0.20f, 1.0f);
+	Style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.70f, 0.30f, 0.30f, 1.0f);
+	Style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.40f, 0.15f, 0.15f, 1.0f);
 
-	// Frame Background
-	Style.Colors[ImGuiCol_FrameBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.0f);  // Dark gray
-	Style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.24f, 0.26f, 0.42f, 1.0f);  // Discord blue accent
-	Style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.34f, 0.38f, 0.68f, 1.0f);  // Vibrant blue
+	// Headers
+	Style.Colors[ImGuiCol_Header] = ImVec4(0.50f, 0.20f, 0.20f, 1.0f);
+	Style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.70f, 0.30f, 0.30f, 1.0f);
+	Style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.40f, 0.15f, 0.15f, 1.0f);
+
 
 	// Tabs
-	Style.Colors[ImGuiCol_Tab] = ImVec4(0.19f, 0.19f, 0.19f, 1.0f);  // Soft dark gray tab
-	Style.Colors[ImGuiCol_TabHovered] = ImVec4(0.34f, 0.38f, 0.68f, 1.0f);  // Vibrant blue on hover
-	Style.Colors[ImGuiCol_TabActive] = ImVec4(0.26f, 0.29f, 0.48f, 1.0f);  // Discord blue
+	Style.Colors[ImGuiCol_Tab] = ImVec4(0.19f, 0.10f, 0.10f, 1.0f);
+	Style.Colors[ImGuiCol_TabActive] = ImVec4(0.50f, 0.20f, 0.20f, 1.0f);
+	Style.Colors[ImGuiCol_TabHovered] = ImVec4(0.70f, 0.30f, 0.30f, 1.0f);
+	Style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.25f, 0.15f, 0.15f, 1.0f);
+	Style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.50f, 0.20f, 0.20f, 1.0f);
 
-	// Checkmarks
-	Style.Colors[ImGuiCol_CheckMark] = ImVec4(0.34f, 0.38f, 0.68f, 1.0f);  // Vibrant blue
+	// Title Bars
+	Style.Colors[ImGuiCol_TitleBg] = ImVec4(0.40f, 0.15f, 0.15f, 1.0f);
+	Style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.70f, 0.30f, 0.30f, 1.0f);
+	Style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.25f, 0.10f, 0.10f, 1.0f);
 
-	// Slider
-	Style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.34f, 0.38f, 0.68f, 1.0f);  // Discord blue
-	Style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.20f, 0.22f, 0.38f, 1.0f);  // Dark blue
+	// Docking
+	Style.Colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.10f, 0.05f, 0.05f, 1.0f);
+	Style.Colors[ImGuiCol_DockingPreview] = ImVec4(0.90f, 0.30f, 0.30f, 1.0f);
 
-	// Scrollbar
-	Style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.0f);  // Dark gray background
-	Style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.19f, 0.19f, 0.19f, 1.0f);  // Subtle dark gray
-	Style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.26f, 0.29f, 0.48f, 1.0f);  // Discord blue
-	Style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.34f, 0.38f, 0.68f, 1.0f);  // Vibrant blue
+	// Resize Grip
+	Style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.50f, 0.20f, 0.20f, 1.0f);
+	Style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.70f, 0.30f, 0.30f, 1.0f);
+	Style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.90f, 0.30f, 0.30f, 1.0f);
 
-	// Curved Elements
+	// Scrollbars
+	Style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.0f);
+	Style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.30f, 0.12f, 0.12f, 1.0f);
+	Style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.50f, 0.20f, 0.20f, 1.0f);
+	Style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.70f, 0.30f, 0.30f, 1.0f);
+
+	// Sliders
+	Style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.90f, 0.30f, 0.30f, 1.0f);
+	Style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.60f, 0.20f, 0.20f, 1.0f);
+
+	// Checkbox
+	Style.Colors[ImGuiCol_CheckMark] = ImVec4(0.90f, 0.30f, 0.30f, 1.0f);
+
+	// Menus
+	Style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.20f, 0.10f, 0.10f, 1.0f);
+
+	// Tooltips / Popups
+	Style.Colors[ImGuiCol_PopupBg] = ImVec4(0.10f, 0.05f, 0.05f, 1.0f);
+
+	// Drag and drop
+	Style.Colors[ImGuiCol_DragDropTarget] = ImVec4(0.90f, 0.30f, 0.30f, 0.9f);
+
+	// Misc
+	Style.Colors[ImGuiCol_Separator] = ImVec4(0.30f, 0.10f, 0.10f, 1.0f);
+	Style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.70f, 0.30f, 0.30f, 1.0f);
+	Style.Colors[ImGuiCol_SeparatorActive] = ImVec4(0.90f, 0.30f, 0.30f, 1.0f);
+
+	// Rounding and Spacing
 	Style.FrameRounding = 8.0f;
 	Style.WindowRounding = 6.0f;
 	Style.ScrollbarRounding = 8.0f;
+	Style.GrabRounding = 8.0f;
 
-	// Padding
 	Style.WindowPadding = ImVec2(8, 8);
 	Style.FramePadding = ImVec2(6, 3);
 	Style.ItemSpacing = ImVec2(7, 5);
+
 }
+
 
 void init::initGLenable(bool frontFaceSide ) {
     // glenables
     // depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
     glEnable(GL_DEPTH_TEST); // Depth buffer
     glDepthFunc(GL_LESS);
-    glEnable(GL_STENCIL_TEST); //stencil buffer
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    //glEnable(GL_STENCIL_TEST); //stencil buffer
+    //glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glEnable(GL_CULL_FACE); // Culling
     glCullFace(GL_BACK);
 

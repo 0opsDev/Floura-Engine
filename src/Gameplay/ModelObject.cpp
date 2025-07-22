@@ -74,7 +74,7 @@ void ModelObject::CreateObject(std::string type, std::string path, std::string O
 		LODModelLoad(path);
 		IsLod = true;
 	}
-	else if (type == "Static" || type == "STATIC") {
+	else if (type == "Static" || type == "STATIC" || type == "static") { // should just do to lower here
 		CubeCollider.init();
 		SingleModelLoad(path);
 		IsLod = false;

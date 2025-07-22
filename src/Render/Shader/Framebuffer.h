@@ -17,15 +17,18 @@ class Framebuffer
 {
 public:
 
-	static unsigned int ViewPortWidth, ViewPortHeight, viewVAO, viewVBO, FBO2, frameBufferTexture2, frameBufferTexture, RBO, FBO;
+	static unsigned int ViewPortWidth, ViewPortHeight, viewVAO, viewVBO, FBO2, frameBufferTexture2, frameBufferTexture, RBO, FBO, shadowMapFBO, shadowMapHeight, shadowMapWidth, ShadowMap;
 
 	static GLuint noiseMapTexture;
 
 	static Shader frameBufferProgram;
+	static Shader shadowMapProgram;
 
 	static void setupNoiseMap();
 
 	static void setupGbuffers(unsigned int width, unsigned int height);
+
+	static void setupShadowMapBuffer(unsigned int width, unsigned int height);
 
 	static void setupMainFBO(unsigned int width, unsigned int height);
 

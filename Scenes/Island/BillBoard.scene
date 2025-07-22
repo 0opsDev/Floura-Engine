@@ -1,0 +1,146 @@
+[
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "Grass",
+        "path": "Assets/Sprites/n_grass_diff_0_35.png",
+        "position": [
+            4.0,
+            1.0,
+            -6.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "type": "static"
+    },
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "rose",
+        "path": "Assets/Sprites/n_grass_diff_0_30.png",
+        "position": [
+            1.0,
+            -1.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "type": "static"
+    },
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "rose",
+        "path": "Assets/Sprites/n_grass_diff_0_30.png",
+        "position": [
+            1.0,
+            -1.0,
+            -2.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "type": "static"
+    },
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "rose",
+        "path": "Assets/Sprites/n_grass_diff_0_30.png",
+        "position": [
+            0.0,
+            -1.0,
+            -1.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "type": "static"
+    },
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "Grass",
+        "path": "Assets/Sprites/n_grass_diff_0_35.png",
+        "position": [
+            3.0,
+            0.0,
+            -5.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "type": "static"
+    },
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "rose",
+        "path": "Assets/Sprites/n_grass_diff_0_30.png",
+        "position": [
+            3.0,
+            0.0,
+            1.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "type": "static"
+    },
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "rose",
+        "path": "Assets/Sprites/n_grass_diff_0_30.png",
+        "position": [
+            4.0,
+            0.5,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "type": "static"
+    },
+    {
+        "DoFrustumCull": true,
+        "doPitch": false,
+        "isCollider": false,
+        "name": "Grass",
+        "path": "Assets/Sprites/n_grass_diff_0_35.png",
+        "position": [
+            2.0,
+            -0.20000000298023224,
+            -8.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "type": "static"
+    }
+]

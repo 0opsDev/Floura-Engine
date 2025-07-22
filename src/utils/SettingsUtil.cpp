@@ -1,10 +1,6 @@
 #include "SettingsUtil.h"
 #include <string>
 
-SettingsUtils::SettingsUtils() 
-{
-}
-
 std::string SettingsUtils::sceneName = ""; // Map loading
 
 float SettingsUtils::s_ViewportVerticies[24] = {

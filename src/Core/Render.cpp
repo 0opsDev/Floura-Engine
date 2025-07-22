@@ -18,6 +18,7 @@ Shader RenderClass::gPassShaderBillBoard;
 Shader RenderClass::boxShader;
 
 float RenderClass::gamma = 2.2f;
+bool RenderClass::renderSkybox = true;
 bool RenderClass::doReflections = true;
 bool RenderClass::doFog = true;
 GLfloat RenderClass::DepthDistance = 100.0f;
@@ -30,7 +31,6 @@ GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
 Shader SolidColour;
 RenderQuad lightingRenderQuad;
 Shader GBLpass;
-
 
 bool RenderClass::DoDeferredLightingPass = false; // Toggle for lighting pass
 bool RenderClass::DoForwardLightingPass = true; // Toggle for regular pass
@@ -109,7 +109,6 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
-	ImGuiWindow::gPassTime = (initDuration.count() / 1000.0);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
 
@@ -154,7 +153,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 
-	if (!ImGuiWindow::isWireframe) {
+	if (!ImGuiWindow::isWireframe && RenderClass::renderSkybox) { // should add skybox.scene
 		Skybox::draw(Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global
 		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 
@@ -263,5 +262,8 @@ void RenderClass::Cleanup() {
 	billBoardShader.Delete();
 	gPassShaderBillBoard.Delete();
 	boxShader.Delete();
+	GBLpass.Delete();
+	SolidColour.Delete();
+	billBoardShader.Delete();
 	Framebuffer::frameBufferProgram.Delete();
 }

@@ -1,8 +1,5 @@
 #include"Model.h"
-#include"Core/Main.h"
 #include "utils/init.h"
-
-int totalVert = 0;
 
 void Model::init(const char* file) {
 	// Make a JSON object
@@ -20,23 +17,44 @@ void Model::init(const char* file) {
 		traverseNode(JSON["scenes"][0]["nodes"][i]);
 	}
 }
+bool Model::collide(glm::vec3 victimXYZ, glm::vec3 victimScale, std::string collidertype){
 
-void Model::Draw(Shader& shader, glm::vec3 translation, glm::vec4 rotation, glm::vec3 scale)
+	bool anycollide = false;
+	for (unsigned int i = 0; i < meshes.size(); i++) {
+		if (meshes[i].collide(victimXYZ, victimScale, collidertype)) {
+			lastHit = meshes[i].lastHit; // Update last hit position
+			return true;
+		}
+	}
+	return false;
+};
+
+void Model::Draw(Shader& shader, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale)
 {
-	// Convert rotation data into a quaternion
-	glm::quat newrotation = glm::angleAxis(glm::radians(rotation.x), glm::vec3(rotation.y, rotation.z, rotation.w));
 
-	// Convert quaternion to rotation matrix
-	glm::mat4 rotationMatrix = glm::toMat4(newrotation);
+	glm::mat4 globalTrans = glm::mat4(1.0f);
+	glm::mat4 globalRot = glm::mat4(1.0f);
+	glm::mat4 globalSca = glm::mat4(1.0f);
 
-	// Construct the model matrix
-	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), translation) *
-		rotationMatrix *
-		glm::scale(glm::mat4(1.0f), scale);
+	globalTrans = glm::translate(globalTrans, translation);
+
+	globalRot = glm::rotate(globalRot, glm::radians(rotation.x), glm::vec3(1, 0, 0));
+	globalRot = glm::rotate(globalRot, glm::radians(rotation.y), glm::vec3(0, 1, 0));
+	globalRot = glm::rotate(globalRot, glm::radians(rotation.z), glm::vec3(0, 0, 1));
+
+
+	globalSca = glm::scale(globalSca, scale);
+
+	glm::mat4 modelMatrix = globalTrans * globalRot * globalSca;
+
 
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
 		glm::mat4 finalMatrix = modelMatrix * matricesMeshes[i]; // Local mesh transform applied
+		// pass these into shader too at some point
+		meshes[i].position = translation;
+		meshes[i].rotation = glm::vec3(rotation.x, rotation.y, rotation.z);
+		meshes[i].scale = scale;
 		meshes[i].Draw(shader, finalMatrix);
 	}
 }
@@ -64,118 +82,6 @@ void Model::Delete() {
 	scalesMeshes.clear();
 	matricesMeshes.clear();
 	loadedTexName.clear();
-}
-
-int Model::getVertexCount() const
-{
-	int size = 0;
-	for (size_t i = 0; i < meshes.size(); i++) {
-		for (size_t j = 0; j < meshes[i].vertices.size(); j++) {
-			size++;
-		}
-	}
-	return size;
-}
-int Model::getIndiceCount() const
-{
-	int x = 0;
-	for (size_t i = 0; i < meshes.size(); i++) {
-		for (size_t j = 0; j < meshes[i].indices.size(); j++) {
-			x++;
-		}
-	}
-	return x;
-}
-
-glm::vec3 closestPointOnTriangle(glm::vec3 P, glm::vec3 A, glm::vec3 B, glm::vec3 C) {
-	glm::vec3 ab = B - A;
-	glm::vec3 ac = C - A;
-	glm::vec3 ap = P - A;
-
-	float d1 = glm::dot(ab, ap);
-	float d2 = glm::dot(ac, ap);
-	if (d1 <= 0.0f && d2 <= 0.0f) return A; // Closest to A
-
-	glm::vec3 bp = P - B;
-	float d3 = glm::dot(ab, bp);
-	float d4 = glm::dot(ac, bp);
-	if (d3 >= 0.0f && d4 <= d3) return B; // Closest to B
-
-	glm::vec3 cp = P - C;
-	float d5 = glm::dot(ab, cp);
-	float d6 = glm::dot(ac, cp);
-	if (d6 >= 0.0f && d5 <= d6) return C; // Closest to C
-
-	// **Compute projection onto the triangle plane**
-	glm::vec3 normal = glm::normalize(glm::cross(ab, ac));
-	float distance = glm::dot(normal, P - A);
-	glm::vec3 projectedPoint = P - normal * distance;
-
-	// **Check barycentric coordinates to determine if inside the triangle**
-	glm::vec3 edge0 = B - A;
-	glm::vec3 edge1 = C - A;
-	glm::vec3 vp = projectedPoint - A;
-
-	float d00 = glm::dot(edge0, edge0);
-	float d01 = glm::dot(edge0, edge1);
-	float d11 = glm::dot(edge1, edge1);
-	float d20 = glm::dot(vp, edge0);
-	float d21 = glm::dot(vp, edge1);
-
-	float denom = d00 * d11 - d01 * d01;
-	float u = (d11 * d20 - d01 * d21) / denom;
-	float v = (d00 * d21 - d01 * d20) / denom;
-
-	if (u >= -0.05f && v >= -0.05f && (u + v) <= 1.05f) { // Tolerance for floating point error
-		return projectedPoint; // Closest point inside triangle
-	}
-
-	return A + u * ab + v * ac; // Closest edge point
-}
-
-bool triangleSphereIntersection(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec3 sphereCenter, float radius) {
-	glm::vec3 closestPoint = closestPointOnTriangle(sphereCenter, v0, v1, v2);
-	return glm::distance(sphereCenter, closestPoint) <= radius;
-}
-
-bool Model::checkCollide(glm::vec3 point, glm::vec3 globalTranslation, glm::quat globalRotation, glm::vec3 globalScale, float checkRadius) {
-	bool collisionDetected = false;
-
-	for (size_t i = 0; i < meshes.size(); i++) {
-		glm::mat4 nodeTransformMatrix = glm::translate(glm::mat4(1.0f), translationsMeshes[i]) *
-			glm::mat4_cast(rotationsMeshes[i]) *
-			glm::scale(glm::mat4(1.0f), scalesMeshes[i]);
-
-		glm::mat4 fullTransformMatrix = glm::translate(glm::mat4(1.0f), globalTranslation) *
-			glm::mat4_cast(globalRotation) *
-			glm::scale(glm::mat4(1.0f), globalScale) *
-			nodeTransformMatrix;
-
-
-
-		for (size_t j = 0; j < meshes[i].indices.size(); j += 3) {
-			// **Transform polygon vertices**
-			glm::vec3 v0 = glm::vec3(fullTransformMatrix * glm::vec4(meshes[i].vertices[meshes[i].indices[j]].position, 1.0f));
-			glm::vec3 v1 = glm::vec3(fullTransformMatrix * glm::vec4(meshes[i].vertices[meshes[i].indices[j + 1]].position, 1.0f));
-			glm::vec3 v2 = glm::vec3(fullTransformMatrix * glm::vec4(meshes[i].vertices[meshes[i].indices[j + 2]].position, 1.0f));
-
-			// **Compute triangle center and distance from player**
-			glm::vec3 triangleCenter = (v0 + v1 + v2) / 3.0f;
-			float distanceToFeet = glm::distance(point, triangleCenter);
-
-			// **Early exit: Skip triangles outside the radius**
-			if (distanceToFeet > 5.0f) continue;
-
-			if (triangleSphereIntersection(v0, v1, v2, point, checkRadius)) {
-				collisionDetected = true;
-				lastCollisionPoint = point;
-				lastCollisionFace[0] = v0;
-				lastCollisionFace[1] = v1;
-				lastCollisionFace[2] = v2;
-			}
-		}
-	}
-	return collisionDetected;
 }
 
 
@@ -371,8 +277,6 @@ std::vector<GLuint> Model::getIndices(json accessor)
 	unsigned int count = accessor["count"];
 	unsigned int accByteOffset = accessor.value("byteOffset", 0);
 	unsigned int componentType = accessor["componentType"];
-	totalVert += count;
-	if (init::LogALL || init::LogModel) std::cout << totalVert << std::endl;
 
 	// Get properties from the bufferView
 	json bufferView = JSON["bufferViews"][buffViewInd];

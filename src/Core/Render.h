@@ -20,6 +20,7 @@ public:
 	static Shader gPassShaderBillBoard;
 	static Shader boxShader;
 	static float gamma;
+	static bool renderSkybox;
 	static bool doReflections;
 	static bool doFog;
 	static GLfloat DepthDistance;

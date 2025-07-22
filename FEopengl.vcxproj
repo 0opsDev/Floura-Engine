@@ -266,7 +266,6 @@
   <ItemGroup>
     <None Include="Settings\imgui.ini" />
     <None Include="Settings\LogConfig.json" />
-    <None Include="Settings\PlayerController.json" />
     <None Include="Settings\Settings.json" />
     <None Include="Shaders\Db\BillBoard.frag" />
     <None Include="Shaders\Db\BillBoard.vert" />
@@ -290,6 +289,8 @@
     <None Include="Shaders\Lighting\Default.vert" />
     <None Include="Shaders\Lighting\light.frag" />
     <None Include="Shaders\Lighting\light.vert" />
+    <None Include="Shaders\Lighting\shadowMap.frag" />
+    <None Include="Shaders\Lighting\shadowMap.vert" />
     <None Include="Shaders\Lighting\spotLight.frag" />
     <None Include="Shaders\Lighting\unShaded.frag" />
     <None Include="Shaders\PostProcess\4bitToDither.frag" />

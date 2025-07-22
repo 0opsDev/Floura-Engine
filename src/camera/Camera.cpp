@@ -17,11 +17,11 @@ bool Camera::firstClick = true;
 int Camera::width;
 int Camera::height;
 float Camera::speed = 0.1f;
-float Camera::PlayerHeightCurrent;
 glm::mat4 Camera::view = glm::mat4(1.0f);
 glm::mat4 Camera::projection = glm::mat4(1.0f);
 float Camera::fov = 60;
 bool Camera::isMoving = false;
+glm::vec3 Camera::cameraColliderScale = glm::vec3(1.0,1.0,1.0);
 
 void Camera::InitCamera(int width, int height, glm::vec3 position)
 {

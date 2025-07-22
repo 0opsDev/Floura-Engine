@@ -11,22 +11,19 @@ public:
 
     void init(const char* file);
 
-    void Draw(Shader& shader, glm::vec3 translation, glm::vec4 rotation, glm::vec3 scale);
+    glm::vec3 lastHit = glm::vec3(0);
+    bool collide(glm::vec3 victimXYZ, glm::vec3 victimScale, std::string collidertype);
+
+    void Draw(Shader& shader, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale);
 
     void Delete();
 
-    glm::vec3 lastCollisionPoint;
-    glm::vec3 lastCollisionFace[3]; // Stores the last triangle touched
-    bool checkCollide(glm::vec3 point, glm::vec3 globalTranslation, glm::quat globalRotation, glm::vec3 globalScale, float checkRadius);
     std::vector<Mesh> meshes;
     std::vector<Texture> textures2;
     std::vector<glm::vec3> translationsMeshes;
     std::vector<glm::quat> rotationsMeshes;
     std::vector<glm::vec3> scalesMeshes;
     std::vector<glm::mat4> matricesMeshes;
-
-    int getVertexCount() const;
-    int getIndiceCount() const;
 
 private:
     const char* file;

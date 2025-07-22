@@ -6,7 +6,6 @@
 class SettingsUtils
 {
 public:
-    SettingsUtils();
     static float s_ViewportVerticies[24];
     static std::string sceneName; // Map loading
 

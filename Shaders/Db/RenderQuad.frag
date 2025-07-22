@@ -49,6 +49,5 @@ void main()
      albedoSpec.rgb = albedoSpec.rgb * (1.0f - Depth) + vec3(Depth * fogColor);
     }
 
-    FragColor = vec4(albedoSpec.rgb * skyColor, 1.0);
-
+    FragColor = vec4(albedoSpec.rgb, 1.0);
 }

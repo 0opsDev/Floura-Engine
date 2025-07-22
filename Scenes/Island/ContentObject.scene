@@ -1,0 +1,68 @@
+[
+    {
+        "Name": "Barrel",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/barrel/barrel2.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "baseplate",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/Baseplate/plate.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "Grass",
+        "ObjectType": "BillBoard",
+        "Path": "Assets/Sprites/n_grass_diff_0_35.png",
+        "Type": "static"
+    },
+    {
+        "Name": "lamp",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/lamp/lampbaked.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "fireAnimated",
+        "ObjectType": "BillBoard",
+        "Path": "Assets/Sprites/animatedBillboards/fire/fire.json",
+        "Type": "animated"
+    },
+    {
+        "Name": "tree",
+        "ObjectType": "BillBoard",
+        "Path": "Assets/Sprites/003-BryceElm1.png",
+        "Type": "static"
+    },
+    {
+        "Name": "rose",
+        "ObjectType": "BillBoard",
+        "Path": "Assets/Sprites/n_grass_diff_0_30.png",
+        "Type": "static"
+    },
+    {
+        "Name": "Vase LOD",
+        "ObjectType": "Model",
+        "Path": "Assets/LodModel/Vase/Vase.LOD",
+        "Type": "LOD"
+    },
+    {
+        "Name": "ar",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/ar/m16baked.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "mont",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/GRASSLANDS/farlands.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "waterplane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/waterplane.gltf",
+        "Type": "static"
+    }
+]

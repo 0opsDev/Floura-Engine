@@ -1,7 +1,6 @@
 #include "Main.h"
 #include "Camera/Camera.h"
 #include "utils/Init.h"
-#include "utils/screenutils.h" 
 #include <glm/gtx/string_cast.hpp>
 #include "utils/timeUtil.h" 
 #include <thread>
@@ -13,7 +12,6 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "File/File.h"
 #include <UI/ImGui/ImGuiWindow.h>
-#include "Sound/SoundProgram.h"
 #include <Sound/SoundRunner.h>
 #include "Render.h"
 #include "tempscene.h"
@@ -22,15 +20,10 @@
 #include <Render/window/WindowHandler.h>
 #include "ImGuiFileDialog/ImGuiFileDialog.h"
 
-int Main::VertNum = 0, Main::FragNum = 0;
+int Main::FragNum = 0;
 bool Main::sleepState = true;
 
-float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far
-
-float PlayerHeight = 1.8f;
-float CrouchHighDiff = 0.9f;
-
-glm::vec3 Main::initalCameraPos = glm::vec3(0,0,0);
+float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far // move this to camera class or something
 
 TimeAccumulator TA2;
 
@@ -41,7 +34,6 @@ int main() // global variables do not work with threads
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 	init::initLog();// init logs (should always be before priniting anything)
 	init::initGLFW(); // initialize glfw
-	Main::LoadPlayerConfig();
 	Main::loadSettings();
 	//Main::loadEngineSettings();
 	ScriptRunner::init(SettingsUtils::sceneName + "/LuaStartup.json");
@@ -52,21 +44,23 @@ int main() // global variables do not work with threads
 	gladLoadGL(); // load open gl config
 
 	Scene::LoadScene(SettingsUtils::sceneName);
-	FileClass::loadShaderProgram(Main::VertNum, Main::FragNum, RenderClass::shaderProgram); // feed the shader prog real data << should take a shader file class
+	FileClass::loadShaderProgram(0, Main::FragNum, RenderClass::shaderProgram); // feed the shader prog real data << should take a shader file class
 	RenderClass::shaderProgram.Activate(); // activate new shader program for use
 
 	// INITIALIZE CAMERA
-	Camera::InitCamera(windowHandler::width, windowHandler::height, Main::initalCameraPos); 	// camera ratio pos
-	//std::cout << initalCameraPos.x << " " << initalCameraPos.y << " " << initalCameraPos.z << std::endl;
-	//std::cout << Camera::Position.x << " " << Camera::Position.y << " " << Camera::Position.z << std::endl;
+	Camera::InitCamera(windowHandler::width, windowHandler::height, Scene::initalCameraPos); 	// camera ratio pos
 	RenderClass::init(windowHandler::window, windowHandler::width, windowHandler::height);
 	Scene::init();
 	// Model Loader
-
+	
+	//just a class to test stuff
 	TempScene::init(); // Initialize scene
+
 	Player::init();
 
-	ImGuiWindow::init();
+	if (ImGuiWindow::imGuiEnabled) {
+		ImGuiWindow::init();
+	}
 
 	//Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
@@ -75,8 +69,6 @@ int main() // global variables do not work with threads
 
 	while (!glfwWindowShouldClose(windowHandler::window)) // GAME LOOP
 	{
-		//std::cout << RenderClass::CameraXYZ.x << " " << RenderClass::CameraXYZ.y << " " << RenderClass::CameraXYZ.z << std::endl;
-		//std::cout << Camera::Position.x << " " << Camera::Position.y << " " << Camera::Position.z << std::endl;
 		RenderClass::ClearFramebuffers(); // Clear Framebuffers
 
 		TimeUtil::updateDeltaTime(); // Update delta time
@@ -99,12 +91,6 @@ int main() // global variables do not work with threads
 			TA2.reset();
 		}
 
-		if (Camera::s_DoGravity) {
-			//crouch 
-			if (glfwGetKey(windowHandler::window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) { Camera::PlayerHeightCurrent = CrouchHighDiff; }
-			else { Camera::PlayerHeightCurrent = PlayerHeight; }
-		}
-
 		if (!Camera::s_DoGravity) { Camera::DoJump = true; };
 
 		auto startInitTime2 = std::chrono::high_resolution_clock::now();
@@ -116,7 +102,7 @@ int main() // global variables do not work with threads
 		Player::update();
 
 		RenderClass::Render(windowHandler::window, windowHandler::width, windowHandler::height);
-		if (ImGuiWindow::imGuiPanels[0]) { Main::imGuiMAIN(windowHandler::window); }
+		if (ImGuiWindow::imGuiPanels[0] && ImGuiWindow::imGuiEnabled) { Main::imGuiMAIN(windowHandler::window); }
 
 		RenderClass::Swapchain(windowHandler::window); // tip to self, work down to up (lines)
 
@@ -124,8 +110,6 @@ int main() // global variables do not work with threads
 		auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
 		ImGuiWindow::Render = (initDuration2.count() / 1000.0);
 
-		//Player::isGrounded = false;
-		Player::isColliding = false;
 	}
 	// Cleanup: Delete all objects on close
 	Main::sleepState = false;
@@ -143,28 +127,6 @@ int main() // global variables do not work with threads
 	return 0;
 }
 
-void Main::LoadPlayerConfig() {
-	// Load PlayerConfig.json
-	std::ifstream playerConfigFile("Settings/PlayerController.json");
-	if (playerConfigFile.is_open()) {
-		json playerConfigData;
-		playerConfigFile >> playerConfigData;
-		playerConfigFile.close();
-
-		Camera::s_DoGravity = playerConfigData[0]["DoGravity"];
-		if (init::LogALL || init::LogSystems) std::cout << "DoGravity: " << Camera::s_DoGravity << std::endl;
-
-		PlayerHeight = playerConfigData[0]["PlayerHeight"];
-		if (init::LogALL || init::LogSystems) std::cout << "PlayerHeight: " << PlayerHeight << std::endl;
-		CrouchHighDiff = playerConfigData[0]["CrouchHighDiff"];
-		if (init::LogALL || init::LogSystems) std::cout << "CrouchHighDiff: " << CrouchHighDiff << std::endl;
-
-		if (init::LogALL || init::LogSystems) std::cout << "Loaded Player Config from Settings/PlayerConfig.json" << std::endl;
-	}
-	else {
-		std::cerr << "Failed to open Settings/PlayerConfig.json" << std::endl;
-	}
-}
 
 void Main::loadSettings() {
 	// Load Settings.json
@@ -196,10 +158,10 @@ void Main::loadSettings() {
 
 
 		windowHandler::doVsync = settingsData[0]["Vsync"];
-		Main::cameraSettings[0] = settingsData[0]["FOV"];
+		//Main::cameraSettings[0] = settingsData[0]["FOV"];
 		SettingsUtils::sceneName = "Scenes/" + settingsData[0]["Scene"].get<std::string>();
 
-		ImGuiWindow::imGuiPanels[0] = settingsData[0]["imGui"];
+		ImGuiWindow::imGuiEnabled = settingsData[0]["imGui"];
 
 		if (init::LogALL || init::LogSystems) std::cout << "Loaded settings from Settings.json" << std::endl;
 
@@ -222,7 +184,7 @@ void Main::saveSettings() {
 		settingsFile.close();
 
 		settingsData[0]["Vsync"] = windowHandler::doVsync;
-		settingsData[0]["FOV"] = Main::cameraSettings[0];
+		//settingsData[0]["FOV"] = Main::cameraSettings[0];
 
 		settingsData[0]["Sensitivity"][0] = Camera::sensitivity.x;
 		settingsData[0]["Sensitivity"][1] = Camera::sensitivity.y;
@@ -244,8 +206,6 @@ void Main::saveSettings() {
 	}
 }
 
-static const char* lightTypes[]{ "Spotlight","Pointlight" };
-static int SelectedLight = 0;
 bool addContentBool = false;
 // Holds ImGui Variables and Windows
 void Main::imGuiMAIN(GLFWwindow* window) {
@@ -271,6 +231,11 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 
 	if (ImGui::BeginMenuBar())
 	{
+		ImGui::Image(
+			(ImTextureID)(intptr_t)ImGuiWindow::logoIcon.ID,
+			ImVec2(20, 20)
+		);
+
 		if (ImGui::BeginMenu("File"))
 		{
 			ImGui::MenuItem("New Scene");
@@ -306,6 +271,13 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 			if (ImGui::SmallButton("Stop")) { ScriptRunner::clearScripts(); } // save settings button
 			if (ImGui::SmallButton("Start")) { ScriptRunner::init(SettingsUtils::sceneName + "LuaStartup.json"); } // save settings button
 			if (ImGui::SmallButton("Restart")) { ScriptRunner::clearScripts(); ScriptRunner::init(SettingsUtils::sceneName + "LuaStartup.json"); } // save settings button
+			ImGui::Spacing();
+			ImGui::Text("Volume");
+			ImGui::SliderFloat("Global Volume", &SoundRunner::GlobalVolume, 0, 1);
+			ImGui::SliderFloat("Music Volume", &SoundRunner::MusicVolume, 0, 1);
+			ImGui::SliderFloat("Environment Volume", &SoundRunner::environmentVolume, 0, 1);
+			ImGui::SliderFloat("Entity Volume", &SoundRunner::entityVolume, 0, 1);
+
 			ImGui::EndMenu();
 		}
 
@@ -351,23 +323,27 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 		ImGuiWindow::RenderWindow(window, windowHandler::width, windowHandler::height);
 
 		ImGuiWindow::ShaderWindow();
-		// Lighting panel
-		ImGuiWindow::LightWindow();
+
+		ImGui::ColorEdit3("fog RGBA", &RenderClass::fogRGBA.r);	// sky and light
+
+		if (ImGui::TreeNode("Light Settings")) {
+
+			// cone settings
+			ImGui::Text("cone size");
+			ImGui::SliderFloat("cone Size (D: 0.95)", &RenderClass::ConeSI[1], 0.0f, 1.0f);
+			ImGui::SliderFloat("cone Strength (D: 0.05)", &RenderClass::ConeSI[0], 0.0f, 0.90f);
+
+			ImGui::Text("Light Angle");
+			ImGui::DragFloat3("Cone Angle", RenderClass::ConeRot);
+
+			ImGui::TreePop();
+		}
 
 		ImGui::End();
-	}
-	// Camera panel
-	if (ImGuiWindow::imGuiPanels[2]) {
-		ImGuiWindow::CameraWindow();
-		
 	}
 
 	if (ImGuiWindow::imGuiPanels[3]) {
 		ImGuiWindow::viewport();
-	}
-
-	if (ImGuiWindow::imGuiPanels[5]) {
-		
 	}
 
 	if (ImGuiWindow::imGuiPanels[6]) {
@@ -376,10 +352,6 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 
 	if (ImGuiWindow::imGuiPanels[7]) {
 		ImGuiWindow::TextEditor();
-	}
-
-	if (ImGuiWindow::imGuiPanels[8]) {
-		ImGuiWindow::audio();
 	}
 
 	if (ImGuiWindow::imGuiPanels[4]) {
@@ -397,12 +369,8 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 		}
 		ImGui::Spacing();
 
-		ImGui::Text("Constant Objects:");
-		ImGui::Text("Camera goes here");
-		ImGui::Text("Direct Light Goes Here");
-		ImGui::Text("Skybox Goes Here");
-		ImGui::Spacing();
 
+		//ImGuiWindow::SelectedObjectType == "Camera"
 		ImGuiWindow::create();
 
 		ImGuiWindow::HierarchyList();
@@ -415,122 +383,35 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 		ImGui::Text(("Selected Object Type : " + ImGuiWindow::SelectedObjectType).c_str());
 		ImGui::Text(("Index: " + std::to_string(ImGuiWindow::SelectedObjectIndex)).c_str());
 
+		if (ImGuiWindow::SelectedObjectType == "Camera") {
+			ImGuiWindow::CameraWindow();
+		}
+
 		if (ImGuiWindow::SelectedObjectType == "Model") {
-
-			ImGui::Text((Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].ObjectName).c_str());
-			// position
-			ImGui::DragFloat3("Position", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].transform.x);
-
-			// scale
-			ImGui::DragFloat3("Scale", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].scale.x);
-
-			ImGui::DragFloat4("Rotation", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].rotation.x);
-
-			ImGui::Spacing();
-			ImGui::Checkbox("isCollider", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].isCollider);
-
-			ImGui::DragFloat3("BoxColliderTransform", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].BoxColliderTransform.x);
-
-			ImGui::DragFloat3("BoxColliderScale", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].BoxColliderScale.x);
-
-			ImGui::Spacing();
-			ImGui::Checkbox("isBackFaceCulling", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].DoCulling);
-			ImGui::Checkbox("DoFrustumCull", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].DoFrustumCull);
-
-			ImGui::DragFloat3("frustumBoxTransform", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].frustumBoxTransform.x);
-
-			ImGui::DragFloat3("frustumBoxScale", &Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].frustumBoxScale.x);
-
-			ImGui::Spacing();
-			if (ImGui::SmallButton("Delete")) {
-				Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].Delete();
-				Scene::modelObjects.erase(Scene::modelObjects.begin() + ImGuiWindow::SelectedObjectIndex);
-				ImGuiWindow::SelectedObjectType = "";
-			}
+			ImGuiWindow::ModelWindow();
 		}
 	
 		if (ImGuiWindow::SelectedObjectType == "BillBoard") {
-
-			ImGui::Text((Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].ObjectName).c_str());
-			ImGui::DragFloat3("Position", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].transform.x);
-			ImGui::DragFloat3("Scale", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].scale.x);
-
-			ImGui::Spacing();
-			ImGui::Checkbox("doPitch", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].doPitch);
-
-			if (Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].type == "animated" || Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].type == "Animated") {
-
-				ImGui::DragInt("tickrate", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].tickrate);
-				ImGui::Checkbox("doUpdateSequence", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].doUpdateSequence);
-			}
-
-			ImGui::Checkbox("isCollider", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].isCollider);
-			ImGui::Checkbox("DoFrustumCull", &Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].DoFrustumCull);
-
-			ImGui::Spacing();
-			if (ImGui::SmallButton("Delete")) {
-				Scene::BillBoardObjects[ImGuiWindow::SelectedObjectIndex].Delete();
-				Scene::BillBoardObjects.erase(Scene::BillBoardObjects.begin() + ImGuiWindow::SelectedObjectIndex);
-				ImGuiWindow::SelectedObjectType = "";
-			}
+			ImGuiWindow::BillBoardWindow();
 		}
 
 		if (ImGuiWindow::SelectedObjectType == "Sound") {
 		}
 
 		if (ImGuiWindow::SelectedObjectType == "Collider") {
-			ImGui::Text((Scene::CubeColliderObject[ImGuiWindow::SelectedObjectIndex].name).c_str());
-
-			// position
-			ImGui::DragFloat3("Position", &Scene::CubeColliderObject[ImGuiWindow::SelectedObjectIndex].colliderXYZ.x);
-			// scale
-			ImGui::DragFloat3("Scale", &Scene::CubeColliderObject[ImGuiWindow::SelectedObjectIndex].colliderScale.x);
-
-			ImGui::Checkbox("Enabled", &Scene::CubeColliderObject[ImGuiWindow::SelectedObjectIndex].enabled);
-
-			if (ImGui::SmallButton("Delete")) {
-				Scene::CubeColliderObject[ImGuiWindow::SelectedObjectIndex].Delete();
-				Scene::CubeColliderObject.erase(Scene::CubeColliderObject.begin() + ImGuiWindow::SelectedObjectIndex);
-				ImGuiWindow::SelectedObjectType = "";
-			}
+			ImGuiWindow::ColliderWindow();
 		}
 		//std::cout << Scene::enabled.size() << std::endl;
 		if (ImGuiWindow::SelectedObjectType == "Light") {
-			ImGui::DragFloat3("Position", &Scene::position[ImGuiWindow::SelectedObjectIndex].x);
-			ImGui::ColorEdit3("Color", &Scene::colour[ImGuiWindow::SelectedObjectIndex].x);
-			ImGui::DragFloat2("Range And Power", &Scene::radiusAndPower[ImGuiWindow::SelectedObjectIndex].x, 0.1f, 0.1f);
-			ImGui::Combo("LightType", &Scene::lightType[ImGuiWindow::SelectedObjectIndex], lightTypes, IM_ARRAYSIZE(lightTypes));
+			ImGuiWindow::LightWindow();
+		}
 
-			ImGui::Spacing();
+		if (ImGuiWindow::SelectedObjectType == "DirectLight"){
+		
+		}
 
-			//ImGui::Checkbox("Enabled", &Scene::LightObjectList[ImGuiWindow::SelectedObjectIndex].enabled);
-			if (Scene::enabled[ImGuiWindow::SelectedObjectIndex] == 0) {
-				if (ImGui::SmallButton("Enable")) {
-					Scene::enabled[ImGuiWindow::SelectedObjectIndex] = !Scene::enabled[ImGuiWindow::SelectedObjectIndex];
-				}
-			}
-			else if (Scene::enabled[ImGuiWindow::SelectedObjectIndex] == 1) {
-				if (ImGui::SmallButton("Disable")) {
-					Scene::enabled[ImGuiWindow::SelectedObjectIndex] = !Scene::enabled[ImGuiWindow::SelectedObjectIndex];
-				}
-			}
-			//std::cout << Scene::LightObjectList[ImGuiWindow::SelectedObjectIndex].enabled << std::endl;
-
-			//ImGui::Checkbox("Enabled", &Scene::enabled[ImGuiWindow::SelectedObjectIndex]);
-			
-			if (ImGui::SmallButton("Delete")) {
-
-				Scene::enabled.erase(Scene::enabled.begin() + ImGuiWindow::SelectedObjectIndex);
-				Scene::position.erase(Scene::position.begin() + ImGuiWindow::SelectedObjectIndex);
-				Scene::colour.erase(Scene::colour.begin() + ImGuiWindow::SelectedObjectIndex);
-				Scene::radiusAndPower.erase(Scene::radiusAndPower.begin() + ImGuiWindow::SelectedObjectIndex);
-				Scene::lightType.erase(Scene::lightType.begin() + ImGuiWindow::SelectedObjectIndex);
-
-				
-
-				ImGuiWindow::SelectedObjectIndex = 0; // reset index
-				ImGuiWindow::SelectedObjectType = "";
-			}
+		if (ImGuiWindow::SelectedObjectType == "Skybox") {
+			ImGuiWindow::SkyBoxWindow();
 		}
 		ImGui::End();
 	}
@@ -543,21 +424,38 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 		if (addContentBool) {
 			ImGuiWindow::addWindow("content", addContentBool);
 		}
+		for (size_t i = 0; i < ImGuiWindow::ContentObjects.size(); i++)
+		{
+			ImGui::BeginGroup();
+			if (ImGuiWindow::ContentObjects[i] == "Model") {
+				if (ImGui::ImageButton(("##ObjectIcon" + std::to_string(i)).c_str(), (ImTextureID)ImGuiWindow::ModelIcon.ID, ImVec2(100, 100))) {
+					Scene::AddSceneModelObject(ImGuiWindow::ContentObjectTypes[i], ImGuiWindow::ContentObjectPaths[i], ImGuiWindow::ContentObjectNames[i]);
+				}
+				ImGui::Text((ImGuiWindow::ContentObjectNames[i]).c_str());
+				ImGui::SameLine();
+				if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)ImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
+					ImGuiWindow::ContentObjects.erase(ImGuiWindow::ContentObjects.begin() + i);
+					ImGuiWindow::ContentObjectNames.erase(ImGuiWindow::ContentObjectNames.begin() + i);
+					ImGuiWindow::ContentObjectPaths.erase(ImGuiWindow::ContentObjectPaths.begin() + i);
+					ImGuiWindow::ContentObjectTypes.erase(ImGuiWindow::ContentObjectTypes.begin() + i);
+				}
+			}
+			if (ImGuiWindow::ContentObjects[i] == "BillBoard") {
+				if (ImGui::ImageButton(("##BillBoardIcon" + std::to_string(i)).c_str(), (ImTextureID)ImGuiWindow::BillBoardIcon.ID, ImVec2(100, 100))) {
+					Scene::AddSceneBillBoardObject(ImGuiWindow::ContentObjectNames[i], ImGuiWindow::ContentObjectTypes[i], ImGuiWindow::ContentObjectPaths[i]);
+				}
+				ImGui::Text((ImGuiWindow::ContentObjectNames[i]).c_str());
+				ImGui::SameLine();
+				if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)ImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
+					ImGuiWindow::ContentObjects.erase(ImGuiWindow::ContentObjects.begin() + i);
+					ImGuiWindow::ContentObjectNames.erase(ImGuiWindow::ContentObjectNames.begin() + i);
+					ImGuiWindow::ContentObjectPaths.erase(ImGuiWindow::ContentObjectPaths.begin() + i);
+					ImGuiWindow::ContentObjectTypes.erase(ImGuiWindow::ContentObjectTypes.begin() + i);
+				}
+			}
+			ImGui::EndGroup();
 
-		if (ImGui::ImageButton("##FolderIcon",(ImTextureID)ImGuiWindow::FolderIcon.ID, ImVec2(100, 100))) {
-
-		}
-		ImGui::SameLine();
-		if (ImGui::ImageButton("##SaveIcon", (ImTextureID)ImGuiWindow::SaveIcon.ID, ImVec2(100, 100))) {
-
-		}
-		ImGui::SameLine();
-		if (ImGui::ImageButton("##ObjectIcon", (ImTextureID)ImGuiWindow::ModelIcon.ID, ImVec2(100, 100))) {
-
-		}
-		ImGui::SameLine();
-		if (ImGui::ImageButton("##ColliderIcon", (ImTextureID)ImGuiWindow::colliderIcon.ID, ImVec2(100, 100))) {
-
+			ImGui::SameLine();
 		}
 
 		ImGui::End();

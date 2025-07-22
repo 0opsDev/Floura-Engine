@@ -1,5 +1,7 @@
 #include "scene.h"
 #include <Render/window/WindowHandler.h>
+#include <Gameplay/Player.h>
+#include <utils/VisibilityChecker.h>
 
 //BillBoardObject BillBoardObjects;
 //CubeCollider ColliderObject;
@@ -18,6 +20,8 @@ std::vector<glm::vec2> Scene::radiusAndPower;
 std::vector<int> Scene::lightType;
 std::vector<int> Scene::enabled;
 
+glm::vec3 Scene::initalCameraPos = glm::vec3(0, 0, 0);
+
 
 BillBoard PointLightIcon;
 BillBoard SpotLightIcon;
@@ -32,20 +36,55 @@ void Scene::LoadScene(std::string path) {
 	// Attemp to delete previous scene
 	Delete();
 
-	initJsonModelLoad(path + "/Model.scene");
-	initJsonBillBoardLoad(path + "/BillBoard.scene");
-	initJsonSoundObjectLoad(path + "/Sound.scene");
-	initJsonColliderLoad(path + "/Collider.scene");
+	if (ImGuiWindow::imGuiEnabled) {
+		ImGuiWindow::loadContentObjects(path + "/ContentObject.scene");
+	}
+
 	initJsonSettingsLoad(path + "/Settings.scene");
+	initCameraSettingsLoad(path + "/Camera.scene");
+	initJsonColliderLoad(path + "/Collider.scene");
 	initJsonLightObjectLoad(path + "/Lights.scene");
+	initJsonBillBoardLoad(path + "/BillBoard.scene");
+	initJsonModelLoad(path + "/Model.scene");
+	initJsonSoundObjectLoad(path + "/Sound.scene");
+	/*
+		for (size_t i = 0; i < modelObjects.size(); i++) {
+		std::cout << modelObjects[i].ObjectName << " - " << modelObjects[i].ModelPath << std::endl;
+		std::cout << modelObjects[i].ModelSingle.meshes.size() << " - indmesh size" << std::endl;
+
+		
+		//.vertices.size()
+		for (size_t z = 0; z < modelObjects[i].ModelSingle.meshes.size(); z++)
+		{
+
+						std::cout << modelObjects[i].ModelSingle.meshes[z].vertices.size() << " - indmesh vertices size" << std::endl;
+					for (size_t y = 0; y < modelObjects[i].ModelSingle.meshes[z].vertices.size(); y++)
+			{
+				std::cout << modelObjects[i].ModelSingle.meshes[z].vertices[y].position.x << " - vertex position x" << std::endl;
+				std::cout << modelObjects[i].ModelSingle.meshes[z].vertices[y].position.x << " - vertex position y" << std::endl;
+				std::cout << modelObjects[i].ModelSingle.meshes[z].vertices[y].position.x << " - vertex position z" << std::endl;
+			}
+			//std::cout << modelObjects[i].ModelSingle.meshes[i].vertices << " - vertex" << std::endl;
+
+		}
+	*/
+
 }
 
+
 void Scene::SaveScene(std::string path) {
-	JsonModelSave(path + "/Model.scene");
-	JsonBillBoardSave(path + "/BillBoard.scene");
-	// sound load here
+
+	if (ImGuiWindow::imGuiEnabled) {
+		ImGuiWindow::saveContentObjects(path + "/ContentObject.scene");
+	}
+
+	JsonSettingsSave(path + "/Settings.scene");
+	JsonCameraSettingsSave(path + "/Camera.scene");
 	JsonColliderSave(path + "/Collider.scene");
-	Scene::JsonLightSave(path + "/Lights.scene");
+	JsonLightSave(path + "/Lights.scene");
+	JsonBillBoardSave(path + "/BillBoard.scene");
+	JsonModelSave(path + "/Model.scene");
+	// sound load here
 
 }
 
@@ -83,7 +122,7 @@ void Scene::initJsonModelLoad(std::string path) {
 		std::string path = item.at("path").get<std::string>();
 
 		glm::vec3 Location = glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]);
-		glm::vec4 rotation = glm::vec4(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2], item.at("Rotation")[3]);
+		glm::vec3 rotation = glm::vec3(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2]);
 		glm::vec3 scale = glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]);
 
 		glm::vec3 frustumBoxTransform = glm::vec3(item.at("frustumBoxTransform")[0],
@@ -135,7 +174,7 @@ void Scene::JsonModelSave(std::string path) {
 			modelJson["path"] = obj.ModelPath;
 
 			modelJson["Location"] = { obj.transform.x, obj.transform.y, obj.transform.z };
-			modelJson["Rotation"] = { obj.rotation.x, obj.rotation.y, obj.rotation.z, obj.rotation.w };
+			modelJson["Rotation"] = { obj.rotation.x, obj.rotation.y, obj.rotation.z};
 			modelJson["Scale"] = { obj.scale.x, obj.scale.y, obj.scale.z };
 
 			modelJson["frustumBoxTransform"] = { obj.frustumBoxTransform.x, obj.frustumBoxTransform.y, obj.frustumBoxTransform.z };
@@ -307,33 +346,96 @@ void Scene::JsonLightSave(std::string path) {
 	}
 }
 
+void Scene::JsonSettingsSave(std::string path) {
+	try {
+		json SettingsData = json::array();  // New JSON array to hold model data
+
+		json JsonSettings;
+
+		JsonSettings["skyRGBA"][0] = RenderClass::skyRGBA[0];
+		JsonSettings["skyRGBA"][1] = RenderClass::skyRGBA[1];
+		JsonSettings["skyRGBA"][2] = RenderClass::skyRGBA[2];
+
+		JsonSettings["fogRGBA"][0] = RenderClass::fogRGBA[0];
+		JsonSettings["fogRGBA"][1] = RenderClass::fogRGBA[1];
+		JsonSettings["fogRGBA"][2] = RenderClass::fogRGBA[2];
+
+		JsonSettings["doReflections"] = RenderClass::doReflections;
+		JsonSettings["doFog"] = RenderClass::doFog;
+
+		JsonSettings["FragNum"] = Main::FragNum;
+
+		JsonSettings["DepthDistance"] = RenderClass::DepthDistance;
+		JsonSettings["DepthPlane"][0] = RenderClass::DepthPlane[0];
+		JsonSettings["DepthPlane"][1] = RenderClass::DepthPlane[1];
+
+		JsonSettings["Window"] = windowHandler::s_WindowTitle;
+		JsonSettings["DefaultSkyboxPath"] = Skybox::DefaultSkyboxPath;
+
+		SettingsData.push_back(JsonSettings);
+
+		// Write to file
+		// Write back to file
+		std::ofstream outFile(path, std::ios::out);
+		if (!outFile.is_open()) {
+			if (init::LogALL || init::LogSystems) std::cout << ("Failed to write to ") << path << std::endl;
+		}
+
+		outFile << SettingsData.dump(4);
+		outFile.close();
+
+		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+
+	}
+	catch (const std::exception& e) {
+		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+	}
+}
+
+void Scene::JsonCameraSettingsSave(std::string path) {
+	try {
+		json CameraData = json::array();  // New JSON array to hold model data
+
+		json JsonCamera;
+		JsonCamera["initialCameraPos"] = { Scene::initalCameraPos.x, Scene::initalCameraPos.y, Scene::initalCameraPos.z };
+		JsonCamera["FOV"] = Main::cameraSettings[0];
+		JsonCamera["nearPlane"] = Main::cameraSettings[1];
+		JsonCamera["farPlane"] = Main::cameraSettings[2];
+		JsonCamera["cameraColliderScale"][0] = Camera::cameraColliderScale.x;
+		JsonCamera["cameraColliderScale"][1] = Camera::cameraColliderScale.y;
+		JsonCamera["cameraColliderScale"][2] = Camera::cameraColliderScale.z;
+		CameraData.push_back(JsonCamera);
+
+		// Write to file
+		// Write back to file
+		std::ofstream outFile(path, std::ios::out);
+		if (!outFile.is_open()) {
+			if (init::LogALL || init::LogSystems) std::cout << ("Failed to write to ")<< path << std::endl;
+		}
+
+		outFile << CameraData.dump(4);
+		outFile.close();
+
+		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+
+	}
+	catch (const std::exception& e) {
+		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+	}
+}
+
 void Scene::AddSceneModelObject(std::string type, std::string path, std::string name)
 {
-	std::string newName = name;
-	for (size_t i = 0; i < modelObjects.size(); i++)
-	{
-		int numDupes = 0;
-		if (newName == modelObjects[i].ObjectName) numDupes++;
-
-		if (numDupes > 0) newName = (newName + " Duplicate");
-	}
 
 	ModelObject newObject; // Create a temporary ModelObject
-	newObject.CreateObject(type, path, newName);
+	newObject.CreateObject(type, path, name);
 	modelObjects.push_back(newObject); // Add the configured object to the vector
 }
 
 void Scene::AddSceneBillBoardObject(std::string name, std::string type, std::string path) {
-	std::string newName = name;
-	for (size_t i = 0; i < BillBoardObjects.size(); i++)
-	{
-		int numDupes = 0;
-		if (newName == BillBoardObjects[i].ObjectName) numDupes++;
 
-		if (numDupes > 0) newName = (newName + " Duplicate");
-	}
 	BillBoardObject newBillBoardObject; // Create a temporary BillBoardObject
-	newBillBoardObject.CreateObject(type, path, newName);
+	newBillBoardObject.CreateObject(type, path, name);
 	BillBoardObjects.push_back(newBillBoardObject);
 }
 
@@ -342,17 +444,10 @@ void Scene::AddSceneSoundObject(std::string name, std::string path) {
 }
 
 void Scene::AddSceneColliderObject(std::string name) {
-	std::string newName = name;
-	for (size_t i = 0; i < CubeColliderObject.size(); i++)
-	{
-		int numDupes = 0;
-		if (newName == CubeColliderObject[i].name) numDupes++;
 
-		if (numDupes > 0) newName = (newName + " Duplicate");
-	}
 	CubeCollider newCubeColliderObject; // Create a temporary CubeCollider
 	newCubeColliderObject.init();
-	newCubeColliderObject.name = newName;
+	newCubeColliderObject.name = name;
 	CubeColliderObject.push_back(newCubeColliderObject);
 }
 
@@ -584,10 +679,6 @@ void Scene::initJsonSettingsLoad(std::string path) {
 		engineDefaultFile >> engineDefaultData;
 		engineDefaultFile.close();
 
-		Main::initalCameraPos = glm::vec3(static_cast<GLfloat>(engineDefaultData[0]["DefaultCameraPos"][0]),
-			static_cast<GLfloat>(engineDefaultData[0]["DefaultCameraPos"][1]),
-			static_cast<GLfloat>(engineDefaultData[0]["DefaultCameraPos"][2])
-		);
 		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][0];
 		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][1];
 		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][2];
@@ -600,28 +691,53 @@ void Scene::initJsonSettingsLoad(std::string path) {
 		RenderClass::fogRGBA[1] = engineDefaultData[0]["fogRGBA"][1];
 		RenderClass::fogRGBA[2] = engineDefaultData[0]["fogRGBA"][2];
 
-		RenderClass::ConeRot[0] = engineDefaultData[0]["ConeRot"][0];
-		RenderClass::ConeRot[1] = engineDefaultData[0]["ConeRot"][1];
-		RenderClass::ConeRot[2] = engineDefaultData[0]["ConeRot"][2];
-
 		RenderClass::doReflections = engineDefaultData[0]["doReflections"];
 		RenderClass::doFog = engineDefaultData[0]["doFog"];
-		Main::VertNum = engineDefaultData[0]["VertNum"];
-		Main::FragNum = engineDefaultData[0]["FragNum"];
 
-		Main::cameraSettings[1] = std::stof(engineDefaultData[0]["NearPlane"].get<std::string>());
-		Main::cameraSettings[2] = std::stof(engineDefaultData[0]["FarPlane"].get<std::string>());
+		Main::FragNum = engineDefaultData[0]["FragNum"];
 
 		RenderClass::DepthDistance = engineDefaultData[0]["DepthDistance"];
 		RenderClass::DepthPlane[0] = engineDefaultData[0]["DepthPlane"][0];
 		RenderClass::DepthPlane[1] = engineDefaultData[0]["DepthPlane"][1];
+
 		windowHandler::s_WindowTitle = engineDefaultData[0]["Window"];
+		glfwSetWindowTitle(windowHandler::window, (windowHandler::s_WindowTitle).c_str());
+		
 		// window name needs to be set here
 
 		Skybox::DefaultSkyboxPath = engineDefaultData[0]["DefaultSkyboxPath"];
 	}
 	else {
-		std::cerr << "Failed to open Settings/Default/EngineDefault.json" << std::endl;
+		std::cerr << "Failed to open " << path << std::endl;
+	}
+}
+
+void Scene::initCameraSettingsLoad(std::string path) {
+	std::ifstream CameraFile(path);
+	if (CameraFile.is_open()) {
+		json CameraData;
+		CameraFile >> CameraData;
+		CameraFile.close();
+
+		initalCameraPos = glm::vec3((CameraData[0]["initialCameraPos"][0]),
+			(CameraData[0]["initialCameraPos"][1]),
+			(CameraData[0]["initialCameraPos"][2])
+		);
+		Camera::Position = Scene::initalCameraPos;
+		float fov = CameraData[0]["FOV"].get<float>();
+		//std::cout << fov << std::endl;
+		float nearPlane = CameraData[0]["nearPlane"].get<float>();
+		float farPlane = CameraData[0]["farPlane"].get<float>();
+		Main::cameraSettings[0] = fov;
+		Main::cameraSettings[1] = nearPlane;
+		Main::cameraSettings[2] = farPlane;
+		Camera::cameraColliderScale.x = CameraData[0]["cameraColliderScale"][0];
+		Camera::cameraColliderScale.y = CameraData[0]["cameraColliderScale"][1];
+		Camera::cameraColliderScale.z = CameraData[0]["cameraColliderScale"][2];
+
+	}
+	else {
+		std::cerr << "Failed to open " << path << std::endl;
 	}
 }
 
@@ -630,6 +746,17 @@ void Scene::Update() {
 	// models
 	for (size_t i = 0; i < modelObjects.size(); i++)
 	{
+		
+			//if (modelObjects[i].ModelSingle.collide(glm::vec3(Camera::Position.x, (Camera::Position.y ), Camera::Position.z), Camera::cameraColliderScale, "box")) {
+			//Player::isColliding = true; // Set collision state
+			//Camera::Position.x = modelObjects[i].ModelSingle.lastHit.x;//- (Camera::cameraColliderScale.y / 2.0f)
+			//Camera::Position.y = ((modelObjects[i].ModelSingle.lastHit.y )); //+ (Camera::cameraColliderScale.y / 2.0f)
+			//Camera::Position.z = modelObjects[i].ModelSingle.lastHit.z;
+
+			//}
+		
+
+
 		modelObjects[i].UpdateCollider();
 		modelObjects[i].UpdateCameraCollider();
 		modelObjects[i].draw(RenderClass::shaderProgram);
@@ -657,7 +784,7 @@ void Scene::Update() {
 	}
 		
 		// range Scene::enabled
-		if (enabled.size() || true) {
+		//if (true) {
 			RenderClass::shaderProgram.Activate();
 
 			RenderClass::shaderProgram.setFloat3Vector(
@@ -692,13 +819,30 @@ void Scene::Update() {
 			//radius
 			//std::cout << LightObjectList.size() << std::endl;
 			//
-			RenderClass::shaderProgram.setIntVector("enabled", enabled.size(), &enabled[0]);
 
+//			for (size_t i = 0; i < enabled.size(); i++)
+//			{
+//				if (!VisibilityChecker::isInRange(position[i], Camera::Position, 12)) {
+//					if (Camera::isRadiusInFrustum(position[i], 2)) {
+//						enabled[i] = 1; // Enable light if within frustum
+//					}
+//					else {
+//						enabled[i] = 0; // Disable light if outside frustum
+//					}
+//				}
+//				else {
+//					enabled[i] = 1; // Enable light if within frustum
+//				}
+//
+//			}
+
+
+			RenderClass::shaderProgram.setIntVector("enabled", enabled.size(), &enabled[0]);
 				
 
 
 			RenderClass::shaderProgram.setInt("lightCount", enabled.size());
-		}
+		//}
 		
 
 
@@ -724,6 +868,8 @@ void Scene::Update() {
 		//position
 		//LightObjectList[i].colour
 	}
+
+
 }
 
 void Scene::Delete() {
@@ -755,4 +901,12 @@ void Scene::Delete() {
 	radiusAndPower.clear();
 	lightType.clear();
 	enabled.clear();
+
+	if (ImGuiWindow::imGuiEnabled) {
+		ImGuiWindow::ContentObjects.clear();
+		ImGuiWindow::ContentObjectNames.clear();
+		ImGuiWindow::ContentObjectPaths.clear();
+		ImGuiWindow::ContentObjectTypes.clear();
+
+	}
 }

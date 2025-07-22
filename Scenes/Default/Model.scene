@@ -19,7 +19,6 @@
         "Rotation": [
             0.0,
             0.0,
-            0.0,
             0.0
         ],
         "Scale": [
@@ -56,12 +55,11 @@
         ],
         "DoFrustumCull": false,
         "Location": [
-            0.0,
+            -2.0,
             1.0,
             0.0
         ],
         "Rotation": [
-            0.0,
             0.0,
             0.0,
             0.0
@@ -107,7 +105,6 @@
         "Rotation": [
             0.0,
             0.0,
-            0.0,
             0.0
         ],
         "Scale": [
@@ -149,7 +146,6 @@
             0.0
         ],
         "Rotation": [
-            0.0,
             0.0,
             0.0,
             0.0
@@ -195,7 +191,6 @@
         "Rotation": [
             0.0,
             0.0,
-            0.0,
             0.0
         ],
         "Scale": [
@@ -237,7 +232,6 @@
             10.0
         ],
         "Rotation": [
-            0.0,
             0.0,
             0.0,
             0.0
@@ -283,7 +277,6 @@
         "Rotation": [
             0.0,
             0.0,
-            0.0,
             0.0
         ],
         "Scale": [
@@ -325,7 +318,6 @@
             0.0
         ],
         "Rotation": [
-            0.0,
             0.0,
             0.0,
             0.0
@@ -370,7 +362,6 @@
         ],
         "Rotation": [
             90.0,
-            1.0,
             0.0,
             0.0
         ],
@@ -414,7 +405,6 @@
         ],
         "Rotation": [
             90.0,
-            1.0,
             0.0,
             0.0
         ],
@@ -458,7 +448,6 @@
         ],
         "Rotation": [
             90.0,
-            1.0,
             0.0,
             0.0
         ],
@@ -503,8 +492,7 @@
         "Rotation": [
             -90.0,
             0.0,
-            0.0,
-            1.0
+            -90.0
         ],
         "Scale": [
             5.0,
@@ -546,7 +534,6 @@
         ],
         "Rotation": [
             -90.0,
-            1.0,
             0.0,
             0.0
         ],
@@ -591,7 +578,6 @@
         "Rotation": [
             0.0,
             0.0,
-            0.0,
             0.0
         ],
         "Scale": [
@@ -628,15 +614,14 @@
         ],
         "DoFrustumCull": false,
         "Location": [
-            0.699999988079071,
+            -1.2999999523162842,
             0.36000001430511475,
             0.0
         ],
         "Rotation": [
-            -11.0,
-            1.0,
-            1.0,
-            -1.0
+            -12.0,
+            -13.0,
+            19.0
         ],
         "Scale": [
             0.5,
@@ -677,8 +662,7 @@
             10.0
         ],
         "Rotation": [
-            90.0,
-            -1.0,
+            -90.0,
             0.0,
             0.0
         ],
@@ -701,6 +685,49 @@
         "isCollider": true,
         "name": "lamp",
         "path": "Assets/Models/lamp/lampbaked.gltf",
+        "type": "Static"
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "Location": [
+            0.0,
+            -2.0,
+            0.0
+        ],
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            100.0,
+            100.0,
+            100.0
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "grass",
+        "path": "Assets/Models/GRASSLANDS/farlands.gltf",
         "type": "Static"
     }
 ]
