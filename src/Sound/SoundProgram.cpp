@@ -63,7 +63,7 @@ void SoundProgram::updateCameraPosition() {
         Camera::Up.x,         Camera::Up.y,         Camera::Up.z              // Up
     };
     alListenerfv(AL_ORIENTATION, orientation);
-    if (ImGuiWindow::showViewportIcons) {
+    if (FEImGuiWindow::showViewportIcons) {
         if (!VisibilityChecker::isInRange(SoundPosition, Camera::Position, 1)) {
             SoundIcon.draw(true, SoundPosition.x, SoundPosition.y, SoundPosition.z, 1, 1, 1);
         }

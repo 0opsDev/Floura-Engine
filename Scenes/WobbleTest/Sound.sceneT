@@ -1,0 +1,11 @@
+[
+	{
+		"name": "wind",
+		"path": "Assets/Sounds/Cold wind sound effect 4.wav",
+		"pitch": 1,
+		"volume": 1,
+		"isLoop": true,
+		"SoundPosition": [0,1,0],
+		"is3Dsound": true
+	}
+]

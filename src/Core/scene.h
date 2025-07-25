@@ -14,7 +14,7 @@ public:
 
 	using json = nlohmann::json;
 
-	static std::vector<ModelObject> modelObjects;
+	static std::vector<std::unique_ptr<ModelObject>> modelObjects;
 	static std::vector<BillBoardObject> BillBoardObjects;
 	static std::vector <CubeCollider> CubeColliderObject;
 	static std::vector <SoundProgram> SoundObjects;

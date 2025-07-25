@@ -16,7 +16,7 @@ public:
 
 	static void setupGbuffers(unsigned int width, unsigned int height);
 
-	static void gPassDraw(Model& model, glm::vec3 Transform, glm::vec3 Rotation, glm::vec3 Scale);
+	static void gPassDraw(Model& model, Shader& GPass, glm::vec3 Transform, glm::vec3 Rotation, glm::vec3 Scale);
 };
 
 #endif // GEOMETRYPASS_CLASS_H

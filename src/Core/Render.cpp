@@ -12,7 +12,6 @@
 #include <Render/passes/lighting/LightingPass.h>
 #include <Render/window/WindowHandler.h>
 
-Shader RenderClass::shaderProgram;
 Shader RenderClass::billBoardShader;
 Shader RenderClass::gPassShaderBillBoard;
 Shader RenderClass::boxShader;
@@ -25,8 +24,6 @@ GLfloat RenderClass::DepthDistance = 100.0f;
 GLfloat RenderClass::DepthPlane[] = { 0.1f, 100.0f };
 glm::vec3 RenderClass::skyRGBA = glm::vec3(1.0f, 1.0f, 1.0f);
 glm::vec3 RenderClass::fogRGBA = glm::vec3( 1.0f, 1.0f, 1.0f);
-GLfloat RenderClass::ConeSI[3] = { 0.111f, 0.825f, 2.0f };
-GLfloat RenderClass::ConeRot[3] = { 0.0f, -1.0f, 0.0f };
 
 Shader SolidColour;
 RenderQuad lightingRenderQuad;
@@ -44,8 +41,6 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init::initGLenable(false); //bool for direction of polys
 	GeometryPass::init(); // Initialize geometry pass settings
-	
-	Skybox::init(Skybox::DefaultSkyboxPath);
 
 	lightingRenderQuad.init();
 
@@ -112,21 +107,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
 
-	// Send Variables to shader (GPU)
-	shaderProgram.Activate(); // activate shaderprog to send uniforms to gpu
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gPosition);
-	shaderProgram.setInt("gPosition", 1);
-
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
-	shaderProgram.setInt("gNormal", 2);
-
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gAlbedoSpec);
-	shaderProgram.setInt("gAlbedoSpec", 3);	
-
+	/*
 	shaderProgram.setBool("doReflect", doReflections);
 	shaderProgram.setBool("doFog", doFog);
 	shaderProgram.setFloat3("InnerLight1", ConeSI[1] - ConeSI[0], ConeSI[1], ConeSI[2]);
@@ -137,7 +118,11 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	shaderProgram.setFloat3("fogColor", fogRGBA.r, fogRGBA.g, fogRGBA.b);
 	shaderProgram.setFloat4("skyColor", skyRGBA.r, skyRGBA.g, skyRGBA.b, skyRGBA[3]);
 	shaderProgram.setFloat("gamma", gamma);
-	if (ImGuiWindow::isWireframe) {
+	shaderProgram.setFloat("deltatime", TimeUtil::s_DeltaTime);
+	shaderProgram.setFloat("time", glfwGetTime());
+	*/
+
+	if (FEImGuiWindow::isWireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 		glClearColor(0, 0, 0, 1);
 	}
@@ -149,11 +134,9 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	//if (test2.rotation.x >= 360) { test2.rotation.x = 0; } // Reset rotation to prevent overflow
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
-	// Camera
-	Camera::Matrix(shaderProgram, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 
-	if (!ImGuiWindow::isWireframe && RenderClass::renderSkybox) { // should add skybox.scene
+	if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox) { // should add skybox.scene
 		Skybox::draw(Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global
 		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 
@@ -167,7 +150,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 
 	auto stopInitTime2 = std::chrono::high_resolution_clock::now();
 	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
-	ImGuiWindow::lPassTime = (initDuration2.count() / 1000.0);
+	FEImGuiWindow::lPassTime = (initDuration2.count() / 1000.0);
 
 	//glDepthFunc(GL_LEQUAL);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
@@ -177,7 +160,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	glDisable(GL_CULL_FACE);
 
 	// Framebuffer logic
-	Framebuffer::FBODraw(ImGuiWindow::imGuiPanels[0], window);
+	Framebuffer::FBODraw(FEImGuiWindow::imGuiPanels[0], window);
 }
 
 void RenderClass::ForwardLightingPass() {
@@ -197,7 +180,7 @@ void RenderClass::DeferredLightingPass() {
 	glActiveTexture(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	GBLpass.setBool("DEFtoggle", ImGuiWindow::enableDEF);
+	GBLpass.setBool("DEFtoggle", FEImGuiWindow::enableDEF);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::gPosition);
@@ -258,7 +241,6 @@ void RenderClass::Swapchain(GLFWwindow* window) {
 }
 
 void RenderClass::Cleanup() {
-	shaderProgram.Delete(); // Delete Shader Prog
 	billBoardShader.Delete();
 	gPassShaderBillBoard.Delete();
 	boxShader.Delete();

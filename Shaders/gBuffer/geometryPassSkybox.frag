@@ -8,12 +8,10 @@ layout(location = 2) out vec4 gAlbedoSpec;
 in vec3 texCoords;
 
 uniform samplerCube skybox;
-uniform vec3 skyRGBA; // consider renaming to skyColor for clarity
 
 void main()
 {
     vec4 skyTEX = texture(skybox, texCoords);
-    vec3 color = skyTEX.rgb * skyRGBA;
 
     //gPosition = crntPos;
     gPosition = vec3(0.0, 0.0, 0.0);
@@ -22,6 +20,6 @@ void main()
     gNormal = vec3(1.0, 0.0, 1.0);
 
     //gAlbedoSpec = vec4(1.0, 0.0, 0.0, 1.0);
-    gAlbedoSpec.rgb = color;
+    gAlbedoSpec.rgb = skyTEX.rgb;
     gAlbedoSpec.a = 0.0;
 }

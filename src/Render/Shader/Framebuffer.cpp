@@ -203,7 +203,7 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	frameBufferProgram.setMat4("cameraMatrix", Camera::cameraMatrix);
 	frameBufferProgram.setFloat("time", glfwGetTime());
 	frameBufferProgram.setFloat("deltaTime", TimeUtil::s_DeltaTime);
-	frameBufferProgram.setBool("enableFB", ImGuiWindow::enableFB);
+	frameBufferProgram.setBool("enableFB", FEImGuiWindow::enableFB);
 
 	// draw the framebuffer
 	glBindVertexArray(viewVAO);

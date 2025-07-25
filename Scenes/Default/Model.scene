@@ -16,6 +16,7 @@
             0.0,
             0.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -59,6 +60,7 @@
             1.0,
             0.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -102,6 +104,7 @@
             1.0,
             0.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -145,6 +148,7 @@
             1.0,
             0.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -188,6 +192,7 @@
             0.0,
             0.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -231,6 +236,7 @@
             0.0,
             10.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -274,6 +280,7 @@
             0.0,
             10.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -317,6 +324,7 @@
             0.0,
             0.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -360,6 +368,7 @@
             5.0,
             -5.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             90.0,
             0.0,
@@ -403,6 +412,7 @@
             5.0,
             -5.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             90.0,
             0.0,
@@ -446,6 +456,7 @@
             5.0,
             -5.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             90.0,
             0.0,
@@ -489,6 +500,7 @@
             -3.0,
             10.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             -90.0,
             0.0,
@@ -532,6 +544,7 @@
             -3.0,
             5.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             -90.0,
             0.0,
@@ -575,6 +588,7 @@
             2.0,
             10.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -618,6 +632,7 @@
             0.36000001430511475,
             0.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             -12.0,
             -13.0,
@@ -661,6 +676,7 @@
             7.0,
             10.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             -90.0,
             0.0,
@@ -704,6 +720,7 @@
             -2.0,
             0.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,

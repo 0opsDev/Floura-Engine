@@ -9,7 +9,6 @@
 #include "utils/timeAccumulator.h"
 #include "utils/InputUtil.h"
 #include "Scripting/ScriptRunner.h"
-#include "imgui/imgui_impl_opengl3.h"
 #include "File/File.h"
 #include <UI/ImGui/ImGuiWindow.h>
 #include <Sound/SoundRunner.h>
@@ -18,9 +17,9 @@
 #include "scene.h"
 #include <Gameplay/Player.h>
 #include <Render/window/WindowHandler.h>
-#include "ImGuiFileDialog/ImGuiFileDialog.h"
 
-int Main::FragNum = 0;
+
+
 bool Main::sleepState = true;
 
 float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far // move this to camera class or something
@@ -43,14 +42,16 @@ int main() // global variables do not work with threads
 
 	gladLoadGL(); // load open gl config
 
-	Scene::LoadScene(SettingsUtils::sceneName);
-	FileClass::loadShaderProgram(0, Main::FragNum, RenderClass::shaderProgram); // feed the shader prog real data << should take a shader file class
-	RenderClass::shaderProgram.Activate(); // activate new shader program for use
-
 	// INITIALIZE CAMERA
 	Camera::InitCamera(windowHandler::width, windowHandler::height, Scene::initalCameraPos); 	// camera ratio pos
+
 	RenderClass::init(windowHandler::window, windowHandler::width, windowHandler::height);
+
+	//scene
 	Scene::init();
+	Scene::LoadScene(SettingsUtils::sceneName);
+	Skybox::init(Skybox::DefaultSkyboxPath);
+
 	// Model Loader
 	
 	//just a class to test stuff
@@ -58,8 +59,8 @@ int main() // global variables do not work with threads
 
 	Player::init();
 
-	if (ImGuiWindow::imGuiEnabled) {
-		ImGuiWindow::init();
+	if (FEImGuiWindow::imGuiEnabled) {
+		FEImGuiWindow::init();
 	}
 
 	//Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
@@ -86,7 +87,7 @@ int main() // global variables do not work with threads
 		//TA2
 		TA2.update();
 		if (TA2.Counter >= 1 / 10.0f) {
-			if (glfwGetKey(windowHandler::window, GLFW_KEY_F1) == GLFW_PRESS) { ImGuiWindow::imGuiPanels[0] = !ImGuiWindow::imGuiPanels[0]; }
+			if (glfwGetKey(windowHandler::window, GLFW_KEY_F1) == GLFW_PRESS) { FEImGuiWindow::imGuiPanels[0] = !FEImGuiWindow::imGuiPanels[0]; }
 			//std::cout << "update" << std::endl;
 			TA2.reset();
 		}
@@ -102,13 +103,13 @@ int main() // global variables do not work with threads
 		Player::update();
 
 		RenderClass::Render(windowHandler::window, windowHandler::width, windowHandler::height);
-		if (ImGuiWindow::imGuiPanels[0] && ImGuiWindow::imGuiEnabled) { Main::imGuiMAIN(windowHandler::window); }
+		if (FEImGuiWindow::imGuiPanels[0] && FEImGuiWindow::imGuiEnabled) { Main::imGuiMAIN(windowHandler::window); }
 
 		RenderClass::Swapchain(windowHandler::window); // tip to self, work down to up (lines)
 
 		auto stopInitTime2 = std::chrono::high_resolution_clock::now();
 		auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
-		ImGuiWindow::Render = (initDuration2.count() / 1000.0);
+		FEImGuiWindow::Render = (initDuration2.count() / 1000.0);
 
 	}
 	// Cleanup: Delete all objects on close
@@ -161,7 +162,7 @@ void Main::loadSettings() {
 		//Main::cameraSettings[0] = settingsData[0]["FOV"];
 		SettingsUtils::sceneName = "Scenes/" + settingsData[0]["Scene"].get<std::string>();
 
-		ImGuiWindow::imGuiEnabled = settingsData[0]["imGui"];
+		FEImGuiWindow::imGuiEnabled = settingsData[0]["imGui"];
 
 		if (init::LogALL || init::LogSystems) std::cout << "Loaded settings from Settings.json" << std::endl;
 
@@ -210,7 +211,9 @@ bool addContentBool = false;
 // Holds ImGui Variables and Windows
 void Main::imGuiMAIN(GLFWwindow* window) {
 	//Tell Imgui a new frame is about to begin
+	//
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
+	//ImGuizmo::BeginFrame();
 
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
@@ -232,7 +235,7 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 	if (ImGui::BeginMenuBar())
 	{
 		ImGui::Image(
-			(ImTextureID)(intptr_t)ImGuiWindow::logoIcon.ID,
+			(ImTextureID)(intptr_t)FEImGuiWindow::logoIcon.ID,
 			ImVec2(20, 20)
 		);
 
@@ -254,9 +257,9 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 
 		if (ImGui::BeginMenu("View"))
 		{
-			ImGui::Checkbox("Wireframe", &ImGuiWindow::isWireframe);
+			ImGui::Checkbox("Wireframe", &FEImGuiWindow::isWireframe);
 			ImGui::Checkbox("showBoxCollider", &CubeCollider::showBoxCollider);
-			ImGui::Checkbox("showViewportIcons", &ImGuiWindow::showViewportIcons);
+			ImGui::Checkbox("showViewportIcons", &FEImGuiWindow::showViewportIcons);
 
 			//if (ImGui::MenuItem("Wireframe")) {
 			//	// Toggle some view state
@@ -283,7 +286,7 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 
 		if (ImGui::BeginMenu("Panels")) {
 			//panel
-			ImGuiWindow::PanelsWindow();
+			FEImGuiWindow::PanelsWindow();
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Debug")) {
@@ -315,151 +318,157 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 
 
 	// Rendering panel
-	if (ImGuiWindow::imGuiPanels[1]) {
+	if (FEImGuiWindow::imGuiPanels[1]) {
 
 		ImGui::Begin("Rendering"); // ImGUI window creation
 
 		//rendering here
-		ImGuiWindow::RenderWindow(window, windowHandler::width, windowHandler::height);
+		FEImGuiWindow::RenderWindow(window, windowHandler::width, windowHandler::height);
 
-		ImGuiWindow::ShaderWindow();
+		FEImGuiWindow::ShaderWindow();
 
 		ImGui::ColorEdit3("fog RGBA", &RenderClass::fogRGBA.r);	// sky and light
-
-		if (ImGui::TreeNode("Light Settings")) {
-
-			// cone settings
-			ImGui::Text("cone size");
-			ImGui::SliderFloat("cone Size (D: 0.95)", &RenderClass::ConeSI[1], 0.0f, 1.0f);
-			ImGui::SliderFloat("cone Strength (D: 0.05)", &RenderClass::ConeSI[0], 0.0f, 0.90f);
-
-			ImGui::Text("Light Angle");
-			ImGui::DragFloat3("Cone Angle", RenderClass::ConeRot);
-
-			ImGui::TreePop();
-		}
 
 		ImGui::End();
 	}
 
-	if (ImGuiWindow::imGuiPanels[3]) {
-		ImGuiWindow::viewport();
+	if (FEImGuiWindow::imGuiPanels[3]) {
+		FEImGuiWindow::viewport();
 	}
 
-	if (ImGuiWindow::imGuiPanels[6]) {
-		ImGuiWindow::PreformanceProfiler();
+	if (FEImGuiWindow::imGuiPanels[6]) {
+		FEImGuiWindow::PreformanceProfiler();
 	}
 
-	if (ImGuiWindow::imGuiPanels[7]) {
-		ImGuiWindow::TextEditor();
+	if (FEImGuiWindow::imGuiPanels[7]) {
+		FEImGuiWindow::TextEditor();
 	}
 
-	if (ImGuiWindow::imGuiPanels[4]) {
+	if (FEImGuiWindow::imGuiPanels[4]) {
 		ImGui::Begin("Scene hierarchy"); // ImGUI window creation
-		if (ImGui::ImageButton("##SaveIcon", (ImTextureID)ImGuiWindow::SaveIcon.ID, ImVec2(30, 30))) {
+		if (ImGui::ImageButton("##SaveIcon", (ImTextureID)FEImGuiWindow::SaveIcon.ID, ImVec2(30, 30))) {
 			Scene::SaveScene(SettingsUtils::sceneName);
 		}
 		ImGui::SameLine();
-		if (ImGui::ImageButton("##arrowIcon", (ImTextureID)ImGuiWindow::arrowIcon.ID, ImVec2(30, 30))) {
+		if (ImGui::ImageButton("##arrowIcon", (ImTextureID)FEImGuiWindow::arrowIcon.ID, ImVec2(30, 30))) {
 			Scene::LoadScene(SettingsUtils::sceneName);
 		}
 		ImGui::SameLine();
-		if (ImGui::ImageButton("##crossIcon", (ImTextureID)ImGuiWindow::crossIcon.ID, ImVec2(30, 30))) {
+		if (ImGui::ImageButton("##crossIcon", (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(30, 30))) {
 			Scene::Delete();
 		}
 		ImGui::Spacing();
 
 
 		//ImGuiWindow::SelectedObjectType == "Camera"
-		ImGuiWindow::create();
+		FEImGuiWindow::create();
 
-		ImGuiWindow::HierarchyList();
+		FEImGuiWindow::HierarchyList();
 		ImGui::End();
 	}
 
-	if (ImGuiWindow::imGuiPanels[9]) {
-		ImGui::Begin("Inspector"); // ImGUI window creation
-		ImGui::Text("Inspector");
-		ImGui::Text(("Selected Object Type : " + ImGuiWindow::SelectedObjectType).c_str());
-		ImGui::Text(("Index: " + std::to_string(ImGuiWindow::SelectedObjectIndex)).c_str());
-
-		if (ImGuiWindow::SelectedObjectType == "Camera") {
-			ImGuiWindow::CameraWindow();
-		}
-
-		if (ImGuiWindow::SelectedObjectType == "Model") {
-			ImGuiWindow::ModelWindow();
-		}
-	
-		if (ImGuiWindow::SelectedObjectType == "BillBoard") {
-			ImGuiWindow::BillBoardWindow();
-		}
-
-		if (ImGuiWindow::SelectedObjectType == "Sound") {
-		}
-
-		if (ImGuiWindow::SelectedObjectType == "Collider") {
-			ImGuiWindow::ColliderWindow();
-		}
-		//std::cout << Scene::enabled.size() << std::endl;
-		if (ImGuiWindow::SelectedObjectType == "Light") {
-			ImGuiWindow::LightWindow();
-		}
-
-		if (ImGuiWindow::SelectedObjectType == "DirectLight"){
-		
-		}
-
-		if (ImGuiWindow::SelectedObjectType == "Skybox") {
-			ImGuiWindow::SkyBoxWindow();
-		}
-		ImGui::End();
+	if (FEImGuiWindow::imGuiPanels[9]) {
+		FEImGuiWindow::InspectorWindow();
 	}
 	
-	if (ImGuiWindow::imGuiPanels[10]) {
+	if (FEImGuiWindow::imGuiPanels[10]) {
 		ImGui::Begin("Content Folder"); // ImGUI window creation
-		if (ImGui::ImageButton("##plusIcon", (ImTextureID)ImGuiWindow::plusIcon.ID, ImVec2(20, 20))) {
+		if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(20, 20))) {
 			addContentBool = true;
 		}
 		if (addContentBool) {
-			ImGuiWindow::addWindow("content", addContentBool);
+			FEImGuiWindow::addWindow("content", addContentBool);
 		}
-		for (size_t i = 0; i < ImGuiWindow::ContentObjects.size(); i++)
+		//ImGui::Text((std::to_string(ImGuiWindow::ContentObjects.size())).c_str());
+		//debug
+		//for (size_t i = 0; i < ImGuiWindow::ContentObjects.size(); i++)
+		//{
+		//	ImGui::Text((ImGuiWindow::ContentObjects[i] + std::to_string(i)).c_str());
+		//}
+		for (size_t i = 0; i < FEImGuiWindow::ContentObjects.size(); i++)
 		{
-			ImGui::BeginGroup();
-			if (ImGuiWindow::ContentObjects[i] == "Model") {
-				if (ImGui::ImageButton(("##ObjectIcon" + std::to_string(i)).c_str(), (ImTextureID)ImGuiWindow::ModelIcon.ID, ImVec2(100, 100))) {
-					Scene::AddSceneModelObject(ImGuiWindow::ContentObjectTypes[i], ImGuiWindow::ContentObjectPaths[i], ImGuiWindow::ContentObjectNames[i]);
-				}
-				ImGui::Text((ImGuiWindow::ContentObjectNames[i]).c_str());
-				ImGui::SameLine();
-				if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)ImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
-					ImGuiWindow::ContentObjects.erase(ImGuiWindow::ContentObjects.begin() + i);
-					ImGuiWindow::ContentObjectNames.erase(ImGuiWindow::ContentObjectNames.begin() + i);
-					ImGuiWindow::ContentObjectPaths.erase(ImGuiWindow::ContentObjectPaths.begin() + i);
-					ImGuiWindow::ContentObjectTypes.erase(ImGuiWindow::ContentObjectTypes.begin() + i);
-				}
-			}
-			if (ImGuiWindow::ContentObjects[i] == "BillBoard") {
-				if (ImGui::ImageButton(("##BillBoardIcon" + std::to_string(i)).c_str(), (ImTextureID)ImGuiWindow::BillBoardIcon.ID, ImVec2(100, 100))) {
-					Scene::AddSceneBillBoardObject(ImGuiWindow::ContentObjectNames[i], ImGuiWindow::ContentObjectTypes[i], ImGuiWindow::ContentObjectPaths[i]);
-				}
-				ImGui::Text((ImGuiWindow::ContentObjectNames[i]).c_str());
-				ImGui::SameLine();
-				if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)ImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
-					ImGuiWindow::ContentObjects.erase(ImGuiWindow::ContentObjects.begin() + i);
-					ImGuiWindow::ContentObjectNames.erase(ImGuiWindow::ContentObjectNames.begin() + i);
-					ImGuiWindow::ContentObjectPaths.erase(ImGuiWindow::ContentObjectPaths.begin() + i);
-					ImGuiWindow::ContentObjectTypes.erase(ImGuiWindow::ContentObjectTypes.begin() + i);
-				}
-			}
-			ImGui::EndGroup();
+			if (FEImGuiWindow::ContentObjects[i] != "") {
+				ImVec2 cursor_screen_pos = ImGui::GetCursorScreenPos(); // cursor pos at start of group
+				std::string name = FEImGuiWindow::ContentObjectNames[i];
+				ImVec2 textSize = ImGui::CalcTextSize(name.c_str());
 
-			ImGui::SameLine();
+				if (textSize.x > 85.0f) { // max width
+					while (ImGui::CalcTextSize((name + "...").c_str()).x > 85.0f && !name.empty()) {
+						name.pop_back();
+					}
+					name += "...";
+				}
+				ImGui::BeginGroup();
+				if (FEImGuiWindow::ContentObjects[i] == "Model") {
+					if (ImGui::ImageButton(("##ObjectIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::ModelIcon.ID, ImVec2(100, 100))) {
+						Scene::AddSceneModelObject(FEImGuiWindow::ContentObjectTypes[i], FEImGuiWindow::ContentObjectPaths[i], FEImGuiWindow::ContentObjectNames[i]);
+					}
+					if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
+						FEImGuiWindow::ContentObjects.erase(FEImGuiWindow::ContentObjects.begin() + i);
+						FEImGuiWindow::ContentObjectNames.erase(FEImGuiWindow::ContentObjectNames.begin() + i);
+						FEImGuiWindow::ContentObjectPaths.erase(FEImGuiWindow::ContentObjectPaths.begin() + i);
+						FEImGuiWindow::ContentObjectTypes.erase(FEImGuiWindow::ContentObjectTypes.begin() + i);
+					}
+					ImGui::SameLine();
+					ImGui::Text("%s", name.c_str());
+				}
+				if (FEImGuiWindow::ContentObjects[i] == "BillBoard") {
+					if (ImGui::ImageButton(("##BillBoardIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::BillBoardIcon.ID, ImVec2(100, 100))) {
+						Scene::AddSceneBillBoardObject(FEImGuiWindow::ContentObjectNames[i], FEImGuiWindow::ContentObjectTypes[i], FEImGuiWindow::ContentObjectPaths[i]);
+					}
+					if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
+						FEImGuiWindow::ContentObjects.erase(FEImGuiWindow::ContentObjects.begin() + i);
+						FEImGuiWindow::ContentObjectNames.erase(FEImGuiWindow::ContentObjectNames.begin() + i);
+						FEImGuiWindow::ContentObjectPaths.erase(FEImGuiWindow::ContentObjectPaths.begin() + i);
+						FEImGuiWindow::ContentObjectTypes.erase(FEImGuiWindow::ContentObjectTypes.begin() + i);
+					}
+					ImGui::SameLine();
+					ImGui::Text("%s", name.c_str());
+				}
+				if (FEImGuiWindow::ContentObjects[i] == "Material") {
+					if (ImGui::ImageButton(("##materialIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::materialIcon.ID, ImVec2(100, 100))) {
+						// when clicked on should summon material editor
+					}
+
+					if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
+						FEImGuiWindow::ContentObjects.erase(FEImGuiWindow::ContentObjects.begin() + i);
+						FEImGuiWindow::ContentObjectNames.erase(FEImGuiWindow::ContentObjectNames.begin() + i);
+						FEImGuiWindow::ContentObjectPaths.erase(FEImGuiWindow::ContentObjectPaths.begin() + i);
+						FEImGuiWindow::ContentObjectTypes.erase(FEImGuiWindow::ContentObjectTypes.begin() + i);
+
+						FEImGuiWindow::MaterialIndexUpdate();
+					}
+					ImGui::SameLine();
+					ImGui::Text("%s", name.c_str());
+
+				}
+				ImGui::EndGroup();
+
+				ImVec2 window_pos = ImGui::GetWindowPos();
+				float window_width = ImGui::GetWindowWidth();
+
+				// Predict next item width (icon + margin)
+				float next_item_width = 125.0f;
+
+				if (cursor_screen_pos.x + next_item_width < window_pos.x + window_width)
+				{
+					ImGui::SameLine();
+				}
+
+			}
 		}
 
 		ImGui::End();
 	}
+
+
+	//	ImGui::Text(("Selected Object Type : " + ImGuiWindow::SelectedObjectType).c_str());
+	//ImGui::Text(("Index: " + std::to_string(ImGuiWindow::SelectedObjectIndex)).c_str());
+	if (true && FEImGuiWindow::SelectedObjectType != "") // needs guizmo enabled var // passes if object is selected
+	{
+		//	ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection), ImGuizmo::TRANSLATE, ImGuizmo::LOCAL);
+	}
+
 
 	//scene
 	ImGui::Render(); // Renders the ImGUI elements

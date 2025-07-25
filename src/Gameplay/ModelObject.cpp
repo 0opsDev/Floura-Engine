@@ -2,7 +2,6 @@
 #include <utils/VisibilityChecker.h>
 #include <Render/passes/geometry/geometryPass.h>
 
-
 void ModelObject::LODModelLoad(std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
@@ -65,8 +64,19 @@ void ModelObject::SingleModelLoad(std::string path) {
 	file.close();
 	ModelSingle.init((path).c_str());
 }
+
+void ModelObject::LoadMaterial(std::string path)
+{
+	// "Assets/Material/Default.Material" example path
+	MaterialObject.LoadMaterial(path);
+
+}
+
 //init
-void ModelObject::CreateObject(std::string type, std::string path, std::string ObjectNameT) {
+void ModelObject::CreateObject(std::string type, std::string path, std::string ObjectNameT, std::string Material) {
+	//LoadMaterial("Assets/Material/Wobble.Material"); // load default material for now
+
+	LoadMaterial(Material); // load default material for now
 	ObjectName = ObjectNameT;
 	ModelPath = path;
 	if (type == "LOD" || type == "lod" || type == "Lod") {
@@ -109,12 +119,14 @@ unsigned int CalculateLOD(const glm::vec3& cameraPos, const glm::vec3& transform
 	return lodLevel;
 }
 
-void ModelObject::renderLogic(Shader& Shader) {
+void ModelObject::renderLogic() {
+	MaterialObject.update();
+
 	if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
 		return; // Skip rendering if not in regular or lighting pass
 	}
 
-	if (DoCulling == true && !ImGuiWindow::isWireframe) { glEnable(GL_CULL_FACE); }
+	if (DoCulling == true && !FEImGuiWindow::isWireframe) { glEnable(GL_CULL_FACE); }
 	else { glDisable(GL_CULL_FACE); }
 
 	//if (InsideFaceDirection) { glFrontFace(GL_CW); }
@@ -123,7 +135,7 @@ void ModelObject::renderLogic(Shader& Shader) {
 	if (CullFrontFace) { glCullFace(GL_FRONT); }
 	else { glCullFace(GL_BACK); }
 
-	if (ImGuiWindow::isWireframe) {
+	if (FEImGuiWindow::isWireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 	}
 	
@@ -135,13 +147,14 @@ void ModelObject::renderLogic(Shader& Shader) {
 			if (i == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
 				if (RenderClass::DoForwardLightingPass) {
 					glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+					MaterialObject.ModelShader.Activate();
 					glEnable(GL_DEPTH_TEST);
 					glDepthFunc(GL_LESS);
-					LODModels[i].Draw(Shader, glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
+					LODModels[i].Draw(MaterialObject.ModelShader, glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
 					glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				}
-
-				GeometryPass::gPassDraw(LODModels[i], glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
+				MaterialObject.ModelGpassShader.Activate();
+				GeometryPass::gPassDraw(LODModels[i], MaterialObject.ModelGpassShader, glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
 			}
 		}
 		break;
@@ -149,13 +162,15 @@ void ModelObject::renderLogic(Shader& Shader) {
 	case false: {
 			if (RenderClass::DoForwardLightingPass) {
 				glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+				MaterialObject.ModelShader.Activate();
 				glEnable(GL_DEPTH_TEST);
 				glDepthFunc(GL_LESS);
-				ModelSingle.Draw(Shader, transform, rotation, scale);
+				ModelSingle.Draw(MaterialObject.ModelShader, transform, rotation, scale);
 				
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
-			GeometryPass::gPassDraw(ModelSingle, transform, rotation, scale);
+			MaterialObject.ModelGpassShader.Activate();
+			GeometryPass::gPassDraw(ModelSingle, MaterialObject.ModelGpassShader, transform, rotation, scale);
 		break;
 	}
 			  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Enable wireframe mode
@@ -166,14 +181,21 @@ void ModelObject::renderLogic(Shader& Shader) {
 	glDisable(GL_CULL_FACE);
 }
 
-void ModelObject::draw(Shader &Shader) {
+void ModelObject::updateForwardLights(std::vector<glm::vec3>& colour,
+	std::vector<glm::vec3>& position, std::vector<glm::vec2>& radiusAndPower,
+	std::vector<int>& lightType, std::vector<int>& enabled) {
+
+	MaterialObject.updateForwardLights(colour, position, radiusAndPower, lightType, enabled);
+}
+
+void ModelObject::draw() {
 	if (DoFrustumCull) {
 		if (Camera::isBoxInFrustum((frustumBoxTransform + transform), frustumBoxScale) || VisibilityChecker::isInRange((frustumBoxTransform + transform), Camera::Position, 1 + (0.1))) {
-			renderLogic(Shader);
+			renderLogic();
 		}
 	}
 	else {
-		renderLogic(Shader);
+		renderLogic();
 	}
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -186,6 +208,7 @@ void ModelObject::draw(Shader &Shader) {
 }
 
 void ModelObject::Delete() {
+	MaterialObject.ClearMaterial();
 	if (IsLod) {
 		for (size_t i = 0; i < LODModels.size(); i++)
 		{LODModels[i].Delete();}

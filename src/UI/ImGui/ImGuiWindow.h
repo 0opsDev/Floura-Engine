@@ -1,17 +1,20 @@
 #ifndef IMGUI_CAMERA_CLASS_H
 #define IMGUI_CAMERA_CLASS_H
 
-#include "imgui/imgui_impl_glfw.h"
+
 #include "Render/Shader/shaderClass.h"
 #include <string>
 #include "Camera/Camera.h"
-#include <imgui/imgui_impl_opengl3.h>
 #include <Render/Shader/Framebuffer.h>
 #include <Core/Render.h>
+#include "ImGuiWindow.h"
+
+#include "ImGuiInclude.h"
+
 //#include <Core/scene.h>
 
 
-class ImGuiWindow
+class FEImGuiWindow
 {
 public:
 	static bool imGuiEnabled;
@@ -34,6 +37,10 @@ public:
 	static std::vector<std::string> ContentObjectPaths;
 	static std::vector<std::string> ContentObjectTypes;
 
+	static std::vector<std::string> MaterialObjectPaths;
+	static std::vector<const char*> MaterialObjecNames;
+	static int MaterialSelectedIndex;
+
 	static Texture logoIcon; // Icon for logo in ImGui
 	static Texture FolderIcon; // Icon for folder in ImGui
 	static Texture SaveIcon; // Icon for Save in ImGui
@@ -48,6 +55,7 @@ public:
 	static Texture cameraIcon; // Icon for camera in ImGui
 	static Texture skyboxIcon; // Icon for skybox in ImGui
 	static Texture directLight; // Icon for directLight in ImGui
+	static Texture materialIcon; // Icon for material in ImGui
 
 	static void init();
 
@@ -71,6 +79,8 @@ public:
 
 	static void addWindow(std::string typeString, bool &isOpen);
 
+	static void MaterialIndexUpdate();
+
 	static void ModelWindow();
 
 	static void BillBoardWindow();
@@ -80,6 +90,13 @@ public:
 	static void LightWindow();
 
 	static void SkyBoxWindow();
+
+	static void InspectorWindow();
+
+
+
+	private:
+
 
 };
 

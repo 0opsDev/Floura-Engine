@@ -1,0 +1,86 @@
+[
+    {
+        "Name": "Barrel",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/barrel/barrel2.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "baseplate",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/Baseplate/plate.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "Grass",
+        "ObjectType": "BillBoard",
+        "Path": "Assets/Sprites/n_grass_diff_0_35.png",
+        "Type": "static"
+    },
+    {
+        "Name": "Grass",
+        "ObjectType": "BillBoard",
+        "Path": "Assets/Sprites/n_grass_diff_0_35.png",
+        "Type": "static"
+    },
+    {
+        "Name": "wave",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/wave/wave.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "cube.gltf",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/cube.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "shipment.gltf",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/fps/shipment.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "tower",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/tower/tower.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "wave.gltf",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/wave/wave.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "Default.Material",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/Default.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Wobble.Material",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/Wobble.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "grass",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/field/grassbit.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "ground",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/field/grassbit2.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "ps1",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/PS1.Material",
+        "Type": "NULL"
+    }
+]

@@ -177,6 +177,7 @@
     <ClCompile Include="src\Render\passes\post\PostProcess.cpp" />
     <ClCompile Include="src\Render\Shader\Cubemap.cpp" />
     <ClCompile Include="src\Render\Shader\Framebuffer.cpp" />
+    <ClCompile Include="src\Render\Shader\Material.cpp" />
     <ClCompile Include="src\Render\shader\ShaderClass.cpp" />
     <ClCompile Include="src\Render\Shader\SkyBox.cpp" />
     <ClCompile Include="src\Render\window\WindowHandler.cpp" />
@@ -238,6 +239,7 @@
     <ClInclude Include="src\Render\passes\post\PostProcess.h" />
     <ClInclude Include="src\Render\Shader\Cubemap.h" />
     <ClInclude Include="src\Render\Shader\Framebuffer.h" />
+    <ClInclude Include="src\Render\Shader\Material.h" />
     <ClInclude Include="src\Render\shader\shaderClass.h" />
     <ClInclude Include="src\Render\Shader\SkyBox.h" />
     <ClInclude Include="src\Render\window\WindowHandler.h" />
@@ -253,6 +255,7 @@
     <ClInclude Include="src\Scripting\ScriptRunner.h" />
     <ClInclude Include="src\Sound\SoundProgram.h" />
     <ClInclude Include="src\Sound\SoundRunner.h" />
+    <ClInclude Include="src\UI\ImGui\ImGuiInclude.h" />
     <ClInclude Include="src\UI\ImGui\ImGuiWindow.h" />
     <ClInclude Include="src\utils\init.h" />
     <ClInclude Include="src\utils\InputUtil.h" />

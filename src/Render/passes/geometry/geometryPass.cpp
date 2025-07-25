@@ -93,16 +93,16 @@ void GeometryPass::updateGbufferResolution(unsigned int width, unsigned int heig
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-void GeometryPass::gPassDraw(Model& model, glm::vec3 Transform, glm::vec3 Rotation, glm::vec3 Scale) {
+void GeometryPass::gPassDraw(Model& model, Shader& GPass, glm::vec3 Transform, glm::vec3 Rotation, glm::vec3 Scale) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	gPassShader.Activate();
-	gPassShader.setFloat("gamma", RenderClass::gamma);
+	GPass.Activate();
+	GPass.setFloat("gamma", RenderClass::gamma);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	Camera::Matrix(gPassShader, "camMatrix"); // Send Camera Matrix To Shader Prog
-	model.Draw(gPassShader, Transform, Rotation, Scale);
+	Camera::Matrix(GPass, "camMatrix"); // Send Camera Matrix To Shader Prog
+	model.Draw(GPass, Transform, Rotation, Scale);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer

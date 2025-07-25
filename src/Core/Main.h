@@ -4,13 +4,13 @@
 #include <iostream>
 #include <vector>
 #include "Camera/Camera.h"
-#include<glad/glad.h>
+#include <glad/glad.h>
+#include "UI/ImGui/ImGuiInclude.h"
 
 class Main
 {
 public:
 
-	static int FragNum;
 	static bool sleepState;
 	static float cameraSettings[3]; // FOV, near, far
 	static GLfloat CameraXYZ[3]; // Initial camera position

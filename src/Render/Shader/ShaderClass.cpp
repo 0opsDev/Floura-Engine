@@ -27,19 +27,6 @@ std::string get_file_contents(const char* filename)
 
 void Shader::LoadShader(const char* vertexFile, const char* fragmentFile)
 {
-    if (vertexFile == "skip" || fragmentFile == "skip") {
-        if (init::LogALL || init::LogSystems) { std::cout << "Shader: Skip" << std::endl; }
-        return;
-    }
-    else if (vertexFile == "") {
-        if (init::LogALL || init::LogSystems) { std::cout << "vertexFile Path is Empty" << std::endl; }
-        return;
-    }
-    else if (fragmentFile == "") {
-        if (init::LogALL || init::LogSystems) { std::cout << "fragmentFile Path is Empty" << std::endl; }
-        return;
-    }
-
         // uses vertexFile which holds the shader file path and gets the contents of the file which is dumped into vertexCode
         std::string vertexCode = get_file_contents(vertexFile); 
         std::string fragmentCode = get_file_contents(fragmentFile);

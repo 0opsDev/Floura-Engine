@@ -6,7 +6,7 @@
         "Shaders/Lighting/albedo.frag"
     ],
     "Vert": [
-      "Shaders/Lighting/Default.vert"
+        "Shaders/Lighting/Default.vert"
     ],
     "Geom": [
       "Shaders/Lighting/Default.geom"

@@ -60,9 +60,21 @@
         "Type": "static"
     },
     {
-        "Name": "waterplane",
+        "Name": "wave",
         "ObjectType": "Model",
-        "Path": "Assets/Models/waterplane.gltf",
+        "Path": "Assets/Models/wave/wave.gltf",
         "Type": "static"
+    },
+    {
+        "Name": "Wobble.Material",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/Wobble.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Default.Material",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/Default.Material",
+        "Type": "NULL"
     }
 ]

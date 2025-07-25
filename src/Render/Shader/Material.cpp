@@ -1,0 +1,149 @@
+#include "Material.h"
+#include <utils/init.h>
+#include <Core/Render.h>
+
+/*
+what should a material do in order
+
+0. clear any previous material variables
+1. unload from path (lets not have it in the form of constuctor for ease)
+2. init shaders
+3. send uniforms to shader
+4. ImGuiOverlay
+
+addionally, there should be a material content object for the content window function under the ImGuiWindow class.
+no need to save shader there will be a shader editor for that, i think for per model there should be a material savefile tho (it'll be figured out later)
+*/
+
+
+
+void Material::LoadMaterial(std::string path)
+{
+	// Clear previous material variables
+	ClearMaterial();
+	materialPath = path;
+	jsonLoad(path);
+
+	ModelShader.LoadShader((VertexShaderPath).c_str(), (FragmentShaderPath).c_str());
+	ModelGpassShader.LoadShader((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str());
+}
+
+void Material::ClearMaterial()
+{
+	ModelShader.Delete();
+	ModelGpassShader.Delete();
+}
+
+void Material::update()
+{
+	// this is where we activate and send off all the uniforms to the shader
+	Camera::Matrix(ModelShader, "camMatrix"); // Send Camera Matrix To Shader Prog
+
+	ModelShader.Activate();
+
+	ModelGpassShader.Activate();
+	Camera::Matrix(ModelGpassShader, "camMatrix"); // Send Camera Matrix To Shader Prog
+
+	updateTime();
+}
+
+void Material::updateTime()
+{
+
+	ModelShader.Activate();
+	ModelShader.setFloat("deltatime", TimeUtil::s_DeltaTime);
+	ModelShader.setFloat("time", glfwGetTime());
+
+	ModelGpassShader.Activate();
+	ModelGpassShader.setFloat("deltatime", TimeUtil::s_DeltaTime);
+	ModelGpassShader.setFloat("time", glfwGetTime());
+
+}
+
+void Material::updateForwardLights(std::vector<glm::vec3>& colour,
+	std::vector<glm::vec3>& position, std::vector<glm::vec2>& radiusAndPower,
+	std::vector<int>& lightType, std::vector<int>& enabled) {
+	ModelShader.Activate();
+
+	ModelShader.setFloat4("skyColor", RenderClass::skyRGBA.r, RenderClass::skyRGBA.g, RenderClass::skyRGBA.b, 1.0f);
+	ModelShader.setBool("doReflect", RenderClass::doReflections);
+
+	ModelShader.setFloat3Vector(
+		"lightPos2",
+		position.size(),
+		&position[0].x
+	);
+
+	ModelShader.setFloat3Vector(
+		"colour2",
+		colour.size(),
+		&colour[0].x
+	);
+	//colour
+
+	ModelShader.setInt(
+		"sizeOfLights",
+		enabled.size()
+	);
+
+	ModelShader.setFloat2Vector(
+		"radiusAndPower",
+		radiusAndPower.size(),
+		&radiusAndPower[0].x
+	);
+
+	ModelShader.setIntVector(
+		"lightType",
+		lightType.size(),
+		&lightType[0]
+	);
+
+
+	ModelShader.setIntVector("enabled", enabled.size(), &enabled[0]);
+
+
+
+	ModelShader.setInt("lightCount", enabled.size());
+
+
+}	
+
+void Material::jsonLoad(std::string path) 
+{
+	std::ifstream file(path);
+	if (!file.is_open()) {
+		std::cout << "Failed to open file: " << path << std::endl;
+		return;
+	}
+	json modelFileData;
+	try {
+		file >> modelFileData;
+	}
+	catch (const nlohmann::json::parse_error& e) {
+		// This catch block specifically handles JSON parsing errors,
+		// which gives more precise error information from the library.
+		std::cout << "JSON Parse Error loading model data: " << e.what() << std::endl;
+		std::cout << "Error byte position: " << e.byte << std::endl; // Specific to nlohmann::json
+	}
+	catch (const std::ios_base::failure& e) {
+		// This catch block handles file I/O errors (e.g., file not found, permission issues).
+		std::cout << "File I/O Error loading model data: " << e.what() << std::endl;
+	}
+	catch (const std::exception& e) {
+		// A general catch-all for any other std::exception derived errors.
+		std::cout << "An unexpected error occurred loading model data: " << e.what() << std::endl;
+	}
+	file.close();
+
+	for (const auto& item : modelFileData) {
+
+		type = item.at("type").get<std::string>();
+
+		FragmentShaderPath = item.at("FragShader").get<std::string>();
+		VertexShaderPath = item.at("VertexShader").get<std::string>();
+		FragmentGPShaderPath = item.at("GPassFragShader").get<std::string>();
+		VertexGPShaderPath = item.at("GPassVertShader").get<std::string>();
+
+	}
+	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene Models from: " << path << std::endl;
+}

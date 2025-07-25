@@ -2,9 +2,7 @@
 #define RENDER_CLASS_H
 
 #include <iostream>
-#include <imgui/imgui_impl_glfw.h>
 #include <camera/Camera.h>
-#include <imgui/imgui_impl_opengl3.h>
 #include <UI/ImGui/ImGuiWindow.h>
 #include <Render/Shader/SkyBox.h>
 #include <Render/Model/Model.h>
@@ -13,7 +11,6 @@
 class RenderClass
 {
 public:
-	static Shader shaderProgram;
 
 	// billboard
 	static Shader billBoardShader;
@@ -27,8 +24,6 @@ public:
 	static GLfloat DepthPlane[];
 	static glm::vec3 skyRGBA;
 	static glm::vec3 fogRGBA;
-	static GLfloat ConeSI[];
-	static GLfloat ConeRot[];
 
 	static bool DoDeferredLightingPass; // Toggle for lighting pass
 	static bool DoForwardLightingPass; // Toggle for regular pass

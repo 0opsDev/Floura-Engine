@@ -1,0 +1,18 @@
+[
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            0.0,
+            7.0,
+            0.0
+        ],
+        "power": 5.0,
+        "radius": 100.0,
+        "type": "pointlight"
+    }
+]

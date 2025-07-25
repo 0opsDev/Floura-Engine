@@ -8,7 +8,7 @@
 //SoundProgram SoundObjects;
 //std::vector<ModelObject> Scene::objects;
 
-std::vector<ModelObject> Scene::modelObjects;
+std::vector<std::unique_ptr<ModelObject>> Scene::modelObjects;
 std::vector<BillBoardObject> Scene::BillBoardObjects;
 std::vector <CubeCollider> Scene::CubeColliderObject;
 std::vector <SoundProgram> Scene::SoundObjects;
@@ -36,8 +36,8 @@ void Scene::LoadScene(std::string path) {
 	// Attemp to delete previous scene
 	Delete();
 
-	if (ImGuiWindow::imGuiEnabled) {
-		ImGuiWindow::loadContentObjects(path + "/ContentObject.scene");
+	if (FEImGuiWindow::imGuiEnabled) {
+		FEImGuiWindow::loadContentObjects(path + "/ContentObject.scene");
 	}
 
 	initJsonSettingsLoad(path + "/Settings.scene");
@@ -74,8 +74,8 @@ void Scene::LoadScene(std::string path) {
 
 void Scene::SaveScene(std::string path) {
 
-	if (ImGuiWindow::imGuiEnabled) {
-		ImGuiWindow::saveContentObjects(path + "/ContentObject.scene");
+	if (FEImGuiWindow::imGuiEnabled) {
+		FEImGuiWindow::saveContentObjects(path + "/ContentObject.scene");
 	}
 
 	JsonSettingsSave(path + "/Settings.scene");
@@ -115,11 +115,13 @@ void Scene::initJsonModelLoad(std::string path) {
 	file.close();
 
 	for (const auto& item : modelFileData) {
-		ModelObject newObject; // Create a temporary ModelObject
+		std::unique_ptr<ModelObject> newObject = std::make_unique<ModelObject>(); // Use std::make_unique
 
 		std::string name = item.at("name").get<std::string>();
 		std::string type = item.at("type").get<std::string>();
 		std::string path = item.at("path").get<std::string>();
+		std::string MaterialPath = item.at("MaterialPath").get<std::string>();
+
 
 		glm::vec3 Location = glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]);
 		glm::vec3 rotation = glm::vec3(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2]);
@@ -139,19 +141,24 @@ void Scene::initJsonModelLoad(std::string path) {
 		bool isBackFaceCulling = item.at("isBackFaceCulling").get<bool>();
 		bool DoFrustumCull = item.at("DoFrustumCull").get<bool>();
 
-		newObject.CreateObject(type, path, name);
+		newObject->CreateObject(type, path, name, MaterialPath); // Load into this unique MaterialObject
+		newObject->transform = Location;
+		newObject->rotation = rotation;
+		newObject->scale = scale;
+		newObject->isCollider = isCollider;
+		newObject->DoCulling = isBackFaceCulling;
+		newObject->DoFrustumCull = DoFrustumCull;
+		newObject->BoxColliderTransform = BoxColliderTransform;
+		newObject->BoxColliderScale = BoxColliderScale;
+		newObject->frustumBoxTransform = frustumBoxTransform;
+		newObject->frustumBoxScale = frustumBoxScale;
 
-		newObject.transform = Location;
-		newObject.rotation = rotation;
-		newObject.scale = scale;
-		newObject.isCollider = isCollider;
-		newObject.DoCulling = isBackFaceCulling;
-		newObject.DoFrustumCull = DoFrustumCull;
-		newObject.BoxColliderTransform = BoxColliderTransform;
-		newObject.BoxColliderScale = BoxColliderScale;
-		newObject.frustumBoxTransform = frustumBoxTransform;
-		newObject.frustumBoxScale = frustumBoxScale;
-		modelObjects.push_back(newObject); // Add the configured object to the vector
+		/*
+		we make a unique modelobject with (std::make_unique) instead of cloning, then we point to the new unique modelobject  in memory within the array with std::move,
+		which stops it from making a bit to bit clone of the prior object, and leaving the shaderprogram ID behind.
+		it generates a model object then makes the index of the array point to the new unique object in memory, which doesnt have its own copied id
+		*/
+		modelObjects.push_back(std::move(newObject));
 
 	}
 	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene Models from: " << path << std::endl;
@@ -161,34 +168,36 @@ void Scene::JsonModelSave(std::string path) {
 	try {
 		json settingsData = json::array();  // New JSON array to hold model data
 
-		// Serialize each modelObject into JSON
 		for (const auto& obj : modelObjects) {
 			json modelJson;
-			modelJson["name"] = obj.ObjectName;
+			modelJson["name"] = obj->ObjectName;
 
 			std::string isLOD;
-			if (obj.IsLod) isLOD = "LOD";
+			if (obj->IsLod) isLOD = "LOD";
 			else isLOD = "Static";
 			modelJson["type"] = isLOD;
 
-			modelJson["path"] = obj.ModelPath;
+			modelJson["path"] = obj->ModelPath;
 
-			modelJson["Location"] = { obj.transform.x, obj.transform.y, obj.transform.z };
-			modelJson["Rotation"] = { obj.rotation.x, obj.rotation.y, obj.rotation.z};
-			modelJson["Scale"] = { obj.scale.x, obj.scale.y, obj.scale.z };
+			modelJson["Location"] = { obj->transform.x, obj->transform.y, obj->transform.z };
+			modelJson["Rotation"] = { obj->rotation.x, obj->rotation.y, obj->rotation.z};
+			modelJson["Scale"] = { obj->scale.x, obj->scale.y, obj->scale.z };
 
-			modelJson["frustumBoxTransform"] = { obj.frustumBoxTransform.x, obj.frustumBoxTransform.y, obj.frustumBoxTransform.z };
-			modelJson["frustumBoxScale"] = { obj.frustumBoxScale.x, obj.frustumBoxScale.y, obj.frustumBoxScale.z };
+			modelJson["frustumBoxTransform"] = { obj->frustumBoxTransform.x, obj->frustumBoxTransform.y, obj->frustumBoxTransform.z };
+			modelJson["frustumBoxScale"] = { obj->frustumBoxScale.x, obj->frustumBoxScale.y, obj->frustumBoxScale.z };
 
-			modelJson["BoxColliderTransform"] = { obj.BoxColliderTransform.x, obj.BoxColliderTransform.y, obj.BoxColliderTransform.z };
-			modelJson["BoxColliderScale"] = { obj.BoxColliderScale.x, obj.BoxColliderScale.y, obj.BoxColliderScale.z };
+			modelJson["BoxColliderTransform"] = { obj->BoxColliderTransform.x, obj->BoxColliderTransform.y, obj->BoxColliderTransform.z };
+			modelJson["BoxColliderScale"] = { obj->BoxColliderScale.x, obj->BoxColliderScale.y, obj->BoxColliderScale.z };
 
-			modelJson["isCollider"] = obj.isCollider;
-			modelJson["isBackFaceCulling"] = obj.DoCulling;
-			modelJson["DoFrustumCull"] = obj.DoFrustumCull;
+			modelJson["isCollider"] = obj->isCollider;
+			modelJson["isBackFaceCulling"] = obj->DoCulling;
+			modelJson["DoFrustumCull"] = obj->DoFrustumCull;
+			modelJson["MaterialPath"] = obj->MaterialObject.materialPath;
 
 			settingsData.push_back(modelJson);
 		}
+		// Serialize each modelObject into JSON
+		
 
 		// Write to file
 		std::ofstream outFile(path, std::ios::out);
@@ -363,8 +372,6 @@ void Scene::JsonSettingsSave(std::string path) {
 		JsonSettings["doReflections"] = RenderClass::doReflections;
 		JsonSettings["doFog"] = RenderClass::doFog;
 
-		JsonSettings["FragNum"] = Main::FragNum;
-
 		JsonSettings["DepthDistance"] = RenderClass::DepthDistance;
 		JsonSettings["DepthPlane"][0] = RenderClass::DepthPlane[0];
 		JsonSettings["DepthPlane"][1] = RenderClass::DepthPlane[1];
@@ -427,9 +434,9 @@ void Scene::JsonCameraSettingsSave(std::string path) {
 void Scene::AddSceneModelObject(std::string type, std::string path, std::string name)
 {
 
-	ModelObject newObject; // Create a temporary ModelObject
-	newObject.CreateObject(type, path, name);
-	modelObjects.push_back(newObject); // Add the configured object to the vector
+	std::unique_ptr<ModelObject> newObject = std::make_unique<ModelObject>(); // Use std::make_unique
+	newObject->CreateObject(type, path, name, "Assets/Material/Default.Material");
+	modelObjects.push_back(std::move(newObject)); // std::move is crucial here
 }
 
 void Scene::AddSceneBillBoardObject(std::string name, std::string type, std::string path) {
@@ -694,8 +701,6 @@ void Scene::initJsonSettingsLoad(std::string path) {
 		RenderClass::doReflections = engineDefaultData[0]["doReflections"];
 		RenderClass::doFog = engineDefaultData[0]["doFog"];
 
-		Main::FragNum = engineDefaultData[0]["FragNum"];
-
 		RenderClass::DepthDistance = engineDefaultData[0]["DepthDistance"];
 		RenderClass::DepthPlane[0] = engineDefaultData[0]["DepthPlane"][0];
 		RenderClass::DepthPlane[1] = engineDefaultData[0]["DepthPlane"][1];
@@ -706,6 +711,7 @@ void Scene::initJsonSettingsLoad(std::string path) {
 		// window name needs to be set here
 
 		Skybox::DefaultSkyboxPath = engineDefaultData[0]["DefaultSkyboxPath"];
+		Skybox::LoadSkyBoxTexture(Skybox::DefaultSkyboxPath);
 	}
 	else {
 		std::cerr << "Failed to open " << path << std::endl;
@@ -754,12 +760,15 @@ void Scene::Update() {
 			//Camera::Position.z = modelObjects[i].ModelSingle.lastHit.z;
 
 			//}
-		
+		modelObjects[i]->UpdateCollider();
+		modelObjects[i]->UpdateCameraCollider();
 
 
-		modelObjects[i].UpdateCollider();
-		modelObjects[i].UpdateCameraCollider();
-		modelObjects[i].draw(RenderClass::shaderProgram);
+		// before drawing we wanna update the lights in the material class
+
+		modelObjects[i]->updateForwardLights(colour, position, radiusAndPower, lightType, enabled); // needs to take lights
+
+		modelObjects[i]->draw();
 	}
 	// billboards
 	for (size_t i = 0; i < BillBoardObjects.size(); i++)
@@ -783,6 +792,8 @@ void Scene::Update() {
 		}
 	}
 		
+
+	/*
 		// range Scene::enabled
 		//if (true) {
 			RenderClass::shaderProgram.Activate();
@@ -842,7 +853,9 @@ void Scene::Update() {
 
 
 			RenderClass::shaderProgram.setInt("lightCount", enabled.size());
+
 		//}
+	*/
 		
 
 
@@ -851,7 +864,7 @@ void Scene::Update() {
 	for (size_t i = 0; i < enabled.size(); i++)
 	{
 
-		if (ImGuiWindow::showViewportIcons) {
+		if (FEImGuiWindow::showViewportIcons) {
 
 				if (lightType[i] == 0) {
 					SpotLightIcon.draw(true, position[i].x, position[i].y, position[i].z, 0.3, 0.3, 0.3);
@@ -875,7 +888,7 @@ void Scene::Update() {
 void Scene::Delete() {
 
 	for (size_t i = 0; i < modelObjects.size(); i++)
-	{modelObjects[i].Delete();}
+	{modelObjects[i]->Delete();}
 	modelObjects.clear();
 
 	for (size_t i = 0; i < BillBoardObjects.size(); i++)
@@ -902,11 +915,11 @@ void Scene::Delete() {
 	lightType.clear();
 	enabled.clear();
 
-	if (ImGuiWindow::imGuiEnabled) {
-		ImGuiWindow::ContentObjects.clear();
-		ImGuiWindow::ContentObjectNames.clear();
-		ImGuiWindow::ContentObjectPaths.clear();
-		ImGuiWindow::ContentObjectTypes.clear();
+	if (FEImGuiWindow::imGuiEnabled) {
+		FEImGuiWindow::ContentObjects.clear();
+		FEImGuiWindow::ContentObjectNames.clear();
+		FEImGuiWindow::ContentObjectPaths.clear();
+		FEImGuiWindow::ContentObjectTypes.clear();
 
 	}
 }

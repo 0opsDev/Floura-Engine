@@ -1,0 +1,18 @@
+[
+	{
+		"type": "Custom",
+		"name": "Wobble",
+		
+		"FragShader": "Shaders/Lighting/combined.frag",
+		"VertexShader": "Shaders/Lighting/Wobble.vert",
+		"GPassFragShader": "Shaders/gBuffer/geometryPass.frag",
+		"GPassVertShader": "Shaders/gBuffer/geometryPassWobble.vert",
+
+		"variables": {
+			"type": ["bool", "time", "deltatime"],
+			"name": ["doReflect", "time", "deltatime"],
+			"Value":[true, 0.0, 0.0]
+		}
+	}
+
+]

@@ -16,6 +16,7 @@
             28.0,
             0.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -59,6 +60,7 @@
             1.0,
             -8.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             -15.0,
             -15.0,
@@ -102,6 +104,7 @@
             -1.0,
             20.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             -24.0,
             -26.0,
@@ -145,6 +148,7 @@
             1.0,
             -6.5
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             -38.0,
             -107.0,
@@ -188,6 +192,7 @@
             21.0,
             -167.0
         ],
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             150.0,
@@ -227,19 +232,20 @@
         ],
         "DoFrustumCull": false,
         "Location": [
-            4.0,
-            -7.0,
+            -60.0,
+            -15.0,
             0.0
         ],
+        "MaterialPath": "Assets/Material/Wobble.Material",
         "Rotation": [
             0.0,
             0.0,
             0.0
         ],
         "Scale": [
-            50.0,
-            50.0,
-            50.0
+            200.0,
+            200.0,
+            200.0
         ],
         "frustumBoxScale": [
             1.0,
@@ -253,8 +259,8 @@
         ],
         "isBackFaceCulling": true,
         "isCollider": false,
-        "name": "waterplane",
-        "path": "Assets/Models/waterplane.gltf",
+        "name": "wave",
+        "path": "Assets/Models/wave/wave.gltf",
         "type": "Static"
     }
 ]

@@ -20,11 +20,18 @@
 #include <utils/init.h>
 #include <glm/gtx/string_cast.hpp>
 #include <UI/ImGui/ImGuiWindow.h>
+#include <Render/Shader/Material.h>
 using json = nlohmann::json;
 
 class ModelObject
 {
 public:
+
+	Material MaterialObject;
+
+	//std::vector <Shader> ModelShaders;
+	//std::vector <Shader> ModelGpassShaders;
+
 	CubeCollider CubeCollider;
 	std::vector<std::string>ModelFileNames;
 	bool DoCulling = true;
@@ -47,13 +54,19 @@ public:
 
 	std::string ModelPath;
 
-	void CreateObject(std::string type, std::string path, std::string ObjectNameT); // type LOD or Regular
+	void LoadMaterial(std::string path);
+
+	void CreateObject(std::string type, std::string path, std::string ObjectNameT, std::string Material); // type LOD or Regular
 
 	void UpdateCollider();
 
 	void UpdateCameraCollider();
 
-	void draw(Shader& Shader);
+	void updateForwardLights(std::vector<glm::vec3>& colour,
+		std::vector<glm::vec3>& position, std::vector<glm::vec2>& radiusAndPower,
+		std::vector<int>& lightType, std::vector<int>& enabled);
+
+	void draw();
 
 	void Delete();
 
@@ -65,9 +78,6 @@ private:
 	
 	std::string LodPath;
 
-
-
-
 	void LODModelLoad(std::string path);
 	void SingleModelLoad(std::string path);
 	
@@ -76,7 +86,7 @@ private:
 
 	//std::vector<std::tuple<Model>> SingleModel;
 	//std::vector<std::tuple<Model, unsigned int>> modelOBJ;
-	void renderLogic(Shader& Shader);
+	void renderLogic();
 	
 };
 

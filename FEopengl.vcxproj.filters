@@ -71,12 +71,6 @@
     <Filter Include="Resource Files\Shaders\Skybox">
       <UniqueIdentifier>{e96aaa03-9abd-4e46-a63a-bb33a658f71a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\UI">
-      <UniqueIdentifier>{ae2232b3-13c0-48b3-9f18-c55b926f1396}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\UI\ImGui">
-      <UniqueIdentifier>{40f461af-3af1-4ee8-903c-1e8fa21ea181}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\Scripting\functions\Player">
       <UniqueIdentifier>{1c395904-ada3-44b2-823d-d7505c7cadd4}</UniqueIdentifier>
     </Filter>
@@ -121,6 +115,12 @@
     </Filter>
     <Filter Include="Resource Files\ImGuiFileDialog">
       <UniqueIdentifier>{3659b2c4-149e-4884-8ec9-3b15748bbefd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\UI">
+      <UniqueIdentifier>{ae2232b3-13c0-48b3-9f18-c55b926f1396}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\UI\ImGui">
+      <UniqueIdentifier>{40f461af-3af1-4ee8-903c-1e8fa21ea181}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -297,6 +297,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\ImGuiFileDialog\ImGuiFileDialog.cpp">
       <Filter>Resource Files\ImGuiFileDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Shader\Material.cpp">
+      <Filter>src\Render\Shader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -479,6 +482,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\ImGuiFileDialog\ImGuiFileDialogConfig.h">
       <Filter>Resource Files\ImGuiFileDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Shader\Material.h">
+      <Filter>src\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\ImGui\ImGuiInclude.h">
+      <Filter>src\UI\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
