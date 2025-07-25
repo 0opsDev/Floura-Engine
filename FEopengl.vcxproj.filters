@@ -124,27 +124,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
-      <Filter>Resource Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Libraries\include\imgui\imgui_impl_opengl3.cpp">
-      <Filter>Resource Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Libraries\include\imgui\imgui_tables.cpp">
-      <Filter>Resource Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Libraries\include\imgui\imgui_widgets.cpp">
-      <Filter>Resource Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Libraries\include\imgui\imgui.cpp">
-      <Filter>Resource Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Libraries\include\imgui\imgui_demo.cpp">
-      <Filter>Resource Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Libraries\include\imgui\imgui_draw.cpp">
-      <Filter>Resource Files\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="src\Render\shader\ShaderClass.cpp">
       <Filter>src\Render\Shader</Filter>
     </ClCompile>
@@ -301,6 +280,27 @@
     <ClCompile Include="src\Render\Shader\Material.cpp">
       <Filter>src\Render\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="src\Libraries\include\imgui\imgui.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Libraries\include\imgui\imgui_demo.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Libraries\include\imgui\imgui_draw.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Libraries\include\imgui\imgui_impl_opengl3.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Libraries\include\imgui\imgui_tables.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Libraries\include\imgui\imgui_widgets.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
+      <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -347,33 +347,6 @@
     </ClInclude>
     <ClInclude Include="src\Core\Main.h">
       <Filter>src\core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imconfig.h">
-      <Filter>Resource Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imgui.h">
-      <Filter>Resource Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_glfw.h">
-      <Filter>Resource Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_opengl3.h">
-      <Filter>Resource Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_opengl3_loader.h">
-      <Filter>Resource Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imgui_internal.h">
-      <Filter>Resource Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imstb_rectpack.h">
-      <Filter>Resource Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imstb_textedit.h">
-      <Filter>Resource Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Libraries\include\imgui\imstb_truetype.h">
-      <Filter>Resource Files\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\model\Texture.h">
       <Filter>src\Render\Model</Filter>
@@ -488,6 +461,33 @@
     </ClInclude>
     <ClInclude Include="src\UI\ImGui\ImGuiInclude.h">
       <Filter>src\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imconfig.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imgui.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_glfw.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_opengl3.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imgui_internal.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imstb_rectpack.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imstb_textedit.h">
+      <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\imgui\imstb_truetype.h">
+      <Filter>Resource Files\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -614,5 +614,10 @@
     <None Include="Shaders\Lighting\shadowMap.frag">
       <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="src\Libraries\include\imgui\LICENSE.txt">
+      <Filter>Resource Files\imgui</Filter>
+    </Text>
   </ItemGroup>
 </Project>

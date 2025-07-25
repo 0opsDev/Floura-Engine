@@ -1,4 +1,4 @@
-// dear imgui, v1.91.9 WIP
+// dear imgui, v1.91.9
 // (tables and columns code)
 
 /*
@@ -221,6 +221,7 @@ Index of this file:
 #pragma clang diagnostic ignored "-Wunknown-pragmas"                // warning: unknown warning group 'xxx'
 #pragma clang diagnostic ignored "-Wold-style-cast"                 // warning: use of old-style cast                            // yes, they are more terse.
 #pragma clang diagnostic ignored "-Wfloat-equal"                    // warning: comparing floating point with == or != is unsafe // storing and comparing against same constants (typically 0.0f) is ok.
+#pragma clang diagnostic ignored "-Wformat"                         // warning: format specifies type 'int' but the argument has type 'unsigned int'
 #pragma clang diagnostic ignored "-Wformat-nonliteral"              // warning: format string is not a string literal            // passing non-literal to vsnformat(). yes, user passing incorrect format strings can crash the code.
 #pragma clang diagnostic ignored "-Wsign-conversion"                // warning: implicit conversion changes signedness
 #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"  // warning: zero as null pointer constant                    // some standard header variations use #define NULL 0
@@ -230,6 +231,7 @@ Index of this file:
 #pragma clang diagnostic ignored "-Wimplicit-int-float-conversion"  // warning: implicit conversion from 'xxx' to 'float' may lose precision
 #pragma clang diagnostic ignored "-Wunsafe-buffer-usage"            // warning: 'xxx' is an unsafe pointer used for buffer access
 #pragma clang diagnostic ignored "-Wnontrivial-memaccess"           // warning: first argument in call to 'memset' is a pointer to non-trivially copyable type
+#pragma clang diagnostic ignored "-Wswitch-default"                 // warning: 'switch' missing 'default' label
 #elif defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wpragmas"                          // warning: unknown option after '#pragma GCC diagnostic' kind
 #pragma GCC diagnostic ignored "-Wfloat-equal"                      // warning: comparing floating-point with '==' or '!=' is unsafe
@@ -977,7 +979,7 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
     // [Part 4] Apply final widths based on requested widths
     const ImRect work_rect = table->WorkRect;
     const float width_spacings = (table->OuterPaddingX * 2.0f) + (table->CellSpacingX1 + table->CellSpacingX2) * (table->ColumnsEnabledCount - 1);
-    const float width_removed = (table->HasScrollbarYPrev && !table->InnerWindow->ScrollbarY) ? g.Style.ScrollbarSize : 0.0f; // To synchronize decoration width of synched tables with mismatching scrollbar state (#5920)
+    const float width_removed = (table->HasScrollbarYPrev && !table->InnerWindow->ScrollbarY) ? g.Style.ScrollbarSize : 0.0f; // To synchronize decoration width of synced tables with mismatching scrollbar state (#5920)
     const float width_avail = ImMax(1.0f, (((table->Flags & ImGuiTableFlags_ScrollX) && table->InnerWidth == 0.0f) ? table->InnerClipRect.GetWidth() : work_rect.GetWidth()) - width_removed);
     const float width_avail_for_stretched_columns = width_avail - width_spacings - sum_width_requests;
     float width_remaining_for_stretched_columns = width_avail_for_stretched_columns;
@@ -1390,7 +1392,7 @@ void    ImGui::EndTable()
 
     // Setup inner scrolling range
     // FIXME: This ideally should be done earlier, in BeginTable() SetNextWindowContentSize call, just like writing to inner_window->DC.CursorMaxPos.y,
-    // but since the later is likely to be impossible to do we'd rather update both axises together.
+    // but since the later is likely to be impossible to do we'd rather update both axes together.
     if (table->Flags & ImGuiTableFlags_ScrollX)
     {
         const float outer_padding_for_border = (table->Flags & ImGuiTableFlags_BordersOuterV) ? TABLE_BORDER_SIZE : 0.0f;
@@ -1565,6 +1567,31 @@ void    ImGui::EndTable()
     NavUpdateCurrentWindowIsScrollPushableX();
 }
 
+// Called in TableSetupColumn() when initializing and in TableLoadSettings() for defaults before applying stored settings.
+// 'init_mask' specify which fields to initialize.
+static void TableInitColumnDefaults(ImGuiTable* table, ImGuiTableColumn* column, ImGuiTableColumnFlags init_mask)
+{
+    ImGuiTableColumnFlags flags = column->Flags;
+    if (init_mask & ImGuiTableFlags_Resizable)
+    {
+        float init_width_or_weight = column->InitStretchWeightOrWidth;
+        column->WidthRequest = ((flags & ImGuiTableColumnFlags_WidthFixed) && init_width_or_weight > 0.0f) ? init_width_or_weight : -1.0f;
+        column->StretchWeight = (init_width_or_weight > 0.0f && (flags & ImGuiTableColumnFlags_WidthStretch)) ? init_width_or_weight : -1.0f;
+        if (init_width_or_weight > 0.0f) // Disable auto-fit if an explicit width/weight has been specified
+            column->AutoFitQueue = 0x00;
+    }
+    if (init_mask & ImGuiTableFlags_Reorderable)
+        column->DisplayOrder = (ImGuiTableColumnIdx)table->Columns.index_from_ptr(column);
+    if (init_mask & ImGuiTableFlags_Hideable)
+        column->IsUserEnabled = column->IsUserEnabledNextFrame = (flags & ImGuiTableColumnFlags_DefaultHide) ? 0 : 1;
+    if (init_mask & ImGuiTableFlags_Sortable)
+    {
+        // Multiple columns using _DefaultSort will be reassigned unique SortOrder values when building the sort specs.
+        column->SortOrder = (flags & ImGuiTableColumnFlags_DefaultSort) ? 0 : -1;
+        column->SortDirection = (flags & ImGuiTableColumnFlags_DefaultSort) ? ((flags & ImGuiTableColumnFlags_PreferSortDescending) ? (ImS8)ImGuiSortDirection_Descending : (ImU8)(ImGuiSortDirection_Ascending)) : (ImS8)ImGuiSortDirection_None;
+    }
+}
+
 // See "COLUMNS SIZING POLICIES" comments at the top of this file
 // If (init_width_or_weight <= 0.0f) it is ignored
 void ImGui::TableSetupColumn(const char* label, ImGuiTableColumnFlags flags, float init_width_or_weight, ImGuiID user_id)
@@ -1593,7 +1620,7 @@ void ImGui::TableSetupColumn(const char* label, ImGuiTableColumnFlags flags, flo
         IM_ASSERT(init_width_or_weight <= 0.0f && "Can only specify width/weight if sizing policy is set explicitly in either Table or Column.");
 
     // When passing a width automatically enforce WidthFixed policy
-    // (whereas TableSetupColumnFlags would default to WidthAuto if table is not Resizable)
+    // (whereas TableSetupColumnFlags would default to WidthAuto if table is not resizable)
     if ((flags & ImGuiTableColumnFlags_WidthMask_) == 0 && init_width_or_weight > 0.0f)
         if ((table->Flags & ImGuiTableFlags_SizingMask_) == ImGuiTableFlags_SizingFixedFit || (table->Flags & ImGuiTableFlags_SizingMask_) == ImGuiTableFlags_SizingFixedSame)
             flags |= ImGuiTableColumnFlags_WidthFixed;
@@ -1611,27 +1638,10 @@ void ImGui::TableSetupColumn(const char* label, ImGuiTableColumnFlags flags, flo
     column->InitStretchWeightOrWidth = init_width_or_weight;
     if (table->IsInitializing)
     {
-        // Init width or weight
-        if (column->WidthRequest < 0.0f && column->StretchWeight < 0.0f)
-        {
-            if ((flags & ImGuiTableColumnFlags_WidthFixed) && init_width_or_weight > 0.0f)
-                column->WidthRequest = init_width_or_weight;
-            if (flags & ImGuiTableColumnFlags_WidthStretch)
-                column->StretchWeight = (init_width_or_weight > 0.0f) ? init_width_or_weight : -1.0f;
-
-            // Disable auto-fit if an explicit width/weight has been specified
-            if (init_width_or_weight > 0.0f)
-                column->AutoFitQueue = 0x00;
-        }
-
-        // Init default visibility/sort state
-        if ((flags & ImGuiTableColumnFlags_DefaultHide) && (table->SettingsLoadedFlags & ImGuiTableFlags_Hideable) == 0)
-            column->IsUserEnabled = column->IsUserEnabledNextFrame = false;
-        if (flags & ImGuiTableColumnFlags_DefaultSort && (table->SettingsLoadedFlags & ImGuiTableFlags_Sortable) == 0)
-        {
-            column->SortOrder = 0; // Multiple columns using _DefaultSort will be reassigned unique SortOrder values when building the sort specs.
-            column->SortDirection = (column->Flags & ImGuiTableColumnFlags_PreferSortDescending) ? (ImS8)ImGuiSortDirection_Descending : (ImU8)(ImGuiSortDirection_Ascending);
-        }
+        ImGuiTableFlags init_flags = ~0;
+        if (column->WidthRequest >= 0.0f || column->StretchWeight >= 0.0f)
+            init_flags &= ~ImGuiTableFlags_Resizable;
+        TableInitColumnDefaults(table, column, init_flags);
     }
 
     // Store name (append with zero-terminator in contiguous buffer)
@@ -1640,7 +1650,7 @@ void ImGui::TableSetupColumn(const char* label, ImGuiTableColumnFlags flags, flo
     if (label != NULL && label[0] != 0)
     {
         column->NameOffset = (ImS16)table->ColumnsNames.size();
-        table->ColumnsNames.append(label, label + strlen(label) + 1);
+        table->ColumnsNames.append(label, label + ImStrlen(label) + 1);
     }
 }
 
@@ -3727,13 +3737,8 @@ void ImGui::TableLoadSettings(ImGuiTable* table)
     for (int column_n = 0; column_n < table->ColumnsCount; column_n++)
     {
         ImGuiTableColumn* column = &table->Columns[column_n];
-        column->StretchWeight = -1.0f;
-        column->WidthRequest = -1.0f;
+        TableInitColumnDefaults(table, column, ~0);
         column->AutoFitQueue = 0x00;
-        column->DisplayOrder = (ImGuiTableColumnIdx)column_n;
-        column->IsUserEnabled = column->IsUserEnabledNextFrame = (column->Flags & ImGuiTableColumnFlags_DefaultHide) ? 0 : 1;
-        column->SortOrder = (column->Flags & ImGuiTableColumnFlags_DefaultSort) ? 0 : -1;
-        column->SortDirection = (column->Flags & ImGuiTableColumnFlags_DefaultSort) ? (ImS8)ImGuiSortDirection_None : (column->Flags & ImGuiTableColumnFlags_PreferSortDescending) ? (ImS8)ImGuiSortDirection_Descending : (ImU8)(ImGuiSortDirection_Ascending);
     }
 
     // Serialize ImGuiTableSettings/ImGuiTableColumnSettings into ImGuiTable/ImGuiTableColumn

@@ -430,7 +430,8 @@ void FEImGuiWindow::HierarchyList() {
 		ImVec2(20, 20),
 		ImVec2(0, 0),
 		ImVec2(1, 1),
-		ImVec4(RenderClass::skyRGBA.r, RenderClass::skyRGBA.g, RenderClass::skyRGBA.b, 1.0f) // tint
+		ImVec4(RenderClass::skyRGBA.r, RenderClass::skyRGBA.g, RenderClass::skyRGBA.b, 1.0f), // tint
+		ImVec4(0, 0, 0, 0) // no border
 	);
 	ImGui::SameLine();
 	if (ImGui::MenuItem("Skybox")) {
@@ -497,11 +498,11 @@ void FEImGuiWindow::HierarchyList() {
 			ImGui::BeginGroup();
 			if (Scene::lightType[i] == 0) { // spot light
 				ImGui::Image(
-					(ImTextureID)(intptr_t)FEImGuiWindow::spotLightIcon.ID, ImVec2(20, 20), ImVec2(0,0), ImVec2(1, 1), ImVec4(Scene::colour[i].x, Scene::colour[i].y, Scene::colour[i].z, 1.0f));
+					(ImTextureID)(intptr_t)FEImGuiWindow::spotLightIcon.ID, ImVec2(20, 20), ImVec2(0,0), ImVec2(1, 1), ImVec4(Scene::colour[i].x, Scene::colour[i].y, Scene::colour[i].z, 1.0f), ImVec4(0, 0, 0, 0) );
 			}
 			else if (Scene::lightType[i] == 1) { // point light
 				ImGui::Image(
-					(ImTextureID)(intptr_t)FEImGuiWindow::pointLightIcon.ID, ImVec2(20, 20), ImVec2(0, 0), ImVec2(1, 1), ImVec4(Scene::colour[i].x, Scene::colour[i].y, Scene::colour[i].z, 1.0f));
+					(ImTextureID)(intptr_t)FEImGuiWindow::pointLightIcon.ID, ImVec2(20, 20), ImVec2(0, 0), ImVec2(1, 1), ImVec4(Scene::colour[i].x, Scene::colour[i].y, Scene::colour[i].z, 1.0f), ImVec4(0, 0, 0, 0));
 			}
 			ImGui::SameLine();
 			if (ImGui::MenuItem(("Light X:" + std::to_string(static_cast<int>(Scene::position[i].x))

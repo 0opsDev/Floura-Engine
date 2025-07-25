@@ -309,6 +309,9 @@
     <None Include="UserScripts\Main\Shader.Lua" />
     <None Include="UserScripts\Main\Shortcuts.Lua" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="src\Libraries\include\imgui\LICENSE.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
