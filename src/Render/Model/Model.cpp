@@ -45,7 +45,7 @@ void Model::Draw(Shader& shader, glm::vec3 translation, glm::vec3 rotation, glm:
 
 	globalSca = glm::scale(globalSca, scale);
 
-	glm::mat4 modelMatrix = globalTrans * globalRot * globalSca;
+	modelMatrix = globalTrans * globalRot * globalSca;
 
 
 	for (unsigned int i = 0; i < meshes.size(); i++)

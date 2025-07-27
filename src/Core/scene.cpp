@@ -1,7 +1,6 @@
 #include "scene.h"
 #include <Render/window/WindowHandler.h>
 #include <Gameplay/Player.h>
-#include <utils/VisibilityChecker.h>
 
 //BillBoardObject BillBoardObjects;
 //CubeCollider ColliderObject;
@@ -118,7 +117,7 @@ void Scene::initJsonModelLoad(std::string path) {
 		std::unique_ptr<ModelObject> newObject = std::make_unique<ModelObject>(); // Use std::make_unique
 
 		std::string name = item.at("name").get<std::string>();
-		std::string type = item.at("type").get<std::string>();
+		bool IsLod = item.at("IsLod").get<bool>();
 		std::string path = item.at("path").get<std::string>();
 		std::string MaterialPath = item.at("MaterialPath").get<std::string>();
 
@@ -141,7 +140,7 @@ void Scene::initJsonModelLoad(std::string path) {
 		bool isBackFaceCulling = item.at("isBackFaceCulling").get<bool>();
 		bool DoFrustumCull = item.at("DoFrustumCull").get<bool>();
 
-		newObject->CreateObject(type, path, name, MaterialPath); // Load into this unique MaterialObject
+		newObject->IsLod = IsLod;
 		newObject->transform = Location;
 		newObject->rotation = rotation;
 		newObject->scale = scale;
@@ -152,6 +151,8 @@ void Scene::initJsonModelLoad(std::string path) {
 		newObject->BoxColliderScale = BoxColliderScale;
 		newObject->frustumBoxTransform = frustumBoxTransform;
 		newObject->frustumBoxScale = frustumBoxScale;
+
+		newObject->CreateObject(path, name, MaterialPath); // Load into this unique MaterialObject
 
 		/*
 		we make a unique modelobject with (std::make_unique) instead of cloning, then we point to the new unique modelobject  in memory within the array with std::move,
@@ -172,10 +173,7 @@ void Scene::JsonModelSave(std::string path) {
 			json modelJson;
 			modelJson["name"] = obj->ObjectName;
 
-			std::string isLOD;
-			if (obj->IsLod) isLOD = "LOD";
-			else isLOD = "Static";
-			modelJson["type"] = isLOD;
+			modelJson["IsLod"] = obj->IsLod;
 
 			modelJson["path"] = obj->ModelPath;
 
@@ -225,14 +223,14 @@ void Scene::JsonBillBoardSave(std::string path) {
 		for (const auto& obj : BillBoardObjects) {
 			json BillBoardJson;
 			BillBoardJson["name"] = obj.ObjectName;
-			BillBoardJson["type"] = obj.type;
+			BillBoardJson["isAnimated"] = obj.flag_isanimated;
 			BillBoardJson["path"] = obj.path;
 
 			BillBoardJson["doPitch"] = obj.doPitch;
 			BillBoardJson["isCollider"] = obj.isCollider;
 			BillBoardJson["DoFrustumCull"] = obj.DoFrustumCull;
 
-			if (obj.type == "animated" || obj.type == "Animated") {
+			if (obj.flag_isanimated) {
 				BillBoardJson["doUpdateSequence"] = obj.doUpdateSequence;
 				BillBoardJson["tickrate"] = obj.tickrate;
 			}
@@ -431,18 +429,21 @@ void Scene::JsonCameraSettingsSave(std::string path) {
 	}
 }
 
-void Scene::AddSceneModelObject(std::string type, std::string path, std::string name)
+void Scene::AddSceneModelObject(bool type, std::string path, std::string name)
 {
 
 	std::unique_ptr<ModelObject> newObject = std::make_unique<ModelObject>(); // Use std::make_unique
-	newObject->CreateObject(type, path, name, "Assets/Material/Default.Material");
+	newObject->IsLod = type;
+	newObject->CreateObject(path, name, "Assets/Material/Default.Material");
 	modelObjects.push_back(std::move(newObject)); // std::move is crucial here
 }
 
-void Scene::AddSceneBillBoardObject(std::string name, std::string type, std::string path) {
+void Scene::AddSceneBillBoardObject(std::string name, bool isAnimated, std::string path) {
 
 	BillBoardObject newBillBoardObject; // Create a temporary BillBoardObject
-	newBillBoardObject.CreateObject(type, path, name);
+
+	newBillBoardObject.flag_isanimated = isAnimated;
+	newBillBoardObject.CreateObject(path, name);
 	BillBoardObjects.push_back(newBillBoardObject);
 }
 
@@ -496,7 +497,7 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 
 		BillBoardObject newBillBoardObject;
 		std::string name = item.at("name").get<std::string>();
-		std::string type = item.at("type").get<std::string>();
+		bool isanimated = item.at("isAnimated").get<bool>();
 		std::string path = item.at("path").get<std::string>();
 
 		bool doPitch = item.at("doPitch").get<bool>();
@@ -516,12 +517,14 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 		glm::vec3 position = glm::vec3(item.at("position")[0], item.at("position")[1], item.at("position")[2]);
 		glm::vec3 scale = glm::vec3(item.at("scale")[0], item.at("scale")[1], item.at("scale")[2]);
 
-		newBillBoardObject.CreateObject(type, path, name);
+
+		newBillBoardObject.flag_isanimated = isanimated;
 		newBillBoardObject.doPitch = doPitch;
 		newBillBoardObject.isCollider = isCollider;
 		newBillBoardObject.DoFrustumCull = DoFrustumCull;
 		newBillBoardObject.transform = position;
 		newBillBoardObject.scale = scale;
+		newBillBoardObject.CreateObject(path, name);
 
 		BillBoardObjects.push_back(newBillBoardObject); // Add the configured object to the vector
 	}
@@ -791,74 +794,6 @@ void Scene::Update() {
 			SoundObjects[i].PlaySound();
 		}
 	}
-		
-
-	/*
-		// range Scene::enabled
-		//if (true) {
-			RenderClass::shaderProgram.Activate();
-
-			RenderClass::shaderProgram.setFloat3Vector(
-				"lightPos2",
-				position.size(),
-				&position[0].x
-			);
-
-			RenderClass::shaderProgram.setFloat3Vector(
-				"colour2",
-				colour.size(),
-				&colour[0].x
-			);
-			//colour
-
-			RenderClass::shaderProgram.setInt(
-				"sizeOfLights",
-				enabled.size()
-			);
-
-			RenderClass::shaderProgram.setFloat2Vector(
-				"radiusAndPower",
-				radiusAndPower.size(),
-				&radiusAndPower[0].x
-			);
-
-			RenderClass::shaderProgram.setIntVector(
-				"lightType",
-				lightType.size(),
-				&lightType[0]
-			);
-			//radius
-			//std::cout << LightObjectList.size() << std::endl;
-			//
-
-//			for (size_t i = 0; i < enabled.size(); i++)
-//			{
-//				if (!VisibilityChecker::isInRange(position[i], Camera::Position, 12)) {
-//					if (Camera::isRadiusInFrustum(position[i], 2)) {
-//						enabled[i] = 1; // Enable light if within frustum
-//					}
-//					else {
-//						enabled[i] = 0; // Disable light if outside frustum
-//					}
-//				}
-//				else {
-//					enabled[i] = 1; // Enable light if within frustum
-//				}
-//
-//			}
-
-
-			RenderClass::shaderProgram.setIntVector("enabled", enabled.size(), &enabled[0]);
-				
-
-
-			RenderClass::shaderProgram.setInt("lightCount", enabled.size());
-
-		//}
-	*/
-		
-
-
 
 
 	for (size_t i = 0; i < enabled.size(); i++)

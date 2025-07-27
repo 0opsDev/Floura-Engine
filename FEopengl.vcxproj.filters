@@ -122,6 +122,12 @@
     <Filter Include="src\UI\ImGui">
       <UniqueIdentifier>{40f461af-3af1-4ee8-903c-1e8fa21ea181}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\ImGuizmo">
+      <UniqueIdentifier>{df62e9b4-9a19-4bc6-a8f2-f95807413273}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Math">
+      <UniqueIdentifier>{ba418121-a4b8-4472-b254-38cbd7a3c66f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Render\shader\ShaderClass.cpp">
@@ -244,9 +250,6 @@
     <ClCompile Include="src\Gameplay\Player.cpp">
       <Filter>src\Gameplay</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\VisibilityChecker.cpp">
-      <Filter>src\utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\Render\Buffer\VBO.cpp">
       <Filter>src\Render\Buffer</Filter>
     </ClCompile>
@@ -300,6 +303,30 @@
     </ClCompile>
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_glfw.cpp">
       <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Libraries\include\ImGuizmo\GraphEditor.cpp">
+      <Filter>Resource Files\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Libraries\include\ImGuizmo\ImCurveEdit.cpp">
+      <Filter>Resource Files\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Libraries\include\ImGuizmo\ImGradient.cpp">
+      <Filter>Resource Files\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Libraries\include\ImGuizmo\ImGuizmo.cpp">
+      <Filter>Resource Files\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Libraries\include\ImGuizmo\ImSequencer.cpp">
+      <Filter>Resource Files\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\ImGui\FE_ImGui.cpp">
+      <Filter>src\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Gameplay\FE_Object.cpp">
+      <Filter>src\Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Math\FE_math.cpp">
+      <Filter>src\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -423,9 +450,6 @@
     <ClInclude Include="src\Gameplay\Player.h">
       <Filter>src\Gameplay</Filter>
     </ClInclude>
-    <ClInclude Include="src\utils\VisibilityChecker.h">
-      <Filter>src\utils</Filter>
-    </ClInclude>
     <ClInclude Include="src\Render\Cube\RenderQuad.h">
       <Filter>src\Render\Cube</Filter>
     </ClInclude>
@@ -489,6 +513,36 @@
     <ClInclude Include="src\Libraries\include\imgui\imstb_truetype.h">
       <Filter>Resource Files\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="src\Libraries\include\ImGuizmo\GraphEditor.h">
+      <Filter>Resource Files\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\ImGuizmo\ImCurveEdit.h">
+      <Filter>Resource Files\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\ImGuizmo\ImGradient.h">
+      <Filter>Resource Files\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\ImGuizmo\ImGuizmo.h">
+      <Filter>Resource Files\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\ImGuizmo\ImSequencer.h">
+      <Filter>Resource Files\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\ImGuizmo\ImZoomSlider.h">
+      <Filter>Resource Files\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Libraries\include\ImGuizmo\ImApp.h">
+      <Filter>Resource Files\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\ImGui\FE_ImGui.h">
+      <Filter>src\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Gameplay\FE_Object.h">
+      <Filter>src\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\FE_math.h">
+      <Filter>src\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Empty.shader">
@@ -544,9 +598,6 @@
     </None>
     <None Include="UserScripts\Main\Shader.Lua">
       <Filter>Resource Files\UserScripts</Filter>
-    </None>
-    <None Include="Settings\imgui.ini">
-      <Filter>Resource Files\settings</Filter>
     </None>
     <None Include="Settings\Settings.json">
       <Filter>Resource Files\settings</Filter>
@@ -613,6 +664,9 @@
     </None>
     <None Include="Shaders\Lighting\shadowMap.frag">
       <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="src\Libraries\include\ImGuizmo\LICENSE">
+      <Filter>Resource Files\ImGuizmo</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

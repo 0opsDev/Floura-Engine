@@ -7,6 +7,9 @@
 #include <Core/scene.h>
 #include <Gameplay/Player.h>
 #include <Render/window/WindowHandler.h>
+#include <glm/gtx/euler_angles.hpp>
+#include "ImGuiInclude.h"
+#include "FE_ImGui.h"
 //#include <Instance.h>
 
 
@@ -71,7 +74,7 @@ void FEImGuiWindow::init() {
 	cameraIcon.createTexture("Assets/Icons/cameraIcon.png", "diffuse", 11);
 	skyboxIcon.createTexture("Assets/Icons/skyboxIcon.png", "diffuse", 12);
 	directLight.createTexture("Assets/Icons/directLight.png", "diffuse", 13);
-	materialIcon.createTexture("Assets/Icons/sphereIcon.png", "diffuse", 14);
+	materialIcon.createTexture("Assets/Icons/materialIcon.png", "diffuse", 14);
 }
 
 void FEImGuiWindow::loadContentObjects(std::string path) {
@@ -221,13 +224,18 @@ void FEImGuiWindow::CameraWindow() {
 	if (ImGui::TreeNode("Transform Component")) {
 		ImGui::Text("Transformations: ");
 
-		ImGui::DragFloat3("Camera Position", &Camera::Position.x); // set cam pos
+
+		FEImGui::DragVec3("Camera Position", Camera::Position, Scene::initalCameraPos);
+
+		FEImGui::DragVec3("Inital Camera Position", Camera::Position);
+
 		ImGui::DragFloat3("inital Camera Position", &Scene::initalCameraPos.x); // set inital cam pos
 		if (ImGui::SmallButton("Reset Camera Position")) {
 			Camera::Position = Scene::initalCameraPos;
 		} // reset cam pos
 		ImGui::DragFloat("Camera Speed", &Camera::s_scrollSpeed); //Camera
-		ImGui::DragFloat3("Camera Collider Scale", &Camera::cameraColliderScale.x);
+
+		FEImGui::DragVec3("Camera Collider Scale", Camera::cameraColliderScale);
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
@@ -324,15 +332,13 @@ void FEImGuiWindow::TextEditor() {
 	pathBuffer[sizeof(pathBuffer) - 1] = '\0';
 
 	if (ImGui::ImageButton("##FolderIcon", (ImTextureID)FEImGuiWindow::FolderIcon.ID, ImVec2(15, 15))) {
-		IGFD::FileDialogConfig config;
-		config.path = ".";
-		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".*", config);
+		FEImGui::spawnFileWindow("TextEditor", "Choose File", ".*", ".");
 	}
 	// display
-	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+
+	if (FEImGui::renderFileWindow("TextEditor")) {
 		if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
 			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 
 			FileClass::currentPath = filePathName; // Update current path
 
@@ -369,6 +375,28 @@ void FEImGuiWindow::TextEditor() {
 
 void FEImGuiWindow::viewport() {
 	ImGui::Begin("ViewPort");
+
+	if (ImGui::SmallButton("TRANSLATE")) {
+
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("ROTATE")) {
+
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("SCALE")) {
+
+	}
+	ImGui::SameLine();
+	bool placeholderBool;
+	if (ImGui::Checkbox("GRIDLOCK", &placeholderBool)) {
+
+	}
+	ImGui::SameLine();
+	if (ImGui::Checkbox("WORLD", &placeholderBool)) {
+
+	}
+
 	float window_width = ImGui::GetContentRegionAvail().x;
 	float window_height = ImGui::GetContentRegionAvail().y;
 	ImGui::Image((ImTextureID)(uintptr_t)Framebuffer::frameBufferTexture2, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
@@ -384,6 +412,13 @@ void FEImGuiWindow::viewport() {
 		//std::cout << window_width << " " << camera.width << std::endl;
 		//std::cout << window_height << " " << camera.height << std::endl;
 	}
+
+	ImVec2 viewportPos = ImGui::GetItemRectMin();    // top-left corner relative to window
+	ImVec2 viewportSize = ImGui::GetItemRectSize(); // size of the image
+
+	ImGuizmo::SetOrthographic(false);
+	ImGuizmo::SetDrawlist();
+	ImGuizmo::SetRect(viewportPos.x, viewportPos.y, viewportSize.x, viewportSize.y);
 
 	ImGui::End();
 }
@@ -551,9 +586,7 @@ void pathInput() {
 	ImGui::SameLine();
 
 	if (ImGui::ImageButton("##FolderIcon", (ImTextureID)FEImGuiWindow::FolderIcon.ID, ImVec2(15, 15))) {
-		IGFD::FileDialogConfig config;
-		config.path = ".";
-		ImGuiFileDialog::Instance()->OpenDialog("ChooseAddPath", "Add Object", ".*", config);
+		FEImGui::spawnFileWindow("ChooseAddPath", "Add Object", ".*", ".");
 	}
 	ImGui::SameLine();
 	ImGui::Text("Path");
@@ -740,11 +773,9 @@ void FEImGuiWindow::ModelWindow() {
 	if (ImGui::TreeNode("Transform Component")) {
 		ImGui::Text("Transformations: ");
 		// position
-		ImGui::DragFloat3("Position", &Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->transform.x);
-		// scale
-		ImGui::DragFloat3("Scale", &Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->scale.x);
-		//rortation
-		ImGui::DragFloat3("Rotation", &Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->rotation.x);
+		FEImGui::DragVec3("Position", Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->transform);
+		FEImGui::DragVec3("Scale", Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->scale, glm::vec3(1.0f, 1.0f, 1.0f));
+		FEImGui::DragVec3("Rotation", Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->rotation);
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
@@ -835,7 +866,7 @@ void FEImGuiWindow::BillBoardWindow() {
 	}
 	ImGui::Spacing();
 	ImGui::Checkbox("doPitch", &Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].doPitch);
-	if (Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].type == "animated" || Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].type == "Animated") {
+	if (Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].flag_isanimated) {
 
 		ImGui::DragInt("tickrate", &Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].tickrate);
 		ImGui::Checkbox("doUpdateSequence", &Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].doUpdateSequence);

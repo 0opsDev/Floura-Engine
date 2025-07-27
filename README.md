@@ -10,7 +10,7 @@ Features:
 . ImGui Implementation
 . OpenGL API
 . Diffuse, Specular and Normals
-. Entity Component System
+. GameObject Component System
 . Hierarchy Window
 . Content Viewer
 . Inspector Tab

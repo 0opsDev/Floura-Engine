@@ -25,6 +25,8 @@ public:
     std::vector<glm::vec3> scalesMeshes;
     std::vector<glm::mat4> matricesMeshes;
 
+    glm::mat4 modelMatrix;
+
 private:
     const char* file;
     std::vector<unsigned char> data;

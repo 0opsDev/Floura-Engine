@@ -28,9 +28,9 @@ void main()
 
     float wave_offset = sin(crntPos.x * frequency + time * speed) * amplitude;
 
-    crntPos.x += wave_offset;
+    //crntPos.x += wave_offset;
     crntPos.y += wave_offset;
-    crntPos.z += wave_offset;
+    //crntPos.z += wave_offset;
 
     gl_Position = camMatrix * vec4(crntPos, 1.0f);
 

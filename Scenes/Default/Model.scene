@@ -11,6 +11,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             10.0,
             0.0,
@@ -40,8 +41,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "Baseplate",
-        "path": "Assets/Models/Baseplate/plate.gltf",
-        "type": "Static"
+        "path": "Assets/Models/Baseplate/plate.gltf"
     },
     {
         "BoxColliderScale": [
@@ -55,6 +55,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -2.0,
             1.0,
@@ -84,8 +85,7 @@
         "isBackFaceCulling": true,
         "isCollider": true,
         "name": "barrel",
-        "path": "Assets/Models/barrel/barrel2.gltf",
-        "type": "Static"
+        "path": "Assets/Models/barrel/barrel2.gltf"
     },
     {
         "BoxColliderScale": [
@@ -99,6 +99,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -9.0,
             1.0,
@@ -128,8 +129,7 @@
         "isBackFaceCulling": true,
         "isCollider": true,
         "name": "barrel2",
-        "path": "Assets/Models/barrel/barrel2.gltf",
-        "type": "Static"
+        "path": "Assets/Models/barrel/barrel2.gltf"
     },
     {
         "BoxColliderScale": [
@@ -143,6 +143,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             9.0,
             1.0,
@@ -172,8 +173,7 @@
         "isBackFaceCulling": true,
         "isCollider": true,
         "name": "barrel3",
-        "path": "Assets/Models/barrel/barrel2.gltf",
-        "type": "Static"
+        "path": "Assets/Models/barrel/barrel2.gltf"
     },
     {
         "BoxColliderScale": [
@@ -187,6 +187,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             0.0,
             0.0,
@@ -216,8 +217,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "baseplate2",
-        "path": "Assets/Models/Baseplate/plate.gltf",
-        "type": "Static"
+        "path": "Assets/Models/Baseplate/plate.gltf"
     },
     {
         "BoxColliderScale": [
@@ -231,6 +231,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             0.0,
             0.0,
@@ -260,8 +261,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "baseplate3",
-        "path": "Assets/Models/Baseplate/plate.gltf",
-        "type": "Static"
+        "path": "Assets/Models/Baseplate/plate.gltf"
     },
     {
         "BoxColliderScale": [
@@ -275,6 +275,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             10.0,
             0.0,
@@ -304,8 +305,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "baseplate4",
-        "path": "Assets/Models/Baseplate/plate.gltf",
-        "type": "Static"
+        "path": "Assets/Models/Baseplate/plate.gltf"
     },
     {
         "BoxColliderScale": [
@@ -319,6 +319,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -10.0,
             0.0,
@@ -348,8 +349,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "baseplate5",
-        "path": "Assets/Models/Baseplate/plate.gltf",
-        "type": "Static"
+        "path": "Assets/Models/Baseplate/plate.gltf"
     },
     {
         "BoxColliderScale": [
@@ -363,6 +363,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             0.0,
             5.0,
@@ -392,8 +393,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "wall",
-        "path": "Assets/Models/Baseplate/plate.gltf",
-        "type": "Static"
+        "path": "Assets/Models/Baseplate/plate.gltf"
     },
     {
         "BoxColliderScale": [
@@ -407,6 +407,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -10.0,
             5.0,
@@ -436,8 +437,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "wall2",
-        "path": "Assets/Models/Baseplate/plate.gltf",
-        "type": "Static"
+        "path": "Assets/Models/Baseplate/plate.gltf"
     },
     {
         "BoxColliderScale": [
@@ -451,6 +451,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             10.0,
             5.0,
@@ -480,8 +481,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "wall3",
-        "path": "Assets/Models/Baseplate/plate.gltf",
-        "type": "Static"
+        "path": "Assets/Models/Baseplate/plate.gltf"
     },
     {
         "BoxColliderScale": [
@@ -495,6 +495,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -5.0,
             -3.0,
@@ -524,8 +525,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "wallside",
-        "path": "Assets/Models/Baseplate/plate.gltf",
-        "type": "Static"
+        "path": "Assets/Models/Baseplate/plate.gltf"
     },
     {
         "BoxColliderScale": [
@@ -539,6 +539,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -10.0,
             -3.0,
@@ -568,8 +569,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "wallside2",
-        "path": "Assets/Models/Baseplate/plate.gltf",
-        "type": "Static"
+        "path": "Assets/Models/Baseplate/plate.gltf"
     },
     {
         "BoxColliderScale": [
@@ -583,6 +583,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -10.0,
             2.0,
@@ -612,8 +613,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "wallside3",
-        "path": "Assets/Models/Baseplate/plate.gltf",
-        "type": "Static"
+        "path": "Assets/Models/Baseplate/plate.gltf"
     },
     {
         "BoxColliderScale": [
@@ -627,6 +627,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -1.2999999523162842,
             0.36000001430511475,
@@ -656,8 +657,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "m16",
-        "path": "Assets/Models/ar/m16baked.gltf",
-        "type": "Static"
+        "path": "Assets/Models/ar/m16baked.gltf"
     },
     {
         "BoxColliderScale": [
@@ -671,6 +671,7 @@
             -4.5
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -6.0,
             7.0,
@@ -700,8 +701,7 @@
         "isBackFaceCulling": true,
         "isCollider": true,
         "name": "lamp",
-        "path": "Assets/Models/lamp/lampbaked.gltf",
-        "type": "Static"
+        "path": "Assets/Models/lamp/lampbaked.gltf"
     },
     {
         "BoxColliderScale": [
@@ -715,6 +715,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             0.0,
             -2.0,
@@ -744,7 +745,6 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "grass",
-        "path": "Assets/Models/GRASSLANDS/farlands.gltf",
-        "type": "Static"
+        "path": "Assets/Models/GRASSLANDS/farlands.gltf"
     }
 ]

@@ -16,7 +16,7 @@ public:
 	CubeCollider CubeCollider;
 	BillBoard BillBoardRenderObject;
 	std::string ObjectName;
-	std::string type;
+	bool flag_isanimated = false;
 	std::string path;
 	int tickrate = 12;
 	bool doUpdateSequence = true;
@@ -27,7 +27,7 @@ public:
 	glm::vec3 transform = glm::vec3(0,0,0);
 	glm::vec3 scale = glm::vec3(1, 1, 1);
 
-	void CreateObject(std::string type, std::string path, std::string ObjectName);
+	void CreateObject(std::string path, std::string ObjectName);
 
 	void UpdateCollider();
 

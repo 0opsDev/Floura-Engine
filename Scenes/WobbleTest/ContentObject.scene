@@ -66,12 +66,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "grass",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/field/grassbit.gltf",
-        "Type": "static"
-    },
-    {
         "Name": "ground",
         "ObjectType": "Model",
         "Path": "Assets/Models/field/grassbit2.gltf",
@@ -82,5 +76,11 @@
         "ObjectType": "Material",
         "Path": "Assets/Material/PS1.Material",
         "Type": "NULL"
+    },
+    {
+        "Name": "grass",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grassbit.gltf",
+        "Type": "static"
     }
 ]

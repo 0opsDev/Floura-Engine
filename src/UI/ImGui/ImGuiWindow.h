@@ -66,6 +66,8 @@ public:
 	static void RenderWindow(GLFWwindow*& window, int windowedWidth, int windowedHeight);
 	static void create();
 	static void ShaderWindow();
+
+
 	static void CameraWindow();
 	static void PanelsWindow();
 

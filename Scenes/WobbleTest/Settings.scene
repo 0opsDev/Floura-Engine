@@ -1,7 +1,7 @@
 [
     {
         "DefaultSkyboxPath": "Assets/Skybox/OvercastSoilPuresky/Skybox.json",
-        "DepthDistance": 23.0,
+        "DepthDistance": -11.0,
         "DepthPlane": [
             0.10000000149011612,
             60.0
@@ -10,14 +10,14 @@
         "doFog": true,
         "doReflections": true,
         "fogRGBA": [
-            1.0,
-            1.0,
-            1.0
+            0.0,
+            0.0,
+            0.0
         ],
         "skyRGBA": [
-            1.0,
-            1.0,
-            1.0
+            0.1666666865348816,
+            0.1666666865348816,
+            0.1666666865348816
         ]
     }
 ]

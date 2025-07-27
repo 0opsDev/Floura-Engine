@@ -1,59 +1,5 @@
 [
     {
-        "Name": "",
-        "ObjectType": "",
-        "Path": "",
-        "Type": ""
-    },
-    {
-        "Name": "",
-        "ObjectType": "",
-        "Path": "",
-        "Type": ""
-    },
-    {
-        "Name": "",
-        "ObjectType": "",
-        "Path": "",
-        "Type": ""
-    },
-    {
-        "Name": "",
-        "ObjectType": "",
-        "Path": "",
-        "Type": ""
-    },
-    {
-        "Name": "",
-        "ObjectType": "",
-        "Path": "",
-        "Type": ""
-    },
-    {
-        "Name": "",
-        "ObjectType": "",
-        "Path": "",
-        "Type": ""
-    },
-    {
-        "Name": "",
-        "ObjectType": "",
-        "Path": "",
-        "Type": ""
-    },
-    {
-        "Name": "",
-        "ObjectType": "",
-        "Path": "",
-        "Type": ""
-    },
-    {
-        "Name": "",
-        "ObjectType": "",
-        "Path": "",
-        "Type": ""
-    },
-    {
         "Name": "Barrel",
         "ObjectType": "Model",
         "Path": "Assets/Models/barrel/barrel2.gltf",

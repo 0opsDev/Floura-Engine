@@ -11,6 +11,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             0.0,
             28.0,
@@ -40,8 +41,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "island",
-        "path": "Assets/Models/island/island.gltf",
-        "type": "Static"
+        "path": "Assets/Models/island/island.gltf"
     },
     {
         "BoxColliderScale": [
@@ -55,6 +55,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             5.0,
             1.0,
@@ -84,8 +85,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "Barrel",
-        "path": "Assets/Models/barrel/barrel2.gltf",
-        "type": "Static"
+        "path": "Assets/Models/barrel/barrel2.gltf"
     },
     {
         "BoxColliderScale": [
@@ -99,6 +99,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -131.0,
             -1.0,
@@ -128,8 +129,7 @@
         "isBackFaceCulling": true,
         "isCollider": true,
         "name": "shipment",
-        "path": "Assets/Models/fps/shipment.gltf",
-        "type": "Static"
+        "path": "Assets/Models/fps/shipment.gltf"
     },
     {
         "BoxColliderScale": [
@@ -143,6 +143,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             4.0,
             1.0,
@@ -172,8 +173,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "ar",
-        "path": "Assets/Models/ar/m16baked.gltf",
-        "type": "Static"
+        "path": "Assets/Models/ar/m16baked.gltf"
     },
     {
         "BoxColliderScale": [
@@ -187,6 +187,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -484.0,
             21.0,
@@ -216,8 +217,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "mont",
-        "path": "Assets/Models/GRASSLANDS/farlands.gltf",
-        "type": "Static"
+        "path": "Assets/Models/GRASSLANDS/farlands.gltf"
     },
     {
         "BoxColliderScale": [
@@ -231,6 +231,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -60.0,
             -15.0,
@@ -260,7 +261,6 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "wave",
-        "path": "Assets/Models/wave/wave.gltf",
-        "type": "Static"
+        "path": "Assets/Models/wave/wave.gltf"
     }
 ]

@@ -54,9 +54,12 @@ public:
 
 	std::string ModelPath;
 
+	// flag
+	bool IsLod;
+
 	void LoadMaterial(std::string path);
 
-	void CreateObject(std::string type, std::string path, std::string ObjectNameT, std::string Material); // type LOD or Regular
+	void CreateObject(std::string path, std::string ObjectNameT, std::string Material); // type LOD or Regular
 
 	void UpdateCollider();
 
@@ -69,8 +72,6 @@ public:
 	void draw();
 
 	void Delete();
-
-	bool IsLod;
 
 	Model ModelSingle; // should be private but im leaving it here just for now
 	std::vector<Model> LODModels;

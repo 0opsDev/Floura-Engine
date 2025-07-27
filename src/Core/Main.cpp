@@ -18,6 +18,12 @@
 #include <Gameplay/Player.h>
 #include <Render/window/WindowHandler.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 
 bool Main::sleepState = true;
@@ -62,7 +68,7 @@ int main() // global variables do not work with threads
 	if (FEImGuiWindow::imGuiEnabled) {
 		FEImGuiWindow::init();
 	}
-
+	ImGuizmo::SetOrthographic(false);
 	//Player::feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::PlayerHeightCurrent), Camera::Position.z);
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
@@ -213,7 +219,7 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 	//Tell Imgui a new frame is about to begin
 	//
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
-	//ImGuizmo::BeginFrame();
+	ImGuizmo::BeginFrame();
 
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
@@ -401,7 +407,13 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 				ImGui::BeginGroup();
 				if (FEImGuiWindow::ContentObjects[i] == "Model") {
 					if (ImGui::ImageButton(("##ObjectIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::ModelIcon.ID, ImVec2(100, 100))) {
-						Scene::AddSceneModelObject(FEImGuiWindow::ContentObjectTypes[i], FEImGuiWindow::ContentObjectPaths[i], FEImGuiWindow::ContentObjectNames[i]);
+						if (FEImGuiWindow::ContentObjectTypes[i] == "static") {
+							Scene::AddSceneModelObject(false, FEImGuiWindow::ContentObjectPaths[i], FEImGuiWindow::ContentObjectNames[i]);
+						}
+						else {
+							Scene::AddSceneModelObject(true, FEImGuiWindow::ContentObjectPaths[i], FEImGuiWindow::ContentObjectNames[i]);
+						}
+
 					}
 					if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
 						FEImGuiWindow::ContentObjects.erase(FEImGuiWindow::ContentObjects.begin() + i);
@@ -414,7 +426,15 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 				}
 				if (FEImGuiWindow::ContentObjects[i] == "BillBoard") {
 					if (ImGui::ImageButton(("##BillBoardIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::BillBoardIcon.ID, ImVec2(100, 100))) {
-						Scene::AddSceneBillBoardObject(FEImGuiWindow::ContentObjectNames[i], FEImGuiWindow::ContentObjectTypes[i], FEImGuiWindow::ContentObjectPaths[i]);
+
+						if (FEImGuiWindow::ContentObjectTypes[i] == "static") {
+							Scene::AddSceneBillBoardObject(FEImGuiWindow::ContentObjectNames[i], false, FEImGuiWindow::ContentObjectPaths[i]);
+						}
+						else {
+							Scene::AddSceneBillBoardObject(FEImGuiWindow::ContentObjectNames[i], true, FEImGuiWindow::ContentObjectPaths[i]);
+						}
+						//flag_isanimated
+						
 					}
 					if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
 						FEImGuiWindow::ContentObjects.erase(FEImGuiWindow::ContentObjects.begin() + i);
@@ -461,14 +481,42 @@ void Main::imGuiMAIN(GLFWwindow* window) {
 		ImGui::End();
 	}
 
-
 	//	ImGui::Text(("Selected Object Type : " + ImGuiWindow::SelectedObjectType).c_str());
 	//ImGui::Text(("Index: " + std::to_string(ImGuiWindow::SelectedObjectIndex)).c_str());
 	if (true && FEImGuiWindow::SelectedObjectType != "") // needs guizmo enabled var // passes if object is selected
 	{
-		//	ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection), ImGuizmo::TRANSLATE, ImGuizmo::LOCAL);
-	}
+		if (FEImGuiWindow::SelectedObjectType == "Model") {
+			auto* selected = Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex].get();
 
+			glm::mat4 T = glm::translate(glm::mat4(1.0f), selected->transform);
+			glm::mat4 R = glm::yawPitchRoll(glm::radians(selected->rotation.y),
+				glm::radians(selected->rotation.x),
+				glm::radians(selected->rotation.z));
+			glm::mat4 S = glm::scale(glm::mat4(1.0f), selected->scale);
+
+			glm::mat4 modelMatrix = T * R * S;
+
+
+			ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+				ImGuizmo::TRANSLATE, ImGuizmo::LOCAL,
+				glm::value_ptr(modelMatrix));
+
+
+
+			if (ImGuizmo::IsUsing()) {
+				glm::vec3 translation, rotation, scale;
+				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(modelMatrix),
+					glm::value_ptr(translation),
+					glm::value_ptr(rotation),
+					glm::value_ptr(scale));
+
+
+				selected->transform = translation;
+				//selected->rotation = rotation;
+				//selected->scale = scale;
+			}
+		}
+	}
 
 	//scene
 	ImGui::Render(); // Renders the ImGUI elements

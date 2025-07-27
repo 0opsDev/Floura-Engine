@@ -3,7 +3,6 @@
 #include "Gameplay/BillboardObject.h"
 #include "Gameplay/ModelObject.h"
 #include <Sound/SoundProgram.h>
-#include <utils/VisibilityChecker.h>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtx/norm.hpp>
 #include "Render/Cube/RenderQuad.h"

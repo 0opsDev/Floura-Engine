@@ -48,9 +48,9 @@ public:
 
 	static void JsonCameraSettingsSave(std::string path);
 
-	static void AddSceneModelObject(std::string type, std::string path, std::string name);
+	static void AddSceneModelObject(bool type, std::string path, std::string name);
 
-	static void AddSceneBillBoardObject(std::string name, std::string type, std::string path);
+	static void AddSceneBillBoardObject(std::string name, bool isAnimated, std::string path);
 
 	static void AddSceneSoundObject(std::string name, std::string path);
 

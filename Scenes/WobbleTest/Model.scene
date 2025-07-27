@@ -11,21 +11,22 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
-            -119.0,
-            27.0,
-            -18.0
+            -118.41848754882813,
+            27.114749908447266,
+            -17.872669219970703
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
-            9.0,
-            45.0,
-            -1.0
+            7.461999893188477,
+            -11.528594970703125,
+            -4.007713607968977e-43
         ],
         "Scale": [
-            0.20000000298023224,
-            0.20000000298023224,
-            0.20000000298023224
+            0.19999989867210388,
+            0.20000001788139343,
+            0.20000003278255463
         ],
         "frustumBoxScale": [
             1.0,
@@ -40,8 +41,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "shipment.gltf",
-        "path": "Assets/Models/fps/shipment.gltf",
-        "type": "Static"
+        "path": "Assets/Models/fps/shipment.gltf"
     },
     {
         "BoxColliderScale": [
@@ -55,6 +55,7 @@
             0.0
         ],
         "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             -125.0,
             29.0,
@@ -62,8 +63,8 @@
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
-            3.0,
-            45.0,
+            6.0,
+            13.0,
             0.0
         ],
         "Scale": [
@@ -84,8 +85,7 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "tower",
-        "path": "Assets/Models/tower/tower.gltf",
-        "type": "Static"
+        "path": "Assets/Models/tower/tower.gltf"
     },
     {
         "BoxColliderScale": [
@@ -99,50 +99,7 @@
             0.0
         ],
         "DoFrustumCull": false,
-        "Location": [
-            0.0,
-            15.0,
-            0.0
-        ],
-        "MaterialPath": "Assets/Material/Wobble.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            250.0,
-            250.0,
-            250.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": false,
-        "name": "wave.gltf",
-        "path": "Assets/Models/wave/wave.gltf",
-        "type": "Static"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": false,
+        "IsLod": false,
         "Location": [
             0.0,
             21.0,
@@ -172,7 +129,50 @@
         "isBackFaceCulling": true,
         "isCollider": false,
         "name": "ground",
-        "path": "Assets/Models/field/grassbit2.gltf",
-        "type": "Static"
+        "path": "Assets/Models/field/grassbit2.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IsLod": false,
+        "Location": [
+            0.0,
+            21.299999237060547,
+            0.21875055134296417
+        ],
+        "MaterialPath": "Assets/Material/Wobble.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            250.0,
+            250.0,
+            250.0
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": false,
+        "isCollider": false,
+        "name": "grass",
+        "path": "Assets/Models/grassbit.gltf"
     }
 ]

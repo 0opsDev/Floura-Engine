@@ -1,6 +1,6 @@
 #include "ModelObject.h"
-#include <utils/VisibilityChecker.h>
 #include <Render/passes/geometry/geometryPass.h>
+#include <Math/FE_math.h>
 
 void ModelObject::LODModelLoad(std::string path) {
 	std::ifstream file(path);
@@ -73,24 +73,19 @@ void ModelObject::LoadMaterial(std::string path)
 }
 
 //init
-void ModelObject::CreateObject(std::string type, std::string path, std::string ObjectNameT, std::string Material) {
+void ModelObject::CreateObject(std::string path, std::string ObjectNameT, std::string Material) {
 	//LoadMaterial("Assets/Material/Wobble.Material"); // load default material for now
 
 	LoadMaterial(Material); // load default material for now
 	ObjectName = ObjectNameT;
 	ModelPath = path;
-	if (type == "LOD" || type == "lod" || type == "Lod") {
+	if (IsLod) {
 		CubeCollider.init();
 		LODModelLoad(path);
-		IsLod = true;
-	}
-	else if (type == "Static" || type == "STATIC" || type == "static") { // should just do to lower here
-		CubeCollider.init();
-		SingleModelLoad(path);
-		IsLod = false;
 	}
 	else {
-		std::cout << "ModelObject type: " << type << " not found" << std::endl;
+		CubeCollider.init();
+		SingleModelLoad(path);
 	}
 
 }
@@ -185,12 +180,14 @@ void ModelObject::updateForwardLights(std::vector<glm::vec3>& colour,
 	std::vector<glm::vec3>& position, std::vector<glm::vec2>& radiusAndPower,
 	std::vector<int>& lightType, std::vector<int>& enabled) {
 
+
 	MaterialObject.updateForwardLights(colour, position, radiusAndPower, lightType, enabled);
+	
 }
 
 void ModelObject::draw() {
 	if (DoFrustumCull) {
-		if (Camera::isBoxInFrustum((frustumBoxTransform + transform), frustumBoxScale) || VisibilityChecker::isInRange((frustumBoxTransform + transform), Camera::Position, 1 + (0.1))) {
+		if (Camera::isBoxInFrustum((frustumBoxTransform + transform), frustumBoxScale) || FE_Math::isInRange((frustumBoxTransform + transform), Camera::Position, 1 + (0.1))) {
 			renderLogic();
 		}
 	}

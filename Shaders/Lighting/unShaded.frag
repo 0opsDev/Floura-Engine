@@ -81,7 +81,6 @@ float linearizeDepth(float depth)
 }
 
 //offset is distance from camera
-//offset is distance from camera
 float logisticDepth(float depth, float steepness, float offset)
 {
     float zVal = linearizeDepth(depth);

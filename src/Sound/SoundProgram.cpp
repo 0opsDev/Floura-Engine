@@ -1,9 +1,9 @@
 #include "SoundProgram.h"
 #include <utils/init.h>
 #include <Render/Cube/Billboard.h>
-#include <utils/VisibilityChecker.h>
 #include "SoundRunner.h"
 #include <UI/ImGui/ImGuiWindow.h>
+#include <Math/FE_math.h>
 
 
 ALCdevice* SoundProgram::device;
@@ -64,7 +64,7 @@ void SoundProgram::updateCameraPosition() {
     };
     alListenerfv(AL_ORIENTATION, orientation);
     if (FEImGuiWindow::showViewportIcons) {
-        if (!VisibilityChecker::isInRange(SoundPosition, Camera::Position, 1)) {
+        if (!FE_Math::isInRange(SoundPosition, Camera::Position, 1)) {
             SoundIcon.draw(true, SoundPosition.x, SoundPosition.y, SoundPosition.z, 1, 1, 1);
         }
     }
