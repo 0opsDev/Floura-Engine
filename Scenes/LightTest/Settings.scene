@@ -1,0 +1,23 @@
+[
+    {
+        "DefaultSkyboxPath": "Assets/Skybox/Bumbadida/overcastblue/Skybox.json",
+        "DepthDistance": -11.0,
+        "DepthPlane": [
+            0.10000000149011612,
+            60.0
+        ],
+        "Window": "Default",
+        "doFog": false,
+        "doReflections": true,
+        "fogRGBA": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "skyRGBA": [
+            0.1693296879529953,
+            0.15455593168735504,
+            0.656862735748291
+        ]
+    }
+]

@@ -1,5 +1,4 @@
 #include"RenderQuad.h"
-#include <utils/SettingsUtil.h>
 #include "render/Shader/Cubemap.h"
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>

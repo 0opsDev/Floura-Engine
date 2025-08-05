@@ -16,9 +16,9 @@ uniform mat4 model;
 
 uniform float deltatime;
 uniform float time;
-float speed = 5;
-uniform float frequency = 1.0f; // Frequency of the wave
-uniform float amplitude = 0.1f; // Amplitude of the wave
+float speed = 3;
+uniform float frequency = 5.0f; // Frequency of the wave
+uniform float amplitude = 0.03f; // Amplitude of the wave
 void main()
 {
     crntPos = vec3(model * vec4(aPos, 1.0f));

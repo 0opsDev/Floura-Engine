@@ -1,5 +1,4 @@
 #include"Billboard.h"
-#include <utils/SettingsUtil.h>
 #include "render/Shader/Cubemap.h"
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
@@ -22,12 +21,12 @@ unsigned int s_Plane_Indices[6] =
 };
 
 void BillBoard::init(std::string path) {
-	skyboxBuffer(); // create buffer in memory for skybox
+	buffer(); // create buffer in memory for skybox
 
 	LoadBillBoardTexture(path);
 }
 void BillBoard::initSeq(std::string path) { 
-	skyboxBuffer(); // create buffer in memory for skybox
+	buffer(); // create buffer in memory for skybox
 
 	LoadSequence(path);
 }
@@ -129,7 +128,7 @@ void BillBoard::UpdateSequence(int tickrate) {
 
 }
 
-void BillBoard::skyboxBuffer() {
+void BillBoard::buffer() {
 	// Create VAO, VBO, and EBO for the billboard
 	glGenVertexArrays(1, &cubeVAO);
 	glGenBuffers(1, &cubeVBO);

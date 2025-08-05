@@ -65,9 +65,7 @@ public:
 
 	void UpdateCameraCollider();
 
-	void updateForwardLights(std::vector<glm::vec3>& colour,
-		std::vector<glm::vec3>& position, std::vector<glm::vec2>& radiusAndPower,
-		std::vector<int>& lightType, std::vector<int>& enabled);
+	void updateForwardLights();
 
 	void draw();
 

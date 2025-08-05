@@ -31,7 +31,7 @@ public:
 	void LoadSequence(std::string path);
 	void UpdateSequence(int tickrate);
 
-	void skyboxBuffer();
+	void buffer();
 
 	void draw(bool doPitch, float x, float y, float z, float ScaleX, float ScaleY, float ScaleZ);
 

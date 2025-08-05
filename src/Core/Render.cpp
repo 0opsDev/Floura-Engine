@@ -32,7 +32,7 @@ bool RenderClass::DoDeferredLightingPass = false; // Toggle for lighting pass
 bool RenderClass::DoForwardLightingPass = true; // Toggle for regular pass
 bool RenderClass::DoComputeLightingPass = false;
 
-void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int height) {
+void RenderClass::init(unsigned int width, unsigned int height) {
 
 	windowHandler::setVSync(windowHandler::doVsync); // Set Vsync to value of doVsync (bool)
 
@@ -54,7 +54,12 @@ void RenderClass::init(GLFWwindow* window, unsigned int width, unsigned int heig
 	// need to add debug buffers at some point
 	//Framebuffer::setupNoiseMap();
 
-	init::initImGui(window); // Initialize ImGUI
+	if (FEImGuiWindow::imGuiEnabled) {
+		FEImGuiWindow::init();
+		ImGuizmo::SetOrthographic(false);
+		init::initImGui(windowHandler::window); // Initialize ImGUI
+	}
+	
 }
 
 void RenderClass::initGlobalShaders() {

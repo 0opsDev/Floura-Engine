@@ -9,13 +9,15 @@
 #include <UI/ImGui/ImGuiWindow.h>
 #include <utils/ScreenUtils.h>
 #include <camera/Camera.h>
-#include <utils/SettingsUtil.h>
 #include <Render/Model/Model.h>
 #include "utils/noise.h"
 
 class Framebuffer
 {
 public:
+
+	static int tempWidth;
+	static int tempHeight;
 
 	static unsigned int ViewPortWidth, ViewPortHeight, viewVAO, viewVBO, FBO2, frameBufferTexture2, frameBufferTexture, RBO, FBO, shadowMapFBO, shadowMapHeight, shadowMapWidth, ShadowMap;
 

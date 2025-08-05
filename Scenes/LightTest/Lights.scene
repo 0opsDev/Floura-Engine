@@ -1,0 +1,1282 @@
+[
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -30.0,
+            15.0,
+            -60.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            15.0,
+            15.0,
+            0.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -15.0,
+            15.0,
+            0.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            15.0,
+            15.0,
+            15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            0.0,
+            15.0,
+            15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -15.0,
+            15.0,
+            15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -15.0,
+            15.0,
+            -15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            0.0,
+            15.0,
+            -15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            15.0,
+            15.0,
+            -15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            30.0,
+            15.0,
+            0.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            30.0,
+            15.0,
+            15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            30.0,
+            15.0,
+            -15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            30.0,
+            15.0,
+            30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            30.0,
+            15.0,
+            -30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            15.0,
+            15.0,
+            30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            0.0,
+            15.0,
+            30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -15.0,
+            15.0,
+            30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -30.0,
+            15.0,
+            0.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -30.0,
+            15.0,
+            15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -30.0,
+            15.0,
+            30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -30.0,
+            15.0,
+            -15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -30.0,
+            15.0,
+            -30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            0.0,
+            15.0,
+            -30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            15.0,
+            15.0,
+            -30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -15.0,
+            15.0,
+            -30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            45.0,
+            15.0,
+            0.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            0.0,
+            15.0,
+            45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -45.0,
+            15.0,
+            0.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            0.0,
+            15.0,
+            -45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -45.0,
+            15.0,
+            -45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            45.0,
+            15.0,
+            -45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -45.0,
+            15.0,
+            45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            45.0,
+            15.0,
+            45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            45.0,
+            15.0,
+            15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            45.0,
+            15.0,
+            -15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -45.0,
+            15.0,
+            15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -45.0,
+            15.0,
+            -15.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            15.0,
+            15.0,
+            -45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -15.0,
+            15.0,
+            -45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -15.0,
+            15.0,
+            45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            15.0,
+            15.0,
+            45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            45.0,
+            15.0,
+            30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            45.0,
+            15.0,
+            -30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -45.0,
+            15.0,
+            30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -45.0,
+            15.0,
+            -30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            30.0,
+            15.0,
+            -45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -30.0,
+            15.0,
+            -45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -30.0,
+            15.0,
+            45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            30.0,
+            15.0,
+            45.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            0.0,
+            15.0,
+            60.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            0.0,
+            15.0,
+            -60.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            60.0,
+            15.0,
+            0.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -60.0,
+            15.0,
+            0.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -60.0,
+            15.0,
+            -60.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            60.0,
+            15.0,
+            60.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -60.0,
+            15.0,
+            60.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            60.0,
+            15.0,
+            -60.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            60.0,
+            15.0,
+            30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -60.0,
+            15.0,
+            -30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -60.0,
+            15.0,
+            30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            60.0,
+            15.0,
+            -30.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            30.0,
+            15.0,
+            60.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            30.0,
+            15.0,
+            -60.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    },
+    {
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -30.0,
+            15.0,
+            60.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    }
+]

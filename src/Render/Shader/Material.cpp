@@ -1,6 +1,7 @@
 #include "Material.h"
 #include <utils/init.h>
 #include <Core/Render.h>
+#include <Scene/LightingHandler.h>
 
 /*
 what should a material do in order
@@ -60,52 +61,8 @@ void Material::updateTime()
 
 }
 
-void Material::updateForwardLights(std::vector<glm::vec3>& colour,
-	std::vector<glm::vec3>& position, std::vector<glm::vec2>& radiusAndPower,
-	std::vector<int>& lightType, std::vector<int>& enabled) {
-	ModelShader.Activate();
-
-	ModelShader.setFloat4("skyColor", RenderClass::skyRGBA.r, RenderClass::skyRGBA.g, RenderClass::skyRGBA.b, 1.0f);
-	ModelShader.setBool("doReflect", RenderClass::doReflections);
-
-	ModelShader.setFloat3Vector(
-		"lightPos2",
-		position.size(),
-		&position[0].x
-	);
-
-	ModelShader.setFloat3Vector(
-		"colour2",
-		colour.size(),
-		&colour[0].x
-	);
-	//colour
-
-	ModelShader.setInt(
-		"sizeOfLights",
-		enabled.size()
-	);
-
-	ModelShader.setFloat2Vector(
-		"radiusAndPower",
-		radiusAndPower.size(),
-		&radiusAndPower[0].x
-	);
-
-	ModelShader.setIntVector(
-		"lightType",
-		lightType.size(),
-		&lightType[0]
-	);
-
-
-	ModelShader.setIntVector("enabled", enabled.size(), &enabled[0]);
-
-
-
-	ModelShader.setInt("lightCount", enabled.size());
-
-
+void Material::updateForwardLights() {
+	LightingHandler::update(ModelShader);
 }	
 
 void Material::jsonLoad(std::string path) 

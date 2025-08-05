@@ -16,23 +16,29 @@ public:
 
 	int ID;
 
-	void Create(const std::string& type, const std::string& name, const std::string& path, const std::string& Material);
+	void create(const std::string& type, const std::string& name, const std::string& path, const std::string& Material);
 
-	void Update();
+	void update();
 
-	void Draw();
+	void draw();
 
-	void UpdateLights();
+	void updateLights();
+
+	void Delete();
 
 	// getters
 	std::string fetchName();
 	std::string fetchType();
 	std::string fetchPath();
+	bool fetchDoFrustumCull();
+	bool fetchIsCollider();
 
 	//	setters
 	void setName(const std::string& name);
 	void setFlagIsLOD(bool flag);
 	void setFlagIsAnimated(bool flag);
+	void setDoFrustumCull(bool flag);
+	void setIsCollider(bool flag);
 
 private:
 

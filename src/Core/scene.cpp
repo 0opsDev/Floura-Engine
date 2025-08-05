@@ -1,23 +1,20 @@
 #include "scene.h"
 #include <Render/window/WindowHandler.h>
 #include <Gameplay/Player.h>
+#include <Scene/LightingHandler.h>
 
 //BillBoardObject BillBoardObjects;
 //CubeCollider ColliderObject;
 //SoundProgram SoundObjects;
 //std::vector<ModelObject> Scene::objects;
 
+std::string Scene::sceneName = ""; // Map loading
+
 std::vector<std::unique_ptr<ModelObject>> Scene::modelObjects;
 std::vector<BillBoardObject> Scene::BillBoardObjects;
 std::vector <CubeCollider> Scene::CubeColliderObject;
 std::vector <SoundProgram> Scene::SoundObjects;
 std::vector <bool> Scene::isSoundLoop;
-
-std::vector<glm::vec3> Scene::colour;
-std::vector<glm::vec3> Scene::position;
-std::vector<glm::vec2> Scene::radiusAndPower;
-std::vector<int> Scene::lightType;
-std::vector<int> Scene::enabled;
 
 glm::vec3 Scene::initalCameraPos = glm::vec3(0, 0, 0);
 
@@ -42,7 +39,7 @@ void Scene::LoadScene(std::string path) {
 	initJsonSettingsLoad(path + "/Settings.scene");
 	initCameraSettingsLoad(path + "/Camera.scene");
 	initJsonColliderLoad(path + "/Collider.scene");
-	initJsonLightObjectLoad(path + "/Lights.scene");
+	LightingHandler::loadScene(path + "/Lights.scene");
 	initJsonBillBoardLoad(path + "/BillBoard.scene");
 	initJsonModelLoad(path + "/Model.scene");
 	initJsonSoundObjectLoad(path + "/Sound.scene");
@@ -80,7 +77,7 @@ void Scene::SaveScene(std::string path) {
 	JsonSettingsSave(path + "/Settings.scene");
 	JsonCameraSettingsSave(path + "/Camera.scene");
 	JsonColliderSave(path + "/Collider.scene");
-	JsonLightSave(path + "/Lights.scene");
+	LightingHandler::saveScene(path + "/Lights.scene");
 	JsonBillBoardSave(path + "/BillBoard.scene");
 	JsonModelSave(path + "/Model.scene");
 	// sound load here
@@ -296,63 +293,6 @@ void Scene::JsonColliderSave(std::string path) {
 		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
 	}
 }
-
-void Scene::JsonLightSave(std::string path) {
-	try {
-		json lightData = json::array();  // New JSON array to hold model data
-
-		int iteration = 0;
-		// Serialize each modelObject into JSON
-		for (const auto& Write : enabled) {
-			json LightJson;
-
-			LightJson["position"] = { position[iteration].x, position[iteration].y, position[iteration].z };
-			LightJson["colour"] = { colour[iteration].x, colour[iteration].y, colour[iteration].z };
-
-			if (enabled[iteration] > 0) {
-				LightJson["enabled"] = true;
-			}
-			else{
-				LightJson["enabled"] = false;
-			}
-
-			if (lightType[iteration] == 1) {
-				LightJson["type"] = "pointlight";
-			}
-			else if (lightType[iteration] == 0) {
-				LightJson["type"] = "spotlight";
-			}
-
-			
-
-			LightJson["radius"] = radiusAndPower[iteration].x;
-			LightJson["power"] = radiusAndPower[iteration].y;
-
-			//LightJson["type"] = lightType[iteration];
-			
-			
-			lightData.push_back(LightJson);
-			iteration++;
-		}
-
-		// Write to file
-		std::ofstream outFile(path, std::ios::out);
-		if (!outFile.is_open()) {
-			if (init::LogALL || init::LogSystems) std::cout << "Failed to write to " << path << std::endl;
-			return;
-		}
-
-		outFile << lightData.dump(4);  // Pretty-print with indentation
-		outFile.close();
-
-		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
-
-	}
-	catch (const std::exception& e) {
-		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
-	}
-}
-
 void Scene::JsonSettingsSave(std::string path) {
 	try {
 		json SettingsData = json::array();  // New JSON array to hold model data
@@ -457,14 +397,6 @@ void Scene::AddSceneColliderObject(std::string name) {
 	newCubeColliderObject.init();
 	newCubeColliderObject.name = name;
 	CubeColliderObject.push_back(newCubeColliderObject);
-}
-
-void Scene::AddSceneLightObject() {
-	colour.push_back(glm::vec3(1.0f, 1.0f, 1.0f)); // Default white color
-	position.push_back(glm::vec3(0.0f, 0.0f, 0.0f)); // Default position at origin
-	radiusAndPower.push_back(glm::vec2(100.0f, 5.0f)); // Default radius and power
-	lightType.push_back(1); // Default to Pointlight
-	enabled.push_back(1); // Default enabled state
 }
 
 void Scene::initJsonBillBoardLoad(std::string path) {
@@ -624,63 +556,6 @@ void Scene::initJsonSoundObjectLoad(std::string path) {
 	}
 	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene SoundObject from: " << path << std::endl;
 }
-	
-void Scene::initJsonLightObjectLoad(std::string path) {
-	std::ifstream file(path);
-	if (!file.is_open()) {
-		std::cout << "Failed to open file: " << path << std::endl;
-		return;
-	}
-	json LightObjectFileData;
-	try {
-		file >> LightObjectFileData;
-	}
-	catch (const nlohmann::json::parse_error& e) {
-		// This catch block specifically handles JSON parsing errors,
-		// which gives more precise error information from the library.
-		std::cout << "JSON Parse Error loading LightObject data: " << e.what() << std::endl;
-		std::cout << "Error byte position: " << e.byte << std::endl; // Specific to nlohmann::json
-	}
-	catch (const std::ios_base::failure& e) {
-		// This catch block handles file I/O errors (e.g., file not found, permission issues).
-		std::cout << "File I/O Error loading LightObject data: " << e.what() << std::endl;
-	}
-	catch (const std::exception& e) {
-		// A general catch-all for any other std::exception derived errors.
-		std::cout << "An unexpected error occurred loading LightObject data: " << e.what() << std::endl;
-	}
-	file.close();
-
-	for (const auto& item : LightObjectFileData) {
-		
-		glm::vec3 newPosition = glm::vec3(item.at("position")[0], item.at("position")[1], item.at("position")[2]);
-		glm::vec3 newColour = glm::vec3(item.at("colour")[0], item.at("colour")[1], item.at("colour")[2]);
-		std::string newType = item.at("type").get<std::string>();
-		bool newEnabled = item.at("enabled").get<bool>();
-
-		float newRadius = item.at("radius").get<float>();
-		float newPower = item.at("power").get<float>();
-
-
-		position.push_back(newPosition);
-		colour.push_back(newColour);
-		
-		if (newType == "pointlight" || newType == "Pointlight") {
-			lightType.push_back(1); // Point light
-		}
-		else if (newType == "spotlight" || newType == "Spotlight" ) {
-			lightType.push_back(0); // Spotlight
-		}
-		enabled.push_back(newEnabled);
-		radiusAndPower.push_back(glm::vec2(newRadius, newPower));
-		
-		// pushback here
-	}
-	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene LightObject from: " << path << std::endl;
-
-
-
-}
 
 void Scene::initJsonSettingsLoad(std::string path) {
 	std::ifstream engineDefaultFile(path);
@@ -688,10 +563,6 @@ void Scene::initJsonSettingsLoad(std::string path) {
 		json engineDefaultData;
 		engineDefaultFile >> engineDefaultData;
 		engineDefaultFile.close();
-
-		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][0];
-		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][1];
-		//Camera::Position.x = engineDefaultData[0]["DefaultCameraPos"][2];
 
 		RenderClass::skyRGBA[0] = engineDefaultData[0]["skyRGBA"][0];
 		RenderClass::skyRGBA[1] = engineDefaultData[0]["skyRGBA"][1];
@@ -756,20 +627,12 @@ void Scene::Update() {
 	for (size_t i = 0; i < modelObjects.size(); i++)
 	{
 		
-			//if (modelObjects[i].ModelSingle.collide(glm::vec3(Camera::Position.x, (Camera::Position.y ), Camera::Position.z), Camera::cameraColliderScale, "box")) {
-			//Player::isColliding = true; // Set collision state
-			//Camera::Position.x = modelObjects[i].ModelSingle.lastHit.x;//- (Camera::cameraColliderScale.y / 2.0f)
-			//Camera::Position.y = ((modelObjects[i].ModelSingle.lastHit.y )); //+ (Camera::cameraColliderScale.y / 2.0f)
-			//Camera::Position.z = modelObjects[i].ModelSingle.lastHit.z;
-
-			//}
 		modelObjects[i]->UpdateCollider();
 		modelObjects[i]->UpdateCameraCollider();
 
-
 		// before drawing we wanna update the lights in the material class
 
-		modelObjects[i]->updateForwardLights(colour, position, radiusAndPower, lightType, enabled); // needs to take lights
+		modelObjects[i]->updateForwardLights(); // needs to take lights
 
 		modelObjects[i]->draw();
 	}
@@ -788,7 +651,6 @@ void Scene::Update() {
 	}
 
 	for (size_t i = 0; i < SoundObjects.size(); i++) {
-		//std::cout << (i + 1) << std::endl;
 		SoundObjects[i].updateCameraPosition();
 		if (!SoundObjects[i].isPlay) {
 			SoundObjects[i].PlaySound();
@@ -796,25 +658,18 @@ void Scene::Update() {
 	}
 
 
-	for (size_t i = 0; i < enabled.size(); i++)
+	for (size_t i = 0; i < LightingHandler::Lights.size(); i++)
 	{
 
 		if (FEImGuiWindow::showViewportIcons) {
 
-				if (lightType[i] == 0) {
-					SpotLightIcon.draw(true, position[i].x, position[i].y, position[i].z, 0.3, 0.3, 0.3);
+				if (LightingHandler::Lights[i].type == 0) {
+					SpotLightIcon.draw(true, LightingHandler::Lights[i].position.x, LightingHandler::Lights[i].position.y, LightingHandler::Lights[i].position.z, 0.3, 0.3, 0.3);
 				}
-				else if (lightType[i] == 1) {
-					PointLightIcon.draw(true, position[i].x, position[i].y, position[i].z, 0.3, 0.3, 0.3);
-				}
-				else if (lightType[i] == 2) {
-					//DirectionalLightIcon.draw(true, position[i].x, position[i].y, position[i].z, 0.3, 0.3, 0.3);
+				else if (LightingHandler::Lights[i].type) {
+					PointLightIcon.draw(true, LightingHandler::Lights[i].position.x, LightingHandler::Lights[i].position.y, LightingHandler::Lights[i].position.z, 0.3, 0.3, 0.3);
 				}
 		}
-
-		
-		//position
-		//LightObjectList[i].colour
 	}
 
 
@@ -844,11 +699,7 @@ void Scene::Delete() {
 	{SoundObjects[i].DeleteSound();}
 	SoundObjects.clear();
 
-	colour.clear();
-	position.clear();
-	radiusAndPower.clear();
-	lightType.clear();
-	enabled.clear();
+	LightingHandler::deleteScene();
 
 	if (FEImGuiWindow::imGuiEnabled) {
 		FEImGuiWindow::ContentObjects.clear();

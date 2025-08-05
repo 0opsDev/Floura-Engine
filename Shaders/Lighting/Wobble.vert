@@ -14,9 +14,9 @@ uniform mat4 camMatrix;
 uniform mat4 model; // Final model matrix combining all transformations
 uniform float deltatime;
 uniform float time;
-float speed = 5;
-uniform float frequency = 1.0f; // Frequency of the wave
-uniform float amplitude = 0.1f; // Amplitude of the wave
+float speed = 3;
+uniform float frequency = 5.0f; // Frequency of the wave
+uniform float amplitude = 0.03f; // Amplitude of the wave
 void main()
 {
     crntPos = vec3(model * vec4(aPos, 1.0f));
@@ -28,9 +28,9 @@ void main()
 
     float wave_offset = sin(crntPos.x * frequency + time * speed) * amplitude;
 
-    //crntPos.x += wave_offset;
+    crntPos.x += wave_offset;
     crntPos.y += wave_offset;
-    //crntPos.z += wave_offset;
+    crntPos.z += wave_offset;
 
     gl_Position = camMatrix * vec4(crntPos, 1.0f);
 

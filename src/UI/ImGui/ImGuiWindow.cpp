@@ -10,6 +10,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include "ImGuiInclude.h"
 #include "FE_ImGui.h"
+#include <Scene/LightingHandler.h>
 //#include <Instance.h>
 
 
@@ -53,6 +54,10 @@ Texture FEImGuiWindow::cameraIcon; // Icon for camera in ImGui
 Texture FEImGuiWindow::skyboxIcon; // Icon for skybox in ImGui
 Texture FEImGuiWindow::directLight; // Icon for directLight in ImGui
 Texture FEImGuiWindow::materialIcon; // Icon for material in ImGui
+Texture FEImGuiWindow::environmentIcon; // Icon for material in ImGui
+Texture FEImGuiWindow::moveIcon; // Icon for move in ImGui
+Texture FEImGuiWindow::scaleIcon; // Icon for scale in ImGui
+Texture FEImGuiWindow::rotateIcon; // Icon for rotate in ImGui
 
 // collideicon.png
 
@@ -75,6 +80,11 @@ void FEImGuiWindow::init() {
 	skyboxIcon.createTexture("Assets/Icons/skyboxIcon.png", "diffuse", 12);
 	directLight.createTexture("Assets/Icons/directLight.png", "diffuse", 13);
 	materialIcon.createTexture("Assets/Icons/materialIcon.png", "diffuse", 14);
+	environmentIcon.createTexture("Assets/Icons/Environment.png", "diffuse", 15);
+	moveIcon.createTexture("Assets/Icons/move.png", "diffuse", 16);
+	scaleIcon.createTexture("Assets/Icons/scale.png", "diffuse", 17);
+	rotateIcon.createTexture("Assets/Icons/rotate.png", "diffuse", 18);
+
 }
 
 void FEImGuiWindow::loadContentObjects(std::string path) {
@@ -158,65 +168,331 @@ void FEImGuiWindow::saveContentObjects(std::string path) {
 	}
 }
 
+// 0 positon, 1 scale, 2 rotate
+int SelectedTransform = 0; 
+
+void FEImGuiWindow::Update() {
+	//Tell Imgui a new frame is about to begin
+//
+	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
+	ImGuizmo::BeginFrame();
+
+	FEImGuiWindow::menuwindow();
+
+	// Rendering panel
+	if (FEImGuiWindow::imGuiPanels[1]) {
+		FEImGuiWindow::RenderWindow();
+	}
+
+	if (FEImGuiWindow::imGuiPanels[3]) {
+		FEImGuiWindow::viewport();
+	}
+
+	if (FEImGuiWindow::imGuiPanels[6]) {
+		FEImGuiWindow::PreformanceProfiler();
+	}
+
+	if (FEImGuiWindow::imGuiPanels[7]) {
+		FEImGuiWindow::TextEditor();
+	}
+
+	if (FEImGuiWindow::imGuiPanels[4]) {
+		ImGui::Begin("Scene hierarchy"); // ImGUI window creation
+		FEImGuiWindow::create();
+		FEImGuiWindow::HierarchyList();
+		ImGui::End();
+	}
+
+	if (FEImGuiWindow::imGuiPanels[9]) {
+		FEImGuiWindow::InspectorWindow();
+	}
+
+	if (FEImGuiWindow::imGuiPanels[10]) {
+		FEImGuiWindow::SceneFolderWindow();
+	}
+
+	//
+	// imguizmo selection
+	//
+	if (FEImGuiWindow::SelectedObjectType != "") // needs guizmo enabled var // passes if object is selected
+	{
+		if (FEImGuiWindow::SelectedObjectType == "Model") {
+			auto* selected = Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex].get();
+
+			glm::mat4 T = glm::translate(glm::mat4(1.0f), selected->transform);
+			glm::mat4 R = glm::yawPitchRoll(glm::radians(selected->rotation.y),
+				glm::radians(selected->rotation.x),
+				glm::radians(selected->rotation.z));
+			glm::mat4 S = glm::scale(glm::mat4(1.0f), selected->scale);
+
+			glm::mat4 modelMatrix = T * R * S;
+
+			if (SelectedTransform == 0)
+			{
+				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+					ImGuizmo::TRANSLATE, ImGuizmo::LOCAL,
+					glm::value_ptr(modelMatrix));
+			}
+			else if (SelectedTransform == 1)
+			{
+				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+					ImGuizmo::SCALE, ImGuizmo::LOCAL,
+					glm::value_ptr(modelMatrix));
+			}
+			else if (SelectedTransform == 2)
+			{
+				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+					ImGuizmo::ROTATE, ImGuizmo::LOCAL,
+					glm::value_ptr(modelMatrix));
+			}
+
+
+
+
+			if (ImGuizmo::IsUsing()) {
+				glm::vec3 translation, rotation, scale;
+				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(modelMatrix),
+					glm::value_ptr(translation),
+					glm::value_ptr(rotation),
+					glm::value_ptr(scale));
+				if (SelectedTransform == 0)
+				{
+					selected->transform = translation;
+				}
+				else if (SelectedTransform == 1)
+				{
+					selected->scale = scale;
+				}
+				else if (SelectedTransform == 2)
+				{
+					selected->rotation = rotation;
+				}
+			}
+		}
+
+		else if (FEImGuiWindow::SelectedObjectType == "Light") {
+
+			glm::mat4 T = glm::translate(glm::mat4(1.0f), LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position);
+
+				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+					ImGuizmo::TRANSLATE, ImGuizmo::LOCAL,
+				glm::value_ptr(T));
+
+			if (ImGuizmo::IsUsing()) {
+				glm::vec3 translation, rotation, scale;
+				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(T),
+					glm::value_ptr(translation),
+					glm::value_ptr(rotation),
+					glm::value_ptr(scale));
+
+				LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position = translation;
+				//selected->rotation = rotation;
+				//selected->scale = scale;
+			}
+
+		}
+
+		else if (FEImGuiWindow::SelectedObjectType == "BillBoard") {
+
+			glm::mat4 T = glm::translate(glm::mat4(1.0f), Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].transform);
+			glm::mat4 S = glm::scale(glm::mat4(1.0f), Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].scale);
+
+			glm::mat4 modelMatrix = T * S;
+
+			if (SelectedTransform == 0)
+			{
+				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+					ImGuizmo::TRANSLATE, ImGuizmo::LOCAL,
+					glm::value_ptr(modelMatrix));
+			}
+			else if (SelectedTransform == 1)
+			{
+				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+					ImGuizmo::SCALE, ImGuizmo::LOCAL,
+					glm::value_ptr(modelMatrix));
+			}
+			else if (SelectedTransform == 2)
+			{
+				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+					ImGuizmo::ROTATE, ImGuizmo::LOCAL,
+					glm::value_ptr(modelMatrix));
+			}
+
+			if (ImGuizmo::IsUsing()) {
+				glm::vec3 translation, rotation, scale;
+				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(modelMatrix),
+					glm::value_ptr(translation),
+					glm::value_ptr(rotation),
+					glm::value_ptr(scale));
+				if (SelectedTransform == 0)
+				{
+					Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].transform = translation;
+				}
+				else if (SelectedTransform == 1)
+				{
+					Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].scale = scale;
+				}
+			}
+		}
+	}
+
+	//scene
+	ImGui::Render(); // Renders the ImGUI elements
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void FEImGuiWindow::menuwindow()
+{
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
+
+	// Important flags for the main dockspace window
+	ImGuiWindowFlags window_flags =
+		ImGuiWindowFlags_MenuBar |
+		ImGuiWindowFlags_NoDocking |
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus |
+		ImGuiWindowFlags_NoNavFocus;
+
+	// Begin the main docking window
+	ImGui::Begin("Docking Window", nullptr, window_flags);
+
+	if (ImGui::BeginMenuBar())
+	{
+		ImGui::Image(
+			(ImTextureID)(intptr_t)FEImGuiWindow::logoIcon.ID,
+			ImVec2(20, 20)
+		);
+
+		if (ImGui::BeginMenu("File"))
+		{
+			ImGui::MenuItem("New Scene");
+			if (ImGui::MenuItem("Open Scene")) {
+				IGFD::FileDialogConfig config;
+				config.path = ".";
+				ImGuiFileDialog::Instance()->OpenDialog("LoadScene", "Choose Scene", ".*", config);
+			}
+
+			ImGui::MenuItem("Save Scene As");
+			if (ImGui::MenuItem("Save Scene")) Scene::SaveScene(Scene::sceneName);
+			if (ImGui::MenuItem("Reload Scene")) Scene::LoadScene(Scene::sceneName);
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("View"))
+		{
+			ImGui::Checkbox("Wireframe", &FEImGuiWindow::isWireframe);
+			ImGui::Checkbox("showBoxCollider", &CubeCollider::showBoxCollider);
+			ImGui::Checkbox("showViewportIcons", &FEImGuiWindow::showViewportIcons);
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Edit"))
+		{
+			if (ImGui::MenuItem("Reload Shaders?")) RenderClass::initGlobalShaders();
+			ImGui::Text("Scripts:");
+			if (ImGui::SmallButton("Stop")) { ScriptRunner::clearScripts(); } // save settings button
+			if (ImGui::SmallButton("Start")) { ScriptRunner::init(Scene::sceneName + "/LuaStartup.json"); } // save settings button
+			if (ImGui::SmallButton("Restart")) { ScriptRunner::clearScripts(); ScriptRunner::init(Scene::sceneName + "/LuaStartup.json"); } // save settings button
+			ImGui::Spacing();
+			ImGui::Text("Volume");
+			ImGui::SliderFloat("Global Volume", &SoundRunner::GlobalVolume, 0, 1);
+			ImGui::SliderFloat("Music Volume", &SoundRunner::MusicVolume, 0, 1);
+			ImGui::SliderFloat("Environment Volume", &SoundRunner::environmentVolume, 0, 1);
+			ImGui::SliderFloat("Entity Volume", &SoundRunner::entityVolume, 0, 1);
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Panels")) {
+			//panel
+			FEImGuiWindow::PanelsWindow();
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Debug")) {
+			ImGui::Checkbox("DoDeferredLightingPass", &RenderClass::DoDeferredLightingPass);
+			ImGui::Checkbox("DoForwardLightingPass", &RenderClass::DoForwardLightingPass);
+			ImGui::Checkbox("DoComputeLightingPass", &RenderClass::DoComputeLightingPass);
+			ImGui::Checkbox("doPlayerBoxCollision: ", &CubeCollider::CollideWithCamera);
+			ImGui::EndMenu();
+		}
+		ImGui::SameLine(ImGui::GetWindowWidth() - 100.0f);
+		if (ImGui::ImageButton("##SaveIcon", (ImTextureID)FEImGuiWindow::SaveIcon.ID, ImVec2(10, 10))) {
+			Scene::SaveScene(Scene::sceneName);
+		}
+		if (ImGui::ImageButton("##arrowIcon", (ImTextureID)FEImGuiWindow::arrowIcon.ID, ImVec2(10, 10))) {
+			Scene::LoadScene(Scene::sceneName);
+		}
+		if (ImGui::ImageButton("##crossIcon", (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
+			Scene::Delete();
+		}
+
+		ImGui::EndMenuBar();
+	}
+
+	// display
+	if (ImGuiFileDialog::Instance()->Display("LoadScene")) {
+		if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+			std::replace(filePath.begin(), filePath.end(), '\\', '/');
+			Scene::sceneName = filePath;
+			std::cout << filePath << std::endl;
+			Scene::LoadScene(filePath);
+		}
+		ImGuiFileDialog::Instance()->Close();
+	}
+
+	ImGuiID dockspace_id = ImGui::GetID("MainDockspace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+
+	ImGui::End();
+}
+
 void FEImGuiWindow::SystemInfomation() {
 	if (ImGui::TreeNode("System Infomation")) {
-		const GLubyte* version = glGetString(GL_VERSION);
-		const GLubyte* renderer = glGetString(GL_RENDERER);
 
-		ImGui::Text("OpenGL Version: %s", version); // Display OpenGL version
-		ImGui::Text("Renderer: %s", renderer);  // Display GPU renderer
+		ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION)); // Display OpenGL version
+		ImGui::Text("Renderer: %s", glGetString(GL_RENDERER));  // Display GPU renderer
 
-		ImGui::Text((std::string("ViewportSize: ") + std::to_string(static_cast<int>(Framebuffer::ViewPortWidth)) + "*" + std::to_string(static_cast<int>(Framebuffer::ViewPortHeight))).c_str());
+		ImGui::Text((std::string("Viewport Size: ") + std::to_string(static_cast<int>(Framebuffer::ViewPortWidth)) + "*" + std::to_string(static_cast<int>(Framebuffer::ViewPortHeight))).c_str());
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 
 }
 
-void FEImGuiWindow::RenderWindow(GLFWwindow*& window, int windowedWidth, int windowedHeight) {
+void FEImGuiWindow::RenderWindow() {
+	ImGui::Begin("Rendering"); // ImGUI window creation
 	ImGui::Checkbox("enableDEF", &FEImGuiWindow::enableDEF);
+	ImGui::Checkbox("Enable FB shader", &FEImGuiWindow::enableFB); // Set the value of enableFB (bool)
+	if (ImGui::SmallButton("Reload Shaders?")) RenderClass::initGlobalShaders();
 
 	ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
-	if (ImGui::TreeNode("Framerate And Resolution")) {
 		ImGui::Text("Framerate Limiters");
 		ImGui::Checkbox("Vsync", &windowHandler::doVsync); // Set the value of doVsync (bool)
 		// Screen
-		ImGui::DragInt("Width", &SettingsUtils::tempWidth);
-		ImGui::DragInt("Height", &SettingsUtils::tempHeight); // screen slider
-		//enableLinearScaling
-		ImGui::Checkbox("Enable FB shader", &FEImGuiWindow::enableFB); // Set the value of enableFB (bool)
+		ImGui::DragInt("Width", &Framebuffer::tempWidth);
+		ImGui::DragInt("Height", &Framebuffer::tempHeight); // screen slider
 
 		if (ImGui::SmallButton("Apply Changes?")) { // apply button
-			glViewport(0, 0, SettingsUtils::tempWidth, SettingsUtils::tempHeight); // real internal res
-			glfwSetWindowSize(window, SettingsUtils::tempWidth, SettingsUtils::tempHeight);
+			glViewport(0, 0, Framebuffer::tempWidth, Framebuffer::tempHeight); // real internal res
+			glfwSetWindowSize(windowHandler::window, Framebuffer::tempWidth, Framebuffer::tempHeight);
 			windowHandler::setVSync(windowHandler::doVsync); // Set Vsync to value of doVsync (bool)
-			Framebuffer::updateFrameBufferResolution(SettingsUtils::tempWidth, SettingsUtils::tempHeight); // Update frame buffer resolution
+			Framebuffer::updateFrameBufferResolution(Framebuffer::tempWidth, Framebuffer::tempHeight); // Update frame buffer resolution
 		}
 		if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 		{
-			ScreenUtils::toggleFullscreen(window, windowedWidth, windowedHeight); //needs to be fixed //GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight
+			ScreenUtils::toggleFullscreen(windowHandler::window, windowHandler::width, windowHandler::height); //needs to be fixed //GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight
 		} //Toggle Fullscreen
 
-
-		ImGui::TreePop();// Ends The ImGui Window
-	}
-}
-
-void FEImGuiWindow::ShaderWindow() {
-	if (ImGui::TreeNode("Shaders")) {
-
-		if (ImGui::SmallButton("Reload Shaders?")) RenderClass::initGlobalShaders();
-		
 		ImGui::DragFloat("Gamma", &RenderClass::gamma);
-		ImGui::Checkbox("doReflections", &RenderClass::doReflections);
-		ImGui::Checkbox("doFog", &RenderClass::doFog); 		//Toggles
 		ImGui::DragInt("Sample Count", &LightingPass::samplecount);
-
-		ImGui::Text("DepthBuffer Settings (FOG)");
-		ImGui::DragFloat("Depth Distance (FOG)", &RenderClass::DepthDistance);
-		ImGui::DragFloat2("Near and Far Depth Plane", RenderClass::DepthPlane);
-		ImGui::TreePop();// Ends The ImGui Window
-	}
+		ImGui::End();
 }
 
 void FEImGuiWindow::CameraWindow() {
@@ -227,9 +503,9 @@ void FEImGuiWindow::CameraWindow() {
 
 		FEImGui::DragVec3("Camera Position", Camera::Position, Scene::initalCameraPos);
 
-		FEImGui::DragVec3("Inital Camera Position", Camera::Position);
+		FEImGui::DragVec3("Inital Camera Position", Scene::initalCameraPos);
 
-		ImGui::DragFloat3("inital Camera Position", &Scene::initalCameraPos.x); // set inital cam pos
+		//ImGui::DragFloat3("inital Camera Position", &Scene::initalCameraPos.x); // set inital cam pos
 		if (ImGui::SmallButton("Reset Camera Position")) {
 			Camera::Position = Scene::initalCameraPos;
 		} // reset cam pos
@@ -272,7 +548,7 @@ void FEImGuiWindow::PanelsWindow() {
 	ImGui::Checkbox("Preformance Profiler", &FEImGuiWindow::imGuiPanels[6]);
 	ImGui::Checkbox("Text Editor", &FEImGuiWindow::imGuiPanels[7]);
 	ImGui::Checkbox("Inspector", &FEImGuiWindow::imGuiPanels[9]);
-	ImGui::Checkbox("Content Folder", &FEImGuiWindow::imGuiPanels[10]);
+	ImGui::Checkbox("Scene Folder", &FEImGuiWindow::imGuiPanels[10]);
 }
 
 void FEImGuiWindow::PreformanceProfiler() {
@@ -294,6 +570,7 @@ void FEImGuiWindow::PreformanceProfiler() {
 	frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f; // Convert to milliseconds
 	ftValues_offset = (ftValues_offset + 1) % IM_ARRAYSIZE(frameTimeValues);
 	std::string frametimes = "LAT: " + std::to_string(frameTimeValues[ftValues_offset] = TimeUtil::s_DeltaTime * 1000.0f) + " ms";
+
 	ImGui::BeginGroup();
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), ("fps: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz))).c_str());
 	//std::string stringFPS = "FPS: " + std::to_string(deltaTimeStr.frameRate1IHZ) + frametimes;
@@ -306,7 +583,6 @@ void FEImGuiWindow::PreformanceProfiler() {
 	ImGui::TextColored(ImVec4(0, 1, 0, 1), frametimes.c_str());
 	ImGui::PlotLines("##MS", frameTimeValues, IM_ARRAYSIZE(frameTimeValues), ftValues_offset, nullptr, 0.0f, 50.0f, ImVec2(180, 50));
 	ImGui::EndGroup();
-
 
 	ImGui::Spacing();
 
@@ -375,27 +651,7 @@ void FEImGuiWindow::TextEditor() {
 
 void FEImGuiWindow::viewport() {
 	ImGui::Begin("ViewPort");
-
-	if (ImGui::SmallButton("TRANSLATE")) {
-
-	}
-	ImGui::SameLine();
-	if (ImGui::SmallButton("ROTATE")) {
-
-	}
-	ImGui::SameLine();
-	if (ImGui::SmallButton("SCALE")) {
-
-	}
-	ImGui::SameLine();
 	bool placeholderBool;
-	if (ImGui::Checkbox("GRIDLOCK", &placeholderBool)) {
-
-	}
-	ImGui::SameLine();
-	if (ImGui::Checkbox("WORLD", &placeholderBool)) {
-
-	}
 
 	float window_width = ImGui::GetContentRegionAvail().x;
 	float window_height = ImGui::GetContentRegionAvail().y;
@@ -420,6 +676,32 @@ void FEImGuiWindow::viewport() {
 	ImGuizmo::SetDrawlist();
 	ImGuizmo::SetRect(viewportPos.x, viewportPos.y, viewportSize.x, viewportSize.y);
 
+	float padding = 10.0f;
+	ImVec2 iconPos = ImVec2(viewportPos.x + padding, viewportPos.y + padding);
+
+	ImGui::SetCursorScreenPos(iconPos);
+
+	ImGui::BeginGroup();
+	if (ImGui::ImageButton("##moveIcon", (ImTextureID)FEImGuiWindow::moveIcon.ID, ImVec2(30, 30))) {
+		SelectedTransform = 0;
+	}
+	if (ImGui::ImageButton("##scaleIcon", (ImTextureID)FEImGuiWindow::scaleIcon.ID, ImVec2(30, 30))) {
+		SelectedTransform = 1;
+	}
+	if (ImGui::ImageButton("##rotateIcon", (ImTextureID)FEImGuiWindow::rotateIcon.ID, ImVec2(30, 30))) {
+		SelectedTransform = 2;
+	}
+	ImGui::EndGroup();
+
+	ImGui::SameLine(ImGui::GetWindowWidth() - 300.0f);
+	ImGui::BeginGroup();
+	ImGui::TextColored(ImVec4(1, 0, 0, 1), "OpenGL Version: %s", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+	ImGui::TextColored(ImVec4(1, 0, 0, 1), "GPU: %s", reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+	ImGui::TextColored(ImVec4(1, 0, 0, 1), (std::string("RES: ") + std::to_string(static_cast<int>(Framebuffer::ViewPortWidth)) + "*" + std::to_string(static_cast<int>(Framebuffer::ViewPortHeight))).c_str());
+	ImGui::TextColored(ImVec4(1, 0, 0, 1), ("FPS: " + std::to_string(static_cast<int>(TimeUtil::s_frameRate1hz))).c_str());
+	ImGui::TextColored(ImVec4(1, 0, 0, 1), ("MS: " + std::to_string(TimeUtil::s_DeltaTime * 1000.0f) ).c_str());
+
+	ImGui::EndGroup();
 	ImGui::End();
 }
 
@@ -473,6 +755,16 @@ void FEImGuiWindow::HierarchyList() {
 		FEImGuiWindow::SelectedObjectType = "Skybox";
 		FEImGuiWindow::SelectedObjectIndex = 0;
 	}
+
+	ImGui::Image(
+		(ImTextureID)(intptr_t)FEImGuiWindow::environmentIcon.ID,
+		ImVec2(20, 20)
+	);
+	ImGui::SameLine();
+	if (ImGui::MenuItem("Environment")) {
+		FEImGuiWindow::SelectedObjectType = "Environment";
+		FEImGuiWindow::SelectedObjectIndex = 0;
+	}
 	ImGui::NewLine();
 
 		for (size_t i = 0; i < Scene::modelObjects.size(); i++)
@@ -502,8 +794,6 @@ void FEImGuiWindow::HierarchyList() {
 			}
 			ImGui::EndGroup();
 		}
-		
-	//if (ImGui::TreeNode("Sound")) {
 		for (size_t i = 0; i < Scene::SoundObjects.size(); i++) {
 			ImGui::BeginGroup();
 			if (ImGui::MenuItem((Scene::SoundObjects[i].name + "##" + std::to_string(i)).c_str())) {
@@ -512,11 +802,6 @@ void FEImGuiWindow::HierarchyList() {
 			}
 			ImGui::EndGroup();
 		}
-
-		//ImGui::TreePop();
-	//}
-
-	//if (ImGui::TreeNode("Collider")) {
 
 		for (size_t i = 0; i < Scene::CubeColliderObject.size(); i++) {
 			ImGui::BeginGroup();
@@ -529,20 +814,20 @@ void FEImGuiWindow::HierarchyList() {
 			}
 			ImGui::EndGroup();
 		}
-		for (size_t i = 0; i < Scene::enabled.size(); i++) {
+		for (size_t i = 0; i < LightingHandler::Lights.size(); i++) {
 			ImGui::BeginGroup();
-			if (Scene::lightType[i] == 0) { // spot light
+			if (LightingHandler::Lights[i].type == 0) { // spot light
 				ImGui::Image(
-					(ImTextureID)(intptr_t)FEImGuiWindow::spotLightIcon.ID, ImVec2(20, 20), ImVec2(0,0), ImVec2(1, 1), ImVec4(Scene::colour[i].x, Scene::colour[i].y, Scene::colour[i].z, 1.0f), ImVec4(0, 0, 0, 0) );
+					(ImTextureID)(intptr_t)FEImGuiWindow::spotLightIcon.ID, ImVec2(20, 20), ImVec2(0,0), ImVec2(1, 1), ImVec4(LightingHandler::Lights[i].colour.x, LightingHandler::Lights[i].colour.y, LightingHandler::Lights[i].colour.z, 1.0f), ImVec4(0, 0, 0, 0) );
 			}
-			else if (Scene::lightType[i] == 1) { // point light
+			else if (LightingHandler::Lights[i].type == 1) { // point light
 				ImGui::Image(
-					(ImTextureID)(intptr_t)FEImGuiWindow::pointLightIcon.ID, ImVec2(20, 20), ImVec2(0, 0), ImVec2(1, 1), ImVec4(Scene::colour[i].x, Scene::colour[i].y, Scene::colour[i].z, 1.0f), ImVec4(0, 0, 0, 0));
+					(ImTextureID)(intptr_t)FEImGuiWindow::pointLightIcon.ID, ImVec2(20, 20), ImVec2(0, 0), ImVec2(1, 1), ImVec4(LightingHandler::Lights[i].colour.x, LightingHandler::Lights[i].colour.y, LightingHandler::Lights[i].colour.z, 1.0f), ImVec4(0, 0, 0, 0));
 			}
 			ImGui::SameLine();
-			if (ImGui::MenuItem(("Light X:" + std::to_string(static_cast<int>(Scene::position[i].x))
-				+ " Y:" + std::to_string(static_cast<int>(Scene::position[i].y))
-				+ " Z:" + std::to_string(static_cast<int>(Scene::position[i].z))
+			if (ImGui::MenuItem(("Light X:" + std::to_string(static_cast<int>(LightingHandler::Lights[i].position.x))
+				+ " Y:" + std::to_string(static_cast<int>(LightingHandler::Lights[i].position.y))
+				+ " Z:" + std::to_string(static_cast<int>(LightingHandler::Lights[i].position.z))
 				+ ("##" + std::to_string(i) ) ).c_str() ) ) 
 			{
 				FEImGuiWindow::SelectedObjectType = "Light";
@@ -620,6 +905,11 @@ void nameInput() {
 
 void FEImGuiWindow::addWindow(std::string typeString, bool &isOpen) {
 	ImGui::Begin("Add");
+	ImGui::Dummy(ImVec2((ImGui::GetWindowWidth() - 50.0f), 1));
+	ImGui::SameLine();
+	if (ImGui::ImageButton(("##crossIcon" + typeString).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
+		isOpen = false;
+	}
 	if (typeString == "hierarchy") {
 		ImGui::Combo("ObjectType", &hierarchySelectedItem, hierarchyItems, IM_ARRAYSIZE(hierarchyItems));
 
@@ -663,13 +953,8 @@ void FEImGuiWindow::addWindow(std::string typeString, bool &isOpen) {
 		else if (hierarchySelectedItem == 4) {
 			//ImGui::Text("Light");
 			if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
-				Scene::AddSceneLightObject();
+				LightingHandler::createLight();
 			}
-		}
-		//AddSceneLightObject
-		ImGui::SameLine();
-		if (ImGui::ImageButton(("##crossIcon" + typeString).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
-			isOpen = false;
 		}
 		}
 	if (typeString == "content") {
@@ -733,11 +1018,6 @@ void FEImGuiWindow::addWindow(std::string typeString, bool &isOpen) {
 				FEImGuiWindow::MaterialIndexUpdate();
 			}
 		}
-
-		ImGui::SameLine();
-		if (ImGui::ImageButton(("##crossIcon" + typeString).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
-			isOpen = false;
-		}
 	}
 	ImGui::End();
 }
@@ -770,6 +1050,21 @@ void FEImGuiWindow::ModelWindow() {
 	ImGui::Spacing();
 	ImGui::Text((Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ObjectName).c_str());
 
+	if (ImGui::TreeNode("Rendering Component")) {
+
+		ImGui::Combo("Material", &MaterialSelectedIndex, MaterialObjecNames.data(), MaterialObjecNames.size());
+		ImGui::Text(("Current Material: " + Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->MaterialObject.materialPath).c_str());
+		ImGui::Spacing();
+		if (ImGui::SmallButton("Apply Material")) {
+			Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->LoadMaterial(MaterialObjectPaths[MaterialSelectedIndex]); // for now im just gonna load the wobbly shader
+		}
+		if (ImGui::SmallButton("Reload Current Material")) {
+			Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->LoadMaterial(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->MaterialObject.materialPath);
+		}
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+	ImGui::Spacing();
+
 	if (ImGui::TreeNode("Transform Component")) {
 		ImGui::Text("Transformations: ");
 		// position
@@ -788,20 +1083,6 @@ void FEImGuiWindow::ModelWindow() {
 		ImGui::DragFloat3("BoxColliderTransform", &Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->BoxColliderTransform.x);
 		ImGui::DragFloat3("BoxColliderScale", &Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->BoxColliderScale.x);
 
-		ImGui::TreePop();// Ends The ImGui Window
-	}
-	ImGui::Spacing();
-	if (ImGui::TreeNode("Rendering Component")) {
-
-		ImGui::Combo("Material", &MaterialSelectedIndex, MaterialObjecNames.data(), MaterialObjecNames.size());
-		ImGui::Text(("Current Material: " + Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->MaterialObject.materialPath).c_str());
-		ImGui::Spacing();
-		if (ImGui::SmallButton("Apply Material")) {
-			Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->LoadMaterial(MaterialObjectPaths[MaterialSelectedIndex]); // for now im just gonna load the wobbly shader
-		}
-		if (ImGui::SmallButton("Reload Current Material")) {
-			Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->LoadMaterial(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->MaterialObject.materialPath);
-		}
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	ImGui::Spacing();
@@ -908,22 +1189,22 @@ static const char* lightTypes[]{ "Spotlight","Pointlight" };
 static int SelectedLight = 0;
 
 void FEImGuiWindow::LightWindow() {
-	ImGui::DragFloat3("Position", &Scene::position[FEImGuiWindow::SelectedObjectIndex].x);
-	ImGui::ColorEdit3("Color", &Scene::colour[FEImGuiWindow::SelectedObjectIndex].x);
-	ImGui::DragFloat2("Range And Power", &Scene::radiusAndPower[FEImGuiWindow::SelectedObjectIndex].x, 0.1f, 0.1f);
-	ImGui::Combo("LightType", &Scene::lightType[FEImGuiWindow::SelectedObjectIndex], lightTypes, IM_ARRAYSIZE(lightTypes));
-
+	FEImGui::DragVec3("Position", LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position);
+	FEImGui::DragVec3("Rotation", LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].rotation);
+	ImGui::ColorEdit3("Color", &LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].colour.x);
+	ImGui::DragFloat("Radius", &LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].radius, 0.1f);
+	ImGui::Combo("LightType", &LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].type, lightTypes, IM_ARRAYSIZE(lightTypes));
 	ImGui::Spacing();
 
 	//ImGui::Checkbox("Enabled", &Scene::LightObjectList[ImGuiWindow::SelectedObjectIndex].enabled);
-	if (Scene::enabled[FEImGuiWindow::SelectedObjectIndex] == 0) {
+	if (LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].enabled == 0) {
 		if (ImGui::SmallButton("Enable")) {
-			Scene::enabled[FEImGuiWindow::SelectedObjectIndex] = !Scene::enabled[FEImGuiWindow::SelectedObjectIndex];
+			LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].enabled = !LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].enabled;
 		}
 	}
-	else if (Scene::enabled[FEImGuiWindow::SelectedObjectIndex] == 1) {
+	else if (LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].enabled == 1) {
 		if (ImGui::SmallButton("Disable")) {
-			Scene::enabled[FEImGuiWindow::SelectedObjectIndex] = !Scene::enabled[FEImGuiWindow::SelectedObjectIndex];
+			LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].enabled = !LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].enabled;
 		}
 	}
 	//std::cout << Scene::LightObjectList[ImGuiWindow::SelectedObjectIndex].enabled << std::endl;
@@ -932,13 +1213,7 @@ void FEImGuiWindow::LightWindow() {
 
 	if (ImGui::SmallButton("Delete")) {
 
-		Scene::enabled.erase(Scene::enabled.begin() + FEImGuiWindow::SelectedObjectIndex);
-		Scene::position.erase(Scene::position.begin() + FEImGuiWindow::SelectedObjectIndex);
-		Scene::colour.erase(Scene::colour.begin() + FEImGuiWindow::SelectedObjectIndex);
-		Scene::radiusAndPower.erase(Scene::radiusAndPower.begin() + FEImGuiWindow::SelectedObjectIndex);
-		Scene::lightType.erase(Scene::lightType.begin() + FEImGuiWindow::SelectedObjectIndex);
-
-
+		LightingHandler::Lights.erase(LightingHandler::Lights.begin() + FEImGuiWindow::SelectedObjectIndex);
 
 		FEImGuiWindow::SelectedObjectIndex = 0; // reset index
 		FEImGuiWindow::SelectedObjectType = "";
@@ -954,10 +1229,7 @@ void FEImGuiWindow::SkyBoxWindow() {
 		Skybox::DefaultSkyboxPath = SkyBoxPath;
 		Skybox::LoadSkyBoxTexture(SkyBoxPath);
 	}
-
-
 }
-
 
 void FEImGuiWindow::InspectorWindow() {
 
@@ -969,32 +1241,139 @@ void FEImGuiWindow::InspectorWindow() {
 	if (FEImGuiWindow::SelectedObjectType == "Camera") {
 		FEImGuiWindow::CameraWindow();
 	}
-
-	if (FEImGuiWindow::SelectedObjectType == "Model") {
+	else if (FEImGuiWindow::SelectedObjectType == "Model") {
 		FEImGuiWindow::ModelWindow();
 	}
-
-	if (FEImGuiWindow::SelectedObjectType == "BillBoard") {
+	else if (FEImGuiWindow::SelectedObjectType == "BillBoard") {
 		FEImGuiWindow::BillBoardWindow();
 	}
-
-	if (FEImGuiWindow::SelectedObjectType == "Sound") {
+	else if (FEImGuiWindow::SelectedObjectType == "Sound") {
 	}
-
-	if (FEImGuiWindow::SelectedObjectType == "Collider") {
+	else if (FEImGuiWindow::SelectedObjectType == "Collider") {
 		FEImGuiWindow::ColliderWindow();
 	}
 	//std::cout << Scene::enabled.size() << std::endl;
-	if (FEImGuiWindow::SelectedObjectType == "Light") {
+	else if (FEImGuiWindow::SelectedObjectType == "Light") {
 		FEImGuiWindow::LightWindow();
 	}
-
-	if (FEImGuiWindow::SelectedObjectType == "DirectLight") {
+	else if (FEImGuiWindow::SelectedObjectType == "DirectLight") {
 
 	}
-
-	if (FEImGuiWindow::SelectedObjectType == "Skybox") {
+	else if (FEImGuiWindow::SelectedObjectType == "Skybox") {
 		FEImGuiWindow::SkyBoxWindow();
 	}
+	else if (FEImGuiWindow::SelectedObjectType == "Environment")
+	{
+		ImGui::Checkbox("doReflections", &RenderClass::doReflections);
+		ImGui::Spacing();
+		ImGui::Checkbox("doFog", &RenderClass::doFog); 		//Toggles
+		ImGui::ColorEdit3("fog RGBA", &RenderClass::fogRGBA.r);	// sky and light
+		ImGui::Spacing();
+		ImGui::Text("DepthBuffer Settings (FOG)");
+		ImGui::DragFloat("Depth Distance (FOG)", &RenderClass::DepthDistance);
+		ImGui::DragFloat2("Near and Far Depth Plane", RenderClass::DepthPlane);
+	}
+	ImGui::End();
+}
+
+bool addContentBool = false;
+
+void FEImGuiWindow::SceneFolderWindow()
+{
+	ImGui::Begin("Scene Folder"); // ImGUI window creation
+	if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(20, 20))) {
+		addContentBool = true;
+	}
+	if (addContentBool) {
+		FEImGuiWindow::addWindow("content", addContentBool);
+	}
+
+	for (size_t i = 0; i < FEImGuiWindow::ContentObjects.size(); i++)
+	{
+		if (FEImGuiWindow::ContentObjects[i] != "") {
+			ImVec2 cursor_screen_pos = ImGui::GetCursorScreenPos(); // cursor pos at start of group
+			std::string name = FEImGuiWindow::ContentObjectNames[i];
+			ImVec2 textSize = ImGui::CalcTextSize(name.c_str());
+
+			if (textSize.x > 85.0f) { // max width
+				while (ImGui::CalcTextSize((name + "...").c_str()).x > 85.0f && !name.empty()) {
+					name.pop_back();
+				}
+				name += "...";
+			}
+
+			ImGui::BeginGroup();
+			if (FEImGuiWindow::ContentObjects[i] == "Model") {
+				if (ImGui::ImageButton(("##ObjectIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::ModelIcon.ID, ImVec2(100, 100))) {
+					if (FEImGuiWindow::ContentObjectTypes[i] == "static") {
+						Scene::AddSceneModelObject(false, FEImGuiWindow::ContentObjectPaths[i], FEImGuiWindow::ContentObjectNames[i]);
+					}
+					else {
+						Scene::AddSceneModelObject(true, FEImGuiWindow::ContentObjectPaths[i], FEImGuiWindow::ContentObjectNames[i]);
+					}
+
+				}
+				if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
+					FEImGuiWindow::ContentObjects.erase(FEImGuiWindow::ContentObjects.begin() + i);
+					FEImGuiWindow::ContentObjectNames.erase(FEImGuiWindow::ContentObjectNames.begin() + i);
+					FEImGuiWindow::ContentObjectPaths.erase(FEImGuiWindow::ContentObjectPaths.begin() + i);
+					FEImGuiWindow::ContentObjectTypes.erase(FEImGuiWindow::ContentObjectTypes.begin() + i);
+				}
+				ImGui::SameLine();
+				ImGui::Text("%s", name.c_str());
+			}
+			if (FEImGuiWindow::ContentObjects[i] == "BillBoard") {
+				if (ImGui::ImageButton(("##BillBoardIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::BillBoardIcon.ID, ImVec2(100, 100))) {
+
+					if (FEImGuiWindow::ContentObjectTypes[i] == "static") {
+						Scene::AddSceneBillBoardObject(FEImGuiWindow::ContentObjectNames[i], false, FEImGuiWindow::ContentObjectPaths[i]);
+					}
+					else {
+						Scene::AddSceneBillBoardObject(FEImGuiWindow::ContentObjectNames[i], true, FEImGuiWindow::ContentObjectPaths[i]);
+					}
+					//flag_isanimated
+
+				}
+				if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
+					FEImGuiWindow::ContentObjects.erase(FEImGuiWindow::ContentObjects.begin() + i);
+					FEImGuiWindow::ContentObjectNames.erase(FEImGuiWindow::ContentObjectNames.begin() + i);
+					FEImGuiWindow::ContentObjectPaths.erase(FEImGuiWindow::ContentObjectPaths.begin() + i);
+					FEImGuiWindow::ContentObjectTypes.erase(FEImGuiWindow::ContentObjectTypes.begin() + i);
+				}
+				ImGui::SameLine();
+				ImGui::Text("%s", name.c_str());
+			}
+			if (FEImGuiWindow::ContentObjects[i] == "Material") {
+				if (ImGui::ImageButton(("##materialIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::materialIcon.ID, ImVec2(100, 100))) {
+					// when clicked on should summon material editor
+				}
+
+				if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
+					FEImGuiWindow::ContentObjects.erase(FEImGuiWindow::ContentObjects.begin() + i);
+					FEImGuiWindow::ContentObjectNames.erase(FEImGuiWindow::ContentObjectNames.begin() + i);
+					FEImGuiWindow::ContentObjectPaths.erase(FEImGuiWindow::ContentObjectPaths.begin() + i);
+					FEImGuiWindow::ContentObjectTypes.erase(FEImGuiWindow::ContentObjectTypes.begin() + i);
+
+					FEImGuiWindow::MaterialIndexUpdate();
+				}
+				ImGui::SameLine();
+				ImGui::Text("%s", name.c_str());
+
+			}
+			ImGui::EndGroup();
+
+			ImVec2 window_pos = ImGui::GetWindowPos();
+			float window_width = ImGui::GetWindowWidth();
+
+			// Predict next item width (icon + margin)
+			float next_item_width = 125.0f;
+
+			if (cursor_screen_pos.x + next_item_width < window_pos.x + window_width)
+			{
+				ImGui::SameLine();
+			}
+		}
+	}
+
 	ImGui::End();
 }

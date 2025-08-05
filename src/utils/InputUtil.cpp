@@ -1,6 +1,7 @@
 #include "InputUtil.h"
 #include <unordered_map>
 #include <vector>
+#include <Render/window/WindowHandler.h>
 
 std::string InputUtil::CurrentKey;
 std::vector<std::string> pressedKeys;
@@ -128,11 +129,11 @@ std::unordered_map<int, std::string> keyNames = {
     {GLFW_KEY_MENU, "Menu"}
 };
 
-void InputUtil::UpdateCurrentKey(GLFWwindow* window) {
+void InputUtil::UpdateCurrentKey() {
     pressedKeys.clear(); // Clear previous frame's keys
 
     for (const auto& [key, name] : keyNames) {
-        if (glfwGetKey(window, key) == GLFW_PRESS) {
+        if (glfwGetKey(windowHandler::window, key) == GLFW_PRESS) {
             pressedKeys.push_back(name);
         }
     }

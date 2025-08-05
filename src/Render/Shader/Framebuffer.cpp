@@ -1,8 +1,11 @@
 #include "Render/Shader/Framebuffer.h"
-#include <utils/SettingsUtil.h>
 #include <Render/passes/geometry/geometryPass.h>
 #include <Render/passes/lighting/LightingPass.h>
 #include <Render/window/WindowHandler.h>
+
+int Framebuffer::tempWidth;
+int Framebuffer::tempHeight;
+
 unsigned int Framebuffer::ViewPortWidth = 800, Framebuffer::ViewPortHeight = 600;
 
 unsigned int Framebuffer::viewVAO, Framebuffer::viewVBO;
@@ -15,6 +18,18 @@ unsigned int Framebuffer::shadowMapFBO, Framebuffer::shadowMapHeight, Framebuffe
 GLuint Framebuffer::noiseMapTexture;
 Shader Framebuffer::frameBufferProgram;
 Shader Framebuffer::shadowMapProgram;
+
+float s_ViewportVerticies[24] = {
+	// Coords,   Texture cords
+	 1.0f, -1.0f,  1.0f, 0.0f,
+	-1.0f, -1.0f,  0.0f, 0.0f,
+	-1.0f,  1.0f,  0.0f, 1.0f,
+
+	 1.0f,  1.0f,  1.0f, 1.0f,
+	 1.0f, -1.0f,  1.0f, 0.0f,
+	-1.0f,  1.0f,  0.0f, 1.0f
+};
+
 
 void Framebuffer::setupNoiseMap() {
 	// *TimeUtil::s_DeltaTime)
@@ -60,7 +75,7 @@ void Framebuffer::setupMainFBO(unsigned int width, unsigned int height) {
 	glGenBuffers(1, &viewVBO);
 	glBindVertexArray(viewVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, viewVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(SettingsUtils::s_ViewportVerticies) * 6 * 4, SettingsUtils::s_ViewportVerticies, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(s_ViewportVerticies) * 6 * 4, s_ViewportVerticies, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);

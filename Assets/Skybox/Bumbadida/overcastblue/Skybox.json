@@ -1,0 +1,14 @@
+[
+    {
+        "Path": "Assets/Skybox/Bumbadida/overcastblue/",
+
+        "Faces": [
+            "front.png",
+            "back.png",
+            "top.png",
+            "bottom.png",
+            "right.png",
+            "left.png"
+        ]
+    }
+]

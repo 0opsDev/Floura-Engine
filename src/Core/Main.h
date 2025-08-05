@@ -7,6 +7,8 @@
 #include <glad/glad.h>
 #include "UI/ImGui/ImGuiInclude.h"
 
+// nope
+
 class Main
 {
 public:
@@ -14,7 +16,6 @@ public:
 	static bool sleepState;
 	static float cameraSettings[3]; // FOV, near, far
 	static GLfloat CameraXYZ[3]; // Initial camera position
-	static void imGuiMAIN(GLFWwindow* window);
 
 	//void Main::updateModelLua(std::vector<std::string> path, std::vector<std::string> modelName, std::vector<float> x, std::vector<float> y, std::vector<float> z)
 

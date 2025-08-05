@@ -13,20 +13,20 @@
         "DoFrustumCull": false,
         "IsLod": false,
         "Location": [
-            -118.41848754882813,
-            27.114749908447266,
-            -17.872669219970703
+            0.0,
+            0.0,
+            0.0
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
-            7.461999893188477,
-            -11.528594970703125,
-            -4.007713607968977e-43
+            0.0,
+            0.0,
+            0.0
         ],
         "Scale": [
-            0.19999989867210388,
-            0.20000001788139343,
-            0.20000003278255463
+            0.30000001192092896,
+            0.30000001192092896,
+            0.30000001192092896
         ],
         "frustumBoxScale": [
             1.0,
@@ -40,8 +40,8 @@
         ],
         "isBackFaceCulling": true,
         "isCollider": false,
-        "name": "shipment.gltf",
-        "path": "Assets/Models/fps/shipment.gltf"
+        "name": "coast rocks 02 1k",
+        "path": "Assets/Models/coast_rocks_02_1k.gltf/coast_rocks_02_1k.gltf"
     },
     {
         "BoxColliderScale": [
@@ -57,15 +57,15 @@
         "DoFrustumCull": false,
         "IsLod": false,
         "Location": [
-            -125.0,
-            29.0,
-            -30.0
+            -0.7209963798522949,
+            0.40584656596183777,
+            3.155628204345703
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
-            6.0,
-            13.0,
-            0.0
+            -2.799999952316284,
+            0.0,
+            0.10000000149011612
         ],
         "Scale": [
             0.5,
@@ -84,8 +84,8 @@
         ],
         "isBackFaceCulling": true,
         "isCollider": false,
-        "name": "tower",
-        "path": "Assets/Models/tower/tower.gltf"
+        "name": "street lamp 01 8k",
+        "path": "Assets/Models/street_lamp_01_8k.gltf/street_lamp_01_8k.gltf"
     },
     {
         "BoxColliderScale": [
@@ -101,53 +101,9 @@
         "DoFrustumCull": false,
         "IsLod": false,
         "Location": [
-            0.0,
-            21.0,
-            0.0
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            250.0,
-            250.0,
-            250.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": false,
-        "name": "ground",
-        "path": "Assets/Models/field/grassbit2.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "IsLod": false,
-        "Location": [
-            0.0,
-            21.299999237060547,
-            0.21875055134296417
+            -0.7726516723632813,
+            0.3554948568344116,
+            2.9537911415100098
         ],
         "MaterialPath": "Assets/Material/Wobble.Material",
         "Rotation": [
@@ -156,9 +112,9 @@
             0.0
         ],
         "Scale": [
-            250.0,
-            250.0,
-            250.0
+            0.7200000286102295,
+            0.7200000286102295,
+            0.7200000286102295
         ],
         "frustumBoxScale": [
             1.0,
@@ -172,7 +128,139 @@
         ],
         "isBackFaceCulling": false,
         "isCollider": false,
-        "name": "grass",
-        "path": "Assets/Models/grassbit.gltf"
+        "name": "wild rooibos bush 8k",
+        "path": "Assets/Models/wild_rooibos_bush_8k.gltf/wild_rooibos_bush_8k.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IsLod": false,
+        "Location": [
+            -0.3164842426776886,
+            0.2768387496471405,
+            3.0804474353790283
+        ],
+        "MaterialPath": "Assets/Material/Wobble.Material",
+        "Rotation": [
+            0.0,
+            32.400001525878906,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "wild rooibos bush 8k",
+        "path": "Assets/Models/wild_rooibos_bush_8k.gltf/wild_rooibos_bush_8k.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IsLod": false,
+        "Location": [
+            -0.6476999521255493,
+            0.3498881459236145,
+            3.27980899810791
+        ],
+        "MaterialPath": "Assets/Material/Wobble.Material",
+        "Rotation": [
+            0.0,
+            96.5,
+            0.0
+        ],
+        "Scale": [
+            0.7900000810623169,
+            0.7900000214576721,
+            0.7900000810623169
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "wild rooibos bush 8k",
+        "path": "Assets/Models/wild_rooibos_bush_8k.gltf/wild_rooibos_bush_8k.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IsLod": false,
+        "Location": [
+            -0.3402216136455536,
+            0.27399998903274536,
+            3.28908371925354
+        ],
+        "MaterialPath": "Assets/Material/Wobble.Material",
+        "Rotation": [
+            14.899999618530273,
+            -1.24399995803833,
+            -8.800000190734863
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "wild rooibos bush 8k",
+        "path": "Assets/Models/wild_rooibos_bush_8k.gltf/wild_rooibos_bush_8k.gltf"
     }
 ]

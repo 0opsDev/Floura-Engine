@@ -21,7 +21,7 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Material.001",
+			"name":"Material.002",
 			"normalTexture":{
 				"index":0
 			},
@@ -87,61 +87,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":4225,
+			"count":1839,
 			"max":[
-				1.0000005960464478,
+				0.599659264087677,
 				0.03999573364853859,
-				1.0000007152557373
+				0.5996593236923218
 			],
 			"min":[
-				-1.0000007152557373,
+				-0.599659264087677,
 				-0.26453033089637756,
-				-1.0000007152557373
+				-0.599659264087677
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":4225,
+			"count":1839,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":4225,
+			"count":1839,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":24576,
+			"count":10062,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":50700,
+			"byteLength":22068,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":50700,
-			"byteOffset":50700,
+			"byteLength":22068,
+			"byteOffset":22068,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":33800,
-			"byteOffset":101400,
+			"byteLength":14712,
+			"byteOffset":44136,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":49152,
-			"byteOffset":135200,
+			"byteLength":20124,
+			"byteOffset":58848,
 			"target":34963
 		}
 	],
@@ -153,7 +153,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":184352,
+			"byteLength":78972,
 			"uri":"grassbit2.bin"
 		}
 	]

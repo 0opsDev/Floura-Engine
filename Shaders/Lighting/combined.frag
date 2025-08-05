@@ -22,16 +22,29 @@ uniform sampler2D specular0;
 uniform vec4 skyColor;
 // Gets the position of the light from the main function
 const vec3 lightPos = vec3(0.0, 5.0, 1.0);
-uniform vec3 lightPos2[32];
-uniform vec3 colour2[32];
-uniform int sizeOfLights;
-uniform vec2 radiusAndPower[32];
-uniform int lightType[32];
-uniform bool enabled[32];
 
+struct Light
+{
+	vec3 position;
+	vec3 rotation;
+	vec3 colour;
+	float radius;
+	int type;
+};
+
+uniform Light Lights[64];
+
+uniform int lightCount;
 
 // Gets the position of the camera from the main function
 uniform vec3 camPos;
+uniform float NearPlane;
+uniform float FarPlane;
+
+float linearizeDepth(float depth)
+{
+	return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
+}
 
 vec4 direcLight()
 {
@@ -59,16 +72,16 @@ vec4 direcLight()
 
 vec4 pointLight(int iteration)
 {	
-	vec4 finalColour;
+	vec4 finalColour = vec4(0.0f);
 
 	// used in two variables so I calculate it here to not have to do it twice
-	vec3 lightVec = lightPos2[iteration] - crntPos;
+	vec3 lightVec = Lights[iteration].position - crntPos;
 
 	// intensity of light with respect to distance
 	float dist = length(lightVec);
 	float a = 3.0;
 	float b = 0.7;
-	float inten = radiusAndPower[iteration].x / (a * dist * dist + b * dist + 1.0);
+	float inten = Lights[iteration].radius / (a * dist * dist + b * dist + 1.0);
 
 	// ambient lighting
 	float ambient = 0.0f;
@@ -86,10 +99,10 @@ vec4 pointLight(int iteration)
 		float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 		float specular = specAmount * specularLight;
 
-		finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * vec4(colour2[iteration], inten);
+		finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0 ) * inten;
 	}
 	else{
-		finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(colour2[iteration], inten));
+		finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
 	}
 
 	return finalColour;
@@ -104,15 +117,15 @@ vec4 spotLight(int iteration)
 	// ambient lighting
 	float ambient = 0.0f;
 
-	vec4 finalColour;
+	vec4 finalColour = vec4(0.0f);
 
 		// diffuse lighting
 	vec3 normal = normalize(Normal);
-	vec3 lightDirection = normalize(lightPos2[iteration] - crntPos);
+	vec3 lightDirection = normalize(Lights[iteration].position - crntPos);
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
 	// calculates the intensity of the crntPos based on its angle to the center of the light cone
-	float angle = dot(vec3(0.0f, -1.0f, 0.0f), -lightDirection);
+	float angle = dot(Lights[iteration].rotation, -lightDirection); // direction
 	float inten = clamp( (angle - outerCone) / (innerCone - outerCone), 0.0f, 1.0); 
 
 	if (doReflect){
@@ -124,16 +137,13 @@ vec4 spotLight(int iteration)
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * vec4(colour2[iteration], inten);
+	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0) * inten;
 
 	}
 	else{
 	
-	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(colour2[iteration], inten));
+	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
 	}
-
-
-	
 
 	//finalColour = finalColour + (diffuse * inten + skyColor);
 
@@ -142,30 +152,33 @@ vec4 spotLight(int iteration)
 
 vec4 lights(){
 	vec4 diffuseTex = texture(diffuse0, texCoord);
-	vec4 finalColour;
+	vec4 finalColour = vec4(0.0);
+
+	//early cutoff
 	if (diffuseTex.a < 0.1)
 	discard;
-	for (int i = 0; i < sizeOfLights; i++){
-		if (enabled[i]){
-			if (lightType[i] == 0){
-			finalColour = finalColour + spotLight(i);
+
+	if (linearizeDepth(gl_FragCoord.z) >= FarPlane) {
+	discard;
+    //return (diffuseTex * skyColor);
+	}
+	int maxLights = 64;
+	for (int i = 0; i < min(lightCount, maxLights); i++)
+		{
+			if (Lights[i].type == 0){
+			finalColour += spotLight(i);
 			}
 
-			if (lightType[i] == 1){
-			finalColour = finalColour + pointLight(i);
-			}
-		} 
+			if (Lights[i].type == 1){
+			finalColour += pointLight(i);
+		}
 
 	}
-
-	return ((diffuseTex * skyColor) + finalColour);
+	//return finalColour;
+	return (diffuseTex * skyColor) + finalColour;
 } 
-
 
 void main()
 {
-	// outputs final color
-	//FragColor = direcLight();
-	//FragColor = spotLight();
 	FragColor = lights();
 }

@@ -44,26 +44,17 @@ void init::initLog() {
 	}
 }
 
-void init::initGLFW() {
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4), glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6); // Window Minimum and Maximum version
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //OpenGl Profile
-	glfwWindowHint(GLFW_RESIZABLE, 1); // Start Resizable
-	glfwWindowHint(GLFW_MAXIMIZED, 0); // Start Maximized
-	glfwWindowHint(GLFW_DEPTH_BITS, 16); // DepthBuffer Bit
-}
-
 void init::initImGui(GLFWwindow* window) {
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui::StyleColorsDark();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
 
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 460");
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 460");
 
 	ImGuiStyle& Style = ImGui::GetStyle();
 
@@ -158,18 +149,18 @@ void init::initImGui(GLFWwindow* window) {
 }
 
 
-void init::initGLenable(bool frontFaceSide ) {
-    // glenables
-    // depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
-    glEnable(GL_DEPTH_TEST); // Depth buffer
-    glDepthFunc(GL_LESS);
-    //glEnable(GL_STENCIL_TEST); //stencil buffer
-    //glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glEnable(GL_CULL_FACE); // Culling
-    glCullFace(GL_BACK);
+void init::initGLenable(bool frontFaceSide) {
+	// glenables
+	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
+	glEnable(GL_DEPTH_TEST); // Depth buffer
+	glDepthFunc(GL_LESS);
+	//glEnable(GL_STENCIL_TEST); //stencil buffer
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glEnable(GL_CULL_FACE); // Culling
+	glCullFace(GL_BACK);
 
-    switch (frontFaceSide) { //currently set to false
-    case true: { glFrontFace(GL_CW); break; } // inside facing
-    case false: { glFrontFace(GL_CCW); break; } // outside facing
-    }
+	switch (frontFaceSide) { //currently set to false
+	case true: { glFrontFace(GL_CW); break; } // inside facing
+	case false: { glFrontFace(GL_CCW); break; } // outside facing
+	}
 }

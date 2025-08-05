@@ -128,6 +128,9 @@
     <Filter Include="src\Math">
       <UniqueIdentifier>{ba418121-a4b8-4472-b254-38cbd7a3c66f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Scene">
+      <UniqueIdentifier>{1ef4ae25-bf30-4b09-9792-4962eefbf700}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Render\shader\ShaderClass.cpp">
@@ -185,9 +188,6 @@
       <Filter>src\utils</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\ScreenUtils.cpp">
-      <Filter>src\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\utils\SettingsUtil.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\timeAccumulator.cpp">
@@ -328,6 +328,12 @@
     <ClCompile Include="src\Math\FE_math.cpp">
       <Filter>src\Math</Filter>
     </ClCompile>
+    <ClCompile Include="src\Scene\LightingHandler.cpp">
+      <Filter>src\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\OpenSceneWindow.cpp">
+      <Filter>src\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -361,9 +367,6 @@
       <Filter>src\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\ScreenUtils.h">
-      <Filter>src\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\SettingsUtil.h">
       <Filter>src\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\timeAccumulator.h">
@@ -542,6 +545,12 @@
     </ClInclude>
     <ClInclude Include="src\Math\FE_math.h">
       <Filter>src\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\LightingHandler.h">
+      <Filter>src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\OpenSceneWindow.h">
+      <Filter>src\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

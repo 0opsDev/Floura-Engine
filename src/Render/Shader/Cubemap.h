@@ -18,11 +18,9 @@ class Cubemap
 {
 public:
 
-
+	unsigned int ID;
 
 	void LoadCubeMapTexture(std::string PathName);
-
-	void cubeboxTexture(unsigned int& cubemapTexture);
 
 };
 

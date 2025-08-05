@@ -56,50 +56,58 @@ public:
 	static Texture skyboxIcon; // Icon for skybox in ImGui
 	static Texture directLight; // Icon for directLight in ImGui
 	static Texture materialIcon; // Icon for material in ImGui
+	static Texture environmentIcon; // Icon for material in ImGui
+	static Texture moveIcon; // Icon for move in ImGui
+	static Texture scaleIcon; // Icon for scale in ImGui
+	static Texture rotateIcon; // Icon for rotate in ImGui
 
 	static void init();
 
 	static void loadContentObjects(std::string path);
 	static void saveContentObjects(std::string path);
 
-	static void SystemInfomation();
-	static void RenderWindow(GLFWwindow*& window, int windowedWidth, int windowedHeight);
-	static void create();
-	static void ShaderWindow();
-
-
-	static void CameraWindow();
-	static void PanelsWindow();
-
-	static void PreformanceProfiler();
-
-	static void TextEditor();
-
-	static void viewport();
-
-	static void HierarchyList();
-
-	static void addWindow(std::string typeString, bool &isOpen);
-
-	static void MaterialIndexUpdate();
-
-	static void ModelWindow();
-
-	static void BillBoardWindow();
-
-	static void ColliderWindow();
-
-	static void LightWindow();
-
-	static void SkyBoxWindow();
-
-	static void InspectorWindow();
-
-
+	static void Update();
 
 	private:
 
+		static void menuwindow();
+
+		static void SystemInfomation();
+
+		static void RenderWindow();
+
+		static void create();
+
+		static void CameraWindow();
+
+		static void PanelsWindow();
+
+		static void PreformanceProfiler();
+
+		static void TextEditor();
+
+		static void viewport();
+
+		static void HierarchyList();
+
+		static void addWindow(std::string typeString, bool& isOpen);
+
+		static void MaterialIndexUpdate();
+
+		static void ModelWindow();
+
+		static void BillBoardWindow();
+
+		static void ColliderWindow();
+
+		static void LightWindow();
+
+		static void SkyBoxWindow();
+
+		static void InspectorWindow();
+
+		static void SceneFolderWindow();
 
 };
 
-#endif // SCREEN_UTILS_CLASS_H
+#endif

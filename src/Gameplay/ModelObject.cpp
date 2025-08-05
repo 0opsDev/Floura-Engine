@@ -176,12 +176,10 @@ void ModelObject::renderLogic() {
 	glDisable(GL_CULL_FACE);
 }
 
-void ModelObject::updateForwardLights(std::vector<glm::vec3>& colour,
-	std::vector<glm::vec3>& position, std::vector<glm::vec2>& radiusAndPower,
-	std::vector<int>& lightType, std::vector<int>& enabled) {
+void ModelObject::updateForwardLights() {
 
 
-	MaterialObject.updateForwardLights(colour, position, radiusAndPower, lightType, enabled);
+	MaterialObject.updateForwardLights();
 	
 }
 

@@ -1,10 +1,11 @@
 #include "Cubemap.h"
-#include <utils/SettingsUtil.h>
-
 
 std::array<std::string, 6> facesCubemap;
 
 void Cubemap::LoadCubeMapTexture(std::string PathName) {
+
+	// loading
+
 	std::ifstream SkyboxJson(PathName);
 	if (SkyboxJson.is_open()) {
 		json SkyboxJsonData;
@@ -24,15 +25,14 @@ void Cubemap::LoadCubeMapTexture(std::string PathName) {
 	else {
 		std::cerr << "Failed to open Skybox.json" << std::endl;
 	}
-}
 
-void Cubemap::cubeboxTexture(unsigned int& cubemapTexture) {
+	// creation
 
-	glDeleteTextures(1, &cubemapTexture);
+	glDeleteTextures(1, &ID);
 
 	// Creates the cubemap texture object
-	glGenTextures(1, &cubemapTexture);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+	glGenTextures(1, &ID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	// These are very important to prevent seams

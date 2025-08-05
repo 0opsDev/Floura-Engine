@@ -82,5 +82,29 @@
         "ObjectType": "Model",
         "Path": "Assets/Models/grassbit.gltf",
         "Type": "static"
+    },
+    {
+        "Name": "ar",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/ar/m16baked.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "coast rocks 02 8k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/coast_rocks_02_8k.gltf/coast_rocks_02_8k.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "street lamp 01 8k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/street_lamp_01_8k.gltf/street_lamp_01_8k.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "wild rooibos bush 8k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/wild_rooibos_bush_8k.gltf/wild_rooibos_bush_8k.gltf",
+        "Type": "static"
     }
 ]

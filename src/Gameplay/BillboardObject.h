@@ -22,7 +22,6 @@ public:
 	bool doUpdateSequence = true;
 	bool doPitch = true;
 	bool isCollider = false;
-	bool hasPhysics = false;
 	bool DoFrustumCull = true;
 	glm::vec3 transform = glm::vec3(0,0,0);
 	glm::vec3 scale = glm::vec3(1, 1, 1);

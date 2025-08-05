@@ -7,12 +7,15 @@
 #include <Sound/SoundProgram.h>
 #include <Sound/SoundRunner.h>
 
+
+using json = nlohmann::json;
+
 //testclass
 class Scene
 {
 public:
 
-	using json = nlohmann::json;
+	static std::string sceneName; // Map loading
 
 	static std::vector<std::unique_ptr<ModelObject>> modelObjects;
 	static std::vector<BillBoardObject> BillBoardObjects;
@@ -20,11 +23,7 @@ public:
 	static std::vector <SoundProgram> SoundObjects;
 	static std::vector <bool> isSoundLoop;
 
-	static std::vector<glm::vec3> colour;
-	static std::vector<glm::vec3> position;
-	static std::vector<glm::vec2> radiusAndPower;
-	static std::vector<int> lightType;
-	static std::vector<int> enabled;
+	// 4th component is radius
 
 	static glm::vec3 initalCameraPos;
 
@@ -42,8 +41,6 @@ public:
 
 	static void JsonColliderSave(std::string path);
 
-	static void JsonLightSave(std::string path);
-
 	static void JsonSettingsSave(std::string path);
 
 	static void JsonCameraSettingsSave(std::string path);
@@ -56,15 +53,11 @@ public:
 
 	static void AddSceneColliderObject(std::string name);
 
-	static void AddSceneLightObject();
-
 	static void initJsonBillBoardLoad(std::string path);
 
 	static void initJsonColliderLoad(std::string path);
 
 	static void initJsonSoundObjectLoad(std::string path);
-
-	static void initJsonLightObjectLoad(std::string path);
 
 	static void initJsonSettingsLoad(std::string path);
 

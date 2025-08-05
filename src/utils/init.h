@@ -20,8 +20,6 @@ public:
 
     static void initLog();
 
-    static void initGLFW();
-
     static void initImGui(GLFWwindow* window);
 
     static void initGLenable(bool frontFaceSide);

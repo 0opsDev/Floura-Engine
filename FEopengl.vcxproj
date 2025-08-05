@@ -188,6 +188,7 @@
     <ClCompile Include="src\Render\shader\ShaderClass.cpp" />
     <ClCompile Include="src\Render\Shader\SkyBox.cpp" />
     <ClCompile Include="src\Render\window\WindowHandler.cpp" />
+    <ClCompile Include="src\Scene\LightingHandler.cpp" />
     <ClCompile Include="src\Scripting\Functions\Input\LuaGetKey.cpp" />
     <ClCompile Include="src\Scripting\Functions\Model\LuaModel.cpp" />
     <ClCompile Include="src\Scripting\Functions\Player\LuaCamera.cpp" />
@@ -201,11 +202,11 @@
     <ClCompile Include="src\Sound\SoundRunner.cpp" />
     <ClCompile Include="src\UI\ImGui\FE_ImGui.cpp" />
     <ClCompile Include="src\UI\ImGui\ImGuiWindow.cpp" />
+    <ClCompile Include="src\UI\OpenSceneWindow.cpp" />
     <ClCompile Include="src\utils\init.cpp" />
     <ClCompile Include="src\utils\InputUtil.cpp" />
     <ClCompile Include="src\utils\noise.cpp" />
     <ClCompile Include="src\utils\ScreenUtils.cpp" />
-    <ClCompile Include="src\utils\SettingsUtil.cpp" />
     <ClCompile Include="src\utils\timeAccumulator.cpp" />
     <ClCompile Include="src\utils\timeUtil.cpp" />
   </ItemGroup>
@@ -259,6 +260,7 @@
     <ClInclude Include="src\Render\shader\shaderClass.h" />
     <ClInclude Include="src\Render\Shader\SkyBox.h" />
     <ClInclude Include="src\Render\window\WindowHandler.h" />
+    <ClInclude Include="src\Scene\LightingHandler.h" />
     <ClInclude Include="src\Scripting\Functions\Input\LuaGetKey.h" />
     <ClInclude Include="src\Scripting\Functions\Model\LuaModel.h" />
     <ClInclude Include="src\Scripting\Functions\Player\LuaCamera.h" />
@@ -274,11 +276,11 @@
     <ClInclude Include="src\UI\ImGui\FE_ImGui.h" />
     <ClInclude Include="src\UI\ImGui\ImGuiInclude.h" />
     <ClInclude Include="src\UI\ImGui\ImGuiWindow.h" />
+    <ClInclude Include="src\UI\OpenSceneWindow.h" />
     <ClInclude Include="src\utils\init.h" />
     <ClInclude Include="src\utils\InputUtil.h" />
     <ClInclude Include="src\utils\noise.h" />
     <ClInclude Include="src\utils\ScreenUtils.h" />
-    <ClInclude Include="src\utils\SettingsUtil.h" />
     <ClInclude Include="src\utils\timeAccumulator.h" />
     <ClInclude Include="src\utils\timeUtil.h" />
   </ItemGroup>

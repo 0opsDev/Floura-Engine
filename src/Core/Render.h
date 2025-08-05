@@ -29,7 +29,7 @@ public:
 	static bool DoForwardLightingPass; // Toggle for regular pass
 	static bool DoComputeLightingPass;
 
-	static void init(GLFWwindow* window, unsigned int width, unsigned int height);
+	static void init(unsigned int width, unsigned int height);
 
 	static void initGlobalShaders();
 

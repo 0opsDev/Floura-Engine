@@ -1,18 +1,52 @@
 #include"SkyBox.h"
-#include <utils/SettingsUtil.h>
 #include "Cubemap.h"
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
 #include <Core/Render.h>
 #include <Render/passes/geometry/geometryPass.h>
 
-unsigned int Skybox::cubemapTexture;
 unsigned int Skybox::skyboxVAO;
 unsigned int Skybox::skyboxVBO;
 unsigned int Skybox::skyboxEBO;
 Shader skyboxShader;
 Shader skyboxgPassShader;
 std::string Skybox::DefaultSkyboxPath;
+Cubemap SkyboxCubemap;
+
+float s_skyboxVertices[24] =
+{
+	//   Coordinates
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f, -1.0f,
+	-1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f
+};
+
+unsigned int s_skyboxIndices[36] =
+{
+	// Right
+	1, 2, 6,
+	6, 5, 1,
+	// Left
+	0, 4, 7,
+	7, 3, 0,
+	// Top
+	4, 5, 6,
+	6, 7, 4,
+	// Bottom
+	0, 3, 2,
+	2, 1, 0,
+	// Back
+	0, 1, 5,
+	5, 4, 0,
+	// Front
+	3, 7, 6,
+	6, 2, 3
+};
 
 void Skybox::init(std::string PathName) {
 	skyboxShader.LoadShader("Shaders/Skybox/skybox.vert", "Shaders/Skybox/skybox.frag");
@@ -26,11 +60,7 @@ void Skybox::init(std::string PathName) {
 }
 
 void Skybox::LoadSkyBoxTexture(std::string PathName) {
-	Cubemap SkyboxCubemap;
-
 	SkyboxCubemap.LoadCubeMapTexture(PathName); // update it to parse in string which is a path,
-	// Create and load a cubemap texture
-	SkyboxCubemap.cubeboxTexture(cubemapTexture);
 }
 
 void Skybox::skyboxBuffer() {
@@ -82,7 +112,7 @@ void Skybox::draw(unsigned int width, unsigned int height) {
 
 		glBindVertexArray(skyboxVAO);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxCubemap.ID);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
@@ -110,7 +140,7 @@ void Skybox::draw(unsigned int width, unsigned int height) {
 
 		glBindVertexArray(skyboxVAO);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxCubemap.ID);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
@@ -125,37 +155,3 @@ void Skybox::Delete() {
 	skyboxShader.Delete();
 	skyboxgPassShader.Delete();
 }
-float Skybox::s_skyboxVertices[24] =
-{
-	//   Coordinates
-	-1.0f, -1.0f,  1.0f,
-	 1.0f, -1.0f,  1.0f,
-	 1.0f, -1.0f, -1.0f,
-	-1.0f, -1.0f, -1.0f,
-	-1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f, -1.0f,
-	-1.0f,  1.0f, -1.0f
-};
-
-unsigned int Skybox::s_skyboxIndices[36] =
-{
-	// Right
-	1, 2, 6,
-	6, 5, 1,
-	// Left
-	0, 4, 7,
-	7, 3, 0,
-	// Top
-	4, 5, 6,
-	6, 7, 4,
-	// Bottom
-	0, 3, 2,
-	2, 1, 0,
-	// Back
-	0, 1, 5,
-	5, 4, 0,
-	// Front
-	3, 7, 6,
-	6, 2, 3
-};

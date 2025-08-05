@@ -10,7 +10,7 @@ public:
 
 	static std::string CurrentKey;
 
-	static void UpdateCurrentKey(GLFWwindow* window);
+	static void UpdateCurrentKey();
 
 };
 #endif // INPUT_UTIL_CLASS_H

@@ -4,7 +4,6 @@
 #include <unordered_set>
 #include <vector>
 #include <string>
-#include "utils/SettingsUtil.h"
 #include <json/json.hpp>
 #include "Scripting/Functions/ScriptIncludes.h"
 #include "utils/timeAccumulator.h"
