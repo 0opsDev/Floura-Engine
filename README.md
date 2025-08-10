@@ -39,4 +39,3 @@ Screenshots:
 ---
 <img width="2559" height="1439" alt="image" src="https://github.com/user-attachments/assets/7cfb457f-dd31-4752-a33d-28a65dbdd00e" />
 ---
-![image](https://github.com/user-attachments/assets/6d5e7668-fb02-490b-9f27-035b30554f3f)
