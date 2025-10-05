@@ -40,11 +40,11 @@ public:
 	void setDoFrustumCull(bool flag);
 	void setIsCollider(bool flag);
 
-private:
+	glm::vec3 gPosition = glm::vec3(0.0f,0.0f,0.0f);
+	glm::vec3 gScale = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 gRotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
-	glm::vec3 gPosition;
-	glm::vec3 gScale;
-	glm::vec3 gRotation;
+private:
 
 	glm::vec3 lPosition;
 	glm::vec3 lScale;

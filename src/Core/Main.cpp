@@ -1,7 +1,5 @@
 #include "Main.h"
-#include "Camera/Camera.h"
 #include "utils/Init.h"
-#include <glm/gtx/string_cast.hpp>
 #include "utils/timeUtil.h" 
 #include <thread>
 #include <chrono>
@@ -16,13 +14,6 @@
 #include "scene.h"
 #include <Gameplay/Player.h>
 #include <Render/window/WindowHandler.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 #include <Scene/LightingHandler.h>
 #include "UI/OpenSceneWindow.h"
 
@@ -87,14 +78,6 @@ int main() // global variables do not work with threads
 		ScriptRunner::update();
 		InputUtil::UpdateCurrentKey();
 
-		//TA2
-		TA2.update();
-		if (TA2.Counter >= 1 / 10.0f) {
-			if (glfwGetKey(windowHandler::window, GLFW_KEY_F1) == GLFW_PRESS) { FEImGuiWindow::imGuiPanels[0] = !FEImGuiWindow::imGuiPanels[0]; }
-			//std::cout << "update" << std::endl;
-			TA2.reset();
-		}
-
 		if (!Camera::s_DoGravity) { Camera::DoJump = true; };
 
 		auto startInitTime2 = std::chrono::high_resolution_clock::now();
@@ -106,7 +89,18 @@ int main() // global variables do not work with threads
 		Player::update();
 
 		RenderClass::Render(windowHandler::window, windowHandler::width, windowHandler::height);
-		if (FEImGuiWindow::imGuiPanels[0] && FEImGuiWindow::imGuiEnabled) { FEImGuiWindow::Update(); }
+		if (FEImGuiWindow::imGuiEnabled) { 
+
+			TA2.update();
+			if (TA2.Counter >= 1 / 10.0f) {
+				if (glfwGetKey(windowHandler::window, GLFW_KEY_F1) == GLFW_PRESS) { FEImGuiWindow::imGuiPanels[0] = !FEImGuiWindow::imGuiPanels[0]; }
+				//std::cout << "update" << std::endl;
+				TA2.reset();
+			}
+
+			if (FEImGuiWindow::imGuiPanels[0])
+				FEImGuiWindow::Update();
+		}
 
 		RenderClass::Swapchain(windowHandler::window); // tip to self, work down to up (lines)
 

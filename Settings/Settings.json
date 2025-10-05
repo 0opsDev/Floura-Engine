@@ -1,9 +1,9 @@
 [
-    {
-        "Scene": "WobbleTest",
-        "Sensitivity": [ 100.0, 100.0 ],
-        "Vsync": false,
-        "Resolution": [ 1920, 1080 ],
-        "imGui": true
-    }
+  {
+    "Scene": "table",
+    "Sensitivity": [ 100.0, 100.0 ],
+    "Vsync": false,
+    "Resolution": [ 1920, 1080 ],
+    "imGui": true
+  }
 ]

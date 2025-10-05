@@ -15,6 +15,10 @@ class LightingHandler
 {
 public:
 
+	static glm::vec3 dirLightRot;
+	static glm::vec3 directLightCol;
+	static bool doDirLight;
+
 	static struct Light {
 		glm::vec3 position;
 		glm::vec3 rotation;

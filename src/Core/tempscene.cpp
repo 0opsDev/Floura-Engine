@@ -4,18 +4,14 @@
 #include <Gameplay/FE_Object.h>
 #include <Render/window/WindowHandler.h>
 
-//BillBoardObject BBOJ2;
-//BillBoardObject pot;
-//CubeCollider flatplane;
-//ModelObject test2;
-//ModelObject plane;
-//SoundProgram Soundtrack;
-
 //FE_Object PlaceHolder;
 
 void TempScene::init(){
 
-	//PlaceHolder.Create("model", "PlaceHolder", "Assets/Models/barrel/barrel2.gltf", "Assets/Material/Default.Material");
+	//PlaceHolder.create("model", "PlaceHolder", "Assets/Models/cube.gltf", "Assets/Material/Default.Material");
+	//PlaceHolder.gPosition = glm::vec3(5.0f, 0.0f, 0.0f);
+	//PlaceHolder.gScale = glm::vec3(1.0f, 3.0f, 1.0f);
+	//PlaceHolder.gRotation = glm::vec3(45.0f, 0.0f, 45.0f);
 }
 
 void TempScene::Update() {
@@ -29,8 +25,9 @@ void TempScene::Update() {
 		CubeCollider::CollideWithCamera = true;
 	}
 
-	//PlaceHolder.UpdateLights();
-	//PlaceHolder.Draw();
+	//PlaceHolder.updateLights();
+	//PlaceHolder.update();
+	//PlaceHolder.draw();
 
 }
 

@@ -1,0 +1,23 @@
+[
+    {
+        "DefaultSkyboxPath": "Assets/Skybox/sunset/Skybox.json",
+        "DepthDistance": 37.0,
+        "DepthPlane": [
+            0.10000000149011612,
+            49.0
+        ],
+        "Window": "Default",
+        "doFog": true,
+        "doReflections": true,
+        "fogRGBA": [
+            0.17024703323841095,
+            0.17897531390190125,
+            0.3186274766921997
+        ],
+        "skyRGBA": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
+]

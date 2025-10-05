@@ -27,6 +27,10 @@ void FE_Object::update()
 {
 	if (FE_Object::type == "model")
 	{
+		// Update transformation
+		ModelObject.transform = FE_Object::gPosition;
+		ModelObject.scale = FE_Object::gScale;
+		ModelObject.rotation = FE_Object::gRotation;
 
 	}
 	else if (FE_Object::type == "billboard")

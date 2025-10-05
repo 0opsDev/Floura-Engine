@@ -106,5 +106,35 @@
         "ObjectType": "Model",
         "Path": "Assets/Models/wild_rooibos_bush_8k.gltf/wild_rooibos_bush_8k.gltf",
         "Type": "static"
+    },
+    {
+        "Name": "cube",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/cube.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "plane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/plane.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "slope",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/slope.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "sphere",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/sphere.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "cylinder",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/cylinder.gltf",
+        "Type": "static"
     }
 ]

@@ -12,8 +12,10 @@ public:
 	GLuint ID;
 	const char* type;
 	GLuint unit;
-
+	bool filterNearest = true;
 	void createTexture(const char* image, const char* texType, GLuint slot);
+
+	void reload(GLuint slot);
 
 	// Assigns a texture unit to a texture
 	void texUnit(Shader& shader, const char* uniform, GLuint unit);

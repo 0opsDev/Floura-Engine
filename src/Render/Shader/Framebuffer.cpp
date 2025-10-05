@@ -220,6 +220,12 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	frameBufferProgram.setFloat("deltaTime", TimeUtil::s_DeltaTime);
 	frameBufferProgram.setBool("enableFB", FEImGuiWindow::enableFB);
 
+	frameBufferProgram.setFloat("DepthDistance", RenderClass::DepthDistance);
+	frameBufferProgram.setFloat("NearPlane", RenderClass::DepthPlane[0]);
+	frameBufferProgram.setFloat("FarPlane", RenderClass::DepthPlane[1]);
+	frameBufferProgram.setBool("doFog", RenderClass::doFog);
+	frameBufferProgram.setFloat3("fogColor", RenderClass::fogRGBA.r, RenderClass::fogRGBA.g, RenderClass::fogRGBA.b);
+
 	// draw the framebuffer
 	glBindVertexArray(viewVAO);
 	glDisable(GL_DEPTH_TEST); // stops culling on the rectangle the framebuffer is drawn on

@@ -4,6 +4,9 @@
 #include <glm/gtx/euler_angles.hpp>
 
 std::vector<LightingHandler::Light> LightingHandler::Lights;
+glm::vec3 LightingHandler::dirLightRot = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 LightingHandler::directLightCol = glm::vec3(1.0f, 1.0f, 1.0f);
+bool LightingHandler::doDirLight = false;
 
 void LightingHandler::update(Shader Shader)
 {
@@ -39,9 +42,21 @@ void LightingHandler::update(Shader Shader)
 		}
 
 	}
+
 	Shader.setFloat("NearPlane", RenderClass::DepthPlane[0]);
 	Shader.setFloat("FarPlane", RenderClass::DepthPlane[1]);
 	Shader.setInt("lightCount", activeLightIndex);
+
+	// directional light
+	glm::vec3 baseDirectionDIR = glm::vec3(0, 0, -1);
+	glm::vec3 eulerDegreesDIR = dirLightRot;
+	glm::vec3 eulerRadiansDIR = glm::radians(eulerDegreesDIR);
+	glm::mat4 rotationMatrixDIR = glm::yawPitchRoll(eulerRadiansDIR.y, eulerRadiansDIR.x, eulerRadiansDIR.z);
+	glm::vec3 rotatedDirectionDIR = glm::vec3(rotationMatrixDIR * glm::vec4(baseDirectionDIR, 0.0f));
+
+	Shader.setBool("doDirLight", doDirLight);
+	Shader.setFloat3("directLightPos", rotatedDirectionDIR.x, rotatedDirectionDIR.y, rotatedDirectionDIR.z); // 0.0f, 1.0f, 0.0f
+	Shader.setFloat3("directLightCol", directLightCol.x, directLightCol.y, directLightCol.z); // 1.0f, 1.0f, 1.0f
 }
 
 void LightingHandler::createLight()

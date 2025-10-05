@@ -23,6 +23,10 @@ uniform vec4 skyColor;
 // Gets the position of the light from the main function
 const vec3 lightPos = vec3(0.0, 5.0, 1.0);
 
+uniform vec3 directLightPos; //1.0f, 1.0f, 0.0f
+uniform vec3 directLightCol;
+uniform bool doDirLight;
+
 struct Light
 {
 	vec3 position;
@@ -53,7 +57,7 @@ vec4 direcLight()
 
 	// diffuse lighting
 	vec3 normal = normalize(Normal);
-	vec3 lightDirection = normalize(vec3(1.0f, 1.0f, 0.0f));
+	vec3 lightDirection = normalize(directLightPos); //vec3(1.0f, 1.0f, 0.0f)
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 	if (doReflect){
 		// specular lighting
@@ -63,10 +67,10 @@ vec4 direcLight()
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	return (texture(diffuse0, texCoord) * (diffuse + ambient) + texture(specular0, texCoord).r * specular);
+	return (texture(diffuse0, texCoord) * (diffuse + ambient) + texture(specular0, texCoord).r * specular) * vec4(directLightCol, 1.0f);
 	}
 	else{
-	return (texture(diffuse0, texCoord) * (diffuse + ambient));
+	return (texture(diffuse0, texCoord) * (diffuse + ambient)) * vec4(directLightCol, 1.0f);
 	}
 }
 
@@ -175,7 +179,14 @@ vec4 lights(){
 
 	}
 	//return finalColour;
-	return (diffuseTex * skyColor) + finalColour;
+		//FragColor = direcLight(); doDirLight
+
+	if (doDirLight) // if direct light is enabled, add it to the final color
+	{
+		finalColour += direcLight();
+	}
+
+		return (diffuseTex * skyColor) + finalColour;
 } 
 
 void main()

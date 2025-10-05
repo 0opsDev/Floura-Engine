@@ -1258,6 +1258,10 @@ void FEImGuiWindow::InspectorWindow() {
 	}
 	else if (FEImGuiWindow::SelectedObjectType == "DirectLight") {
 
+		ImGui::Checkbox("doDirLight", &LightingHandler::doDirLight);
+		ImGui::Spacing();
+		FEImGui::DragVec3("Rotation", LightingHandler::dirLightRot);
+		ImGui::ColorEdit3("RGBA", &LightingHandler::directLightCol.r);	// sky and light
 	}
 	else if (FEImGuiWindow::SelectedObjectType == "Skybox") {
 		FEImGuiWindow::SkyBoxWindow();
