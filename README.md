@@ -37,6 +37,7 @@ F3: Gravity and Collisions ON
 
 Screenshots:
 ---
+<img width="2559" height="1439" alt="Screenshot 2025-10-06 102509" src="https://github.com/user-attachments/assets/8cbf2769-6dce-4244-8ac1-80196da13e17" />
 <img width="2559" height="1439" alt="image" src="https://github.com/user-attachments/assets/5f5cd025-0a66-4d45-bacd-26a7bc85f31c" />
 
 ---
