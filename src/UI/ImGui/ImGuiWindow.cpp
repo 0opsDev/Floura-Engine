@@ -65,7 +65,7 @@ Texture FEImGuiWindow::rotateIcon; // Icon for rotate in ImGui
 static char pathBuffer[256]; // Ensure the size is appropriate
 
 void FEImGuiWindow::init() {
-	logoIcon.createTexture("Assets/Icons/Icon2.png", "diffuse", 0);
+	logoIcon.createTexture("Assets/Icons/Icon.png", "diffuse", 0);
 	FolderIcon.createTexture("Assets/Icons/bindericon.png", "diffuse", 1);
 	SaveIcon.createTexture("Assets/Icons/saveicon.png", "diffuse", 2);
 	ModelIcon.createTexture("Assets/Icons/meshicon.png", "diffuse", 3);
