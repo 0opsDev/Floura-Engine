@@ -6,10 +6,15 @@ in vec3 texCoords;
 uniform samplerCube skybox;
 //color of light from sky
 uniform vec3 skyRGBA;
+uniform bool DoSbRGBA;
 
 void main()
 {
     vec4 skyTEX = texture(skybox, texCoords);
-    vec3 color = skyTEX.rgb * skyRGBA;
+    vec3 color = skyTEX.rgb;
+    if (DoSbRGBA)
+    {
+    color *= skyRGBA;
+    }
     FragColor = vec4(color, 1.0);
 }

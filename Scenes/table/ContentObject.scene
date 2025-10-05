@@ -126,18 +126,6 @@
         "Type": "static"
     },
     {
-        "Name": "brass pan",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/brass_pan_01_1k.gltf/brass_pan_01_1k.gltf",
-        "Type": "static"
-    },
-    {
-        "Name": "brass pot",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/brass_pot_01_1k.gltf/brass_pot_01_1k.gltf",
-        "Type": "static"
-    },
-    {
         "Name": "vase",
         "ObjectType": "Model",
         "Path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf",
@@ -153,6 +141,18 @@
         "Name": "table lightmap",
         "ObjectType": "Model",
         "Path": "Assets/Models/table/bakedlm/table.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "rockpane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/planes/rockplane.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "pavepane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/planes/paveplane.gltf",
         "Type": "static"
     }
 ]

@@ -8,6 +8,7 @@
 unsigned int Skybox::skyboxVAO;
 unsigned int Skybox::skyboxVBO;
 unsigned int Skybox::skyboxEBO;
+bool Skybox::DoSbRGBA = true;
 Shader skyboxShader;
 Shader skyboxgPassShader;
 std::string Skybox::DefaultSkyboxPath;
@@ -106,6 +107,7 @@ void Skybox::draw(unsigned int width, unsigned int height) {
 		skyboxShader.Activate();
 		skyboxShader.setInt("skybox", 0);
 		skyboxShader.setFloat3("skyRGBA", RenderClass::skyRGBA.r, RenderClass::skyRGBA.g, RenderClass::skyRGBA.b);
+		skyboxShader.setBool("DoSbRGBA", DoSbRGBA);
 
 		// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
 		// where an object is present (a depth of 1.0f will always fail against any object's depth value)

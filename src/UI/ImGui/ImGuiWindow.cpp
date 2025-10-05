@@ -735,7 +735,11 @@ void FEImGuiWindow::HierarchyList() {
 	}
 	ImGui::Image(
 		(ImTextureID)(intptr_t)FEImGuiWindow::directLight.ID,
-		ImVec2(20, 20)
+		ImVec2(20, 20), 
+		ImVec2(0, 0),
+		ImVec2(1, 1),
+		ImVec4(LightingHandler::directLightCol.r, LightingHandler::directLightCol.g, LightingHandler::directLightCol.b, 1.0f), // tint
+		ImVec4(0, 0, 0, 0) // no border
 	);
 	ImGui::SameLine();
 	if (ImGui::MenuItem("DirectLight")) {
@@ -1223,6 +1227,7 @@ void FEImGuiWindow::LightWindow() {
 char SkyBoxPath[64] = "Assets/Skybox/";
 void FEImGuiWindow::SkyBoxWindow() {
 	ImGui::ColorEdit3("Sky Colour", &RenderClass::skyRGBA.r);
+	ImGui::Checkbox("Do Sky Colour", &Skybox::DoSbRGBA);
 	ImGui::Checkbox("Render Skybox", &RenderClass::renderSkybox);
 	ImGui::InputText("Skybox Path", SkyBoxPath, IM_ARRAYSIZE(SkyBoxPath));
 	if (ImGui::Button("Load Skybox")) { 
@@ -1258,10 +1263,15 @@ void FEImGuiWindow::InspectorWindow() {
 	}
 	else if (FEImGuiWindow::SelectedObjectType == "DirectLight") {
 
-		ImGui::Checkbox("doDirLight", &LightingHandler::doDirLight);
+		ImGui::Checkbox("Enabled", &LightingHandler::doDirLight);
+		ImGui::Checkbox("Enabled Specular Light", &LightingHandler::doDirSpecularLight);
 		ImGui::Spacing();
 		FEImGui::DragVec3("Rotation", LightingHandler::dirLightRot);
-		ImGui::ColorEdit3("RGBA", &LightingHandler::directLightCol.r);	// sky and light
+		ImGui::Spacing();
+		ImGui::DragFloat("Ambient Light", &LightingHandler::directAmbient);
+		ImGui::DragFloat("Specular Light", &LightingHandler::dirSpecularLight);
+		ImGui::ColorEdit3("Colour", &LightingHandler::directLightCol.r);	// sky and light
+
 	}
 	else if (FEImGuiWindow::SelectedObjectType == "Skybox") {
 		FEImGuiWindow::SkyBoxWindow();

@@ -4,9 +4,14 @@
 #include <glm/gtx/euler_angles.hpp>
 
 std::vector<LightingHandler::Light> LightingHandler::Lights;
+
+// DIR light
 glm::vec3 LightingHandler::dirLightRot = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 LightingHandler::directLightCol = glm::vec3(1.0f, 1.0f, 1.0f);
+float LightingHandler::directAmbient = 0.20f;
+float LightingHandler::dirSpecularLight = 0.20f;
 bool LightingHandler::doDirLight = false;
+bool LightingHandler::doDirSpecularLight = true;
 
 void LightingHandler::update(Shader Shader)
 {
@@ -55,6 +60,9 @@ void LightingHandler::update(Shader Shader)
 	glm::vec3 rotatedDirectionDIR = glm::vec3(rotationMatrixDIR * glm::vec4(baseDirectionDIR, 0.0f));
 
 	Shader.setBool("doDirLight", doDirLight);
+	Shader.setBool("doDirSpecularLight", doDirSpecularLight);
+	Shader.setFloat("directAmbient", directAmbient);
+	Shader.setFloat("dirSpecularLight", dirSpecularLight);
 	Shader.setFloat3("directLightPos", rotatedDirectionDIR.x, rotatedDirectionDIR.y, rotatedDirectionDIR.z); // 0.0f, 1.0f, 0.0f
 	Shader.setFloat3("directLightCol", directLightCol.x, directLightCol.y, directLightCol.z); // 1.0f, 1.0f, 1.0f
 }

@@ -13,6 +13,7 @@ in vec3 color;
 in vec2 texCoord;
 
 uniform bool doReflect;
+float specularLight = 0.50f; // 0.50f
 
 // Gets the Texture Units from the main function
 uniform sampler2D diffuse0;
@@ -25,7 +26,10 @@ const vec3 lightPos = vec3(0.0, 5.0, 1.0);
 
 uniform vec3 directLightPos; //1.0f, 1.0f, 0.0f
 uniform vec3 directLightCol;
+uniform float directAmbient; // 0.20f
+uniform float dirSpecularLight;
 uniform bool doDirLight;
+uniform bool doDirSpecularLight;
 
 struct Light
 {
@@ -51,26 +55,26 @@ float linearizeDepth(float depth)
 }
 
 vec4 direcLight()
-{
+{ // normals need to be recalculated based on rotation
 	// ambient lighting
-	float ambient = 0.20f;
+	//float ambient = 0.20f;
 
 	// diffuse lighting
 	vec3 normal = normalize(Normal);
 	vec3 lightDirection = normalize(directLightPos); //vec3(1.0f, 1.0f, 0.0f)
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
-	if (doReflect){
-		// specular lighting
-	float specularLight = 0.50f;
+	if (doReflect && doDirSpecularLight){
+	// specular lighting
+	//float specularLight = 0.50f;
 	vec3 viewDirection = normalize(camPos - crntPos);
 	vec3 reflectionDirection = reflect(-lightDirection, normal);
-	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
-	float specular = specAmount * specularLight;
+	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 32);
+	float specular = specAmount * dirSpecularLight;
 
-	return (texture(diffuse0, texCoord) * (diffuse + ambient) + texture(specular0, texCoord).r * specular) * vec4(directLightCol, 1.0f);
+	return (texture(diffuse0, texCoord) * (diffuse + directAmbient) + texture(specular0, texCoord).r * specular) * vec4(directLightCol, 1.0f);
 	}
 	else{
-	return (texture(diffuse0, texCoord) * (diffuse + ambient)) * vec4(directLightCol, 1.0f);
+	return (texture(diffuse0, texCoord) * (diffuse + directAmbient)) * vec4(directLightCol, 1.0f);
 	}
 }
 
@@ -88,7 +92,7 @@ vec4 pointLight(int iteration)
 	float inten = Lights[iteration].radius / (a * dist * dist + b * dist + 1.0);
 
 	// ambient lighting
-	float ambient = 0.0f;
+	//float ambient = 0.0f;
 
 	// diffuse lighting
 	vec3 normal = normalize(Normal);
@@ -97,16 +101,17 @@ vec4 pointLight(int iteration)
 
 	if (doReflect){
 	// specular lighting
-		float specularLight = 0.50f;
+		//float specularLight = 0.50f;
 		vec3 viewDirection = normalize(camPos - crntPos);
 		vec3 reflectionDirection = reflect(-lightDirection, normal);
-		float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
+		float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.1f), 16);
 		float specular = specAmount * specularLight;
 
-		finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0 ) * inten;
+		finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + 0.0f) + texture(specular0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0 ) * inten;
 	}
 	else{
-		finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
+		finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
+		//finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
 	}
 
 	return finalColour;
@@ -119,7 +124,7 @@ vec4 spotLight(int iteration)
 	float innerCone = 0.95f;
 
 	// ambient lighting
-	float ambient = 0.0f;
+	//float ambient = 0.0f;
 
 	vec4 finalColour = vec4(0.0f);
 
@@ -135,18 +140,19 @@ vec4 spotLight(int iteration)
 	if (doReflect){
 
 		// specular lighting
-	float specularLight = 0.50f;
+	//float specularLight = 0.50f;
 	vec3 viewDirection = normalize(camPos - crntPos);
 	vec3 reflectionDirection = reflect(-lightDirection, normal);
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0) * inten;
+	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + 0.0f) + texture(specular0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0) * inten;
 
 	}
 	else{
 	
-	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
+	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
+	//	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
 	}
 
 	//finalColour = finalColour + (diffuse * inten + skyColor);

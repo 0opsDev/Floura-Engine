@@ -15,6 +15,7 @@ class Skybox
 public:
 	static unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
 	static std::string DefaultSkyboxPath;
+	static bool DoSbRGBA;
 
 	static void init(std::string PathName);
 

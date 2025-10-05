@@ -40,6 +40,7 @@ void Scene::LoadScene(std::string path) {
 	initCameraSettingsLoad(path + "/Camera.scene");
 	initJsonColliderLoad(path + "/Collider.scene");
 	LightingHandler::loadScene(path + "/Lights.scene");
+	JsonEnviromentLoad(path + "/Enviroment.scene");
 	initJsonBillBoardLoad(path + "/BillBoard.scene");
 	initJsonModelLoad(path + "/Model.scene");
 	initJsonSoundObjectLoad(path + "/Sound.scene");
@@ -64,6 +65,7 @@ void Scene::LoadScene(std::string path) {
 
 		}
 	*/
+	std::cout << "Loaded scene from: " << path << std::endl;
 
 }
 
@@ -78,10 +80,124 @@ void Scene::SaveScene(std::string path) {
 	JsonCameraSettingsSave(path + "/Camera.scene");
 	JsonColliderSave(path + "/Collider.scene");
 	LightingHandler::saveScene(path + "/Lights.scene");
+	JsonEnviromentSave(path + "/Enviroment.scene");
 	JsonBillBoardSave(path + "/BillBoard.scene");
 	JsonModelSave(path + "/Model.scene");
 	// sound load here
 
+	std::cout << "Saved scene to: " << path << std::endl;
+
+}
+
+
+void Scene::JsonEnviromentSave(std::string path)
+{
+	try {
+		json EnviromentData = json::array();  // New JSON array to hold model data
+
+		json JsonEnviroment;
+
+		// sky
+		JsonEnviroment["skyRGBA"][0] = RenderClass::skyRGBA[0];
+		JsonEnviroment["skyRGBA"][1] = RenderClass::skyRGBA[1];
+		JsonEnviroment["skyRGBA"][2] = RenderClass::skyRGBA[2];
+		JsonEnviroment["DefaultSkyboxPath"] = Skybox::DefaultSkyboxPath;
+		JsonEnviroment["DoSkyColour"] = Skybox::DoSbRGBA;
+		JsonEnviroment["RenderSkybox"] = RenderClass::renderSkybox;
+
+		// directional light
+		JsonEnviroment["DirEnabled"] = LightingHandler::doDirLight;
+		JsonEnviroment["DirSpecEnabled"] = LightingHandler::doDirSpecularLight;
+		JsonEnviroment["DirRotation"][0] = LightingHandler::dirLightRot[0];
+		JsonEnviroment["DirRotation"][1] = LightingHandler::dirLightRot[1];
+		JsonEnviroment["DirRotation"][2] = LightingHandler::dirLightRot[2];
+		JsonEnviroment["DirAmbient"] = LightingHandler::directAmbient;
+		JsonEnviroment["DirSpecular"] = LightingHandler::dirSpecularLight;
+		JsonEnviroment["DirColour"][0] = LightingHandler::directLightCol[0];
+		JsonEnviroment["DirColour"][1] = LightingHandler::directLightCol[1];
+		JsonEnviroment["DirColour"][2] = LightingHandler::directLightCol[2];
+
+		/*
+		DirEnabled
+		DirSpecEnabled
+		DirRotation
+		DirAmbient
+		DirSpecular
+		DirColour
+		*/
+
+		/*
+		JsonEnviroment["fogRGBA"][0] = RenderClass::fogRGBA[0];
+		JsonEnviroment["fogRGBA"][1] = RenderClass::fogRGBA[1];
+		JsonEnviroment["fogRGBA"][2] = RenderClass::fogRGBA[2];
+		*/
+
+		/*
+			JsonEnviroment["doReflections"] = RenderClass::doReflections;
+			JsonEnviroment["doFog"] = RenderClass::doFog; 
+		 */
+
+		EnviromentData.push_back(JsonEnviroment);
+
+		// Write to file
+		// Write back to file
+		std::ofstream outFile(path, std::ios::out);
+		if (!outFile.is_open()) {
+			if (init::LogALL || init::LogSystems || true) std::cout << ("Failed to write to ") << path << std::endl;
+		}
+
+		outFile << EnviromentData.dump(4);
+		outFile.close();
+
+		if (init::LogALL || init::LogSystems || true) std::cout << "Successfully updated " << path << std::endl;
+
+	}
+	catch (const std::exception& e) {
+		if (init::LogALL || init::LogSystems || true) std::cout << "Exception: " << e.what() << std::endl;
+	}
+}
+
+void Scene::JsonEnviromentLoad(std::string path)
+{
+	std::ifstream EnviromentDefaultFile(path);
+	if (EnviromentDefaultFile.is_open()) {
+		json EnviromentDefaultData;
+		EnviromentDefaultFile >> EnviromentDefaultData;
+		EnviromentDefaultFile.close();
+
+		// sky
+		RenderClass::skyRGBA[0] = EnviromentDefaultData[0]["skyRGBA"][0];
+		RenderClass::skyRGBA[1] = EnviromentDefaultData[0]["skyRGBA"][1];
+		RenderClass::skyRGBA[2] = EnviromentDefaultData[0]["skyRGBA"][2];
+		Skybox::DefaultSkyboxPath = EnviromentDefaultData[0]["DefaultSkyboxPath"];
+		Skybox::LoadSkyBoxTexture(Skybox::DefaultSkyboxPath);
+		Skybox::DoSbRGBA = EnviromentDefaultData[0]["DoSkyColour"];;
+		RenderClass::renderSkybox = EnviromentDefaultData[0]["RenderSkybox"];;
+
+		// directional light
+		LightingHandler::doDirLight = EnviromentDefaultData[0]["DirEnabled"];
+		LightingHandler::doDirSpecularLight = EnviromentDefaultData[0]["DirSpecEnabled"];
+		LightingHandler::dirLightRot[0] = EnviromentDefaultData[0]["DirRotation"][0];
+		LightingHandler::dirLightRot[1] = EnviromentDefaultData[0]["DirRotation"][1];
+		LightingHandler::dirLightRot[2] = EnviromentDefaultData[0]["DirRotation"][2];
+		LightingHandler::directAmbient = EnviromentDefaultData[0]["DirAmbient"];
+		LightingHandler::dirSpecularLight = EnviromentDefaultData[0]["DirSpecular"];
+		LightingHandler::directLightCol[0] = EnviromentDefaultData[0]["DirColour"][0];
+		LightingHandler::directLightCol[1] = EnviromentDefaultData[0]["DirColour"][1];
+		LightingHandler::directLightCol[2] = EnviromentDefaultData[0]["DirColour"][2];
+
+		/*
+		RenderClass::fogRGBA[0] = EnviromentDefaultData[0]["fogRGBA"][0];
+		RenderClass::fogRGBA[1] = EnviromentDefaultData[0]["fogRGBA"][1];
+		RenderClass::fogRGBA[2] = EnviromentDefaultData[0]["fogRGBA"][2];
+
+		RenderClass::doReflections = EnviromentDefaultData[0]["doReflections"];
+		RenderClass::doFog = EnviromentDefaultData[0]["doFog"];
+	*/
+	}
+	else {
+		std::cerr << "Failed to open " << path << std::endl;
+	}
 }
 
 void Scene::initJsonModelLoad(std::string path) {
@@ -299,9 +415,9 @@ void Scene::JsonSettingsSave(std::string path) {
 
 		json JsonSettings;
 
-		JsonSettings["skyRGBA"][0] = RenderClass::skyRGBA[0];
-		JsonSettings["skyRGBA"][1] = RenderClass::skyRGBA[1];
-		JsonSettings["skyRGBA"][2] = RenderClass::skyRGBA[2];
+		//JsonSettings["skyRGBA"][0] = RenderClass::skyRGBA[0];
+		//JsonSettings["skyRGBA"][1] = RenderClass::skyRGBA[1];
+		//JsonSettings["skyRGBA"][2] = RenderClass::skyRGBA[2];
 
 		JsonSettings["fogRGBA"][0] = RenderClass::fogRGBA[0];
 		JsonSettings["fogRGBA"][1] = RenderClass::fogRGBA[1];
@@ -315,7 +431,7 @@ void Scene::JsonSettingsSave(std::string path) {
 		JsonSettings["DepthPlane"][1] = RenderClass::DepthPlane[1];
 
 		JsonSettings["Window"] = windowHandler::s_WindowTitle;
-		JsonSettings["DefaultSkyboxPath"] = Skybox::DefaultSkyboxPath;
+		//JsonSettings["DefaultSkyboxPath"] = Skybox::DefaultSkyboxPath;
 
 		SettingsData.push_back(JsonSettings);
 
@@ -564,9 +680,9 @@ void Scene::initJsonSettingsLoad(std::string path) {
 		engineDefaultFile >> engineDefaultData;
 		engineDefaultFile.close();
 
-		RenderClass::skyRGBA[0] = engineDefaultData[0]["skyRGBA"][0];
-		RenderClass::skyRGBA[1] = engineDefaultData[0]["skyRGBA"][1];
-		RenderClass::skyRGBA[2] = engineDefaultData[0]["skyRGBA"][2];
+		//RenderClass::skyRGBA[0] = engineDefaultData[0]["skyRGBA"][0];
+		//RenderClass::skyRGBA[1] = engineDefaultData[0]["skyRGBA"][1];
+		//RenderClass::skyRGBA[2] = engineDefaultData[0]["skyRGBA"][2];
 
 		RenderClass::fogRGBA[0] = engineDefaultData[0]["fogRGBA"][0];
 		RenderClass::fogRGBA[1] = engineDefaultData[0]["fogRGBA"][1];
@@ -584,8 +700,8 @@ void Scene::initJsonSettingsLoad(std::string path) {
 		
 		// window name needs to be set here
 
-		Skybox::DefaultSkyboxPath = engineDefaultData[0]["DefaultSkyboxPath"];
-		Skybox::LoadSkyBoxTexture(Skybox::DefaultSkyboxPath);
+		//Skybox::DefaultSkyboxPath = engineDefaultData[0]["DefaultSkyboxPath"];
+		//Skybox::LoadSkyBoxTexture(Skybox::DefaultSkyboxPath);
 	}
 	else {
 		std::cerr << "Failed to open " << path << std::endl;

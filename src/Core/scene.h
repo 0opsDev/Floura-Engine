@@ -33,6 +33,10 @@ public:
 
 	static void SaveScene(std::string path);
 
+	static void JsonEnviromentSave(std::string path);
+
+	static void JsonEnviromentLoad(std::string path);
+
 	static void initJsonModelLoad(std::string path);
 
 	static void JsonModelSave(std::string path);
@@ -57,7 +61,7 @@ public:
 
 	static void initJsonColliderLoad(std::string path);
 
-	static void initJsonSoundObjectLoad(std::string path);
+	static void initJsonSoundObjectLoad(std::string path); 
 
 	static void initJsonSettingsLoad(std::string path);
 

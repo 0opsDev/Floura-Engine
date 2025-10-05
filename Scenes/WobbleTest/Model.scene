@@ -130,49 +130,5 @@
         "isCollider": true,
         "name": "baseplate",
         "path": "Assets/Models/Baseplate/plate.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "IsLod": false,
-        "Location": [
-            2.910853147506714,
-            2.2608916759490967,
-            -2.1614301204681396
-        ],
-        "MaterialPath": "Assets/Material/Wobble.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": false,
-        "name": "sphere",
-        "path": "Assets/Models/basic shapes/sphere.gltf"
     }
 ]
