@@ -1,4 +1,4 @@
-Farquhar Engine is a Open Source C++ Game Engine created for the purpose of learning opengl,
+Fluxion Engine is a Open Source C++ Game Engine created for the purpose of learning OpenGL,
 
 Features:
 ---
