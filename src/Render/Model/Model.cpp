@@ -1,5 +1,6 @@
 #include"Model.h"
 #include "utils/init.h"
+#include <utils/logConsole.h>
 
 void Model::init(const char* file) {
 	// Make a JSON object
@@ -321,7 +322,8 @@ std::vector<GLuint> Model::getIndices(json accessor)
 std::vector<Texture> Model::getTextures()
 {
 
-	if (init::LogALL || init::LogModel) std::cout << "getTextures / initialization - model.cpp" << std::endl;
+	//if (init::LogALL || init::LogModel) std::cout << "getTextures / initialization - model.cpp" << std::endl;
+	if (init::LogALL || init::LogModel) LogConsole::print("getTextures / initialization - model.cpp");
 	std::vector<Texture> textures;
 
 	std::string fileStr = std::string(file);
@@ -332,7 +334,8 @@ std::vector<Texture> Model::getTextures()
 	{
 		// uri of current texture
 		std::string texPath = JSON["images"][i]["uri"];
-		if (init::LogALL || init::LogModel) std::cout << "model.cpp - Texture path: " << texPath << std::endl;
+		
+		if (init::LogALL || init::LogModel) LogConsole::print("model.cpp - Texture path: " + texPath);
 
 		// Check if the texture has already been loaded
 		bool skip = false;
@@ -355,21 +358,21 @@ std::vector<Texture> Model::getTextures()
 			if (texPath.find("baseColor") != std::string::npos)
 			{
 				texType = "diffuse";
-				if (init::LogALL || init::LogModel) std::cout << "model.cpp - Texture type: diffuse" << std::endl;
+				if (init::LogALL || init::LogModel) LogConsole::print("model.cpp - Texture type: diffuse");
 			}
 			else if (texPath.find("metallicRoughness") != std::string::npos)
 			{
 				texType = "specular";
-				if (init::LogALL || init::LogModel) std::cout << "model.cpp - Texture type: specular" << std::endl;
+				if (init::LogALL || init::LogModel) LogConsole::print("model.cpp - Texture type: specular");
 			}
 			else if (texPath.find("normalTexture") != std::string::npos)
 			{
 				texType = "normal";
-				if (init::LogALL || init::LogModel) std::cout << "model.cpp - Texture type: normal" << std::endl;
+				if (init::LogALL || init::LogModel) LogConsole::print("model.cpp - Texture type: normal");
 			}
 
 			// Load the texture
-			if (init::LogALL || init::LogModel) std::cout << "model.cpp - Loading texture: " << fileDirectory + texPath << std::endl;
+			if (init::LogALL || init::LogModel) LogConsole::print("model.cpp - Loading texture: " + fileDirectory + texPath);
 			if (init::LogALL || init::LogModel) std::cout << loadedTex.size() << std::endl;
 			Texture texture;
 			texture.createTexture((fileDirectory + texPath).c_str(), texType, loadedTex.size());

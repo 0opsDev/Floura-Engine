@@ -1,12 +1,12 @@
 ﻿#include "Render.h"
 #include <Render/Cube/CubeVisualizer.h>
-#include "Gameplay/BillboardObject.h"
-#include "Gameplay/ModelObject.h"
+#include "Scene/Object/BillboardObject.h"
+#include "Scene/Object/ModelObject.h"
 #include <Sound/SoundProgram.h>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtx/norm.hpp>
 #include "Render/Cube/RenderQuad.h"
-#include "tempscene.h"
+#include "scene/tempscene.h"
 #include <Render/passes/geometry/geometryPass.h>
 #include <Render/passes/lighting/LightingPass.h>
 #include <Render/window/WindowHandler.h>

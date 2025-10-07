@@ -3,14 +3,14 @@
         "DefaultSkyboxPath": "Assets/Skybox/sunset/Skybox.json",
         "DirAmbient": 0.0,
         "DirColour": [
-            0.3094242513179779,
-            0.37123093008995056,
-            0.38725489377975464
+            0.9413213133811951,
+            0.9656862616539001,
+            0.800004780292511
         ],
         "DirEnabled": true,
         "DirRotation": [
-            40.20000076293945,
-            -147.8000030517578,
+            4.0,
+            -163.6999969482422,
             0.0
         ],
         "DirSpecEnabled": true,

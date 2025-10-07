@@ -1,16 +1,16 @@
 [
     {
-        "DefaultSkyboxPath": "Assets/Skybox/sunset/Skybox.json",
-        "DirAmbient": 0.0,
+        "DefaultSkyboxPath": "Assets/Skybox/clearsky/Skybox.json",
+        "DirAmbient": 0.5,
         "DirColour": [
-            0.37745100259780884,
-            0.37745100259780884,
-            0.37745100259780884
+            0.8235294222831726,
+            0.7265248894691467,
+            0.6499423384666443
         ],
         "DirEnabled": true,
         "DirRotation": [
-            40.20000076293945,
-            -147.8000030517578,
+            32.70000076293945,
+            220.0,
             0.0
         ],
         "DirSpecEnabled": true,
@@ -18,9 +18,9 @@
         "DoSkyColour": false,
         "RenderSkybox": true,
         "skyRGBA": [
-            0.2551281154155731,
-            0.03623607009649277,
-            0.28431373834609985
+            0.22577856481075287,
+            0.24594616889953613,
+            0.5686274766921997
         ]
     }
 ]

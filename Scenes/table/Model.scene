@@ -1,226 +1,6 @@
 [
     {
         "BoxColliderScale": [
-            0.30000001192092896,
-            0.6000000238418579,
-            0.30000001192092896
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.6000000238418579,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "IsLod": false,
-        "Location": [
-            -5.048285007476807,
-            -2.0181238651275635,
-            -12.604156494140625
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            2.5999999046325684,
-            2.5999999046325684,
-            2.5999999046325684
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "vase",
-        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            0.5,
-            0.699999988079071,
-            0.5
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "IsLod": false,
-        "Location": [
-            -5.311133861541748,
-            -1.3111566305160522,
-            -10.07171630859375
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            0.36000001430511475,
-            0.36000001430511475,
-            0.36000001430511475
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "Barrel",
-        "path": "Assets/Models/barrel/barrel2.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "IsLod": false,
-        "Location": [
-            1.0141035318374634,
-            0.9930121898651123,
-            -21.030969619750977
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "sphere",
-        "path": "Assets/Models/basic shapes/sphere.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "IsLod": false,
-        "Location": [
-            -7.187436580657959,
-            -1.0257556438446045,
-            -15.403324127197266
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "cube",
-        "path": "Assets/Models/basic shapes/cube.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            0.30000001192092896,
-            0.6000000238418579,
-            0.30000001192092896
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.6000000238418579,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "IsLod": false,
-        "Location": [
-            0.0,
-            -1.9781579971313477,
-            -12.305946350097656
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            3.0,
-            3.0,
-            3.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "vase",
-        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
-    },
-    {
-        "BoxColliderScale": [
             400.0,
             1.0,
             400.0
@@ -262,5 +42,49 @@
         "isCollider": true,
         "name": "pavepane",
         "path": "Assets/Models/planes/paveplane.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IsLod": false,
+        "Location": [
+            -4.996894836425781,
+            -1.9632583856582642,
+            -9.480284690856934
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.399999976158142,
+            1.399999976158142,
+            1.399999976158142
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "vase",
+        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
     }
 ]

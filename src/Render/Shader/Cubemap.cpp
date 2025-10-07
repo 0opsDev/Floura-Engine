@@ -1,4 +1,5 @@
 #include "Cubemap.h"
+#include <utils/logConsole.h>
 
 std::array<std::string, 6> facesCubemap;
 
@@ -14,12 +15,12 @@ void Cubemap::LoadCubeMapTexture(std::string PathName) {
 
 		std::string Path = SkyboxJsonData[0]["Path"].get<std::string>() + "/";
 
-		if (init::LogALL || init::LogModel) std::cout << "Skybox Path: " << Path << std::endl;
+		if (init::LogALL || init::LogModel) LogConsole::print("Skybox Path: " + Path);
 
 		for (int i = 0; i < 6; i++)
 		{
 			facesCubemap[i] = Path + SkyboxJsonData[0]["Faces"][i].get<std::string>();
-			if (init::LogALL || init::LogModel) std::cout << "Skybox Face: " << facesCubemap[i] << std::endl;
+			if (init::LogALL || init::LogModel) LogConsole::print("Skybox Face: " + facesCubemap[i]);
 		}
 	}
 	else {
@@ -64,7 +65,7 @@ void Cubemap::LoadCubeMapTexture(std::string PathName) {
 		}
 		else
 		{
-			if (init::LogALL || init::LogModel) std::cout << "Failed to load texture: " << facesCubemap[i] << std::endl;
+			if (init::LogALL || init::LogModel) LogConsole::print("Failed to load texture: " + facesCubemap[i]);
 			stbi_image_free(data);
 		}
 	}

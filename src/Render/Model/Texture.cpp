@@ -1,9 +1,10 @@
 #include "Texture.h"
 #include "utils/init.h"
+#include <utils/logConsole.h>
 
 void Texture::createTexture(const char* image, const char* texType, GLuint slot)
 {
-    if (init::LogALL || init::LogModel) std::cout << "Texture loading 1: " << image << std::endl;
+    if (init::LogALL || init::LogModel) LogConsole::print("Texture loading started");
     // Assigns the type of the texture to the texture object
     type = texType;
 
@@ -90,8 +91,7 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
 
     // Unbinds the OpenGL Texture object so that it can't accidentally be modified
     glBindTexture(GL_TEXTURE_2D, 0);
-
-    if (init::LogALL || init::LogModel) std::cout << "Texture loaded 2: " << image << std::endl;
+    if (init::LogALL || init::LogModel) LogConsole::print("Texture loading finished");
 }
 
 void Texture::reload(GLuint slot)

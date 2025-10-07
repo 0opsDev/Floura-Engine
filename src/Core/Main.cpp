@@ -10,16 +10,25 @@
 #include <UI/ImGui/ImGuiWindow.h>
 #include <Sound/SoundRunner.h>
 #include "Render.h"
-#include "tempscene.h"
-#include "scene.h"
+#include "scene/tempscene.h"
+#include "scene/scene.h"
 #include <Gameplay/Player.h>
 #include <Render/window/WindowHandler.h>
 #include <Scene/LightingHandler.h>
 #include "UI/OpenSceneWindow.h"
+#include <windows.h>
 
 bool Main::sleepState = true;
 float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far // move this to camera class or something
 TimeAccumulator TA2;
+
+void CloseConsoleWindow() {
+	HWND hwnd = GetConsoleWindow();
+	if (hwnd != nullptr) {
+		FreeConsole();
+		PostMessage(hwnd, WM_CLOSE, 0, 0);
+	}
+}
 
 void initGLFW()
 {
@@ -35,6 +44,8 @@ void initGLFW()
 //Main Function
 int main() // global variables do not work with threads
 {
+	CloseConsoleWindow();
+
 	Main::sleepState = true;
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 	init::initLog();// init logs (should always be before priniting anything)

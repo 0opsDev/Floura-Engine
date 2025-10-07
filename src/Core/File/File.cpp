@@ -1,4 +1,5 @@
 #include "File.h"
+#include <utils/logConsole.h>
 
 std::string FileClass::currentPath = "";
 std::string FileClass::Contents = "";
@@ -6,24 +7,24 @@ std::string FileClass::Contents = "";
 void FileClass::saveContents() {
 	std::ofstream file(currentPath, std::ios::trunc);
 	if (!file.is_open()) {
-		std::cout << "Failed to open file for writing: " << currentPath << std::endl;
+		if (init::LogALL || init::LogSystems) LogConsole::print("Failed to open file for writing: " + currentPath);
 		return;
 	}
 	file << Contents;
 	file.close();
-	if (init::LogALL || init::LogSystems) {std::cout << "Saved contents to: " << currentPath << std::endl;}
+	if (init::LogALL || init::LogSystems) LogConsole::print("Saved contents to: " + currentPath);
 }
 void FileClass::loadContents() {
 	std::ifstream file(currentPath);
 	if (!file.is_open()) {
-		std::cout << "Failed to open file: " << currentPath << std::endl;
+		if (init::LogALL || init::LogSystems) LogConsole::print("Failed to open file: " + currentPath);
 		return;
 	}
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 	Contents = buffer.str();
 	file.close();
-	if (init::LogALL || init::LogSystems) std::cout << "Loaded contents from: " << currentPath << std::endl;
+	if (init::LogALL || init::LogSystems) LogConsole::print("Loaded contents from: " + currentPath);
 }
 
 std::pair<std::string, std::string> FileClass::getShaderPaths(int vertIndex, int fragIndex) {
@@ -51,7 +52,7 @@ void FileClass::loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgra
 		std::string vertFile = shaderPaths.first;
 		std::string fragFile = shaderPaths.second;
 
-		if (init::LogALL || init::LogSystems) std::cout << "Vert: " << vertFile << " Frag: " << fragFile << std::endl;
+		if (init::LogALL || init::LogSystems) LogConsole::print("Vert: " + vertFile + " Frag: " + fragFile);
 
 		shaderProgram.LoadShader(vertFile.c_str(), fragFile.c_str());
 	}

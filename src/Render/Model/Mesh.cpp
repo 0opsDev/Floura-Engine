@@ -1,20 +1,24 @@
 #include "mesh.h"
 #include "utils/init.h"
+#include <utils/logConsole.h>
 
 Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
 {
     if (vertices.empty()) {
         //throw std::runtime_error("Vertices, indices, or textures are empty");
-        if (init::LogALL || init::LogModel) std::cout << "mesh.cpp Vertices are empty" << std::endl;
+        //if (init::LogALL || init::LogModel) std::cout << "mesh.cpp Vertices are empty" << std::endl;
+        if (init::LogALL || init::LogModel) LogConsole::print("mesh.cpp Vertices are empty");
     }
     if (indices.empty()) {
-        if (init::LogALL || init::LogModel) std::cout << "mesh.cpp indices are empty" << std::endl;
+       // if (init::LogALL || init::LogModel) std::cout << "mesh.cpp indices are empty" << std::endl;
+        if (init::LogALL || init::LogModel) LogConsole::print("mesh.cpp indices are empty");
     }
     if (textures.empty()) {
         //problem is within texture or fileclass
         //looking like the file
         //model.cpp knows the location of the texture
-        if (init::LogALL || init::LogModel) std::cout << "mesh.cpp textures are empty" << std::endl;
+        //if (init::LogALL || init::LogModel) std::cout << "mesh.cpp textures are empty" << std::endl;
+        if (init::LogALL || init::LogModel) LogConsole::print("mesh.cpp textures are empty");
     }
 
     Mesh::vertices = vertices;

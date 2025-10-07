@@ -1,6 +1,7 @@
 #include "Scripting/ScriptRunner.h"
 #include "utils/init.h"
 #include <fstream>
+#include <utils/logConsole.h>
 
 struct ScriptInfo {
 	ScriptEngine* engine;
@@ -47,6 +48,7 @@ void setupScripts(const json& config) {
 
 		scripts[name] = info;
 	}
+	LogConsole::print("[CPP] Lua Scripts Started");
 }
 
 void runAllLoopFunctions() {
@@ -77,5 +79,6 @@ void ScriptRunner::clearScripts() {
 		delete info.engine; // Free allocated memory
 	}
 	scripts.clear(); // Remove all script entries
-	if (init::LogALL || init::LogLua) std::cout << "[CPP] Lua Scripts Cleared" << std::endl;
+
+	LogConsole::print("[CPP] Lua Scripts Cleared");
 }

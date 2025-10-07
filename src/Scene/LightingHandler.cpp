@@ -2,6 +2,7 @@
 #include <utils/init.h>
 #include <Core/Render.h>
 #include <glm/gtx/euler_angles.hpp>
+#include <utils/logConsole.h>
 
 std::vector<LightingHandler::Light> LightingHandler::Lights;
 
@@ -79,6 +80,8 @@ void LightingHandler::createLight()
 	tempLight.enabled = true;
 
 	Lights.push_back(tempLight);
+
+	LogConsole::print("Created LightObject");
 }
 
 void LightingHandler::loadScene(std::string& path)

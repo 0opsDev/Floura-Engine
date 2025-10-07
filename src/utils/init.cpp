@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include<stb/stb_image.h>
 #include "imgui/imgui_impl_opengl3.h"
+#include <imgui_internal.h>
 
 using json = nlohmann::json;
 
@@ -57,86 +58,90 @@ void init::initImGui(GLFWwindow* window) {
 	ImGui_ImplOpenGL3_Init("#version 460");
 
 	ImGuiStyle& Style = ImGui::GetStyle();
+	ImVec4 colour = ImVec4(0.35f, 0.35f, 0.40f, 1.0f);
+	ImVec4 backgound = ImVec4(0.06f, 0.06f, 0.08f, 1.0f);
+
+	ImVec4 colour_hovered = ImVec4(0.55f, 0.55f, 0.60f, 1.0f);
+	ImVec4 colour_active = ImVec4(0.25f, 0.25f, 0.29f, 1.0f);
+
+	ImVec4 bg_frame = ImVec4(0.08f, 0.08f, 0.11f, 1.0f);
+	ImVec4 bg_popup = ImVec4(0.09f, 0.09f, 0.12f, 1.0f);
+	ImVec4 bg_border = ImVec4(0.12f, 0.12f, 0.16f, 1.0f);
+
+	float dim_factor = 0.35f;
+	ImVec4 colour_dimmed = ImLerp(backgound, colour, dim_factor);
+
 
 	// General Colors
 	Style.Colors[ImGuiCol_Text] = ImVec4(0.88f, 0.88f, 0.88f, 1.0f);
-	Style.Colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.0f);
-	Style.Colors[ImGuiCol_ChildBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.0f);
-	Style.Colors[ImGuiCol_PopupBg] = ImVec4(0.12f, 0.08f, 0.15f, 1.0f);
+	Style.Colors[ImGuiCol_WindowBg] = backgound;
+	Style.Colors[ImGuiCol_ChildBg] = backgound;
+	Style.Colors[ImGuiCol_PopupBg] = bg_popup;
 
 	// Borders
-	Style.Colors[ImGuiCol_Border] = ImVec4(0.19f, 0.19f, 0.25f, 1.0f);
+	Style.Colors[ImGuiCol_Border] = bg_border;
 	Style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
-	Style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.50f, 0.20f, 0.60f, 1.0f);
-	Style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.70f, 0.30f, 0.80f, 1.0f);
-	Style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.90f, 0.30f, 0.90f, 1.0f);
-
 
 	// Frames
-	Style.Colors[ImGuiCol_FrameBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.0f);
-	Style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.70f, 0.30f, 0.80f, 1.0f);
-	Style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.60f, 0.25f, 0.75f, 1.0f);
+	Style.Colors[ImGuiCol_FrameBg] = bg_frame;
+	Style.Colors[ImGuiCol_FrameBgHovered] = colour_hovered;
+	Style.Colors[ImGuiCol_FrameBgActive] = colour_active;
 
 	// Buttons
-	Style.Colors[ImGuiCol_Button] = ImVec4(0.50f, 0.20f, 0.60f, 1.0f);
-	Style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.70f, 0.30f, 0.80f, 1.0f);
-	Style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.40f, 0.15f, 0.55f, 1.0f);
+	Style.Colors[ImGuiCol_Button] = colour;
+	Style.Colors[ImGuiCol_ButtonHovered] = colour_hovered;
+	Style.Colors[ImGuiCol_ButtonActive] = colour_active;
 
 	// Headers
-	Style.Colors[ImGuiCol_Header] = ImVec4(0.50f, 0.20f, 0.60f, 1.0f);
-	Style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.70f, 0.30f, 0.80f, 1.0f);
-	Style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.40f, 0.15f, 0.55f, 1.0f);
-
+	Style.Colors[ImGuiCol_Header] = colour;
+	Style.Colors[ImGuiCol_HeaderHovered] = colour_hovered;
+	Style.Colors[ImGuiCol_HeaderActive] = colour_active;
 
 	// Tabs
-	Style.Colors[ImGuiCol_Tab] = ImVec4(0.19f, 0.10f, 0.25f, 1.0f);
-	Style.Colors[ImGuiCol_TabActive] = ImVec4(0.50f, 0.20f, 0.60f, 1.0f);
-	Style.Colors[ImGuiCol_TabHovered] = ImVec4(0.70f, 0.30f, 0.80f, 1.0f);
-	Style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.25f, 0.15f, 0.35f, 1.0f);
-	Style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.50f, 0.20f, 0.60f, 1.0f);
+	Style.Colors[ImGuiCol_Tab] = colour_dimmed;
+	Style.Colors[ImGuiCol_TabActive] = colour;
+	Style.Colors[ImGuiCol_TabHovered] = colour_hovered;
+	Style.Colors[ImGuiCol_TabUnfocused] = colour_dimmed;
+	Style.Colors[ImGuiCol_TabUnfocusedActive] = colour;
 
 	// Title Bars
-	Style.Colors[ImGuiCol_TitleBg] = ImVec4(0.40f, 0.15f, 0.55f, 1.0f);
-	Style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.70f, 0.30f, 0.80f, 1.0f);
-	Style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.25f, 0.10f, 0.30f, 1.0f);
+	Style.Colors[ImGuiCol_TitleBg] = colour_active;
+	Style.Colors[ImGuiCol_TitleBgActive] = colour_hovered;
+	Style.Colors[ImGuiCol_TitleBgCollapsed] = colour_dimmed;
 
 	// Docking
-	Style.Colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.10f, 0.05f, 0.15f, 1.0f);
-	Style.Colors[ImGuiCol_DockingPreview] = ImVec4(0.90f, 0.40f, 0.90f, 1.0f);
+	Style.Colors[ImGuiCol_DockingEmptyBg] = bg_frame;
+	Style.Colors[ImGuiCol_DockingPreview] = colour_hovered;
 
-	// Resize Grip (Duplicated section from above, adjusted for consistency)
-	Style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.50f, 0.20f, 0.60f, 1.0f);
-	Style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.70f, 0.30f, 0.80f, 1.0f);
-	Style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.90f, 0.30f, 0.90f, 1.0f);
+	// Resize Grip
+	Style.Colors[ImGuiCol_ResizeGrip] = colour;
+	Style.Colors[ImGuiCol_ResizeGripHovered] = colour_hovered;
+	Style.Colors[ImGuiCol_ResizeGripActive] = colour_hovered;
 
 	// Scrollbars
-	Style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.0f);
-	Style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.30f, 0.12f, 0.40f, 1.0f);
-	Style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.50f, 0.20f, 0.60f, 1.0f);
-	Style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.70f, 0.30f, 0.80f, 1.0f);
+	Style.Colors[ImGuiCol_ScrollbarBg] = bg_frame;
+	Style.Colors[ImGuiCol_ScrollbarGrab] = colour_dimmed;
+	Style.Colors[ImGuiCol_ScrollbarGrabHovered] = colour;
+	Style.Colors[ImGuiCol_ScrollbarGrabActive] = colour_hovered;
 
 	// Sliders
-	Style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.90f, 0.40f, 0.90f, 1.0f);
-	Style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.60f, 0.20f, 0.70f, 1.0f);
+	Style.Colors[ImGuiCol_SliderGrab] = colour;
+	Style.Colors[ImGuiCol_SliderGrabActive] = colour_active;
 
 	// Checkbox
-	Style.Colors[ImGuiCol_CheckMark] = ImVec4(0.90f, 0.40f, 0.90f, 1.0f);
+	Style.Colors[ImGuiCol_CheckMark] = colour_hovered;
 
 	// Menus
-	Style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.20f, 0.10f, 0.25f, 1.0f);
-
-	// Tooltips / Popups (Duplicated section, adjusted for consistency)
-	Style.Colors[ImGuiCol_PopupBg] = ImVec4(0.10f, 0.05f, 0.15f, 1.0f);
+	Style.Colors[ImGuiCol_MenuBarBg] = bg_border;
 
 	// Drag and drop
-	Style.Colors[ImGuiCol_DragDropTarget] = ImVec4(0.90f, 0.40f, 0.90f, 0.9f);
+	Style.Colors[ImGuiCol_DragDropTarget] = colour_hovered;
 
-	// Misc
-	Style.Colors[ImGuiCol_Separator] = ImVec4(0.30f, 0.10f, 0.40f, 1.0f);
-	Style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.70f, 0.30f, 0.80f, 1.0f);
-	Style.Colors[ImGuiCol_SeparatorActive] = ImVec4(0.90f, 0.40f, 0.90f, 1.0f);
+	// Misc Separators
+	Style.Colors[ImGuiCol_Separator] = colour_dimmed;
+	Style.Colors[ImGuiCol_SeparatorHovered] = colour_hovered;
+	Style.Colors[ImGuiCol_SeparatorActive] = colour_hovered;
 
-	// Rounding and Spacing (Unchanged, as requested)
 	Style.FrameRounding = 8.0f;
 	Style.WindowRounding = 6.0f;
 	Style.ScrollbarRounding = 8.0f;

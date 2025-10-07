@@ -1,94 +1,6 @@
 [
     {
         "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "IsLod": false,
-        "Location": [
-            0.0,
-            31.399999618530273,
-            0.0
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            16.200000762939453
-        ],
-        "Scale": [
-            300.0,
-            300.0,
-            300.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": false,
-        "name": "ground",
-        "path": "Assets/Models/field/grassbit2.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            0.5,
-            0.800000011920929,
-            0.5
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "DoFrustumCull": false,
-        "IsLod": false,
-        "Location": [
-            -1.0114892721176147,
-            1.7690000534057617,
-            -9.269830479752272e-05
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            0.4000000059604645,
-            0.4000000059604645,
-            0.4000000059604645
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "Barrel",
-        "path": "Assets/Models/barrel/barrel2.gltf"
-    },
-    {
-        "BoxColliderScale": [
             5.0,
             1.0,
             5.0
@@ -130,5 +42,49 @@
         "isCollider": true,
         "name": "baseplate",
         "path": "Assets/Models/Baseplate/plate.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IsLod": false,
+        "Location": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "grasslands2",
+        "path": "Assets/Models/grasslands2/grasslands.gltf"
     }
 ]

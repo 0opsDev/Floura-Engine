@@ -136,5 +136,17 @@
         "ObjectType": "Model",
         "Path": "Assets/Models/basic shapes/cylinder.gltf",
         "Type": "static"
+    },
+    {
+        "Name": "grasslands2",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grasslands2/grasslands.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "rockplane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/planes/rockplane.gltf",
+        "Type": "static"
     }
 ]

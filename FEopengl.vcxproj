@@ -148,11 +148,6 @@
     <ClCompile Include="src\Core\glad.c" />
     <ClCompile Include="src\Core\Main.cpp" />
     <ClCompile Include="src\Core\Render.cpp" />
-    <ClCompile Include="src\Core\scene.cpp" />
-    <ClCompile Include="src\Core\tempscene.cpp" />
-    <ClCompile Include="src\Gameplay\BillboardObject.cpp" />
-    <ClCompile Include="src\Gameplay\ModelObject.cpp" />
-    <ClCompile Include="src\Gameplay\FE_Object.cpp" />
     <ClCompile Include="src\Gameplay\Player.cpp" />
     <ClCompile Include="src\Libraries\include\ImGuizmo\GraphEditor.cpp" />
     <ClCompile Include="src\Libraries\include\ImGuizmo\ImCurveEdit.cpp" />
@@ -188,7 +183,13 @@
     <ClCompile Include="src\Render\shader\ShaderClass.cpp" />
     <ClCompile Include="src\Render\Shader\SkyBox.cpp" />
     <ClCompile Include="src\Render\window\WindowHandler.cpp" />
+    <ClCompile Include="src\Scene\IdManager.cpp" />
     <ClCompile Include="src\Scene\LightingHandler.cpp" />
+    <ClCompile Include="src\Scene\Object\BillboardObject.cpp" />
+    <ClCompile Include="src\Scene\Object\FE_Object.cpp" />
+    <ClCompile Include="src\Scene\Object\ModelObject.cpp" />
+    <ClCompile Include="src\Scene\scene.cpp" />
+    <ClCompile Include="src\Scene\tempscene.cpp" />
     <ClCompile Include="src\Scripting\Functions\Input\LuaGetKey.cpp" />
     <ClCompile Include="src\Scripting\Functions\Model\LuaModel.cpp" />
     <ClCompile Include="src\Scripting\Functions\Player\LuaCamera.cpp" />
@@ -205,6 +206,7 @@
     <ClCompile Include="src\UI\OpenSceneWindow.cpp" />
     <ClCompile Include="src\utils\init.cpp" />
     <ClCompile Include="src\utils\InputUtil.cpp" />
+    <ClCompile Include="src\utils\logConsole.cpp" />
     <ClCompile Include="src\utils\noise.cpp" />
     <ClCompile Include="src\utils\ScreenUtils.cpp" />
     <ClCompile Include="src\utils\timeAccumulator.cpp" />
@@ -217,11 +219,6 @@
     <ClInclude Include="src\Core\File\File.h" />
     <ClInclude Include="src\Core\Main.h" />
     <ClInclude Include="src\Core\Render.h" />
-    <ClInclude Include="src\Core\scene.h" />
-    <ClInclude Include="src\Core\tempscene.h" />
-    <ClInclude Include="src\Gameplay\BillboardObject.h" />
-    <ClInclude Include="src\Gameplay\ModelObject.h" />
-    <ClInclude Include="src\Gameplay\FE_Object.h" />
     <ClInclude Include="src\Gameplay\Player.h" />
     <ClInclude Include="src\Libraries\include\ImGuizmo\GraphEditor.h" />
     <ClInclude Include="src\Libraries\include\ImGuizmo\ImApp.h" />
@@ -260,7 +257,13 @@
     <ClInclude Include="src\Render\shader\shaderClass.h" />
     <ClInclude Include="src\Render\Shader\SkyBox.h" />
     <ClInclude Include="src\Render\window\WindowHandler.h" />
+    <ClInclude Include="src\Scene\IdManager.h" />
     <ClInclude Include="src\Scene\LightingHandler.h" />
+    <ClInclude Include="src\Scene\Object\BillboardObject.h" />
+    <ClInclude Include="src\Scene\Object\FE_Object.h" />
+    <ClInclude Include="src\Scene\Object\ModelObject.h" />
+    <ClInclude Include="src\Scene\scene.h" />
+    <ClInclude Include="src\Scene\tempscene.h" />
     <ClInclude Include="src\Scripting\Functions\Input\LuaGetKey.h" />
     <ClInclude Include="src\Scripting\Functions\Model\LuaModel.h" />
     <ClInclude Include="src\Scripting\Functions\Player\LuaCamera.h" />
@@ -279,6 +282,7 @@
     <ClInclude Include="src\UI\OpenSceneWindow.h" />
     <ClInclude Include="src\utils\init.h" />
     <ClInclude Include="src\utils\InputUtil.h" />
+    <ClInclude Include="src\utils\logConsole.h" />
     <ClInclude Include="src\utils\noise.h" />
     <ClInclude Include="src\utils\ScreenUtils.h" />
     <ClInclude Include="src\utils\timeAccumulator.h" />

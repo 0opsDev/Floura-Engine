@@ -60,6 +60,8 @@ public:
 	static Texture moveIcon; // Icon for move in ImGui
 	static Texture scaleIcon; // Icon for scale in ImGui
 	static Texture rotateIcon; // Icon for rotate in ImGui
+	static Texture wirefameIcon; // Icon for wireframe in ImGui
+	static Texture iIcon; // Icon for Icon in ImGui
 
 	static void init();
 
@@ -107,6 +109,8 @@ public:
 		static void InspectorWindow();
 
 		static void SceneFolderWindow();
+
+		static void ConsoleWindow();
 
 };
 
