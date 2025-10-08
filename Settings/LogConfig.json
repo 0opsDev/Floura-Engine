@@ -3,7 +3,7 @@
         "LogALL": false,
         "LogModel": false,
         "LogSound": false,
-        "LogSystems": false,
+        "LogSystems": true,
         "LogLua": false
     }
 ]

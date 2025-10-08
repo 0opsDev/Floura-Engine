@@ -32,6 +32,7 @@ void Scene::LoadScene(std::string path) {
 
 	// Attemp to delete previous scene
 	Delete();
+	IdManager::onSceneLoad();
 
 	if (FEImGuiWindow::imGuiEnabled) {
 		FEImGuiWindow::loadContentObjects(path + "/ContentObject.scene");

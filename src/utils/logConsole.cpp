@@ -1,7 +1,7 @@
 #include "LogConsole.h"
 
 std::vector<std::string> LogConsole::logs;
-bool LogConsole::doPrintToConsole = true;
+bool LogConsole::doPrintToConsole = false;
 
 void LogConsole::print(const std::string& message)
 {

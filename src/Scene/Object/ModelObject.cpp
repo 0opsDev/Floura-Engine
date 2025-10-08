@@ -2,6 +2,7 @@
 #include <Render/passes/geometry/geometryPass.h>
 #include <Math/FE_math.h>
 #include <Scene/scene.h>
+#include <utils/logConsole.h>
 
 void ModelObject::LODModelLoad(std::string path) {
 	std::ifstream file(path);
@@ -221,6 +222,11 @@ void ModelObject::Delete() {
 		ModelSingle.Delete();
 	}
 	CubeCollider.Delete();
+	//update lowest free index
+	if (ID.index < IdManager::lowestDeletedIndex.Model || IdManager::lowestDeletedIndex.Model == -1) {
+		IdManager::lowestDeletedIndex.Model = ID.index;
+		LogConsole::print("Lowest Deleted Model Index is now: " + std::to_string(IdManager::lowestDeletedIndex.Model));
+	}
 
 	IdManager::RemoveID(ID);
 }

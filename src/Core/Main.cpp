@@ -86,6 +86,7 @@ int main() // global variables do not work with threads
 	{
 		RenderClass::ClearFramebuffers(); // Clear Framebuffers
 		TimeUtil::updateDeltaTime(); // Update delta time
+		IdManager::update();
 		ScriptRunner::update();
 		InputUtil::UpdateCurrentKey();
 

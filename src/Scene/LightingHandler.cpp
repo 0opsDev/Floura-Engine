@@ -90,6 +90,11 @@ void LightingHandler::createLight()
 
 void LightingHandler::deleteLight(int index)
 {
+	//update lowest free index
+	if (index < IdManager::lowestDeletedIndex.Light || IdManager::lowestDeletedIndex.Light == -1) {
+		IdManager::lowestDeletedIndex.Light = index;
+		LogConsole::print("Lowest Deleted LightObject Index is now: " + std::to_string(IdManager::lowestDeletedIndex.Light));
+	}
 	if (index < 0 || index >= static_cast<int>(Lights.size())) {
 		std::cout << "Invalid index: " << index << std::endl;
 		return;

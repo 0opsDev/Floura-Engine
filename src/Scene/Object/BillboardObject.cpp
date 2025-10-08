@@ -1,5 +1,6 @@
 #include "BillboardObject.h"
 #include <Scene/scene.h>
+#include <utils/logConsole.h>
 
 void BillBoardObject::CreateObject(std::string path, std::string ObjectName) {
 
@@ -56,6 +57,11 @@ void BillBoardObject::draw() {
 
 void BillBoardObject::Delete() {
 	BillBoardRenderObject.Delete();
+	//update lowest free index
+	if (ID.index < IdManager::lowestDeletedIndex.BillBoard || IdManager::lowestDeletedIndex.BillBoard == -1) {
+		IdManager::lowestDeletedIndex.BillBoard = ID.index;
+		LogConsole::print("Lowest Deleted BillBoard Index is now: " + std::to_string(IdManager::lowestDeletedIndex.BillBoard));
+	}
 
 	IdManager::RemoveID(ID);
 }

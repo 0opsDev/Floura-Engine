@@ -9,6 +9,23 @@ class IdManager
 {
 public:
 
+	static struct LowestDeletedIndex { // -1 = none (for syncing up the tree ^^)
+		int Model;
+		int BillBoard;
+		int Collider;
+		int Sound;
+		int Light;
+	};
+
+	static LowestDeletedIndex lowestDeletedIndex;
+
+	static void onSceneLoad();
+	static void clearAllIDs();
+	static void update();
+	static void lowestIndexSync(); // syncs up the lowest deleted index with the actual lowest deleted index in the array
+
+	//static void LowestDeletedIndexSync();
+
 	static struct ID{
 		unsigned char ObjType; // object type identifier
 		unsigned int UniqueNumber; // unique number for object
@@ -16,6 +33,8 @@ public:
 	};
 
 	static std::vector<ID> IDs;
+
+	static bool IDmatch(IdManager::ID& ID1, IdManager::ID& ID2);
 
 	// object interaction
 	

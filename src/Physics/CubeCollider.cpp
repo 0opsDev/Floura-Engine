@@ -1,6 +1,7 @@
 #include "CubeCollider.h"
 #include <Gameplay/Player.h>
 #include <Scene/scene.h>
+#include <utils/logConsole.h>
 
 bool CubeCollider::isCollide = false;
 
@@ -65,6 +66,13 @@ void CubeCollider::draw() {
 
 void CubeCollider::Delete() {
     CubeVisualizerRenderObject.Delete();
+
+    //update lowest free index
+    if (ID.index < IdManager::lowestDeletedIndex.Collider || IdManager::lowestDeletedIndex.Collider == -1) {
+        IdManager::lowestDeletedIndex.Collider = ID.index;
+        LogConsole::print("Lowest Deleted Collider Index is now: " + std::to_string(IdManager::lowestDeletedIndex.Collider));
+    }
+
     IdManager::RemoveID(ID);
 }
 
@@ -72,5 +80,6 @@ void CubeCollider::init() {
     ID.ObjType = 'c';
     ID.index = Scene::CubeColliderObject.size();
     IdManager::AddID(ID);
+
     CubeVisualizerRenderObject.init();
 }
