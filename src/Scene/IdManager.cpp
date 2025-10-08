@@ -60,7 +60,9 @@ void IdManager::lowestIndexSync()
 						{
 							// update index
 							Scene::modelObjects[ind]->ID.index = ind;
+							IDs[indMananger].index = ind; // also update the index in the IdManager
 							LogConsole::print("Updated Model ID index to: " + std::to_string(ind) + " for UniqueNumber: " + std::to_string(Scene::modelObjects[ind]->ID.UniqueNumber));
+							LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(ind) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
 						}
 						// check if lowestDeletedIndex.Model is now out of bounds
 						if (lowestDeletedIndex.Model >= static_cast<int>(Scene::modelObjects.size()))
@@ -90,7 +92,9 @@ void IdManager::lowestIndexSync()
 						{
 							// update index
 							Scene::BillBoardObjects[i].ID.index = i;
+							IDs[indMananger].index = i; // also update the index in the IdManager
 							LogConsole::print("Updated BillBoard ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(Scene::BillBoardObjects[i].ID.UniqueNumber));
+							LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
 						}
 						// check if lowestDeletedIndex.BillBoard is now out of bounds
 						if (lowestDeletedIndex.BillBoard >= static_cast<int>(Scene::BillBoardObjects.size()))
@@ -120,7 +124,9 @@ void IdManager::lowestIndexSync()
 						{
 							// update index
 							Scene::CubeColliderObject[i].ID.index = i;
+							IDs[indMananger].index = i; // also update the index in the IdManager
 							LogConsole::print("Updated Collider ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(Scene::CubeColliderObject[i].ID.UniqueNumber));
+							LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
 						}
 						// check if lowestDeletedIndex.Collider is now out of bounds
 						if (lowestDeletedIndex.Collider >= static_cast<int>(Scene::CubeColliderObject.size()))
@@ -154,7 +160,9 @@ void IdManager::lowestIndexSync()
 						{
 							// update index
 							LightingHandler::Lights[i].ID.index = i;
+							IDs[indMananger].index = i; // also update the index in the IdManager
 							LogConsole::print("Updated Light ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(LightingHandler::Lights[i].ID.UniqueNumber));
+							LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
 						}
 						// check if lowestDeletedIndex.Light is now out of bounds
 						if (lowestDeletedIndex.Light >= static_cast<int>(LightingHandler::Lights.size()))

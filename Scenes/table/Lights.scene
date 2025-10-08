@@ -1,26 +1,5 @@
 [
     {
-        "IDuniqueIdentifier": 6940,
-        "colour": [
-            1.0,
-            0.0,
-            0.0
-        ],
-        "enabled": true,
-        "position": [
-            0.0033838748931884766,
-            2.2067761165089905e-05,
-            -15.619081497192383
-        ],
-        "radius": 100.0,
-        "rotation": [
-            -20.700000762939453,
-            117.5,
-            0.0
-        ],
-        "type": "spotlight"
-    },
-    {
         "IDuniqueIdentifier": 9896,
         "colour": [
             0.0,
@@ -51,8 +30,8 @@
         "enabled": true,
         "position": [
             -7.493476867675781,
-            1.6185965538024902,
-            -12.791058540344238
+            0.3731916844844818,
+            -11.41053295135498
         ],
         "radius": 50.0,
         "rotation": [
@@ -60,6 +39,27 @@
             -90.0,
             0.0
         ],
-        "type": "pointlight"
+        "type": "spotlight"
+    },
+    {
+        "IDuniqueIdentifier": 14,
+        "colour": [
+            1.0,
+            0.0,
+            0.0
+        ],
+        "enabled": true,
+        "position": [
+            0.0,
+            0.0,
+            -12.463327407836914
+        ],
+        "radius": 100.0,
+        "rotation": [
+            -29.299999237060547,
+            108.30000305175781,
+            0.0
+        ],
+        "type": "spotlight"
     }
 ]
