@@ -1101,7 +1101,10 @@ void FEImGuiWindow::MaterialIndexUpdate()
 void FEImGuiWindow::ModelWindow() {
 	ImGui::Spacing();
 	ImGui::Text((Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ObjectName).c_str());
-
+	//ID
+	ImGui::Text(("ID: " + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ID.ObjType) + "*" + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber)).c_str());
+	// Index attached to ID
+	ImGui::Text(("ID Attached Index: " + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ID.index)).c_str());
 	if (ImGui::TreeNode("Rendering Component")) {
 
 		ImGui::Combo("Material", &MaterialSelectedIndex, MaterialObjecNames.data(), MaterialObjecNames.size());
@@ -1193,6 +1196,11 @@ void FEImGuiWindow::ModelWindow() {
 void FEImGuiWindow::BillBoardWindow() {
 
 	ImGui::Text((Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].ObjectName).c_str());
+
+	// ID
+	ImGui::Text(("ID: " + std::to_string(Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].ID.ObjType) + "*" + std::to_string(Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber)).c_str());
+	// Index attached to ID
+	ImGui::Text(("ID Attached Index: " + std::to_string(Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].ID.index)).c_str());
 	if (ImGui::TreeNode("Transform Component")) {
 		ImGui::Text("Transformations: ");
 		ImGui::DragFloat3("Position", &Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].transform.x);
@@ -1221,6 +1229,11 @@ void FEImGuiWindow::BillBoardWindow() {
 void FEImGuiWindow::ColliderWindow() {
 	ImGui::Text((Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].name).c_str());
 
+	// ID
+	ImGui::Text(("ID: " + std::to_string(Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.ObjType) + "*" + std::to_string(Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber)).c_str());
+	// Index attached to ID
+	ImGui::Text(("ID Attached Index: " + std::to_string(Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.index)).c_str());
+
 	if (ImGui::TreeNode("Transform Component")) {
 		ImGui::Text("Transformations: ");
 		// position
@@ -1243,6 +1256,12 @@ static const char* lightTypes[]{ "Spotlight","Pointlight" };
 static int SelectedLight = 0;
 
 void FEImGuiWindow::LightWindow() {
+
+	//ID
+	ImGui::Text(("ID: " + std::to_string(LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.ObjType) + "*" + std::to_string(LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber)).c_str());
+	// Index attached to ID
+	ImGui::Text(("ID Attached Index: " + std::to_string(LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.index)).c_str());
+
 	FEImGui::DragVec3("Position", LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position);
 	FEImGui::DragVec3("Rotation", LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].rotation);
 	ImGui::ColorEdit3("Color", &LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].colour.x);
@@ -1266,8 +1285,8 @@ void FEImGuiWindow::LightWindow() {
 	//ImGui::Checkbox("Enabled", &Scene::enabled[ImGuiWindow::SelectedObjectIndex]);
 
 	if (ImGui::SmallButton("Delete")) {
-
-		LightingHandler::Lights.erase(LightingHandler::Lights.begin() + FEImGuiWindow::SelectedObjectIndex);
+		LightingHandler::deleteLight(FEImGuiWindow::SelectedObjectIndex);
+		//LightingHandler::Lights.erase(LightingHandler::Lights.begin() + FEImGuiWindow::SelectedObjectIndex);
 
 		FEImGuiWindow::SelectedObjectIndex = 0; // reset index
 		FEImGuiWindow::SelectedObjectType = "";

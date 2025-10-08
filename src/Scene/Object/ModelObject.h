@@ -21,6 +21,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <UI/ImGui/ImGuiWindow.h>
 #include <Render/Shader/Material.h>
+#include <Scene/IdManager.h>
 using json = nlohmann::json;
 
 class ModelObject
@@ -28,6 +29,7 @@ class ModelObject
 public:
 
 	Material MaterialObject;
+	IdManager::ID ID;
 
 	//std::vector <Shader> ModelShaders;
 	//std::vector <Shader> ModelGpassShaders;

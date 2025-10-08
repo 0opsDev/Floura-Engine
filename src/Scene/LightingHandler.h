@@ -8,6 +8,7 @@
 #include <glm/fwd.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <Render/Shader/shaderClass.h>
+#include "Scene/IdManager.h"
 
 using json = nlohmann::json;
 
@@ -30,13 +31,15 @@ public:
 		float radius;
 		int type;
 		bool enabled;
+		IdManager::ID ID;
 	};
-
 	static std::vector<Light> Lights;
 
 	static void update(Shader ModelShader);
 
 	static void createLight();
+
+	static void deleteLight(int index);
 
 	static void loadScene(std::string& path);
 

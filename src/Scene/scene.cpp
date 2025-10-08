@@ -265,6 +265,8 @@ void Scene::initJsonModelLoad(std::string path) {
 		newObject->BoxColliderScale = BoxColliderScale;
 		newObject->frustumBoxTransform = frustumBoxTransform;
 		newObject->frustumBoxScale = frustumBoxScale;
+		// ID
+		newObject->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
 
 		newObject->CreateObject(path, name, MaterialPath); // Load into this unique MaterialObject
 
@@ -305,6 +307,8 @@ void Scene::JsonModelSave(std::string path) {
 			modelJson["isBackFaceCulling"] = obj->DoCulling;
 			modelJson["DoFrustumCull"] = obj->DoFrustumCull;
 			modelJson["MaterialPath"] = obj->MaterialObject.materialPath;
+			// ID
+			modelJson["IDuniqueIdentifier"] = obj->ID.UniqueNumber;
 
 			settingsData.push_back(modelJson);
 		}
@@ -352,6 +356,8 @@ void Scene::JsonBillBoardSave(std::string path) {
 			BillBoardJson["position"] = { obj.transform.x, obj.transform.y, obj.transform.z };
 			BillBoardJson["scale"] = { obj.scale.x, obj.scale.y, obj.scale.z };
 
+			// ID
+			BillBoardJson["IDuniqueIdentifier"] = obj.ID.UniqueNumber;
 
 			settingsData.push_back(BillBoardJson);
 		}
@@ -388,6 +394,8 @@ void Scene::JsonColliderSave(std::string path) {
 
 			CubeColliderJson["position"] = { obj.colliderXYZ.x, obj.colliderXYZ.y, obj.colliderXYZ.z };
 			CubeColliderJson["scale"] = { obj.colliderScale.x, obj.colliderScale.y, obj.colliderScale.z };
+			// ID
+			CubeColliderJson["IDuniqueIdentifier"] = obj.ID.UniqueNumber;
 
 
 			ColliderData.push_back(CubeColliderJson);
@@ -578,6 +586,8 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 		newBillBoardObject.DoFrustumCull = DoFrustumCull;
 		newBillBoardObject.transform = position;
 		newBillBoardObject.scale = scale;
+		// ID
+		newBillBoardObject.ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
 		newBillBoardObject.CreateObject(path, name);
 
 		BillBoardObjects.push_back(newBillBoardObject); // Add the configured object to the vector
@@ -624,6 +634,8 @@ void Scene::initJsonColliderLoad(std::string path) {
 		newCubeCollider.colliderXYZ = position;
 		newCubeCollider.colliderScale = scale;
 		newCubeCollider.enabled = enabled;
+		// ID
+		newCubeCollider.ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
 
 		CubeColliderObject.push_back(newCubeCollider); // Add the configured object to the vector
 	}

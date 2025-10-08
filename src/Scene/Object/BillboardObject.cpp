@@ -1,6 +1,12 @@
 #include "BillboardObject.h"
+#include <Scene/scene.h>
 
 void BillBoardObject::CreateObject(std::string path, std::string ObjectName) {
+
+	ID.ObjType = 'b';
+	ID.index = Scene::BillBoardObjects.size();
+	IdManager::AddID(ID);
+
 	CubeCollider.init();
 	BillBoardObject::ObjectName = ObjectName;
 	BillBoardObject::path = path;
@@ -50,4 +56,6 @@ void BillBoardObject::draw() {
 
 void BillBoardObject::Delete() {
 	BillBoardRenderObject.Delete();
+
+	IdManager::RemoveID(ID);
 }

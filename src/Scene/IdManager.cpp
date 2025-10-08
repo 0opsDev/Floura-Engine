@@ -4,20 +4,46 @@
 
 std::vector<IdManager::ID> IdManager::IDs;
 
-void IdManager::AddID(unsigned char type, unsigned int index, unsigned int uniqueNumber)
+void IdManager::AddID(IdManager::ID& checkID)
 {
-	// check if object already has an ID
-	// check if ID already exists in array
-	// check if type and index are valid
+	//check if ID is empty
+	if (checkID.UniqueNumber == 0)
+	{
+		// random number
+		checkID.UniqueNumber = rand() % 10000 + 1; // random number between 1 and 10000
 
+		if (init::LogALL || init::LogSystems) LogConsole::print("ID UniqueNumber was 0, assigned random number: " + std::to_string(checkID.UniqueNumber));
+
+	}
+	// check IDs with ID
+	for (const auto& id : IDs) {
+		if (id.ObjType == checkID.ObjType && id.UniqueNumber == checkID.UniqueNumber) {
+			// ID exists
+			// increment by 1 and try again
+			checkID.UniqueNumber = rand() % 10000 + 1; // random number between 1 and 10000
+			LogConsole::print("ID conflicting, incremented UniqueNumber to: " + std::to_string(checkID.UniqueNumber));
+		}
+	}
+
+	// add ID to manager
 	ID newID;
-	newID.ObjType = type;
-	newID.ObjIndex = index;
+	newID.ObjType = checkID.ObjType;
+	newID.UniqueNumber = checkID.UniqueNumber;
 	IDs.push_back(newID);
+	if (init::LogALL || init::LogSystems) LogConsole::print("Checked/Added ID - Type: " + std::to_string(static_cast<int>(checkID.ObjType)) + ", uniqueNumber: " + std::to_string(checkID.UniqueNumber) + ", Total IDs: " + std::to_string(IDs.size()));
+	if (init::LogALL || init::LogSystems) LogConsole::print("ID: " + std::to_string(checkID.ObjType) + "*" + std::to_string(checkID.UniqueNumber));
+}
 
-	// push id onto object
-
-	// debug
-	if (init::LogALL || init::LogSystems) LogConsole::print("Added ID - Type: " + std::to_string(static_cast<int>(type)) + ", Index: " + std::to_string(index) + ", Total IDs: " + std::to_string(IDs.size()));
-	if (init::LogALL || init::LogSystems) LogConsole::print("ID: " + std::to_string(type) + "*" + std::to_string(index));
+void IdManager::RemoveID(IdManager::ID& checkID)
+{
+	// find ID in manager
+	for (auto it = IDs.begin(); it != IDs.end(); ++it) {
+		if (it->ObjType == checkID.ObjType && it->UniqueNumber == checkID.UniqueNumber) {
+			// ID found, remove it
+			IDs.erase(it);
+			if (init::LogALL || init::LogSystems) LogConsole::print("Removed ID - Type: " + std::to_string(static_cast<int>(checkID.ObjType)) + ", uniqueNumber: " + std::to_string(checkID.UniqueNumber) + ", Total IDs: " + std::to_string(IDs.size()));
+			return;
+		}
+	}
+	if (init::LogALL || init::LogSystems) LogConsole::print("ID to remove not found - Type: " + std::to_string(static_cast<int>(checkID.ObjType)) + ", uniqueNumber: " + std::to_string(checkID.UniqueNumber));
 }

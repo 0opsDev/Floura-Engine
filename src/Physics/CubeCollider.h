@@ -4,6 +4,7 @@
 #include <algorithm> // For min()
 #include <camera/Camera.h>
 #include <Render/Cube/CubeVisualizer.h>
+#include <Scene/IdManager.h>
 #ifndef CubeCollider_H
 #define CubeCollider_H
 
@@ -12,6 +13,7 @@ class CubeCollider
 {
 public:
 	CubeVisualizer CubeVisualizerRenderObject;
+	IdManager::ID ID;
 	glm::vec3 colliderXYZ = glm::vec3(0,0,0);
 	glm::vec3 colliderScale = glm::vec3(1,1,1);
 	glm::vec3 colliderRotation = glm::vec3(0, 0, 0);

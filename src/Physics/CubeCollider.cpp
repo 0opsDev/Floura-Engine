@@ -1,5 +1,6 @@
 #include "CubeCollider.h"
 #include <Gameplay/Player.h>
+#include <Scene/scene.h>
 
 bool CubeCollider::isCollide = false;
 
@@ -64,8 +65,12 @@ void CubeCollider::draw() {
 
 void CubeCollider::Delete() {
     CubeVisualizerRenderObject.Delete();
+    IdManager::RemoveID(ID);
 }
 
 void CubeCollider::init() {
+    ID.ObjType = 'c';
+    ID.index = Scene::CubeColliderObject.size();
+    IdManager::AddID(ID);
     CubeVisualizerRenderObject.init();
 }

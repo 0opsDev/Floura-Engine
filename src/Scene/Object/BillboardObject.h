@@ -9,11 +9,13 @@
 #include "Render/Cube/Billboard.h"
 #include <camera/Camera.h>
 #include <Render/Cube/CubeVisualizer.h>
+#include <Scene/IdManager.h>
 
 class BillBoardObject
 {
 public:
 	CubeCollider CubeCollider;
+	IdManager::ID ID;
 	BillBoard BillBoardRenderObject;
 	std::string ObjectName;
 	bool flag_isanimated = false;

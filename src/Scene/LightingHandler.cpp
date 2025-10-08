@@ -79,9 +79,24 @@ void LightingHandler::createLight()
 	tempLight.type = 0;
 	tempLight.enabled = true;
 
+	tempLight.ID.ObjType = 'l';
+	tempLight.ID.index = LightingHandler::Lights.size();
+	IdManager::AddID(tempLight.ID);
+
 	Lights.push_back(tempLight);
 
 	LogConsole::print("Created LightObject");
+}
+
+void LightingHandler::deleteLight(int index)
+{
+	if (index < 0 || index >= static_cast<int>(Lights.size())) {
+		std::cout << "Invalid index: " << index << std::endl;
+		return;
+	}
+	IdManager::RemoveID(Lights[index].ID);
+	Lights.erase(Lights.begin() + index);
+	if (init::LogALL || init::LogModel) LogConsole::print("Deleted LightObject at index: " + std::to_string(index));
 }
 
 void LightingHandler::loadScene(std::string& path)
@@ -137,6 +152,11 @@ void LightingHandler::loadScene(std::string& path)
 		}
 
 		tempLight.enabled = newEnabled;
+		tempLight.ID.ObjType = 'l';
+		tempLight.ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
+		if (init::LogALL || init::LogModel) LogConsole::print("Loaded LightObject with ID: " + std::to_string(tempLight.ID.UniqueNumber));
+		tempLight.ID.index = LightingHandler::Lights.size();
+		IdManager::AddID(tempLight.ID);
 
 		Lights.push_back(tempLight);
 
@@ -170,6 +190,8 @@ void LightingHandler::saveScene(std::string& path)
 			LightJson["radius"] = LightingHandler::Lights[iteration].radius;
 
 			LightJson["enabled"] = LightingHandler::Lights[iteration].enabled;
+			// ID
+			LightJson["IDuniqueIdentifier"] = LightingHandler::Lights[iteration].ID.UniqueNumber;
 
 			lightData.push_back(LightJson);
 			iteration++;
@@ -195,5 +217,10 @@ void LightingHandler::saveScene(std::string& path)
 
 void LightingHandler::deleteScene()
 {
+	for (size_t i = 0; i < Lights.size(); ++i)
+	{
+		deleteLight(i);
+		//IdManager::RemoveID(Lights[i].ID);
+	}
 	Lights.clear();
 }

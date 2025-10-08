@@ -1,5 +1,6 @@
 [
     {
+        "IDuniqueIdentifier": 6940,
         "colour": [
             1.0,
             0.0,
@@ -20,6 +21,7 @@
         "type": "spotlight"
     },
     {
+        "IDuniqueIdentifier": 9896,
         "colour": [
             0.0,
             1.0,
@@ -40,6 +42,7 @@
         "type": "spotlight"
     },
     {
+        "IDuniqueIdentifier": 5448,
         "colour": [
             0.08823537826538086,
             1.0,

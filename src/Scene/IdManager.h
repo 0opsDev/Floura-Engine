@@ -10,18 +10,18 @@ class IdManager
 public:
 
 	static struct ID{
-		unsigned char ObjType;
-		unsigned int ObjIndex;
-		unsigned int UniqueNumber;
+		unsigned char ObjType; // object type identifier
+		unsigned int UniqueNumber; // unique number for object
+		unsigned int index; // index in array
 	};
 
 	static std::vector<ID> IDs;
 
 	// object interaction
 	
-	static void AddID(unsigned char type, unsigned int index, unsigned int uniqueNumber); // looks for object type and index, then contacts the object and sets its ID to the index in the array
-	//static void ChangeID(unsigned char currentType, unsigned int currentIndex, unsigned char newType, unsigned int newIndex); // change the ID at the array index to a new type and index
-	//static void RemoveID(unsigned char type, unsigned int index); // remove the ID from the array, and set the object ID to -1
+	static void AddID(IdManager::ID& checkID); // looks for object type and index, then contacts the object and sets its ID to the index in the array
+	static void RemoveID(IdManager::ID& checkID); // looks for object type and index, then contacts the object and removes its ID, then removes the ID from the array
+	// update id info
 
 	// scene
 

@@ -1,6 +1,7 @@
 #include "ModelObject.h"
 #include <Render/passes/geometry/geometryPass.h>
 #include <Math/FE_math.h>
+#include <Scene/scene.h>
 
 void ModelObject::LODModelLoad(std::string path) {
 	std::ifstream file(path);
@@ -74,6 +75,11 @@ void ModelObject::LoadMaterial(std::string path)
 
 //init
 void ModelObject::CreateObject(std::string path, std::string ObjectNameT, std::string Material) {
+
+	ID.ObjType = 'm';
+	ID.index = Scene::modelObjects.size();
+	IdManager::AddID(ID);
+
 	//LoadMaterial("Assets/Material/Wobble.Material"); // load default material for now
 
 	LoadMaterial(Material); // load default material for now
@@ -215,4 +221,6 @@ void ModelObject::Delete() {
 		ModelSingle.Delete();
 	}
 	CubeCollider.Delete();
+
+	IdManager::RemoveID(ID);
 }
