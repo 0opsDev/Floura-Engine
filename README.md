@@ -1,4 +1,4 @@
-Fluora Engine is a Open Source C++ Game Engine created for the purpose of learning OpenGL,
+Floura Engine is a Open Source C++ Game Engine created for the purpose of learning OpenGL,
 
 Features:
 ---
