@@ -1,1 +1,47 @@
-[]
+[
+    {
+        "IDuniqueIdentifier": 1065353216,
+        "enabled": true,
+        "name": "Name",
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "IDuniqueIdentifier": 6300,
+        "enabled": true,
+        "name": "Name",
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "IDuniqueIdentifier": 7036,
+        "enabled": true,
+        "name": "Name",
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+]

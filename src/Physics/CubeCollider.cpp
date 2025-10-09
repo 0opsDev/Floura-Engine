@@ -74,6 +74,8 @@ void CubeCollider::Delete() {
     }
 
     IdManager::RemoveID(ID);
+
+    //IdManager::lowestColliderIndexSync(); // sync up the index after deletion because the array has now changed
 }
 
 void CubeCollider::init() {

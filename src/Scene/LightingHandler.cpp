@@ -102,6 +102,8 @@ void LightingHandler::deleteLight(int index)
 	IdManager::RemoveID(Lights[index].ID);
 	Lights.erase(Lights.begin() + index);
 	if (init::LogALL || init::LogModel) LogConsole::print("Deleted LightObject at index: " + std::to_string(index));
+
+	//IdManager::lowestLightIndexSync(); // sync up the index after deletion because the array has now changed
 }
 
 void LightingHandler::loadScene(std::string& path)

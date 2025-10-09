@@ -43,143 +43,161 @@ void IdManager::lowestIndexSync()
 		// check if ID at index matches IdManagerID, then update the index, if not found,
 		// set lowestDeletedIndex to -1, or if over the size of the array, otherwise if found, +lowestDeletedIndex by 1 and continue
 
-		if (lowestDeletedIndex.Model >= 0)
+		lowestModelIndexSync();
+		lowestBillBoardIndexSync();
+		lowestColliderIndexSync();
+		lowestSoundIndexSync();
+		lowestLightIndexSync();
+
+	}
+}
+void IdManager::lowestModelIndexSync()
+{
+	// check if index is not -1
+	if (lowestDeletedIndex.Model >= 0)
+	{
+		LogConsole::print("Starting Model ID sync from index: " + std::to_string(lowestDeletedIndex.Model));
+		// for models starting at lowestDeletedIndex.Model
+		for (size_t ind = lowestDeletedIndex.Model; ind < Scene::modelObjects.size(); ind++)
 		{
-			// for models starting at lowestDeletedIndex.Model
-			for (size_t ind = lowestDeletedIndex.Model; ind < Scene::modelObjects.size(); ind++)
+			// for all ids in IdManager
+			for (size_t indMananger = 0; indMananger < IDs.size(); indMananger++)
 			{
-				// for all ids in IdManager
-				for (size_t indMananger = 0; indMananger < IDs.size(); indMananger++)
+				// check if both ids match
+				if (IDmatch(Scene::modelObjects[ind]->ID, IDs[indMananger]))
 				{
-					// check if both ids match
-					if (IDmatch(Scene::modelObjects[ind]->ID, IDs[indMananger]))
+					LogConsole::print("Model ID match at index: " + std::to_string(ind) + " with UniqueNumber: " + std::to_string(Scene::modelObjects[ind]->ID.UniqueNumber));
+					// if both match, check if index is the same, if not, update it						
+					if (Scene::modelObjects[ind]->ID.index != ind)
 					{
-						LogConsole::print("Model ID match at index: " + std::to_string(ind) + " with UniqueNumber: " + std::to_string(Scene::modelObjects[ind]->ID.UniqueNumber));
-						// if both match, check if index is the same, if not, update it						
-						if (Scene::modelObjects[ind]->ID.index != ind)
-						{
-							// update index
-							Scene::modelObjects[ind]->ID.index = ind;
-							IDs[indMananger].index = ind; // also update the index in the IdManager
-							LogConsole::print("Updated Model ID index to: " + std::to_string(ind) + " for UniqueNumber: " + std::to_string(Scene::modelObjects[ind]->ID.UniqueNumber));
-							LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(ind) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
-						}
-						// check if lowestDeletedIndex.Model is now out of bounds
-						if (lowestDeletedIndex.Model >= static_cast<int>(Scene::modelObjects.size()))
-						{
-							lowestDeletedIndex.Model = -1;
-							LogConsole::print("Lowest Deleted Model Index is now: " + std::to_string(lowestDeletedIndex.Model));
-						}
-						// increment lowestDeletedIndex.Model because both ids matched
-						lowestDeletedIndex.Model++;
+						// update index
+						Scene::modelObjects[ind]->ID.index = ind;
+						IDs[indMananger].index = ind; // also update the index in the IdManager
+						LogConsole::print("Updated Model ID index to: " + std::to_string(ind) + " for UniqueNumber: " + std::to_string(Scene::modelObjects[ind]->ID.UniqueNumber));
+						LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(ind) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
 					}
-				}
-			}
-		}
-		if (lowestDeletedIndex.BillBoard >= 0)
-		{
-			for (size_t i = lowestDeletedIndex.BillBoard; i < Scene::BillBoardObjects.size(); i++)
-			{
-				// for all ids in IdManager
-				for (size_t indMananger = 0; indMananger < IDs.size(); indMananger++)
-				{
-					// check if both ids match
-					if (IDmatch(Scene::BillBoardObjects[i].ID, IDs[indMananger]))
+					// check if lowestDeletedIndex.Model is now out of bounds
+					if (lowestDeletedIndex.Model >= static_cast<int>(Scene::modelObjects.size()))
 					{
-						LogConsole::print("BillBoard ID match at index: " + std::to_string(i) + " with UniqueNumber: " + std::to_string(Scene::BillBoardObjects[i].ID.UniqueNumber));
-						// if both match, check if index is the same, if not, update it						
-						if (Scene::BillBoardObjects[i].ID.index != i)
-						{
-							// update index
-							Scene::BillBoardObjects[i].ID.index = i;
-							IDs[indMananger].index = i; // also update the index in the IdManager
-							LogConsole::print("Updated BillBoard ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(Scene::BillBoardObjects[i].ID.UniqueNumber));
-							LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
-						}
-						// check if lowestDeletedIndex.BillBoard is now out of bounds
-						if (lowestDeletedIndex.BillBoard >= static_cast<int>(Scene::BillBoardObjects.size()))
-						{
-							lowestDeletedIndex.BillBoard = -1;
-							LogConsole::print("Lowest Deleted BillBoard Index is now: " + std::to_string(lowestDeletedIndex.BillBoard));
-						}
-						// increment lowestDeletedIndex.BillBoard because both ids matched
-						lowestDeletedIndex.BillBoard++;
+						lowestDeletedIndex.Model = -1;
+						LogConsole::print("Lowest Deleted Model Index is now: " + std::to_string(lowestDeletedIndex.Model));
 					}
-				}
-			}
-		}
-		if (lowestDeletedIndex.Collider >= 0)
-		{
-			for (size_t i = lowestDeletedIndex.Collider; i < Scene::CubeColliderObject.size(); i++)
-			{
-				// for all ids in IdManager
-				for (size_t indMananger = 0; indMananger < IDs.size(); indMananger++)
-				{
-					// check if both ids match
-					if (IDmatch(Scene::CubeColliderObject[i].ID, IDs[indMananger]))
-					{
-						LogConsole::print("Collider ID match at index: " + std::to_string(i) + " with UniqueNumber: " + std::to_string(Scene::CubeColliderObject[i].ID.UniqueNumber));
-						// if both match, check if index is the same, if not, update it						
-						if (Scene::CubeColliderObject[i].ID.index != i)
-						{
-							// update index
-							Scene::CubeColliderObject[i].ID.index = i;
-							IDs[indMananger].index = i; // also update the index in the IdManager
-							LogConsole::print("Updated Collider ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(Scene::CubeColliderObject[i].ID.UniqueNumber));
-							LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
-						}
-						// check if lowestDeletedIndex.Collider is now out of bounds
-						if (lowestDeletedIndex.Collider >= static_cast<int>(Scene::CubeColliderObject.size()))
-						{
-							lowestDeletedIndex.Collider = -1;
-							LogConsole::print("Lowest Deleted Collider Index is now: " + std::to_string(lowestDeletedIndex.Collider));
-						}
-						// increment lowestDeletedIndex.Collider because both ids matched
-						lowestDeletedIndex.Collider++;
-					}
-				}
-			}
-		}
-		if (lowestDeletedIndex.Sound >= 0)
-		{
-			// current not implemented
-		}
-		if (lowestDeletedIndex.Light >= 0)
-		{
-			for (size_t i = lowestDeletedIndex.Light; i < LightingHandler::Lights.size(); i++)
-			{
-				// for all ids in IdManager
-				for (size_t indMananger = 0; indMananger < IDs.size(); indMananger++)
-				{
-					// check if both ids match
-					if (IDmatch(LightingHandler::Lights[i].ID, IDs[indMananger]))
-					{
-						LogConsole::print("Light ID match at index: " + std::to_string(i) + " with UniqueNumber: " + std::to_string(LightingHandler::Lights[i].ID.UniqueNumber));
-						// if both match, check if index is the same, if not, update it						
-						if (LightingHandler::Lights[i].ID.index != i)
-						{
-							// update index
-							LightingHandler::Lights[i].ID.index = i;
-							IDs[indMananger].index = i; // also update the index in the IdManager
-							LogConsole::print("Updated Light ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(LightingHandler::Lights[i].ID.UniqueNumber));
-							LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
-						}
-						// check if lowestDeletedIndex.Light is now out of bounds
-						if (lowestDeletedIndex.Light >= static_cast<int>(LightingHandler::Lights.size()))
-						{
-							lowestDeletedIndex.Light = -1;
-							LogConsole::print("Lowest Deleted Light Index is now: " + std::to_string(lowestDeletedIndex.Light));
-						}
-						// increment lowestDeletedIndex.Light because both ids matched
-						lowestDeletedIndex.Light++;
-					}
+					// increment lowestDeletedIndex.Model because both ids matched
+					lowestDeletedIndex.Model++;
 				}
 			}
 		}
 	}
-	else 
+}
+
+void IdManager::lowestBillBoardIndexSync()
+{
+	// check if index is not -1
+	if (lowestDeletedIndex.BillBoard >= 0)
 	{
-		return;
+		for (size_t i = lowestDeletedIndex.BillBoard; i < Scene::BillBoardObjects.size(); i++)
+		{
+			// for all ids in IdManager
+			for (size_t indMananger = 0; indMananger < IDs.size(); indMananger++)
+			{
+				// check if both ids match
+				if (IDmatch(Scene::BillBoardObjects[i].ID, IDs[indMananger]))
+				{
+					LogConsole::print("BillBoard ID match at index: " + std::to_string(i) + " with UniqueNumber: " + std::to_string(Scene::BillBoardObjects[i].ID.UniqueNumber));
+					// if both match, check if index is the same, if not, update it						
+					if (Scene::BillBoardObjects[i].ID.index != i)
+					{
+						// update index
+						Scene::BillBoardObjects[i].ID.index = i;
+						IDs[indMananger].index = i; // also update the index in the IdManager
+						LogConsole::print("Updated BillBoard ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(Scene::BillBoardObjects[i].ID.UniqueNumber));
+						LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
+					}
+					// check if lowestDeletedIndex.BillBoard is now out of bounds
+					if (lowestDeletedIndex.BillBoard >= static_cast<int>(Scene::BillBoardObjects.size()))
+					{
+						lowestDeletedIndex.BillBoard = -1;
+						LogConsole::print("Lowest Deleted BillBoard Index is now: " + std::to_string(lowestDeletedIndex.BillBoard));
+					}
+					// increment lowestDeletedIndex.BillBoard because both ids matched
+					lowestDeletedIndex.BillBoard++;
+				}
+			}
+		}
+	}
+}
+
+void IdManager::lowestColliderIndexSync() {
+	if (lowestDeletedIndex.Collider >= 0)
+	{
+		for (size_t i = lowestDeletedIndex.Collider; i < Scene::CubeColliderObject.size(); i++)
+		{
+			// for all ids in IdManager
+			for (size_t indMananger = 0; indMananger < IDs.size(); indMananger++)
+			{
+				// check if both ids match
+				if (IDmatch(Scene::CubeColliderObject[i].ID, IDs[indMananger]))
+				{
+					LogConsole::print("Collider ID match at index: " + std::to_string(i) + " with UniqueNumber: " + std::to_string(Scene::CubeColliderObject[i].ID.UniqueNumber));
+					// if both match, check if index is the same, if not, update it						
+					if (Scene::CubeColliderObject[i].ID.index != i)
+					{
+						// update index
+						Scene::CubeColliderObject[i].ID.index = i;
+						IDs[indMananger].index = i; // also update the index in the IdManager
+						LogConsole::print("Updated Collider ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(Scene::CubeColliderObject[i].ID.UniqueNumber));
+						LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
+					}
+					// check if lowestDeletedIndex.Collider is now out of bounds
+					if (lowestDeletedIndex.Collider >= static_cast<int>(Scene::CubeColliderObject.size()))
+					{
+						lowestDeletedIndex.Collider = -1;
+						LogConsole::print("Lowest Deleted Collider Index is now: " + std::to_string(lowestDeletedIndex.Collider));
+					}
+					// increment lowestDeletedIndex.Collider because both ids matched
+					lowestDeletedIndex.Collider++;
+				}
+			}
+		}
+	}
+}
+
+void IdManager::lowestSoundIndexSync() {
+	// currently not implemented
+}
+
+void IdManager::lowestLightIndexSync() {
+	if (lowestDeletedIndex.Light >= 0)
+	{
+		for (size_t i = lowestDeletedIndex.Light; i < LightingHandler::Lights.size(); i++)
+		{
+			// for all ids in IdManager
+			for (size_t indMananger = 0; indMananger < IDs.size(); indMananger++)
+			{
+				// check if both ids match
+				if (IDmatch(LightingHandler::Lights[i].ID, IDs[indMananger]))
+				{
+					LogConsole::print("Light ID match at index: " + std::to_string(i) + " with UniqueNumber: " + std::to_string(LightingHandler::Lights[i].ID.UniqueNumber));
+					// if both match, check if index is the same, if not, update it						
+					if (LightingHandler::Lights[i].ID.index != i)
+					{
+						// update index
+						LightingHandler::Lights[i].ID.index = i;
+						IDs[indMananger].index = i; // also update the index in the IdManager
+						LogConsole::print("Updated Light ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(LightingHandler::Lights[i].ID.UniqueNumber));
+						LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
+					}
+					// check if lowestDeletedIndex.Light is now out of bounds
+					if (lowestDeletedIndex.Light >= static_cast<int>(LightingHandler::Lights.size()))
+					{
+						lowestDeletedIndex.Light = -1;
+						LogConsole::print("Lowest Deleted Light Index is now: " + std::to_string(lowestDeletedIndex.Light));
+					}
+					// increment lowestDeletedIndex.Light because both ids matched
+					lowestDeletedIndex.Light++;
+				}
+			}
+		}
 	}
 }
 
@@ -194,6 +212,32 @@ bool IdManager::IDmatch(IdManager::ID& ID1, IdManager::ID& ID2)
 	{
 		return false;
 	}
+}
+bool IdManager::doubleIdIndexVerify(IdManager::ID& ID)
+{
+	for (size_t i = 0; i < IDs.size(); i++) // all ids in manager
+	{
+		// if both ids match, and index matches
+		if (IDmatch(ID, IdManager::IDs[i]) && ID.index == IdManager::IDs[i].index)
+		{
+			return true;
+		}
+	}
+	return false; // otherwise false
+}
+
+// returns index of IdManager ID Index that matches, or -1 if not found
+int IdManager::findIdManagerIndex(IdManager::ID& ID)
+{
+	for (size_t i = 0; i < IDs.size(); i++) // all ids in manager
+	{
+		// if both ids match, and index matches
+		if (IDmatch(ID, IdManager::IDs[i]))
+		{
+			return i; // index of Manager ID
+		}
+	}
+	return -1; // no ID found
 }
 
 void IdManager::AddID(IdManager::ID& checkID)

@@ -64,4 +64,5 @@ void BillBoardObject::Delete() {
 	}
 
 	IdManager::RemoveID(ID);
+	//IdManager::lowestBillBoardIndexSync(); // sync up the index after deletion because the array has now changed
 }

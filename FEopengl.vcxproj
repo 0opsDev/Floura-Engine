@@ -24,7 +24,7 @@
     <ProjectGuid>{29C223FE-CA70-4ABA-A48A-6CFFF2881636}</ProjectGuid>
     <RootNamespace>CppOpenGL</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>FluxionEngineGL</ProjectName>
+    <ProjectName>FlouraEngineGL</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
