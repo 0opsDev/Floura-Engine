@@ -1,4 +1,4 @@
-Fluxion Engine is a Open Source C++ Game Engine created for the purpose of learning OpenGL,
+Fluora Engine is a Open Source C++ Game Engine created for the purpose of learning OpenGL,
 
 Features:
 ---
