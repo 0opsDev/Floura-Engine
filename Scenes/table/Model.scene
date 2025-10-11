@@ -130,7 +130,7 @@
             0.0
         ],
         "isBackFaceCulling": true,
-        "isCollider": false,
+        "isCollider": true,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf"
     },
@@ -268,5 +268,365 @@
         "isCollider": true,
         "name": "cube3",
         "path": "Assets/Models/basic shapes/cube.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            0.10000000149011612,
+            0.30000001192092896,
+            0.10000000149011612
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.30000001192092896,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IDuniqueIdentifier": 6828,
+        "IsLod": false,
+        "Location": [
+            -2.162280559539795,
+            -1.9632583856582642,
+            -11.195271492004395
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.399999976158142,
+            1.399999976158142,
+            1.399999976158142
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "vase_copy",
+        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            0.10000000149011612,
+            0.30000001192092896,
+            0.10000000149011612
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.30000001192092896,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IDuniqueIdentifier": 492,
+        "IsLod": false,
+        "Location": [
+            -4.036937713623047,
+            -1.9632583856582642,
+            -11.246060371398926
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.399999976158142,
+            1.399999976158142,
+            1.399999976158142
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "vase_copy_copy",
+        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            0.10000000149011612,
+            0.30000001192092896,
+            0.10000000149011612
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.30000001192092896,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IDuniqueIdentifier": 1943,
+        "IsLod": false,
+        "Location": [
+            -5.793891906738281,
+            -1.9632583856582642,
+            -11.246060371398926
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.399999976158142,
+            1.399999976158142,
+            1.399999976158142
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "vase_copy_copy",
+        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            0.10000000149011612,
+            0.30000001192092896,
+            0.10000000149011612
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.30000001192092896,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IDuniqueIdentifier": 5437,
+        "IsLod": false,
+        "Location": [
+            -4.947637557983398,
+            -1.9632583856582642,
+            -12.422853469848633
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.399999976158142,
+            1.399999976158142,
+            1.399999976158142
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "vase_copy_copy",
+        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            0.10000000149011612,
+            0.30000001192092896,
+            0.10000000149011612
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.30000001192092896,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IDuniqueIdentifier": 4605,
+        "IsLod": false,
+        "Location": [
+            -4.947637557983398,
+            -1.9632583856582642,
+            -10.225343704223633
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.399999976158142,
+            1.399999976158142,
+            1.399999976158142
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "vase_copy_copy",
+        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            0.10000000149011612,
+            0.30000001192092896,
+            0.10000000149011612
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.30000001192092896,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IDuniqueIdentifier": 154,
+        "IsLod": false,
+        "Location": [
+            -1.9030423164367676,
+            -1.9632583856582642,
+            -10.225343704223633
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.399999976158142,
+            1.399999976158142,
+            1.399999976158142
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "vase_copy_copy",
+        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            0.10000000149011612,
+            0.30000001192092896,
+            0.10000000149011612
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.30000001192092896,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IDuniqueIdentifier": 2383,
+        "IsLod": false,
+        "Location": [
+            -3.486008644104004,
+            -1.9632583856582642,
+            -12.069036483764648
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.399999976158142,
+            1.399999976158142,
+            1.399999976158142
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "vase_copy_copy",
+        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
+    },
+    {
+        "BoxColliderScale": [
+            0.10000000149011612,
+            0.30000001192092896,
+            0.10000000149011612
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.30000001192092896,
+            0.0
+        ],
+        "DoFrustumCull": false,
+        "IDuniqueIdentifier": 8717,
+        "IsLod": false,
+        "Location": [
+            -2.162280559539795,
+            -1.9632583856582642,
+            -12.069036483764648
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.399999976158142,
+            1.399999976158142,
+            1.399999976158142
+        ],
+        "frustumBoxScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "frustumBoxTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "vase_copy_copy",
+        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
     }
 ]

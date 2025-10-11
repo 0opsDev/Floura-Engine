@@ -1203,6 +1203,14 @@ void FEImGuiWindow::ModelWindow() {
 		//Scene::modelObjects.erase(Scene::modelObjects.begin() + FEImGuiWindow::SelectedObjectIndex);
 		FEImGuiWindow::SelectedObjectType = "";
 	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Duplicate")) {
+		ObjectManager::duplicateObject('m', Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Focus Camera")) {
+		Camera::Position = Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->transform;
+	}
 }
 
 void FEImGuiWindow::BillBoardWindow() {
@@ -1244,6 +1252,14 @@ void FEImGuiWindow::BillBoardWindow() {
 		ObjectManager::deleteObjectwIndex('b', FEImGuiWindow::SelectedObjectIndex);
 		FEImGuiWindow::SelectedObjectType = "";
 	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Duplicate")) {
+		ObjectManager::duplicateObject('b', Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Focus Camera")) {
+		Camera::Position = Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].transform;
+	}
 }
 
 void FEImGuiWindow::ColliderWindow() {
@@ -1276,6 +1292,14 @@ void FEImGuiWindow::ColliderWindow() {
 	if (ImGui::SmallButton("Delete")) {
 		ObjectManager::deleteObjectwIndex('c', FEImGuiWindow::SelectedObjectIndex);
 		FEImGuiWindow::SelectedObjectType = "";
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Duplicate")) {
+		ObjectManager::duplicateObject('c', Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Focus Camera")) {
+		Camera::Position = Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].colliderXYZ;
 	}
 }
 
@@ -1316,6 +1340,14 @@ void FEImGuiWindow::LightWindow() {
 		ObjectManager::deleteObjectwIndex('l', FEImGuiWindow::SelectedObjectIndex);
 		FEImGuiWindow::SelectedObjectIndex = 0; // reset index
 		FEImGuiWindow::SelectedObjectType = "";
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Duplicate")) {
+		ObjectManager::duplicateObject('l', LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Focus Camera")) {
+		Camera::Position = LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position;
 	}
 }
 

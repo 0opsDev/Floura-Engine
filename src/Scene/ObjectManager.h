@@ -9,7 +9,7 @@ public:
 	//static void createObject(unsigned char ObjType);
 	//static unsigned int createObjectAndFetchID(unsigned char ObjType);
 
-	//static void duplicateObject(unsigned char ObjType, unsigned int UniqueNumber);
+	static void duplicateObject(unsigned char ObjType, unsigned int UniqueNumber);
 	//static void duplicateObjectwIndex(unsigned char ObjType, unsigned int index);
 
 	static void deleteObject(unsigned char ObjType, unsigned int UniqueNumber);
