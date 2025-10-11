@@ -67,6 +67,8 @@ public:
 	// returns index of IdManager ID Index that matches, or -1 if not found
 	static int findIdManagerIndex(IdManager::ID& ID); 
 
+	static int fetchIndexFromID(unsigned char ObjType, unsigned int UniqueNumber);
+
 
 	// should find the Manager ID that matches, then run the entire array of objects of that type to see if the index is valid between the two IDs
 	// this is more expensive but more reliable

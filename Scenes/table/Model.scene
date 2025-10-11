@@ -46,13 +46,13 @@
     },
     {
         "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
+            0.10000000149011612,
+            0.30000001192092896,
+            0.10000000149011612
         ],
         "BoxColliderTransform": [
             0.0,
-            0.0,
+            0.30000001192092896,
             0.0
         ],
         "DoFrustumCull": false,
@@ -85,7 +85,7 @@
             0.0
         ],
         "isBackFaceCulling": true,
-        "isCollider": false,
+        "isCollider": true,
         "name": "vase",
         "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
     },
@@ -149,7 +149,7 @@
         "IDuniqueIdentifier": 9962,
         "IsLod": false,
         "Location": [
-            0.0,
+            -3.010775327682495,
             0.0,
             0.0
         ],
@@ -175,8 +175,8 @@
             0.0
         ],
         "isBackFaceCulling": true,
-        "isCollider": false,
-        "name": "cube",
+        "isCollider": true,
+        "name": "cube1",
         "path": "Assets/Models/basic shapes/cube.gltf"
     },
     {
@@ -194,7 +194,7 @@
         "IDuniqueIdentifier": 2996,
         "IsLod": false,
         "Location": [
-            0.0,
+            -5.752958297729492,
             0.0,
             0.0
         ],
@@ -220,8 +220,8 @@
             0.0
         ],
         "isBackFaceCulling": true,
-        "isCollider": false,
-        "name": "cube",
+        "isCollider": true,
+        "name": "cube2",
         "path": "Assets/Models/basic shapes/cube.gltf"
     },
     {
@@ -239,7 +239,7 @@
         "IDuniqueIdentifier": 4828,
         "IsLod": false,
         "Location": [
-            0.0,
+            -8.436938285827637,
             0.0,
             0.0
         ],
@@ -265,8 +265,8 @@
             0.0
         ],
         "isBackFaceCulling": true,
-        "isCollider": false,
-        "name": "cube",
+        "isCollider": true,
+        "name": "cube3",
         "path": "Assets/Models/basic shapes/cube.gltf"
     }
 ]

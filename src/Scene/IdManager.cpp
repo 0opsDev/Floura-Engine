@@ -35,7 +35,7 @@ void IdManager::update()
 void IdManager::lowestIndexSync()
 {
 	// check if index is not -1, first check all (ealy copout)
-	if (lowestDeletedIndex.Model >= 0 || lowestDeletedIndex.BillBoard >= 0 || lowestDeletedIndex.Collider >= 0 || lowestDeletedIndex.Sound >= 0 || lowestDeletedIndex.Light >= 0)
+	if (lowestDeletedIndex.Model != -1 || lowestDeletedIndex.BillBoard != -1 || lowestDeletedIndex.Collider != -1 || lowestDeletedIndex.Sound != -1 || lowestDeletedIndex.Light != -1)
 	{
 		// check which object types need to be synced
 		// start the for at lowestDeletedIndex and go up until we find a free index
@@ -43,12 +43,18 @@ void IdManager::lowestIndexSync()
 		// check if ID at index matches IdManagerID, then update the index, if not found,
 		// set lowestDeletedIndex to -1, or if over the size of the array, otherwise if found, +lowestDeletedIndex by 1 and continue
 
-		lowestModelIndexSync();
+		//lowestModelIndexSync();
 		lowestBillBoardIndexSync();
 		lowestColliderIndexSync();
-		lowestSoundIndexSync();
+		//lowestSoundIndexSync();
 		lowestLightIndexSync();
 
+		// lowest index isnt resetting 
+		//LogConsole::print(std::to_string(lowestDeletedIndex.Model));
+		//LogConsole::print(std::to_string(lowestDeletedIndex.BillBoard));
+		//LogConsole::print(std::to_string(lowestDeletedIndex.Collider)); // not right
+		//LogConsole::print(std::to_string(lowestDeletedIndex.Sound))
+		//LogConsole::print(std::to_string(lowestDeletedIndex.Light));
 	}
 }
 void IdManager::lowestModelIndexSync()
@@ -57,6 +63,12 @@ void IdManager::lowestModelIndexSync()
 	if (lowestDeletedIndex.Model >= 0)
 	{
 		LogConsole::print("Starting Model ID sync from index: " + std::to_string(lowestDeletedIndex.Model));
+		// check if lowestDeletedIndex.Model is now out of bounds
+		if (lowestDeletedIndex.Model == static_cast<int>(Scene::modelObjects.size()) || lowestDeletedIndex.Model >= static_cast<int>(Scene::modelObjects.size()))
+		{
+			lowestDeletedIndex.Model = -1;
+			LogConsole::print("Lowest Deleted Model Index is now: " + std::to_string(lowestDeletedIndex.Model));
+		}
 		// for models starting at lowestDeletedIndex.Model
 		for (size_t ind = lowestDeletedIndex.Model; ind < Scene::modelObjects.size(); ind++)
 		{
@@ -77,13 +89,16 @@ void IdManager::lowestModelIndexSync()
 						LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(ind) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
 					}
 					// check if lowestDeletedIndex.Model is now out of bounds
-					if (lowestDeletedIndex.Model >= static_cast<int>(Scene::modelObjects.size()))
+					if (lowestDeletedIndex.Model == static_cast<int>(Scene::modelObjects.size()) || lowestDeletedIndex.Model >= static_cast<int>(Scene::modelObjects.size()))
 					{
 						lowestDeletedIndex.Model = -1;
 						LogConsole::print("Lowest Deleted Model Index is now: " + std::to_string(lowestDeletedIndex.Model));
 					}
 					// increment lowestDeletedIndex.Model because both ids matched
-					lowestDeletedIndex.Model++;
+					if (lowestDeletedIndex.Model != -1);
+					{
+						lowestDeletedIndex.Model++;
+					}
 				}
 			}
 		}
@@ -95,6 +110,12 @@ void IdManager::lowestBillBoardIndexSync()
 	// check if index is not -1
 	if (lowestDeletedIndex.BillBoard >= 0)
 	{
+		// check if lowestDeletedIndex.BillBoard is now out of bounds
+		if (lowestDeletedIndex.BillBoard == static_cast<int>(Scene::BillBoardObjects.size()) || lowestDeletedIndex.BillBoard >= static_cast<int>(Scene::BillBoardObjects.size()))
+		{
+			lowestDeletedIndex.BillBoard = -1;
+			LogConsole::print("Lowest Deleted BillBoard Index is now: " + std::to_string(lowestDeletedIndex.BillBoard));
+		}
 		for (size_t i = lowestDeletedIndex.BillBoard; i < Scene::BillBoardObjects.size(); i++)
 		{
 			// for all ids in IdManager
@@ -114,13 +135,17 @@ void IdManager::lowestBillBoardIndexSync()
 						LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
 					}
 					// check if lowestDeletedIndex.BillBoard is now out of bounds
-					if (lowestDeletedIndex.BillBoard >= static_cast<int>(Scene::BillBoardObjects.size()))
+					if (lowestDeletedIndex.BillBoard == static_cast<int>(Scene::BillBoardObjects.size()) || lowestDeletedIndex.BillBoard >= static_cast<int>(Scene::BillBoardObjects.size()) )
 					{
 						lowestDeletedIndex.BillBoard = -1;
 						LogConsole::print("Lowest Deleted BillBoard Index is now: " + std::to_string(lowestDeletedIndex.BillBoard));
 					}
 					// increment lowestDeletedIndex.BillBoard because both ids matched
-					lowestDeletedIndex.BillBoard++;
+					if (lowestDeletedIndex.BillBoard == -1);
+					{
+						lowestDeletedIndex.BillBoard++;
+					}
+
 				}
 			}
 		}
@@ -130,6 +155,12 @@ void IdManager::lowestBillBoardIndexSync()
 void IdManager::lowestColliderIndexSync() {
 	if (lowestDeletedIndex.Collider >= 0)
 	{
+		// check if lowestDeletedIndex.Collider is now out of bounds
+		if (lowestDeletedIndex.Collider == static_cast<int>(Scene::CubeColliderObject.size()) || lowestDeletedIndex.Collider >= static_cast<int>(Scene::CubeColliderObject.size()))
+		{
+			lowestDeletedIndex.Collider = -1;
+			LogConsole::print("Lowest Deleted Collider Index is now: " + std::to_string(lowestDeletedIndex.Collider));
+		}
 		for (size_t i = lowestDeletedIndex.Collider; i < Scene::CubeColliderObject.size(); i++)
 		{
 			// for all ids in IdManager
@@ -148,14 +179,18 @@ void IdManager::lowestColliderIndexSync() {
 						LogConsole::print("Updated Collider ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(Scene::CubeColliderObject[i].ID.UniqueNumber));
 						LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
 					}
-					// check if lowestDeletedIndex.Collider is now out of bounds
-					if (lowestDeletedIndex.Collider >= static_cast<int>(Scene::CubeColliderObject.size()))
+					// check if lowestDeletedIndex.BillBoard is now out of bounds
+					if (lowestDeletedIndex.Collider == static_cast<int>(Scene::CubeColliderObject.size()) || lowestDeletedIndex.Collider >= static_cast<int>(Scene::CubeColliderObject.size()))
 					{
 						lowestDeletedIndex.Collider = -1;
 						LogConsole::print("Lowest Deleted Collider Index is now: " + std::to_string(lowestDeletedIndex.Collider));
 					}
 					// increment lowestDeletedIndex.Collider because both ids matched
-					lowestDeletedIndex.Collider++;
+					if (lowestDeletedIndex.Collider != -1);
+					{
+						lowestDeletedIndex.Collider++;
+					}
+
 				}
 			}
 		}
@@ -169,6 +204,13 @@ void IdManager::lowestSoundIndexSync() {
 void IdManager::lowestLightIndexSync() {
 	if (lowestDeletedIndex.Light >= 0)
 	{
+		// check if lowestDeletedIndex.Light is now out of bounds
+		if (lowestDeletedIndex.Light == static_cast<int>(LightingHandler::Lights.size()) || lowestDeletedIndex.Light >= static_cast<int>(LightingHandler::Lights.size()))
+		{
+			lowestDeletedIndex.Light = -1;
+			LogConsole::print("Lowest Deleted Light Index is now: " + std::to_string(lowestDeletedIndex.Light));
+		}
+
 		for (size_t i = lowestDeletedIndex.Light; i < LightingHandler::Lights.size(); i++)
 		{
 			// for all ids in IdManager
@@ -188,13 +230,17 @@ void IdManager::lowestLightIndexSync() {
 						LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
 					}
 					// check if lowestDeletedIndex.Light is now out of bounds
-					if (lowestDeletedIndex.Light >= static_cast<int>(LightingHandler::Lights.size()))
+					if (lowestDeletedIndex.Light == static_cast<int>(LightingHandler::Lights.size()) || lowestDeletedIndex.Light >= static_cast<int>(LightingHandler::Lights.size()))
 					{
 						lowestDeletedIndex.Light = -1;
 						LogConsole::print("Lowest Deleted Light Index is now: " + std::to_string(lowestDeletedIndex.Light));
 					}
 					// increment lowestDeletedIndex.Light because both ids matched
-					lowestDeletedIndex.Light++;
+					if (lowestDeletedIndex.Light != -1);
+					{
+						lowestDeletedIndex.Light++;
+					}
+
 				}
 			}
 		}
@@ -238,6 +284,23 @@ int IdManager::findIdManagerIndex(IdManager::ID& ID)
 		}
 	}
 	return -1; // no ID found
+}
+
+
+int IdManager::fetchIndexFromID(unsigned char ObjType, unsigned int UniqueNumber)
+{
+	// for loop of manager ids
+	for (size_t i = 0; i < IDs.size(); i++) // all ids in manager
+	{
+		// two ids, check if they match
+		if (IDs[i].ObjType == ObjType && IDs[i].UniqueNumber == UniqueNumber)
+		{
+			// return index, 
+			return IDs[i].index;
+		}
+	}
+	// if fails reutrn 0
+	return -1;
 }
 
 void IdManager::AddID(IdManager::ID& checkID)

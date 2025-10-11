@@ -12,6 +12,7 @@
 #include "FE_ImGui.h"
 #include <Scene/LightingHandler.h>
 #include "utils/logConsole.h"
+#include <Scene/ObjectManager.h>
 //#include <Instance.h>
 
 
@@ -1105,6 +1106,15 @@ void FEImGuiWindow::ModelWindow() {
 	ImGui::Text(("ID: " + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ID.ObjType) + "*" + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber)).c_str());
 	// Index attached to ID
 	ImGui::Text(("ID Attached Index: " + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ID.index)).c_str());
+
+	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Apply Name"))
+	{
+		//ObjectManager::renameObject('m', Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber, ObjectManager::NameBuffer);
+		ObjectManager::renameObjectwIndex('m', FEImGuiWindow::SelectedObjectIndex, ObjectManager::NameBuffer);
+	}
+
 	if (ImGui::TreeNode("Rendering Component")) {
 
 		ImGui::Combo("Material", &MaterialSelectedIndex, MaterialObjecNames.data(), MaterialObjecNames.size());
@@ -1187,8 +1197,10 @@ void FEImGuiWindow::ModelWindow() {
 	}
 	ImGui::Spacing();
 	if (ImGui::SmallButton("Delete")) {
-		Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->Delete();
-		Scene::modelObjects.erase(Scene::modelObjects.begin() + FEImGuiWindow::SelectedObjectIndex);
+		ObjectManager::deleteObjectwIndex('m', FEImGuiWindow::SelectedObjectIndex);
+		//ObjectManager::deleteObject('m', Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber);
+		//Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->Delete();
+		//Scene::modelObjects.erase(Scene::modelObjects.begin() + FEImGuiWindow::SelectedObjectIndex);
 		FEImGuiWindow::SelectedObjectType = "";
 	}
 }
@@ -1201,6 +1213,15 @@ void FEImGuiWindow::BillBoardWindow() {
 	ImGui::Text(("ID: " + std::to_string(Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].ID.ObjType) + "*" + std::to_string(Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber)).c_str());
 	// Index attached to ID
 	ImGui::Text(("ID Attached Index: " + std::to_string(Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].ID.index)).c_str());
+
+	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Apply Name"))
+	{
+		//ObjectManager::renameObject('b', Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber, ObjectManager::NameBuffer);
+		ObjectManager::renameObjectwIndex('b', FEImGuiWindow::SelectedObjectIndex, ObjectManager::NameBuffer);
+	}
+
 	if (ImGui::TreeNode("Transform Component")) {
 		ImGui::Text("Transformations: ");
 		ImGui::DragFloat3("Position", &Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].transform.x);
@@ -1220,8 +1241,7 @@ void FEImGuiWindow::BillBoardWindow() {
 
 	ImGui::Spacing();
 	if (ImGui::SmallButton("Delete")) {
-		Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].Delete();
-		Scene::BillBoardObjects.erase(Scene::BillBoardObjects.begin() + FEImGuiWindow::SelectedObjectIndex);
+		ObjectManager::deleteObjectwIndex('b', FEImGuiWindow::SelectedObjectIndex);
 		FEImGuiWindow::SelectedObjectType = "";
 	}
 }
@@ -1233,6 +1253,14 @@ void FEImGuiWindow::ColliderWindow() {
 	ImGui::Text(("ID: " + std::to_string(Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.ObjType) + "*" + std::to_string(Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber)).c_str());
 	// Index attached to ID
 	ImGui::Text(("ID Attached Index: " + std::to_string(Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.index)).c_str());
+
+	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Apply Name"))
+	{
+		//ObjectManager::renameObject('c', Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber, ObjectManager::NameBuffer);
+		ObjectManager::renameObjectwIndex('c', FEImGuiWindow::SelectedObjectIndex, ObjectManager::NameBuffer);
+	}
 
 	if (ImGui::TreeNode("Transform Component")) {
 		ImGui::Text("Transformations: ");
@@ -1246,8 +1274,7 @@ void FEImGuiWindow::ColliderWindow() {
 	ImGui::Checkbox("Enabled", &Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].enabled);
 
 	if (ImGui::SmallButton("Delete")) {
-		Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].Delete();
-		Scene::CubeColliderObject.erase(Scene::CubeColliderObject.begin() + FEImGuiWindow::SelectedObjectIndex);
+		ObjectManager::deleteObjectwIndex('c', FEImGuiWindow::SelectedObjectIndex);
 		FEImGuiWindow::SelectedObjectType = "";
 	}
 }
@@ -1285,9 +1312,8 @@ void FEImGuiWindow::LightWindow() {
 	//ImGui::Checkbox("Enabled", &Scene::enabled[ImGuiWindow::SelectedObjectIndex]);
 
 	if (ImGui::SmallButton("Delete")) {
-		LightingHandler::deleteLight(FEImGuiWindow::SelectedObjectIndex);
 		//LightingHandler::Lights.erase(LightingHandler::Lights.begin() + FEImGuiWindow::SelectedObjectIndex);
-
+		ObjectManager::deleteObjectwIndex('l', FEImGuiWindow::SelectedObjectIndex);
 		FEImGuiWindow::SelectedObjectIndex = 0; // reset index
 		FEImGuiWindow::SelectedObjectType = "";
 	}

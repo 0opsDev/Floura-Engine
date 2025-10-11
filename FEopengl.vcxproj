@@ -185,6 +185,7 @@
     <ClCompile Include="src\Render\window\WindowHandler.cpp" />
     <ClCompile Include="src\Scene\IdManager.cpp" />
     <ClCompile Include="src\Scene\LightingHandler.cpp" />
+    <ClCompile Include="src\Scene\ObjectManager.cpp" />
     <ClCompile Include="src\Scene\Object\BillboardObject.cpp" />
     <ClCompile Include="src\Scene\Object\FE_Object.cpp" />
     <ClCompile Include="src\Scene\Object\ModelObject.cpp" />
@@ -259,6 +260,7 @@
     <ClInclude Include="src\Render\window\WindowHandler.h" />
     <ClInclude Include="src\Scene\IdManager.h" />
     <ClInclude Include="src\Scene\LightingHandler.h" />
+    <ClInclude Include="src\Scene\ObjectManager.h" />
     <ClInclude Include="src\Scene\Object\BillboardObject.h" />
     <ClInclude Include="src\Scene\Object\FE_Object.h" />
     <ClInclude Include="src\Scene\Object\ModelObject.h" />

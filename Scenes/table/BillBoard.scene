@@ -24,7 +24,7 @@
         "doPitch": true,
         "isAnimated": false,
         "isCollider": false,
-        "name": "Grass",
+        "name": "grass1",
         "path": "Assets/Sprites/n_grass_diff_0_35.png",
         "position": [
             0.0,
@@ -43,7 +43,7 @@
         "doPitch": true,
         "isAnimated": false,
         "isCollider": false,
-        "name": "Grass",
+        "name": "grass2",
         "path": "Assets/Sprites/n_grass_diff_0_35.png",
         "position": [
             0.0,
@@ -62,7 +62,7 @@
         "doPitch": true,
         "isAnimated": false,
         "isCollider": false,
-        "name": "Grass",
+        "name": "grass3",
         "path": "Assets/Sprites/n_grass_diff_0_35.png",
         "position": [
             0.0,
@@ -81,7 +81,7 @@
         "doPitch": true,
         "isAnimated": false,
         "isCollider": false,
-        "name": "Grass",
+        "name": "grass4",
         "path": "Assets/Sprites/n_grass_diff_0_35.png",
         "position": [
             0.0,
