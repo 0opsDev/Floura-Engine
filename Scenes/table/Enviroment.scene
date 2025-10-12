@@ -16,7 +16,7 @@
         "DirSpecEnabled": true,
         "DirSpecular": 0.15000000596046448,
         "DoSkyColour": false,
-        "RenderSkybox": true,
+        "RenderSkybox": false,
         "skyRGBA": [
             0.2551281154155731,
             0.03623607009649277,

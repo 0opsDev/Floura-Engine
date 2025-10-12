@@ -698,6 +698,18 @@
     <None Include="src\Libraries\include\ImGuizmo\LICENSE">
       <Filter>Resource Files\ImGuizmo</Filter>
     </None>
+    <None Include="Shaders\Lighting\DefaultGeom.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\albedoGeom.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\gBuffer\geometryPassGeom.vert">
+      <Filter>Resource Files\Shaders\gBuffer</Filter>
+    </None>
+    <None Include="Shaders\gBuffer\GeometryPass.geom">
+      <Filter>Resource Files\Shaders\gBuffer</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\Libraries\include\imgui\LICENSE.txt">

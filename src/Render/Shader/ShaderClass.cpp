@@ -1,5 +1,6 @@
 #include "shaderClass.h"
 #include "utils/init.h"
+#include <utils/logConsole.h>
 
 
 std::string get_file_contents(const char* filename)
@@ -66,9 +67,71 @@ void Shader::LoadShader(const char* vertexFile, const char* fragmentFile)
         //delete shaders because its already in the program
         glDeleteShader(vertexShader);//ep2
         glDeleteShader(fragmentShader);//ep2
-        if (init::LogALL || init::LogSystems) { std::cout << "Vert: " << vertexFile << "Frag: " << fragmentFile << std::endl; }
+        if (init::LogALL || init::LogSystems)
+        {
+            LogConsole::print(("Vert: ", vertexFile, "Frag: ", fragmentFile));
+        }
 
    
+}
+
+void Shader::LoadShaderGeom(const char* vertexFile, const char* fragmentFile, const char* geometryFile)
+{
+    // uses vertexFile which holds the shader file path and gets the contents of the file which is dumped into vertexCode
+    std::string vertexCode = get_file_contents(vertexFile);
+    std::string fragmentCode = get_file_contents(fragmentFile);
+	std::string geometryCode = get_file_contents(geometryFile);
+
+    const char* vertexSource = vertexCode.c_str();
+    const char* fragmentSource = fragmentCode.c_str();
+	const char* geometrySource = geometryCode.c_str();
+
+    //CREATE VERTEX SHADER
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    //feed vert shader data at line 5
+    glShaderSource(vertexShader, 1, &vertexSource, NULL);
+    //compile into machine code
+    glCompileShader(vertexShader);
+    //error checking
+    compileErrors(vertexShader, "VERTEX");
+
+    //CREATE FRAGMENT SHADER
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    //feed vert shader data at line 5
+    glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+    //compile into machine code
+    glCompileShader(fragmentShader);
+    //error checking
+    compileErrors(fragmentShader, "FRAGMENT");
+
+    //CREATE GEOMETRY SHADER
+    GLuint geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+    //feed vert shader data at line 5
+    glShaderSource(geometryShader, 1, &geometrySource, NULL);
+    //compile into machine code
+    glCompileShader(geometryShader);
+    //error checking
+    compileErrors(geometryShader, "GEOMETRY");
+
+    //wrap then into shader 
+    //create shader program
+    ID = glCreateProgram(); //ep2
+    //attach vert shader and frag shader
+    glAttachShader(ID, vertexShader);
+    glAttachShader(ID, fragmentShader);
+	glAttachShader(ID, geometryShader);
+    //wrap
+    glLinkProgram(ID);//ep2
+    //error checking
+    compileErrors(ID, "PROGRAM");
+
+    //delete shaders because its already in the program
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+	glDeleteShader(geometryShader);
+    if (init::LogALL || init::LogSystems)
+    {LogConsole::print(("Vert: ", vertexFile, "Frag: ", fragmentFile, "Geom", geometryFile));}
+
 }
 
 void Shader::LoadComputeShader(const char* computeFile) {

@@ -1,6 +1,6 @@
 [
 	{
-		"type": "Custom",
+		"type": "Standard",
 		"name": "Wobble",
 		
 		"FragShader": "Shaders/Lighting/combined.frag",

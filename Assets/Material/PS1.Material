@@ -1,6 +1,6 @@
 [
 	{
-		"type": "Custom",
+		"type": "Standard",
 		"name": "PS1",
 		
 		"FragShader": "Shaders/Lighting/combined.frag",

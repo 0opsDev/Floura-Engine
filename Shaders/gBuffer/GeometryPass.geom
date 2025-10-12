@@ -7,14 +7,17 @@ out vec3 Normal;
 out vec3 color;
 out vec2 texCoord;
 out vec3 crntPos;
+out vec3 gNormals;
 
 in DATA
 {
     vec3 Normal;
+    vec3 gNormals;
     vec3 color;
     vec2 texCoord;
     mat4 projection;
     vec3 WorldPos;
+
 } data_in[];
 
 void main()
@@ -31,6 +34,8 @@ void main()
     Normal = data_in[i].Normal;
     color = data_in[i].color;
     texCoord = data_in[i].texCoord;
+    gNormals = data_in[i].gNormals;
+
     EmitVertex();
     }
 

@@ -1,0 +1,19 @@
+[
+	{
+		"type": "Geometry",
+		"name": "DefaultGeom",
+
+		"FragShader": "Shaders/Lighting/albedo.frag",
+		"VertexShader": "Shaders/Lighting/DefaultGeom.vert",
+		"GeomShader": "Shaders/Lighting/Default.geom",
+		"GPassFragShader": "Shaders/gBuffer/geometryPass.frag",
+		"GPassVertShader": "Shaders/gBuffer/geometryPass.vert",
+		"GPassGeomShader": "Shaders/gBuffer/",
+		"variables": {
+			"type": ["bool"],
+			"name": ["doReflect"],
+			"Value":[true]
+		}
+	}
+
+]

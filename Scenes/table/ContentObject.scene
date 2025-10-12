@@ -154,5 +154,17 @@
         "ObjectType": "Model",
         "Path": "Assets/Models/planes/paveplane.gltf",
         "Type": "static"
+    },
+    {
+        "Name": "GeomTest Material",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/Geom.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "albedo",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/albedo.Material",
+        "Type": "NULL"
     }
 ]

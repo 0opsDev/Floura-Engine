@@ -20,6 +20,8 @@ public:
 	GLuint ID;
 	void LoadShader(const char* vertexFile, const char* fragmentFile);
 
+	void LoadShaderGeom(const char* vertexFile, const char* fragmentFile, const char* geometryFile);
+
 	void LoadComputeShader(const char* computeFile);
 
 	void Activate();

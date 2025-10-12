@@ -3,7 +3,7 @@
 		"type": "Standard",
 		"name": "Default",
 
-		"FragShader": "Shaders/Lighting/combined.frag",
+		"FragShader": "Shaders/Lighting/albedo.frag",
 		"VertexShader": "Shaders/Lighting/Default.vert",
 		"GPassFragShader": "Shaders/gBuffer/geometryPass.frag",
 		"GPassVertShader": "Shaders/gBuffer/geometryPass.vert",
