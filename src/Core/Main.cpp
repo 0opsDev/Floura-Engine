@@ -44,7 +44,7 @@ void initGLFW()
 //Main Function
 int main() // global variables do not work with threads
 {
-	CloseConsoleWindow();
+	//CloseConsoleWindow();
 
 	Main::sleepState = true;
 	auto startInitTime = std::chrono::high_resolution_clock::now();

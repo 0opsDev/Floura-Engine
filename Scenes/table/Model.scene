@@ -337,11 +337,11 @@
         "IDuniqueIdentifier": 5437,
         "IsLod": false,
         "Location": [
+            -10.661574363708496,
             0.0,
-            0.0,
-            -16.380769729614258
+            -8.761646270751953
         ],
-        "MaterialPath": "Assets/Material/Default.Material",
+        "MaterialPath": "Assets/Material/Geom.Material",
         "Rotation": [
             0.0,
             0.0,

@@ -7,6 +7,7 @@ out vec3 Normal;
 out vec3 color;
 out vec2 texCoord;
 out vec3 crntPos;
+out vec4 fragPosLight;
 
 in DATA
 {
@@ -15,6 +16,7 @@ in DATA
     vec2 texCoord;
     mat4 projection;
     vec3 WorldPos;
+    vec4 fragPosLight;
 } data_in[];
 
 void main()
@@ -28,6 +30,7 @@ void main()
     //gl_Position = data_in[i].projection * (gl_in[i].gl_Position + surfaceNormal); // 1
     gl_Position = data_in[i].projection * gl_in[i].gl_Position;
     crntPos = data_in[i].WorldPos; 
+    fragPosLight = data_in[i].fragPosLight;
     Normal = data_in[i].Normal;
     color = data_in[i].color;
     texCoord = data_in[i].texCoord;
