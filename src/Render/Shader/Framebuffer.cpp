@@ -2,6 +2,8 @@
 #include <Render/passes/geometry/geometryPass.h>
 #include <Render/passes/lighting/LightingPass.h>
 #include <Render/window/WindowHandler.h>
+#include <utils/logConsole.h>
+#include <Scene/LightingHandler.h>
 
 int Framebuffer::tempWidth;
 int Framebuffer::tempHeight;
@@ -14,10 +16,8 @@ unsigned int Framebuffer::FBO2;
 unsigned int Framebuffer::frameBufferTexture2, Framebuffer::frameBufferTexture;
 unsigned int Framebuffer::RBO, Framebuffer::FBO;
 
-unsigned int Framebuffer::shadowMapFBO, Framebuffer::shadowMapHeight, Framebuffer::shadowMapWidth, Framebuffer::ShadowMap;
 GLuint Framebuffer::noiseMapTexture;
 Shader Framebuffer::frameBufferProgram;
-Shader Framebuffer::shadowMapProgram;
 
 float s_ViewportVerticies[24] = {
 	// Coords,   Texture cords
@@ -34,39 +34,6 @@ float s_ViewportVerticies[24] = {
 void Framebuffer::setupNoiseMap() {
 	// *TimeUtil::s_DeltaTime)
 	NoiseH::generateNoise(noiseMapTexture, 256, 256, 0.05f, 42);
-}
-
-void Framebuffer::setupShadowMapBuffer(unsigned int width, unsigned int height) {
-	shadowMapProgram.LoadShader("Shaders/Lighting/shadowMap.vert", "Shaders/Lighting/shadowMap.frag");
-	shadowMapHeight = width;
-	shadowMapWidth = height;
-	glGenBuffers(1, &shadowMapFBO);
-	glGenTextures(1, &ShadowMap);
-	glBindTexture(GL_TEXTURE_2D, ShadowMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glm::vec4 borderColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &borderColor[0]);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, ShadowMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	
-	glm::mat4 orthographicProjection = glm::ortho( -35.0f, 35.0f, -35.0f, 35.0f, 0.1f, 75.0f);
-	glm::vec3 tempLightPos = glm::vec3(0, 5, 0);
-	glm::mat4 lightView = glm::lookAt(20.0f * tempLightPos, glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f));
-	glm::mat4 lightProjection = orthographicProjection * lightView;
-	shadowMapProgram.Activate();
-	shadowMapProgram.setMat4("lightProjection", lightProjection);
-	/*
-	ill work on this later, for now i want a functioning direct light
-	*/
 }
 
 void Framebuffer::setupMainFBO(unsigned int width, unsigned int height) {

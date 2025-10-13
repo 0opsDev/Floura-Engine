@@ -10,6 +10,7 @@
 #include <Render/passes/geometry/geometryPass.h>
 #include <Render/passes/lighting/LightingPass.h>
 #include <Render/window/WindowHandler.h>
+#include <Scene/LightingHandler.h>
 
 Shader RenderClass::billBoardShader;
 Shader RenderClass::gPassShaderBillBoard;
@@ -51,6 +52,7 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	LightingPass::initcomputeShader(width, height); // Initialize compute shader for lighting pass
 
 	initGlobalShaders();
+	LightingHandler::setupShadowMapBuffer();
 	// need to add debug buffers at some point
 	//Framebuffer::setupNoiseMap();
 
@@ -88,6 +90,10 @@ void RenderClass::ClearFramebuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, GeometryPass::gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear with colour
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, LightingHandler::shadowMapFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int height) {
@@ -110,21 +116,6 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
-
-	/*
-	shaderProgram.setBool("doReflect", doReflections);
-	shaderProgram.setBool("doFog", doFog);
-	shaderProgram.setFloat3("InnerLight1", ConeSI[1] - ConeSI[0], ConeSI[1], ConeSI[2]);
-	shaderProgram.setFloat3("spotLightRot", ConeRot[0], ConeRot[1], ConeRot[2]);
-	shaderProgram.setFloat("DepthDistance", DepthDistance);
-	shaderProgram.setFloat("NearPlane", DepthPlane[0]);
-	shaderProgram.setFloat("FarPlane", DepthPlane[1]);
-	shaderProgram.setFloat3("fogColor", fogRGBA.r, fogRGBA.g, fogRGBA.b);
-	shaderProgram.setFloat4("skyColor", skyRGBA.r, skyRGBA.g, skyRGBA.b, skyRGBA[3]);
-	shaderProgram.setFloat("gamma", gamma);
-	shaderProgram.setFloat("deltatime", TimeUtil::s_DeltaTime);
-	shaderProgram.setFloat("time", glfwGetTime());
-	*/
 
 	if (FEImGuiWindow::isWireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode

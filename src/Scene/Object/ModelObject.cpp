@@ -3,6 +3,7 @@
 #include <Math/FE_math.h>
 #include <Scene/scene.h>
 #include <utils/logConsole.h>
+#include <Scene/LightingHandler.h>
 
 void ModelObject::LODModelLoad(std::string path) {
 	std::ifstream file(path);
@@ -121,7 +122,7 @@ unsigned int CalculateLOD(const glm::vec3& cameraPos, const glm::vec3& transform
 	return lodLevel;
 }
 
-void ModelObject::renderLogic() {
+void ModelObject::renderLogic(bool shadowmap) {
 	MaterialObject.update();
 
 	if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
@@ -147,32 +148,49 @@ void ModelObject::renderLogic() {
 		{			
 			//std::cout << CalculateLOD(Camera::Position, transform, LodDistance, LodCount);
 			if (i == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
-				if (RenderClass::DoForwardLightingPass) {
-					glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
-					MaterialObject.ModelShader.Activate();
-					glEnable(GL_DEPTH_TEST);
-					glDepthFunc(GL_LESS);
-					LODModels[i].Draw(MaterialObject.ModelShader, glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
-					glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				if (shadowmap == false)
+				{
+					if (RenderClass::DoForwardLightingPass) {
+						glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+						MaterialObject.ModelShader.Activate();
+						glEnable(GL_DEPTH_TEST);
+						glDepthFunc(GL_LESS);
+						LODModels[i].Draw(MaterialObject.ModelShader, glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
+						glBindFramebuffer(GL_FRAMEBUFFER, 0);
+					}
+					MaterialObject.ModelGpassShader.Activate();
+					GeometryPass::gPassDraw(LODModels[i], MaterialObject.ModelGpassShader, glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
 				}
-				MaterialObject.ModelGpassShader.Activate();
-				GeometryPass::gPassDraw(LODModels[i], MaterialObject.ModelGpassShader, glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
+				else 
+				{
+					LightingHandler::drawShadowMap(LODModels[i], glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
+				}	
+
 			}
 		}
 		break;
 	}
 	case false: {
+		if (shadowmap == false)
+		{
 			if (RenderClass::DoForwardLightingPass) {
 				glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 				MaterialObject.ModelShader.Activate();
 				glEnable(GL_DEPTH_TEST);
 				glDepthFunc(GL_LESS);
 				ModelSingle.Draw(MaterialObject.ModelShader, transform, rotation, scale);
-				
+
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
 			MaterialObject.ModelGpassShader.Activate();
 			GeometryPass::gPassDraw(ModelSingle, MaterialObject.ModelGpassShader, transform, rotation, scale);
+		}
+		else 
+		{
+			LightingHandler::drawShadowMap(ModelSingle, glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
+		}
+			
+
 		break;
 	}
 			  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Enable wireframe mode
@@ -193,11 +211,11 @@ void ModelObject::updateForwardLights() {
 void ModelObject::draw() {
 	if (DoFrustumCull) {
 		if (Camera::isBoxInFrustum((frustumBoxTransform + transform), frustumBoxScale) || FE_Math::isInRange((frustumBoxTransform + transform), Camera::Position, 1 + (0.1))) {
-			renderLogic();
+			renderLogic(false);
 		}
 	}
 	else {
-		renderLogic();
+		renderLogic(false);
 	}
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -207,6 +225,22 @@ void ModelObject::draw() {
 		CubeCollider.draw();
 	}
 
+}
+
+void ModelObject::drawModelShadowMap()
+{
+	if (!castShadow)
+	{
+		return;
+	}
+	if (DoFrustumCull) {
+		if (Camera::isBoxInFrustum((frustumBoxTransform + transform), frustumBoxScale) || FE_Math::isInRange((frustumBoxTransform + transform), Camera::Position, 1 + (0.1))) {
+			renderLogic(true);
+		}
+	}
+	else {
+		renderLogic(true);
+	}
 }
 
 void ModelObject::Delete() {

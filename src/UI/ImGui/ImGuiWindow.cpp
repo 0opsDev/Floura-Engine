@@ -598,6 +598,7 @@ void FEImGuiWindow::PreformanceProfiler() {
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), ("lPass: " + std::to_string(lPassTime) + " ms").c_str());
 	ImGui::TextColored(ImVec4(0,1,0,1), ("Render: " + std::to_string(Render) + " ms").c_str());
 
+
 	ImGui::End();
 
 
@@ -1128,6 +1129,7 @@ void FEImGuiWindow::ModelWindow() {
 			Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->LoadMaterial(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->MaterialObject.materialPath);
 			LogConsole::print("Reloaded Material: " + Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->MaterialObject.materialPath);
 		}
+		ImGui::Checkbox("Cast Shadow", &Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->castShadow);
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	ImGui::Spacing();
@@ -1398,6 +1400,13 @@ void FEImGuiWindow::InspectorWindow() {
 		ImGui::DragFloat("Ambient Light", &LightingHandler::directAmbient);
 		ImGui::DragFloat("Specular Light", &LightingHandler::dirSpecularLight);
 		ImGui::ColorEdit3("Colour", &LightingHandler::directLightCol.r);	// sky and light
+		ImGui::Spacing();
+		ImGui::Text("Directional Shadow");
+		ImGui::Checkbox("Do ShadowMap", &LightingHandler::doDirShadowMap);
+		ImGui::DragFloat2("ShadowMap Near & Far", &LightingHandler::dirNearFar.x);
+		ImGui::DragFloat("Distance", &LightingHandler::distance);
+		ImGui::DragFloat("Height", &LightingHandler::dirShadowheight);
+		ImGui::Image((ImTextureID)(uintptr_t)LightingHandler::ShadowMap, ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 
 	}
 	else if (FEImGuiWindow::SelectedObjectType == "Skybox") {
@@ -1457,7 +1466,7 @@ void FEImGuiWindow::SceneFolderWindow()
 				}
 
 				ImGui::BeginGroup();
-				if (FEImGuiWindow::ContentObjects[i] == "Model") {
+				if (FEImGuiWindow::ContentObjects[i] == "Model") { // ShadowMap
 					if (ImGui::ImageButton(("##ObjectIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::ModelIcon.ID, ImVec2(100, 100))) {
 						if (FEImGuiWindow::ContentObjectTypes[i] == "static") {
 							Scene::AddSceneModelObject(false, FEImGuiWindow::ContentObjectPaths[i], FEImGuiWindow::ContentObjectNames[i]);

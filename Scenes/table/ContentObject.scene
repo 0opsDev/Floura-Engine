@@ -166,5 +166,17 @@
         "ObjectType": "Material",
         "Path": "Assets/Material/albedo.Material",
         "Type": "NULL"
+    },
+    {
+        "Name": "Name",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grassbit.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "grassblade XBB",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grass/xBbGrass.gltf",
+        "Type": "static"
     }
 ]

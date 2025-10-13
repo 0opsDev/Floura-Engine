@@ -8,11 +8,83 @@ std::vector<LightingHandler::Light> LightingHandler::Lights;
 
 // DIR light
 glm::vec3 LightingHandler::dirLightRot = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 LightingHandler::dirLightPosOut = glm::vec3(0.0f, 1.0f, 0.0f);;
 glm::vec3 LightingHandler::directLightCol = glm::vec3(1.0f, 1.0f, 1.0f);
 float LightingHandler::directAmbient = 0.20f;
 float LightingHandler::dirSpecularLight = 0.20f;
 bool LightingHandler::doDirLight = false;
 bool LightingHandler::doDirSpecularLight = true;
+
+unsigned int LightingHandler::shadowMapFBO, LightingHandler::shadowMapHeight, LightingHandler::shadowMapWidth, LightingHandler::ShadowMap;
+float LightingHandler::distance = 35.0f;
+glm::vec2 LightingHandler::dirNearFar = glm::vec2(0.1f, 75.0f); // 0.1f 75.0f
+float LightingHandler::dirShadowheight = 20.0f;
+bool LightingHandler::doDirShadowMap = true;
+
+glm::mat4 LightingHandler::lightProjection;
+Shader LightingHandler::dirShadowMapProgram;
+
+void LightingHandler::setupShadowMapBuffer() {
+	LightingHandler::dirShadowMapProgram.LoadShader("Shaders/Lighting/shadowMap.vert", "Shaders/Lighting/shadowMap.frag");
+	//shadowMapHeight = 4096;
+	//shadowMapWidth = 4096;
+	//shadowMapHeight = 2046;
+	//shadowMapWidth = 2046;
+	shadowMapHeight = 1024;
+	shadowMapWidth = 1024;
+	glGenFramebuffers(1, &shadowMapFBO);
+	glGenTextures(1, &ShadowMap);
+	glBindTexture(GL_TEXTURE_2D, ShadowMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, ShadowMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+}
+
+void LightingHandler::drawShadowMap(Model model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale) {
+	if (!doDirShadowMap)
+	{
+		return;
+	}
+	glm::mat4 orthgonalProjection = glm::ortho(-distance, distance, -distance, distance, dirNearFar.x, dirNearFar.y); // last two are near and far 
+
+	glm::vec3 CameraPos = Camera::Position;
+	glm::vec3 dirLightDirection = dirLightPosOut;
+	glm::vec3 lightEyePosition = CameraPos + (dirShadowheight * dirLightDirection);
+
+	glm::mat4 lightView = glm::lookAt(
+		lightEyePosition,
+		CameraPos,
+		glm::vec3(0.0f, 1.0f, 0.0f)
+	);
+	lightProjection = orthgonalProjection * lightView;
+	//glm::mat4 lightView = glm::lookAt(20.0f * LightingHandler::dirLightPosOut, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	//LightingHandler::lightProjection = orthgonalProjection * lightView;
+
+
+	glEnable(GL_DEPTH_TEST);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+	glViewport(0, 0, shadowMapWidth, shadowMapHeight); // dont touch for now
+	//glClear(GL_DEPTH_BUFFER_BIT);
+	LightingHandler::dirShadowMapProgram.Activate();
+	glUniformMatrix4fv(glGetUniformLocation(LightingHandler::dirShadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
+
+	model.Draw(LightingHandler::dirShadowMapProgram, translation, rotation, scale);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, Camera::width, Camera::height); // dont touch for now
+
+}
 
 void LightingHandler::update(Shader Shader)
 {
@@ -60,12 +132,26 @@ void LightingHandler::update(Shader Shader)
 	glm::mat4 rotationMatrixDIR = glm::yawPitchRoll(eulerRadiansDIR.y, eulerRadiansDIR.x, eulerRadiansDIR.z);
 	glm::vec3 rotatedDirectionDIR = glm::vec3(rotationMatrixDIR * glm::vec4(baseDirectionDIR, 0.0f));
 
+	dirLightPosOut = rotatedDirectionDIR;
+
 	Shader.setBool("doDirLight", doDirLight);
 	Shader.setBool("doDirSpecularLight", doDirSpecularLight);
 	Shader.setFloat("directAmbient", directAmbient);
 	Shader.setFloat("dirSpecularLight", dirSpecularLight);
 	Shader.setFloat3("directLightPos", rotatedDirectionDIR.x, rotatedDirectionDIR.y, rotatedDirectionDIR.z); // 0.0f, 1.0f, 0.0f
 	Shader.setFloat3("directLightCol", directLightCol.x, directLightCol.y, directLightCol.z); // 1.0f, 1.0f, 1.0f
+
+	Shader.setFloat("doDirShadowMap", doDirShadowMap);
+	if (doDirShadowMap)
+	{
+		// shadow map
+		glUniformMatrix4fv(glGetUniformLocation(Shader.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
+
+		glActiveTexture(GL_TEXTURE0 + 2);
+		glBindTexture(GL_TEXTURE_2D, ShadowMap);
+		glUniform1i(glGetUniformLocation(Shader.ID, "shadowMap"), 2);
+	}
+	
 }
 
 void LightingHandler::createLight()

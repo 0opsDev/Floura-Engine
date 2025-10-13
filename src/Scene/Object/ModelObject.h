@@ -39,6 +39,7 @@ public:
 	bool DoCulling = true;
 	std::string ObjectName;
 	bool hasPhysics = false;
+	bool castShadow = true;
 	float LodDistance = 100.0f;
 	unsigned int LodCount;
 	glm::vec3 transform = glm::vec3(0, 0, 0);
@@ -71,6 +72,8 @@ public:
 
 	void draw();
 
+	void drawModelShadowMap();
+
 	void Delete();
 
 	Model ModelSingle; // should be private but im leaving it here just for now
@@ -87,7 +90,7 @@ private:
 
 	//std::vector<std::tuple<Model>> SingleModel;
 	//std::vector<std::tuple<Model, unsigned int>> modelOBJ;
-	void renderLogic();
+	void renderLogic(bool shadowmap);
 	
 };
 

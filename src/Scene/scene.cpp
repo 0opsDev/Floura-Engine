@@ -117,7 +117,11 @@ void Scene::JsonEnviromentSave(std::string path)
 		JsonEnviroment["DirColour"][0] = LightingHandler::directLightCol[0];
 		JsonEnviroment["DirColour"][1] = LightingHandler::directLightCol[1];
 		JsonEnviroment["DirColour"][2] = LightingHandler::directLightCol[2];
-
+		JsonEnviroment["DoShadowMap"] = LightingHandler::doDirShadowMap;
+		JsonEnviroment["dirNearFar"][0] = LightingHandler::dirNearFar[0];
+		JsonEnviroment["dirNearFar"][1] = LightingHandler::dirNearFar[1];
+		JsonEnviroment["dirSmDistance"] = LightingHandler::distance;
+		JsonEnviroment["dirSmHeight"] = LightingHandler::dirShadowheight;
 		/*
 		DirEnabled
 		DirSpecEnabled
@@ -187,8 +191,17 @@ void Scene::JsonEnviromentLoad(std::string path)
 		LightingHandler::directLightCol[0] = EnviromentDefaultData[0]["DirColour"][0];
 		LightingHandler::directLightCol[1] = EnviromentDefaultData[0]["DirColour"][1];
 		LightingHandler::directLightCol[2] = EnviromentDefaultData[0]["DirColour"][2];
+		LightingHandler::doDirShadowMap = EnviromentDefaultData[0]["DoShadowMap"];
+		LightingHandler::dirNearFar[0] = EnviromentDefaultData[0]["dirNearFar"][0];
+		LightingHandler::dirNearFar[1] = EnviromentDefaultData[0]["dirNearFar"][1];
+		LightingHandler::distance = EnviromentDefaultData[0]["dirSmDistance"];
+		LightingHandler::dirShadowheight = EnviromentDefaultData[0]["dirSmHeight"];
 
 		/*
+		* 		JsonEnviroment["dirNearFar"][0] = LightingHandler::dirNearFar[0];
+		JsonEnviroment["dirNearFar"][1] = LightingHandler::dirNearFar[1];
+		* 
+		* 
 		RenderClass::fogRGBA[0] = EnviromentDefaultData[0]["fogRGBA"][0];
 		RenderClass::fogRGBA[1] = EnviromentDefaultData[0]["fogRGBA"][1];
 		RenderClass::fogRGBA[2] = EnviromentDefaultData[0]["fogRGBA"][2];
@@ -254,6 +267,7 @@ void Scene::initJsonModelLoad(std::string path) {
 		bool isCollider = item.at("isCollider").get<bool>();
 		bool isBackFaceCulling = item.at("isBackFaceCulling").get<bool>();
 		bool DoFrustumCull = item.at("DoFrustumCull").get<bool>();
+		bool castShadow = item.at("CastShadow").get<bool>();
 
 		newObject->IsLod = IsLod;
 		newObject->transform = Location;
@@ -266,6 +280,7 @@ void Scene::initJsonModelLoad(std::string path) {
 		newObject->BoxColliderScale = BoxColliderScale;
 		newObject->frustumBoxTransform = frustumBoxTransform;
 		newObject->frustumBoxScale = frustumBoxScale;
+		newObject->castShadow = castShadow;
 		// ID
 		newObject->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
 
@@ -308,6 +323,7 @@ void Scene::JsonModelSave(std::string path) {
 			modelJson["isBackFaceCulling"] = obj->DoCulling;
 			modelJson["DoFrustumCull"] = obj->DoFrustumCull;
 			modelJson["MaterialPath"] = obj->MaterialObject.materialPath;
+			modelJson["CastShadow"] = obj->castShadow;
 			// ID
 			modelJson["IDuniqueIdentifier"] = obj->ID.UniqueNumber;
 
@@ -757,7 +773,10 @@ void Scene::initCameraSettingsLoad(std::string path) {
 }
 
 void Scene::Update() {
-
+	for (size_t i = 0; i < modelObjects.size(); i++)
+	{
+		modelObjects[i]->drawModelShadowMap();
+	}
 	// models
 	for (size_t i = 0; i < modelObjects.size(); i++)
 	{
@@ -768,7 +787,6 @@ void Scene::Update() {
 		// before drawing we wanna update the lights in the material class
 
 		modelObjects[i]->updateForwardLights(); // needs to take lights
-
 		modelObjects[i]->draw();
 	}
 	// billboards
