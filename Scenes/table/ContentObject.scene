@@ -156,12 +156,6 @@
         "Type": "static"
     },
     {
-        "Name": "GeomTest Material",
-        "ObjectType": "Material",
-        "Path": "Assets/Material/Geom.Material",
-        "Type": "NULL"
-    },
-    {
         "Name": "albedo",
         "ObjectType": "Material",
         "Path": "Assets/Material/albedo.Material",
@@ -178,5 +172,11 @@
         "ObjectType": "Model",
         "Path": "Assets/Models/grass/xBbGrass.gltf",
         "Type": "static"
+    },
+    {
+        "Name": "OLD FRAG VERT",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/OLD.Material",
+        "Type": "NULL"
     }
 ]

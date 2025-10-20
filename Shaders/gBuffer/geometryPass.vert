@@ -13,12 +13,11 @@ out vec2 texCoord;
 
 uniform mat4 camMatrix;
 uniform mat4 model;
+uniform mat3 normalMatrix;
 
 void main()
 {
     crntPos = vec3(model * vec4(aPos, 1.0f));
-
-    mat3 normalMatrix = transpose(inverse(mat3(model)));
     gNormals = normalMatrix * aNormal;
 
     Normal = aNormal;

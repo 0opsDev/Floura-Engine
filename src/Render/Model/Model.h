@@ -11,10 +11,17 @@ public:
 
     void init(const char* file);
 
-    glm::vec3 lastHit = glm::vec3(0);
-    bool collide(glm::vec3 victimXYZ, glm::vec3 victimScale, std::string collidertype);
+    glm::vec3 translation, rotation, scale;
 
-    void Draw(Shader& shader, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale);
+    void updatePosition(glm::vec3 translation);
+
+    void updateRotation(glm::vec3 rotation);
+
+    void updateScale(glm::vec3 scale);
+
+    void calculateTangents(std::vector<Vertex>& vertices, const std::vector<GLuint>& indices);
+
+    void Draw(Shader& shader);
 
     void Delete();
 

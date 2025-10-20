@@ -101,6 +101,7 @@ int main() // global variables do not work with threads
 		Player::update();
 
 		RenderClass::Render(windowHandler::window, windowHandler::width, windowHandler::height);
+
 		if (FEImGuiWindow::imGuiEnabled) { 
 
 			TA2.update();

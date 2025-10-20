@@ -1,0 +1,17 @@
+[
+    {
+        "FOV": 75.0,
+        "cameraColliderScale": [
+            1.0,
+            2.0112152099609375,
+            1.0
+        ],
+        "farPlane": 4000.0,
+        "initialCameraPos": [
+            0.0,
+            2.0,
+            0.0
+        ],
+        "nearPlane": 0.10000000149011612
+    }
+]

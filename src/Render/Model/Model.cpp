@@ -18,19 +18,27 @@ void Model::init(const char* file) {
 		traverseNode(JSON["scenes"][0]["nodes"][i]);
 	}
 }
-bool Model::collide(glm::vec3 victimXYZ, glm::vec3 victimScale, std::string collidertype){
 
-	bool anycollide = false;
-	for (unsigned int i = 0; i < meshes.size(); i++) {
-		if (meshes[i].collide(victimXYZ, victimScale, collidertype)) {
-			lastHit = meshes[i].lastHit; // Update last hit position
-			return true;
-		}
-	}
-	return false;
-};
+void Model::updatePosition(glm::vec3 translation)
+{
+	Model::translation = translation;
+}
 
-void Model::Draw(Shader& shader, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale)
+void Model::updateRotation(glm::vec3 rotation)
+{
+	Model::rotation = rotation;
+}
+
+void Model::updateScale(glm::vec3 scale)
+{
+	Model::scale = scale;
+}
+
+void Model::calculateTangents(std::vector<Vertex>& vertices, const std::vector<GLuint>& indices)
+{
+}
+
+void Model::Draw(Shader& shader)
 {
 
 	glm::mat4 globalTrans = glm::mat4(1.0f);
@@ -47,7 +55,7 @@ void Model::Draw(Shader& shader, glm::vec3 translation, glm::vec3 rotation, glm:
 	globalSca = glm::scale(globalSca, scale);
 
 	modelMatrix = globalTrans * globalRot * globalSca;
-
+	//modelMatrix = globalRot * globalSca;
 
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
@@ -109,6 +117,7 @@ void Model::loadMesh(unsigned int indMesh)
 	// Combine all the vertex components and also get the indices and textures
 	std::vector<Vertex> vertices = assembleVertices(positions, normals, texUVs);
 	std::vector<GLuint> indices = getIndices(JSON["accessors"][indAccInd]);
+	//calculateTangents(vertices, indices);
 	//glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -116,19 +125,7 @@ void Model::loadMesh(unsigned int indMesh)
 	//std::cout << indMesh << std::endl;
 	std::vector<Texture> textures = getTexturesForMesh(indMesh); // maybe make vector of these
 	//textures2.push_back(textures);
-	//if (textures2.size() > 3) textures2.clear();
-	//textures2.clear();
-	//std::cout << "prep end " << std::endl;
-	//std::cout << loadedTexName.size() << "loadedTexNamesize" << std::endl;
-	//std::cout << loadedTex.size() << "loadedTexsize" << std::endl;
-	//std::cout << textures2.size() << "texsize" << std::endl;
-	//std::vector<Texture> textures = getTextures();
-//	std::cout << indMesh << "indMesh" << std::endl;
-	// Combine the vertices, indices, and textures into a mesh
 
-
-	// maybe load the pbr textures into there own buffers and parse them thru
-	//std::cout << vertices.size() << "vert size at " << indMesh << std::endl;
 	meshes.push_back(Mesh(vertices, indices, textures));
 }
 
@@ -388,7 +385,7 @@ std::vector<Texture> Model::getTextures()
 std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 {
 	//std::cout << indMesh << "indmesh texture" << std::endl;
-	
+
 	std::vector<Texture> textures;
 	if (false) {
 		// fallback
@@ -478,8 +475,31 @@ std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 					}
 				}
 			}
+			else // Fallback for missing normal map: Use Purple
+			{
+				std::string fallbackPath = "Assets/Dependants/placeholder/texture/placeholder_normal_purple.png"; // Purple/Magenta texture for normal map
+				bool skip = false;
+				for (unsigned int i = 0; i < loadedTexName.size(); i++)
+				{
+					if (loadedTexName[i] == fallbackPath)
+					{
+						textures.push_back(loadedTex[i]);
+						skip = true;
+						break;
+					}
+				}
+				if (!skip)
+				{
+					Texture fallbackTexture;
+					// Type must be "normal" for the normal map fallback
+					fallbackTexture.createTexture(fallbackPath.c_str(), "normal", loadedTex.size());
+					textures.push_back(fallbackTexture);
+					loadedTex.push_back(fallbackTexture);
+					loadedTexName.push_back(fallbackPath);
+				}
+			}
 
-			// specular
+			// specular (metallicRoughness)
 			if (material["pbrMetallicRoughness"].find("metallicRoughnessTexture") != material["pbrMetallicRoughness"].end())
 			{
 				unsigned int textureIndex = material["pbrMetallicRoughness"]["metallicRoughnessTexture"]["index"];
@@ -533,7 +553,6 @@ std::vector<Texture> Model::getTexturesForMesh(unsigned int indMesh)
 
 	}
 
-
 	return textures;
 }
 
@@ -555,7 +574,8 @@ std::vector<Vertex> Model::assembleVertices
 				positions[i],
 				normals[i],
 				glm::vec3(1.0f, 1.0f, 1.0f),
-				texUVs[i]
+				texUVs[i],
+				//glm::vec3(0.0f, 0.0f, 0.0f)
 			}
 		);
 	}

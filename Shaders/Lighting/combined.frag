@@ -14,26 +14,29 @@ in vec2 texCoord;
 
 in vec4 fragPosLight;
 
+in mat3 TBN;
+
 uniform bool doReflect;
 float specularLight = 0.50f; // 0.50f
 
 // Gets the Texture Units from the main function
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
+uniform sampler2D normal0;
 uniform sampler2D shadowMap;
 
 // Gets the color of the light from the main function
 uniform vec4 skyColor;
 // Gets the position of the light from the main function
-const vec3 lightPos = vec3(0.0, 5.0, 1.0);
-
-uniform vec3 directLightPos; //1.0f, 1.0f, 0.0f
+//const vec3 lightPos = vec3(0.0, 5.0, 1.0);
+uniform vec3 directLightPos;
 uniform vec3 directLightCol;
 uniform float directAmbient; // 0.20f
 uniform float dirSpecularLight;
 uniform bool doDirLight;
 uniform bool doDirSpecularLight;
 uniform bool doDirShadowMap;
+uniform int dirShadowMapHardness;
 
 struct Light
 {
@@ -48,10 +51,9 @@ uniform Light Lights[64];
 
 uniform int lightCount;
 
-// Gets the position of the camera from the main function
-uniform vec3 camPos;
 uniform float NearPlane;
 uniform float FarPlane;
+uniform vec3 camPos;
 
 float linearizeDepth(float depth)
 {
@@ -64,7 +66,9 @@ vec4 direcLight()
 	//float ambient = 0.20f;
 
 	// diffuse lighting
-	vec3 normal = normalize(Normal);
+	vec3 unpackedNormal = normalize(texture(normal0, texCoord).xyz * 2.0f - vec3(1.0f));
+	vec3 normal = normalize(TBN * unpackedNormal);
+	//vec3 normal = normalize(Normal);
 	vec3 lightDirection = normalize(directLightPos); //vec3(1.0f, 1.0f, 0.0f)
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
@@ -123,20 +127,29 @@ vec4 pointLight(int iteration)
 {	
 	vec4 finalColour = vec4(0.0f);
 
-	// used in two variables so I calculate it here to not have to do it twice
-	vec3 lightVec = Lights[iteration].position - crntPos;
+	
+	//vec3 lightVec = (Lights[iteration].position) - crntPos;
+	vec3 lightVec = (Lights[iteration].position) - crntPos;
 
 	// intensity of light with respect to distance
 	float dist = length(lightVec);
-	float a = 3.0;
-	float b = 0.7;
+	float a = 1.00f;
+	float b = 0.70f;
 	float inten = Lights[iteration].radius / (a * dist * dist + b * dist + 1.0);
 
 	// ambient lighting
 	//float ambient = 0.0f;
 
 	// diffuse lighting
-	vec3 normal = normalize(Normal);
+	//vec3 NormalTex = texture(normal0, texCoord).rgb; // Fetch normal from texture
+
+    //vec3 normal = normalize(NormalTex * Normal);
+
+	//vec3 normal = normalize(Normal); 
+
+	vec3 unpackedNormal = normalize(texture(normal0, texCoord).xyz * 2.0f - vec3(1.0f));
+	vec3 normal = normalize(TBN * unpackedNormal);
+
 	vec3 lightDirection = normalize(lightVec);
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
@@ -144,7 +157,7 @@ vec4 pointLight(int iteration)
 	if (doReflect && diffuse != 0.0f){
 	// specular lighting
 		//float specularLight = 0.50f;
-		vec3 viewDirection = normalize(camPos - crntPos);
+		vec3 viewDirection = normalize( (camPos) - crntPos);
 		vec3 reflectionDirection = reflect(-lightDirection, normal);
 
 		vec3 halfwayVec = normalize(lightDirection + viewDirection);
@@ -174,7 +187,11 @@ vec4 spotLight(int iteration)
 	vec4 finalColour = vec4(0.0f);
 
 		// diffuse lighting
-	vec3 normal = normalize(Normal);
+	vec3 unpackedNormal = normalize(texture(normal0, texCoord).xyz * 2.0f - vec3(1.0f));
+	vec3 normal = normalize(TBN * unpackedNormal);
+	//vec3 normal = normalize(Normal);
+	//vec3 normal = normalize(texture(normal0, texCoord).xyz * 2.0f - 1.0f);
+
 	vec3 lightDirection = normalize(Lights[iteration].position - crntPos);
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
@@ -240,11 +257,13 @@ vec4 lights(){
 	{
 		finalColour += direcLight();
 	}
-
+		//return finalColour;
 		return (diffuseTex * skyColor) + finalColour;
 } 
 
 void main()
 {
 	FragColor = lights();
+	//FragColor = texture(normal0, texCoord);
+	
 }

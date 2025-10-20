@@ -11,6 +11,7 @@ struct Vertex
 	glm::vec3 normal;
 	glm::vec3 color;
 	glm::vec2 texUV;
+	//glm::vec3 tangent;
 };
 
 class VBO

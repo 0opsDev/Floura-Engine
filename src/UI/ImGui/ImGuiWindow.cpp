@@ -1406,7 +1406,8 @@ void FEImGuiWindow::InspectorWindow() {
 		ImGui::DragFloat2("ShadowMap Near & Far", &LightingHandler::dirNearFar.x);
 		ImGui::DragFloat("Distance", &LightingHandler::distance);
 		ImGui::DragFloat("Height", &LightingHandler::dirShadowheight);
-		ImGui::Image((ImTextureID)(uintptr_t)LightingHandler::ShadowMap, ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::DragInt("Hardness", &LightingHandler::dirShadowMapHardness);
+		ImGui::Image((ImTextureID)(uintptr_t)LightingHandler::dirShadowMap, ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 
 	}
 	else if (FEImGuiWindow::SelectedObjectType == "Skybox") {
@@ -1422,6 +1423,14 @@ void FEImGuiWindow::InspectorWindow() {
 		ImGui::Text("DepthBuffer Settings (FOG)");
 		ImGui::DragFloat("Depth Distance (FOG)", &RenderClass::DepthDistance);
 		ImGui::DragFloat2("Near and Far Depth Plane", RenderClass::DepthPlane);
+		ImGui::Spacing();
+		ImGui::DragInt("amount of Point ShadowMaps", &LightingHandler::amountPointShadowMaps);
+		ImGui::DragInt("amount of Spot ShadowMaps", &LightingHandler::amountSpotShadowMaps);
+
+		if (ImGui::Button("update Amount Of Light Maps"))
+		{
+			LightingHandler::updateAmountOfLightMaps();
+		}
 	}
 	ImGui::End();
 }

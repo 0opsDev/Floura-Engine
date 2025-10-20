@@ -4,6 +4,15 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <utils/logConsole.h>
 
+
+int LightingHandler::amountPointShadowMaps = 4;
+int LightingHandler::amountPointNear;
+std::vector<LightingHandler::ShadowMaps> LightingHandler::PointShadowMap;
+
+int LightingHandler::amountSpotShadowMaps = 4;
+int LightingHandler::amountSpotNear;
+std::vector<LightingHandler::ShadowMaps> LightingHandler::SpotShadowMap;
+
 std::vector<LightingHandler::Light> LightingHandler::Lights;
 
 // DIR light
@@ -15,26 +24,29 @@ float LightingHandler::dirSpecularLight = 0.20f;
 bool LightingHandler::doDirLight = false;
 bool LightingHandler::doDirSpecularLight = true;
 
-unsigned int LightingHandler::shadowMapFBO, LightingHandler::shadowMapHeight, LightingHandler::shadowMapWidth, LightingHandler::ShadowMap;
+unsigned int LightingHandler::shadowMapFBO, LightingHandler::shadowMapHeight, LightingHandler::shadowMapWidth, LightingHandler::dirShadowMap;
 float LightingHandler::distance = 35.0f;
 glm::vec2 LightingHandler::dirNearFar = glm::vec2(0.1f, 75.0f); // 0.1f 75.0f
 float LightingHandler::dirShadowheight = 20.0f;
 bool LightingHandler::doDirShadowMap = true;
+int LightingHandler::dirShadowMapHardness = 2.0f;
 
 glm::mat4 LightingHandler::lightProjection;
 Shader LightingHandler::dirShadowMapProgram;
 
 void LightingHandler::setupShadowMapBuffer() {
 	LightingHandler::dirShadowMapProgram.LoadShader("Shaders/Lighting/shadowMap.vert", "Shaders/Lighting/shadowMap.frag");
-	//shadowMapHeight = 4096;
-	//shadowMapWidth = 4096;
-	//shadowMapHeight = 2046;
+	shadowMapWidth = 4096;
+	shadowMapHeight = 4096;
 	//shadowMapWidth = 2046;
-	shadowMapHeight = 1024;
-	shadowMapWidth = 1024;
+	//shadowMapHeight = 2046;
+	//shadowMapWidth = 1024;
+	//shadowMapHeight = 1024;
+	//shadowMapWidth = 128;
+	//shadowMapHeight = 128;
 	glGenFramebuffers(1, &shadowMapFBO);
-	glGenTextures(1, &ShadowMap);
-	glBindTexture(GL_TEXTURE_2D, ShadowMap);
+	glGenTextures(1, &dirShadowMap);
+	glBindTexture(GL_TEXTURE_2D, dirShadowMap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -44,11 +56,138 @@ void LightingHandler::setupShadowMapBuffer() {
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, ShadowMap, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, dirShadowMap, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+}
+
+void genShadowMapBuffer(LightingHandler::ShadowMaps shadowMap)
+{
+	shadowMap.shadowMapWidth = 1024;
+	shadowMap.shadowMapHeight = 1024;
+
+	glGenFramebuffers(1, &shadowMap.shadowMapFBO);
+	glGenTextures(1, &shadowMap.ShadowMap);
+	glBindTexture(GL_TEXTURE_2D, shadowMap.ShadowMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMap.shadowMapWidth, shadowMap.shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowMap.shadowMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap.ShadowMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void deleteShadowMapBuffer(LightingHandler::ShadowMaps shadowMap)
+{
+	//glDeleteFramebuffers(1, &shadowMap.shadowMapFBO);
+	//glDeleteTextures(1, &shadowMap.ShadowMap);
+}
+
+
+void LightingHandler::nearestLightMapIndexSync(char type, int closeIndex, LightingHandler::ShadowMaps shadowMap) // should take type, number of closest (1st close, 2nd etc), and the actual object
+{
+	// attaches index of nearest lights to actual shadow map arrays
+	// FE_Math::isInRange will come in handy
+}
+
+void LightingHandler::updateAmountOfLightMaps()
+{
+
+	LogConsole::print("Start: Amount of point SM: " + std::to_string(PointShadowMap.size()) + " Amount of spot SM: " + std::to_string(SpotShadowMap.size()));
+	//SpotShadowMap
+	 if (SpotShadowMap.size() != amountSpotShadowMaps) // check if size doesnt match
+	 {
+		 
+		 // check if out of bounds
+		 if (SpotShadowMap.size() > amountSpotShadowMaps)
+		 {
+			 
+			 for (size_t i = SpotShadowMap.size(); i > amountSpotShadowMaps; --i)
+			 {
+				 deleteLightMap('s', i - 1); // remove extra
+			 }
+		 }
+		 // check if less than amount
+		 if (SpotShadowMap.size() < amountSpotShadowMaps)
+		 {
+			 for (size_t i = SpotShadowMap.size(); i < amountSpotShadowMaps; i++) // start at size of shadow maps, until amount has been reached
+			 {
+				 
+				 if (i < amountSpotShadowMaps)
+				 {
+					 createLightMap('s'); // add missing
+				 }
+			 }
+		 }
+	 }
+
+
+	//PointShadowMap
+	 if (PointShadowMap.size() != amountPointShadowMaps) // check if size doesnt match
+	 {
+		 // check if out of bounds
+		 if (PointShadowMap.size() > amountPointShadowMaps)
+		 {
+			 for (size_t i = PointShadowMap.size(); i > amountPointShadowMaps; --i)
+			 {
+				 deleteLightMap('p', i - 1); // remove extra
+			 }
+		 }
+		 // check if less than amount
+		 if (PointShadowMap.size() < amountPointShadowMaps)
+		 {
+			 for (size_t i = PointShadowMap.size(); i < amountPointShadowMaps; i++) // start at size of shadow maps, until amount has been reached
+			 {
+				 if (i < amountPointShadowMaps)
+				 {
+					 createLightMap('p'); // add missing
+				 }
+			 }
+		 }
+	 }
+	 LogConsole::print("End: Amount of point SM: " + std::to_string(PointShadowMap.size()) + " Amount of spot SM: " + std::to_string(SpotShadowMap.size()) );
+}
+
+void LightingHandler::createLightMap(char type)
+{
+	switch (type)
+	{
+	case 's':
+		ShadowMaps tempMapS;
+		SpotShadowMap.push_back(tempMapS);
+		genShadowMapBuffer(SpotShadowMap[SpotShadowMap.size()]);
+
+		break;
+	case 'p':
+		ShadowMaps tempMapP;
+		PointShadowMap.push_back(tempMapP);
+		genShadowMapBuffer(SpotShadowMap[PointShadowMap.size()]);
+		break;
+	}
+}
+
+void LightingHandler::deleteLightMap(char type, int index)
+{
+	switch (type)
+	{
+	case 's':
+		deleteShadowMapBuffer(SpotShadowMap[index]);
+		SpotShadowMap.erase(SpotShadowMap.begin() + index);
+		break;
+	case 'p':
+		deleteShadowMapBuffer(PointShadowMap[index]);
+		PointShadowMap.erase(PointShadowMap.begin() + index);
+		break;
+	}
 }
 
 void LightingHandler::drawShadowMap(Model model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale) {
@@ -79,7 +218,10 @@ void LightingHandler::drawShadowMap(Model model, glm::vec3 translation, glm::vec
 	LightingHandler::dirShadowMapProgram.Activate();
 	glUniformMatrix4fv(glGetUniformLocation(LightingHandler::dirShadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
-	model.Draw(LightingHandler::dirShadowMapProgram, translation, rotation, scale);
+	model.updatePosition(translation);
+	model.updateRotation(rotation);
+	model.updateScale(scale);
+	model.Draw(LightingHandler::dirShadowMapProgram);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, Camera::width, Camera::height); // dont touch for now
@@ -140,6 +282,7 @@ void LightingHandler::update(Shader Shader)
 	Shader.setFloat("dirSpecularLight", dirSpecularLight);
 	Shader.setFloat3("directLightPos", rotatedDirectionDIR.x, rotatedDirectionDIR.y, rotatedDirectionDIR.z); // 0.0f, 1.0f, 0.0f
 	Shader.setFloat3("directLightCol", directLightCol.x, directLightCol.y, directLightCol.z); // 1.0f, 1.0f, 1.0f
+	Shader.setInt("dirShadowMapHardness", dirShadowMapHardness);
 
 	Shader.setFloat("doDirShadowMap", doDirShadowMap);
 	if (doDirShadowMap)
@@ -147,9 +290,9 @@ void LightingHandler::update(Shader Shader)
 		// shadow map
 		glUniformMatrix4fv(glGetUniformLocation(Shader.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
-		glActiveTexture(GL_TEXTURE0 + 2);
-		glBindTexture(GL_TEXTURE_2D, ShadowMap);
-		glUniform1i(glGetUniformLocation(Shader.ID, "shadowMap"), 2);
+		glActiveTexture(GL_TEXTURE0 + 8);
+		glBindTexture(GL_TEXTURE_2D, dirShadowMap);
+		glUniform1i(glGetUniformLocation(Shader.ID, "shadowMap"), 8);
 	}
 	
 }

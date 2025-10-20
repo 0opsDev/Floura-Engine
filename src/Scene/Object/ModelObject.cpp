@@ -150,16 +150,19 @@ void ModelObject::renderLogic(bool shadowmap) {
 			if (i == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
 				if (shadowmap == false)
 				{
+					ModelSingle.updatePosition(transform);
+					ModelSingle.updateRotation(rotation);
+					ModelSingle.updateScale(scale);
 					if (RenderClass::DoForwardLightingPass) {
 						glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 						MaterialObject.ModelShader.Activate();
 						glEnable(GL_DEPTH_TEST);
 						glDepthFunc(GL_LESS);
-						LODModels[i].Draw(MaterialObject.ModelShader, glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
+						LODModels[i].Draw(MaterialObject.ModelShader);
 						glBindFramebuffer(GL_FRAMEBUFFER, 0);
 					}
 					MaterialObject.ModelGpassShader.Activate();
-					GeometryPass::gPassDraw(LODModels[i], MaterialObject.ModelGpassShader, glm::vec3(transform.x, transform.y, transform.z), rotation, scale);
+					GeometryPass::gPassDraw(LODModels[i], MaterialObject.ModelGpassShader);
 				}
 				else 
 				{
@@ -173,17 +176,20 @@ void ModelObject::renderLogic(bool shadowmap) {
 	case false: {
 		if (shadowmap == false)
 		{
+			ModelSingle.updatePosition(transform);
+			ModelSingle.updateRotation(rotation);
+			ModelSingle.updateScale(scale);
 			if (RenderClass::DoForwardLightingPass) {
 				glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 				MaterialObject.ModelShader.Activate();
 				glEnable(GL_DEPTH_TEST);
 				glDepthFunc(GL_LESS);
-				ModelSingle.Draw(MaterialObject.ModelShader, transform, rotation, scale);
+				ModelSingle.Draw(MaterialObject.ModelShader);
 
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}
 			MaterialObject.ModelGpassShader.Activate();
-			GeometryPass::gPassDraw(ModelSingle, MaterialObject.ModelGpassShader, transform, rotation, scale);
+			GeometryPass::gPassDraw(ModelSingle, MaterialObject.ModelGpassShader);
 		}
 		else 
 		{
@@ -209,6 +215,7 @@ void ModelObject::updateForwardLights() {
 }
 
 void ModelObject::draw() {
+
 	if (DoFrustumCull) {
 		if (Camera::isBoxInFrustum((frustumBoxTransform + transform), frustumBoxScale) || FE_Math::isInRange((frustumBoxTransform + transform), Camera::Position, 1 + (0.1))) {
 			renderLogic(false);

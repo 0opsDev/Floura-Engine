@@ -24,8 +24,6 @@ public:
     // Initializes the mesh
     Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures);
 
-    bool collide(glm::vec3 victimXYZ, glm::vec3 victimScale, std::string collidertype);
-
     // Draws the mesh
     void Draw(Shader& shader, glm::mat4 modelMatrix);
 

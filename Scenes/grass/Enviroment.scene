@@ -1,0 +1,34 @@
+[
+    {
+        "DefaultSkyboxPath": "Assets/Skybox/sunset/Skybox.json",
+        "DirAmbient": 0.0,
+        "DirColour": [
+            0.8872548937797546,
+            0.6654411554336548,
+            0.6654411554336548
+        ],
+        "DirEnabled": true,
+        "DirRotation": [
+            13.5,
+            296.29998779296875,
+            0.0
+        ],
+        "DirSpecEnabled": true,
+        "DirSpecular": 0.15000000596046448,
+        "DoShadowMap": true,
+        "DoSkyColour": false,
+        "RenderSkybox": true,
+        "dirNearFar": [
+            0.10000000149011612,
+            400.0
+        ],
+        "dirShadowMapHardness": 2,
+        "dirSmDistance": 120.0,
+        "dirSmHeight": 180.0,
+        "skyRGBA": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
+]

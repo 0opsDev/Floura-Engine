@@ -46,7 +46,36 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+
+    if (type == "normal"){
+
     if (numColCh == 4)
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGBA, // GL_RGBA
+            widthImg,
+            heightImg,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            bytes
+        );
+    else if (numColCh == 3)
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGB, //was GL_RGB
+            widthImg,
+            heightImg,
+            0,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            bytes
+        );
+    }
+
+    else if (numColCh == 4)
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
@@ -82,7 +111,6 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
             GL_UNSIGNED_BYTE,
             bytes
         );
-
     // Generates MipMaps
     glGenerateMipmap(GL_TEXTURE_2D);
 

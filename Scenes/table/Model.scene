@@ -19,9 +19,9 @@
             -0.5167254209518433,
             -9.480284690856934
         ],
-        "MaterialPath": "Assets/Material/albedo.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
-            0.0,
+            27.5,
             0.0,
             0.0
         ],
@@ -185,13 +185,13 @@
     },
     {
         "BoxColliderScale": [
-            0.10000000149011612,
-            0.30000001192092896,
-            0.10000000149011612
+            0.6000000238418579,
+            1.100000023841858,
+            0.6000000238418579
         ],
         "BoxColliderTransform": [
             0.0,
-            0.30000001192092896,
+            1.100000023841858,
             0.0
         ],
         "CastShadow": true,
@@ -199,14 +199,14 @@
         "IDuniqueIdentifier": 492,
         "IsLod": false,
         "Location": [
-            -1.8971498012542725,
-            0.9371615648269653,
-            -11.425453186035156
+            -4.886620998382568,
+            -0.6717143654823303,
+            -12.050525665283203
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
-            0.0,
+            -40.5,
             0.0
         ],
         "Scale": [
@@ -245,9 +245,9 @@
         "IDuniqueIdentifier": 1943,
         "IsLod": false,
         "Location": [
-            18.657798767089844,
-            0.800000011920929,
-            17.715633392333984
+            15.205368041992188,
+            1.0275459289550781,
+            17.70041275024414
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -341,7 +341,7 @@
             0.0,
             -8.761646270751953
         ],
-        "MaterialPath": "Assets/Material/Geom.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -366,52 +366,6 @@
         "isCollider": false,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            30.0,
-            1.0,
-            30.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            -1.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "DoFrustumCull": false,
-        "IDuniqueIdentifier": 4828,
-        "IsLod": false,
-        "Location": [
-            0.0,
-            -1.7739160060882568,
-            0.0
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            30.0,
-            30.0,
-            30.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "baseplate",
-        "path": "Assets/Models/Baseplate/plate.gltf"
     },
     {
         "BoxColliderScale": [
@@ -562,14 +516,14 @@
             0.0,
             0.0
         ],
-        "CastShadow": false,
+        "CastShadow": true,
         "DoFrustumCull": false,
-        "IDuniqueIdentifier": 2758,
+        "IDuniqueIdentifier": 4772,
         "IsLod": false,
         "Location": [
-            0.0,
-            -112.19999694824219,
-            0.0
+            1.0690991878509521,
+            2.5606651306152344,
+            -8.331554412841797
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -594,27 +548,27 @@
         ],
         "isBackFaceCulling": true,
         "isCollider": false,
-        "name": "grass",
-        "path": "Assets/Models/grassbit.gltf"
+        "name": "vase",
+        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
     },
     {
         "BoxColliderScale": [
+            525.0,
             1.0,
-            1.0,
-            1.0
+            525.0
         ],
         "BoxColliderTransform": [
             0.0,
-            0.0,
+            -1.0,
             0.0
         ],
         "CastShadow": true,
         "DoFrustumCull": false,
-        "IDuniqueIdentifier": 8704,
+        "IDuniqueIdentifier": 3282,
         "IsLod": false,
         "Location": [
-            -13.808477401733398,
-            -1.0116865634918213,
+            0.0,
+            -2.0,
             0.0
         ],
         "MaterialPath": "Assets/Material/Default.Material",
@@ -638,331 +592,9 @@
             0.0,
             0.0
         ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "grassblade XBB",
-        "path": "Assets/Models/grass/xBbGrass.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "DoFrustumCull": false,
-        "IDuniqueIdentifier": 1323,
-        "IsLod": false,
-        "Location": [
-            -16.034128189086914,
-            -1.0116865634918213,
-            -1.2034168243408203
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "grassblade XBB_copy",
-        "path": "Assets/Models/grass/xBbGrass.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "DoFrustumCull": false,
-        "IDuniqueIdentifier": 7674,
-        "IsLod": false,
-        "Location": [
-            -14.911018371582031,
-            -1.0116865634918213,
-            0.0
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "grassblade XBB_copy_copy",
-        "path": "Assets/Models/grass/xBbGrass.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "DoFrustumCull": false,
-        "IDuniqueIdentifier": 5142,
-        "IsLod": false,
-        "Location": [
-            -14.911018371582031,
-            -1.0116865634918213,
-            0.9820983409881592
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "grassblade XBB_copy_copy",
-        "path": "Assets/Models/grass/xBbGrass.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "DoFrustumCull": false,
-        "IDuniqueIdentifier": 6869,
-        "IsLod": false,
-        "Location": [
-            -13.878630638122559,
-            -1.0116865634918213,
-            0.9820983409881592
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "grassblade XBB_copy_copy",
-        "path": "Assets/Models/grass/xBbGrass.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "DoFrustumCull": false,
-        "IDuniqueIdentifier": 2663,
-        "IsLod": false,
-        "Location": [
-            -16.034128189086914,
-            -1.0116865634918213,
-            0.9820983409881592
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "grassblade XBB_copy_copy",
-        "path": "Assets/Models/grass/xBbGrass.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "DoFrustumCull": false,
-        "IDuniqueIdentifier": 38,
-        "IsLod": false,
-        "Location": [
-            -14.68245792388916,
-            -1.0116865634918213,
-            -1.0960090160369873
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "grassblade XBB_copy_copy",
-        "path": "Assets/Models/grass/xBbGrass.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "DoFrustumCull": false,
-        "IDuniqueIdentifier": 8724,
-        "IsLod": false,
-        "Location": [
-            -16.034128189086914,
-            -1.0116865634918213,
-            -0.06557217240333557
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "grassblade XBB_copy_copy_copy",
-        "path": "Assets/Models/grass/xBbGrass.gltf"
+        "isBackFaceCulling": true,
+        "isCollider": true,
+        "name": "pavepane",
+        "path": "Assets/Models/planes/paveplane.gltf"
     }
 ]

@@ -17,6 +17,7 @@ out DATA
 
 uniform mat4 camMatrix;
 uniform mat4 model;
+uniform mat3 normalMatrix;
 
 void main()
 {
@@ -25,9 +26,9 @@ void main()
 
     gl_Position = worldPoS;
 
-    mat3 normalMatrix = transpose(inverse(mat3(model)));
-    data_out.gNormals = normalMatrix * aNormal;
-    data_out.Normal = aNormal;
+    vec3 norm = normalize(normalMatrix * aNormal);
+    data_out.gNormals = norm;
+    data_out.Normal = norm;
     data_out.color = aColor;
     data_out.texCoord = aTex;
     data_out.projection = camMatrix;

@@ -29,11 +29,30 @@ public:
 	// dir light
 	static glm::mat4 lightProjection;
 	static Shader dirShadowMapProgram;
-	static unsigned int shadowMapFBO, shadowMapHeight, shadowMapWidth, ShadowMap;
+	static unsigned int shadowMapFBO, shadowMapHeight, shadowMapWidth, dirShadowMap;
 	static float distance;
 	static glm::vec2 dirNearFar;
 	static float dirShadowheight;
 	static bool doDirShadowMap;
+	static int dirShadowMapHardness;
+
+	static struct ShadowMaps
+	{
+		unsigned int shadowMapFBO;
+		unsigned int shadowMapHeight;
+		unsigned int shadowMapWidth;
+		unsigned int ShadowMap;
+		unsigned int indexOfLight;
+	};
+
+	static int amountPointShadowMaps;
+	static int amountPointNear;
+	static std::vector<ShadowMaps> PointShadowMap;
+
+	static int amountSpotShadowMaps;
+	static int amountSpotNear;
+	static std::vector<ShadowMaps> SpotShadowMap;
+
 
 	static struct Light {
 		glm::vec3 position;
@@ -47,6 +66,14 @@ public:
 	static std::vector<Light> Lights;
 
 	static void setupShadowMapBuffer();
+
+	static void nearestLightMapIndexSync(char type, int closeIndex, LightingHandler::ShadowMaps shadowMap);
+
+	static void updateAmountOfLightMaps();
+
+	static void createLightMap(char type);
+
+	static void deleteLightMap(char type, int index);
 
 	static void drawShadowMap(Model model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale);
 

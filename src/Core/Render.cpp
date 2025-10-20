@@ -99,8 +99,6 @@ void RenderClass::ClearFramebuffers() {
 void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int height) {
 
 	glClearColor(RenderClass::skyRGBA[0], RenderClass::skyRGBA[1], RenderClass::skyRGBA[2],RenderClass::skyRGBA[3]);
-	//AlbedoShader.Activate();
-	//UF::Float(AlbedoShader.ID, "gamma", RenderClass::gamma);
 
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 	// Bind the framebuffer for the geometry pass// g pass draw was here still some logic below
@@ -124,9 +122,6 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	auto startInitTime2 = std::chrono::high_resolution_clock::now();
 	//if (DoForwardLightingPass) {	
 	//}
-
-	//test2.rotation.x += 300 * TimeUtil::s_DeltaTime;
-	//if (test2.rotation.x >= 360) { test2.rotation.x = 0; } // Reset rotation to prevent overflow
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
