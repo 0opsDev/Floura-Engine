@@ -3,8 +3,8 @@ Floura Engine is a Open Source C++ Game Engine created for the purpose of learni
 Features:
 ---
 ~~~
-. glTF Model Loading
-. Billboard Models
+. Assimp Model Loader
+. Billboarding
 . Gbuffer
 . Scenes
 . ImGui Implementation
@@ -15,7 +15,7 @@ Features:
 . Scene Folder Window
 . Inspector Tab
 . WireFrame View
-. Point, Spot and soon Directional Lights
+. Point, Spot and Directional Lights
 . Lua Scripting via sol2 (not really implemented atm)
 . 3D Directional Sound via openAL Soft
 ~~~
