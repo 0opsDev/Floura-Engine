@@ -4,6 +4,7 @@
 
 void Texture::createTexture(const char* image, const char* texType, GLuint slot)
 {
+    path = image;
     if (init::LogALL || init::LogModel) LogConsole::print("Texture loading started");
     // Assigns the type of the texture to the texture object
     type = texType;

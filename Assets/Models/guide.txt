@@ -1,4 +1,0 @@
-can only be gltf (no glb)
-
-my model loader only really handles one material per model and only recognised images, so be sure to bake all of your materials
-into one texture that can scale over the whole model

@@ -9,8 +9,8 @@ void ModelObject::LODModelLoad(std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
 		std::cout << "Failed to open file: " << path << std::endl;
-		Model TempLODModel;
-		TempLODModel.init("Assets/Dependants/placeholder/placeholder.gltf");
+		aModel TempLODModel;
+		TempLODModel.create("Assets/Dependants/placeholder/placeholder.gltf");
 		LODModels.push_back(TempLODModel);
 		LodCount = LODModels.size();
 		return;
@@ -22,8 +22,8 @@ void ModelObject::LODModelLoad(std::string path) {
 	}
 	catch (const std::exception& e) {
 		std::cout << "Error parsing JSON file: " << e.what() << std::endl;
-		Model TempLODModel;
-		TempLODModel.init("Assets/Dependants/placeholder/placeholder.gltf");
+		aModel TempLODModel;
+		TempLODModel.create("Assets/Dependants/placeholder/placeholder.gltf");
 		LODModels.push_back(TempLODModel);
 		LodCount = LODModels.size();
 		return;
@@ -36,8 +36,8 @@ void ModelObject::LODModelLoad(std::string path) {
 	LodDistance = modelData[0]["LodDistance"];
 	for (int i = 0; i < ModelFileNames.size(); i++)
 	{
-		Model TempLODModel;
-		TempLODModel.init( (LodPath + ModelFileNames[i]).c_str());
+		aModel TempLODModel;
+		TempLODModel.create( (LodPath + ModelFileNames[i]).c_str());
 		//std::cout << LodPath + ModelFileNames[i] << " " << i << std::endl;
 		LODModels.push_back(TempLODModel);
 		LodCount = i;
@@ -50,7 +50,7 @@ void ModelObject::SingleModelLoad(std::string path) {
 	if (!file.is_open()) {
 		std::cerr << "Failed to open file: " << path << std::endl;
 		// << should return ? Model here
-		ModelSingle.init("Assets/Dependants/placeholder/placeholder.gltf");
+		ModelSingle.create("Assets/Dependants/placeholder/placeholder.gltf");
 		return;
 	}
 
@@ -60,12 +60,12 @@ void ModelObject::SingleModelLoad(std::string path) {
 	}
 	catch (const std::exception& e) {
 		std::cout << "Error parsing JSON file: " << e.what() << std::endl;
-		ModelSingle.init("Assets/Dependants/placeholder/placeholder.gltf");
+		ModelSingle.create("Assets/Dependants/placeholder/placeholder.gltf");
 		return;
 		
 	}
 	file.close();
-	ModelSingle.init((path).c_str());
+	ModelSingle.create(path.c_str());
 }
 
 void ModelObject::LoadMaterial(std::string path)
@@ -158,7 +158,7 @@ void ModelObject::renderLogic(bool shadowmap) {
 						MaterialObject.ModelShader.Activate();
 						glEnable(GL_DEPTH_TEST);
 						glDepthFunc(GL_LESS);
-						LODModels[i].Draw(MaterialObject.ModelShader);
+						LODModels[i].draw(MaterialObject.ModelShader);
 						glBindFramebuffer(GL_FRAMEBUFFER, 0);
 					}
 					MaterialObject.ModelGpassShader.Activate();
@@ -184,7 +184,7 @@ void ModelObject::renderLogic(bool shadowmap) {
 				MaterialObject.ModelShader.Activate();
 				glEnable(GL_DEPTH_TEST);
 				glDepthFunc(GL_LESS);
-				ModelSingle.Draw(MaterialObject.ModelShader);
+				ModelSingle.draw(MaterialObject.ModelShader);
 
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			}

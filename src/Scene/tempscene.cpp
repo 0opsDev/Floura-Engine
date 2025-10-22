@@ -4,8 +4,11 @@
 #include <Scene/Object/FE_Object.h>
 #include <Render/window/WindowHandler.h>
 #include "IdManager.h"
+#include <Render/Model/ModelAssimp.h>
 //FE_Object PlaceHolder;
 
+//aModel tempmodel;
+//Shader shad;
 void TempScene::init(){
 	//for (size_t i = 0; i < 255; i++) {
 	//	IdManager::AddID('m', i);
@@ -14,6 +17,10 @@ void TempScene::init(){
 	//PlaceHolder.gPosition = glm::vec3(5.0f, 0.0f, 0.0f);
 	//PlaceHolder.gScale = glm::vec3(1.0f, 3.0f, 1.0f);
 	//PlaceHolder.gRotation = glm::vec3(45.0f, 0.0f, 45.0f);
+
+	//shad.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Lighting/albedo.frag");
+	//tempmodel.create("Assets/Models/barrel/barrel2.gltf");
+	//tempmodel.gScale = glm::vec3(0.5f);
 }
 
 void TempScene::Update() {
@@ -30,6 +37,7 @@ void TempScene::Update() {
 	//PlaceHolder.updateLights();
 	//PlaceHolder.update();
 	//PlaceHolder.draw();
+	//tempmodel.draw(shad);
 
 }
 

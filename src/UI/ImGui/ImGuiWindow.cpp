@@ -1176,21 +1176,21 @@ void FEImGuiWindow::ModelWindow() {
 			for (size_t i = 0; i < (Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->LODModels.size()); i++)
 			{
 				ImGui::Spacing();
-				ImGui::Text(("		LOD " + std::to_string(i) + ": ").c_str());
-				ImGui::Text(("			Meshs size: " + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->LODModels[i].meshes.size())).c_str());
-				for (size_t z = 0; z < Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->LODModels[i].meshes.size(); z++)
-				{
-					ImGui::Text(("			Mesh Vertice Count " + std::to_string(z) + ": " + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->LODModels[i].meshes[z].vertices.size())).c_str());
-				}
+				//ImGui::Text(("		LOD " + std::to_string(i) + ": ").c_str());
+				//ImGui::Text(("			Meshs size: " + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->LODModels[i].meshes.size())).c_str());
+				//for (size_t z = 0; z < Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->LODModels[i].meshes.size(); z++)
+				//{
+					//ImGui::Text(("			Mesh Vertice Count " + std::to_string(z) + ": " + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->LODModels[i].[z].vertices.size())).c_str());
+				//}
 			}
 		}
 		else {
-			ImGui::Text(("	Meshs size: " + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ModelSingle.meshes.size())).c_str());
+			//ImGui::Text(("	Meshs size: " + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ModelSingle.meshes.size())).c_str());
 
-			for (size_t z = 0; z < Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ModelSingle.meshes.size(); z++)
-			{
-				ImGui::Text(("		Mesh Vertice Count " + std::to_string(z) + ": " + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ModelSingle.meshes[z].vertices.size())).c_str());
-			}
+			//for (size_t z = 0; z < Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ModelSingle.meshes.size(); z++)
+			//{
+			//	ImGui::Text(("		Mesh Vertice Count " + std::to_string(z) + ": " + std::to_string(Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ModelSingle.meshes[z].vertices.size())).c_str());
+			//}
 
 			//ImGui::Text(("vertices size: " + std::to_string(Scene::modelObjects[ImGuiWindow::SelectedObjectIndex].ModelSingle.meshes)).c_str());
 

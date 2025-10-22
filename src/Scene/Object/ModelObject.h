@@ -22,6 +22,7 @@
 #include <UI/ImGui/ImGuiWindow.h>
 #include <Render/Shader/Material.h>
 #include <Scene/IdManager.h>
+#include <Render/Model/ModelAssimp.h>
 using json = nlohmann::json;
 
 class ModelObject
@@ -76,8 +77,8 @@ public:
 
 	void Delete();
 
-	Model ModelSingle; // should be private but im leaving it here just for now
-	std::vector<Model> LODModels;
+	aModel ModelSingle; // should be private but im leaving it here just for now
+	std::vector<aModel> LODModels;
 private:
 	
 	std::string LodPath;

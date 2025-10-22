@@ -36,10 +36,10 @@ Shader LightingHandler::dirShadowMapProgram;
 
 void LightingHandler::setupShadowMapBuffer() {
 	LightingHandler::dirShadowMapProgram.LoadShader("Shaders/Lighting/shadowMap.vert", "Shaders/Lighting/shadowMap.frag");
-	shadowMapWidth = 4096;
-	shadowMapHeight = 4096;
-	//shadowMapWidth = 2046;
-	//shadowMapHeight = 2046;
+	//shadowMapWidth = 4096;
+	//shadowMapHeight = 4096;
+	shadowMapWidth = 2046;
+	shadowMapHeight = 2046;
 	//shadowMapWidth = 1024;
 	//shadowMapHeight = 1024;
 	//shadowMapWidth = 128;
@@ -48,8 +48,8 @@ void LightingHandler::setupShadowMapBuffer() {
 	glGenTextures(1, &dirShadowMap);
 	glBindTexture(GL_TEXTURE_2D, dirShadowMap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -190,7 +190,7 @@ void LightingHandler::deleteLightMap(char type, int index)
 	}
 }
 
-void LightingHandler::drawShadowMap(Model model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale) {
+void LightingHandler::drawShadowMap(aModel model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale) {
 	if (!doDirShadowMap)
 	{
 		return;
@@ -221,7 +221,10 @@ void LightingHandler::drawShadowMap(Model model, glm::vec3 translation, glm::vec
 	model.updatePosition(translation);
 	model.updateRotation(rotation);
 	model.updateScale(scale);
-	model.Draw(LightingHandler::dirShadowMapProgram);
+
+	//glCullFace(GL_FRONT);
+	model.draw(LightingHandler::dirShadowMapProgram);
+	//glCullFace(GL_BACK);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, Camera::width, Camera::height); // dont touch for now

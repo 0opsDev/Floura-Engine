@@ -346,6 +346,9 @@
     <ClCompile Include="src\Scene\ObjectManager.cpp">
       <Filter>src\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\Render\Model\ModelAssimp.cpp">
+      <Filter>src\Render\Model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -572,6 +575,9 @@
     </ClInclude>
     <ClInclude Include="src\Scene\ObjectManager.h">
       <Filter>src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Model\ModelAssimp.h">
+      <Filter>src\Render\Model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

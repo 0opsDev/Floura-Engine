@@ -36,6 +36,56 @@ void Model::updateScale(glm::vec3 scale)
 
 void Model::calculateTangents(std::vector<Vertex>& vertices, const std::vector<GLuint>& indices)
 {
+	std::vector<glm::vec3> tempTangents(vertices.size(), glm::vec3(0.0f));
+	std::vector<glm::vec3> tempBitangents(vertices.size(), glm::vec3(0.0f));
+
+	for (size_t i = 0; i < indices.size(); i += 3)
+	{
+		GLuint i1 = indices[i + 0];
+		GLuint i2 = indices[i + 1];
+		GLuint i3 = indices[i + 2];
+
+		const Vertex& v1 = vertices[i1];
+		const Vertex& v2 = vertices[i2];
+		const Vertex& v3 = vertices[i3];
+
+		glm::vec3 edge1 = v2.position - v1.position;
+		glm::vec3 edge2 = v3.position - v1.position;
+
+		glm::vec2 deltaUV1 = v2.texUV - v1.texUV;
+		glm::vec2 deltaUV2 = v3.texUV - v1.texUV;
+
+		float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+		glm::vec3 tangent;
+		tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+		glm::vec3 bitangent;
+		bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+		tempTangents[i1] += tangent;
+		tempTangents[i2] += tangent;
+		tempTangents[i3] += tangent;
+
+		tempBitangents[i1] += bitangent;
+		tempBitangents[i2] += bitangent;
+		tempBitangents[i3] += bitangent;
+	}
+
+	for (size_t i = 0; i < vertices.size(); ++i)
+	{
+		glm::vec3& n = vertices[i].normal;
+		glm::vec3& t = tempTangents[i];
+		glm::vec3& b = tempBitangents[i];
+
+		vertices[i].tangent = glm::normalize(t - n * glm::dot(n, t));
+
+		float handedness = (glm::dot(glm::cross(n, vertices[i].tangent), b) < 0.0f) ? -1.0f : 1.0f;
+	}
 }
 
 void Model::Draw(Shader& shader)
@@ -61,10 +111,10 @@ void Model::Draw(Shader& shader)
 	{
 		glm::mat4 finalMatrix = modelMatrix * matricesMeshes[i]; // Local mesh transform applied
 		// pass these into shader too at some point
-		meshes[i].position = translation;
-		meshes[i].rotation = glm::vec3(rotation.x, rotation.y, rotation.z);
-		meshes[i].scale = scale;
-		meshes[i].Draw(shader, finalMatrix);
+		//meshes[i].position = translation;
+		//meshes[i].rotation = glm::vec3(rotation.x, rotation.y, rotation.z);
+		//meshes[i].scale = scale;
+		meshes[i].draw(shader, finalMatrix);
 	}
 }
 
@@ -117,7 +167,7 @@ void Model::loadMesh(unsigned int indMesh)
 	// Combine all the vertex components and also get the indices and textures
 	std::vector<Vertex> vertices = assembleVertices(positions, normals, texUVs);
 	std::vector<GLuint> indices = getIndices(JSON["accessors"][indAccInd]);
-	//calculateTangents(vertices, indices);
+	calculateTangents(vertices, indices);
 	//glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -126,7 +176,7 @@ void Model::loadMesh(unsigned int indMesh)
 	std::vector<Texture> textures = getTexturesForMesh(indMesh); // maybe make vector of these
 	//textures2.push_back(textures);
 
-	meshes.push_back(Mesh(vertices, indices, textures));
+	meshes.push_back(aMesh(vertices, indices, textures));
 }
 
 void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)

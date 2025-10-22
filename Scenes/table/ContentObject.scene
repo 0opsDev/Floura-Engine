@@ -42,12 +42,6 @@
         "Type": "static"
     },
     {
-        "Name": "wave.gltf",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/wave/wave.gltf",
-        "Type": "static"
-    },
-    {
         "Name": "Default.Material",
         "ObjectType": "Material",
         "Path": "Assets/Material/Default.Material",
@@ -58,12 +52,6 @@
         "ObjectType": "Material",
         "Path": "Assets/Material/Wobble.Material",
         "Type": "NULL"
-    },
-    {
-        "Name": "ground",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/field/grassbit2.gltf",
-        "Type": "static"
     },
     {
         "Name": "ps1",
@@ -81,18 +69,6 @@
         "Name": "ar",
         "ObjectType": "Model",
         "Path": "Assets/Models/ar/m16baked.gltf",
-        "Type": "static"
-    },
-    {
-        "Name": "street lamp 01 8k",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/street_lamp_01_8k.gltf/street_lamp_01_8k.gltf",
-        "Type": "static"
-    },
-    {
-        "Name": "wild rooibos bush 8k",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/wild_rooibos_bush_8k.gltf/wild_rooibos_bush_8k.gltf",
         "Type": "static"
     },
     {
@@ -138,12 +114,6 @@
         "Type": "static"
     },
     {
-        "Name": "table lightmap",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/table/bakedlm/table.gltf",
-        "Type": "static"
-    },
-    {
         "Name": "rockpane",
         "ObjectType": "Model",
         "Path": "Assets/Models/planes/rockplane.gltf",
@@ -162,12 +132,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "Name",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/grassbit.gltf",
-        "Type": "static"
-    },
-    {
         "Name": "grassblade XBB",
         "ObjectType": "Model",
         "Path": "Assets/Models/grass/xBbGrass.gltf",
@@ -178,5 +142,11 @@
         "ObjectType": "Material",
         "Path": "Assets/Material/OLD.Material",
         "Type": "NULL"
+    },
+    {
+        "Name": "testm",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/test/cube.glb",
+        "Type": "static"
     }
 ]

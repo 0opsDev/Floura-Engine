@@ -12,6 +12,7 @@ public:
 	GLuint ID;
 	const char* type;
 	GLuint unit;
+	std::string path;
 	bool filterNearest = true;
 	void createTexture(const char* image, const char* texType, GLuint slot);
 

@@ -10,6 +10,7 @@
 #include <Render/Shader/shaderClass.h>
 #include "Scene/IdManager.h"
 #include "Render/Model/Model.h"
+#include <Render/Model/ModelAssimp.h>
 
 using json = nlohmann::json;
 
@@ -75,7 +76,7 @@ public:
 
 	static void deleteLightMap(char type, int index);
 
-	static void drawShadowMap(Model model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale);
+	static void drawShadowMap(aModel model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale);
 
 	static void update(Shader ModelShader);
 

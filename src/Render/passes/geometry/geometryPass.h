@@ -3,6 +3,7 @@
 
 #include<iostream>
 #include <Render/Model/Model.h>
+#include <Render/Model/ModelAssimp.h>
 
 class GeometryPass
 {
@@ -16,7 +17,7 @@ public:
 
 	static void setupGbuffers(unsigned int width, unsigned int height);
 
-	static void gPassDraw(Model& model, Shader& GPass);
+	static void gPassDraw(aModel& model, Shader& GPass);
 };
 
 #endif // GEOMETRYPASS_CLASS_H

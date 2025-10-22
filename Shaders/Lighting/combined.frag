@@ -66,9 +66,9 @@ vec4 direcLight()
 	//float ambient = 0.20f;
 
 	// diffuse lighting
-	vec3 unpackedNormal = normalize(texture(normal0, texCoord).xyz * 2.0f - vec3(1.0f));
-	vec3 normal = normalize(TBN * unpackedNormal);
-	//vec3 normal = normalize(Normal);
+	//vec3 unpackedNormal = normalize(texture(normal0, texCoord).xyz * 2.0f - vec3(1.0f));
+	//vec3 normal = normalize(TBN * unpackedNormal);
+	vec3 normal = normalize(Normal);
 	vec3 lightDirection = normalize(directLightPos); //vec3(1.0f, 1.0f, 0.0f)
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
@@ -82,10 +82,10 @@ vec4 direcLight()
 		//float closestDepth = texture(shadowMap, lightCoords.xy).r;
 		float currentDepth = lightCoords.z;
 
-		//float bias = 0.005f;
-		float bias = max(0.025f * (1.0f - dot(normal, lightDirection)), 0.0005f);
+		//float bias = 0.005f; // 0.025f
+		float bias = max(0.005f * (1.0f - dot(normal, lightDirection)), 0.0005f);
 
-		int sampleRadius = 2;
+		int sampleRadius = dirShadowMapHardness;
 		vec2 pixelSize = 1.0 / textureSize(shadowMap, 0);
 		for(int y = -sampleRadius; y <= sampleRadius; y++)
 		{
@@ -97,16 +97,11 @@ vec4 direcLight()
 		    }    
 		}
 		shadow /= pow((sampleRadius * 2 + 1), 2);
-		//if (currentDepth > closestDepth + bias)
-		//{
-		//shadow = 1.0f;
-		//}
-	//
 
-	float specular = 0.0f;
+	
+	}
+		float specular = 0.0f;
 	if (doReflect && doDirSpecularLight && diffuse != 0.0f){
-	// specular lighting
-	//float specularLight = 0.50f;
 	vec3 viewDirection = normalize(camPos - crntPos);
 	vec3 reflectionDirection = reflect(-lightDirection, normal);
 
@@ -114,8 +109,6 @@ vec4 direcLight()
 
 	float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 32);
 	specular = specAmount * dirSpecularLight;
-	}
-
 	return (texture(diffuse0, texCoord) * (diffuse + (1.0f - shadow) + directAmbient) + texture(specular0, texCoord).r * specular * (1.0f - shadow)) * vec4(directLightCol, 1.0f);
 	}
 	else{
@@ -145,10 +138,10 @@ vec4 pointLight(int iteration)
 
     //vec3 normal = normalize(NormalTex * Normal);
 
-	//vec3 normal = normalize(Normal); 
+	vec3 normal = normalize(Normal); 
 
-	vec3 unpackedNormal = normalize(texture(normal0, texCoord).xyz * 2.0f - vec3(1.0f));
-	vec3 normal = normalize(TBN * unpackedNormal);
+	//vec3 unpackedNormal = normalize(texture(normal0, texCoord).xyz * 2.0f - vec3(1.0f));
+	//vec3 normal = normalize(TBN * unpackedNormal);
 
 	vec3 lightDirection = normalize(lightVec);
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
@@ -187,9 +180,9 @@ vec4 spotLight(int iteration)
 	vec4 finalColour = vec4(0.0f);
 
 		// diffuse lighting
-	vec3 unpackedNormal = normalize(texture(normal0, texCoord).xyz * 2.0f - vec3(1.0f));
-	vec3 normal = normalize(TBN * unpackedNormal);
-	//vec3 normal = normalize(Normal);
+	//vec3 unpackedNormal = normalize(texture(normal0, texCoord).xyz * 2.0f - vec3(1.0f));
+	//vec3 normal = normalize(TBN * unpackedNormal);
+	vec3 normal = normalize(Normal);
 	//vec3 normal = normalize(texture(normal0, texCoord).xyz * 2.0f - 1.0f);
 
 	vec3 lightDirection = normalize(Lights[iteration].position - crntPos);

@@ -25,7 +25,7 @@ public:
 
     void Delete();
 
-    std::vector<Mesh> meshes;
+    std::vector<aMesh> meshes;
     std::vector<Texture> textures2;
     std::vector<glm::vec3> translationsMeshes;
     std::vector<glm::quat> rotationsMeshes;
