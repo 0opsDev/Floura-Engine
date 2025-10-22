@@ -155,16 +155,8 @@ vec4 pointLight(int iteration)
 
 	// ambient lighting
 	//float ambient = 0.0f;
-
-	// diffuse lighting
-	//vec3 NormalTex = texture(normal0, texCoord).rgb; // Fetch normal from texture
-
-    //vec3 normal = normalize(NormalTex * Normal);
-
-	vec3 normal = normalize(Normal); 
-
-	//vec3 unpackedNormal = normalize(texture(normal0, texCoord).xyz * 2.0f - vec3(1.0f));
-	//vec3 normal = normalize(TBN * unpackedNormal);
+	vec3 normal = CalcNewNormal();
+	//vec3 normal = normalize(Normal); 
 
 	vec3 lightDirection = normalize(lightVec);
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
@@ -203,10 +195,7 @@ vec4 spotLight(int iteration)
 	vec4 finalColour = vec4(0.0f);
 
 		// diffuse lighting
-	//vec3 unpackedNormal = normalize(texture(normal0, texCoord).xyz * 2.0f - vec3(1.0f));
-	//vec3 normal = normalize(TBN * unpackedNormal);
-	vec3 normal = normalize(Normal);
-	//vec3 normal = normalize(texture(normal0, texCoord).xyz * 2.0f - 1.0f);
+	vec3 normal = CalcNewNormal();
 
 	vec3 lightDirection = normalize(Lights[iteration].position - crntPos);
 	float diffuse = max(dot(normal, lightDirection), 0.0f);

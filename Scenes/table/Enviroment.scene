@@ -15,7 +15,7 @@
         ],
         "DirSMMaxBias": 0.0010000000474974513,
         "DirSpecEnabled": true,
-        "DirSpecular": 0.5,
+        "DirSpecular": 0.30000001192092896,
         "DoShadowMap": true,
         "DoSkyColour": false,
         "RenderSkybox": true,
