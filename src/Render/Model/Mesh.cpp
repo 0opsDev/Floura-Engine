@@ -18,6 +18,15 @@ aMesh::aMesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::v
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
+    /*
+        for (size_t i = 0; i < textures.size(); i++)
+    {
+        std::cout << textures[i].unit << " unit" << std::endl;
+        std::cout << textures[i].type << " type" << std::endl;
+        std::cout << textures[i].path << " path" << std::endl;
+    }
+    */
+
 
     setupMesh();
 }
@@ -38,13 +47,13 @@ void aMesh::draw(Shader& shader, glm::mat4 modelMatrix)
         if (type == "texture_diffuse") {
             num = std::to_string(numDiffuse++);
         }
-        else if (type == "texture_specular") {
+        else if (type == "texture_roughness") {
             num = std::to_string(numSpecular++);
         }
         else if (type == "texture_normal") {
             num = std::to_string(numNormal++);
         }
-        textures[i].texUnit(shader, (type + "0").c_str(), i);
+        textures[i].texUnit(shader, (type + "0").c_str(), textures[i].unit);
         textures[i].Bind();
     }
 
@@ -71,12 +80,15 @@ void aMesh::setupMesh()
 
     EBO EBO(indices);
 
-    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);                   // aPos (3 floats: 0 offset)
-    VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float))); // aNormal (3 floats: 3 * 4 = 12 bytes offset)
-    VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float))); // aColor/aAmbient (3 floats: 6 * 4 = 24 bytes offset)
-    VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float))); // aTexCoords (2 floats: 9 * 4 = 36 bytes offset)
-    //VAO.LinkAttrib(VBO, 4, 3, GL_FLOAT, sizeof(Vertex), (void*)(11 * sizeof(float)));// aTangent (3 floats: (9 + 2) * 4 = 44 bytes offset)
+    const size_t stride = sizeof(Vertex);
 
+    // first is slot then how many varables, these are all vec3 and 2
+    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, stride, (void*)offsetof(Vertex, position));
+    VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, stride, (void*)offsetof(Vertex, normal));
+    VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, stride, (void*)offsetof(Vertex, color));
+    VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, stride, (void*)offsetof(Vertex, texUV));
+    VAO.LinkAttrib(VBO, 4, 3, GL_FLOAT, stride, (void*)offsetof(Vertex, tangent));
+    VAO.LinkAttrib(VBO, 5, 3, GL_FLOAT, stride, (void*)offsetof(Vertex, biTangent));
     VAO.Unbind();
     VBO.Unbind();
     EBO.Unbind();

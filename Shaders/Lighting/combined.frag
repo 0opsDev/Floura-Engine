@@ -14,15 +14,18 @@ in vec2 texCoord;
 
 in vec4 fragPosLight;
 
-in mat3 TBN;
+//TBN
+in vec3 Normal0;
+in vec3 Tangent0;
+in vec3 Bitangent0;
 
 uniform bool doReflect;
 float specularLight = 0.50f; // 0.50f
 
 // Gets the Texture Units from the main function
-uniform sampler2D diffuse0;
-uniform sampler2D specular0;
-uniform sampler2D normal0;
+uniform sampler2D texture_diffuse0;
+uniform sampler2D texture_roughness0;
+uniform sampler2D texture_normal0;
 uniform sampler2D shadowMap;
 
 // Gets the color of the light from the main function
@@ -37,6 +40,7 @@ uniform bool doDirLight;
 uniform bool doDirSpecularLight;
 uniform bool doDirShadowMap;
 uniform int dirShadowMapHardness;
+uniform float DirSMMaxBias;
 
 struct Light
 {
@@ -60,15 +64,34 @@ float linearizeDepth(float depth)
 	return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
 }
 
+vec3 CalcNewNormal()
+{
+	// texture
+	//vec3 normalTex = texture(texture_normal0, texCoord).xyz;
+
+	vec3 normalTex = normalize(texture(texture_normal0, texCoord).xyz * 2.0f - 1.0f);
+
+	// transform from 0,1 to -1, 1
+	//normalTex = 2.0 * normalTex - vec3(1.0);
+
+	// normalize tangent space vector
+	vec3 nNormal = normalize(Normal0);
+	vec3 nTangent = normalize(Tangent0);
+	vec3 nBitangent = normalize(Bitangent0);
+
+	// make the tbn 
+	mat3 nTBN = mat3(nTangent, nBitangent, nNormal);
+
+	vec3 newNormal = normalize(nTBN * normalTex);
+
+	return newNormal;
+}
+
 vec4 direcLight()
 { // normals need to be recalculated based on rotation
-	// ambient lighting
-	//float ambient = 0.20f;
 
-	// diffuse lighting
-	//vec3 unpackedNormal = normalize(texture(normal0, texCoord).xyz * 2.0f - vec3(1.0f));
-	//vec3 normal = normalize(TBN * unpackedNormal);
-	vec3 normal = normalize(Normal);
+	vec3 normal = CalcNewNormal();
+
 	vec3 lightDirection = normalize(directLightPos); //vec3(1.0f, 1.0f, 0.0f)
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
@@ -83,7 +106,7 @@ vec4 direcLight()
 		float currentDepth = lightCoords.z;
 
 		//float bias = 0.005f; // 0.025f
-		float bias = max(0.005f * (1.0f - dot(normal, lightDirection)), 0.0005f);
+		float bias = max(DirSMMaxBias * (1.0f - dot(normal, lightDirection)), 0.0005f);
 
 		int sampleRadius = dirShadowMapHardness;
 		vec2 pixelSize = 1.0 / textureSize(shadowMap, 0);
@@ -109,10 +132,10 @@ vec4 direcLight()
 
 	float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 32);
 	specular = specAmount * dirSpecularLight;
-	return (texture(diffuse0, texCoord) * (diffuse + (1.0f - shadow) + directAmbient) + texture(specular0, texCoord).r * specular * (1.0f - shadow)) * vec4(directLightCol, 1.0f);
+	return (texture(texture_diffuse0, texCoord) * (diffuse + (1.0f - shadow) + directAmbient) + texture(texture_roughness0, texCoord).r * specular * (1.0f - shadow)) * vec4(directLightCol, 1.0f);
 	}
 	else{
-	return (texture(diffuse0, texCoord) * (diffuse + (1.0f - shadow) + directAmbient)) * vec4(directLightCol, 1.0f);
+	return (texture(texture_diffuse0, texCoord) * (diffuse + (1.0f - shadow) + directAmbient)) * vec4(directLightCol, 1.0f);
 	}
 }
 
@@ -158,10 +181,10 @@ vec4 pointLight(int iteration)
 		float specAmount = pow(max(dot(normal, halfwayVec), 0.1f), 16);
 		specular = specAmount * specularLight;
 
-		finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + 0.0f) + texture(specular0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0 ) * inten;
+		finalColour = finalColour + (texture(texture_diffuse0, texCoord) * (diffuse * inten + 0.0f) + texture(texture_roughness0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0 ) * inten;
 	}
 	else{
-		finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
+		finalColour = finalColour + (texture(texture_diffuse0, texCoord) * (diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
 		//finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
 	}
 
@@ -205,12 +228,12 @@ vec4 spotLight(int iteration)
 	float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 16);
 	specular = specAmount * specularLight;
 
-	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + 0.0f) + texture(specular0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0) * inten;
+	finalColour = finalColour + (texture(texture_diffuse0, texCoord) * (diffuse * inten + 0.0f) + texture(texture_roughness0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0) * inten;
 
 	}
 	else{
 	
-	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
+	finalColour = finalColour + (texture(texture_diffuse0, texCoord) * (diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
 	//	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
 	}
 
@@ -220,7 +243,7 @@ vec4 spotLight(int iteration)
 }
 
 vec4 lights(){
-	vec4 diffuseTex = texture(diffuse0, texCoord);
+	vec4 diffuseTex = texture(texture_diffuse0, texCoord);
 	vec4 finalColour = vec4(0.0);
 
 	//early cutoff
@@ -257,6 +280,8 @@ vec4 lights(){
 void main()
 {
 	FragColor = lights();
-	//FragColor = texture(normal0, texCoord);
+	//FragColor = texture(texture_diffuse0, texCoord);
+	//FragColor = texture(texture_roughness0, texCoord);
+	//FragColor = texture(texture_normal0, texCoord);
 	
 }

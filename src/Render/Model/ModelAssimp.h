@@ -8,6 +8,9 @@
 #include "string"
 #include "iostream"
 #include "Mesh.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 class aModel {
 public:

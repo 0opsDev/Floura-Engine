@@ -21,8 +21,10 @@ glm::vec3 LightingHandler::dirLightPosOut = glm::vec3(0.0f, 1.0f, 0.0f);;
 glm::vec3 LightingHandler::directLightCol = glm::vec3(1.0f, 1.0f, 1.0f);
 float LightingHandler::directAmbient = 0.20f;
 float LightingHandler::dirSpecularLight = 0.20f;
+float LightingHandler::DirSMMaxBias = 0.005f;
 bool LightingHandler::doDirLight = false;
 bool LightingHandler::doDirSpecularLight = true;
+
 
 unsigned int LightingHandler::shadowMapFBO, LightingHandler::shadowMapHeight, LightingHandler::shadowMapWidth, LightingHandler::dirShadowMap;
 float LightingHandler::distance = 35.0f;
@@ -285,12 +287,14 @@ void LightingHandler::update(Shader Shader)
 	Shader.setFloat("dirSpecularLight", dirSpecularLight);
 	Shader.setFloat3("directLightPos", rotatedDirectionDIR.x, rotatedDirectionDIR.y, rotatedDirectionDIR.z); // 0.0f, 1.0f, 0.0f
 	Shader.setFloat3("directLightCol", directLightCol.x, directLightCol.y, directLightCol.z); // 1.0f, 1.0f, 1.0f
-	Shader.setInt("dirShadowMapHardness", dirShadowMapHardness);
 
+	//DirSMMaxBias
 	Shader.setFloat("doDirShadowMap", doDirShadowMap);
 	if (doDirShadowMap)
 	{
 		// shadow map
+		Shader.setFloat("DirSMMaxBias", DirSMMaxBias);
+		Shader.setInt("dirShadowMapHardness", dirShadowMapHardness);
 		glUniformMatrix4fv(glGetUniformLocation(Shader.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
 		glActiveTexture(GL_TEXTURE0 + 8);
@@ -303,7 +307,7 @@ void LightingHandler::update(Shader Shader)
 void LightingHandler::createLight()
 {
 	Light tempLight;
-
+	
 	tempLight.position = glm::vec3(0);
 	tempLight.rotation = glm::vec3(0);
 	tempLight.colour = glm::vec3(1);

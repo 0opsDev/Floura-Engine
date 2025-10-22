@@ -10,7 +10,7 @@ class Texture
 {
 public:
 	GLuint ID;
-	const char* type;
+	std::string type;
 	GLuint unit;
 	std::string path;
 	bool filterNearest = true;

@@ -6,12 +6,12 @@
             18.0
         ],
         "Window": "Default",
-        "doFog": false,
+        "doFog": true,
         "doReflections": true,
         "fogRGBA": [
-            0.45588237047195435,
-            0.33520761132240295,
-            0.37779873609542847
+            1.0,
+            1.0,
+            1.0
         ]
     }
 ]

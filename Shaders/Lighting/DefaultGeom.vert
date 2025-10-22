@@ -5,9 +5,18 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec3 aColor;
 layout (location = 3) in vec2 aTex;
-//layout (location = 4) in vec3 aTangent;
+layout (location = 4) in vec3 aTangent;
+layout (location = 5) in vec3 aBitangent;
 
 //out vec4 fragPosLight;
+
+uniform mat4 camMatrix;
+uniform mat4 model;
+uniform mat4 lightProjection;
+// Gets the position of the camera from the main function
+//uniform vec3 camPos;
+//uniform vec3 directLightPos; //1.0f, 1.0f, 0.0f
+uniform mat3 normalMatrix;
 
 out DATA
 {
@@ -18,19 +27,14 @@ out DATA
     mat4 model;
     vec3 WorldPos;
     vec4 fragPosLight;
+    vec3 Normal0;
+    vec3 Tangent0;
+    vec3 Bitangent0;
     //mat3 normalMatrix;
    //mat3 TBN;
     //vec3 camPos;
 //   vec3 directLightPos;
 } data_out;
-
-uniform mat4 camMatrix;
-uniform mat4 model;
-uniform mat4 lightProjection;
-// Gets the position of the camera from the main function
-//uniform vec3 camPos;
-//uniform vec3 directLightPos; //1.0f, 1.0f, 0.0f
-uniform mat3 normalMatrix;
 
 void main()
 {    
@@ -43,16 +47,13 @@ void main()
 
     gl_Position = worldPoS;
 
-    //mat3 normalMatrix = transpose(inverse(mat3(model)));
+    data_out.Normal0 = normalMatrix * aNormal;
+    data_out.Tangent0 = normalMatrix * aTangent;
+    data_out.Bitangent0 = normalMatrix * aBitangent;
 
-    //data_out.Normal = normalize(normalMatrix * aNormal);
 
-    //vec3 T = normalize(normalMatrix * aTangent);
-    vec3 N = normalize(normalMatrix * aNormal);
-
-    //vec3 B = normalize(cross(N, T));
-    //data_out.TBN = mat3(T, B, N);
-    data_out.Normal = N;
+    vec3 Norm = normalize(normalMatrix * aNormal);
+    data_out.Normal = Norm;
     data_out.color = aColor;
     data_out.texCoord = aTex; //  mat2(0.0, -1.0, 1.0, 0.0) * aTex;
     data_out.projection = camMatrix;

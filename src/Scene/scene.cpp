@@ -123,6 +123,7 @@ void Scene::JsonEnviromentSave(std::string path)
 		JsonEnviroment["dirSmDistance"] = LightingHandler::distance;
 		JsonEnviroment["dirSmHeight"] = LightingHandler::dirShadowheight;
 		JsonEnviroment["dirShadowMapHardness"] = LightingHandler::dirShadowMapHardness;
+		JsonEnviroment["DirSMMaxBias"] = LightingHandler::DirSMMaxBias;
 		/*
 		DirEnabled
 		DirSpecEnabled
@@ -198,7 +199,8 @@ void Scene::JsonEnviromentLoad(std::string path)
 		LightingHandler::distance = EnviromentDefaultData[0]["dirSmDistance"];
 		LightingHandler::dirShadowheight = EnviromentDefaultData[0]["dirSmHeight"];
 		LightingHandler::dirShadowMapHardness = EnviromentDefaultData[0]["dirShadowMapHardness"];
-
+		LightingHandler::DirSMMaxBias = EnviromentDefaultData[0]["DirSMMaxBias"];
+		//		JsonEnviroment["DirSMMaxBias"] = LightingHandler::DirSMMaxBias;
 		/*
 		* 		JsonEnviroment["dirNearFar"][0] = LightingHandler::dirNearFar[0];
 		JsonEnviroment["dirNearFar"][1] = LightingHandler::dirNearFar[1];

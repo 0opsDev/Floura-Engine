@@ -1,7 +1,4 @@
 #include "ModelAssimp.h"
-#include <glm/glm.hpp>                // Core GLM types (like glm::vec3, glm::mat4)
-#include <glm/gtc/matrix_transform.hpp> // For glm::scale and glm::translate
-#include <glm/gtx/quaternion.hpp>       // For glm::mat4_cast (quaternion to matrix conversion)
 
 void aModel::updatePosition(glm::vec3 Position)
 {
@@ -148,6 +145,16 @@ aMesh aModel::processMesh(aiMesh* mesh, const aiScene* scene)
         vector.z = mesh->mNormals[i].z;
         vertex.normal = vector;
 
+        vector.x = mesh->mTangents[i].x;
+        vector.y = mesh->mTangents[i].y;
+        vector.z = mesh->mTangents[i].z;
+        vertex.tangent = vector;
+
+        vector.x = mesh->mBitangents[i].x;
+        vector.y = mesh->mBitangents[i].y;
+        vector.z = mesh->mBitangents[i].z;
+        vertex.biTangent = vector;
+
         if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
         {
             glm::vec2 vec;
@@ -171,14 +178,18 @@ aMesh aModel::processMesh(aiMesh* mesh, const aiScene* scene)
     if (mesh->mMaterialIndex >= 0)
     {
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
         std::vector<Texture> diffuseMaps = aloadMaterialTextures(material,
             aiTextureType_DIFFUSE, "texture_diffuse");
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-        std::vector<Texture> specularMaps = aloadMaterialTextures(material,
-            aiTextureType_SPECULAR, "texture_specular");
-        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+
+        std::vector<Texture> roughnessMaps = aloadMaterialTextures(material,
+            aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness"); // Note: Could also be aiTextureType_SHININESS
+        textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
+
         std::vector<Texture> normalMaps = aloadMaterialTextures(material,
             aiTextureType_NORMALS, "texture_normal");
+
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     }
 
@@ -209,7 +220,7 @@ std::vector<Texture> aModel::aloadMaterialTextures(aiMaterial* mat, aiTextureTyp
             Texture texture;
             std::string path = directory + "/" + str.C_Str();
             texture.createTexture(path.c_str(), (typeName).c_str(), loadedTex.size());
-            std::cout << path << std::endl;
+            //std::cout << path << std::endl;
             textures.push_back(texture);
             loadedTex.push_back(texture);
             loadedTexPath.push_back(str.C_Str());

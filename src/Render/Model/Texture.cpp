@@ -8,6 +8,7 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
     if (init::LogALL || init::LogModel) LogConsole::print("Texture loading started");
     // Assigns the type of the texture to the texture object
     type = texType;
+    //std::cout << type << " U " << slot << std::endl;
 
     // Stores the width, height, and the number of color channels of the image
     int widthImg, heightImg, numColCh;

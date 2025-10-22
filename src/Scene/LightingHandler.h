@@ -24,6 +24,7 @@ public:
 	static glm::vec3 directLightCol;
 	static float directAmbient;
 	static float dirSpecularLight;
+	static float DirSMMaxBias;
 	static bool doDirLight;
 	static bool doDirSpecularLight;
 

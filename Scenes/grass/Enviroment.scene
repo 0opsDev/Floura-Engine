@@ -13,6 +13,7 @@
             296.29998779296875,
             0.0
         ],
+        "DirSMMaxBias": 0.004999999888241291,
         "DirSpecEnabled": true,
         "DirSpecular": 0.15000000596046448,
         "DoShadowMap": true,
