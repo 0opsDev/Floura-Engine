@@ -1,7 +1,0 @@
-[
-    {
-        "LodPath": "Assets/LodModel/Vase/",
-        "LodDistance": 100.0,
-        "ModelFileNames": ["vaseLOD0.gltf", "vaseLOD1.gltf", "vaseLOD2.gltf", "vaseLOD3.gltf", "vaseLOD4.gltf"]
-    }
-]

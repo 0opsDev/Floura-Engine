@@ -13,16 +13,11 @@ void dupeModel(int index) {
 	newObject->scale = Scene::modelObjects[index]->scale;
 	newObject->isCollider = Scene::modelObjects[index]->isCollider;
 	newObject->DoCulling = Scene::modelObjects[index]->DoCulling;
-	newObject->DoFrustumCull = Scene::modelObjects[index]->DoFrustumCull;
 	newObject->BoxColliderTransform = Scene::modelObjects[index]->BoxColliderTransform;
 	newObject->BoxColliderScale = Scene::modelObjects[index]->BoxColliderScale;
-	newObject->frustumBoxTransform = Scene::modelObjects[index]->frustumBoxTransform;
-	newObject->frustumBoxScale = Scene::modelObjects[index]->frustumBoxScale;
 	newObject->CullFrontFace = Scene::modelObjects[index]->CullFrontFace;
 	newObject->LodCount = Scene::modelObjects[index]->LodCount;
 	newObject->LodDistance = Scene::modelObjects[index]->LodDistance;
-	newObject->DoFrustumCull = Scene::modelObjects[index]->DoFrustumCull;
-	newObject->hasPhysics = Scene::modelObjects[index]->hasPhysics;
 	newObject->CreateObject(Scene::modelObjects[index]->ModelPath, name, "Assets/Material/Default.Material");
 	Scene::modelObjects.push_back(std::move(newObject)); // std::move is crucial here
 

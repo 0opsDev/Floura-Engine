@@ -13,6 +13,7 @@
 #include <Scene/LightingHandler.h>
 #include "utils/logConsole.h"
 #include <Scene/ObjectManager.h>
+
 //#include <Instance.h>
 
 
@@ -69,27 +70,27 @@ Texture FEImGuiWindow::iIcon; // Icon for Icon in ImGui
 static char pathBuffer[256]; // Ensure the size is appropriate
 
 void FEImGuiWindow::init() {
-	logoIcon.createTexture("Assets/Icons/Icon.png", "diffuse", 0);
-	FolderIcon.createTexture("Assets/Icons/bindericon.png", "diffuse", 1);
-	SaveIcon.createTexture("Assets/Icons/saveicon.png", "diffuse", 2);
-	ModelIcon.createTexture("Assets/Icons/meshicon.png", "diffuse", 3);
-	BillBoardIcon.createTexture("Assets/Icons/pictureIcon.png", "diffuse", 4);
-	colliderIcon.createTexture("Assets/Icons/collideicon.png", "diffuse", 5);
-	pointLightIcon.createTexture("Assets/Icons/point.png", "diffuse", 6);
-	spotLightIcon.createTexture("Assets/Icons/spot.png", "diffuse", 7);
-	arrowIcon.createTexture("Assets/Icons/arrow.png", "diffuse", 8);
-	crossIcon.createTexture("Assets/Icons/cross.png", "diffuse", 9);
-	plusIcon.createTexture("Assets/Icons/plus.png", "diffuse", 10);
-	cameraIcon.createTexture("Assets/Icons/cameraIcon.png", "diffuse", 11);
-	skyboxIcon.createTexture("Assets/Icons/skyboxIcon.png", "diffuse", 12);
-	directLight.createTexture("Assets/Icons/directLight.png", "diffuse", 13);
-	materialIcon.createTexture("Assets/Icons/materialIcon.png", "diffuse", 14);
-	environmentIcon.createTexture("Assets/Icons/Environment.png", "diffuse", 15);
-	moveIcon.createTexture("Assets/Icons/move.png", "diffuse", 16);
-	scaleIcon.createTexture("Assets/Icons/scale.png", "diffuse", 17);
-	rotateIcon.createTexture("Assets/Icons/rotate.png", "diffuse", 18);
-	wirefameIcon.createTexture("Assets/Icons/wireframeIcon.png", "diffuse", 19);
-	iIcon.createTexture("Assets/Icons/iIcon.png", "diffuse", 20);
+	logoIcon.createTextureDetached("Assets/Icons/Icon.png");
+	FolderIcon.createTextureDetached("Assets/Icons/bindericon.png");
+	SaveIcon.createTextureDetached("Assets/Icons/saveicon.png");
+	ModelIcon.createTextureDetached("Assets/Icons/meshicon.png");
+	BillBoardIcon.createTextureDetached("Assets/Icons/pictureIcon.png");
+	colliderIcon.createTextureDetached("Assets/Icons/collideicon.png");
+	pointLightIcon.createTextureDetached("Assets/Icons/point.png");
+	spotLightIcon.createTextureDetached("Assets/Icons/spot.png");
+	arrowIcon.createTextureDetached("Assets/Icons/arrow.png");
+	crossIcon.createTextureDetached("Assets/Icons/cross.png");
+	plusIcon.createTextureDetached("Assets/Icons/plus.png");
+	cameraIcon.createTextureDetached("Assets/Icons/cameraIcon.png");
+	skyboxIcon.createTextureDetached("Assets/Icons/skyboxIcon.png");
+	directLight.createTextureDetached("Assets/Icons/directLight.png");
+	materialIcon.createTextureDetached("Assets/Icons/materialIcon.png");
+	environmentIcon.createTextureDetached("Assets/Icons/Environment.png");
+	moveIcon.createTextureDetached("Assets/Icons/move.png");
+	scaleIcon.createTextureDetached("Assets/Icons/scale.png");
+	rotateIcon.createTextureDetached("Assets/Icons/rotate.png");
+	wirefameIcon.createTextureDetached("Assets/Icons/wireframeIcon.png");
+	iIcon.createTextureDetached("Assets/Icons/iIcon.png");
 }
 
 void FEImGuiWindow::loadContentObjects(std::string path) {
@@ -1130,6 +1131,7 @@ void FEImGuiWindow::ModelWindow() {
 			LogConsole::print("Reloaded Material: " + Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->MaterialObject.materialPath);
 		}
 		ImGui::Checkbox("Cast Shadow", &Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->castShadow);
+		ImGui::DragFloat2("UV Scale", &Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->uvScale.x);
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	ImGui::Spacing();
@@ -1158,12 +1160,6 @@ void FEImGuiWindow::ModelWindow() {
 	if (ImGui::TreeNode("Culling Component")) {
 
 		ImGui::Checkbox("isBackFaceCulling", &Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->DoCulling);
-		ImGui::Checkbox("DoFrustumCull", &Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->DoFrustumCull);
-
-		ImGui::Spacing();
-		ImGui::Text("Transformations: ");
-		ImGui::DragFloat3("frustumBoxTransform", &Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->frustumBoxTransform.x);
-		ImGui::DragFloat3("frustumBoxScale", &Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->frustumBoxScale.x);
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}

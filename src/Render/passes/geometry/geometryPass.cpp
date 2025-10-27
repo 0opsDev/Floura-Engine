@@ -12,7 +12,7 @@ unsigned int GeometryPass::DBO;
 unsigned int GeometryPass::gNoise;
 
 void GeometryPass::init() {
-	gPassShader.LoadShader("Shaders/gBuffer/geometryPass.vert", "Shaders/gBuffer/geometryPass.frag");
+	gPassShader.LoadShader("Assets/Shaders/gBuffer/geometryPass.vert", "Assets/Shaders/gBuffer/geometryPass.frag");
 }
 
 void GeometryPass::setupGbuffers(unsigned int width, unsigned int height) {

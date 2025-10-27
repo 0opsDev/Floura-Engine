@@ -37,7 +37,7 @@ glm::mat4 LightingHandler::lightProjection;
 Shader LightingHandler::dirShadowMapProgram;
 
 void LightingHandler::setupShadowMapBuffer() {
-	LightingHandler::dirShadowMapProgram.LoadShader("Shaders/Lighting/shadowMap.vert", "Shaders/Lighting/shadowMap.frag");
+	LightingHandler::dirShadowMapProgram.LoadShader("Assets/Shaders/Lighting/shadowMap.vert", "Assets/Shaders/Lighting/shadowMap.frag");
 	//shadowMapWidth = 4096;
 	//shadowMapHeight = 4096;
 	shadowMapWidth = 2046;
@@ -50,8 +50,8 @@ void LightingHandler::setupShadowMapBuffer() {
 	glGenTextures(1, &dirShadowMap);
 	glBindTexture(GL_TEXTURE_2D, dirShadowMap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -202,15 +202,8 @@ void LightingHandler::drawShadowMap(aModel model, glm::vec3 translation, glm::ve
 	glm::vec3 CameraPos = Camera::Position;
 	glm::vec3 dirLightDirection = dirLightPosOut;
 	glm::vec3 lightEyePosition = CameraPos + (dirShadowheight * dirLightDirection);
-
-	glm::mat4 lightView = glm::lookAt(
-		lightEyePosition,
-		CameraPos,
-		glm::vec3(0.0f, 1.0f, 0.0f)
-	);
+	glm::mat4 lightView = glm::lookAt(lightEyePosition, CameraPos, glm::vec3(0.0f, 1.0f, 0.0f));
 	lightProjection = orthgonalProjection * lightView;
-	//glm::mat4 lightView = glm::lookAt(20.0f * LightingHandler::dirLightPosOut, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//LightingHandler::lightProjection = orthgonalProjection * lightView;
 
 
 	glEnable(GL_DEPTH_TEST);

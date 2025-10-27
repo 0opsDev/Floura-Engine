@@ -9,7 +9,6 @@
 #include <glm/ext/vector_float3.hpp>
 #include <Render/Shader/shaderClass.h>
 #include "Scene/IdManager.h"
-#include "Render/Model/Model.h"
 #include <Render/Model/ModelAssimp.h>
 
 using json = nlohmann::json;
@@ -64,6 +63,7 @@ public:
 		int type;
 		bool enabled;
 		IdManager::ID ID;
+		ShadowMaps ShadowMap; // render/bake shadow map for STATIC lights
 	};
 	static std::vector<Light> Lights;
 

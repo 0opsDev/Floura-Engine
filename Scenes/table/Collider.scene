@@ -1,1 +1,137 @@
-[]
+[
+    {
+        "IDuniqueIdentifier": 1065353216,
+        "enabled": true,
+        "name": "Sponza Floor",
+        "position": [
+            0.0,
+            -1.0,
+            -30.0
+        ],
+        "scale": [
+            17.0,
+            1.0,
+            7.0
+        ]
+    },
+    {
+        "IDuniqueIdentifier": 3903,
+        "enabled": true,
+        "name": "sponza",
+        "position": [
+            0.0,
+            3.0,
+            -27.0
+        ],
+        "scale": [
+            19.0,
+            0.4000000059604645,
+            2.0
+        ]
+    },
+    {
+        "IDuniqueIdentifier": 154,
+        "enabled": true,
+        "name": "sponza2",
+        "position": [
+            0.0,
+            3.0,
+            -34.0
+        ],
+        "scale": [
+            19.0,
+            0.4000000059604645,
+            2.0
+        ]
+    },
+    {
+        "IDuniqueIdentifier": 293,
+        "enabled": true,
+        "name": "sponza3",
+        "position": [
+            -10.0,
+            3.0,
+            -30.5
+        ],
+        "scale": [
+            2.0,
+            0.4000000059604645,
+            1.5
+        ]
+    },
+    {
+        "IDuniqueIdentifier": 2383,
+        "enabled": true,
+        "name": "sponza4",
+        "position": [
+            9.0,
+            3.0,
+            -30.5
+        ],
+        "scale": [
+            2.0,
+            0.4000000059604645,
+            1.5
+        ]
+    },
+    {
+        "IDuniqueIdentifier": 7422,
+        "enabled": true,
+        "name": "sponza5",
+        "position": [
+            11.600000381469727,
+            3.0,
+            -30.5
+        ],
+        "scale": [
+            1.0,
+            4.0,
+            6.0
+        ]
+    },
+    {
+        "IDuniqueIdentifier": 8717,
+        "enabled": true,
+        "name": "sponza6",
+        "position": [
+            -12.600000381469727,
+            3.0,
+            -30.5
+        ],
+        "scale": [
+            1.0,
+            4.0,
+            6.0
+        ]
+    },
+    {
+        "IDuniqueIdentifier": 9719,
+        "enabled": true,
+        "name": "sponza7",
+        "position": [
+            0.0,
+            3.0,
+            -24.399999618530273
+        ],
+        "scale": [
+            11.0,
+            4.0,
+            1.0
+        ]
+    },
+    {
+        "IDuniqueIdentifier": 9896,
+        "enabled": true,
+        "name": "sponza8",
+        "position": [
+            0.0,
+            3.0,
+            -36.400001525878906
+        ],
+        "scale": [
+            11.0,
+            4.0,
+            1.0
+        ]
+    }
+]

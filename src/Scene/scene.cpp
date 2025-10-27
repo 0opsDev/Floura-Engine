@@ -200,19 +200,6 @@ void Scene::JsonEnviromentLoad(std::string path)
 		LightingHandler::dirShadowheight = EnviromentDefaultData[0]["dirSmHeight"];
 		LightingHandler::dirShadowMapHardness = EnviromentDefaultData[0]["dirShadowMapHardness"];
 		LightingHandler::DirSMMaxBias = EnviromentDefaultData[0]["DirSMMaxBias"];
-		//		JsonEnviroment["DirSMMaxBias"] = LightingHandler::DirSMMaxBias;
-		/*
-		* 		JsonEnviroment["dirNearFar"][0] = LightingHandler::dirNearFar[0];
-		JsonEnviroment["dirNearFar"][1] = LightingHandler::dirNearFar[1];
-		* 
-		* 
-		RenderClass::fogRGBA[0] = EnviromentDefaultData[0]["fogRGBA"][0];
-		RenderClass::fogRGBA[1] = EnviromentDefaultData[0]["fogRGBA"][1];
-		RenderClass::fogRGBA[2] = EnviromentDefaultData[0]["fogRGBA"][2];
-
-		RenderClass::doReflections = EnviromentDefaultData[0]["doReflections"];
-		RenderClass::doFog = EnviromentDefaultData[0]["doFog"];
-	*/
 	}
 	else {
 		std::cerr << "Failed to open " << path << std::endl;
@@ -249,43 +236,24 @@ void Scene::initJsonModelLoad(std::string path) {
 		std::unique_ptr<ModelObject> newObject = std::make_unique<ModelObject>(); // Use std::make_unique
 
 		std::string name = item.at("name").get<std::string>();
-		bool IsLod = item.at("IsLod").get<bool>();
+		newObject->IsLod = item.at("IsLod").get<bool>();
 		std::string path = item.at("path").get<std::string>();
 		std::string MaterialPath = item.at("MaterialPath").get<std::string>();
 
+		newObject->transform = glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]);
+		newObject->rotation = glm::vec3(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2]);
+		newObject->scale = glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]);
 
-		glm::vec3 Location = glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]);
-		glm::vec3 rotation = glm::vec3(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2]);
-		glm::vec3 scale = glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]);
-
-		glm::vec3 frustumBoxTransform = glm::vec3(item.at("frustumBoxTransform")[0],
-			item.at("frustumBoxTransform")[1], item.at("frustumBoxTransform")[2]);
-		glm::vec3 frustumBoxScale = glm::vec3(item.at("frustumBoxScale")[0],
-			item.at("frustumBoxScale")[1], item.at("frustumBoxScale")[2]);
-
-		glm::vec3 BoxColliderTransform = glm::vec3(item.at("BoxColliderTransform")[0],
+		newObject->BoxColliderTransform = glm::vec3(item.at("BoxColliderTransform")[0],
 			item.at("BoxColliderTransform")[1], item.at("BoxColliderTransform")[2]);
-		glm::vec3 BoxColliderScale = glm::vec3(item.at("BoxColliderScale")[0],
+		newObject->BoxColliderScale = glm::vec3(item.at("BoxColliderScale")[0],
 			item.at("BoxColliderScale")[1], item.at("BoxColliderScale")[2]);
 
-		bool isCollider = item.at("isCollider").get<bool>();
-		bool isBackFaceCulling = item.at("isBackFaceCulling").get<bool>();
-		bool DoFrustumCull = item.at("DoFrustumCull").get<bool>();
-		bool castShadow = item.at("CastShadow").get<bool>();
-
-		newObject->IsLod = IsLod;
-		newObject->transform = Location;
-		newObject->rotation = rotation;
-		newObject->scale = scale;
-		newObject->isCollider = isCollider;
-		newObject->DoCulling = isBackFaceCulling;
-		newObject->DoFrustumCull = DoFrustumCull;
-		newObject->BoxColliderTransform = BoxColliderTransform;
-		newObject->BoxColliderScale = BoxColliderScale;
-		newObject->frustumBoxTransform = frustumBoxTransform;
-		newObject->frustumBoxScale = frustumBoxScale;
-		newObject->castShadow = castShadow;
-		// ID
+		newObject->isCollider = item.at("isCollider").get<bool>();
+		newObject->DoCulling = item.at("isBackFaceCulling").get<bool>();
+		newObject->castShadow = item.at("CastShadow").get<bool>();
+		newObject->uvScale = glm::vec2(item.at("uvScale")[0],
+			item.at("uvScale")[1]);
 		newObject->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
 
 		newObject->CreateObject(path, name, MaterialPath); // Load into this unique MaterialObject
@@ -317,17 +285,14 @@ void Scene::JsonModelSave(std::string path) {
 			modelJson["Rotation"] = { obj->rotation.x, obj->rotation.y, obj->rotation.z};
 			modelJson["Scale"] = { obj->scale.x, obj->scale.y, obj->scale.z };
 
-			modelJson["frustumBoxTransform"] = { obj->frustumBoxTransform.x, obj->frustumBoxTransform.y, obj->frustumBoxTransform.z };
-			modelJson["frustumBoxScale"] = { obj->frustumBoxScale.x, obj->frustumBoxScale.y, obj->frustumBoxScale.z };
-
 			modelJson["BoxColliderTransform"] = { obj->BoxColliderTransform.x, obj->BoxColliderTransform.y, obj->BoxColliderTransform.z };
 			modelJson["BoxColliderScale"] = { obj->BoxColliderScale.x, obj->BoxColliderScale.y, obj->BoxColliderScale.z };
 
 			modelJson["isCollider"] = obj->isCollider;
 			modelJson["isBackFaceCulling"] = obj->DoCulling;
-			modelJson["DoFrustumCull"] = obj->DoFrustumCull;
 			modelJson["MaterialPath"] = obj->MaterialObject.materialPath;
 			modelJson["CastShadow"] = obj->castShadow;
+			modelJson["uvScale"] = { obj->uvScale.x, obj->uvScale.y };
 			// ID
 			modelJson["IDuniqueIdentifier"] = obj->ID.UniqueNumber;
 
@@ -775,23 +740,35 @@ void Scene::initCameraSettingsLoad(std::string path) {
 		std::cerr << "Failed to open " << path << std::endl;
 	}
 }
-
-void Scene::Update() {
+void Scene::draw() 
+{
+	// models
 	for (size_t i = 0; i < modelObjects.size(); i++)
 	{
 		modelObjects[i]->drawModelShadowMap();
 	}
+	for (size_t i = 0; i < modelObjects.size(); i++)
+	{
+		modelObjects[i]->updateForwardLights(); // needs to take lights
+		modelObjects[i]->draw();
+	}
+	// billboards
+	for (size_t i = 0; i < BillBoardObjects.size(); i++)
+	{
+		BillBoardObjects[i].draw();
+	}
+
+	for (size_t i = 0; i < CubeColliderObject.size(); i++) {
+		CubeColliderObject[i].draw();
+	}
+}
+void Scene::Update() {
 	// models
 	for (size_t i = 0; i < modelObjects.size(); i++)
 	{
 		
 		modelObjects[i]->UpdateCollider();
 		modelObjects[i]->UpdateCameraCollider();
-
-		// before drawing we wanna update the lights in the material class
-
-		modelObjects[i]->updateForwardLights(); // needs to take lights
-		modelObjects[i]->draw();
 	}
 	// billboards
 	for (size_t i = 0; i < BillBoardObjects.size(); i++)

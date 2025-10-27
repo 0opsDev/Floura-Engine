@@ -88,15 +88,10 @@ std::string FE_Object::fetchPath()
 
 bool FE_Object::fetchDoFrustumCull()
 {
-	if (FE_Object::type == "model")
-	{
-		return ModelObject.DoFrustumCull;
-	}
-	else if (FE_Object::type == "billboard")
+	if (FE_Object::type == "billboard")
 	{
 		return BillBoardObject.DoFrustumCull;
 	}
-
 }
 
 bool FE_Object::fetchIsCollider()
@@ -132,11 +127,7 @@ void FE_Object::setFlagIsAnimated(bool flag)
 
 void FE_Object::setDoFrustumCull(bool flag)
 {
-	if (FE_Object::type == "model")
-	{
-		ModelObject.DoFrustumCull = flag;
-	}
-	else if (FE_Object::type == "billboard")
+	if (FE_Object::type == "billboard")
 	{
 		BillBoardObject.DoFrustumCull = flag;
 	}

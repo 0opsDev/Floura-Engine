@@ -12,7 +12,7 @@
         ],
         "CastShadow": true,
         "DoFrustumCull": false,
-        "IDuniqueIdentifier": 2383,
+        "IDuniqueIdentifier": 8146,
         "IsLod": false,
         "Location": [
             0.0,
@@ -26,9 +26,9 @@
             0.0
         ],
         "Scale": [
-            100.0,
-            100.0,
-            100.0
+            1.0,
+            1.0,
+            1.0
         ],
         "frustumBoxScale": [
             1.0,
@@ -42,7 +42,11 @@
         ],
         "isBackFaceCulling": true,
         "isCollider": false,
-        "name": "blocks",
-        "path": "Assets/Models/blocks/blocks.gltf"
+        "name": "Name",
+        "path": "Assets/LodModel/Tree/tree1.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
     }
 ]

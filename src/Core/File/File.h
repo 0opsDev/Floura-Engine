@@ -9,10 +9,9 @@
 #include<iostream>
 #include<cerrno>
 #include <glm/fwd.hpp>
-#include <Render/Model/Model.h>
 #include <utils/init.h>
 #include <glm/gtx/string_cast.hpp>
-
+#include <Render/Shader/shaderClass.h>
 
 using json = nlohmann::json;
 

@@ -3,10 +3,10 @@
 		"type": "Standard",
 		"name": "Default",
 
-		"FragShader": "Shaders/Lighting/combined.frag",
-		"VertexShader": "Shaders/Lighting/Default.vert",
-		"GPassFragShader": "Shaders/gBuffer/geometryPass.frag",
-		"GPassVertShader": "Shaders/gBuffer/geometryPass.vert",
+		"FragShader": "Assets/Shaders/Lighting/combined.frag",
+		"VertexShader": "Assets/Shaders/Lighting/Default.vert",
+		"GPassFragShader": "Assets/Shaders/gBuffer/geometryPass.frag",
+		"GPassVertShader": "Assets/Shaders/gBuffer/geometryPass.vert",
 
 		"variables": {
 			"type": ["bool"],

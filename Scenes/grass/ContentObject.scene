@@ -1,20 +1,8 @@
 [
     {
-        "Name": "grass",
+        "Name": "Name",
         "ObjectType": "Model",
-        "Path": "Assets/Models/grasspla/scene.gltf",
-        "Type": "static"
-    },
-    {
-        "Name": "ground",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/ground/scene.gltf",
-        "Type": "static"
-    },
-    {
-        "Name": "blocks",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/blocks/blocks.gltf",
+        "Path": "Assets/LodModel/Tree/tree1.gltf",
         "Type": "static"
     }
 ]

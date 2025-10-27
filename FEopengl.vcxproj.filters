@@ -142,9 +142,6 @@
     <ClCompile Include="src\Render\model\Mesh.cpp">
       <Filter>src\Render\Model</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\model\Model.cpp">
-      <Filter>src\Render\Model</Filter>
-    </ClCompile>
     <ClCompile Include="src\Render\model\stb.cpp">
       <Filter>src\Render\Model</Filter>
     </ClCompile>
@@ -349,6 +346,12 @@
     <ClCompile Include="src\Render\Model\ModelAssimp.cpp">
       <Filter>src\Render\Model</Filter>
     </ClCompile>
+    <ClCompile Include="src\Scripting\ScriptObject.cpp">
+      <Filter>src\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Model\Shape3D.cpp">
+      <Filter>src\Render\Model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -397,9 +400,6 @@
       <Filter>src\Render\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\model\Mesh.h">
-      <Filter>src\Render\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\model\Model.h">
       <Filter>src\Render\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\Shader\Cubemap.h">
@@ -579,50 +579,14 @@
     <ClInclude Include="src\Render\Model\ModelAssimp.h">
       <Filter>src\Render\Model</Filter>
     </ClInclude>
+    <ClInclude Include="src\Scripting\ScriptObject.h">
+      <Filter>src\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Model\Shape3D.h">
+      <Filter>src\Render\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\Empty.shader">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="Shaders\Db\solidColour.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\PostProcess\DITHERFB.frag">
-      <Filter>Resource Files\Shaders\Post Process</Filter>
-    </None>
-    <None Include="Shaders\PostProcess\framebuffer.frag">
-      <Filter>Resource Files\Shaders\Post Process</Filter>
-    </None>
-    <None Include="Shaders\PostProcess\framebuffer.vert">
-      <Filter>Resource Files\Shaders\Post Process</Filter>
-    </None>
-    <None Include="Shaders\PostProcess\4bitToDither.frag">
-      <Filter>Resource Files\Shaders\Post Process</Filter>
-    </None>
-    <None Include="Shaders\Lighting\light.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Lighting\light.vert">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Lighting\unShaded.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Lighting\Default.geom">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Lighting\Default.vert">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Lighting\spotLight.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Skybox\skybox.vert">
-      <Filter>Resource Files\Shaders\Skybox</Filter>
-    </None>
-    <None Include="Shaders\Skybox\skybox.frag">
-      <Filter>Resource Files\Shaders\Skybox</Filter>
-    </None>
     <None Include="UserScripts\LuaStartup.json">
       <Filter>Resource Files\UserScripts</Filter>
     </None>
@@ -641,80 +605,122 @@
     <None Include="Settings\LogConfig.json">
       <Filter>Resource Files\settings</Filter>
     </None>
-    <None Include="Shaders\ShaderList.json">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="UserScripts\Main\Shortcuts.Lua">
       <Filter>Resource Files\UserScripts</Filter>
-    </None>
-    <None Include="Shaders\Db\OrangeHitbox.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\Db\BillBoard.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\Db\BillBoard.vert">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\Lighting\albedo.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\gBuffer\geometryPass.frag">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Shaders\gBuffer\geometryPass.vert">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Shaders\Db\RenderQuad.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\Db\RenderQuad.vert">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\gBuffer\geometryPassBillBoard.frag">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Shaders\gBuffer\geometryPassBillBoard.vert">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Shaders\gBuffer\geometryPassSkybox.frag">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Shaders\gBuffer\geometryPassSkybox.vert">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Shaders\Db\ComputeRenderQuad.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\Db\emptycomputeShader.comp">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\Db\computeShader.comp">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Shaders\Lighting\combined.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Lighting\shadowMap.vert">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Lighting\shadowMap.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
     <None Include="src\Libraries\include\ImGuizmo\LICENSE">
       <Filter>Resource Files\ImGuizmo</Filter>
     </None>
-    <None Include="Shaders\Lighting\DefaultGeom.vert">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
+    <None Include="Assets\Shaders\Db\BillBoard.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
     </None>
-    <None Include="Shaders\Lighting\albedoGeom.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
+    <None Include="Assets\Shaders\Db\BillBoard.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
     </None>
-    <None Include="Shaders\gBuffer\geometryPassGeom.vert">
+    <None Include="Assets\Shaders\Db\ComputeRenderQuad.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\computeShader.comp">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\emptycomputeShader.comp">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\OrangeHitbox.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\RenderQuad.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\RenderQuad.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\solidColour.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPass.frag">
       <Filter>Resource Files\Shaders\gBuffer</Filter>
     </None>
-    <None Include="Shaders\gBuffer\GeometryPass.geom">
+    <None Include="Assets\Shaders\gBuffer\GeometryPass.geom">
       <Filter>Resource Files\Shaders\gBuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPass.vert">
+      <Filter>Resource Files\Shaders\gBuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPassBillBoard.frag">
+      <Filter>Resource Files\Shaders\gBuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPassBillBoard.vert">
+      <Filter>Resource Files\Shaders\gBuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPassGeom.vert">
+      <Filter>Resource Files\Shaders\gBuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPassSkybox.frag">
+      <Filter>Resource Files\Shaders\gBuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPassSkybox.vert">
+      <Filter>Resource Files\Shaders\gBuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPassWobble.vert">
+      <Filter>Resource Files\Shaders\gBuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\albedo.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\albedoGeom.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\combined.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\ComputeRenderQuad.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\Default.geom">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\Default.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\DefaultGeom.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\geomfur.geom">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\NormalView.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\PS1.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\shadowMap.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\shadowMap.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\SpecularView.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\Wobble.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\PostProcess\framebuffer.frag">
+      <Filter>Resource Files\Shaders\Post Process</Filter>
+    </None>
+    <None Include="Assets\Shaders\PostProcess\framebuffer.vert">
+      <Filter>Resource Files\Shaders\Post Process</Filter>
+    </None>
+    <None Include="Assets\Shaders\Skybox\skybox.frag">
+      <Filter>Resource Files\Shaders\Skybox</Filter>
+    </None>
+    <None Include="Assets\Shaders\Skybox\skybox.vert">
+      <Filter>Resource Files\Shaders\Skybox</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\combinedNoNormal.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

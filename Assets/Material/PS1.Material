@@ -3,10 +3,10 @@
 		"type": "Standard",
 		"name": "PS1",
 		
-		"FragShader": "Shaders/Lighting/combined.frag",
-		"VertexShader": "Shaders/Lighting/PS1.vert",
-		"GPassFragShader": "Shaders/gBuffer/geometryPass.frag",
-		"GPassVertShader": "Shaders/gBuffer/geometryPassWobble.vert",
+		"FragShader": "Assets/Shaders/Lighting/combined.frag",
+		"VertexShader": "Assets/Shaders/Lighting/PS1.vert",
+		"GPassFragShader": "Assets/Shaders/gBuffer/geometryPass.frag",
+		"GPassVertShader": "Assets/Shaders/gBuffer/geometryPassWobble.vert",
 
 		"variables": {
 			"type": ["bool", "time", "deltatime"],

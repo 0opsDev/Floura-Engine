@@ -53,7 +53,7 @@ void Material::update()
 	Camera::Matrix(ModelShader, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 	ModelShader.Activate();
-
+	//uvScale
 	ModelGpassShader.Activate();
 	Camera::Matrix(ModelGpassShader, "camMatrix"); // Send Camera Matrix To Shader Prog
 

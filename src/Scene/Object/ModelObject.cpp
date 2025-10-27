@@ -150,6 +150,11 @@ void ModelObject::renderLogic(bool shadowmap) {
 			if (i == CalculateLOD(Camera::Position, transform, LodDistance, LodCount)) {
 				if (shadowmap == false)
 				{
+					MaterialObject.ModelShader.Activate();
+					MaterialObject.ModelShader.setFloat2("uvScale", uvScale.x, uvScale.y);
+					MaterialObject.ModelGpassShader.Activate();
+					MaterialObject.ModelGpassShader.setFloat2("uvScale", uvScale.x, uvScale.y);
+
 					ModelSingle.updatePosition(transform);
 					ModelSingle.updateRotation(rotation);
 					ModelSingle.updateScale(scale);
@@ -176,6 +181,11 @@ void ModelObject::renderLogic(bool shadowmap) {
 	case false: {
 		if (shadowmap == false)
 		{
+			MaterialObject.ModelShader.Activate();
+			MaterialObject.ModelShader.setFloat2("uvScale", uvScale.x, uvScale.y);
+			MaterialObject.ModelGpassShader.Activate();
+			MaterialObject.ModelGpassShader.setFloat2("uvScale", uvScale.x, uvScale.y);
+
 			ModelSingle.updatePosition(transform);
 			ModelSingle.updateRotation(rotation);
 			ModelSingle.updateScale(scale);
@@ -215,15 +225,7 @@ void ModelObject::updateForwardLights() {
 }
 
 void ModelObject::draw() {
-
-	if (DoFrustumCull) {
-		if (Camera::isBoxInFrustum((frustumBoxTransform + transform), frustumBoxScale) || FE_Math::isInRange((frustumBoxTransform + transform), Camera::Position, 1 + (0.1))) {
-			renderLogic(false);
-		}
-	}
-	else {
-		renderLogic(false);
-	}
+	renderLogic(false);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
@@ -240,14 +242,7 @@ void ModelObject::drawModelShadowMap()
 	{
 		return;
 	}
-	if (DoFrustumCull) {
-		if (Camera::isBoxInFrustum((frustumBoxTransform + transform), frustumBoxScale) || FE_Math::isInRange((frustumBoxTransform + transform), Camera::Position, 1 + (0.1))) {
-			renderLogic(true);
-		}
-	}
-	else {
-		renderLogic(true);
-	}
+	renderLogic(true);
 }
 
 void ModelObject::Delete() {

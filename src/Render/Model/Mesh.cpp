@@ -2,7 +2,7 @@
 #include <utils/logConsole.h>
 #include <camera/Camera.h>
 
-aMesh::aMesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
+void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
 {
     // err checking
     if (vertices.empty()) {
@@ -31,7 +31,7 @@ aMesh::aMesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::v
     setupMesh();
 }
 
-void aMesh::draw(Shader& shader, glm::mat4 modelMatrix)
+void Mesh::draw(Shader& shader, glm::mat4 modelMatrix)
 {
     shader.Activate();
     VAO.Bind();
@@ -39,6 +39,7 @@ void aMesh::draw(Shader& shader, glm::mat4 modelMatrix)
     unsigned int numDiffuse = 0;
     unsigned int numSpecular = 0;
     unsigned int numNormal = 0;
+    unsigned int numDisplacement = 0;
 
     for (unsigned int i = 0; i < textures.size(); i++)
     {
@@ -52,6 +53,9 @@ void aMesh::draw(Shader& shader, glm::mat4 modelMatrix)
         }
         else if (type == "texture_normal") {
             num = std::to_string(numNormal++);
+        }
+        else if (type == "texture_displacement"){
+            num = std::to_string(numDisplacement++);
         }
         textures[i].texUnit(shader, (type + "0").c_str(), textures[i].unit);
         textures[i].Bind();
@@ -67,12 +71,15 @@ void aMesh::draw(Shader& shader, glm::mat4 modelMatrix)
     glm::mat3 normalMatrix = glm::transpose(glm::inverse(model3x3));
     glUniformMatrix3fv(glGetUniformLocation(shader.ID, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
-
+    //glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // Draw the mesh
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
+    //glDisable(GL_BLEND);
 }
 
-void aMesh::setupMesh()
+void Mesh::setupMesh()
 {
     VAO.Bind();
 
@@ -94,7 +101,7 @@ void aMesh::setupMesh()
     EBO.Unbind();
 }
 
-void aMesh::Delete()
+void Mesh::Delete()
 {
     VAO.Delete();
 

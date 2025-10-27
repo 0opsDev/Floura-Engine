@@ -19,7 +19,7 @@ void LightingPass::initcomputeShader(unsigned int width, unsigned int height) {
 
 	ComputeQuad.init();
 
-	ComputeQuadShader.LoadShader("Shaders/Db/RenderQuad.vert", "Shaders/Db/ComputeRenderQuad.frag");
+	ComputeQuadShader.LoadShader("Assets/Shaders/Db/RenderQuad.vert", "Assets/Shaders/Db/ComputeRenderQuad.frag");
 
 	glCreateTextures(GL_TEXTURE_2D, 1, &computeTexture);
 	glTextureParameteri(computeTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -32,7 +32,7 @@ void LightingPass::initcomputeShader(unsigned int width, unsigned int height) {
 	CurrentWidth = width;
 	CurrentHeight = height;
 
-	testCompute.LoadComputeShader("Shaders/Db/computeShader.comp");
+	testCompute.LoadComputeShader("Assets/Shaders/Db/computeShader.comp");
 
 //	glEnable(GL_DEBUG_OUTPUT);
 //	glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity,

@@ -67,6 +67,8 @@ public:
 
 	static void initCameraSettingsLoad(std::string path);
 
+	static void draw();
+
 	static void Update();
 
 	static void Delete();

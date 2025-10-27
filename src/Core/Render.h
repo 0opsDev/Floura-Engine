@@ -5,7 +5,6 @@
 #include <camera/Camera.h>
 #include <UI/ImGui/ImGuiWindow.h>
 #include <Render/Shader/SkyBox.h>
-#include <Render/Model/Model.h>
 #include <Render/Cube/Billboard.h>
 
 class RenderClass

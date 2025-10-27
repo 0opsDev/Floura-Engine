@@ -1,101 +1,9 @@
 [
     {
         "BoxColliderScale": [
-            0.6000000238418579,
-            1.100000023841858,
-            0.6000000238418579
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            1.100000023841858,
-            0.0
-        ],
-        "CastShadow": true,
-        "DoFrustumCull": false,
-        "IDuniqueIdentifier": 492,
-        "IsLod": false,
-        "Location": [
-            -4.886620998382568,
-            -2.023360252380371,
-            -12.050525665283203
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            5.0,
-            5.0,
-            5.0
-        ],
-        "frustumBoxScale": [
+            500.0,
             1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": true,
-        "name": "GEOMTESTVASE_copy",
-        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "DoFrustumCull": false,
-        "IDuniqueIdentifier": 7645,
-        "IsLod": false,
-        "Location": [
-            -13.701148986816406,
-            0.0,
-            -6.6133904457092285
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "isBackFaceCulling": true,
-        "isCollider": false,
-        "name": "ar",
-        "path": "Assets/Models/ar/m16baked.gltf"
-    },
-    {
-        "BoxColliderScale": [
-            525.0,
-            1.0,
-            525.0
+            500.0
         ],
         "BoxColliderTransform": [
             0.0,
@@ -103,7 +11,6 @@
             0.0
         ],
         "CastShadow": true,
-        "DoFrustumCull": false,
         "IDuniqueIdentifier": 4465,
         "IsLod": false,
         "Location": [
@@ -118,23 +25,563 @@
             0.0
         ],
         "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
+            500.0,
+            500.0,
+            500.0
         ],
         "isBackFaceCulling": true,
         "isCollider": true,
         "name": "pavepane",
-        "path": "Assets/Models/planes/paveplane.gltf"
+        "path": "Assets/Models/planes/paveplane.gltf",
+        "uvScale": [
+            500.0,
+            500.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 2392,
+        "IsLod": false,
+        "Location": [
+            0.0,
+            0.0,
+            -30.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "sponza obj",
+        "path": "Assets/Models/Sponza/sponza.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 6501,
+        "IsLod": false,
+        "Location": [
+            7.565975666046143,
+            -2.0,
+            4.871143817901611
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": false,
+        "isCollider": false,
+        "name": "tree",
+        "path": "Assets/LodModel/Tree/tree2.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 5706,
+        "IsLod": false,
+        "Location": [
+            0.0,
+            -2.0,
+            4.6421308517456055
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": false,
+        "isCollider": false,
+        "name": "tree_copy",
+        "path": "Assets/LodModel/Tree/tree2.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 3282,
+        "IsLod": false,
+        "Location": [
+            -5.298142433166504,
+            -2.0,
+            5.9092302322387695
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": false,
+        "isCollider": false,
+        "name": "tree_copy",
+        "path": "Assets/LodModel/Tree/tree2.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 9962,
+        "IsLod": false,
+        "Location": [
+            -5.298142433166504,
+            -2.0,
+            -6.2479424476623535
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": false,
+        "isCollider": false,
+        "name": "tree_copy",
+        "path": "Assets/LodModel/Tree/tree2.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 2996,
+        "IsLod": false,
+        "Location": [
+            -12.95989990234375,
+            -2.0,
+            0.8083841800689697
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": false,
+        "isCollider": false,
+        "name": "tree_copy",
+        "path": "Assets/LodModel/Tree/tree2.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 4828,
+        "IsLod": false,
+        "Location": [
+            -16.11673355102539,
+            -2.0,
+            -5.120364189147949
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": false,
+        "isCollider": false,
+        "name": "tree_copy",
+        "path": "Assets/LodModel/Tree/tree2.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 4605,
+        "IsLod": false,
+        "Location": [
+            5.267151832580566,
+            -2.0,
+            -7.0452351570129395
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": false,
+        "isCollider": false,
+        "name": "tree_copy",
+        "path": "Assets/LodModel/Tree/tree2.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 5448,
+        "IsLod": false,
+        "Location": [
+            -9.886625289916992,
+            -2.0,
+            -11.888420104980469
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": false,
+        "isCollider": false,
+        "name": "tree_copy",
+        "path": "Assets/LodModel/Tree/tree2.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 4772,
+        "IsLod": false,
+        "Location": [
+            1.5369257926940918,
+            -2.0,
+            -11.888420104980469
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": false,
+        "isCollider": false,
+        "name": "tree_copy",
+        "path": "Assets/LodModel/Tree/tree2.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 1943,
+        "IsLod": false,
+        "Location": [
+            0.0,
+            14.0,
+            25.997953414916992
+        ],
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "sk",
+        "path": "Assets/Models/sibenik/sk.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 5437,
+        "IsLod": false,
+        "Location": [
+            0.0,
+            0.0,
+            -17.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "glass2",
+        "path": "Assets/Models/glass/glass2.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 3903,
+        "IsLod": false,
+        "Location": [
+            5.0,
+            0.0,
+            -17.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "glass",
+        "path": "Assets/Models/glass/glass.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": true,
+        "IDuniqueIdentifier": 334,
+        "IsLod": false,
+        "Location": [
+            0.0,
+            -2.0,
+            -2.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "vase",
+        "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
     }
 ]

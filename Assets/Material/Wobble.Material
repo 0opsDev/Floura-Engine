@@ -3,10 +3,10 @@
 		"type": "Standard",
 		"name": "Wobble",
 		
-		"FragShader": "Shaders/Lighting/combined.frag",
-		"VertexShader": "Shaders/Lighting/Wobble.vert",
-		"GPassFragShader": "Shaders/gBuffer/geometryPass.frag",
-		"GPassVertShader": "Shaders/gBuffer/geometryPassWobble.vert",
+		"FragShader": "Assets/Shaders/Lighting/combined.frag",
+		"VertexShader": "Assets/Shaders/Lighting/Wobble.vert",
+		"GPassFragShader": "Assets/Shaders/gBuffer/geometryPass.frag",
+		"GPassVertShader": "Assets/Shaders/gBuffer/geometryPassWobble.vert",
 
 		"variables": {
 			"type": ["bool", "time", "deltatime"],

@@ -9,7 +9,6 @@
 #include <UI/ImGui/ImGuiWindow.h>
 #include <utils/ScreenUtils.h>
 #include <camera/Camera.h>
-#include <Render/Model/Model.h>
 #include "utils/noise.h"
 
 class Framebuffer

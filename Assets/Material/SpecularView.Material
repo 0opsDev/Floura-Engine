@@ -1,0 +1,18 @@
+[
+	{
+		"type": "Standard",
+		"name": "Default",
+
+		"FragShader": "Assets/Shaders/Lighting/SpecularView.frag",
+		"VertexShader": "Assets/Shaders/Lighting/Default.vert",
+		"GPassFragShader": "Assets/Shaders/gBuffer/geometryPass.frag",
+		"GPassVertShader": "Assets/Shaders/gBuffer/geometryPass.vert",
+
+		"variables": {
+			"type": ["bool"],
+			"name": ["doReflect"],
+			"Value":[true]
+		}
+	}
+
+]

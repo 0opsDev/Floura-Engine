@@ -3,12 +3,12 @@
 		"type": "Geometry",
 		"name": "DefaultGeom",
 
-		"FragShader": "Shaders/Lighting/combined.frag",
-		"VertexShader": "Shaders/Lighting/DefaultGeom.vert",
-		"GeomShader": "Shaders/Lighting/Default.geom",
-		"GPassFragShader": "Shaders/gBuffer/geometryPass.frag",
-		"GPassVertShader": "Shaders/gBuffer/geometryPassGeom.vert",
-		"GPassGeomShader": "Shaders/gBuffer/GeometryPass.geom",
+		"FragShader": "Assets/Shaders/Lighting/combined.frag",
+		"VertexShader": "Assets/Shaders/Lighting/DefaultGeom.vert",
+		"GeomShader": "Assets/Shaders/Lighting/Default.geom",
+		"GPassFragShader": "Assets/Shaders/gBuffer/geometryPass.frag",
+		"GPassVertShader": "Assets/Shaders/gBuffer/geometryPassGeom.vert",
+		"GPassGeomShader": "Assets/Shaders/gBuffer/GeometryPass.geom",
 		"variables": {
 			"type": ["bool"],
 			"name": ["doReflect"],

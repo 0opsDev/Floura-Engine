@@ -18,12 +18,6 @@
         "Type": "static"
     },
     {
-        "Name": "wave",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/wave/wave.gltf",
-        "Type": "static"
-    },
-    {
         "Name": "cube.gltf",
         "ObjectType": "Model",
         "Path": "Assets/Models/cube.gltf",
@@ -58,12 +52,6 @@
         "ObjectType": "Material",
         "Path": "Assets/Material/PS1.Material",
         "Type": "NULL"
-    },
-    {
-        "Name": "grass",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/grassbit.gltf",
-        "Type": "static"
     },
     {
         "Name": "ar",
@@ -108,18 +96,6 @@
         "Type": "static"
     },
     {
-        "Name": "table",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/table/baked1/table.gltf",
-        "Type": "static"
-    },
-    {
-        "Name": "rockpane",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/planes/rockplane.gltf",
-        "Type": "static"
-    },
-    {
         "Name": "pavepane",
         "ObjectType": "Model",
         "Path": "Assets/Models/planes/paveplane.gltf",
@@ -138,15 +114,69 @@
         "Type": "static"
     },
     {
-        "Name": "testm",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/test/cube.glb",
-        "Type": "static"
-    },
-    {
         "Name": "DefaultGEOM",
         "ObjectType": "Material",
         "Path": "Assets/Material/DefaultGEOM.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "box",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/box/weirdbox.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "glass",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/glass/glass.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "glass2",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/glass/glass2.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "sk",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/sibenik/sk.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "room",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/sibenik/room.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "Sponza",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/Sponza/sponza.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "tree",
+        "ObjectType": "Model",
+        "Path": "Assets/LodModel/Tree/tree1.gltf",
+        "Type": "static"
+    },
+    {
+        "Name": "NormalView",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/NormalView.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "SpecularView",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/SpecularView.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "DefaultNoNormals",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/DefaultNoNormals.Material",
         "Type": "NULL"
     }
 ]

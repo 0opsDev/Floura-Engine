@@ -124,7 +124,7 @@ void aModel::processPositions(aiNode* node)
 
 }
 
-aMesh aModel::processMesh(aiMesh* mesh, const aiScene* scene)
+Mesh aModel::processMesh(aiMesh* mesh, const aiScene* scene)
 {
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
@@ -175,29 +175,29 @@ aMesh aModel::processMesh(aiMesh* mesh, const aiScene* scene)
             indices.push_back(face.mIndices[j]);
     }
     // textures
-    if (mesh->mMaterialIndex >= 0)
+    if (mesh->mMaterialIndex >= 0) // needs to check material type like "vec4 col instead of texture"
     {
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
         std::vector<Texture> diffuseMaps = aloadMaterialTextures(material,
-            aiTextureType_DIFFUSE, "texture_diffuse");
+            aiTextureType_DIFFUSE, "texture_diffuse", 0);
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
         std::vector<Texture> roughnessMaps = aloadMaterialTextures(material,
-            aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness"); // Note: Could also be aiTextureType_SHININESS
+            aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness", 1); // Note: Could also be aiTextureType_SHININESS
         textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
 
         std::vector<Texture> normalMaps = aloadMaterialTextures(material,
-            aiTextureType_NORMALS, "texture_normal");
-
+            aiTextureType_NORMALS, "texture_normal", 2);
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     }
-
-    return aMesh(vertices, indices, textures);
+    Mesh nMesh;
+    nMesh.create(vertices, indices, textures);
+    return Mesh(nMesh);
 }
 
 std::vector<Texture> aModel::aloadMaterialTextures(aiMaterial* mat, aiTextureType type,
-    std::string typeName)
+    std::string typeName, int slot)
 {
     std::vector<Texture> textures;
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
@@ -219,7 +219,7 @@ std::vector<Texture> aModel::aloadMaterialTextures(aiMaterial* mat, aiTextureTyp
         {
             Texture texture;
             std::string path = directory + "/" + str.C_Str();
-            texture.createTexture(path.c_str(), (typeName).c_str(), loadedTex.size());
+            texture.createTexture(path.c_str(), (typeName).c_str(), slot);
             //std::cout << path << std::endl;
             textures.push_back(texture);
             loadedTex.push_back(texture);

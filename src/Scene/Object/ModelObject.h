@@ -7,7 +7,6 @@
 #include <string>
 #include <iostream>
 #include "Render/Cube/Billboard.h"
-#include"Render/Model/Model.h"
 #include <camera/Camera.h>
 #include <Render/Cube/CubeVisualizer.h>
 #include <Render/Shader/shaderClass.h>
@@ -39,7 +38,6 @@ public:
 	std::vector<std::string>ModelFileNames;
 	bool DoCulling = true;
 	std::string ObjectName;
-	bool hasPhysics = false;
 	bool castShadow = true;
 	float LodDistance = 100.0f;
 	unsigned int LodCount;
@@ -52,11 +50,9 @@ public:
 	glm::vec3 BoxColliderTransform = glm::vec3(0, 0, 0);
 	glm::vec3 BoxColliderScale = glm::vec3(1, 1, 1);
 
-	bool DoFrustumCull = false;
-	glm::vec3 frustumBoxTransform = glm::vec3(0, 0, 0);
-	glm::vec3 frustumBoxScale = glm::vec3(1, 1, 1);
-
 	std::string ModelPath;
+
+	glm::vec2 uvScale = glm::vec2(1.0f, 1.0f);
 
 	// flag
 	bool IsLod;
@@ -85,12 +81,6 @@ private:
 
 	void LODModelLoad(std::string path);
 	void SingleModelLoad(std::string path);
-	
-	//std::vector<std::tuple<Model, unsigned int>> loadLODmodelsFromJson(const std::string& jsonFilePath);
-	//std::vector<std::tuple<Model>> loadmodelFromJson(const std::string& ModelFilePath);
-
-	//std::vector<std::tuple<Model>> SingleModel;
-	//std::vector<std::tuple<Model, unsigned int>> modelOBJ;
 	void renderLogic(bool shadowmap);
 	
 };

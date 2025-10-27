@@ -2,7 +2,6 @@
 #define GEOMETRYPASS_CLASS_H
 
 #include<iostream>
-#include <Render/Model/Model.h>
 #include <Render/Model/ModelAssimp.h>
 
 class GeometryPass

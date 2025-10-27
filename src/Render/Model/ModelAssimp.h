@@ -31,7 +31,7 @@ public:
 
 private:
 
-	std::vector<aMesh> meshes;
+	std::vector<Mesh> meshes;
 	std::vector<glm::vec3>lPosition;
 	std::vector<glm::vec3>lScale;
 	std::vector<glm::quat>lRotation;
@@ -44,10 +44,10 @@ private:
 	void loadModel(std::string path);
 	void processNode(aiNode* node, const aiScene* scene);
 	void processPositions(aiNode* node);
-	aMesh processMesh(aiMesh* mesh, const aiScene* scene);
+	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 
 	std::vector<Texture> aloadMaterialTextures(aiMaterial* mat, aiTextureType type,
-		std::string typeName);
+		std::string typeName, int slot);
 };
 
 #endif

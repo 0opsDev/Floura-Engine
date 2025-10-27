@@ -11,6 +11,7 @@
 #include <Render/passes/lighting/LightingPass.h>
 #include <Render/window/WindowHandler.h>
 #include <Scene/LightingHandler.h>
+#include <Scene/scene.h>
 
 Shader RenderClass::billBoardShader;
 Shader RenderClass::gPassShaderBillBoard;
@@ -40,6 +41,7 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	init::initGLenable(false); //bool for direction of polys
+	//glEnable(GL_FRAMEBUFFER_SRGB);
 	GeometryPass::init(); // Initialize geometry pass settings
 
 	lightingRenderQuad.init();
@@ -66,12 +68,12 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 
 void RenderClass::initGlobalShaders() {
 	// cube collider and billboard, oh yeah and framebuffer
-	billBoardShader.LoadShader("Shaders/Db/BillBoard.vert", "Shaders/Db/BillBoard.frag");
-	gPassShaderBillBoard.LoadShader("Shaders/gBuffer/geometryPassBillboard.vert", "Shaders/gBuffer/geometryPassBillboard.frag");
-	boxShader.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/OrangeHitbox.frag");
-	SolidColour.LoadShader("Shaders/Lighting/Default.vert", "Shaders/Db/solidColour.frag");
-	GBLpass.LoadShader("Shaders/Db/RenderQuad.vert", "Shaders/Db/RenderQuad.frag");
-	Framebuffer::frameBufferProgram.LoadShader("Shaders/PostProcess/framebuffer.vert", "Shaders/PostProcess/framebuffer.frag");
+	billBoardShader.LoadShader("Assets/Shaders/Db/BillBoard.vert", "Assets/Shaders/Db/BillBoard.frag");
+	gPassShaderBillBoard.LoadShader("Assets/Shaders/gBuffer/geometryPassBillboard.vert", "Assets/Shaders/gBuffer/geometryPassBillboard.frag");
+	boxShader.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Db/OrangeHitbox.frag");
+	SolidColour.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Db/solidColour.frag");
+	GBLpass.LoadShader("Assets/Shaders/Db/RenderQuad.vert", "Assets/Shaders/Db/RenderQuad.frag");
+	Framebuffer::frameBufferProgram.LoadShader("Assets/Shaders/PostProcess/framebuffer.vert", "Assets/Shaders/PostProcess/framebuffer.frag");
 }
 
 void RenderClass::ClearFramebuffers() {
@@ -101,14 +103,6 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	glClearColor(RenderClass::skyRGBA[0], RenderClass::skyRGBA[1], RenderClass::skyRGBA[2],RenderClass::skyRGBA[3]);
 
 	auto startInitTime = std::chrono::high_resolution_clock::now();
-	// Bind the framebuffer for the geometry pass// g pass draw was here still some logic below
-
-	//glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LESS);
-	//glDisable(GL_CULL_FACE);
-	
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//FrameBuffer
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
@@ -120,17 +114,15 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 		glClearColor(0, 0, 0, 1);
 	}
 	auto startInitTime2 = std::chrono::high_resolution_clock::now();
-	//if (DoForwardLightingPass) {	
-	//}
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
-
 
 	if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox) { // should add skybox.scene
 		Skybox::draw(Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global
 		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 
 	}
+	Scene::draw();
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 	if (DoDeferredLightingPass) {
 		DeferredLightingPass(); // Forward Lighting Pass
 	}
@@ -152,6 +144,8 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	// Framebuffer logic
 	Framebuffer::FBODraw(FEImGuiWindow::imGuiPanels[0], window);
 }
+
+
 
 void RenderClass::ForwardLightingPass() {
 	
