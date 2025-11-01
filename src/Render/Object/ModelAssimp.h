@@ -1,5 +1,5 @@
-#ifndef AMODEL_CLASS_H
-#define AMODEL_CLASS_H
+#ifndef Model_CLASS_H
+#define Model_CLASS_H
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -11,17 +11,18 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include "core/Render.h"
 
-class aModel {
+class Model {
 public:
 
-	glm::vec3 gPosition = glm::vec3(0.0f), gRotation = glm::vec3(0.0f), gScale = glm::vec3(1.0f);
+	RenderClass::transformation globalTransformation;
 
-	void aModel::updatePosition(glm::vec3 Position);
+	void updatePosition(glm::vec3 Position);
 
-	void aModel::updateRotation(glm::vec3 Rotation);
+	void updateRotation(glm::vec3 Rotation);
 
-	void aModel::updateScale(glm::vec3 Scale);
+	void updateScale(glm::vec3 Scale);
 
 	void create(const char* file);
 
@@ -32,9 +33,7 @@ public:
 private:
 
 	std::vector<Mesh> meshes;
-	std::vector<glm::vec3>lPosition;
-	std::vector<glm::vec3>lScale;
-	std::vector<glm::quat>lRotation;
+	std::vector<RenderClass::transformation>localTransformation;
 	std::vector <glm::mat4> lModelMatrix;
 
 	std::string directory;

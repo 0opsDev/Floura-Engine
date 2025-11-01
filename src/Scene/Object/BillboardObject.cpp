@@ -40,14 +40,20 @@ void BillBoardObject::draw() {
 			if (doUpdateSequence && flag_isanimated) {
 				BillBoardRenderObject.UpdateSequence(tickrate);
 			}
-			BillBoardRenderObject.draw(doPitch, transform.x, transform.y, transform.z, scale.x, scale.y, scale.z);
+			BillBoardRenderObject.setDoPitch(doPitch);
+			BillBoardRenderObject.updatePosition(transform);
+			BillBoardRenderObject.updateScale(scale);
+			BillBoardRenderObject.draw();
 		}
 	}
 	else {
 		if (doUpdateSequence && flag_isanimated) {
 			BillBoardRenderObject.UpdateSequence(tickrate);
 		}
-		BillBoardRenderObject.draw(doPitch, transform.x, transform.y, transform.z, scale.x, scale.y, scale.z);
+		BillBoardRenderObject.setDoPitch(doPitch);
+		BillBoardRenderObject.updatePosition(transform);
+		BillBoardRenderObject.updateScale(scale);
+		BillBoardRenderObject.draw();
 	}
 	if (isCollider) {
 		CubeCollider.draw();

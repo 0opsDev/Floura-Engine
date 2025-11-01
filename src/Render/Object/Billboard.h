@@ -9,33 +9,40 @@
 #include <utils/init.h>
 #include "render/Shader/shaderClass.h"
 #include <camera/Camera.h>
+#include "Render/Object/Texture.h"
+#include "Core/Render.h"
 
 class BillBoard
 {
 public:
 	unsigned int cubeVAO, cubeVBO, cubeEBO;
-	std::string DefaultSkyboxPath;
-	unsigned int BBTexture;
+	std::string DefaultSkyboxPath; 
 	unsigned int iteration;
 	float TimeAccumulatorBillboard;
 	std::string singleTexturePath;
-
-	std::string TexturePath;
-	std::vector<std::string> TextureNames;
+	RenderClass::transformation globalTransformation;
 
 	void init(std::string path);
 	// this path is json
 	void initSeq(std::string path);
-
-	void LoadBillBoardTexture(std::string path);
 	void LoadSequence(std::string path);
 	void UpdateSequence(int tickrate);
 
 	void buffer();
+	
+	void setDoPitch(bool doPitch);
 
-	void draw(bool doPitch, float x, float y, float z, float ScaleX, float ScaleY, float ScaleZ);
+	void updatePosition(glm::vec3 Position);
+
+	void updateScale(glm::vec3 Scale);
+
+	void draw();
 
 	void Delete();
+
+private:
+	bool doPitch = true;
+	Texture Tex;
 };
 
 #endif // BILLBOARD_CLASS_H

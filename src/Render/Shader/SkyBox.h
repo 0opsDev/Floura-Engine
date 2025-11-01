@@ -17,7 +17,7 @@ public:
 	static std::string DefaultSkyboxPath;
 	static bool DoSbRGBA;
 
-	static void init(std::string PathName);
+	static void init();
 
 	static void LoadSkyBoxTexture(std::string PathName);
 

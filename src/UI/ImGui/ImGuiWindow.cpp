@@ -510,9 +510,9 @@ void FEImGuiWindow::CameraWindow() {
 		ImGui::Text("Transformations: ");
 
 
-		FEImGui::DragVec3("Camera Position", Camera::Position, Scene::initalCameraPos);
+		FEImGui::DragVec3("Camera Position", Camera::Position, Scene::initalCameraPos, 100.0f); 
 
-		FEImGui::DragVec3("Inital Camera Position", Scene::initalCameraPos);
+		FEImGui::DragVec3("Inital Camera Position", Scene::initalCameraPos, glm::vec3(0.0f), 100.0f);
 
 		//ImGui::DragFloat3("inital Camera Position", &Scene::initalCameraPos.x); // set inital cam pos
 		if (ImGui::SmallButton("Reset Camera Position")) {
@@ -520,7 +520,7 @@ void FEImGuiWindow::CameraWindow() {
 		} // reset cam pos
 		ImGui::DragFloat("Camera Speed", &Camera::s_scrollSpeed); //Camera
 
-		FEImGui::DragVec3("Camera Collider Scale", Camera::cameraColliderScale);
+		FEImGui::DragVec3("Camera Collider Scale", Camera::cameraColliderScale, glm::vec3(0.0f), 100.0f);
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
@@ -690,10 +690,10 @@ void FEImGuiWindow::viewport() {
 	ScreenUtils::UpdateViewportResize();
 	if (ScreenUtils::isResizing == true) {
 		//std::cout << "Resolution scale changed!" << std::endl;
-		Framebuffer::updateFrameBufferResolution(window_width, window_height); // Update frame buffer resolution
-		glViewport(0, 0, (window_width), (window_height));
+		Framebuffer::updateFrameBufferResolution(static_cast<unsigned int>(window_width), static_cast<unsigned int>(window_height)); // Update frame buffer resolution
+		glViewport(0, 0, static_cast<GLsizei>(window_width), static_cast<GLsizei>(window_height));
 
-		Camera::SetViewportSize(window_width, window_height);
+		Camera::SetViewportSize(static_cast<int>(window_width), static_cast<int>(window_height));
 		//std::cout << window_width << " " << camera.width << std::endl;
 		//std::cout << window_height << " " << camera.height << std::endl;
 	}
@@ -829,7 +829,7 @@ void FEImGuiWindow::HierarchyList() {
 			ImGui::SameLine();
 			if (ImGui::MenuItem((Scene::modelObjects[i]->ObjectName + "##" + std::to_string(i)).c_str())) {
 				FEImGuiWindow::SelectedObjectType = "Model";
-				FEImGuiWindow::SelectedObjectIndex = i;
+				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
 			}
 			ImGui::EndGroup();
 		}
@@ -842,7 +842,7 @@ void FEImGuiWindow::HierarchyList() {
 			ImGui::SameLine();
 			if (ImGui::MenuItem((Scene::BillBoardObjects[i].ObjectName + "##" + std::to_string(i)).c_str())) {
 				FEImGuiWindow::SelectedObjectType = "BillBoard";
-				FEImGuiWindow::SelectedObjectIndex = i;
+				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
 			}
 			ImGui::EndGroup();
 		}
@@ -850,7 +850,7 @@ void FEImGuiWindow::HierarchyList() {
 			ImGui::BeginGroup();
 			if (ImGui::MenuItem((Scene::SoundObjects[i].name + "##" + std::to_string(i)).c_str())) {
 				FEImGuiWindow::SelectedObjectType = "Sound";
-				FEImGuiWindow::SelectedObjectIndex = i;
+				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
 			}
 			ImGui::EndGroup();
 		}
@@ -862,7 +862,7 @@ void FEImGuiWindow::HierarchyList() {
 			ImGui::SameLine();
 			if (ImGui::MenuItem((Scene::CubeColliderObject[i].name + "##" + std::to_string(i)).c_str())) {
 				FEImGuiWindow::SelectedObjectType = "Collider";
-				FEImGuiWindow::SelectedObjectIndex = i;
+				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
 			}
 			ImGui::EndGroup();
 		}
@@ -883,7 +883,7 @@ void FEImGuiWindow::HierarchyList() {
 				+ ("##" + std::to_string(i) ) ).c_str() ) ) 
 			{
 				FEImGuiWindow::SelectedObjectType = "Light";
-				FEImGuiWindow::SelectedObjectIndex = i;
+				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
 			}
 			ImGui::EndGroup();
 		}
@@ -902,7 +902,7 @@ void FEImGuiWindow::HierarchyList() {
 static const char* hierarchyItems[]{ "Models","BillBoards","Sound", "Collider", "Light" };
 static int hierarchySelectedItem = 0; // Index of the selected item in the hierarchy combo box
 
-static const char* contentItems[]{ "Models","BillBoards", "Sound", "Material"};
+static const char* contentItems[]{ "Models","BillBoards", "Sound", "Material", "Skybox"};
 static int contentSelecteditem = 0;
 
 char name[32] = "Name";
@@ -1073,6 +1073,20 @@ void FEImGuiWindow::addWindow(std::string typeString, bool &isOpen) {
 				FEImGuiWindow::MaterialIndexUpdate();
 			}
 		}
+		// skybox
+		else if (contentSelecteditem == 4) {
+			pathInput();
+			nameInput();
+			if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
+
+				ContentObjects.push_back("Skybox"); // Add a new content object to the list
+				ContentObjectTypes.push_back("NULL"); // Add a new content object type to the list
+				ContentObjectPaths.push_back(Path); // Add a new content object path to the list
+				ContentObjectNames.push_back(name);
+
+				FEImGuiWindow::MaterialIndexUpdate();
+			}
+		}
 	}
 	ImGui::End();
 }
@@ -1119,7 +1133,7 @@ void FEImGuiWindow::ModelWindow() {
 
 	if (ImGui::TreeNode("Rendering Component")) {
 
-		ImGui::Combo("Material", &MaterialSelectedIndex, MaterialObjecNames.data(), MaterialObjecNames.size());
+		ImGui::Combo("Material", &MaterialSelectedIndex, MaterialObjecNames.data(), static_cast<int>(MaterialObjecNames.size()));
 		ImGui::Text(("Current Material: " + Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->MaterialObject.materialPath).c_str());
 		ImGui::Spacing();
 		if (ImGui::SmallButton("Apply Material")) {
@@ -1139,9 +1153,9 @@ void FEImGuiWindow::ModelWindow() {
 	if (ImGui::TreeNode("Transform Component")) {
 		ImGui::Text("Transformations: ");
 		// position
-		FEImGui::DragVec3("Position", Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->transform);
-		FEImGui::DragVec3("Scale", Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->scale, glm::vec3(1.0f, 1.0f, 1.0f));
-		FEImGui::DragVec3("Rotation", Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->rotation);
+		FEImGui::DragVec3("Position", Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->transform, glm::vec3(0.0f), 100.0f);
+		FEImGui::DragVec3("Scale", Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->scale, glm::vec3(1.0f), 100.0f); // should i call? i don't wanna ring everybody's phones while they are asleep
+		FEImGui::DragVec3("Rotation", Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->rotation, glm::vec3(0.0f), 100.0f);
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
@@ -1311,8 +1325,8 @@ void FEImGuiWindow::LightWindow() {
 	// Index attached to ID
 	ImGui::Text(("ID Attached Index: " + std::to_string(LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.index)).c_str());
 
-	FEImGui::DragVec3("Position", LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position);
-	FEImGui::DragVec3("Rotation", LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].rotation);
+	FEImGui::DragVec3("Position", LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position, glm::vec3(0.0f), 100.0f);
+	FEImGui::DragVec3("Rotation", LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].rotation, glm::vec3(0.0f), 100.0f);
 	ImGui::ColorEdit3("Color", &LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].colour.x);
 	ImGui::DragFloat("Radius", &LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].radius, 0.1f);
 	ImGui::Combo("LightType", &LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].type, lightTypes, IM_ARRAYSIZE(lightTypes));
@@ -1391,7 +1405,7 @@ void FEImGuiWindow::InspectorWindow() {
 		ImGui::Checkbox("Enabled", &LightingHandler::doDirLight);
 		ImGui::Checkbox("Enabled Specular Light", &LightingHandler::doDirSpecularLight);
 		ImGui::Spacing();
-		FEImGui::DragVec3("Rotation", LightingHandler::dirLightRot);
+		FEImGui::DragVec3("Rotation", LightingHandler::dirLightRot, glm::vec3(0.0f), 100.0f);
 		ImGui::Spacing();
 		ImGui::DragFloat("Ambient Light", &LightingHandler::directAmbient);
 		ImGui::DragFloat("Specular Light", &LightingHandler::dirSpecularLight);
@@ -1516,6 +1530,24 @@ void FEImGuiWindow::SceneFolderWindow()
 				if (FEImGuiWindow::ContentObjects[i] == "Material") {
 					if (ImGui::ImageButton(("##materialIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::materialIcon.ID, ImVec2(100, 100))) {
 						// when clicked on should summon material editor
+					}
+
+					if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
+						FEImGuiWindow::ContentObjects.erase(FEImGuiWindow::ContentObjects.begin() + i);
+						FEImGuiWindow::ContentObjectNames.erase(FEImGuiWindow::ContentObjectNames.begin() + i);
+						FEImGuiWindow::ContentObjectPaths.erase(FEImGuiWindow::ContentObjectPaths.begin() + i);
+						FEImGuiWindow::ContentObjectTypes.erase(FEImGuiWindow::ContentObjectTypes.begin() + i);
+
+						FEImGuiWindow::MaterialIndexUpdate();
+					}
+					ImGui::SameLine();
+					ImGui::Text("%s", name.c_str());
+
+				}
+				if (FEImGuiWindow::ContentObjects[i] == "Skybox") {
+					if (ImGui::ImageButton(("##skyboxIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::skyboxIcon.ID, ImVec2(100, 100))) {
+						Skybox::DefaultSkyboxPath = FEImGuiWindow::ContentObjectPaths[i];
+						Skybox::LoadSkyBoxTexture(FEImGuiWindow::ContentObjectPaths[i]);
 					}
 
 					if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {

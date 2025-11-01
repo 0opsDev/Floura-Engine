@@ -6,7 +6,7 @@
 #include <glm/fwd.hpp>
 #include <string>
 #include <iostream>
-#include "Render/Cube/Billboard.h"
+#include "Render/Object/Billboard.h"
 #include <camera/Camera.h>
 #include <Render/Cube/CubeVisualizer.h>
 #include <Render/Shader/shaderClass.h>
@@ -21,7 +21,7 @@
 #include <UI/ImGui/ImGuiWindow.h>
 #include <Render/Shader/Material.h>
 #include <Scene/IdManager.h>
-#include <Render/Model/ModelAssimp.h>
+#include <Render/Object/ModelAssimp.h>
 using json = nlohmann::json;
 
 class ModelObject
@@ -73,8 +73,8 @@ public:
 
 	void Delete();
 
-	aModel ModelSingle; // should be private but im leaving it here just for now
-	std::vector<aModel> LODModels;
+	Model ModelSingle; // should be private but im leaving it here just for now
+	std::vector<Model> LODModels;
 private:
 	
 	std::string LodPath;

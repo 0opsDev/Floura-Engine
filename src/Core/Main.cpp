@@ -3,7 +3,6 @@
 #include "utils/timeUtil.h" 
 #include <thread>
 #include <chrono>
-#include "utils/timeAccumulator.h"
 #include "utils/InputUtil.h"
 #include "Scripting/ScriptRunner.h"
 #include "File/File.h"
@@ -20,7 +19,7 @@
 
 bool Main::sleepState = true;
 float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far // move this to camera class or something
-TimeAccumulator TA2;
+float Counter;
 
 void CloseConsoleWindow() {
 	HWND hwnd = GetConsoleWindow();
@@ -66,11 +65,11 @@ int main() // global variables do not work with threads
 
 	// INITIALIZE CAMERA
 	Camera::InitCamera(windowHandler::width, windowHandler::height, Scene::initalCameraPos); 	// camera ratio pos
+	Skybox::init(); 
 
 	//scene
 	Scene::init();
-	Scene::LoadScene(Scene::sceneName);
-	Skybox::init(Skybox::DefaultSkyboxPath);
+	Scene::LoadScene(Scene::sceneName); // could we thread this? // scene exsists already, we just need to add to the array 
 
 	//just a class to test stuff
 	TempScene::init();
@@ -104,11 +103,11 @@ int main() // global variables do not work with threads
 
 		if (FEImGuiWindow::imGuiEnabled) { 
 
-			TA2.update();
-			if (TA2.Counter >= 1 / 10.0f) {
+			Counter += TimeUtil::s_DeltaTime;
+			if (Counter >= 1 / 10.0f) {
 				if (glfwGetKey(windowHandler::window, GLFW_KEY_F1) == GLFW_PRESS) { FEImGuiWindow::imGuiPanels[0] = !FEImGuiWindow::imGuiPanels[0]; }
 				//std::cout << "update" << std::endl;
-				TA2.reset();
+				Counter = 0;
 			}
 
 			if (FEImGuiWindow::imGuiPanels[0])

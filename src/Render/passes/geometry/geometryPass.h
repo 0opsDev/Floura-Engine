@@ -2,7 +2,7 @@
 #define GEOMETRYPASS_CLASS_H
 
 #include<iostream>
-#include <Render/Model/ModelAssimp.h>
+#include <Render/Object/ModelAssimp.h>
 
 class GeometryPass
 {
@@ -16,7 +16,7 @@ public:
 
 	static void setupGbuffers(unsigned int width, unsigned int height);
 
-	static void gPassDraw(aModel& model, Shader& GPass);
+	static void gPassDraw(Model& model, Shader& GPass);
 };
 
 #endif // GEOMETRYPASS_CLASS_H

@@ -4,10 +4,10 @@
 #include <Scene/Object/FE_Object.h>
 #include <Render/window/WindowHandler.h>
 #include "IdManager.h"
-#include <Render/Model/ModelAssimp.h>
+#include <Render/Object/ModelAssimp.h>
 //FE_Object PlaceHolder;
 
-//aModel tempmodel;
+//Model tempmodel;
 //Shader shad;
 void TempScene::init(){
 	//for (size_t i = 0; i < 255; i++) {

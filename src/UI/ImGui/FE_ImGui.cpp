@@ -2,7 +2,9 @@
 
 #include "ImGuiInclude.h"
 
-void FEImGui::DragVec3(const std::string& label, glm::vec3& values, glm::vec3& resetValue, float columWidth) {
+void FEImGui::DragVec3(const std::string& label, glm::vec3& values,
+	glm::vec3 resetValue, float columWidth)
+{
 
 	ImGui::PushID(label.c_str()); // unique label
 
@@ -79,7 +81,9 @@ void FEImGui::spawnFileWindow(const std::string& ID, const std::string& windowTi
 	ImGuiFileDialog::Instance()->OpenDialog(ID, windowTitle, fileTypeFilters.c_str(), config);
 }
 
-bool FEImGui::renderFileWindow(const std::string& label, glm::vec2& MinimumScale, glm::vec2& Maxscale)
+bool FEImGui::renderFileWindow(const std::string& label,
+	glm::vec2 MinimumScale,
+	glm::vec2 Maxscale)
 {
 	if (ImGuiFileDialog::Instance()->Display(label, 0, ImVec2(MinimumScale.x, MinimumScale.y), ImVec2(Maxscale.x, Maxscale.y))) {
 	

@@ -17,9 +17,6 @@
     <Filter Include="src\Render">
       <UniqueIdentifier>{98e07985-015c-418e-b754-26beaf7664f2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Render\Model">
-      <UniqueIdentifier>{da5d5fd1-0748-4fd1-93d0-970c877e7673}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\Render\Shader">
       <UniqueIdentifier>{a10ec773-04b2-444b-8c2b-da8a1ebf1308}</UniqueIdentifier>
     </Filter>
@@ -134,19 +131,13 @@
     <Filter Include="src\Scene\Object">
       <UniqueIdentifier>{2ac7b958-ace5-4fe8-9912-fcfd67e173a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Render\Object">
+      <UniqueIdentifier>{b99da5f8-89b6-4062-be62-907fb66e4d80}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Render\shader\ShaderClass.cpp">
       <Filter>src\Render\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\model\Mesh.cpp">
-      <Filter>src\Render\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\model\stb.cpp">
-      <Filter>src\Render\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\model\Texture.cpp">
-      <Filter>src\Render\Model</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\Buffer\EBO.cpp">
       <Filter>src\Render\Buffer</Filter>
@@ -190,9 +181,6 @@
     <ClCompile Include="src\utils\ScreenUtils.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\timeAccumulator.cpp">
-      <Filter>src\utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\utils\timeUtil.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
@@ -230,9 +218,6 @@
       <Filter>src\core</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp">
-      <Filter>src\Render\Cube</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\Cube\Billboard.cpp">
       <Filter>src\Render\Cube</Filter>
     </ClCompile>
     <ClCompile Include="src\Physics\CubeCollider.cpp">
@@ -343,14 +328,26 @@
     <ClCompile Include="src\Scene\ObjectManager.cpp">
       <Filter>src\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\Model\ModelAssimp.cpp">
-      <Filter>src\Render\Model</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scripting\ScriptObject.cpp">
       <Filter>src\Scripting</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\Model\Shape3D.cpp">
-      <Filter>src\Render\Model</Filter>
+    <ClCompile Include="src\Render\Object\Billboard.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\Texture.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\stb.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\Shape3D.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\ModelAssimp.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\Mesh.cpp">
+      <Filter>src\Render\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -387,20 +384,11 @@
     <ClInclude Include="src\utils\ScreenUtils.h">
       <Filter>src\utils</Filter>
     </ClInclude>
-    <ClInclude Include="src\utils\timeAccumulator.h">
-      <Filter>src\utils</Filter>
-    </ClInclude>
     <ClInclude Include="src\utils\timeUtil.h">
       <Filter>src\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Main.h">
       <Filter>src\core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\model\Texture.h">
-      <Filter>src\Render\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\model\Mesh.h">
-      <Filter>src\Render\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\Shader\Cubemap.h">
       <Filter>src\Render\Shader</Filter>
@@ -448,9 +436,6 @@
       <Filter>src\core</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\Cube\CubeVisualizer.h">
-      <Filter>src\Render\Cube</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Cube\Billboard.h">
       <Filter>src\Render\Cube</Filter>
     </ClInclude>
     <ClInclude Include="src\Physics\CubeCollider.h">
@@ -576,14 +561,23 @@
     <ClInclude Include="src\Scene\ObjectManager.h">
       <Filter>src\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Render\Model\ModelAssimp.h">
-      <Filter>src\Render\Model</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scripting\ScriptObject.h">
       <Filter>src\Scripting</Filter>
     </ClInclude>
-    <ClInclude Include="src\Render\Model\Shape3D.h">
-      <Filter>src\Render\Model</Filter>
+    <ClInclude Include="src\Render\Object\Billboard.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\Texture.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\Shape3D.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\ModelAssimp.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\Mesh.h">
+      <Filter>src\Render\Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

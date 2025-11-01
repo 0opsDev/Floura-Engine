@@ -9,7 +9,7 @@ void ModelObject::LODModelLoad(std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
 		std::cout << "Failed to open file: " << path << std::endl;
-		aModel TempLODModel;
+		Model TempLODModel;
 		TempLODModel.create("Assets/Dependants/placeholder/placeholder.gltf");
 		LODModels.push_back(TempLODModel);
 		LodCount = LODModels.size();
@@ -22,7 +22,7 @@ void ModelObject::LODModelLoad(std::string path) {
 	}
 	catch (const std::exception& e) {
 		std::cout << "Error parsing JSON file: " << e.what() << std::endl;
-		aModel TempLODModel;
+		Model TempLODModel;
 		TempLODModel.create("Assets/Dependants/placeholder/placeholder.gltf");
 		LODModels.push_back(TempLODModel);
 		LodCount = LODModels.size();
@@ -36,7 +36,7 @@ void ModelObject::LODModelLoad(std::string path) {
 	LodDistance = modelData[0]["LodDistance"];
 	for (int i = 0; i < ModelFileNames.size(); i++)
 	{
-		aModel TempLODModel;
+		Model TempLODModel;
 		TempLODModel.create( (LodPath + ModelFileNames[i]).c_str());
 		//std::cout << LodPath + ModelFileNames[i] << " " << i << std::endl;
 		LODModels.push_back(TempLODModel);

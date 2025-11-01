@@ -7,14 +7,11 @@
 #include "iostream"
 #include "Render/Buffer/VAO.h"
 #include "Render/Buffer/EBO.h"
-#include "Texture.h"
+#include "Render/Object/Texture.h"
 
 class Mesh {
 public:
 
-    glm::vec3 lPosition = glm::vec3(0.0f);
-    glm::vec3 lRotation = glm::vec3(0.0f);
-    glm::vec3 lScale = glm::vec3(1.0f);
 
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;

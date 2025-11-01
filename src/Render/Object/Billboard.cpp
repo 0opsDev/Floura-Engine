@@ -23,64 +23,13 @@ unsigned int s_Plane_Indices[6] =
 void BillBoard::init(std::string path) {
 	buffer(); // create buffer in memory for skybox
 
-	LoadBillBoardTexture(path);
+	//LoadBillBoardTexture(path);
+	Tex.createTexture((path).c_str(), "diffuse", 0);
 }
 void BillBoard::initSeq(std::string path) { 
 	buffer(); // create buffer in memory for skybox
 
 	LoadSequence(path);
-}
-
-void BillBoard::LoadBillBoardTexture(std::string path) { // should load all textures into memory to begin with instead of regenerating buffers << array of textures
-	glBindTexture(GL_TEXTURE_2D, 0);
-	singleTexturePath = path;
-	//glDeleteTextures(1, &BBTexture); // might have a leak
-
-	// Generate and bind the texture
-	glGenTextures(1, &BBTexture);
-	glBindTexture(GL_TEXTURE_2D, BBTexture);
-
-	// Set texture parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	// Load the texture
-	int width, height, numColCh;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load(singleTexturePath.c_str(), &width, &height, &numColCh, 0);
-	if (!data)
-	{
-		std::cerr << "Failed to load texture: " << singleTexturePath << std::endl;
-		// load fallback texture
-		width = 2; height = 2; numColCh = 3;
-		data = stbi_load("Assets/Dependants/placeholder/texture/placeholder_unshaded.png", &width, &height, &numColCh, 0);
-		//throw std::runtime_error("Failed to load texture: " + std::string(image));
-	}
-
-	if (data) {
-		GLenum format = GL_RGBA; // Default format
-
-		// Determine correct format based on number of color channels
-		if (numColCh == 4) {
-			format = GL_RGBA;
-		}
-		else if (numColCh == 3) {
-			format = GL_RGB;
-		}
-		else if (numColCh == 1) {
-			format = GL_RED;
-		}
-
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-
-		stbi_image_free(data);
-	}
-
-	// Reset flip behavior to avoid unexpected issues later
-	stbi_set_flip_vertically_on_load(false);
-	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void BillBoard::LoadSequence(std::string path) {
@@ -91,12 +40,12 @@ void BillBoard::LoadSequence(std::string path) {
 		seqFile.close();
 
 		// Extract TexturePath
-		TexturePath = seqData[0]["TexturePath"];
+		//TexturePath = seqData[0]["TexturePath"];
 	//	std::cout << "TexturePath: " << TexturePath << std::endl;
 
 		// Extract and sort texture filenames
-		TextureNames = seqData[0]["textures"];
-		std::sort(TextureNames.begin(), TextureNames.end());
+		//TextureNames = seqData[0]["textures"];
+		//std::sort(TextureNames.begin(), TextureNames.end());
 		//iteration = TextureNames.size();
 		//std::cout << "interations: " << iteration << std::endl;
 		// Print sorted texture filenames
@@ -114,15 +63,12 @@ void BillBoard::UpdateSequence(int tickrate) {
 	if (TimeAccumulatorBillboard >= (1.0f / tickrate)) {
 		iteration++;
 
-		if (iteration <= TextureNames.size()) {
-		//	std::cout << iteration << std::endl;
-		//	std::cout << TexturePath << TextureNames[(iteration - 1)] << std::endl;
-			LoadBillBoardTexture(TexturePath + TextureNames[(iteration - 1)]);
-		}
-		else {
-			iteration = 0;
+	//	if (iteration <= TextureNames.size()) {
+	//	}
+	//	else {
+	//		iteration = 0;
 
-		}
+	//	}
 		TimeAccumulatorBillboard = 0;
 	}
 
@@ -154,15 +100,28 @@ void BillBoard::buffer() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void BillBoard::draw(bool doPitch, float x, float y, float z,
-	float ScaleX, float ScaleY, float ScaleZ) {
+void BillBoard::setDoPitch(bool doPitch)
+{
+	BillBoard::doPitch = doPitch;
+}
+
+void BillBoard::updatePosition(glm::vec3 Position)
+{
+	globalTransformation.position = Position;
+}
+void BillBoard::updateScale(glm::vec3 Scale)
+{
+	globalTransformation.scale = Scale;
+}
+
+void BillBoard::draw() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
 	if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
 		return; // Skip rendering if not in regular or lighting pass
 	}
 	// Compute the forward vector towards the camera
-	glm::vec3 camForward = glm::normalize(Camera::Position - glm::vec3(x, y, z));
+	glm::vec3 camForward = glm::normalize(Camera::Position - globalTransformation.position);
 
 	// Lock pitch if `doPitch == false`
 	if (!doPitch) {
@@ -179,9 +138,9 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 
 	// Apply transformations: translation -> rotation -> scale
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(x, y, z));
+	model = glm::translate(model, globalTransformation.position);
 	model = model * billboardRotation;  // Ensure billboard rotation before scaling
-	model = glm::scale(model, glm::vec3(ScaleX, ScaleY, ScaleZ));
+	model = glm::scale(model, globalTransformation.scale);
 
 	if (RenderClass::DoForwardLightingPass) {
 		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
@@ -197,9 +156,8 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 
 		// Render the billboard
 		glBindVertexArray(cubeVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, BBTexture);
-		glUniform1i(glGetUniformLocation(RenderClass::billBoardShader.ID, "texture0"), 0);
+		Tex.Bind();
+		RenderClass::billBoardShader.setInt("texture0", 0);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -230,9 +188,8 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 
 		// Render the billboard
 		glBindVertexArray(cubeVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, BBTexture);
-		glUniform1i(glGetUniformLocation(RenderClass::gPassShaderBillBoard.ID, "texture0"), 0);
+		Tex.Bind();
+		RenderClass::billBoardShader.setInt("texture0", 0);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -248,6 +205,7 @@ void BillBoard::draw(bool doPitch, float x, float y, float z,
 void BillBoard::Delete() {
 	glDeleteBuffers(1, &cubeVBO);
 	glDeleteBuffers(1, &cubeEBO);
-	glDeleteTextures(1, &BBTexture);
+	RenderClass::billBoardShader.Delete();
+	//glDeleteTextures(1, &BBTexture);
 	glDeleteVertexArrays(1, &cubeVAO);
 }

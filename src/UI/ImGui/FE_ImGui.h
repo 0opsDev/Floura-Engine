@@ -12,12 +12,17 @@ class FEImGui
 {
 public:
 
-	static void DragVec3(const std::string& label, glm::vec3& values, glm::vec3& resetValue = glm::vec3(0.0f, 0.0f, 0.0f), float columWidth = 100.0f);
-
+	static void DragVec3(const std::string& label, glm::vec3& values,
+		glm::vec3 resetValue,
+		float columWidth);
+	//static void DragVec3(const std::string& label, glm::vec3& values, glm::vec3& resetValue = glm::vec3(0.0f, 0.0f, 0.0f), float columWidth = 100.0f);
+	
 	// ID, windowTitle, fileTypeFilters
 	static void spawnFileWindow(const std::string& ID, const std::string& windowTitle, const std::string& fileTypeFilters = ".*", const std::string& rootPath = ".");
 
-	static bool renderFileWindow(const std::string& label, glm::vec2& MinimumScale = glm::vec2(500.0f, 500.0f), glm::vec2& Maxscale = glm::vec2(500.0f, 500.0f));
+	static bool renderFileWindow(const std::string& label,
+		glm::vec2 MinimumScale = glm::vec2(500.0f, 500.0f),
+		glm::vec2 Maxscale = glm::vec2(500.0f, 500.0f));
 
 	// becomes true on okay
 	static std::string fetchFilePath(const std::string& FilePath);

@@ -1,39 +1,39 @@
 #include "ModelAssimp.h"
 
-void aModel::updatePosition(glm::vec3 Position)
+void Model::updatePosition(glm::vec3 Position)
 {
-    aModel::gPosition = Position;
+    globalTransformation.position = Position;
 }
 
-void aModel::updateRotation(glm::vec3 Rotation)
+void Model::updateRotation(glm::vec3 Rotation)
 {
-    aModel::gRotation = Rotation;
+    globalTransformation.rotation = Rotation;
 }
 
-void aModel::updateScale(glm::vec3 Scale)
+void Model::updateScale(glm::vec3 Scale)
 {
-    aModel::gScale = Scale;
+    globalTransformation.scale = Scale;
 }
 
-void aModel::create(const char* file)
+void Model::create(const char* file)
 {
 	loadModel(file);
 }
 
-void aModel::draw(Shader& shader)
+void Model::draw(Shader& shader)
 {
     glm::mat4 globalTrans = glm::mat4(1.0f);
     glm::mat4 globalRot = glm::mat4(1.0f);
     glm::mat4 globalSca = glm::mat4(1.0f);
 
-    globalTrans = glm::translate(globalTrans, gPosition);
+    globalTrans = glm::translate(globalTrans, globalTransformation.position);
 
-    globalRot = glm::rotate(globalRot, glm::radians(gRotation.x), glm::vec3(1, 0, 0));
-    globalRot = glm::rotate(globalRot, glm::radians(gRotation.y), glm::vec3(0, 1, 0));
-    globalRot = glm::rotate(globalRot, glm::radians(gRotation.z), glm::vec3(0, 0, 1));
+    globalRot = glm::rotate(globalRot, glm::radians(globalTransformation.rotation.x), glm::vec3(1, 0, 0));
+    globalRot = glm::rotate(globalRot, glm::radians(globalTransformation.rotation.y), glm::vec3(0, 1, 0));
+    globalRot = glm::rotate(globalRot, glm::radians(globalTransformation.rotation.z), glm::vec3(0, 0, 1));
 
 
-    globalSca = glm::scale(globalSca, gScale);
+    globalSca = glm::scale(globalSca, globalTransformation.scale);
 
     glm::mat4 gModelMatrix = globalTrans * globalRot * globalSca;
 	// draw all meshes and parse in data
@@ -46,7 +46,7 @@ void aModel::draw(Shader& shader)
         
 }
 
-void aModel::Delete() {
+void Model::Delete() {
     // Delete mesh first then clear all array inside model
     for (size_t i = 0; i < meshes.size(); i++)
     {
@@ -70,7 +70,7 @@ void aModel::Delete() {
 
 }
 
-void aModel::loadModel(std::string path)
+void Model::loadModel(std::string path)
 {
     Assimp::Importer import;
     const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices);
@@ -86,7 +86,7 @@ void aModel::loadModel(std::string path)
     processNode(scene->mRootNode, scene);
 }
 
-void aModel::processNode(aiNode* node, const aiScene* scene)
+void Model::processNode(aiNode* node, const aiScene* scene)
 {
     // process all the node's meshes (if any)
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -103,7 +103,7 @@ void aModel::processNode(aiNode* node, const aiScene* scene)
     }
 }
 
-void aModel::processPositions(aiNode* node)
+void Model::processPositions(aiNode* node)
 {
     aiMatrix4x4 localTransform = node->mTransformation;
     aiVector3D position;
@@ -116,15 +116,19 @@ void aModel::processPositions(aiNode* node)
     glm::mat4 rotation_matrix = glm::mat4_cast(glm::quat(rotation.w, rotation.x, rotation.y, rotation.z));
     model = model * rotation_matrix;
     model = glm::translate(model, glm::vec3(position.x, position.y, position.z));
+    
+    //localTransformation
+    RenderClass::transformation newTransformation;
+    newTransformation.position = glm::vec3(position.x, position.y, position.z);
+    newTransformation.scale = glm::vec3(scale.x, scale.y, scale.z);
+    newTransformation.qRotation = glm::quat(rotation.w, rotation.x, rotation.y, rotation.z);
 
-    lPosition.push_back(glm::vec3(position.x, position.y, position.z));
-    lScale.push_back(glm::vec3(scale.x, scale.y, scale.z));
-    lRotation.push_back(glm::quat(rotation.w, rotation.x, rotation.y, rotation.z));
+    localTransformation.push_back(newTransformation);
     lModelMatrix.push_back(model);
 
 }
 
-Mesh aModel::processMesh(aiMesh* mesh, const aiScene* scene)
+Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
@@ -196,7 +200,7 @@ Mesh aModel::processMesh(aiMesh* mesh, const aiScene* scene)
     return Mesh(nMesh);
 }
 
-std::vector<Texture> aModel::aloadMaterialTextures(aiMaterial* mat, aiTextureType type,
+std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType type,
     std::string typeName, int slot)
 {
     std::vector<Texture> textures;

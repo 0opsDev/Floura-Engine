@@ -3,10 +3,12 @@
 
 #include <Render/Shader/shaderClass.h>
 #include "Mesh.h"
+#include <Core/Render.h>
 
 class Shape3D {
 public:
-	glm::vec3 gPosition = glm::vec3(0.0f), gRotation = glm::vec3(0.0f), gScale = glm::vec3(1.0f);
+
+	RenderClass::transformation globalTransformation;
 
 	void updatePosition(glm::vec3 Position);
 

@@ -49,15 +49,12 @@ unsigned int s_skyboxIndices[36] =
 	6, 2, 3
 };
 
-void Skybox::init(std::string PathName) {
+void Skybox::init() {
 	skyboxShader.LoadShader("Assets/Shaders/Skybox/skybox.vert", "Assets/Shaders/Skybox/skybox.frag");
 	skyboxShader.Activate();
-	glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
 	skyboxgPassShader.LoadShader("Assets/Shaders/gBuffer/geometryPassSkybox.vert", "Assets/Shaders/gBuffer/geometryPassSkybox.frag");
 	skyboxgPassShader.Activate();
-	glUniform1i(glGetUniformLocation(skyboxgPassShader.ID, "skybox"), 0);
 	skyboxBuffer(); // create buffer in memory for skybox
-	LoadSkyBoxTexture(PathName); // load skybox texture into buffer
 }
 
 void Skybox::LoadSkyBoxTexture(std::string PathName) {

@@ -9,7 +9,7 @@
 #include <glm/ext/vector_float3.hpp>
 #include <Render/Shader/shaderClass.h>
 #include "Scene/IdManager.h"
-#include <Render/Model/ModelAssimp.h>
+#include <Render/Object/ModelAssimp.h>
 
 using json = nlohmann::json;
 
@@ -77,7 +77,7 @@ public:
 
 	static void deleteLightMap(char type, int index);
 
-	static void drawShadowMap(aModel model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale);
+	static void drawShadowMap(Model& model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale);
 
 	static void update(Shader ModelShader);
 
@@ -85,9 +85,9 @@ public:
 
 	static void deleteLight(int index);
 
-	static void loadScene(std::string& path);
+	static void loadScene(std::string path);
 
-	static void saveScene(std::string& path);
+	static void saveScene(std::string path);
 
 	static void deleteScene();
 

@@ -192,7 +192,7 @@ void LightingHandler::deleteLightMap(char type, int index)
 	}
 }
 
-void LightingHandler::drawShadowMap(aModel model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale) {
+void LightingHandler::drawShadowMap(Model &model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale) {
 	if (!doDirShadowMap)
 	{
 		return;
@@ -309,7 +309,7 @@ void LightingHandler::createLight()
 	tempLight.enabled = true;
 
 	tempLight.ID.ObjType = 'l';
-	tempLight.ID.index = LightingHandler::Lights.size();
+	tempLight.ID.index = static_cast<unsigned int>(LightingHandler::Lights.size());
 	IdManager::AddID(tempLight.ID);
 
 	Lights.push_back(tempLight);
@@ -335,7 +335,7 @@ void LightingHandler::deleteLight(int index)
 	//IdManager::lowestLightIndexSync(); // sync up the index after deletion because the array has now changed
 }
 
-void LightingHandler::loadScene(std::string& path)
+void LightingHandler::loadScene(std::string path)
 {
 	LightingHandler::deleteScene();
 
@@ -402,7 +402,7 @@ void LightingHandler::loadScene(std::string& path)
 	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene LightObject from: " << path << std::endl;
 }
 
-void LightingHandler::saveScene(std::string& path)
+void LightingHandler::saveScene(std::string path)
 {
 	try {
 		json lightData = json::array();  // New JSON array to hold model data

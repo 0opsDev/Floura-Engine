@@ -1,6 +1,6 @@
 #include "ScriptObject.h"
 #include <utils/logConsole.h>
-#include <utils/timeAccumulator.h>
+#include <utils/timeUtil.h>
 
 void ScriptObject::LoadLua(sol::state& LuaState, std::string Path) {
 	LuaState.open_libraries(sol::lib::base, sol::lib::io, sol::lib::math, sol::lib::table);

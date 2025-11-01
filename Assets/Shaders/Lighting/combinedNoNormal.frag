@@ -23,8 +23,6 @@ uniform sampler2D texture_roughness0;
 uniform sampler2D texture_normal0;
 uniform sampler2D shadowMap;
 
-// Gets the color of the light from the main function
-uniform vec4 skyColor;
 // Gets the position of the light from the main function
 //const vec3 lightPos = vec3(0.0, 5.0, 1.0);
 uniform vec3 directLightPos;
@@ -104,10 +102,10 @@ vec4 direcLight()
 
 	float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 32);
 	specular = specAmount * dirSpecularLight;
-	return (texture(texture_diffuse0, texCoord) * (diffuse + (1.0f - shadow) + directAmbient) + texture(texture_roughness0, texCoord).r * specular * (1.0f - shadow)) * vec4(directLightCol, 1.0f);
+	return (texture(texture_diffuse0, texCoord) * (diffuse * (1.0f - shadow) + directAmbient) + texture(texture_roughness0, texCoord).r * specular * (1.0f - shadow)) * vec4(directLightCol, 1.0f);
 	}
 	else{
-	return (texture(texture_diffuse0, texCoord) * (diffuse + (1.0f - shadow) + directAmbient)) * vec4(directLightCol, 1.0f);
+	return (texture(texture_diffuse0, texCoord) * (diffuse * (1.0f - shadow) + directAmbient)) * vec4(directLightCol, 1.0f);
 	}
 }
 
@@ -233,8 +231,8 @@ vec4 lights(){
 		finalColour += direcLight();
 	}
 		///return vec4(finalColour.xyz, diffuseTex.a);
-		//return vec4(finalColour.xyz, diffuseTex.a);
-		return vec4((diffuseTex.xyz * skyColor.xyz) + finalColour.xyz, diffuseTex.a);
+		return vec4(finalColour.xyz, diffuseTex.a);
+		//return vec4((diffuseTex.xyz * skyColor.xyz) + finalColour.xyz, diffuseTex.a);
 		//return (diffuseTex.xyz * skyColor.xyz) + finalColour.xyz;
 } 
 

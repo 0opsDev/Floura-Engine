@@ -25,7 +25,7 @@ BillBoard SpotLightIcon;
 
 void Scene::init() {
 	PointLightIcon.init("Assets/Icons/point.png");
-	SpotLightIcon.init("Assets/Icons/spot.png");
+	SpotLightIcon.init("Assets/Icons/spot.png"); // draw instanced option with array argument for transformations
 }
 
 void Scene::LoadScene(std::string path) {
@@ -42,31 +42,11 @@ void Scene::LoadScene(std::string path) {
 	initCameraSettingsLoad(path + "/Camera.scene");
 	initJsonColliderLoad(path + "/Collider.scene");
 	LightingHandler::loadScene(path + "/Lights.scene");
-	JsonEnviromentLoad(path + "/Enviroment.scene");
+	JsonEnviromentLoad(path + "/Enviroment.scene"); // gives DefaultSkyboxPath
+	Skybox::LoadSkyBoxTexture(Skybox::DefaultSkyboxPath); // cleanup this class, could add a load cubemap texture function to the texture class
 	initJsonBillBoardLoad(path + "/BillBoard.scene");
 	initJsonModelLoad(path + "/Model.scene");
 	initJsonSoundObjectLoad(path + "/Sound.scene");
-	/*
-		for (size_t i = 0; i < modelObjects.size(); i++) {
-		std::cout << modelObjects[i].ObjectName << " - " << modelObjects[i].ModelPath << std::endl;
-		std::cout << modelObjects[i].ModelSingle.meshes.size() << " - indmesh size" << std::endl;
-
-		
-		//.vertices.size()
-		for (size_t z = 0; z < modelObjects[i].ModelSingle.meshes.size(); z++)
-		{
-
-						std::cout << modelObjects[i].ModelSingle.meshes[z].vertices.size() << " - indmesh vertices size" << std::endl;
-					for (size_t y = 0; y < modelObjects[i].ModelSingle.meshes[z].vertices.size(); y++)
-			{
-				std::cout << modelObjects[i].ModelSingle.meshes[z].vertices[y].position.x << " - vertex position x" << std::endl;
-				std::cout << modelObjects[i].ModelSingle.meshes[z].vertices[y].position.x << " - vertex position y" << std::endl;
-				std::cout << modelObjects[i].ModelSingle.meshes[z].vertices[y].position.x << " - vertex position z" << std::endl;
-			}
-			//std::cout << modelObjects[i].ModelSingle.meshes[i].vertices << " - vertex" << std::endl;
-
-		}
-	*/
 
 	LogConsole::print("Loaded scene from: " + path);
 }
@@ -256,8 +236,8 @@ void Scene::initJsonModelLoad(std::string path) {
 			item.at("uvScale")[1]);
 		newObject->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
 
-		newObject->CreateObject(path, name, MaterialPath); // Load into this unique MaterialObject
-
+		newObject->CreateObject(path, name, MaterialPath); // Load into this unique MaterialObject // this needs to run and somehow join up when complete?
+		
 		/*
 		we make a unique modelobject with (std::make_unique) instead of cloning, then we point to the new unique modelobject  in memory within the array with std::move,
 		which stops it from making a bit to bit clone of the prior object, and leaving the shaderprogram ID behind.
@@ -556,10 +536,8 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 			doUpdateSequence = item.at("doUpdateSequence").get<bool>();
 			newBillBoardObject.doUpdateSequence = doUpdateSequence;
 		}
-		unsigned int tickrate = 20;
 		if (item.contains("tickrate")) {
-			tickrate = item.at("tickrate").get<float>();
-			newBillBoardObject.tickrate = tickrate;
+			newBillBoardObject.tickrate = item.at("tickrate").get<int>();
 		}
 
 		glm::vec3 position = glm::vec3(item.at("position")[0], item.at("position")[1], item.at("position")[2]);
@@ -798,10 +776,16 @@ void Scene::Update() {
 		if (FEImGuiWindow::showViewportIcons) {
 
 				if (LightingHandler::Lights[i].type == 0) {
-					SpotLightIcon.draw(true, LightingHandler::Lights[i].position.x, LightingHandler::Lights[i].position.y, LightingHandler::Lights[i].position.z, 0.3, 0.3, 0.3);
+					SpotLightIcon.setDoPitch(true);
+					SpotLightIcon.updatePosition(LightingHandler::Lights[i].position);
+					SpotLightIcon.updateScale(glm::vec3(0.3f));
+					SpotLightIcon.draw();
 				}
 				else if (LightingHandler::Lights[i].type) {
-					PointLightIcon.draw(true, LightingHandler::Lights[i].position.x, LightingHandler::Lights[i].position.y, LightingHandler::Lights[i].position.z, 0.3, 0.3, 0.3);
+					PointLightIcon.setDoPitch(true);
+					PointLightIcon.updatePosition(LightingHandler::Lights[i].position);
+					PointLightIcon.updateScale(glm::vec3(0.3f));
+					PointLightIcon.draw();
 				}
 		}
 	}

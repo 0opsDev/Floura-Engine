@@ -1,9 +1,9 @@
 [
     {
         "BoxColliderScale": [
-            500.0,
+            100.0,
             1.0,
-            500.0
+            100.0
         ],
         "BoxColliderTransform": [
             0.0,
@@ -25,17 +25,17 @@
             0.0
         ],
         "Scale": [
-            500.0,
-            500.0,
-            500.0
+            100.0,
+            200.0,
+            100.0
         ],
         "isBackFaceCulling": true,
         "isCollider": true,
         "name": "pavepane",
         "path": "Assets/Models/planes/paveplane.gltf",
         "uvScale": [
-            500.0,
-            500.0
+            100.0,
+            100.0
         ]
     },
     {
@@ -54,7 +54,7 @@
         "IsLod": false,
         "Location": [
             0.0,
-            0.0,
+            -1.0,
             -30.0
         ],
         "MaterialPath": "Assets/Material/Default.Material",
@@ -94,7 +94,7 @@
         "Location": [
             7.565975666046143,
             -2.0,
-            4.871143817901611
+            -5.216475486755371
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -128,329 +128,17 @@
             0.0
         ],
         "CastShadow": true,
-        "IDuniqueIdentifier": 5706,
-        "IsLod": false,
-        "Location": [
-            0.0,
-            -2.0,
-            4.6421308517456055
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "tree_copy",
-        "path": "Assets/LodModel/Tree/tree2.gltf",
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "IDuniqueIdentifier": 3282,
-        "IsLod": false,
-        "Location": [
-            -5.298142433166504,
-            -2.0,
-            5.9092302322387695
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "tree_copy",
-        "path": "Assets/LodModel/Tree/tree2.gltf",
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "IDuniqueIdentifier": 9962,
-        "IsLod": false,
-        "Location": [
-            -5.298142433166504,
-            -2.0,
-            -6.2479424476623535
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "tree_copy",
-        "path": "Assets/LodModel/Tree/tree2.gltf",
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "IDuniqueIdentifier": 2996,
-        "IsLod": false,
-        "Location": [
-            -12.95989990234375,
-            -2.0,
-            0.8083841800689697
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "tree_copy",
-        "path": "Assets/LodModel/Tree/tree2.gltf",
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "IDuniqueIdentifier": 4828,
-        "IsLod": false,
-        "Location": [
-            -16.11673355102539,
-            -2.0,
-            -5.120364189147949
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "tree_copy",
-        "path": "Assets/LodModel/Tree/tree2.gltf",
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "IDuniqueIdentifier": 4605,
-        "IsLod": false,
-        "Location": [
-            5.267151832580566,
-            -2.0,
-            -7.0452351570129395
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "tree_copy",
-        "path": "Assets/LodModel/Tree/tree2.gltf",
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "IDuniqueIdentifier": 5448,
-        "IsLod": false,
-        "Location": [
-            -9.886625289916992,
-            -2.0,
-            -11.888420104980469
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "tree_copy",
-        "path": "Assets/LodModel/Tree/tree2.gltf",
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "IDuniqueIdentifier": 4772,
-        "IsLod": false,
-        "Location": [
-            1.5369257926940918,
-            -2.0,
-            -11.888420104980469
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "isBackFaceCulling": false,
-        "isCollider": false,
-        "name": "tree_copy",
-        "path": "Assets/LodModel/Tree/tree2.gltf",
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
         "IDuniqueIdentifier": 1943,
         "IsLod": false,
         "Location": [
-            0.0,
-            14.0,
-            25.997953414916992
+            22.0,
+            13.3100004196167,
+            12.0
         ],
         "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
         "Rotation": [
             0.0,
-            0.0,
+            45.0,
             0.0
         ],
         "Scale": [
@@ -497,7 +185,7 @@
             1.0,
             1.0
         ],
-        "isBackFaceCulling": true,
+        "isBackFaceCulling": false,
         "isCollider": false,
         "name": "glass2",
         "path": "Assets/Models/glass/glass2.gltf",
@@ -536,7 +224,7 @@
             1.0,
             1.0
         ],
-        "isBackFaceCulling": true,
+        "isBackFaceCulling": false,
         "isCollider": false,
         "name": "glass",
         "path": "Assets/Models/glass/glass.gltf",
@@ -579,6 +267,45 @@
         "isCollider": false,
         "name": "vase",
         "path": "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "BoxColliderScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "BoxColliderTransform": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "CastShadow": false,
+        "IDuniqueIdentifier": 6963,
+        "IsLod": false,
+        "Location": [
+            -10.0,
+            4.0,
+            -30.299999237060547
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            2.0,
+            2.0,
+            2.0
+        ],
+        "isBackFaceCulling": true,
+        "isCollider": false,
+        "name": "brass_diya_lantern_1k",
+        "path": "Assets/Models/brass_diya_lantern_1k.gltf/brass_diya_lantern_1k.gltf",
         "uvScale": [
             1.0,
             1.0

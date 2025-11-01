@@ -91,8 +91,6 @@ void CubeVisualizer::draw(float x, float y, float z,
 			glUniform3f(glGetUniformLocation(RenderClass::boxShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
 
 			glUniform3f(glGetUniformLocation(RenderClass::boxShader.ID, "colour"), colour.x, colour.y, colour.z);
-
-			glBindTexture(GL_TEXTURE_2D, 0);
 			glBindVertexArray(cubeVAO);
 			glDepthFunc(GL_ALWAYS);
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);

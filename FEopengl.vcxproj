@@ -166,14 +166,14 @@
     <ClCompile Include="src\Render\Buffer\EBO.cpp" />
     <ClCompile Include="src\Render\Buffer\VAO.cpp" />
     <ClCompile Include="src\Render\Buffer\VBO.cpp" />
-    <ClCompile Include="src\Render\Cube\Billboard.cpp" />
     <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp" />
     <ClCompile Include="src\Render\Cube\RenderQuad.cpp" />
-    <ClCompile Include="src\Render\model\Mesh.cpp" />
-    <ClCompile Include="src\Render\Model\ModelAssimp.cpp" />
-    <ClCompile Include="src\Render\Model\Shape3D.cpp" />
-    <ClCompile Include="src\Render\model\stb.cpp" />
-    <ClCompile Include="src\Render\model\Texture.cpp" />
+    <ClCompile Include="src\Render\Object\Billboard.cpp" />
+    <ClCompile Include="src\Render\Object\Mesh.cpp" />
+    <ClCompile Include="src\Render\Object\ModelAssimp.cpp" />
+    <ClCompile Include="src\Render\Object\Shape3D.cpp" />
+    <ClCompile Include="src\Render\Object\stb.cpp" />
+    <ClCompile Include="src\Render\Object\Texture.cpp" />
     <ClCompile Include="src\Render\passes\dbg\dbgPass.cpp" />
     <ClCompile Include="src\Render\passes\geometry\geometryPass.cpp" />
     <ClCompile Include="src\Render\passes\lighting\LightingPass.cpp" />
@@ -212,7 +212,6 @@
     <ClCompile Include="src\utils\logConsole.cpp" />
     <ClCompile Include="src\utils\noise.cpp" />
     <ClCompile Include="src\utils\ScreenUtils.cpp" />
-    <ClCompile Include="src\utils\timeAccumulator.cpp" />
     <ClCompile Include="src\utils\timeUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -244,13 +243,13 @@
     <ClInclude Include="src\Render\Buffer\EBO.h" />
     <ClInclude Include="src\Render\Buffer\VAO.h" />
     <ClInclude Include="src\Render\Buffer\VBO.h" />
-    <ClInclude Include="src\Render\Cube\Billboard.h" />
     <ClInclude Include="src\Render\Cube\CubeVisualizer.h" />
     <ClInclude Include="src\Render\Cube\RenderQuad.h" />
-    <ClInclude Include="src\Render\model\Mesh.h" />
-    <ClInclude Include="src\Render\Model\ModelAssimp.h" />
-    <ClInclude Include="src\Render\Model\Shape3D.h" />
-    <ClInclude Include="src\Render\model\Texture.h" />
+    <ClInclude Include="src\Render\Object\Billboard.h" />
+    <ClInclude Include="src\Render\Object\Mesh.h" />
+    <ClInclude Include="src\Render\Object\ModelAssimp.h" />
+    <ClInclude Include="src\Render\Object\Shape3D.h" />
+    <ClInclude Include="src\Render\Object\Texture.h" />
     <ClInclude Include="src\Render\passes\dbg\dbgPass.h" />
     <ClInclude Include="src\Render\passes\geometry\geometryPass.h" />
     <ClInclude Include="src\Render\passes\lighting\LightingPass.h" />
@@ -291,7 +290,6 @@
     <ClInclude Include="src\utils\logConsole.h" />
     <ClInclude Include="src\utils\noise.h" />
     <ClInclude Include="src\utils\ScreenUtils.h" />
-    <ClInclude Include="src\utils\timeAccumulator.h" />
     <ClInclude Include="src\utils\timeUtil.h" />
   </ItemGroup>
   <ItemGroup>

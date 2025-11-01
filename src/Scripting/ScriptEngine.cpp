@@ -6,7 +6,6 @@
 #include <string>
 #include <json/json.hpp>
 #include "Scripting/Functions/ScriptIncludes.h"
-#include "utils/timeAccumulator.h"
 
 // Constructor
 ScriptEngine::ScriptEngine(std::string FunctionName, std::string Path) { //creates object

@@ -1,19 +1,20 @@
 #include "Shape3D.h"
 
+// should store shapes
 
 void Shape3D::updatePosition(glm::vec3 Position)
 {
-	Shape3D::gPosition = Position;
+	globalTransformation.position = Position;
 }
 
 void Shape3D::updateRotation(glm::vec3 Rotation)
 {
-	Shape3D::gRotation = Rotation;
+	globalTransformation.rotation = Rotation;
 }
 
 void Shape3D::updateScale(glm::vec3 Scale)
 {
-	Shape3D::gScale = Scale;
+	globalTransformation.scale = Scale;
 }
 
 void Shape3D::create() // needs to take in shape type

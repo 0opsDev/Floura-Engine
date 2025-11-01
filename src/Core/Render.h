@@ -5,7 +5,7 @@
 #include <camera/Camera.h>
 #include <UI/ImGui/ImGuiWindow.h>
 #include <Render/Shader/SkyBox.h>
-#include <Render/Cube/Billboard.h>
+//#include <Render/Cube/Billboard.h>
 
 class RenderClass
 {
@@ -23,6 +23,13 @@ public:
 	static GLfloat DepthPlane[];
 	static glm::vec3 skyRGBA;
 	static glm::vec3 fogRGBA;
+
+	static struct transformation {
+		glm::vec3 position = glm::vec3(0.0f);
+		glm::vec3 rotation = glm::vec3(0.0f);
+		glm::quat qRotation;
+		glm::vec3 scale = glm::vec3(1.0f);
+	};
 
 	static bool DoDeferredLightingPass; // Toggle for lighting pass
 	static bool DoForwardLightingPass; // Toggle for regular pass

@@ -178,5 +178,41 @@
         "ObjectType": "Material",
         "Path": "Assets/Material/DefaultNoNormals.Material",
         "Type": "NULL"
+    },
+    {
+        "Name": "QwantaniNight",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/QwantaniNight/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sunset",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/sunset/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "OvercastSoilPuresky",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/OvercastSoilPuresky/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "clearsky",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/clearsky/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Skybox",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/alps_field_4k/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "brass_diya_lantern_1k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/brass_diya_lantern_1k.gltf/brass_diya_lantern_1k.gltf",
+        "Type": "static"
     }
 ]

@@ -6,7 +6,7 @@
 #include <glm/fwd.hpp>
 #include <string>
 #include <iostream>
-#include "Render/Cube/Billboard.h"
+#include "Render/Object/Billboard.h"
 #include <camera/Camera.h>
 #include <Render/Cube/CubeVisualizer.h>
 #include <Scene/IdManager.h>

@@ -94,7 +94,7 @@ void GeometryPass::updateGbufferResolution(unsigned int width, unsigned int heig
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-void GeometryPass::gPassDraw(aModel& model, Shader& GPass) {
+void GeometryPass::gPassDraw(Model& model, Shader& GPass) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	GPass.Activate();
 	GPass.setFloat("gamma", RenderClass::gamma);

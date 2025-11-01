@@ -1,6 +1,6 @@
 #include "SoundProgram.h"
 #include <utils/init.h>
-#include <Render/Cube/Billboard.h>
+#include <Render/Object/Billboard.h>
 #include "SoundRunner.h"
 #include <UI/ImGui/ImGuiWindow.h>
 #include <Math/FE_math.h>
@@ -65,7 +65,10 @@ void SoundProgram::updateCameraPosition() {
     alListenerfv(AL_ORIENTATION, orientation);
     if (FEImGuiWindow::showViewportIcons) {
         if (!FE_Math::isInRange(SoundPosition, Camera::Position, 1)) {
-            SoundIcon.draw(true, SoundPosition.x, SoundPosition.y, SoundPosition.z, 1, 1, 1);
+            SoundIcon.setDoPitch(true);
+            SoundIcon.updatePosition(SoundPosition);
+            SoundIcon.updateScale(glm::vec3(1));
+            SoundIcon.draw();
         }
     }
 }
