@@ -15,9 +15,33 @@ void Model::updateScale(glm::vec3 Scale)
     globalTransformation.scale = Scale;
 }
 
-void Model::create(const char* file)
+Model::Model(const char* file)
 {
 	loadModel(file);
+}
+
+Model::~Model() {
+    // Delete mesh first then clear all array inside model
+    for (size_t i = 0; i < meshes.size(); i++)
+    {
+        meshes[i].Delete();
+        meshes.erase(meshes.begin() + i);
+    }
+    meshes.clear();
+
+    for (size_t i = 0; i < loadedTexPath.size(); i++)
+    {
+        loadedTexPath.erase(loadedTexPath.begin() + i);
+    }
+    loadedTexPath.clear();
+
+    for (size_t i = 0; i < loadedTex.size(); i++)
+    {
+        loadedTex[i].Delete();
+        loadedTex.erase(loadedTex.begin() + i);
+    }
+    loadedTex.clear();
+
 }
 
 void Model::draw(Shader& shader)
@@ -44,30 +68,6 @@ void Model::draw(Shader& shader)
     }
 
         
-}
-
-void Model::Delete() {
-    // Delete mesh first then clear all array inside model
-    for (size_t i = 0; i < meshes.size(); i++)
-    {
-        meshes[i].Delete();
-        meshes.erase(meshes.begin() + i);
-    }
-    meshes.clear();
-
-    for (size_t i = 0; i < loadedTexPath.size(); i++)
-    {
-        loadedTexPath.erase(loadedTexPath.begin() + i);
-    }
-    loadedTexPath.clear();
-
-    for (size_t i = 0; i < loadedTex.size(); i++)
-    {
-        loadedTex[i].Delete();
-        loadedTex.erase(loadedTex.begin() + i);
-    }
-    loadedTex.clear();
-
 }
 
 void Model::loadModel(std::string path)

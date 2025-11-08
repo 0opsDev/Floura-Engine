@@ -17,11 +17,16 @@ public:
 	static ALCdevice* device;
 	static ALCcontext* context;
 	
-	glm::vec3 SoundPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 	std::string name;
-	float currentvolume;
+	std::string path;
+	float currentvolume = 1.0f;
+	float pitch = 1.0f;
 
-	bool isPlay = false;
+	bool queuedPlay = false; // is queued to play
+	bool isPlay = false; // is playing
+	bool loop = false; // is looping
+	bool is3D = true; // is 3D sound
 
 	void PlaySound();
 
@@ -31,9 +36,9 @@ public:
 
 	void Set3D(bool is3D);
 	
-	void SetSoundPosition(float x, float y, float z);
+	void SetSoundPosition(glm::vec3 position);
 
-	void SetListenerPosition(float x, float y, float z);
+	void SetListenerPosition(glm::vec3 position);
 
 	void updateCameraPosition();
 

@@ -41,7 +41,7 @@ void Player::update() {
 	}
 	if (PlayerPhysicsAccum >= 0.016) {
 		feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::cameraColliderScale.y), Camera::Position.z);
-		FootSound.SetSoundPosition(feetpos.x, feetpos.y, feetpos.z);
+		FootSound.SetSoundPosition(feetpos);
 		FootSound.updateCameraPosition();
 		
 		if (isColliding && Camera::isMoving) {

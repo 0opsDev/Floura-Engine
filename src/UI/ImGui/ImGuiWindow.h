@@ -62,6 +62,7 @@ public:
 	static Texture rotateIcon; // Icon for rotate in ImGui
 	static Texture wirefameIcon; // Icon for wireframe in ImGui
 	static Texture iIcon; // Icon for Icon in ImGui
+	static Texture SoundIcon; // Icon for Sound in ImGui
 
 	static void init();
 
@@ -111,6 +112,8 @@ public:
 		static void SceneFolderWindow();
 
 		static void ConsoleWindow();
+
+		static void SoundWindow();
 
 };
 

@@ -1,1 +1,18 @@
-[]
+[
+    {
+        "IDuniqueIdentifier": 42,
+        "doPitch": true,
+        "name": "Grass",
+        "path": "Assets/Sprites/n_grass_diff_0_35.png",
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+]

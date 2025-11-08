@@ -12,7 +12,7 @@
 class CubeCollider
 {
 public:
-	CubeVisualizer CubeVisualizerRenderObject;
+	CubeVisualizer* CubeVisualizerRenderObject;
 	IdManager::ID ID;
 	glm::vec3 colliderXYZ = glm::vec3(0,0,0);
 	glm::vec3 colliderScale = glm::vec3(1,1,1);

@@ -20,58 +20,19 @@ unsigned int s_Plane_Indices[6] =
 	2, 3, 0  // Second triangle
 };
 
-void BillBoard::init(std::string path) {
+BillBoard::BillBoard(std::string path) {
 	buffer(); // create buffer in memory for skybox
 
 	//LoadBillBoardTexture(path);
+	Tex.flipVertical = true;
 	Tex.createTexture((path).c_str(), "diffuse", 0);
 }
-void BillBoard::initSeq(std::string path) { 
-	buffer(); // create buffer in memory for skybox
 
-	LoadSequence(path);
-}
-
-void BillBoard::LoadSequence(std::string path) {
-	std::ifstream seqFile(path);
-	if (seqFile.is_open()) {
-		json seqData;
-		seqFile >> seqData;
-		seqFile.close();
-
-		// Extract TexturePath
-		//TexturePath = seqData[0]["TexturePath"];
-	//	std::cout << "TexturePath: " << TexturePath << std::endl;
-
-		// Extract and sort texture filenames
-		//TextureNames = seqData[0]["textures"];
-		//std::sort(TextureNames.begin(), TextureNames.end());
-		//iteration = TextureNames.size();
-		//std::cout << "interations: " << iteration << std::endl;
-		// Print sorted texture filenames
-		//std::cout << "Sorted texture filenames:\n";
-	}
-	else {
-		std::cerr << "Failed to open: " << path << std::endl;
-
-	}
-}
-
-void BillBoard::UpdateSequence(int tickrate) {
-	TimeAccumulatorBillboard += TimeUtil::s_DeltaTime;
-	//because of deltatime we wont use a for loop
-	if (TimeAccumulatorBillboard >= (1.0f / tickrate)) {
-		iteration++;
-
-	//	if (iteration <= TextureNames.size()) {
-	//	}
-	//	else {
-	//		iteration = 0;
-
-	//	}
-		TimeAccumulatorBillboard = 0;
-	}
-
+BillBoard::~BillBoard() {
+	glDeleteBuffers(1, &cubeVBO);
+	glDeleteBuffers(1, &cubeEBO);
+	//glDeleteTextures(1, &BBTexture);
+	glDeleteVertexArrays(1, &cubeVAO);
 }
 
 void BillBoard::buffer() {
@@ -100,11 +61,6 @@ void BillBoard::buffer() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void BillBoard::setDoPitch(bool doPitch)
-{
-	BillBoard::doPitch = doPitch;
-}
-
 void BillBoard::updatePosition(glm::vec3 Position)
 {
 	globalTransformation.position = Position;
@@ -112,6 +68,26 @@ void BillBoard::updatePosition(glm::vec3 Position)
 void BillBoard::updateScale(glm::vec3 Scale)
 {
 	globalTransformation.scale = Scale;
+}
+
+void BillBoard::drawF(glm::mat4 modelMatrix, Shader shader, glm::mat4 camMatrix)
+{
+	// Enable depth testing
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+	shader.Activate(); // s
+	// Pass transformations to shader
+	shader.setMat4("model", modelMatrix);
+	shader.setMat4("camMatrix", camMatrix);
+
+	// Render the billboard
+	glBindVertexArray(cubeVAO);
+	Tex.Bind();
+	shader.setInt("texture0", 0);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0); // E
 }
 
 void BillBoard::draw() {
@@ -145,22 +121,10 @@ void BillBoard::draw() {
 	if (RenderClass::DoForwardLightingPass) {
 		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
-		// Enable depth testing
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
 
-		RenderClass::billBoardShader.Activate();
-		// Pass transformations to shader
-		RenderClass::billBoardShader.setMat4("model", model);
-		RenderClass::billBoardShader.setMat4("camMatrix", Camera::cameraMatrix);
+		
 
-		// Render the billboard
-		glBindVertexArray(cubeVAO);
-		Tex.Bind();
-		RenderClass::billBoardShader.setInt("texture0", 0);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		drawF(model, RenderClass::billBoardShader, Camera::cameraMatrix);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -168,44 +132,15 @@ void BillBoard::draw() {
 		//
 		//
 		// Gpass
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		RenderClass::gPassShaderBillBoard.Activate();
-		RenderClass::gPassShaderBillBoard.setFloat("gamma", RenderClass::gamma);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); 
 		glBindFramebuffer(GL_FRAMEBUFFER, GeometryPass::gBuffer);
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
 
-		Camera::Matrix(RenderClass::gPassShaderBillBoard, "camMatrix"); // Send Camera Matrix To Shader Prog
-		//billboard.Draw(gPassShader, Transform, Rotation, Scale);
-		// draw goes here
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
+		drawF(model, RenderClass::gPassShaderBillBoard, Camera::cameraMatrix);
 
-		RenderClass::gPassShaderBillBoard.Activate();
-		// Pass transformations to shader
-		RenderClass::gPassShaderBillBoard.setMat4("model", model);
-		RenderClass::gPassShaderBillBoard.setMat4("camMatrix", Camera::cameraMatrix);
-
-		// Render the billboard
-		glBindVertexArray(cubeVAO);
-		Tex.Bind();
-		RenderClass::billBoardShader.setInt("texture0", 0);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glDisable(GL_CULL_FACE);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDisable(GL_CULL_FACE); 
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); 
 		//FrameBuffer
 
 	// got just to reset the framebuffer to default
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
-}
-
-void BillBoard::Delete() {
-	glDeleteBuffers(1, &cubeVBO);
-	glDeleteBuffers(1, &cubeEBO);
-	RenderClass::billBoardShader.Delete();
-	//glDeleteTextures(1, &BBTexture);
-	glDeleteVertexArrays(1, &cubeVAO);
 }

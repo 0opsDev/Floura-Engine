@@ -94,7 +94,7 @@ void GeometryPass::updateGbufferResolution(unsigned int width, unsigned int heig
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-void GeometryPass::gPassDraw(Model& model, Shader& GPass) {
+void GeometryPass::gPassDraw(Model*& model, Shader& GPass) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	GPass.Activate();
 	GPass.setFloat("gamma", RenderClass::gamma);
@@ -104,7 +104,7 @@ void GeometryPass::gPassDraw(Model& model, Shader& GPass) {
 
 	Camera::Matrix(GPass, "camMatrix"); // Send Camera Matrix To Shader Prog
 
-	model.draw(GPass);
+	model->draw(GPass);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer

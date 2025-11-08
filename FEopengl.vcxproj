@@ -187,9 +187,7 @@
     <ClCompile Include="src\Scene\IdManager.cpp" />
     <ClCompile Include="src\Scene\LightingHandler.cpp" />
     <ClCompile Include="src\Scene\ObjectManager.cpp" />
-    <ClCompile Include="src\Scene\Object\BillboardObject.cpp" />
-    <ClCompile Include="src\Scene\Object\FE_Object.cpp" />
-    <ClCompile Include="src\Scene\Object\ModelObject.cpp" />
+    <ClCompile Include="src\Scene\Object\Entity.cpp" />
     <ClCompile Include="src\Scene\scene.cpp" />
     <ClCompile Include="src\Scene\tempscene.cpp" />
     <ClCompile Include="src\Scripting\Functions\Input\LuaGetKey.cpp" />
@@ -263,9 +261,7 @@
     <ClInclude Include="src\Scene\IdManager.h" />
     <ClInclude Include="src\Scene\LightingHandler.h" />
     <ClInclude Include="src\Scene\ObjectManager.h" />
-    <ClInclude Include="src\Scene\Object\BillboardObject.h" />
-    <ClInclude Include="src\Scene\Object\FE_Object.h" />
-    <ClInclude Include="src\Scene\Object\ModelObject.h" />
+    <ClInclude Include="src\Scene\Object\Entity.h" />
     <ClInclude Include="src\Scene\scene.h" />
     <ClInclude Include="src\Scene\tempscene.h" />
     <ClInclude Include="src\Scripting\Functions\Input\LuaGetKey.h" />

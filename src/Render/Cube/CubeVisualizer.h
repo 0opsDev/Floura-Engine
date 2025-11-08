@@ -16,13 +16,13 @@ public:
 	unsigned int cubeVAO, cubeVBO, cubeEBO;
 	std::string DefaultSkyboxPath;
 
-	void init();
+	CubeVisualizer();
+
+	~CubeVisualizer();
 
 	void skyboxBuffer();
 
 	void draw(float x, float y, float z, float ScaleX, float ScaleY, float ScaleZ, glm::vec3 colour);
-
-	void Delete();
 };
 
 #endif // CUBEVISUALIZER_CLASS_H

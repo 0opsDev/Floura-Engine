@@ -2,11 +2,10 @@
 #define SCENE_CLASS_H
 
 #include <iostream>
-#include "Object/ModelObject.h"
-#include "Object/BillboardObject.h"
 #include <Sound/SoundProgram.h>
 #include <Sound/SoundRunner.h>
-
+#include <Scene/Object/Entity.h>
+#include <Physics/CubeCollider.h>
 
 using json = nlohmann::json;
 
@@ -16,12 +15,9 @@ class Scene
 public:
 
 	static std::string sceneName; // Map loading
-
-	static std::vector<std::unique_ptr<ModelObject>> modelObjects;
-	static std::vector<BillBoardObject> BillBoardObjects;
 	static std::vector <CubeCollider> CubeColliderObject;
 	static std::vector <SoundProgram> SoundObjects;
-	static std::vector <bool> isSoundLoop;
+	static std::vector <std::unique_ptr<entity>> entityObjects;
 
 	// 4th component is radius
 
@@ -49,19 +45,19 @@ public:
 
 	static void JsonCameraSettingsSave(std::string path);
 
-	static void AddSceneModelObject(bool type, std::string path, std::string name);
-
-	static void AddSceneBillBoardObject(std::string name, bool isAnimated, std::string path);
-
 	static void AddSceneSoundObject(std::string name, std::string path);
 
 	static void AddSceneColliderObject(std::string name);
+
+	static void AddEntityObject(char type, std::string name, std::string path);
 
 	static void initJsonBillBoardLoad(std::string path);
 
 	static void initJsonColliderLoad(std::string path);
 
 	static void initJsonSoundObjectLoad(std::string path); 
+
+	static void JsonSoundObjectSave(std::string path);
 
 	static void initJsonSettingsLoad(std::string path);
 

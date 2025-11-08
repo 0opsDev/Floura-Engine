@@ -77,7 +77,7 @@ public:
 
 	static void deleteLightMap(char type, int index);
 
-	static void drawShadowMap(Model& model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale);
+	static void drawShadowMap(Model*& model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale);
 
 	static void update(Shader ModelShader);
 

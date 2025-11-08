@@ -133,5 +133,20 @@
             4.0,
             1.0
         ]
+    },
+    {
+        "IDuniqueIdentifier": 42,
+        "enabled": true,
+        "name": "ground",
+        "position": [
+            0.0,
+            -3.0,
+            0.0
+        ],
+        "scale": [
+            100.0,
+            1.0,
+            100.0
+        ]
     }
 ]

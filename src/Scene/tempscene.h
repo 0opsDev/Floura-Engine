@@ -2,9 +2,6 @@
 #define TEMP_SCENE_CLASS_H
 
 #include <iostream>
-#include "Object/ModelObject.h"
-#include "Object/BillboardObject.h"
-
 //testclass
 class TempScene
 {

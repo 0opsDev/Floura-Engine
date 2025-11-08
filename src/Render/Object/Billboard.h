@@ -15,34 +15,29 @@
 class BillBoard
 {
 public:
-	unsigned int cubeVAO, cubeVBO, cubeEBO;
-	std::string DefaultSkyboxPath; 
-	unsigned int iteration;
-	float TimeAccumulatorBillboard;
-	std::string singleTexturePath;
+	//std::string DefaultSkyboxPath;
 	RenderClass::transformation globalTransformation;
 
-	void init(std::string path);
+	BillBoard(std::string path);
+	~BillBoard();
 	// this path is json
-	void initSeq(std::string path);
-	void LoadSequence(std::string path);
-	void UpdateSequence(int tickrate);
-
-	void buffer();
-	
-	void setDoPitch(bool doPitch);
 
 	void updatePosition(glm::vec3 Position);
 
 	void updateScale(glm::vec3 Scale);
 
 	void draw();
-
-	void Delete();
-
-private:
 	bool doPitch = true;
 	Texture Tex;
+
+private:
+
+	unsigned int cubeVAO, cubeVBO, cubeEBO;
+
+	void drawF(glm::mat4 modelMatrix, Shader shader, glm::mat4 camMatrix);
+
+
+	void buffer();
 };
 
 #endif // BILLBOARD_CLASS_H

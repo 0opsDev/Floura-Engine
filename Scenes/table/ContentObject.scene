@@ -214,5 +214,29 @@
         "ObjectType": "Model",
         "Path": "Assets/Models/brass_diya_lantern_1k.gltf/brass_diya_lantern_1k.gltf",
         "Type": "static"
+    },
+    {
+        "Name": "Clair de Lune",
+        "ObjectType": "Sound",
+        "Path": "Assets/Sounds/Clair de Lune.wav",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Cold wind sound effect",
+        "ObjectType": "Sound",
+        "Path": "Assets/Sounds/Cold wind sound effect 4.wav",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Footsteps",
+        "ObjectType": "Sound",
+        "Path": "Assets/Sounds/Footsteps.wav",
+        "Type": "NULL"
+    },
+    {
+        "Name": "land",
+        "ObjectType": "Sound",
+        "Path": "Assets/Sounds/land.wav",
+        "Type": "NULL"
     }
 ]

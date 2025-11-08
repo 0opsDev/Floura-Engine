@@ -10,6 +10,7 @@ class IdManager
 public:
 
 	static struct LowestDeletedIndex { // -1 = none (for syncing up the tree ^^)
+		int object;
 		int Model;
 		int BillBoard;
 		int Collider;
@@ -25,8 +26,7 @@ public:
 
 
 	static void lowestIndexSync(); // syncs up the lowest deleted index with the actual lowest deleted index in the array
-	static void lowestModelIndexSync();
-	static void lowestBillBoardIndexSync();
+	static void lowestObjectIndexSync();
 	static void lowestColliderIndexSync();
 	static void lowestSoundIndexSync();
 	static void lowestLightIndexSync();

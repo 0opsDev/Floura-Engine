@@ -1,7 +1,5 @@
 ﻿#include "Render.h"
 #include <Render/Cube/CubeVisualizer.h>
-#include "Scene/Object/BillboardObject.h"
-#include "Scene/Object/ModelObject.h"
 #include <Sound/SoundProgram.h>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtx/norm.hpp>

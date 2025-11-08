@@ -6,7 +6,7 @@
 
 std::vector<IdManager::ID> IdManager::IDs;
 
-IdManager::LowestDeletedIndex IdManager::lowestDeletedIndex = { -1, -1, -1, -1, -1 };
+IdManager::LowestDeletedIndex IdManager::lowestDeletedIndex = { -1, -1, -1, -1, -1, -1 };
 
 void IdManager::onSceneLoad() {
 
@@ -16,6 +16,7 @@ void IdManager::onSceneLoad() {
 
 void IdManager::clearAllIDs()
 {
+	lowestDeletedIndex.object = -1;
 	lowestDeletedIndex.Model = -1;
 	lowestDeletedIndex.BillBoard = -1;
 	lowestDeletedIndex.Collider = -1;
@@ -44,7 +45,7 @@ void IdManager::lowestIndexSync()
 		// set lowestDeletedIndex to -1, or if over the size of the array, otherwise if found, +lowestDeletedIndex by 1 and continue
 
 		//lowestModelIndexSync();
-		lowestBillBoardIndexSync();
+		lowestObjectIndexSync();
 		lowestColliderIndexSync();
 		//lowestSoundIndexSync();
 		lowestLightIndexSync();
@@ -57,93 +58,46 @@ void IdManager::lowestIndexSync()
 		//LogConsole::print(std::to_string(lowestDeletedIndex.Light));
 	}
 }
-void IdManager::lowestModelIndexSync()
-{
-	// check if index is not -1
-	if (lowestDeletedIndex.Model >= 0)
-	{
-		LogConsole::print("Starting Model ID sync from index: " + std::to_string(lowestDeletedIndex.Model));
-		// check if lowestDeletedIndex.Model is now out of bounds
-		if (lowestDeletedIndex.Model == static_cast<int>(Scene::modelObjects.size()) || lowestDeletedIndex.Model >= static_cast<int>(Scene::modelObjects.size()))
-		{
-			lowestDeletedIndex.Model = -1;
-			LogConsole::print("Lowest Deleted Model Index is now: " + std::to_string(lowestDeletedIndex.Model));
-		}
-		// for models starting at lowestDeletedIndex.Model
-		for (size_t ind = lowestDeletedIndex.Model; ind < Scene::modelObjects.size(); ind++)
-		{
-			// for all ids in IdManager
-			for (size_t indMananger = 0; indMananger < IDs.size(); indMananger++)
-			{
-				// check if both ids match
-				if (IDmatch(Scene::modelObjects[ind]->ID, IDs[indMananger]))
-				{
-					LogConsole::print("Model ID match at index: " + std::to_string(ind) + " with UniqueNumber: " + std::to_string(Scene::modelObjects[ind]->ID.UniqueNumber));
-					// if both match, check if index is the same, if not, update it						
-					if (Scene::modelObjects[ind]->ID.index != ind)
-					{
-						// update index
-						Scene::modelObjects[ind]->ID.index = ind;
-						IDs[indMananger].index = ind; // also update the index in the IdManager
-						LogConsole::print("Updated Model ID index to: " + std::to_string(ind) + " for UniqueNumber: " + std::to_string(Scene::modelObjects[ind]->ID.UniqueNumber));
-						LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(ind) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
-					}
-					// check if lowestDeletedIndex.Model is now out of bounds
-					if (lowestDeletedIndex.Model == static_cast<int>(Scene::modelObjects.size()) || lowestDeletedIndex.Model >= static_cast<int>(Scene::modelObjects.size()))
-					{
-						lowestDeletedIndex.Model = -1;
-						LogConsole::print("Lowest Deleted Model Index is now: " + std::to_string(lowestDeletedIndex.Model));
-					}
-					// increment lowestDeletedIndex.Model because both ids matched
-					if (lowestDeletedIndex.Model != -1);
-					{
-						lowestDeletedIndex.Model++;
-					}
-				}
-			}
-		}
-	}
-}
 
-void IdManager::lowestBillBoardIndexSync()
+void IdManager::lowestObjectIndexSync()
 {
 	// check if index is not -1
-	if (lowestDeletedIndex.BillBoard >= 0)
+	if (lowestDeletedIndex.object >= 0)
 	{
 		// check if lowestDeletedIndex.BillBoard is now out of bounds
-		if (lowestDeletedIndex.BillBoard == static_cast<int>(Scene::BillBoardObjects.size()) || lowestDeletedIndex.BillBoard >= static_cast<int>(Scene::BillBoardObjects.size()))
+		if (lowestDeletedIndex.object == static_cast<int>(Scene::entityObjects.size()) || lowestDeletedIndex.object >= static_cast<int>(Scene::entityObjects.size()))
 		{
-			lowestDeletedIndex.BillBoard = -1;
-			LogConsole::print("Lowest Deleted BillBoard Index is now: " + std::to_string(lowestDeletedIndex.BillBoard));
+			lowestDeletedIndex.object = -1;
+			LogConsole::print("Lowest Deleted Object Index is now: " + std::to_string(lowestDeletedIndex.object));
 		}
-		for (size_t i = lowestDeletedIndex.BillBoard; i < Scene::BillBoardObjects.size(); i++)
+		for (size_t i = lowestDeletedIndex.object; i < Scene::entityObjects.size(); i++)
 		{
 			// for all ids in IdManager
 			for (size_t indMananger = 0; indMananger < IDs.size(); indMananger++)
 			{
 				// check if both ids match
-				if (IDmatch(Scene::BillBoardObjects[i].ID, IDs[indMananger]))
+				if (IDmatch(Scene::entityObjects[i]->ID, IDs[indMananger]))
 				{
-					LogConsole::print("BillBoard ID match at index: " + std::to_string(i) + " with UniqueNumber: " + std::to_string(Scene::BillBoardObjects[i].ID.UniqueNumber));
+					LogConsole::print("Object ID match at index: " + std::to_string(i) + " with UniqueNumber: " + std::to_string(Scene::entityObjects[i]->ID.UniqueNumber));
 					// if both match, check if index is the same, if not, update it						
-					if (Scene::BillBoardObjects[i].ID.index != i)
+					if (Scene::entityObjects[i]->ID.index != i)
 					{
 						// update index
-						Scene::BillBoardObjects[i].ID.index = i;
+						Scene::entityObjects[i]->ID.index = i;
 						IDs[indMananger].index = i; // also update the index in the IdManager
-						LogConsole::print("Updated BillBoard ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(Scene::BillBoardObjects[i].ID.UniqueNumber));
+						LogConsole::print("Updated Object ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(Scene::entityObjects[i]->ID.UniqueNumber));
 						LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
 					}
 					// check if lowestDeletedIndex.BillBoard is now out of bounds
-					if (lowestDeletedIndex.BillBoard == static_cast<int>(Scene::BillBoardObjects.size()) || lowestDeletedIndex.BillBoard >= static_cast<int>(Scene::BillBoardObjects.size()) )
+					if (lowestDeletedIndex.object == static_cast<int>(Scene::entityObjects.size()) || lowestDeletedIndex.object >= static_cast<int>(Scene::entityObjects.size()) )
 					{
-						lowestDeletedIndex.BillBoard = -1;
-						LogConsole::print("Lowest Deleted BillBoard Index is now: " + std::to_string(lowestDeletedIndex.BillBoard));
+						lowestDeletedIndex.object = -1;
+						LogConsole::print("Lowest Deleted object Index is now: " + std::to_string(lowestDeletedIndex.object));
 					}
 					// increment lowestDeletedIndex.BillBoard because both ids matched
-					if (lowestDeletedIndex.BillBoard == -1);
+					if (lowestDeletedIndex.object == -1);
 					{
-						lowestDeletedIndex.BillBoard++;
+						lowestDeletedIndex.object++;
 					}
 
 				}

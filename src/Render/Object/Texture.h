@@ -14,6 +14,7 @@ public:
 	GLuint unit;
 	std::string path;
 	bool filterNearest = true;
+	bool flipVertical = false;
 	void createTexture(const char* image, const char* texType, GLuint slot);
 
 	// Texture detached from OpenGL pipeline

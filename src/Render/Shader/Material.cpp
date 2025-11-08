@@ -81,7 +81,7 @@ void Material::jsonLoad(std::string path)
 {
 	std::ifstream file(path);
 	if (!file.is_open()) {
-		std::cout << "Failed to open file: " << path << std::endl;
+		std::cout << "Material Failed to open file: " << path << std::endl;
 		return;
 	}
 	json modelFileData;

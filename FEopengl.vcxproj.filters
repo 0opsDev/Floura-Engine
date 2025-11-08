@@ -310,13 +310,7 @@
     <ClCompile Include="src\Scene\scene.cpp">
       <Filter>src\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scene\Object\FE_Object.cpp">
-      <Filter>src\Scene\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scene\Object\ModelObject.cpp">
-      <Filter>src\Scene\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scene\Object\BillboardObject.cpp">
+    <ClCompile Include="src\Scene\Object\Entity.cpp">
       <Filter>src\Scene\Object</Filter>
     </ClCompile>
     <ClCompile Include="src\Scene\IdManager.cpp">
@@ -543,13 +537,7 @@
     <ClInclude Include="src\Scene\scene.h">
       <Filter>src\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scene\Object\FE_Object.h">
-      <Filter>src\Scene\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\Object\ModelObject.h">
-      <Filter>src\Scene\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\Object\BillboardObject.h">
+    <ClInclude Include="src\Scene\Object\Entity.h">
       <Filter>src\Scene\Object</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene\IdManager.h">

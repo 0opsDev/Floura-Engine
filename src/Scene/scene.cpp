@@ -3,29 +3,28 @@
 #include <Gameplay/Player.h>
 #include <Scene/LightingHandler.h>
 #include <utils/logConsole.h>
-
 //BillBoardObject BillBoardObjects;
 //CubeCollider ColliderObject;
 //SoundProgram SoundObjects;
 //std::vector<ModelObject> Scene::objects;
 
 std::string Scene::sceneName = ""; // Map loading
-
-std::vector<std::unique_ptr<ModelObject>> Scene::modelObjects;
-std::vector<BillBoardObject> Scene::BillBoardObjects;
 std::vector <CubeCollider> Scene::CubeColliderObject;
 std::vector <SoundProgram> Scene::SoundObjects;
-std::vector <bool> Scene::isSoundLoop;
+std::vector <std::unique_ptr<entity>> Scene::entityObjects;
 
 glm::vec3 Scene::initalCameraPos = glm::vec3(0, 0, 0);
 
 
-BillBoard PointLightIcon;
-BillBoard SpotLightIcon;
+BillBoard* PointLightIcon;
+BillBoard* SpotLightIcon;
+BillBoard* SoundIcon;
 
 void Scene::init() {
-	PointLightIcon.init("Assets/Icons/point.png");
-	SpotLightIcon.init("Assets/Icons/spot.png"); // draw instanced option with array argument for transformations
+	PointLightIcon = new BillBoard("Assets/Icons/point.png");
+	SpotLightIcon = new BillBoard("Assets/Icons/spot.png"); // draw instanced option with array argument for transformations
+	SoundIcon = new BillBoard("assets/Dependants/sound.png");
+
 }
 
 void Scene::LoadScene(std::string path) {
@@ -44,7 +43,7 @@ void Scene::LoadScene(std::string path) {
 	LightingHandler::loadScene(path + "/Lights.scene");
 	JsonEnviromentLoad(path + "/Enviroment.scene"); // gives DefaultSkyboxPath
 	Skybox::LoadSkyBoxTexture(Skybox::DefaultSkyboxPath); // cleanup this class, could add a load cubemap texture function to the texture class
-	initJsonBillBoardLoad(path + "/BillBoard.scene");
+	initJsonBillBoardLoad(path + "/BillBoard.scene"); // here
 	initJsonModelLoad(path + "/Model.scene");
 	initJsonSoundObjectLoad(path + "/Sound.scene");
 
@@ -65,7 +64,7 @@ void Scene::SaveScene(std::string path) {
 	JsonEnviromentSave(path + "/Enviroment.scene");
 	JsonBillBoardSave(path + "/BillBoard.scene");
 	JsonModelSave(path + "/Model.scene");
-	// sound load here
+	JsonSoundObjectSave(path + "/Sound.scene");
 
 	LogConsole::print("Saved scene to: " + path);
 }
@@ -182,14 +181,14 @@ void Scene::JsonEnviromentLoad(std::string path)
 		LightingHandler::DirSMMaxBias = EnviromentDefaultData[0]["DirSMMaxBias"];
 	}
 	else {
-		std::cerr << "Failed to open " << path << std::endl;
+		std::cerr << "Enviroment Failed to open " << path << std::endl;
 	}
 }
 
 void Scene::initJsonModelLoad(std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
-		std::cout << "Failed to open file: " << path << std::endl;
+		std::cout << "Model Failed to open file: " << path << std::endl;
 		return;
 	}
 	json modelFileData;
@@ -213,37 +212,32 @@ void Scene::initJsonModelLoad(std::string path) {
 	file.close();
 
 	for (const auto& item : modelFileData) {
-		std::unique_ptr<ModelObject> newObject = std::make_unique<ModelObject>(); // Use std::make_unique
+		std::unique_ptr<entity> newObject = std::make_unique<entity>(); // Use std::make_unique
 
 		std::string name = item.at("name").get<std::string>();
-		newObject->IsLod = item.at("IsLod").get<bool>();
 		std::string path = item.at("path").get<std::string>();
 		std::string MaterialPath = item.at("MaterialPath").get<std::string>();
 
-		newObject->transform = glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]);
-		newObject->rotation = glm::vec3(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2]);
-		newObject->scale = glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]);
+		// transform
+		newObject->setPosition(glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]));
+		newObject->setRotation(glm::vec3(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2]));
+		newObject->setScale(glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]));
 
-		newObject->BoxColliderTransform = glm::vec3(item.at("BoxColliderTransform")[0],
-			item.at("BoxColliderTransform")[1], item.at("BoxColliderTransform")[2]);
-		newObject->BoxColliderScale = glm::vec3(item.at("BoxColliderScale")[0],
-			item.at("BoxColliderScale")[1], item.at("BoxColliderScale")[2]);
+		newObject->setDoCulling(item.at("isBackFaceCulling").get<bool>());
+		newObject->SetCastsShadow(item.at("CastShadow").get<bool>());
+		newObject->setUVScale(glm::vec2(item.at("uvScale")[0],
+			item.at("uvScale")[1]));
 
-		newObject->isCollider = item.at("isCollider").get<bool>();
-		newObject->DoCulling = item.at("isBackFaceCulling").get<bool>();
-		newObject->castShadow = item.at("CastShadow").get<bool>();
-		newObject->uvScale = glm::vec2(item.at("uvScale")[0],
-			item.at("uvScale")[1]);
 		newObject->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
 
-		newObject->CreateObject(path, name, MaterialPath); // Load into this unique MaterialObject // this needs to run and somehow join up when complete?
+		newObject->create('m', name, path, MaterialPath); // Load into this unique MaterialObject // this needs to run and somehow join up when complete?
 		
 		/*
 		we make a unique modelobject with (std::make_unique) instead of cloning, then we point to the new unique modelobject  in memory within the array with std::move,
 		which stops it from making a bit to bit clone of the prior object, and leaving the shaderprogram ID behind.
 		it generates a model object then makes the index of the array point to the new unique object in memory, which doesnt have its own copied id
 		*/
-		modelObjects.push_back(std::move(newObject));
+		entityObjects.push_back(std::move(newObject));
 
 	}
 	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene Models from: " << path << std::endl;
@@ -252,31 +246,33 @@ void Scene::initJsonModelLoad(std::string path) {
 void Scene::JsonModelSave(std::string path) {
 	try {
 		json settingsData = json::array();  // New JSON array to hold model data
+		for (size_t i = 0; i < entityObjects.size(); i++)
+		{
+			if (entityObjects[i]->fetchType() == 'm') // model
+			{
+				json modelJson;
+				modelJson["name"] = entityObjects[i]->fetchName();
 
-		for (const auto& obj : modelObjects) {
-			json modelJson;
-			modelJson["name"] = obj->ObjectName;
+				modelJson["path"] = entityObjects[i]->fetchPath();
+				glm::vec3 objPos = entityObjects[i]->fetchPosition();
+				glm::vec3 objScale = entityObjects[i]->fetchScale();
+				glm::vec3 objRot = entityObjects[i]->fetchRotation();
 
-			modelJson["IsLod"] = obj->IsLod;
+				modelJson["Location"] = { objPos.x, objPos.y, objPos.z };
+				modelJson["Rotation"] = { objRot.x, objRot.y, objRot.z };
+				modelJson["Scale"] = { objScale.x, objScale.y, objScale.z };
 
-			modelJson["path"] = obj->ModelPath;
+				modelJson["isBackFaceCulling"] = entityObjects[i]->fetchDoCulling();
+				modelJson["MaterialPath"] = entityObjects[i]->component.systems.material.Material.materialPath;
+				modelJson["CastShadow"] = entityObjects[i]->FetchCastsShadow();
+				glm::vec2 uvScale = entityObjects[i]->fetchUVScale();
+				modelJson["uvScale"] = { uvScale.x, uvScale.y };
+				// ID
+				modelJson["IDuniqueIdentifier"] = entityObjects[i]->ID.UniqueNumber;
 
-			modelJson["Location"] = { obj->transform.x, obj->transform.y, obj->transform.z };
-			modelJson["Rotation"] = { obj->rotation.x, obj->rotation.y, obj->rotation.z};
-			modelJson["Scale"] = { obj->scale.x, obj->scale.y, obj->scale.z };
+				settingsData.push_back(modelJson);
+			}
 
-			modelJson["BoxColliderTransform"] = { obj->BoxColliderTransform.x, obj->BoxColliderTransform.y, obj->BoxColliderTransform.z };
-			modelJson["BoxColliderScale"] = { obj->BoxColliderScale.x, obj->BoxColliderScale.y, obj->BoxColliderScale.z };
-
-			modelJson["isCollider"] = obj->isCollider;
-			modelJson["isBackFaceCulling"] = obj->DoCulling;
-			modelJson["MaterialPath"] = obj->MaterialObject.materialPath;
-			modelJson["CastShadow"] = obj->castShadow;
-			modelJson["uvScale"] = { obj->uvScale.x, obj->uvScale.y };
-			// ID
-			modelJson["IDuniqueIdentifier"] = obj->ID.UniqueNumber;
-
-			settingsData.push_back(modelJson);
 		}
 		// Serialize each modelObject into JSON
 		
@@ -304,30 +300,28 @@ void Scene::JsonBillBoardSave(std::string path) {
 		json settingsData = json::array();  // New JSON array to hold model data
 
 		// Serialize each modelObject into JSON
-		for (const auto& obj : BillBoardObjects) {
-			json BillBoardJson;
-			BillBoardJson["name"] = obj.ObjectName;
-			BillBoardJson["isAnimated"] = obj.flag_isanimated;
-			BillBoardJson["path"] = obj.path;
+		for (size_t i = 0; i < entityObjects.size(); i++)
+		{
+			if (entityObjects[i]->fetchType() == 'b')
+			{
+				json BillBoardJson;
+				BillBoardJson["name"] = entityObjects[i]->fetchName();
+				BillBoardJson["path"] = entityObjects[i]->fetchPath();
 
-			BillBoardJson["doPitch"] = obj.doPitch;
-			BillBoardJson["isCollider"] = obj.isCollider;
-			BillBoardJson["DoFrustumCull"] = obj.DoFrustumCull;
+				BillBoardJson["doPitch"] = entityObjects[i]->FetchDoPitch();
 
-			if (obj.flag_isanimated) {
-				BillBoardJson["doUpdateSequence"] = obj.doUpdateSequence;
-				BillBoardJson["tickrate"] = obj.tickrate;
+				glm::vec3 objPos = entityObjects[i]->fetchPosition();
+				glm::vec3 objScale = entityObjects[i]->fetchScale();
+
+				BillBoardJson["position"] = { objPos.x, objPos.y, objPos.z };
+				BillBoardJson["scale"] = { objScale.x, objScale.y, objScale.z };
+
+				// ID
+				BillBoardJson["IDuniqueIdentifier"] = entityObjects[i]->ID.UniqueNumber;
+
+				settingsData.push_back(BillBoardJson);
 			}
-
-			BillBoardJson["position"] = { obj.transform.x, obj.transform.y, obj.transform.z };
-			BillBoardJson["scale"] = { obj.scale.x, obj.scale.y, obj.scale.z };
-
-			// ID
-			BillBoardJson["IDuniqueIdentifier"] = obj.ID.UniqueNumber;
-
-			settingsData.push_back(BillBoardJson);
 		}
-
 		// Write to file
 		std::ofstream outFile(path, std::ios::out);
 		if (!outFile.is_open()) {
@@ -460,30 +454,13 @@ void Scene::JsonCameraSettingsSave(std::string path) {
 	}
 }
 
-void Scene::AddSceneModelObject(bool type, std::string path, std::string name)
-{
-
-	std::unique_ptr<ModelObject> newObject = std::make_unique<ModelObject>(); // Use std::make_unique
-	newObject->IsLod = type;
-	newObject->CreateObject(path, name, "Assets/Material/Default.Material");
-	modelObjects.push_back(std::move(newObject)); // std::move is crucial here
-
-	LogConsole::print("Created Model Object: " + name);
-}
-
-void Scene::AddSceneBillBoardObject(std::string name, bool isAnimated, std::string path) {
-
-	BillBoardObject newBillBoardObject; // Create a temporary BillBoardObject
-
-	newBillBoardObject.flag_isanimated = isAnimated;
-	newBillBoardObject.CreateObject(path, name);
-	BillBoardObjects.push_back(newBillBoardObject);
-
-	LogConsole::print("Created BillBoard Object: " + name);
-}
-
 void Scene::AddSceneSoundObject(std::string name, std::string path) {
 	LogConsole::print("not implemented");
+	SoundProgram nSoundProjram;
+	nSoundProjram.ChangeSound(path);
+	nSoundProjram.name = name;
+	nSoundProjram.Set3D(true);
+	SoundObjects.push_back(nSoundProjram);
 }
 
 void Scene::AddSceneColliderObject(std::string name) {
@@ -495,10 +472,19 @@ void Scene::AddSceneColliderObject(std::string name) {
 	LogConsole::print("Created CubeCollider Object: " + name);
 }
 
+
+void Scene::AddEntityObject(char type, std::string name, std::string path)
+{
+	std::unique_ptr<entity> newEntity = std::make_unique<entity>(); // Use std::make_unique
+	newEntity->create(type, name, path, "Assets/Material/Default.Material");
+	entityObjects.emplace_back(std::move(newEntity));
+	LogConsole::print("Created Entity: " + name);
+}
+
 void Scene::initJsonBillBoardLoad(std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
-		std::cout << "Failed to open file: " << path << std::endl;
+		std::cout << "billboard Failed to open file: " << path << std::endl;
 		return;
 	}
 	json BillBoardFileData;
@@ -522,39 +508,19 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 	file.close();
 
 	for (const auto& item : BillBoardFileData) {
+		std::unique_ptr<entity> newEntity = std::make_unique<entity>(); // Use std::make_unique
 
-		BillBoardObject newBillBoardObject;
-		std::string name = item.at("name").get<std::string>();
-		bool isanimated = item.at("isAnimated").get<bool>();
-		std::string path = item.at("path").get<std::string>();
-
-		bool doPitch = item.at("doPitch").get<bool>();
-		bool isCollider = item.at("isCollider").get<bool>();
-		bool DoFrustumCull = item.at("DoFrustumCull").get<bool>();
-		bool doUpdateSequence;
-		if (item.contains("doUpdateSequence")) {
-			doUpdateSequence = item.at("doUpdateSequence").get<bool>();
-			newBillBoardObject.doUpdateSequence = doUpdateSequence;
-		}
-		if (item.contains("tickrate")) {
-			newBillBoardObject.tickrate = item.at("tickrate").get<int>();
-		}
-
-		glm::vec3 position = glm::vec3(item.at("position")[0], item.at("position")[1], item.at("position")[2]);
-		glm::vec3 scale = glm::vec3(item.at("scale")[0], item.at("scale")[1], item.at("scale")[2]);
-
-
-		newBillBoardObject.flag_isanimated = isanimated;
-		newBillBoardObject.doPitch = doPitch;
-		newBillBoardObject.isCollider = isCollider;
-		newBillBoardObject.DoFrustumCull = DoFrustumCull;
-		newBillBoardObject.transform = position;
-		newBillBoardObject.scale = scale;
+		newEntity->setDoPitch(item.at("doPitch").get<bool>());
+		newEntity->setPosition(glm::vec3(item.at("position")[0], item.at("position")[1], item.at("position")[2]));
+		newEntity->setScale(glm::vec3(item.at("scale")[0], item.at("scale")[1], item.at("scale")[2]));
 		// ID
-		newBillBoardObject.ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
-		newBillBoardObject.CreateObject(path, name);
+		newEntity->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
 
-		BillBoardObjects.push_back(newBillBoardObject); // Add the configured object to the vector
+		std::string name = item.at("name").get<std::string>();
+		std::string nPath = item.at("path").get<std::string>();
+		newEntity->create('b', name, nPath, ""); // type, name, path, materialpath // add material path for bb later
+
+		entityObjects.push_back(std::move(newEntity)); // Add the configured object to the vector
 	}
 	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene BillBoards from: " << path << std::endl;
 }
@@ -562,7 +528,7 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 void Scene::initJsonColliderLoad(std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
-		std::cout << "Failed to open file: " << path << std::endl;
+		std::cout << "Collider Failed to open file: " << path << std::endl;
 		return;
 	}
 	json CubeColliderFileData;
@@ -646,13 +612,49 @@ void Scene::initJsonSoundObjectLoad(std::string path) {
 		newSoundObject.CreateSound(path, name);
 		newSoundObject.SetPitch(pitch);
 		newSoundObject.SetVolume(volume);
-		newSoundObject.SetSoundPosition(SoundPosition.x, SoundPosition.y, SoundPosition.z);
+		newSoundObject.SetSoundPosition(SoundPosition);
 		newSoundObject.Set3D(is3DSound); // seems the actual soundclass doesnt like this, so ill move on and fix this later down the line
-
-		isSoundLoop.push_back(isLoop);
+		newSoundObject.loop = isLoop;
 		SoundObjects.push_back(newSoundObject); // Add the configured object to the vector
 	}
 	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene SoundObject from: " << path << std::endl;
+}
+
+void Scene::JsonSoundObjectSave(std::string path)
+{
+	try {
+		json SoundData = json::array();  // New JSON array to hold model data
+
+		// Serialize each modelObject into JSON
+		for (const auto& obj : SoundObjects) {
+			json SoundJson;
+			SoundJson["name"] = obj.name;
+			SoundJson["path"] = obj.path;
+			SoundJson["pitch"] = obj.pitch;
+			SoundJson["volume"] = obj.currentvolume;
+			SoundJson["isLoop"] = obj.loop;
+			SoundJson["SoundPosition"] = { obj.position.x, obj.position.y, obj.position.z };
+			SoundJson["is3Dsound"] = obj.is3D;
+
+			SoundData.push_back(SoundJson);
+		}
+
+		// Write to file
+		std::ofstream outFile(path, std::ios::out);
+		if (!outFile.is_open()) {
+			if (init::LogALL || init::LogSystems) std::cout << "Failed to write to " << path << std::endl;
+			return;
+		}
+
+		outFile << SoundData.dump(4);  // Pretty-print with indentation
+		outFile.close();
+
+		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+
+	}
+	catch (const std::exception& e) {
+		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+	}
 }
 
 void Scene::initJsonSettingsLoad(std::string path) {
@@ -686,7 +688,7 @@ void Scene::initJsonSettingsLoad(std::string path) {
 		//Skybox::LoadSkyBoxTexture(Skybox::DefaultSkyboxPath);
 	}
 	else {
-		std::cerr << "Failed to open " << path << std::endl;
+		std::cerr << "Settings Failed to open " << path << std::endl;
 	}
 }
 
@@ -715,25 +717,21 @@ void Scene::initCameraSettingsLoad(std::string path) {
 
 	}
 	else {
-		std::cerr << "Failed to open " << path << std::endl;
+		std::cerr << "Camera Failed to open " << path << std::endl;
 	}
 }
 void Scene::draw() 
 {
-	// models
-	for (size_t i = 0; i < modelObjects.size(); i++)
+
+	for (size_t i = 0; i < entityObjects.size(); i++)
 	{
-		modelObjects[i]->drawModelShadowMap();
+		entityObjects[i]->drawShadowMap();
 	}
-	for (size_t i = 0; i < modelObjects.size(); i++)
+	// entities shadow map should go above here
+	for (size_t i = 0; i < entityObjects.size(); i++)
 	{
-		modelObjects[i]->updateForwardLights(); // needs to take lights
-		modelObjects[i]->draw();
-	}
-	// billboards
-	for (size_t i = 0; i < BillBoardObjects.size(); i++)
-	{
-		BillBoardObjects[i].draw();
+		entityObjects[i]->updateLights();
+		entityObjects[i]->draw();
 	}
 
 	for (size_t i = 0; i < CubeColliderObject.size(); i++) {
@@ -741,20 +739,6 @@ void Scene::draw()
 	}
 }
 void Scene::Update() {
-	// models
-	for (size_t i = 0; i < modelObjects.size(); i++)
-	{
-		
-		modelObjects[i]->UpdateCollider();
-		modelObjects[i]->UpdateCameraCollider();
-	}
-	// billboards
-	for (size_t i = 0; i < BillBoardObjects.size(); i++)
-	{
-		BillBoardObjects[i].UpdateCollider();
-		BillBoardObjects[i].UpdateCameraCollider();
-		BillBoardObjects[i].draw();
-	}
 
 	for (size_t i = 0; i < CubeColliderObject.size(); i++) {
 		CubeColliderObject[i].update();
@@ -763,8 +747,21 @@ void Scene::Update() {
 	}
 
 	for (size_t i = 0; i < SoundObjects.size(); i++) {
-		SoundObjects[i].updateCameraPosition();
-		if (!SoundObjects[i].isPlay) {
+
+		if (SoundObjects[i].is3D)
+		{
+			SoundObjects[i].updateCameraPosition();
+			SoundObjects[i].SetSoundPosition(SoundObjects[i].position);
+
+			if (FEImGuiWindow::showViewportIcons) {
+				SoundIcon->doPitch = true;
+				SoundIcon->updatePosition(SoundObjects[i].position);
+				SoundIcon->updateScale(glm::vec3(1));
+				SoundIcon->draw();
+			}
+		}
+		
+		if (!SoundObjects[i].isPlay && SoundObjects[i].loop || !SoundObjects[i].isPlay && SoundObjects[i].queuedPlay) {
 			SoundObjects[i].PlaySound();
 		}
 	}
@@ -776,16 +773,16 @@ void Scene::Update() {
 		if (FEImGuiWindow::showViewportIcons) {
 
 				if (LightingHandler::Lights[i].type == 0) {
-					SpotLightIcon.setDoPitch(true);
-					SpotLightIcon.updatePosition(LightingHandler::Lights[i].position);
-					SpotLightIcon.updateScale(glm::vec3(0.3f));
-					SpotLightIcon.draw();
+					SpotLightIcon->doPitch = true;
+					SpotLightIcon->updatePosition(LightingHandler::Lights[i].position);
+					SpotLightIcon->updateScale(glm::vec3(0.3f));
+					SpotLightIcon->draw();
 				}
 				else if (LightingHandler::Lights[i].type) {
-					PointLightIcon.setDoPitch(true);
-					PointLightIcon.updatePosition(LightingHandler::Lights[i].position);
-					PointLightIcon.updateScale(glm::vec3(0.3f));
-					PointLightIcon.draw();
+					PointLightIcon->doPitch = true;
+					PointLightIcon->updatePosition(LightingHandler::Lights[i].position);
+					PointLightIcon->updateScale(glm::vec3(0.3f));
+					PointLightIcon->draw();
 				}
 		}
 	}
@@ -795,23 +792,20 @@ void Scene::Update() {
 
 void Scene::Delete() {
 
-	for (size_t i = 0; i < modelObjects.size(); i++)
-	{modelObjects[i]->Delete();}
-	modelObjects.clear();
-
-	for (size_t i = 0; i < BillBoardObjects.size(); i++)
-	{ BillBoardObjects[i].Delete(); }
-	BillBoardObjects.clear();
+	for (size_t i = 0; i < entityObjects.size(); i++)
+	{
+		entityObjects[i]->Delete(); }
+	entityObjects.clear();
 
 	CubeColliderObject.clear();
 
-	for (size_t i = 0; i < isSoundLoop.size(); i++) {
-		if (isSoundLoop[i]) {
+	for (size_t i = 0; i < SoundObjects.size(); i++) {
+		if (SoundObjects[i].isPlay) {
 			SoundObjects[i].StopSound();
 		}
 	}
 
-	isSoundLoop.clear();
+	SoundObjects.clear();
 
 	for (size_t i = 0; i < SoundObjects.size(); i++)
 	{SoundObjects[i].DeleteSound();}

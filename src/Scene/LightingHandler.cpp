@@ -192,7 +192,7 @@ void LightingHandler::deleteLightMap(char type, int index)
 	}
 }
 
-void LightingHandler::drawShadowMap(Model &model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale) {
+void LightingHandler::drawShadowMap(Model*& model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale) {
 	if (!doDirShadowMap)
 	{
 		return;
@@ -213,12 +213,8 @@ void LightingHandler::drawShadowMap(Model &model, glm::vec3 translation, glm::ve
 	LightingHandler::dirShadowMapProgram.Activate();
 	glUniformMatrix4fv(glGetUniformLocation(LightingHandler::dirShadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
-	model.updatePosition(translation);
-	model.updateRotation(rotation);
-	model.updateScale(scale);
-
 	//glCullFace(GL_FRONT);
-	model.draw(LightingHandler::dirShadowMapProgram);
+	model->draw(LightingHandler::dirShadowMapProgram);
 	//glCullFace(GL_BACK);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -341,7 +337,7 @@ void LightingHandler::loadScene(std::string path)
 
 	std::ifstream file(path);
 	if (!file.is_open()) {
-		std::cout << "Failed to open file: " << path << std::endl;
+		std::cout << "LightingHandler Failed to open file: " << path << std::endl;
 		return;
 	}
 	json LightObjectFileData;

@@ -1,7 +1,7 @@
 [
     {
-        "DefaultSkyboxPath": "Assets/Skybox/sunset/Skybox.json",
-        "DirAmbient": 0.05000000074505806,
+        "DefaultSkyboxPath": "Assets/Skybox/OvercastSoilPuresky/Skybox.json",
+        "DirAmbient": 0.10000000149011612,
         "DirColour": [
             0.9100345373153687,
             0.7647058963775635,
@@ -9,11 +9,11 @@
         ],
         "DirEnabled": true,
         "DirRotation": [
-            106.0999984741211,
-            148.8000030517578,
+            148.3000030517578,
+            476.6000061035156,
             0.0
         ],
-        "DirSMMaxBias": 0.02500000037252903,
+        "DirSMMaxBias": 0.05000000074505806,
         "DirSpecEnabled": true,
         "DirSpecular": 0.5,
         "DoShadowMap": true,
@@ -24,8 +24,8 @@
             120.0
         ],
         "dirShadowMapHardness": 2,
-        "dirSmDistance": 50.0,
-        "dirSmHeight": 45.0,
+        "dirSmDistance": 25.0,
+        "dirSmHeight": 27.0,
         "skyRGBA": [
             0.0,
             0.0,

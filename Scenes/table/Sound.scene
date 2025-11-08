@@ -1,2 +1,28 @@
 [
+    {
+        "SoundPosition": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "is3Dsound": true,
+        "isLoop": false,
+        "name": "Cold wind",
+        "path": "Assets/Sounds/Cold wind sound effect 4.wav",
+        "pitch": 1.0,
+        "volume": 1.0
+    },
+    {
+        "SoundPosition": [
+            1.0,
+            0.0,
+            0.0
+        ],
+        "is3Dsound": true,
+        "isLoop": false,
+        "name": "Footsteps",
+        "path": "Assets/Sounds/Footsteps.wav",
+        "pitch": 1.0,
+        "volume": 1.0
+    }
 ]

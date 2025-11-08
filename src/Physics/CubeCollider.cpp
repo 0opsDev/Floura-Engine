@@ -59,13 +59,14 @@ void CubeCollider::update() {
 void CubeCollider::draw() {
     if (showBoxCollider) {
         if (isCollide) {// was 1.0, 0.412, 0.0 
-            CubeVisualizerRenderObject.draw(colliderXYZ.x, colliderXYZ.y, colliderXYZ.z, colliderScale.x, colliderScale.y, colliderScale.z, glm::vec3(1.0, 0.0, 0.0));}
-        else {CubeVisualizerRenderObject.draw(colliderXYZ.x, colliderXYZ.y, colliderXYZ.z, colliderScale.x, colliderScale.y, colliderScale.z, glm::vec3(1.0, 1.0, 1.0));}   
+            CubeVisualizerRenderObject->draw(colliderXYZ.x, colliderXYZ.y, colliderXYZ.z, colliderScale.x, colliderScale.y, colliderScale.z, glm::vec3(1.0, 0.0, 0.0));}
+        else {CubeVisualizerRenderObject->draw(colliderXYZ.x, colliderXYZ.y, colliderXYZ.z, colliderScale.x, colliderScale.y, colliderScale.z, glm::vec3(1.0, 1.0, 1.0));}
     }
 }
 
 void CubeCollider::Delete() {
-    CubeVisualizerRenderObject.Delete();
+    delete CubeVisualizerRenderObject;
+    CubeVisualizerRenderObject = nullptr;
 
     //update lowest free index
     if (ID.index < IdManager::lowestDeletedIndex.Collider || IdManager::lowestDeletedIndex.Collider == -1) {
@@ -83,5 +84,5 @@ void CubeCollider::init() {
     ID.index = Scene::CubeColliderObject.size();
     IdManager::AddID(ID);
 
-    CubeVisualizerRenderObject.init();
+    CubeVisualizerRenderObject = new CubeVisualizer;
 }

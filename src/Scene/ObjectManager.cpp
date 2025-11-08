@@ -4,43 +4,33 @@
 #include "LightingHandler.h"
 #include <utils/logConsole.h>
 
-void dupeModel(int index) {
-	std::unique_ptr<ModelObject> newObject = std::make_unique<ModelObject>(); // Use std::make_unique
-	newObject->IsLod = Scene::modelObjects[index]->IsLod;
-	std::string name = Scene::modelObjects[index]->ObjectName + "_copy";
-	newObject->transform = Scene::modelObjects[index]->transform;
-	newObject->rotation = Scene::modelObjects[index]->rotation;
-	newObject->scale = Scene::modelObjects[index]->scale;
-	newObject->isCollider = Scene::modelObjects[index]->isCollider;
-	newObject->DoCulling = Scene::modelObjects[index]->DoCulling;
-	newObject->BoxColliderTransform = Scene::modelObjects[index]->BoxColliderTransform;
-	newObject->BoxColliderScale = Scene::modelObjects[index]->BoxColliderScale;
-	newObject->CullFrontFace = Scene::modelObjects[index]->CullFrontFace;
-	newObject->LodCount = Scene::modelObjects[index]->LodCount;
-	newObject->LodDistance = Scene::modelObjects[index]->LodDistance;
-	newObject->CreateObject(Scene::modelObjects[index]->ModelPath, name, "Assets/Material/Default.Material");
-	Scene::modelObjects.push_back(std::move(newObject)); // std::move is crucial here
+void entityDuplicate(int index) {
+	std::unique_ptr<entity> newEntity = std::make_unique<entity>(); // Create a temporary BillBoardObject
 
-	LogConsole::print("Created Model Object: " + name);
-}
+	std::string name = Scene::entityObjects[index]->fetchName() + "_copy";
 
-void billboardDuplicate(int index) {
-	BillBoardObject newBillBoardObject; // Create a temporary BillBoardObject
+	if (Scene::entityObjects[index]->fetchType() == 'm') {
+		newEntity->create(Scene::entityObjects[index]->fetchType(),
+			name,
+			Scene::entityObjects[index]->fetchPath(),
+			"Assets/Material/Default.Material");
+	}
+	else if (Scene::entityObjects[index]->fetchType() == 'b') {
+		newEntity->create(Scene::entityObjects[index]->fetchType(),
+			name,
+			Scene::entityObjects[index]->fetchPath(),
+			"Assets/Material/Default.Material");
 
-	std::string name = Scene::BillBoardObjects[index].ObjectName + "_copy";
-	newBillBoardObject.DoFrustumCull = Scene::BillBoardObjects[index].DoFrustumCull;
-	newBillBoardObject.isCollider = Scene::BillBoardObjects[index].isCollider;
-	newBillBoardObject.scale = Scene::BillBoardObjects[index].scale;
-	newBillBoardObject.transform = Scene::BillBoardObjects[index].transform;
-	newBillBoardObject.isCollider = Scene::BillBoardObjects[index].isCollider;
-	newBillBoardObject.tickrate = Scene::BillBoardObjects[index].tickrate;
-	newBillBoardObject.DoFrustumCull = Scene::BillBoardObjects[index].DoFrustumCull;
-	newBillBoardObject.doUpdateSequence = Scene::BillBoardObjects[index].doUpdateSequence;
-	newBillBoardObject.doPitch = Scene::BillBoardObjects[index].doPitch;
-	newBillBoardObject.flag_isanimated = Scene::BillBoardObjects[index].flag_isanimated;
-	newBillBoardObject.CreateObject(Scene::BillBoardObjects[index].path, name);
-	Scene::BillBoardObjects.push_back(newBillBoardObject);
-	LogConsole::print("Created BillBoard Object: " + name);
+		newEntity->setDoPitch(Scene::entityObjects[index]->FetchDoPitch());
+	}
+	newEntity->setPosition(Scene::entityObjects[index]->fetchPosition());
+	newEntity->setRotation(Scene::entityObjects[index]->fetchRotation());
+	newEntity->setScale(Scene::entityObjects[index]->fetchScale());
+	newEntity->component.systems.material.Material = Scene::entityObjects[index]->component.systems.material.Material;
+
+
+	Scene::entityObjects.push_back(std::move(newEntity));
+	LogConsole::print("cloned Entity: " + name);
 }
 
 void colliderDuplicate(int index) {
@@ -83,17 +73,16 @@ void ObjectManager::duplicateObject(unsigned char ObjType, unsigned int UniqueNu
 	int index = IdManager::fetchIndexFromID(ObjType, UniqueNumber);
 	if (index == -1) 
 	{
+		LogConsole::print("index empty");
 		return;
 	}
 	else
 	{
+		
 		switch (ObjType)
 		{
-		case 'm': // model
-			dupeModel(index);
-			break;
-		case 'b': // billboard
-			billboardDuplicate(index);
+		case 'o': // object
+			entityDuplicate(index);
 			break;
 		case 'c': // collider
 			colliderDuplicate(index);
@@ -117,13 +106,9 @@ void deleteObjectSwitch(unsigned char ObjType, int index)
 {
 	switch (ObjType)
 	{
-	case 'm': // model
-		Scene::modelObjects[index]->Delete();
-		Scene::modelObjects.erase(Scene::modelObjects.begin() + index);
-		break;
-	case 'b': // billboard
-		Scene::BillBoardObjects[FEImGuiWindow::SelectedObjectIndex].Delete();
-		Scene::BillBoardObjects.erase(Scene::BillBoardObjects.begin() + FEImGuiWindow::SelectedObjectIndex);
+	case 'o': // object
+		Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->Delete();
+		Scene::entityObjects.erase(Scene::entityObjects.begin() + FEImGuiWindow::SelectedObjectIndex);
 		break;
 	case 'c': // collider
 		Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].Delete();
@@ -131,6 +116,10 @@ void deleteObjectSwitch(unsigned char ObjType, int index)
 		break;
 	case 'l':
 		LightingHandler::deleteLight(FEImGuiWindow::SelectedObjectIndex);
+		break;
+	case 's': // sound
+		Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].DeleteSound();
+		Scene::SoundObjects.erase(Scene::SoundObjects.begin() + FEImGuiWindow::SelectedObjectIndex);
 		break;
 	}
 }
@@ -146,9 +135,7 @@ void ObjectManager::deleteObject(unsigned char ObjType, unsigned int UniqueNumbe
 	else
 	{
 		deleteObjectSwitch(ObjType, index);
-
-		IdManager::lowestModelIndexSync();
-
+		IdManager::lowestObjectIndexSync();
 	}
 
 }
@@ -156,7 +143,7 @@ void ObjectManager::deleteObjectwIndex(unsigned char ObjType, unsigned int index
 {
 	deleteObjectSwitch(ObjType, index);
 
-	IdManager::lowestModelIndexSync();
+	IdManager::lowestObjectIndexSync();
 }
 
 char ObjectManager::NameBuffer[256] = "New Object";
@@ -173,11 +160,8 @@ void ObjectManager::renameObject(unsigned char ObjType, unsigned int UniqueNumbe
 	{
 		switch (ObjType)
 		{
-		case 'm': // model
-			Scene::modelObjects[index]->ObjectName = newName;
-			break;
-		case 'b': // billboard
-			Scene::BillBoardObjects[index].ObjectName = newName;
+		case 'o': // object
+			Scene::entityObjects[index]->setName(newName);
 			break;
 		case 'c': // collider
 			Scene::CubeColliderObject[index].name = newName;
@@ -202,11 +186,8 @@ void ObjectManager::renameObjectwIndex(unsigned char ObjType, unsigned int index
 	{
 		switch (ObjType)
 		{
-		case 'm': // model
-			Scene::modelObjects[index]->ObjectName = newName;
-			break;
-		case 'b': // billboard
-			Scene::BillBoardObjects[index].ObjectName = newName;
+		case 'o': // object
+			Scene::entityObjects[index]->setName(newName);
 			break;
 		case 'c': // collider
 			Scene::CubeColliderObject[index].name = newName;

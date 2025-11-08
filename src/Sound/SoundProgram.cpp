@@ -8,7 +8,6 @@
 
 ALCdevice* SoundProgram::device;
 ALCcontext* SoundProgram::context;
-BillBoard SoundIcon;
 
 void SoundProgram::PlaySound() {
     isPlay = true;
@@ -17,12 +16,16 @@ void SoundProgram::PlaySound() {
         if (init::LogSound) std::cout << "Sound played" << std::endl;
         do {
             alSourcef(source, AL_GAIN, currentvolume * SoundRunner::GlobalVolume); // set volume
-
+            alSource3f(source, AL_POSITION, position.x, position.y, position.z);
+            alSourcef(source, AL_PITCH, pitch);
+            if (!is3D) alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
+            else alSourcei(source, AL_SOURCE_RELATIVE, AL_FALSE);
             alGetSourcei(source, AL_SOURCE_STATE, &state);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));  // Sleep to avoid busy-waiting
         } while (state == AL_PLAYING && Main::sleepState);
         if(init::LogSound) std::cout << "Sound stopped" << std::endl;
         isPlay = false;
+		queuedPlay = false;
         }).detach();  // Detach the thread so it runs independently
 }
 
@@ -32,21 +35,23 @@ void SoundProgram::SetVolume(float Volume) {
 }
 
 void SoundProgram::SetPitch(float pitch) {
+    SoundProgram::pitch = pitch;
     alSourcef(source, AL_PITCH, pitch);
 }
 
 void SoundProgram::Set3D(bool is3D) {
+    SoundProgram::is3D = is3D;
     if (!is3D) alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE);
     else alSourcei(source, AL_SOURCE_RELATIVE, AL_FALSE);
 }
 
-void SoundProgram::SetSoundPosition(float x, float y, float z) {
-    SoundPosition = glm::vec3(x, y, z);
-    alSource3f(source, AL_POSITION, x, y, z);
+void SoundProgram::SetSoundPosition(glm::vec3 position) {
+    SoundProgram::position = position;
+    alSource3f(source, AL_POSITION, position.x, position.y, position.z);
 }
 
-void SoundProgram::SetListenerPosition(float x, float y, float z) {
-    alListener3f(AL_POSITION, x, y, z);
+void SoundProgram::SetListenerPosition(glm::vec3 position) {
+    alListener3f(AL_POSITION, position.x, position.y, position.z);
     alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f);
     ALfloat orientation[] = { 0.0f, 0.0f, -1.0f,  // Forward
                               0.0f, 1.0f, 0.0f }; // Up
@@ -55,7 +60,7 @@ void SoundProgram::SetListenerPosition(float x, float y, float z) {
 
 void SoundProgram::updateCameraPosition() {
     // Update listener's position
-    SetListenerPosition(Camera::Position.x, Camera::Position.y, Camera::Position.z);
+    SetListenerPosition(Camera::Position);
 
     // Use Camera orientation and up vector for 3D audio orientation
     ALfloat orientation[] = {
@@ -63,14 +68,6 @@ void SoundProgram::updateCameraPosition() {
         Camera::Up.x,         Camera::Up.y,         Camera::Up.z              // Up
     };
     alListenerfv(AL_ORIENTATION, orientation);
-    if (FEImGuiWindow::showViewportIcons) {
-        if (!FE_Math::isInRange(SoundPosition, Camera::Position, 1)) {
-            SoundIcon.setDoPitch(true);
-            SoundIcon.updatePosition(SoundPosition);
-            SoundIcon.updateScale(glm::vec3(1));
-            SoundIcon.draw();
-        }
-    }
 }
 
 
@@ -87,13 +84,13 @@ void SoundProgram::StopSound() {
 
 void SoundProgram::CreateSound(std::string Path, std::string name) {
     SoundProgram::name = name;
-
     //Load Sound, Generate source and attach buffer
     ChangeSound(Path);
     //std::cout << Path << std::endl;
 }
 
 void SoundProgram::ChangeSound(std::string path) {
+	SoundProgram::path = path;
     // Delete previous source and buffer if they exist
     if (source) {
         alDeleteSources(1, &source);
@@ -108,7 +105,6 @@ void SoundProgram::ChangeSound(std::string path) {
     loadWavFile(path, &buffer);
     alGenSources(1, &source);
     alSourcei(source, AL_BUFFER, buffer);
-    SoundIcon.init("assets/Dependants/sound.png");
 }
 
 void SoundProgram::DeleteSound() {

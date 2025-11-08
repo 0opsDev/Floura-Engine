@@ -24,11 +24,10 @@ public:
 
 	void updateScale(glm::vec3 Scale);
 
-	void create(const char* file);
+	Model(const char* file);
+	~Model();
 
 	void draw(Shader &shader);
-
-	void Delete();
 
 private:
 
