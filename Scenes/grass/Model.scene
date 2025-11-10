@@ -1,27 +1,15 @@
 [
     {
-        "BoxColliderScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "BoxColliderTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "CastShadow": true,
-        "DoFrustumCull": false,
-        "IDuniqueIdentifier": 8146,
-        "IsLod": false,
+        "CastShadow": false,
+        "IDuniqueIdentifier": 42,
         "Location": [
             0.0,
             0.0,
             0.0
         ],
-        "MaterialPath": "Assets/Material/Default.Material",
+        "MaterialPath": "Assets/Material/depth.Material",
         "Rotation": [
-            0.0,
+            -90.0,
             0.0,
             0.0
         ],
@@ -30,20 +18,9 @@
             1.0,
             1.0
         ],
-        "frustumBoxScale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "frustumBoxTransform": [
-            0.0,
-            0.0,
-            0.0
-        ],
         "isBackFaceCulling": true,
-        "isCollider": false,
-        "name": "Name",
-        "path": "Assets/LodModel/Tree/tree1.gltf",
+        "name": "point1",
+        "path": "Assets/Models/point/scene.gltf",
         "uvScale": [
             1.0,
             1.0

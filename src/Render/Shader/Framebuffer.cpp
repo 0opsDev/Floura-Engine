@@ -55,7 +55,7 @@ void Framebuffer::setupMainFBO(unsigned int width, unsigned int height) {
 	// ColorBuffer
 	glGenTextures(1, &frameBufferTexture);
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -84,7 +84,7 @@ void Framebuffer::setupSecondFBO(unsigned int width, unsigned int height) {
 	// Color buffer
 	glGenTextures(1, &frameBufferTexture2);
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -106,12 +106,12 @@ void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int h
 
 	// Update first frame buffer texture
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Update second framebuffer texture
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture2);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	GeometryPass::updateGbufferResolution(width, height);
 
@@ -191,7 +191,7 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	frameBufferProgram.setFloat("NearPlane", RenderClass::DepthPlane[0]);
 	frameBufferProgram.setFloat("FarPlane", RenderClass::DepthPlane[1]);
 	frameBufferProgram.setBool("doFog", RenderClass::doFog);
-	frameBufferProgram.setFloat3("fogColor", RenderClass::fogRGBA.r, RenderClass::fogRGBA.g, RenderClass::fogRGBA.b);
+	frameBufferProgram.setFloat3("fogColor", RenderClass::fogRGBA);
 
 	// draw the framebuffer
 	glBindVertexArray(viewVAO);
@@ -222,6 +222,8 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
+
+	frameBufferProgram.setFloat("gamma", RenderClass::gamma);
 
 	if (!imGuiPanels) {
 

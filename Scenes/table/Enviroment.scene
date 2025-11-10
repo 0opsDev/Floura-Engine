@@ -1,16 +1,16 @@
 [
     {
-        "DefaultSkyboxPath": "Assets/Skybox/OvercastSoilPuresky/Skybox.json",
+        "DefaultSkyboxPath": "Assets/Skybox/clearsky/Skybox.json",
         "DirAmbient": 0.10000000149011612,
         "DirColour": [
-            0.9100345373153687,
-            0.7647058963775635,
+            1.0,
+            1.0,
             1.0
         ],
         "DirEnabled": true,
         "DirRotation": [
-            148.3000030517578,
-            476.6000061035156,
+            71.0,
+            99.30000305175781,
             0.0
         ],
         "DirSMMaxBias": 0.05000000074505806,

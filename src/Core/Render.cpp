@@ -44,7 +44,7 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 
 	lightingRenderQuad.init();
 
-	
+	glEnable(GL_FRAMEBUFFER_SRGB);
 	// put in one function
 	Framebuffer::setupMainFBO(width, height);
 	Framebuffer::setupSecondFBO(width, height);
@@ -98,7 +98,8 @@ void RenderClass::ClearFramebuffers() {
 
 void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int height) {
 
-	glClearColor(RenderClass::skyRGBA[0], RenderClass::skyRGBA[1], RenderClass::skyRGBA[2],RenderClass::skyRGBA[3]);
+	
+	glClearColor(RenderClass::gammaCorrect(skyRGBA.r), RenderClass::gammaCorrect(skyRGBA.g), RenderClass::gammaCorrect(skyRGBA.b), 1.0f);
 
 	auto startInitTime = std::chrono::high_resolution_clock::now();
 
@@ -109,7 +110,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 
 	if (FEImGuiWindow::isWireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
-		glClearColor(0, 0, 0, 1);
+		glClearColor(pow(0.0f, RenderClass::gamma), pow(0.0f, RenderClass::gamma), pow(0.0f, RenderClass::gamma), 1.0f);
 	}
 	auto startInitTime2 = std::chrono::high_resolution_clock::now();
 
@@ -184,7 +185,8 @@ void RenderClass::DeferredLightingPass() {
 	GBLpass.setFloat("NearPlane", DepthPlane[0]);
 	GBLpass.setFloat("FarPlane", DepthPlane[1]);
 	GBLpass.setBool("doFog", doFog);
-	GBLpass.setFloat3("fogColor", fogRGBA.r, fogRGBA.g, fogRGBA.b);
+
+	GBLpass.setFloat3("fogColor", RenderClass::gammaCorrect3(fogRGBA));
 
 	//mat4
 	GBLpass.setMat4("cameraMatrix", Camera::cameraMatrix);
@@ -196,11 +198,11 @@ void RenderClass::DeferredLightingPass() {
 	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(Camera::cameraMatrix)));
 	GBLpass.setMat3("normalMatrix", normalMatrix);
 
-	GBLpass.setFloat3("orientation", Camera::Orientation.x, Camera::Orientation.y, Camera::Orientation.z);
-	GBLpass.setFloat3("cameraPos", Camera::Position.x, Camera::Position.y, Camera::Position.z);
-	GBLpass.setFloat3("cameraDirection", Camera::Orientation.x, Camera::Orientation.y, Camera::Orientation.z);
+	GBLpass.setFloat3("orientation", Camera::Orientation);
+	GBLpass.setFloat3("cameraPos", Camera::Position);
+	GBLpass.setFloat3("cameraDirection", Camera::Orientation);
 	//std::cout << Camera::width << " " << Camera::height << std::endl;
-	GBLpass.setFloat2("screenSize", Camera::width, Camera::height);
+	GBLpass.setFloat2("screenSize", glm::vec2(Camera::width, Camera::height));
 	GBLpass.setFloat("time", glfwGetTime());
 	//shader.
 	lightingRenderQuad.draw(GBLpass);
@@ -230,4 +232,12 @@ void RenderClass::Cleanup() {
 	SolidColour.Delete();
 	billBoardShader.Delete();
 	Framebuffer::frameBufferProgram.Delete();
+}
+
+float RenderClass::gammaCorrect(float input) {
+	return pow(input, 1.0f / RenderClass::gamma);
+}
+
+glm::vec3 RenderClass::gammaCorrect3(glm::vec3 input) {
+	return pow(input, glm::vec3(1.0f / RenderClass::gamma) );
 }

@@ -6,7 +6,8 @@
 #include<stb/stb_image.h>
 #include "imgui/imgui_impl_opengl3.h"
 #include <imgui_internal.h>
-
+#include <glm/ext/vector_float3.hpp>
+#include <glm/detail/func_exponential.inl> // not sure if this causes issues in dbg mode
 using json = nlohmann::json;
 
 bool init::LogALL = true;
@@ -45,6 +46,12 @@ void init::initLog() {
 	}
 }
 
+glm::vec3 gammaCorrectI(glm::vec3 input)
+{
+	//return pow(input, glm::vec3(1.0f / 2.2));
+	return input;
+}
+
 void init::initImGui(GLFWwindow* window) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -56,24 +63,36 @@ void init::initImGui(GLFWwindow* window) {
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 460");
+	//pow(0.35f, 1.0f / 2.2f), pow(input, 1.0f / 2.2f), pow(input, 1.0f / 2.2f), pow(input, 1.0f / 2.2f);
+
+	glm::vec3 colourF = gammaCorrectI(glm::vec3(0.35f, 0.35f, 0.40f));
+	glm::vec3 backgoundF = gammaCorrectI(glm::vec3(0.06f, 0.06f, 0.08f ));
+
+	glm::vec3 colour_hoveredF = gammaCorrectI(glm::vec3( 0.55f, 0.55f, 0.60f ));
+	glm::vec3 colour_activeF = gammaCorrectI(glm::vec3( 0.25f, 0.25f, 0.29f ));
+
+	glm::vec3 bg_frameF = gammaCorrectI(glm::vec3( 0.08f, 0.08f, 0.11f));
+	glm::vec3 bg_popupF = gammaCorrectI(glm::vec3( 0.09f, 0.09f, 0.12f ));
+	glm::vec3 bg_borderF = gammaCorrectI(glm::vec3( 0.12f, 0.12f, 0.16f ));
+
 
 	ImGuiStyle& Style = ImGui::GetStyle();
-	ImVec4 colour = ImVec4(0.35f, 0.35f, 0.40f, 1.0f);
-	ImVec4 backgound = ImVec4(0.06f, 0.06f, 0.08f, 1.0f);
+	ImVec4 colour = ImVec4(colourF.x, colourF.y, colourF.z, 1.0f);
+	ImVec4 backgound = ImVec4(backgoundF.x, backgoundF.y, backgoundF.z, 1.0f);
 
-	ImVec4 colour_hovered = ImVec4(0.55f, 0.55f, 0.60f, 1.0f);
-	ImVec4 colour_active = ImVec4(0.25f, 0.25f, 0.29f, 1.0f);
+	ImVec4 colour_hovered = ImVec4(colour_hoveredF.x, colour_hoveredF.y, colour_hoveredF.z, 1.0f);
+	ImVec4 colour_active = ImVec4(colour_activeF.x, colour_activeF.y, colour_activeF.z, 1.0f);
 
-	ImVec4 bg_frame = ImVec4(0.08f, 0.08f, 0.11f, 1.0f);
-	ImVec4 bg_popup = ImVec4(0.09f, 0.09f, 0.12f, 1.0f);
-	ImVec4 bg_border = ImVec4(0.12f, 0.12f, 0.16f, 1.0f);
+	ImVec4 bg_frame = ImVec4(bg_frameF.x, bg_frameF.y, bg_frameF.z, 1.0f);
+	ImVec4 bg_popup = ImVec4(bg_popupF.x, bg_popupF.y, bg_popupF.z, 1.0f);
+	ImVec4 bg_border = ImVec4(bg_borderF.x, bg_borderF.y, bg_borderF.z, 1.0f);
 
 	float dim_factor = 0.35f;
 	ImVec4 colour_dimmed = ImLerp(backgound, colour, dim_factor);
 
-
+	glm::vec3 colourG = gammaCorrectI(glm::vec3(0.88f, 0.88f, 0.88f));
 	// General Colors
-	Style.Colors[ImGuiCol_Text] = ImVec4(0.88f, 0.88f, 0.88f, 1.0f);
+	Style.Colors[ImGuiCol_Text] = ImVec4(colourG.x, colourG.y, colourG.z, 1.0f);
 	Style.Colors[ImGuiCol_WindowBg] = backgound;
 	Style.Colors[ImGuiCol_ChildBg] = backgound;
 	Style.Colors[ImGuiCol_PopupBg] = bg_popup;

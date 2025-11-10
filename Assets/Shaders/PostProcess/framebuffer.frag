@@ -20,6 +20,8 @@ uniform float NearPlane;
 
 uniform bool doFog;
 
+uniform float gamma;
+
 float linearizeDepth(float depth) {
     float z = depth * 2.0 - 1.0;
     return (NearPlane * FarPlane) / (FarPlane - z * (FarPlane - NearPlane)); 
@@ -42,5 +44,5 @@ void main() {
     float Depth = logisticDepth(depth, 0.1f, DepthDistance);
     vec3 final = texture(screenTexture, texCoords).rgb * (1.0f - Depth) + vec3(Depth * fogColor);
 
-    FragColor = vec4(final, 1.0);
+    FragColor.rgb = pow(final.rgb, vec3(gamma));
 }

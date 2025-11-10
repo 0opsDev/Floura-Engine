@@ -38,6 +38,7 @@ void initGLFW()
 	glfwWindowHint(GLFW_RESIZABLE, 1); // Start Resizable
 	glfwWindowHint(GLFW_MAXIMIZED, 0); // Start Maximized
 	glfwWindowHint(GLFW_DEPTH_BITS, 16); // DepthBuffer Bit
+	glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
 }
 
 //Main Function
@@ -110,8 +111,13 @@ int main() // global variables do not work with threads
 				Counter = 0;
 			}
 
-			if (FEImGuiWindow::imGuiPanels[0])
+			if (FEImGuiWindow::imGuiPanels[0]) 
+			{
+
 				FEImGuiWindow::Update();
+
+			}
+				
 		}
 
 		RenderClass::Swapchain(windowHandler::window); // tip to self, work down to up (lines)

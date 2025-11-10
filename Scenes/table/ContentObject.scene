@@ -238,5 +238,11 @@
         "ObjectType": "Sound",
         "Path": "Assets/Sounds/land.wav",
         "Type": "NULL"
+    },
+    {
+        "Name": "depth",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/depth.Material",
+        "Type": "NULL"
     }
 ]

@@ -226,7 +226,7 @@ void LightingHandler::update(Shader Shader)
 {
 	Shader.Activate();
 
-	Shader.setFloat4("skyColor", RenderClass::skyRGBA.r, RenderClass::skyRGBA.g, RenderClass::skyRGBA.b, 1.0f);
+	Shader.setFloat4("skyColor", glm::vec4(glm::vec3(RenderClass::gammaCorrect3(RenderClass::skyRGBA)), 1.0f));
 	Shader.setBool("doReflect", RenderClass::doReflections);
 
 
@@ -237,7 +237,7 @@ void LightingHandler::update(Shader Shader)
 		if (Lights[i].enabled)
 		{
 			std::string uniformName = "Lights[" + std::to_string(activeLightIndex) + "].";
-			Shader.setFloat3((uniformName + "position").c_str(), Lights[i].position.x, Lights[i].position.y, Lights[i].position.z);
+			Shader.setFloat3((uniformName + "position").c_str(), Lights[i].position);
 
 			glm::vec3 baseDirection = glm::vec3(0, 0, -1);
 			glm::vec3 eulerDegrees = Lights[i].rotation;
@@ -245,10 +245,9 @@ void LightingHandler::update(Shader Shader)
 			glm::mat4 rotationMatrix = glm::yawPitchRoll(eulerRadians.y, eulerRadians.x, eulerRadians.z);
 			glm::vec3 rotatedDirection = glm::vec3(rotationMatrix * glm::vec4(baseDirection, 0.0f));
 
-			Shader.setFloat3((uniformName + "rotation").c_str(), rotatedDirection.x, rotatedDirection.y, rotatedDirection.z);
+			Shader.setFloat3((uniformName + "rotation").c_str(), rotatedDirection);
 
-
-			Shader.setFloat3((uniformName + "colour").c_str(), Lights[i].colour.x, Lights[i].colour.y, Lights[i].colour.z);
+			Shader.setFloat3((uniformName + "colour").c_str(), RenderClass::gammaCorrect3(Lights[i].colour));
 			Shader.setFloat((uniformName + "radius").c_str(), Lights[i].radius);
 			Shader.setInt((uniformName + "type").c_str(), Lights[i].type);
 
@@ -274,8 +273,9 @@ void LightingHandler::update(Shader Shader)
 	Shader.setBool("doDirSpecularLight", doDirSpecularLight);
 	Shader.setFloat("directAmbient", directAmbient);
 	Shader.setFloat("dirSpecularLight", dirSpecularLight);
-	Shader.setFloat3("directLightPos", rotatedDirectionDIR.x, rotatedDirectionDIR.y, rotatedDirectionDIR.z); // 0.0f, 1.0f, 0.0f
-	Shader.setFloat3("directLightCol", directLightCol.x, directLightCol.y, directLightCol.z); // 1.0f, 1.0f, 1.0f
+	Shader.setFloat3("directLightPos", rotatedDirectionDIR); // 0.0f, 1.0f, 0.0f
+	//
+	Shader.setFloat3("directLightCol", RenderClass::gammaCorrect3(directLightCol)); // 1.0f, 1.0f, 1.0f
 
 	//DirSMMaxBias
 	Shader.setFloat("doDirShadowMap", doDirShadowMap);

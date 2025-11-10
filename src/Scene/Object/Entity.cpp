@@ -124,9 +124,9 @@ void entity::draw()
 		}
 
 		component.systems.material.Material.ModelShader.Activate();
-		component.systems.material.Material.ModelShader.setFloat2("uvScale", component.systems.material.uvScale.x, component.systems.material.uvScale.y);
+		component.systems.material.Material.ModelShader.setFloat2("uvScale", component.systems.material.uvScale);
 		component.systems.material.Material.ModelGpassShader.Activate();
-		component.systems.material.Material.ModelGpassShader.setFloat2("uvScale", component.systems.material.uvScale.x, component.systems.material.uvScale.y);
+		component.systems.material.Material.ModelGpassShader.setFloat2("uvScale", component.systems.material.uvScale);
 
 		if (RenderClass::DoForwardLightingPass) {
 			glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);

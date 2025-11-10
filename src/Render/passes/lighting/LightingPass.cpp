@@ -88,10 +88,10 @@ void LightingPass::computeRender() {
 
 	testCompute.ActivateCompute(ceil(CurrentWidth / 8), ceil(CurrentHeight / 4), 1);
 
-	testCompute.setFloat4("u_BaseColour", RenderClass::skyRGBA[0], RenderClass::skyRGBA[1], RenderClass::skyRGBA[2], RenderClass::skyRGBA[3]);
+	testCompute.setFloat4("u_BaseColour", glm::vec4(glm::vec3(RenderClass::gammaCorrect3(RenderClass::skyRGBA)), 1.0f) ); // glm::vec3(RenderClass::gammaCorrect3(RenderClass::skyRGBA)), 1.0f)
 	testCompute.setMat4("u_ViewMatrix", Camera::view);
 	testCompute.setMat4("u_ProjectionMatrix", Camera::projection);
-	testCompute.setFloat3("cameraPosition", Camera::Position.x, Camera::Position.y, Camera::Position.z);
+	testCompute.setFloat3("cameraPosition", Camera::Position);
 	testCompute.setInt("u_MaxSamples", samplecount);
 	
 

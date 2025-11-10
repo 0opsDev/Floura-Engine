@@ -22,6 +22,8 @@ public:
 
     void Delete();
 
+	int drawType = 0; // 0 = triangles, 1 = lines, 2 = points
+
 private:
 
     VAO VAO;

@@ -895,9 +895,12 @@ bool    ImGui_ImplOpenGL3_CreateDeviceObjects()
         "layout (location = 0) out vec4 Out_Color;\n"
         "void main()\n"
         "{\n"
-        "    Out_Color = Frag_Color * texture(Texture, Frag_UV.st);\n"
+        "    // gamma corrected\n"
+        "    Out_Color = vec4( pow( Frag_Color.rgb, vec3(2.2f) ), Frag_Color.a ) * texture(Texture, Frag_UV.st);\n"
+        "    // regular\n"
+        "    //Out_Color = Frag_Color * texture(Texture, Frag_UV.st);\n"
         "}\n";
-
+    // ^^ modify for gamma correction
     // Select shaders matching our GLSL versions
     const GLchar* vertex_shader = nullptr;
     const GLchar* fragment_shader = nullptr;

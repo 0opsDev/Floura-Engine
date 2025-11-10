@@ -74,7 +74,12 @@ void Mesh::draw(Shader& shader, glm::mat4 modelMatrix)
     //glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // Draw the mesh
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    if (drawType == 0)
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    else if (drawType == 1)
+        glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
+	else if (drawType == 2)
+    glDrawElements(GL_POINTS, indices.size(), GL_UNSIGNED_INT, 0);
 
     //glDisable(GL_BLEND);
 }

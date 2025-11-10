@@ -235,17 +235,17 @@ void Shader::setFloat(const char* uniform, GLfloat uniFloat)
 {
     glUniform1f(glGetUniformLocation(ID, uniform), uniFloat);
 }
-void Shader::setFloat2(const char* uniform, GLfloat uniFloat, GLfloat uniFloat2)
+void Shader::setFloat2(const char* uniform, glm::vec2 vector2)
 {
-    glUniform2f(glGetUniformLocation(ID, uniform), uniFloat, uniFloat2);
+    glUniform2f(glGetUniformLocation(ID, uniform), vector2.x, vector2.y);
 }
-void Shader::setFloat3(const char* uniform, GLfloat uniFloat, GLfloat uniFloat2, GLfloat uniFloat3)
+void Shader::setFloat3(const char* uniform, glm::vec3 vector3)
 {
-    glUniform3f(glGetUniformLocation(ID, uniform), uniFloat, uniFloat2, uniFloat3);
+    glUniform3f(glGetUniformLocation(ID, uniform), vector3.x, vector3.y, vector3.z);
 }
-void Shader::setFloat4(const char* uniform, GLfloat uniFloat, GLfloat uniFloat2, GLfloat uniFloat3, GLfloat uniFloat4)
+void Shader::setFloat4(const char* uniform, glm::vec4 vector4)
 {
-    glUniform4f(glGetUniformLocation(ID, uniform), uniFloat, uniFloat2, uniFloat3, uniFloat4);
+    glUniform4f(glGetUniformLocation(ID, uniform), vector4.x, vector4.y, vector4.z, vector4.w);
 }
 
 void Shader::setFloatVector(const char* uniform, GLsizei count, const GLfloat* value)

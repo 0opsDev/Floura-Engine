@@ -36,9 +36,9 @@ public:
 	void setIntVector(const char* uniform, GLsizei count, const GLint* value);
 
 	void setFloat(const char* uniform, GLfloat uniFloat);
-	void setFloat2(const char* uniform, GLfloat uniFloat, GLfloat uniFloat2);
-	void setFloat3(const char* uniform, GLfloat uniFloat, GLfloat uniFloat2, GLfloat uniFloat3);
-	void setFloat4(const char* uniform, GLfloat uniFloat, GLfloat uniFloat2, GLfloat uniFloat3, GLfloat uniFloat4);
+	void setFloat2(const char* uniform, glm::vec2 vector2);
+	void setFloat3(const char* uniform, glm::vec3 vector3);
+	void setFloat4(const char* uniform, glm::vec4 vector4);
 	void setFloatVector(const char* uniform, GLsizei count, const GLfloat* value);
 	void setFloat2Vector(const char* uniform, GLsizei count, const GLfloat* value);
 	void setFloat3Vector(const char* uniform, GLsizei count, const GLfloat* value);

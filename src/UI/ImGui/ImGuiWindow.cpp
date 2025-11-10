@@ -13,6 +13,7 @@
 #include <Scene/LightingHandler.h>
 #include "utils/logConsole.h"
 #include <Scene/ObjectManager.h>
+#include <Math/FE_math.h>
 
 //#include <Instance.h>
 
@@ -178,12 +179,54 @@ void FEImGuiWindow::saveContentObjects(std::string path) {
 // 0 positon, 1 scale, 2 rotate
 int SelectedTransform = 0; 
 
+glm::vec3 igPosition(glm::vec3 input)
+{
+	glm::mat4 T = glm::translate(glm::mat4(1.0f), input);
+
+	ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+		ImGuizmo::TRANSLATE, ImGuizmo::LOCAL,
+		glm::value_ptr(T));
+
+	if (ImGuizmo::IsUsing()) {
+		return glm::vec3(T[3][0], T[3][1], T[3][2]);
+	}
+	return input;
+}
+
+glm::mat4 useGuizmo(glm::vec3 inputPosition, glm::vec3 inputRotation, glm::vec3 inputScale, int SelectedTransform)
+{
+	glm::mat4 mat = FE_Math::composeMatrix(inputPosition, inputScale, inputRotation);
+
+	if (SelectedTransform == 0)
+	{
+		ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+			ImGuizmo::TRANSLATE, ImGuizmo::WORLD,
+			glm::value_ptr(mat));
+	}
+	else if (SelectedTransform == 1)
+	{
+		ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+			ImGuizmo::SCALE, ImGuizmo::WORLD,
+			glm::value_ptr(mat));
+	}
+	else if (SelectedTransform == 2)
+	{
+		ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+			ImGuizmo::ROTATE, ImGuizmo::WORLD,
+			glm::value_ptr(mat));
+	}
+
+	return mat;
+}
+
+
 void FEImGuiWindow::Update() {
 	//Tell Imgui a new frame is about to begin
 //
+	//glDisable(GL_FRAMEBUFFER_SRGB);
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	ImGuizmo::BeginFrame();
-
+	//glEnable(GL_FRAMEBUFFER_SRGB);
 	FEImGuiWindow::menuwindow();
 
 	// Rendering panel
@@ -226,130 +269,59 @@ void FEImGuiWindow::Update() {
 	//
 	if (FEImGuiWindow::SelectedObjectType != "") // needs guizmo enabled var // passes if object is selected
 	{
-		if (FEImGuiWindow::SelectedObjectType == "Model") {
-			auto* selected = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex].get();
+		if (FEImGuiWindow::SelectedObjectType == "Model" || FEImGuiWindow::SelectedObjectType == "Billboard") {
 
-			glm::mat4 T = glm::translate(glm::mat4(1.0f), selected->fetchPosition());
-			glm::vec3 rot = selected->fetchRotation();
-			glm::mat4 R = glm::yawPitchRoll(glm::radians(rot.y),
-				glm::radians(rot.x),
-				glm::radians(rot.z));
-			glm::mat4 S = glm::scale(glm::mat4(1.0f), selected->fetchScale());
-
-			glm::mat4 modelMatrix = T * R * S;
-
-			if (SelectedTransform == 0)
-			{
-				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
-					ImGuizmo::TRANSLATE, ImGuizmo::LOCAL,
-					glm::value_ptr(modelMatrix));
-			}
-			else if (SelectedTransform == 1)
-			{
-				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
-					ImGuizmo::SCALE, ImGuizmo::LOCAL,
-					glm::value_ptr(modelMatrix));
-			}
-			else if (SelectedTransform == 2)
-			{
-				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
-					ImGuizmo::ROTATE, ImGuizmo::LOCAL,
-					glm::value_ptr(modelMatrix));
-			}
-
-
-
+			glm::mat4 mat = useGuizmo(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchPosition(), Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchRotation(), Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchScale(), SelectedTransform);
 
 			if (ImGuizmo::IsUsing()) {
-				glm::vec3 translation, rotation, scale;
-				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(modelMatrix),
-					glm::value_ptr(translation),
-					glm::value_ptr(rotation),
-					glm::value_ptr(scale));
-				if (SelectedTransform == 0)
-				{
-					selected->setPosition(translation);
+				if (ImGuizmo::IsUsing()) {
+					glm::vec3 position, rotation_unstable, scale;
+					ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(mat),
+						glm::value_ptr(position),
+						glm::value_ptr(rotation_unstable),
+						glm::value_ptr(scale));
+
+					glm::quat newRotationQuat = glm::quat_cast(mat);
+
+					if (SelectedTransform == 0)
+					{
+						Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setPosition(position);
+					}
+					else if (SelectedTransform == 1)
+					{
+						Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setScale(scale);
+					}
+					else if (SelectedTransform == 2)
+					{
+						Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setRotation(rotation_unstable);
+					}
+					
+					
 				}
-				else if (SelectedTransform == 1)
-				{
-					selected->setScale(scale);
-				}
-				else if (SelectedTransform == 2)
-				{
-					selected->setRotation(rotation);
-				}
-			}
-		}
 
-		else if (FEImGuiWindow::SelectedObjectType == "Light") {
-
-			glm::mat4 T = glm::translate(glm::mat4(1.0f), LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position);
-
-				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
-					ImGuizmo::TRANSLATE, ImGuizmo::LOCAL,
-				glm::value_ptr(T));
-
-			if (ImGuizmo::IsUsing()) {
-				glm::vec3 translation, rotation, scale;
-				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(T),
-					glm::value_ptr(translation),
-					glm::value_ptr(rotation),
-					glm::value_ptr(scale));
-
-				LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position = translation;
-				//selected->rotation = rotation;
-				//selected->scale = scale;
 			}
 
 		}
 
-		else if (FEImGuiWindow::SelectedObjectType == "BillBoard") {
-
-			glm::mat4 T = glm::translate(glm::mat4(1.0f), Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchPosition());
-			glm::mat4 S = glm::scale(glm::mat4(1.0f), Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchScale());
-
-			glm::mat4 modelMatrix = T * S;
-
-			if (SelectedTransform == 0)
-			{
-				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
-					ImGuizmo::TRANSLATE, ImGuizmo::LOCAL,
-					glm::value_ptr(modelMatrix));
-			}
-			else if (SelectedTransform == 1)
-			{
-				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
-					ImGuizmo::SCALE, ImGuizmo::LOCAL,
-					glm::value_ptr(modelMatrix));
-			}
-			else if (SelectedTransform == 2)
-			{
-				ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
-					ImGuizmo::ROTATE, ImGuizmo::LOCAL,
-					glm::value_ptr(modelMatrix));
-			}
-
-			if (ImGuizmo::IsUsing()) {
-				glm::vec3 translation, rotation, scale;
-				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(modelMatrix),
-					glm::value_ptr(translation),
-					glm::value_ptr(rotation),
-					glm::value_ptr(scale));
-				if (SelectedTransform == 0)
-				{
-					Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setPosition(translation);
-				}
-				else if (SelectedTransform == 1)
-				{
-					Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setScale(scale);
-				}
-			}
+		else if (FEImGuiWindow::SelectedObjectType == "Light") {
+			LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position = igPosition(LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position);
+		}
+		else if (FEImGuiWindow::SelectedObjectType == "Collider") {
+			Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].colliderXYZ = igPosition(Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].colliderXYZ);
+		}
+		else if (FEImGuiWindow::SelectedObjectType == "Sound") {
+			Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].position = igPosition(Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].position);
 		}
 	}
 
 	//scene
+	
+	//glDisable(GL_FRAMEBUFFER_SRGB);		
 	ImGui::Render(); // Renders the ImGUI elements
+	
+	//glDisable(GL_FRAMEBUFFER_SRGB);
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	//glEnable(GL_FRAMEBUFFER_SRGB);
 }
 
 void FEImGuiWindow::menuwindow()

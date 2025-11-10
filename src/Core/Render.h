@@ -53,5 +53,9 @@ public:
 
 	static void Cleanup();
 
+	static float gammaCorrect(float input);
+
+	static glm::vec3 gammaCorrect3(glm::vec3 input);
+
 };
 #endif

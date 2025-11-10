@@ -177,7 +177,7 @@ void Texture::createTextureDetached(const char* image)
             glTexImage2D(
                 GL_TEXTURE_2D,
                 0,
-                GL_RGBA, // GL_RGBA
+                GL_SRGB_ALPHA, // GL_RGBA
                 widthImg,
                 heightImg,
                 0,
@@ -203,7 +203,7 @@ void Texture::createTextureDetached(const char* image)
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
-            GL_RGBA, // GL_RGBA
+            GL_SRGB_ALPHA, // GL_RGBA
             widthImg,
             heightImg,
             0,
@@ -215,7 +215,7 @@ void Texture::createTextureDetached(const char* image)
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
-            GL_RGB, //was GL_RGB
+            GL_SRGB, //was GL_RGB
             widthImg,
             heightImg,
             0,

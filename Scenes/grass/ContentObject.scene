@@ -1,8 +1,26 @@
 [
     {
-        "Name": "Name",
+        "Name": "clearsky",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/clearsky/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "albedo",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/albedo.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "point1",
         "ObjectType": "Model",
-        "Path": "Assets/LodModel/Tree/tree1.gltf",
-        "Type": "static"
+        "Path": "Assets/Models/point/scene.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "depth",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/depth.Material",
+        "Type": "NULL"
     }
 ]
