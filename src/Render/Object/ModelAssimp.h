@@ -12,6 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include "core/Render.h"
+#include "Physics/Collision.h"
 
 class Model {
 public:
@@ -29,7 +30,14 @@ public:
 
 	void draw(Shader &shader);
 
+	void updateMeshAABBs();
+
+	// AABBS position stored in local space
+	std::vector<Collision::AABB> MeshAABBs;
+
 private:
+	
+	std::vector<Collision::AABB> FetchMeshAABBs();
 
 	std::vector<Mesh> meshes;
 	std::vector<RenderClass::transformation>localTransformation;

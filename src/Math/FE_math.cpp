@@ -55,3 +55,18 @@ glm::mat4 FE_Math::composeMatrix(glm::vec3 position, glm::vec3 scale, glm::vec3 
 
     return (mTransform * mRotation * mScale);
 }
+
+float FE_Math::calculateCenter1D(glm::vec2 input)
+{
+    return (input.x + input.y) / 2.0f;
+}
+
+float FE_Math::distanceFromTwoPoints1D(glm::vec2 input)
+{
+    return glm::abs(input.x - input.y);
+}
+
+float FE_Math::furthestPoint(glm::vec2 input)
+{
+    return glm::max(input.x, input.y);
+}

@@ -16,25 +16,28 @@
 		{
 			"mesh":0,
 			"name":"Plane",
-			"rotation":[
-				0.5,
-				0.5,
-				-0.5,
-				0.5
+			"scale":[
+				100,
+				100,
+				100
 			]
 		}
 	],
 	"materials":[
 		{
-			"alphaMode":"BLEND",
 			"doubleSided":true,
 			"name":"Material.001",
+			"normalTexture":{
+				"index":0
+			},
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
-					"index":0
+					"index":1
 				},
 				"metallicFactor":0,
-				"roughnessFactor":0.5
+				"metallicRoughnessTexture":{
+					"index":2
+				}
 			}
 		}
 	],
@@ -58,74 +61,92 @@
 		{
 			"sampler":0,
 			"source":0
+		},
+		{
+			"sampler":0,
+			"source":1
+		},
+		{
+			"sampler":0,
+			"source":2
 		}
 	],
 	"images":[
 		{
+			"mimeType":"image/jpeg",
+			"name":"aerial_grass_rock_nor_gl_4k",
+			"uri":"aerial_grass_rock_nor_gl_4k.jpg"
+		},
+		{
+			"mimeType":"image/jpeg",
+			"name":"aerial_grass_rock_diff_4k",
+			"uri":"aerial_grass_rock_diff_4k.jpg"
+		},
+		{
 			"mimeType":"image/png",
-			"name":"n_grass_diff_0_35",
-			"uri":"n_grass_diff_0_35.png"
+			"name":"aerial_grass_rock_rough_4k",
+			"uri":"aerial_grass_rock_rough_4k.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":4,
+			"count":261823,
 			"max":[
-				1,
-				0,
-				1
+				1.0000009536743164,
+				0.004999999888241291,
+				1.0000011920928955
 			],
 			"min":[
-				-1,
-				0,
-				-1
+				-1.0000009536743164,
+				-0.014999999664723873,
+				-1.0000009536743164
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":4,
+			"count":261823,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":4,
+			"count":261823,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
-			"componentType":5123,
-			"count":6,
+			"componentType":5125,
+			"count":393216,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":48,
+			"byteLength":3141876,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":48,
-			"byteOffset":48,
+			"byteLength":3141876,
+			"byteOffset":3141876,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":32,
-			"byteOffset":96,
+			"byteLength":2094584,
+			"byteOffset":6283752,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":12,
-			"byteOffset":128,
+			"byteLength":1572864,
+			"byteOffset":8378336,
 			"target":34963
 		}
 	],
@@ -137,8 +158,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":140,
-			"uri":"xBbGrass.bin"
+			"byteLength":9951200,
+			"uri":"terrain.bin"
 		}
 	]
 }

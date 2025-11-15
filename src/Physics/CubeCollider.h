@@ -22,7 +22,6 @@ public:
 	bool enabled = true;
 	static bool CollideWithCamera;
 	static bool showBoxCollider;
-	bool checkcollide(glm::vec3 victimXYZ, glm::vec3 victimScale); //, glm::vec3 victimRotation
 	void init();
 	void update();
 	void draw();

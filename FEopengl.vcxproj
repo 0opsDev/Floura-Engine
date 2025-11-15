@@ -148,6 +148,7 @@
     <ClCompile Include="src\Core\glad.c" />
     <ClCompile Include="src\Core\Main.cpp" />
     <ClCompile Include="src\Core\Render.cpp" />
+    <ClCompile Include="src\Core\TaskScheduler.cpp" />
     <ClCompile Include="src\Gameplay\Player.cpp" />
     <ClCompile Include="src\Libraries\include\ImGuizmo\GraphEditor.cpp" />
     <ClCompile Include="src\Libraries\include\ImGuizmo\ImCurveEdit.cpp" />
@@ -162,6 +163,7 @@
     <ClCompile Include="src\Libraries\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Math\FE_math.cpp" />
+    <ClCompile Include="src\Physics\Collision.cpp" />
     <ClCompile Include="src\Physics\CubeCollider.cpp" />
     <ClCompile Include="src\Render\Buffer\EBO.cpp" />
     <ClCompile Include="src\Render\Buffer\VAO.cpp" />
@@ -169,6 +171,7 @@
     <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp" />
     <ClCompile Include="src\Render\Cube\RenderQuad.cpp" />
     <ClCompile Include="src\Render\Object\Billboard.cpp" />
+    <ClCompile Include="src\Render\Object\line.cpp" />
     <ClCompile Include="src\Render\Object\Mesh.cpp" />
     <ClCompile Include="src\Render\Object\ModelAssimp.cpp" />
     <ClCompile Include="src\Render\Object\Shape3D.cpp" />
@@ -218,6 +221,7 @@
     <ClInclude Include="src\Core\File\File.h" />
     <ClInclude Include="src\Core\Main.h" />
     <ClInclude Include="src\Core\Render.h" />
+    <ClInclude Include="src\Core\TaskScheduler.h" />
     <ClInclude Include="src\Gameplay\Player.h" />
     <ClInclude Include="src\Libraries\include\ImGuizmo\GraphEditor.h" />
     <ClInclude Include="src\Libraries\include\ImGuizmo\ImApp.h" />
@@ -236,6 +240,7 @@
     <ClInclude Include="src\Libraries\include\imgui\imstb_textedit.h" />
     <ClInclude Include="src\Libraries\include\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Math\FE_math.h" />
+    <ClInclude Include="src\Physics\Collision.h" />
     <ClInclude Include="src\Physics\CubeCollider.h" />
     <ClInclude Include="src\Render\Buffer\EBO.h" />
     <ClInclude Include="src\Render\Buffer\VAO.h" />
@@ -243,6 +248,7 @@
     <ClInclude Include="src\Render\Cube\CubeVisualizer.h" />
     <ClInclude Include="src\Render\Cube\RenderQuad.h" />
     <ClInclude Include="src\Render\Object\Billboard.h" />
+    <ClInclude Include="src\Render\Object\line.h" />
     <ClInclude Include="src\Render\Object\Mesh.h" />
     <ClInclude Include="src\Render\Object\ModelAssimp.h" />
     <ClInclude Include="src\Render\Object\Shape3D.h" />
@@ -292,6 +298,8 @@
     <None Include="Assets\Shaders\Db\ComputeRenderQuad.frag" />
     <None Include="Assets\Shaders\Db\computeShader.comp" />
     <None Include="Assets\Shaders\Db\emptycomputeShader.comp" />
+    <None Include="Assets\Shaders\Db\line.frag" />
+    <None Include="Assets\Shaders\Db\line.vert" />
     <None Include="Assets\Shaders\Db\OrangeHitbox.frag" />
     <None Include="Assets\Shaders\Db\RenderQuad.frag" />
     <None Include="Assets\Shaders\Db\RenderQuad.vert" />

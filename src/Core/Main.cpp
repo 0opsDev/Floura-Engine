@@ -16,6 +16,7 @@
 #include <Scene/LightingHandler.h>
 #include "UI/OpenSceneWindow.h"
 #include <windows.h>
+#include "TaskScheduler.h"
 
 bool Main::sleepState = true;
 float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far // move this to camera class or something
@@ -37,7 +38,7 @@ void initGLFW()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //OpenGl Profile
 	glfwWindowHint(GLFW_RESIZABLE, 1); // Start Resizable
 	glfwWindowHint(GLFW_MAXIMIZED, 0); // Start Maximized
-	glfwWindowHint(GLFW_DEPTH_BITS, 16); // DepthBuffer Bit
+	glfwWindowHint(GLFW_DEPTH_BITS, 24); // DepthBuffer Bit
 	glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
 }
 
@@ -71,7 +72,6 @@ int main() // global variables do not work with threads
 	//scene
 	Scene::init();
 	Scene::LoadScene(Scene::sceneName); // could we thread this? // scene exsists already, we just need to add to the array 
-
 	//just a class to test stuff
 	TempScene::init();
 
@@ -87,6 +87,7 @@ int main() // global variables do not work with threads
 		RenderClass::ClearFramebuffers(); // Clear Framebuffers
 		TimeUtil::updateDeltaTime(); // Update delta time
 		IdManager::update();
+		TaskScheduler::update();
 		ScriptRunner::update();
 		InputUtil::UpdateCurrentKey();
 
@@ -134,7 +135,7 @@ int main() // global variables do not work with threads
 	{
 		ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
 	}
-
+	TaskScheduler::killAll();
 	RenderClass::Cleanup();
 	Skybox::Delete();
 	TempScene::Delete(); // Delete scene

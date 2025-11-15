@@ -92,7 +92,7 @@ void FEImGuiWindow::init() {
 	rotateIcon.createTextureDetached("Assets/Icons/rotate.png");
 	wirefameIcon.createTextureDetached("Assets/Icons/wireframeIcon.png");
 	iIcon.createTextureDetached("Assets/Icons/iIcon.png");
-	SoundIcon.createTextureDetached("assets/Dependants/sound.png");
+	SoundIcon.createTextureDetached("assets/Icons/soundIcon.png");
 }
 
 void FEImGuiWindow::loadContentObjects(std::string path) {
@@ -1153,6 +1153,17 @@ void FEImGuiWindow::ModelWindow() {
 		FEImGui::DragVec3("Position", modelPos, glm::vec3(0.0f), 100.0f);
 		FEImGui::DragVec3("Scale", modelScale, glm::vec3(1.0f), 100.0f); // should i call? i don't wanna ring everybody's phones while they are asleep
 		FEImGui::DragVec3("Rotation", modelRot, glm::vec3(0.0f), 100.0f);
+
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+
+	ImGui::Spacing();
+	if (ImGui::TreeNode("Collider Component")) {
+
+		if (ImGui::Button("Update Mesh AABB"))
+		{
+			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->updateMeshAABBs();
+		}
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}

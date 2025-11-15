@@ -23,7 +23,7 @@ BillBoard* SoundIcon;
 void Scene::init() {
 	PointLightIcon = new BillBoard("Assets/Icons/point.png");
 	SpotLightIcon = new BillBoard("Assets/Icons/spot.png"); // draw instanced option with array argument for transformations
-	SoundIcon = new BillBoard("assets/Dependants/sound.png");
+	SoundIcon = new BillBoard("assets/Icons/soundIcon.png");
 
 }
 
@@ -229,15 +229,13 @@ void Scene::initJsonModelLoad(std::string path) {
 			item.at("uvScale")[1]));
 
 		newObject->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
-
-		newObject->create('m', name, path, MaterialPath); // Load into this unique MaterialObject // this needs to run and somehow join up when complete?
-		
-		/*
-		we make a unique modelobject with (std::make_unique) instead of cloning, then we point to the new unique modelobject  in memory within the array with std::move,
-		which stops it from making a bit to bit clone of the prior object, and leaving the shaderprogram ID behind.
-		it generates a model object then makes the index of the array point to the new unique object in memory, which doesnt have its own copied id
-		*/
+		//newObject->create('m', name, path, MaterialPath); // Load into this unique MaterialObject // this needs to run and somehow join up when complete?
+		// what about the idea of creating them in a state without a actual model, then doing the create function on a thread and push back when joinable;
 		entityObjects.push_back(std::move(newObject));
+		
+		entityObjects.back()->create('m', name, path, MaterialPath);
+
+
 
 	}
 	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene Models from: " << path << std::endl;
@@ -720,9 +718,9 @@ void Scene::initCameraSettingsLoad(std::string path) {
 		std::cerr << "Camera Failed to open " << path << std::endl;
 	}
 }
+
 void Scene::draw() 
 {
-
 	for (size_t i = 0; i < entityObjects.size(); i++)
 	{
 		entityObjects[i]->drawShadowMap();
@@ -738,6 +736,8 @@ void Scene::draw()
 		CubeColliderObject[i].draw();
 	}
 }
+
+
 void Scene::Update() {
 
 	for (size_t i = 0; i < CubeColliderObject.size(); i++) {

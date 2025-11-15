@@ -69,8 +69,8 @@ void CubeVisualizer::skyboxBuffer() {
 
 }
 
-void CubeVisualizer::draw(float x, float y, float z,
-	float ScaleX, float ScaleY, float ScaleZ, glm::vec3 colour) {
+void CubeVisualizer::draw(glm::vec3 position,
+	glm::vec3 scale, glm::vec3 colour) {
 
 	if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
 		return; // Skip rendering if not in regular or lighting pass
@@ -87,9 +87,9 @@ void CubeVisualizer::draw(float x, float y, float z,
 
 		glm::mat4 model = glm::mat4(1.0f);
 		// Apply translation
-		model = glm::translate(model, glm::vec3(x, y, z));
+		model = glm::translate(model, position);
 		// Apply scaling
-		model = glm::scale(model, glm::vec3(ScaleX, ScaleY, ScaleZ));
+		model = glm::scale(model, scale);
 		RenderClass::boxShader.setMat4("model", model);
 		//feed model matrix known as inside the shader "model"
 		RenderClass::boxShader.setMat4("camMatrix", Camera::cameraMatrix);

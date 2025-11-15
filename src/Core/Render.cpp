@@ -14,6 +14,7 @@
 Shader RenderClass::billBoardShader;
 Shader RenderClass::gPassShaderBillBoard;
 Shader RenderClass::boxShader;
+Shader RenderClass::LineShader;
 
 float RenderClass::gamma = 2.2f;
 bool RenderClass::renderSkybox = true;
@@ -23,6 +24,9 @@ GLfloat RenderClass::DepthDistance = 100.0f;
 GLfloat RenderClass::DepthPlane[] = { 0.1f, 100.0f };
 glm::vec3 RenderClass::skyRGBA = glm::vec3(1.0f, 1.0f, 1.0f);
 glm::vec3 RenderClass::fogRGBA = glm::vec3( 1.0f, 1.0f, 1.0f);
+
+CubeVisualizer* RenderClass::WhiteCube;
+Line3D* RenderClass::line;
 
 Shader SolidColour;
 RenderQuad lightingRenderQuad;
@@ -61,7 +65,9 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 		ImGuizmo::SetOrthographic(false);
 		init::initImGui(windowHandler::window); // Initialize ImGUI
 	}
-	
+
+	WhiteCube = new CubeVisualizer;
+	line = new Line3D(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 }
 
 void RenderClass::initGlobalShaders() {
@@ -71,6 +77,7 @@ void RenderClass::initGlobalShaders() {
 	boxShader.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Db/OrangeHitbox.frag");
 	SolidColour.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Db/solidColour.frag");
 	GBLpass.LoadShader("Assets/Shaders/Db/RenderQuad.vert", "Assets/Shaders/Db/RenderQuad.frag");
+	LineShader.LoadShader("Assets/Shaders/Db/line.vert", "Assets/Shaders/Db/line.frag");
 	Framebuffer::frameBufferProgram.LoadShader("Assets/Shaders/PostProcess/framebuffer.vert", "Assets/Shaders/PostProcess/framebuffer.frag");
 }
 
@@ -231,7 +238,11 @@ void RenderClass::Cleanup() {
 	GBLpass.Delete();
 	SolidColour.Delete();
 	billBoardShader.Delete();
+	LineShader.Delete();
 	Framebuffer::frameBufferProgram.Delete();
+
+	WhiteCube->~CubeVisualizer();
+	line->~Line3D();
 }
 
 float RenderClass::gammaCorrect(float input) {

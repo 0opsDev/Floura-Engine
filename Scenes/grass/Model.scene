@@ -1,15 +1,15 @@
 [
     {
-        "CastShadow": false,
+        "CastShadow": true,
         "IDuniqueIdentifier": 42,
         "Location": [
             0.0,
             0.0,
             0.0
         ],
-        "MaterialPath": "Assets/Material/depth.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
-            -90.0,
+            0.0,
             0.0,
             0.0
         ],
@@ -19,8 +19,89 @@
             1.0
         ],
         "isBackFaceCulling": true,
-        "name": "point1",
-        "path": "Assets/Models/point/scene.gltf",
+        "name": "terrain",
+        "path": "Assets/Models/terrain/terrain.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 8468,
+        "Location": [
+            25.298112869262695,
+            -0.6648927927017212,
+            3.9415345191955566
+        ],
+        "MaterialPath": "Assets/Material/Wobble.Material",
+        "Rotation": [
+            14.199999809265137,
+            84.69999694824219,
+            -4.800000190734863
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": true,
+        "name": "tree2",
+        "path": "Assets/LodModel/Tree/tree2.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 9170,
+        "Location": [
+            29.18352699279785,
+            2.723654270172119,
+            11.102420806884766
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "path": "Assets/Models/basic shapes/cube.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 4465,
+        "Location": [
+            0.0,
+            2.454303026199341,
+            -10.13146686553955
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": true,
+        "name": "AR",
+        "path": "Assets/Models/ar/m16baked.gltf",
         "uvScale": [
             1.0,
             1.0

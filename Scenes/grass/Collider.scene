@@ -1,1 +1,17 @@
-[]
+[
+    {
+        "IDuniqueIdentifier": 1065353216,
+        "enabled": true,
+        "name": "flatplane 100*100",
+        "position": [
+            0.0,
+            -2.0,
+            0.0
+        ],
+        "scale": [
+            100.0,
+            1.0,
+            100.0
+        ]
+    }
+]

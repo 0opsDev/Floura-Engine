@@ -1,6 +1,8 @@
 #include "Mesh.h"
 #include <utils/logConsole.h>
 #include <camera/Camera.h>
+#include <limits>
+#include <Math/FE_math.h>
 
 void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
 {
@@ -27,6 +29,22 @@ void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, s
     }
     */
 
+
+    setupMesh();
+}
+
+void Mesh::createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
+{
+    // err checking
+    if (vertices.empty()) {
+        LogConsole::print("mesh.cpp Vertices are empty");
+    }
+    if (indices.empty()) {
+        LogConsole::print("mesh.cpp indices are empty");
+    }
+
+    this->vertices = vertices;
+    this->indices = indices;
 
     setupMesh();
 }
@@ -118,4 +136,85 @@ void Mesh::Delete()
 
     vertices.clear();
     indices.clear();
+}
+
+
+glm::vec2 Mesh::findTwoFurthestVerticesX()
+{
+    // max and min points
+    glm::vec3 minX = glm::vec3(std::numeric_limits<float>::max());
+    glm::vec3 maxX = glm::vec3(std::numeric_limits<float>::lowest());
+	
+
+    for (size_t x = 0; x < vertices.size(); x++)
+    {
+		minX = (vertices[x].position.x < minX.x) ? vertices[x].position : minX;
+		maxX = (vertices[x].position.x > maxX.x) ? vertices[x].position : maxX;
+	}
+	return glm::vec2(minX.x, maxX.x);
+}
+
+glm::vec2 Mesh::findTwoFurthestVerticesY()
+{
+    glm::vec3 minY = glm::vec3(std::numeric_limits<float>::max());
+    glm::vec3 maxY = glm::vec3(std::numeric_limits<float>::lowest());
+    for (size_t x = 0; x < vertices.size(); x++)
+    {
+        minY = (vertices[x].position.y < minY.y) ? vertices[x].position : minY;
+        maxY = (vertices[x].position.y > maxY.y) ? vertices[x].position : maxY;
+    }
+	return glm::vec2(minY.y, maxY.y);
+}
+glm::vec2 Mesh::findTwoFurthestVerticesZ()
+{
+    glm::vec3 minZ = glm::vec3(std::numeric_limits<float>::max());
+    glm::vec3 maxZ = glm::vec3(std::numeric_limits<float>::lowest());
+    for (size_t x = 0; x < vertices.size(); x++)
+    {
+        minZ = (vertices[x].position.z < minZ.z) ? vertices[x].position : minZ;
+        maxZ = (vertices[x].position.z > maxZ.z) ? vertices[x].position : maxZ;
+    }
+	return glm::vec2(minZ.z, maxZ.z);
+}
+
+Collision::AABB Mesh::createAABBfromMesh()
+{
+    // optimise later btw
+    Collision::AABB AABB;
+
+    /*
+        // find largest distance on each axis
+    glm::vec2 X = Mesh::findTwoFurthestVerticesX();
+    glm::vec2 Y = Mesh::findTwoFurthestVerticesY();
+    glm::vec2 Z = Mesh::findTwoFurthestVerticesZ();
+
+    // find the centre in all 3 axis
+    AABB.position = glm::vec3( // centre becomes location
+        FE_Math::calculateCenter1D(X),
+        FE_Math::calculateCenter1D(Y),
+        FE_Math::calculateCenter1D(Z)
+    );
+
+    // find distance from furthest to the centre to each axis // edges to centre
+    AABB.size = glm::vec3( // distance becomes size
+        FE_Math::distanceFromTwoPoints1D(glm::vec2(AABB.position.x, FE_Math::furthestPoint(X))),
+        FE_Math::distanceFromTwoPoints1D(glm::vec2(AABB.position.y, FE_Math::furthestPoint(Y))),
+        FE_Math::distanceFromTwoPoints1D(glm::vec2(AABB.position.z, FE_Math::furthestPoint(Z)))
+    );
+    */
+
+    glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
+    glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
+
+    for (size_t i = 0; i < vertices.size(); i++)
+    {
+        min = glm::min(min, vertices[i].position);
+        max = glm::max(max, vertices[i].position);
+    }
+    AABB.position = (min + max) * 0.5f;
+    AABB.size = (max - min) * 0.5f;
+    //AABB.size = (max - min);
+    
+    
+    return AABB;
 }

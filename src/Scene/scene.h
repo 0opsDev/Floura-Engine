@@ -6,7 +6,7 @@
 #include <Sound/SoundRunner.h>
 #include <Scene/Object/Entity.h>
 #include <Physics/CubeCollider.h>
-
+#include <thread>
 using json = nlohmann::json;
 
 //testclass
@@ -18,7 +18,6 @@ public:
 	static std::vector <CubeCollider> CubeColliderObject;
 	static std::vector <SoundProgram> SoundObjects;
 	static std::vector <std::unique_ptr<entity>> entityObjects;
-
 	// 4th component is radius
 
 	static glm::vec3 initalCameraPos;

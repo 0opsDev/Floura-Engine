@@ -13,6 +13,11 @@ public:
 
 	static glm::mat4 composeMatrix(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
 
+	static float calculateCenter1D(glm::vec2 input);
+
+	static float distanceFromTwoPoints1D(glm::vec2 input);
+
+	static float furthestPoint(glm::vec2 input);
 };
 
 #endif // FE_MATH_CLASS_H

@@ -1,9 +1,9 @@
 [
     {
-        "DepthDistance": 26.0,
+        "DepthDistance": 23.0,
         "DepthPlane": [
             0.10000000149011612,
-            31.0
+            40.0
         ],
         "Window": "Default",
         "doFog": false,

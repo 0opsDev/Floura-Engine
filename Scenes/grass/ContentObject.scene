@@ -12,15 +12,93 @@
         "Type": "NULL"
     },
     {
-        "Name": "point1",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/point/scene.gltf",
-        "Type": "NULL"
-    },
-    {
         "Name": "depth",
         "ObjectType": "Material",
         "Path": "Assets/Material/depth.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "terrain",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/terrain/terrain.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Default",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/Default.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "DefaultNoNormals",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/DefaultNoNormals.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "QwantaniNight",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/QwantaniNight/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "OvercastSoilPuresky",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/OvercastSoilPuresky/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sunset",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/sunset/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "tree2",
+        "ObjectType": "Model",
+        "Path": "Assets/LodModel/Tree/tree2.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "xBbGrass",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grass/xBbGrass.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Wobble",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/Wobble.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cube",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/cube.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sphere",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/sphere.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "AR",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/ar/m16baked.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sponza",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/Sponza/sponza.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "3cubestest",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/3cubestest.gltf",
         "Type": "NULL"
     }
 ]

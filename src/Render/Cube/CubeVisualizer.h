@@ -22,7 +22,8 @@ public:
 
 	void skyboxBuffer();
 
-	void draw(float x, float y, float z, float ScaleX, float ScaleY, float ScaleZ, glm::vec3 colour);
+	void draw(glm::vec3 position,
+		glm::vec3 scale, glm::vec3 colour);
 };
 
 #endif // CUBEVISUALIZER_CLASS_H

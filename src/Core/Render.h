@@ -6,6 +6,8 @@
 #include <UI/ImGui/ImGuiWindow.h>
 #include <Render/Shader/SkyBox.h>
 //#include <Render/Cube/Billboard.h>
+#include "Render/Cube/CubeVisualizer.h"
+#include <Render/Object/line.h>
 
 class RenderClass
 {
@@ -15,6 +17,7 @@ public:
 	static Shader billBoardShader;
 	static Shader gPassShaderBillBoard;
 	static Shader boxShader;
+	static Shader LineShader;
 	static float gamma;
 	static bool renderSkybox;
 	static bool doReflections;
@@ -23,6 +26,9 @@ public:
 	static GLfloat DepthPlane[];
 	static glm::vec3 skyRGBA;
 	static glm::vec3 fogRGBA;
+
+	static CubeVisualizer* WhiteCube;
+	static Line3D* line;
 
 	static struct transformation {
 		glm::vec3 position = glm::vec3(0.0f);

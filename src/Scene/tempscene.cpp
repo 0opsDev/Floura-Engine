@@ -6,14 +6,10 @@
 #include "IdManager.h"
 #include <Render/Object/ModelAssimp.h>
 #include "Scene/scene.h"
+#include "Render/Object/line.h"
 
-//Model tempmodel;
-//Shader shad;
 void TempScene::init(){
-
-	//Scene::AddEntityObject('m', "vaseT", "Assets/Models/antique_ceramic_vase_01_1k.gltf/antique_ceramic_vase_01_1k.gltf");
 }
-
 void TempScene::Update() {
 
 	if (glfwGetKey(windowHandler::window, GLFW_KEY_F2) == GLFW_PRESS) {
@@ -24,12 +20,6 @@ void TempScene::Update() {
 		Camera::s_DoGravity = true;
 		CubeCollider::CollideWithCamera = true;
 	}
-
-	//PlaceHolder.updateLights();
-	//PlaceHolder.update();
-	//PlaceHolder.draw();
-	//tempmodel.draw(shad);
-
 }
 
 void TempScene::Delete() {

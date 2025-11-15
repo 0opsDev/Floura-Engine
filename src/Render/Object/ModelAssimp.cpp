@@ -70,6 +70,29 @@ void Model::draw(Shader& shader)
         
 }
 
+void Model::updateMeshAABBs()
+{
+    MeshAABBs = FetchMeshAABBs();
+}
+
+std::vector<Collision::AABB> Model::FetchMeshAABBs()
+{
+    std::vector<Collision::AABB> newAABBs;
+    for (size_t i = 0; i < meshes.size(); i++)
+    {
+        // create temp aabb generate AABBdata and push into array
+        Collision::AABB newAABB;
+        newAABB = meshes[i].createAABBfromMesh();
+        newAABB.position *= localTransformation[i].position;
+        newAABB.size *= localTransformation[i].scale;
+        //std::cout << "x: " << localTransformation[i].position.x << " y: " << localTransformation[i].position.y << " z: " << localTransformation[i].position.z << std::endl;
+        //localTransformation
+        newAABBs.push_back(newAABB);
+    }
+    // return mesh AABBs
+    return newAABBs;
+};
+
 void Model::loadModel(std::string path)
 {
     Assimp::Importer import;
@@ -92,10 +115,10 @@ void Model::processNode(aiNode* node, const aiScene* scene)
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(processMesh(mesh, scene));
         processPositions(node);
-
+        meshes.push_back(processMesh(mesh, scene));
     }
+    
     // then do the same for each of its children
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
@@ -112,20 +135,20 @@ void Model::processPositions(aiNode* node)
     localTransform.Decompose(scale, rotation, position);
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(scale.x, scale.y, scale.z));
+    model = glm::translate(model, glm::vec3(position.x, position.y, position.z));
     glm::mat4 rotation_matrix = glm::mat4_cast(glm::quat(rotation.w, rotation.x, rotation.y, rotation.z));
     model = model * rotation_matrix;
-    model = glm::translate(model, glm::vec3(position.x, position.y, position.z));
+    model = glm::scale(model, glm::vec3(scale.x, scale.y, scale.z));
     
     //localTransformation
     RenderClass::transformation newTransformation;
     newTransformation.position = glm::vec3(position.x, position.y, position.z);
     newTransformation.scale = glm::vec3(scale.x, scale.y, scale.z);
     newTransformation.qRotation = glm::quat(rotation.w, rotation.x, rotation.y, rotation.z);
-
+    //std::cout << "ppAI pos: x: " << position.x << " y: " << position.y << " z: " << position.z << std::endl;
+    //std::cout << "PP pos: x: " << newTransformation.position.x << " y: " << newTransformation.position.y << " z: " << newTransformation.position.z << std::endl;
     localTransformation.push_back(newTransformation);
     lModelMatrix.push_back(model);
-
 }
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
@@ -133,9 +156,11 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     std::vector<Texture> textures;
+
     // verticies
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
+        
         Vertex vertex;
         // process vertex positions, normals and texture coordinates
         glm::vec3 vector;
@@ -168,9 +193,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         }
         else
             vertex.texUV = glm::vec2(0.0f, 0.0f);
-
+            
         vertices.push_back(vertex);
     }
+        
     // indicies 
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
@@ -181,24 +207,30 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     // textures
     if (mesh->mMaterialIndex >= 0) // needs to check material type like "vec4 col instead of texture"
     {
+
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
         std::vector<Texture> diffuseMaps = aloadMaterialTextures(material,
             aiTextureType_DIFFUSE, "texture_diffuse", 0);
-        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-
         std::vector<Texture> roughnessMaps = aloadMaterialTextures(material,
             aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness", 1); // Note: Could also be aiTextureType_SHININESS
-        textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
-
         std::vector<Texture> normalMaps = aloadMaterialTextures(material,
             aiTextureType_NORMALS, "texture_normal", 2);
+
+        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+        textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+
     }
     Mesh nMesh;
     nMesh.create(vertices, indices, textures);
     return Mesh(nMesh);
 }
+
+/*
+        std::thread([this]() {
+            }).detach();
+*/
 
 std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType type,
     std::string typeName, int slot)

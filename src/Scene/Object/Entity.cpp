@@ -4,6 +4,7 @@
 #include <utils/logConsole.h>
 #include <Scene/LightingHandler.h>
 #include <Render/passes/geometry/geometryPass.h>
+#include <Gameplay/Player.h>
 
 void entity::create(const char& type, const std::string& name, const std::string& path, const std::string& materialPath)
 {
@@ -152,6 +153,8 @@ void entity::draw()
 		component.renderHeads.BillBoard->draw();
 		break;
 	}
+
+	updateCollision();
 }
 
 void entity::drawShadowMap()
@@ -190,11 +193,74 @@ void entity::setName(const std::string& name)
 	entity::name = name;
 }
 
+void entity::updateCollision()
+{
+	// just for now do camera vs aabb from meshes, in future there should
+	// be a collision handler, that does objects vs objects for aabbs
+	for (size_t i = 0; i < component.renderHeads.Model->MeshAABBs.size(); i++)
+	{
+		// Calculate global position and scale
+
+		// these two are bugged
+
+		glm::vec3 globalPosition = component.systems.transformation.position + component.renderHeads.Model->MeshAABBs[i].position;
+		//glm::vec3 globalPosition = component.systems.transformation.position * component.renderHeads.Model->MeshAABBs[i].position;
+		//glm::vec3 globalPosition = component.renderHeads.Model->MeshAABBs[i].position;
+		//glm::vec3 globalPosition = component.systems.transformation.position;
+
+		glm::vec3 globalSize = component.renderHeads.Model->MeshAABBs[i].size *
+			component.systems.transformation.scale;
+
+
+		//std::cout << "x" << component.renderHeads.Model->MeshAABBs[i].position.x << std::endl;
+
+		// Collision check using global position and scale
+		Collision::collisionData collisionData = Collision::AABBvsAABB(globalPosition, globalSize,
+			glm::vec3(Camera::Position.x, (Camera::Position.y - (Camera::cameraColliderScale.y / 2.0f)), Camera::Position.z),
+			Camera::cameraColliderScale);
+
+		// Draw the mesh bounding box for visualization
+		RenderClass::WhiteCube->draw(globalPosition,
+			globalSize, glm::vec3(1.0f));
+
+		// Handle collision logic
+		if (collisionData.isColliding)
+		{
+			Player::isColliding = true; // Set collision state
+			Camera::Position = glm::vec3(collisionData.lastHit.x,
+				(collisionData.lastHit.y + (Camera::cameraColliderScale.y / 2.0f)),
+				collisionData.lastHit.z);
+
+			if (collisionData.collisionNormal == glm::vec3(-1.0f, 0.0f, 0.0f) || collisionData.collisionNormal == glm::vec3(1.0f, 0.0f, 0.0f)) // left or right
+			RenderClass::line->translate(collisionData.lastHit, glm::vec3(1.0f), glm::vec3(90.0f, 0.0f, 0.0f));
+
+			if (collisionData.collisionNormal == glm::vec3(0.0f, -1.0f, 0.0f) || collisionData.collisionNormal == glm::vec3(0.0f, 1.0f, 0.0f)) // up or down
+				RenderClass::line->translate(collisionData.lastHit, glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, 90.0f));
+
+			if (collisionData.collisionNormal == glm::vec3(0.0f, 0.0f, -1.0f) || collisionData.collisionNormal == glm::vec3(0.0f, 0.0f, 1.0f)) // front or back
+				RenderClass::line->translate(collisionData.lastHit, glm::vec3(1.0f), glm::vec3(0, 90.0f, 0.0f));
+
+			RenderClass::WhiteCube->draw(collisionData.lastHit, glm::vec3(0.1f), glm::vec3(1.0f, 0.0f, 0.0f));
+		}
+	}
+	RenderClass::line->draw(glm::vec3(1.0f, 0.0f, 0.0f));
+
+
+}
+
+void entity::updateMeshAABBs()
+{
+	if (type == 'm')
+	{
+		component.renderHeads.Model->updateMeshAABBs();
+	}
+}
 
 void entity::createModel(const std::string& path, const std::string& materialPath)
 {
 	component.systems.material.Material.LoadMaterial(materialPath);
 	component.renderHeads.Model = new Model(path.c_str());
+	//entity::updateMeshAABBs();
 }
 
 void entity::createBillBoard(const std::string& path)

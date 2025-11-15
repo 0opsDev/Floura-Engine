@@ -337,6 +337,15 @@
     <ClCompile Include="src\Render\Object\Mesh.cpp">
       <Filter>src\Render\Object</Filter>
     </ClCompile>
+    <ClCompile Include="src\Core\TaskScheduler.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Physics\Collision.cpp">
+      <Filter>src\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\line.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -558,6 +567,15 @@
     <ClInclude Include="src\Render\Object\Mesh.h">
       <Filter>src\Render\Object</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\TaskScheduler.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Physics\Collision.h">
+      <Filter>src\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\line.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="UserScripts\LuaStartup.json">
@@ -694,6 +712,12 @@
     </None>
     <None Include="Assets\Shaders\Lighting\combinedNoNormal.frag">
       <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\line.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\line.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

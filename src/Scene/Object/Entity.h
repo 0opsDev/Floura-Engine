@@ -3,6 +3,7 @@
 #include <Render/Object/Billboard.h>
 #include <Render/Shader/Material.h>
 #include <Scene/IdManager.h>
+#include "Physics/Collision.h"
 
 #ifndef FE_OBJECT_H
 #define FE_OBJECT_H
@@ -147,6 +148,10 @@ public:
 		glm::vec3 colliderPosition = glm::vec3(0.0f);
 		glm::vec3 colliderScale = glm::vec3(1.0f);
 	};
+	public:
+		void updateCollision();
+		void updateMeshAABBs();
+	private:
 
 	static struct render {
 		Model* Model;
@@ -163,6 +168,7 @@ public:
 	};
 
 	components component;
+
 	private:
 	void createModel(const std::string& path, const std::string& materialPath);
 
