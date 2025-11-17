@@ -346,6 +346,9 @@
     <ClCompile Include="src\Render\Object\line.cpp">
       <Filter>src\Render\Object</Filter>
     </ClCompile>
+    <ClCompile Include="src\Render\Shader\FramebufferObject.cpp">
+      <Filter>src\Render\Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -537,9 +540,6 @@
     <ClInclude Include="src\Scene\scene.h">
       <Filter>src\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scene\Object\Entity.h">
-      <Filter>src\Scene\Object</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scene\IdManager.h">
       <Filter>src\Scene</Filter>
     </ClInclude>
@@ -575,6 +575,12 @@
     </ClInclude>
     <ClInclude Include="src\Render\Object\line.h">
       <Filter>src\Render\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\Object\Entity.h">
+      <Filter>src\Scene\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Shader\FramebufferObject.h">
+      <Filter>src\Render\Shader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

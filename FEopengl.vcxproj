@@ -182,6 +182,7 @@
     <ClCompile Include="src\Render\passes\lighting\LightingPass.cpp" />
     <ClCompile Include="src\Render\Shader\Cubemap.cpp" />
     <ClCompile Include="src\Render\Shader\Framebuffer.cpp" />
+    <ClCompile Include="src\Render\Shader\FramebufferObject.cpp" />
     <ClCompile Include="src\Render\Shader\Material.cpp" />
     <ClCompile Include="src\Render\shader\ShaderClass.cpp" />
     <ClCompile Include="src\Render\Shader\SkyBox.cpp" />
@@ -258,6 +259,7 @@
     <ClInclude Include="src\Render\passes\lighting\LightingPass.h" />
     <ClInclude Include="src\Render\Shader\Cubemap.h" />
     <ClInclude Include="src\Render\Shader\Framebuffer.h" />
+    <ClInclude Include="src\Render\Shader\FramebufferObject.h" />
     <ClInclude Include="src\Render\Shader\Material.h" />
     <ClInclude Include="src\Render\shader\shaderClass.h" />
     <ClInclude Include="src\Render\Shader\SkyBox.h" />

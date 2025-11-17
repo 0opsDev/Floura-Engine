@@ -227,11 +227,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     return Mesh(nMesh);
 }
 
-/*
-        std::thread([this]() {
-            }).detach();
-*/
-
 std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType type,
     std::string typeName, int slot)
 {

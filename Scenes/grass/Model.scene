@@ -9,18 +9,18 @@
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
-            0.0,
+            90.0,
             0.0,
             0.0
         ],
         "Scale": [
-            1.0,
-            1.0,
-            1.0
+            0.009999999776482582,
+            0.009999999776482582,
+            0.009999999776482582
         ],
-        "isBackFaceCulling": true,
-        "name": "terrain",
-        "path": "Assets/Models/terrain/terrain.gltf",
+        "isBackFaceCulling": false,
+        "name": "Bistro",
+        "path": "Assets/Models/bistro/Bistro.gltf",
         "uvScale": [
             1.0,
             1.0
@@ -30,24 +30,51 @@
         "CastShadow": true,
         "IDuniqueIdentifier": 8468,
         "Location": [
-            25.298112869262695,
-            -0.6648927927017212,
-            3.9415345191955566
+            29.892087936401367,
+            0.0,
+            41.10276412963867
         ],
-        "MaterialPath": "Assets/Material/Wobble.Material",
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
         "Rotation": [
-            14.199999809265137,
-            84.69999694824219,
-            -4.800000190734863
+            0.0,
+            0.0,
+            0.0
         ],
         "Scale": [
-            1.0,
+            4.211999893188477,
+            4.211999893188477,
+            4.211999893188477
+        ],
+        "isBackFaceCulling": false,
+        "name": "treeBB",
+        "path": "Assets/Models/treeBB/treeBB.gltf",
+        "uvScale": [
             1.0,
             1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 6335,
+        "Location": [
+            -6.883249759674072,
+            0.0,
+            16.84958267211914
         ],
-        "isBackFaceCulling": true,
-        "name": "tree2",
-        "path": "Assets/LodModel/Tree/tree2.gltf",
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            4.211999893188477,
+            4.211999893188477,
+            4.211999893188477
+        ],
+        "isBackFaceCulling": false,
+        "name": "treeBB_1",
+        "path": "Assets/Models/treeBB/treeBB.gltf",
         "uvScale": [
             1.0,
             1.0
@@ -57,24 +84,24 @@
         "CastShadow": true,
         "IDuniqueIdentifier": 9170,
         "Location": [
-            29.18352699279785,
-            2.723654270172119,
-            11.102420806884766
+            36.54784393310547,
+            0.0,
+            46.27321243286133
         ],
-        "MaterialPath": "Assets/Material/Default.Material",
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
         "Rotation": [
             0.0,
-            0.0,
+            68.97409057617188,
             0.0
         ],
         "Scale": [
-            1.0,
-            1.0,
-            1.0
+            4.211999893188477,
+            4.211999893188477,
+            4.211999893188477
         ],
-        "isBackFaceCulling": true,
-        "name": "cube",
-        "path": "Assets/Models/basic shapes/cube.gltf",
+        "isBackFaceCulling": false,
+        "name": "treeBB_2",
+        "path": "Assets/Models/treeBB/treeBB.gltf",
         "uvScale": [
             1.0,
             1.0
@@ -82,26 +109,107 @@
     },
     {
         "CastShadow": true,
-        "IDuniqueIdentifier": 4465,
+        "IDuniqueIdentifier": 5725,
         "Location": [
-            0.0,
-            2.454303026199341,
-            -10.13146686553955
+            24.693500518798828,
+            0.0001220703125,
+            41.228946685791016
         ],
-        "MaterialPath": "Assets/Material/Default.Material",
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
         "Rotation": [
             0.0,
-            0.0,
+            68.97409057617188,
             0.0
         ],
         "Scale": [
-            1.0,
+            4.211999893188477,
+            4.211999893188477,
+            4.211999893188477
+        ],
+        "isBackFaceCulling": false,
+        "name": "treeBB_3",
+        "path": "Assets/Models/treeBB/treeBB.gltf",
+        "uvScale": [
             1.0,
             1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 1479,
+        "Location": [
+            40.35159683227539,
+            0.00012679676001425833,
+            51.33270263671875
+        ],
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "Rotation": [
+            0.0,
+            -75.22599792480469,
+            0.0
+        ],
+        "Scale": [
+            4.211999893188477,
+            4.211999893188477,
+            4.211999893188477
+        ],
+        "isBackFaceCulling": false,
+        "name": "treeBB_4",
+        "path": "Assets/Models/treeBB/treeBB.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 9359,
+        "Location": [
+            31.239465713500977,
+            0.0001220703125,
+            46.54386901855469
+        ],
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "Rotation": [
+            0.0,
+            -1.4259999990463257,
+            0.0
+        ],
+        "Scale": [
+            4.211999893188477,
+            4.211999893188477,
+            4.211999893188477
         ],
         "isBackFaceCulling": true,
-        "name": "AR",
-        "path": "Assets/Models/ar/m16baked.gltf",
+        "name": "treeBB_5",
+        "path": "Assets/Models/treeBB/treeBB.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 6963,
+        "Location": [
+            56.97856140136719,
+            -9.043265890795738e-05,
+            45.18680191040039
+        ],
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "Rotation": [
+            0.0,
+            -75.22599792480469,
+            0.0
+        ],
+        "Scale": [
+            4.211999893188477,
+            4.211999893188477,
+            4.211999893188477
+        ],
+        "isBackFaceCulling": false,
+        "name": "treeBB_6",
+        "path": "Assets/Models/treeBB/treeBB.gltf",
         "uvScale": [
             1.0,
             1.0

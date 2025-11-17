@@ -185,13 +185,12 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	frameBufferProgram.setMat4("cameraMatrix", Camera::cameraMatrix);
 	frameBufferProgram.setFloat("time", glfwGetTime());
 	frameBufferProgram.setFloat("deltaTime", TimeUtil::s_DeltaTime);
-	frameBufferProgram.setBool("enableFB", FEImGuiWindow::enableFB);
 
 	frameBufferProgram.setFloat("DepthDistance", RenderClass::DepthDistance);
 	frameBufferProgram.setFloat("NearPlane", RenderClass::DepthPlane[0]);
 	frameBufferProgram.setFloat("FarPlane", RenderClass::DepthPlane[1]);
 	frameBufferProgram.setBool("doFog", RenderClass::doFog);
-	frameBufferProgram.setFloat3("fogColor", RenderClass::fogRGBA);
+	frameBufferProgram.setFloat3("fogColor", RenderClass::gammaCorrect3(RenderClass::fogRGBA));
 
 	// draw the framebuffer
 	glBindVertexArray(viewVAO);

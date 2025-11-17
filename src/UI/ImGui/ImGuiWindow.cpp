@@ -22,9 +22,6 @@ bool FEImGuiWindow::imGuiEnabled = false;
 bool FEImGuiWindow::showViewportIcons = true;
 bool FEImGuiWindow::imGuiPanels[] = { true, true, true, true, true, true, true, true, true, true, true, true }; // ImGui Panels
 
-bool FEImGuiWindow::enableFB = false; // Change this as needed
-bool FEImGuiWindow::enableDEF = true;
-
 bool FEImGuiWindow::isWireframe = false;
 
 std::string FEImGuiWindow::SelectedObjectType;
@@ -451,8 +448,6 @@ void FEImGuiWindow::SystemInfomation() {
 
 void FEImGuiWindow::RenderWindow() {
 	ImGui::Begin("Rendering"); // ImGUI window creation
-	ImGui::Checkbox("enableDEF", &FEImGuiWindow::enableDEF);
-	ImGui::Checkbox("Enable FB shader", &FEImGuiWindow::enableFB); // Set the value of enableFB (bool)
 	if (ImGui::SmallButton("Reload Shaders?")) RenderClass::initGlobalShaders();
 
 	ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
@@ -474,7 +469,6 @@ void FEImGuiWindow::RenderWindow() {
 		} //Toggle Fullscreen
 
 		ImGui::DragFloat("Gamma", &RenderClass::gamma);
-		ImGui::DragInt("Sample Count", &LightingPass::samplecount);
 		ImGui::End();
 }
 

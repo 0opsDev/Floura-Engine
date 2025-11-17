@@ -170,8 +170,6 @@ void RenderClass::DeferredLightingPass() {
 	glActiveTexture(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	GBLpass.setBool("DEFtoggle", FEImGuiWindow::enableDEF);
-
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::gPosition);
 	GBLpass.setInt("gPosition", 1);

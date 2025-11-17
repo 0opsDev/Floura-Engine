@@ -38,10 +38,10 @@ Shader LightingHandler::dirShadowMapProgram;
 
 void LightingHandler::setupShadowMapBuffer() {
 	LightingHandler::dirShadowMapProgram.LoadShader("Assets/Shaders/Lighting/shadowMap.vert", "Assets/Shaders/Lighting/shadowMap.frag");
-	//shadowMapWidth = 4096;
-	//shadowMapHeight = 4096;
-	shadowMapWidth = 2046;
-	shadowMapHeight = 2046;
+	shadowMapWidth = 4096;
+	shadowMapHeight = 4096;
+	//shadowMapWidth = 2046;
+	//shadowMapHeight = 2046;
 	//shadowMapWidth = 1024;
 	//shadowMapHeight = 1024;
 	//shadowMapWidth = 128;

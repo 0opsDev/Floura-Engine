@@ -11,7 +11,6 @@ class LightingPass
 public:
 
 	static GLuint computeTexture;
-	static int samplecount;
 
 	static void init();
 

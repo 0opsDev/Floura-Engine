@@ -12,8 +12,6 @@ uniform mat4 cameraMatrix;
 
 uniform vec3 fogColor;
 
-uniform bool enableFB;
-
 uniform float DepthDistance;
 uniform float FarPlane;
 uniform float NearPlane;

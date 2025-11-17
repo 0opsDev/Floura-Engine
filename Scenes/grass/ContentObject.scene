@@ -100,5 +100,17 @@
         "ObjectType": "Model",
         "Path": "Assets/Models/3cubestest.gltf",
         "Type": "NULL"
+    },
+    {
+        "Name": "Bistro",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/bistro/Bistro.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "treeBB",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/treeBB/treeBB.gltf",
+        "Type": "NULL"
     }
 ]

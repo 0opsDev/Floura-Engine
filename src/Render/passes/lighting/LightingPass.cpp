@@ -9,7 +9,6 @@ Shader ComputeQuadShader;
 Shader testCompute;
 unsigned int CurrentWidth;
 unsigned int CurrentHeight;
-int LightingPass::samplecount = 3;
 
 void LightingPass::init() {
 
@@ -91,9 +90,7 @@ void LightingPass::computeRender() {
 	testCompute.setFloat4("u_BaseColour", glm::vec4(glm::vec3(RenderClass::gammaCorrect3(RenderClass::skyRGBA)), 1.0f) ); // glm::vec3(RenderClass::gammaCorrect3(RenderClass::skyRGBA)), 1.0f)
 	testCompute.setMat4("u_ViewMatrix", Camera::view);
 	testCompute.setMat4("u_ProjectionMatrix", Camera::projection);
-	testCompute.setFloat3("cameraPosition", Camera::Position);
-	testCompute.setInt("u_MaxSamples", samplecount);
-	
+	testCompute.setFloat3("cameraPosition", Camera::Position);	
 
 	//glActiveTexture(GL_TEXTURE1);
 	//glBindTexture(GL_TEXTURE_2D, LightingPass::computeTexture); // using gpos as temp

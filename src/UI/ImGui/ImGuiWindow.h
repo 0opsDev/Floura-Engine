@@ -22,8 +22,6 @@ public:
 	static bool showViewportIcons;
 
 	static bool imGuiPanels[]; // ImGui Panels
-	static bool enableFB; // Change this as needed
-	static bool enableDEF;
 	static bool isWireframe;
 
 	static std::string SelectedObjectType;
