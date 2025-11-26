@@ -130,7 +130,7 @@ void entity::draw()
 		component.systems.material.Material.ModelGpassShader.setFloat2("uvScale", component.systems.material.uvScale);
 
 		if (RenderClass::DoForwardLightingPass) {
-			glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+			glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
 			component.systems.material.Material.ModelShader.Activate();
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_LESS);
@@ -215,7 +215,7 @@ void entity::updateCollision()
 		//std::cout << "x" << component.renderHeads.Model->MeshAABBs[i].position.x << std::endl;
 
 		// Collision check using global position and scale
-		Collision::collisionData collisionData = Collision::AABBvsAABB(globalPosition, globalSize,
+		Collision::HitResult collisionData = Collision::AABBvsAABB(globalPosition, globalSize,
 			glm::vec3(Camera::Position.x, (Camera::Position.y - (Camera::cameraColliderScale.y / 2.0f)), Camera::Position.z),
 			Camera::cameraColliderScale);
 

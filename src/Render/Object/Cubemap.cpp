@@ -3,7 +3,7 @@
 
 std::array<std::string, 6> facesCubemap;
 
-void Cubemap::LoadCubeMapTexture(std::string PathName) {
+Cubemap::Cubemap(std::string PathName) {
 
 	// loading
 
@@ -15,12 +15,12 @@ void Cubemap::LoadCubeMapTexture(std::string PathName) {
 
 		std::string Path = SkyboxJsonData[0]["Path"].get<std::string>() + "/";
 
-		if (init::LogALL || init::LogModel) LogConsole::print("Skybox Path: " + Path);
+		if (init::LogALL || init::LogObject) LogConsole::print("Skybox Path: " + Path);
 
 		for (int i = 0; i < 6; i++)
 		{
 			facesCubemap[i] = Path + SkyboxJsonData[0]["Faces"][i].get<std::string>();
-			if (init::LogALL || init::LogModel) LogConsole::print("Skybox Face: " + facesCubemap[i]);
+			if (init::LogALL || init::LogObject) LogConsole::print("Skybox Face: " + facesCubemap[i]);
 		}
 	}
 	else {
@@ -65,8 +65,13 @@ void Cubemap::LoadCubeMapTexture(std::string PathName) {
 		}
 		else
 		{
-			if (init::LogALL || init::LogModel) LogConsole::print("Failed to load texture: " + facesCubemap[i]);
+			if (init::LogALL || init::LogObject) LogConsole::print("Failed to load texture: " + facesCubemap[i]);
 			stbi_image_free(data);
 		}
 	}
+}
+
+Cubemap::~Cubemap()
+{
+	glDeleteTextures(1, &ID);
 }

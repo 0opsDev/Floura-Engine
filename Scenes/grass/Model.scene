@@ -18,7 +18,7 @@
             0.009999999776482582,
             0.009999999776482582
         ],
-        "isBackFaceCulling": false,
+        "isBackFaceCulling": true,
         "name": "Bistro",
         "path": "Assets/Models/bistro/Bistro.gltf",
         "uvScale": [
@@ -210,6 +210,33 @@
         "isBackFaceCulling": false,
         "name": "treeBB_6",
         "path": "Assets/Models/treeBB/treeBB.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 6501,
+        "Location": [
+            25.577152252197266,
+            3.1386501789093018,
+            14.410208702087402
+        ],
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "isBackFaceCulling": true,
+        "name": "sphere",
+        "path": "Assets/Models/basic shapes/sphere.gltf",
         "uvScale": [
             1.0,
             1.0

@@ -6,16 +6,17 @@
 class FramebufferObject
 {
 public:
-
-	unsigned int ID;
-
+	bool doRBO = true;
+	unsigned int FBO, RBO, texture;
 	// x - width, h - height
-	FramebufferObject(glm::vec2 resolution);
+	glm::vec2 resolution;
+	FramebufferObject(glm::vec2 resolution, bool doRBO);
 	~FramebufferObject();
+
+	void resizeResolution(glm::vec2 resolution);
+
 private:
-	Shader shader;
 	void genBuffers();
-	unsigned int Width, Height;
 };
 
 #endif

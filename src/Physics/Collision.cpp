@@ -1,12 +1,13 @@
 #include "Collision.h"
 #include <glm/common.hpp>
 #include <algorithm>
+#include <glm/geometric.hpp>
 
-Collision::collisionData Collision::AABBvsAABB(
+Collision::HitResult Collision::AABBvsAABB(
 	const glm::vec3& posA, const glm::vec3& sizeA,
 	const glm::vec3& posB, const glm::vec3& sizeB)
 {
-	collisionData data;
+	HitResult data;
 
 	//data.collisionNormal;
 	//data.lastHit;
@@ -70,17 +71,38 @@ Collision::collisionData Collision::AABBvsAABB(
 	return data;
 }
 
-Collision::collisionData Collision::TrianglevsTriangle(
+Collision::HitResult Collision::TrianglevsTriangle(
 	const glm::vec3& v0A, const glm::vec3& v1A, const glm::vec3& v2A,
 	const glm::vec3& v0B, const glm::vec3& v1B, const glm::vec3& v2B)
 {
-	collisionData data;
+	HitResult data;
 	// Placeholder implementation
 	data.isColliding = false;
 	data.lastHit = glm::vec3(0.0f);
 	data.collisionNormal = glm::vec3(0.0f);
 	// Actual triangle-triangle collision detection logic would go here
 
+
+	return data;
+}
+
+Collision::HitResult Collision::SpherevsSphere(
+	const glm::vec3& P1, const glm::vec3& P2,
+	float R1, float R2) // two points and radius
+{
+	HitResult data;
+
+	// logic 
+	// find distance of two points
+	float distance = glm::distance(P1, P2);
+
+	// collision is made
+	data.isColliding = false;
+	if ((R1 + R2) >= distance)
+	{
+		data.isColliding = true;
+		//data.lastHit = 
+	}
 
 	return data;
 }

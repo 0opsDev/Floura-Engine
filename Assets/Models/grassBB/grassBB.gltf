@@ -15,13 +15,20 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Sphere"
+			"name":"Plane.001",
+			"rotation":[
+				0.5,
+				0.5,
+				-0.5,
+				0.5
+			]
 		}
 	],
 	"materials":[
 		{
+			"alphaMode":"BLEND",
 			"doubleSided":true,
-			"name":"Material.001",
+			"name":"Material.005",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":0
@@ -35,15 +42,16 @@
 	],
 	"meshes":[
 		{
-			"name":"Sphere",
+			"name":"Plane.005",
 			"primitives":[
 				{
 					"attributes":{
 						"POSITION":0,
 						"NORMAL":1,
-						"TEXCOORD_0":2
+						"TEXCOORD_0":2,
+						"TEXCOORD_1":3
 					},
-					"indices":3,
+					"indices":4,
 					"material":0
 				}
 			]
@@ -61,9 +69,9 @@
 	],
 	"images":[
 		{
-			"mimeType":"image/jpeg",
-			"name":"16x16",
-			"uri":"16x16.jpg"
+			"mimeType":"image/png",
+			"name":"diffusebaked",
+			"uri":"diffusebaked.png"
 		},
 		{
 			"mimeType":"image/png",
@@ -75,61 +83,73 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":559,
+			"count":16,
 			"max":[
-				0.9999997019767761,
 				1,
-				0.9999993443489075
+				1,
+				1
 			],
 			"min":[
-				-0.9999990463256836,
 				-1,
-				-1
+				-1,
+				0
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":559,
+			"count":16,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":559,
+			"count":16,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
+			"componentType":5126,
+			"count":16,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":4,
 			"componentType":5123,
-			"count":2880,
+			"count":24,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":6708,
+			"byteLength":192,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6708,
-			"byteOffset":6708,
+			"byteLength":192,
+			"byteOffset":192,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4472,
-			"byteOffset":13416,
+			"byteLength":128,
+			"byteOffset":384,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":5760,
-			"byteOffset":17888,
+			"byteLength":128,
+			"byteOffset":512,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":48,
+			"byteOffset":640,
 			"target":34963
 		}
 	],
@@ -141,8 +161,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":23648,
-			"uri":"sphere.bin"
+			"byteLength":688,
+			"uri":"grassBB.bin"
 		}
 	]
 }

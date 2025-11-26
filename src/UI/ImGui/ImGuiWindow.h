@@ -64,6 +64,8 @@ public:
 
 	static void init();
 
+	static void initImGui(GLFWwindow* window);
+
 	static void loadContentObjects(std::string path);
 	static void saveContentObjects(std::string path);
 

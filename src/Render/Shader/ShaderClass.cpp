@@ -29,11 +29,22 @@ std::string get_file_contents(const char* filename)
 void Shader::LoadShader(const char* vertexFile, const char* fragmentFile)
 {
         // uses vertexFile which holds the shader file path and gets the contents of the file which is dumped into vertexCode
-        std::string vertexCode = get_file_contents(vertexFile); 
-        std::string fragmentCode = get_file_contents(fragmentFile);
-
-        const char* vertexSource = vertexCode.c_str();
-        const char* fragmentSource = fragmentCode.c_str();
+        std::string vertexCode;
+        std::string fragmentCode;
+        const char* vertexSource;
+        const char* fragmentSource;
+        if (takePath)
+        {
+            vertexCode = get_file_contents(vertexFile);
+            fragmentCode = get_file_contents(fragmentFile);
+            vertexSource = vertexCode.c_str();
+            fragmentSource = fragmentCode.c_str();
+        }
+        else
+        {
+            vertexSource = vertexFile;
+            fragmentSource = fragmentFile;
+        }
 
         //CREATE VERTEX SHADER
         GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER); //ep2

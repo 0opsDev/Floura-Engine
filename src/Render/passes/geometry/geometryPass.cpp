@@ -108,5 +108,5 @@ void GeometryPass::gPassDraw(Model*& model, Shader& GPass) {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
 }

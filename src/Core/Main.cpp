@@ -40,6 +40,7 @@ void initGLFW()
 	glfwWindowHint(GLFW_MAXIMIZED, 0); // Start Maximized
 	glfwWindowHint(GLFW_DEPTH_BITS, 24); // DepthBuffer Bit
 	glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
+	//glfwWindowHint(GLFW_SAMPLES, 4);
 }
 
 //Main Function

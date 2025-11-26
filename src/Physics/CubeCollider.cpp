@@ -11,7 +11,7 @@ bool CubeCollider::showBoxCollider = false;
 void CubeCollider::update() {
     if (CollideWithCamera && enabled) {
 
-        Collision::collisionData newData = Collision::AABBvsAABB(colliderXYZ, colliderScale, (glm::vec3(Camera::Position.x, (Camera::Position.y - (Camera::cameraColliderScale.y / 2.0f)), Camera::Position.z)), Camera::cameraColliderScale); // b is victim
+        Collision::HitResult newData = Collision::AABBvsAABB(colliderXYZ, colliderScale, (glm::vec3(Camera::Position.x, (Camera::Position.y - (Camera::cameraColliderScale.y / 2.0f)), Camera::Position.z)), Camera::cameraColliderScale); // b is victim
         if (newData.isColliding)
         {
             Player::isColliding = true; // Set collision state

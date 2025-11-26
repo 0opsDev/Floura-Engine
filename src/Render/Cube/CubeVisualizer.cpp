@@ -1,5 +1,4 @@
 #include"CubeVisualizer.h"
-#include "render/Shader/Cubemap.h"
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
 #include <Core/Render.h>
@@ -76,7 +75,7 @@ void CubeVisualizer::draw(glm::vec3 position,
 		return; // Skip rendering if not in regular or lighting pass
 	}
 	if (RenderClass::DoForwardLightingPass) {
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
 		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 		glEnable(GL_DEPTH_TEST);
 		glBindVertexArray(0);
@@ -106,7 +105,7 @@ void CubeVisualizer::draw(glm::vec3 position,
 		glDepthFunc(GL_LESS);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
 		return;
 
 	// debug buffer would be cool, actually 3 debug buffers one for wireframe, another for hitboxes and the other for a polygon view simular to unreals

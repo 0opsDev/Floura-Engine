@@ -20,7 +20,8 @@ public:
 
 	unsigned int ID;
 
-	void LoadCubeMapTexture(std::string PathName);
+	Cubemap(std::string PathName);
+	~Cubemap();
 
 };
 

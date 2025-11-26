@@ -49,8 +49,6 @@ public:
 
 	static void Render(GLFWwindow* window, unsigned int width, unsigned int height);
 
-	static void ForwardLightingPass();
-
 	static void DeferredLightingPass();
 
 	static void HybridLightingPass();

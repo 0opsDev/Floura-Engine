@@ -13,7 +13,7 @@ class Collision
 {
 public:
 
-	static struct collisionData {
+	static struct HitResult {
 		bool isColliding = false;
 		glm::vec3 lastHit = glm::vec3(0.0f);
 		glm::vec3 collisionNormal = glm::vec3(0.0f);
@@ -25,16 +25,34 @@ public:
 		glm::vec3 size = glm::vec3(0.0f);
 	};
 
+	static struct Sphere
+	{
+		glm::vec3 position = glm::vec3(0.0f);
+		float radius = 1.0f;
+	};
+
+	static struct collisionObject
+	{
+		AABB aabb;
+		Sphere sphere;
+		char type; // A = AABB, S = sphere
+	};
+
 	// AABB collision detection
 	// AABB vs AABB
-	static collisionData AABBvsAABB(
+	static HitResult AABBvsAABB(
 		const glm::vec3& posA, const glm::vec3& sizeA,
 		const glm::vec3& posB, const glm::vec3& SizeB);
 
 	// Triangle vs Triangle
-	static collisionData TrianglevsTriangle(
+	static HitResult TrianglevsTriangle(
 		const glm::vec3& v0A, const glm::vec3& v1A, const glm::vec3& v2A,
 		const glm::vec3& v0B, const glm::vec3& v1B, const glm::vec3& v2B);
+
+	// sphere vs sphere
+	static HitResult SpherevsSphere(
+		const glm::vec3& P1, const glm::vec3& P2,
+		float R1, float R2); // two points and radius
 
 
 private:

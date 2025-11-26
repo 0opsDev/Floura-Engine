@@ -115,6 +115,7 @@ public:
 		bool cullFrontFace = false;
 		bool hasCollider = false;
 		bool hasPhysics = false;
+
 	};
 
 	static struct transformation {

@@ -18,6 +18,7 @@ class Shader
 {
 public:
 	GLuint ID;
+	bool takePath = true; // if true, tales file path, else takes actual shader code
 	void LoadShader(const char* vertexFile, const char* fragmentFile);
 
 	void LoadShaderGeom(const char* vertexFile, const char* fragmentFile, const char* geometryFile);

@@ -4,7 +4,7 @@
 #include "SoundRunner.h"
 #include <UI/ImGui/ImGuiWindow.h>
 #include <Math/FE_math.h>
-
+#include"utils/logConsole.h"
 
 ALCdevice* SoundProgram::device;
 ALCcontext* SoundProgram::context;
@@ -13,7 +13,7 @@ void SoundProgram::PlaySound() {
     isPlay = true;
     std::thread([this]() {
         alSourcePlay(source);
-        if (init::LogSound) std::cout << "Sound played" << std::endl;
+        LogConsole::print("Sound played: " + name);
         do {
             alSourcef(source, AL_GAIN, currentvolume * SoundRunner::GlobalVolume); // set volume
             alSource3f(source, AL_POSITION, position.x, position.y, position.z);
@@ -23,7 +23,7 @@ void SoundProgram::PlaySound() {
             alGetSourcei(source, AL_SOURCE_STATE, &state);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));  // Sleep to avoid busy-waiting
         } while (state == AL_PLAYING && Main::sleepState);
-        if(init::LogSound) std::cout << "Sound stopped" << std::endl;
+        LogConsole::print("Sound stopped: " + name);
         isPlay = false;
 		queuedPlay = false;
         }).detach();  // Detach the thread so it runs independently
@@ -74,10 +74,10 @@ void SoundProgram::updateCameraPosition() {
 void SoundProgram::StopSound() {
     if (source && isPlay && Main::sleepState) {
         alSourceStop(source);
-        if (init::LogSound) std::cout << "StopSound: Sound stopped" << std::endl;
+        //LogConsole::print("StopSound: Sound stopped");
     }
     else if (!isPlay) {
-        if (init::LogSound) std::cout << "StopSound: No Sound Playing" << std::endl;
+        //LogConsole::print("StopSound: No Sound Playing");
     }
 }
 
@@ -123,7 +123,7 @@ bool SoundProgram::loadWavFile(const std::string& filename, ALuint* buffer) {
         return false;
     }
     else {
-        if (init::LogSound) std::cout << "Loaded WAV file: " << filename << std::endl;
+        LogConsole::print("Loaded WAV file: " + filename);
     }
 
     char chunkId[4];
@@ -134,7 +134,7 @@ bool SoundProgram::loadWavFile(const std::string& filename, ALuint* buffer) {
     file.read(reinterpret_cast<char*>(&channels), 2);
 
     if (channels > 1) {
-        if (init::LogSound) std::cout << "Directional sound only works with mono WAV files." << std::endl;
+        LogConsole::print("Directional sound only works with mono WAV files.");
     }
 
     int sampleRate;

@@ -1,5 +1,4 @@
 #include"RenderQuad.h"
-#include "render/Shader/Cubemap.h"
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
 
@@ -18,22 +17,22 @@ unsigned int s_Plane_Indicez[6] =
 };
 
 void RenderQuad::init() {
-	skyboxBuffer(); // create buffer in memory for skybox
+	buffer(); // create buffer in memory for skybox
 
 	//LoadBillBoardTexture(path);
 }
 
-void RenderQuad::skyboxBuffer() {
+void RenderQuad::buffer() {
 	// Create VAO, VBO, and EBO for the billboard
-	glGenVertexArrays(1, &cubeVAO);
-	glGenBuffers(1, &cubeVBO);
-	glGenBuffers(1, &cubeEBO);
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
 
-	glBindVertexArray(cubeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(s_Plane_Verticez), &s_Plane_Verticez, GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(s_Plane_Indicez), &s_Plane_Indicez, GL_STATIC_DRAW);
 
 	// **Position attribute**
@@ -71,7 +70,7 @@ void RenderQuad::draw(Shader shader) {
 
 		//glBindTexture(GL_TEXTURE_2D, 0); // unbind tex
 		// Render the billboard
-		glBindVertexArray(cubeVAO);
+		glBindVertexArray(VAO);
 		//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);

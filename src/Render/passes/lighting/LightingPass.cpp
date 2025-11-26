@@ -62,7 +62,7 @@ void LightingPass::resizeTexture(unsigned int width, unsigned int height) {
 }
 
 void RenderComputeToQuad() {
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
 	glDisable(GL_CULL_FACE);
 
 	//glActiveTexture(GL_TEXTURE1);
@@ -75,7 +75,7 @@ void RenderComputeToQuad() {
 	ComputeQuad.draw(ComputeQuadShader);
 
 	glEnable(GL_CULL_FACE);
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
 
 }
 

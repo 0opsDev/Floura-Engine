@@ -1,10 +1,8 @@
 ﻿#include "Render.h"
 #include <Render/Cube/CubeVisualizer.h>
-#include <Sound/SoundProgram.h>
 #include <glm/ext/vector_float3.hpp>
 #include <glm/gtx/norm.hpp>
 #include "Render/Cube/RenderQuad.h"
-#include "scene/tempscene.h"
 #include <Render/passes/geometry/geometryPass.h>
 #include <Render/passes/lighting/LightingPass.h>
 #include <Render/window/WindowHandler.h>
@@ -36,22 +34,38 @@ bool RenderClass::DoDeferredLightingPass = false; // Toggle for lighting pass
 bool RenderClass::DoForwardLightingPass = true; // Toggle for regular pass
 bool RenderClass::DoComputeLightingPass = false;
 
+void initGLenable(bool frontFaceSide) {
+	// glenables
+	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
+	glEnable(GL_DEPTH_TEST); // Depth buffer
+	glDepthFunc(GL_LESS);
+	//glEnable(GL_STENCIL_TEST); //stencil buffer
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glEnable(GL_CULL_FACE); // Culling
+	glCullFace(GL_BACK);
+
+	switch (frontFaceSide) { //currently set to false
+	case true: { glFrontFace(GL_CW); break; } // inside facing
+	case false: { glFrontFace(GL_CCW); break; } // outside facing
+	}
+
+	glEnable(GL_FRAMEBUFFER_SRGB);
+	//glEnable(GL_MULTISAMPLE);
+}
+
 void RenderClass::init(unsigned int width, unsigned int height) {
 
 	windowHandler::setVSync(windowHandler::doVsync); // Set Vsync to value of doVsync (bool)
 
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
-	init::initGLenable(false); //bool for direction of polys
+	initGLenable(false); //bool for direction of polys
 	//glEnable(GL_FRAMEBUFFER_SRGB);
 	GeometryPass::init(); // Initialize geometry pass settings
 
 	lightingRenderQuad.init();
-
-	glEnable(GL_FRAMEBUFFER_SRGB);
 	// put in one function
-	Framebuffer::setupMainFBO(width, height);
-	Framebuffer::setupSecondFBO(width, height);
+	Framebuffer::setupFBO(width, height);
 	GeometryPass::setupGbuffers(width, height); // here
 	LightingPass::initcomputeShader(width, height); // Initialize compute shader for lighting pass
 
@@ -63,7 +77,7 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	if (FEImGuiWindow::imGuiEnabled) {
 		FEImGuiWindow::init();
 		ImGuizmo::SetOrthographic(false);
-		init::initImGui(windowHandler::window); // Initialize ImGUI
+		FEImGuiWindow::initImGui(windowHandler::window); // Initialize ImGUI
 	}
 
 	WhiteCube = new CubeVisualizer;
@@ -77,19 +91,52 @@ void RenderClass::initGlobalShaders() {
 	boxShader.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Db/OrangeHitbox.frag");
 	SolidColour.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Db/solidColour.frag");
 	GBLpass.LoadShader("Assets/Shaders/Db/RenderQuad.vert", "Assets/Shaders/Db/RenderQuad.frag");
-	LineShader.LoadShader("Assets/Shaders/Db/line.vert", "Assets/Shaders/Db/line.frag");
+
+
+	LineShader.takePath = false;
+
+	const char* lineVertexShaderSource =
+		"#version 460 core\n"
+		"layout (location = 0) in vec3 aPos;\n"
+		"uniform mat4 lineMatrix;\n"
+		"uniform vec3 aColour;\n"
+		"uniform mat4 camMatrix;\n"
+		"out vec3 colour;\n"
+		"out vec3 crntPos;\n"
+		"void main()\n"
+		"{\n"
+		"    crntPos = vec3(lineMatrix * vec4(aPos, 1.0f));\n"
+		"    colour = aColour;\n"
+		"    gl_Position = camMatrix * vec4(crntPos, 1.0f);\n"
+		"}";
+
+	const char* lineFragShaderSource =
+		"#version 460 core\n"
+		"out vec4 FragColor;\n"
+		"in vec3 colour;\n"
+		"void main()\n"
+		"{\n"
+		"    FragColor = vec4(colour, 1.0f);\n"
+		"}";
+
+	LineShader.LoadShader(
+		lineVertexShaderSource,
+		lineFragShaderSource
+	);
+
+
 	Framebuffer::frameBufferProgram.LoadShader("Assets/Shaders/PostProcess/framebuffer.vert", "Assets/Shaders/PostProcess/framebuffer.frag");
 }
 
 void RenderClass::ClearFramebuffers() {
 
 	// Clear first framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear with colour
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Clear second framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO2);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::finalFB->FBO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear with colour
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -112,7 +159,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
 	glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
 
 	if (FEImGuiWindow::isWireframe) {
@@ -122,8 +169,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	auto startInitTime2 = std::chrono::high_resolution_clock::now();
 
 	if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox) { // should add skybox.scene
-		Skybox::draw(Camera::width, Camera::height); // cleanup later, put camera width and height inside skybox class since, they're already global
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+		Skybox::draw(); // cleanup later, put camera width and height inside skybox class since, they're already global
 
 	}
 	Scene::draw();
@@ -141,7 +187,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	FEImGuiWindow::lPassTime = (initDuration2.count() / 1000.0);
 
 	//glDepthFunc(GL_LEQUAL);
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
 	//glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -151,15 +197,9 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	Framebuffer::FBODraw(FEImGuiWindow::imGuiPanels[0], window);
 }
 
-
-
-void RenderClass::ForwardLightingPass() {
-	
-}
-
 void RenderClass::DeferredLightingPass() {
 
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
 	//glEnable(GL_CULL_FACE);
 		//glDisable(GL_DEPTH_TEST);
 		//glDepthFunc(GL_LESS);
@@ -212,7 +252,7 @@ void RenderClass::DeferredLightingPass() {
 	//shader.
 	lightingRenderQuad.draw(GBLpass);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
 
 }
 

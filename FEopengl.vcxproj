@@ -165,12 +165,14 @@
     <ClCompile Include="src\Math\FE_math.cpp" />
     <ClCompile Include="src\Physics\Collision.cpp" />
     <ClCompile Include="src\Physics\CubeCollider.cpp" />
+    <ClCompile Include="src\Physics\phyworld.cpp" />
     <ClCompile Include="src\Render\Buffer\EBO.cpp" />
     <ClCompile Include="src\Render\Buffer\VAO.cpp" />
     <ClCompile Include="src\Render\Buffer\VBO.cpp" />
     <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp" />
     <ClCompile Include="src\Render\Cube\RenderQuad.cpp" />
     <ClCompile Include="src\Render\Object\Billboard.cpp" />
+    <ClCompile Include="src\Render\Object\Cubemap.cpp" />
     <ClCompile Include="src\Render\Object\line.cpp" />
     <ClCompile Include="src\Render\Object\Mesh.cpp" />
     <ClCompile Include="src\Render\Object\ModelAssimp.cpp" />
@@ -180,7 +182,6 @@
     <ClCompile Include="src\Render\passes\dbg\dbgPass.cpp" />
     <ClCompile Include="src\Render\passes\geometry\geometryPass.cpp" />
     <ClCompile Include="src\Render\passes\lighting\LightingPass.cpp" />
-    <ClCompile Include="src\Render\Shader\Cubemap.cpp" />
     <ClCompile Include="src\Render\Shader\Framebuffer.cpp" />
     <ClCompile Include="src\Render\Shader\FramebufferObject.cpp" />
     <ClCompile Include="src\Render\Shader\Material.cpp" />
@@ -243,12 +244,14 @@
     <ClInclude Include="src\Math\FE_math.h" />
     <ClInclude Include="src\Physics\Collision.h" />
     <ClInclude Include="src\Physics\CubeCollider.h" />
+    <ClInclude Include="src\Physics\phyworld.h" />
     <ClInclude Include="src\Render\Buffer\EBO.h" />
     <ClInclude Include="src\Render\Buffer\VAO.h" />
     <ClInclude Include="src\Render\Buffer\VBO.h" />
     <ClInclude Include="src\Render\Cube\CubeVisualizer.h" />
     <ClInclude Include="src\Render\Cube\RenderQuad.h" />
     <ClInclude Include="src\Render\Object\Billboard.h" />
+    <ClInclude Include="src\Render\Object\Cubemap.h" />
     <ClInclude Include="src\Render\Object\line.h" />
     <ClInclude Include="src\Render\Object\Mesh.h" />
     <ClInclude Include="src\Render\Object\ModelAssimp.h" />
@@ -257,7 +260,6 @@
     <ClInclude Include="src\Render\passes\dbg\dbgPass.h" />
     <ClInclude Include="src\Render\passes\geometry\geometryPass.h" />
     <ClInclude Include="src\Render\passes\lighting\LightingPass.h" />
-    <ClInclude Include="src\Render\Shader\Cubemap.h" />
     <ClInclude Include="src\Render\Shader\Framebuffer.h" />
     <ClInclude Include="src\Render\Shader\FramebufferObject.h" />
     <ClInclude Include="src\Render\Shader\Material.h" />
@@ -312,8 +314,6 @@
     <None Include="Assets\Shaders\gBuffer\geometryPassBillBoard.frag" />
     <None Include="Assets\Shaders\gBuffer\geometryPassBillBoard.vert" />
     <None Include="Assets\Shaders\gBuffer\geometryPassGeom.vert" />
-    <None Include="Assets\Shaders\gBuffer\geometryPassSkybox.frag" />
-    <None Include="Assets\Shaders\gBuffer\geometryPassSkybox.vert" />
     <None Include="Assets\Shaders\gBuffer\geometryPassWobble.vert" />
     <None Include="Assets\Shaders\Lighting\albedo.frag" />
     <None Include="Assets\Shaders\Lighting\albedoGeom.frag" />

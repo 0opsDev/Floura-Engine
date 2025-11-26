@@ -326,7 +326,7 @@ void LightingHandler::deleteLight(int index)
 	}
 	IdManager::RemoveID(Lights[index].ID);
 	Lights.erase(Lights.begin() + index);
-	if (init::LogALL || init::LogModel) LogConsole::print("Deleted LightObject at index: " + std::to_string(index));
+	if (init::LogALL || init::LogObject) LogConsole::print("Deleted LightObject at index: " + std::to_string(index));
 
 	//IdManager::lowestLightIndexSync(); // sync up the index after deletion because the array has now changed
 }
@@ -386,7 +386,7 @@ void LightingHandler::loadScene(std::string path)
 		tempLight.enabled = newEnabled;
 		tempLight.ID.ObjType = 'l';
 		tempLight.ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
-		if (init::LogALL || init::LogModel) LogConsole::print("Loaded LightObject with ID: " + std::to_string(tempLight.ID.UniqueNumber));
+		if (init::LogALL || init::LogObject) LogConsole::print("Loaded LightObject with ID: " + std::to_string(tempLight.ID.UniqueNumber));
 		tempLight.ID.index = LightingHandler::Lights.size();
 		IdManager::AddID(tempLight.ID);
 
@@ -395,7 +395,7 @@ void LightingHandler::loadScene(std::string path)
 
 		// pushback here
 	}
-	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene LightObject from: " << path << std::endl;
+	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene LightObject from: " << path << std::endl;
 }
 
 void LightingHandler::saveScene(std::string path)

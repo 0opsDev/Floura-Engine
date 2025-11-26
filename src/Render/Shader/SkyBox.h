@@ -9,11 +9,11 @@
 #include <utils/init.h>
 #include "shaderClass.h"
 #include <camera/Camera.h>
+#include "Render/Object/Cubemap.h"
 
 class Skybox
 {
 public:
-	static unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
 	static std::string DefaultSkyboxPath;
 	static bool DoSbRGBA;
 
@@ -21,11 +21,15 @@ public:
 
 	static void LoadSkyBoxTexture(std::string PathName);
 
-	static void skyboxBuffer();
+	static void draw();
 
-	static void draw(unsigned int width, unsigned int height);
+	static Cubemap* SkyboxCubemap;
 
 	static void Delete();
+
+
+private:
+	static unsigned int VAO, VBO, EBO;
 };
 
 #endif // SKYBOX_CLASS_H

@@ -238,7 +238,7 @@ void Scene::initJsonModelLoad(std::string path) {
 
 
 	}
-	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene Models from: " << path << std::endl;
+	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene Models from: " << path << std::endl;
 }
 
 void Scene::JsonModelSave(std::string path) {
@@ -520,7 +520,7 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 
 		entityObjects.push_back(std::move(newEntity)); // Add the configured object to the vector
 	}
-	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene BillBoards from: " << path << std::endl;
+	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene BillBoards from: " << path << std::endl;
 }
 
 void Scene::initJsonColliderLoad(std::string path) {
@@ -567,7 +567,7 @@ void Scene::initJsonColliderLoad(std::string path) {
 
 		CubeColliderObject.push_back(newCubeCollider); // Add the configured object to the vector
 	}
-	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene CubeColliders from: " << path << std::endl;
+	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene CubeColliders from: " << path << std::endl;
 }
 
 void Scene::initJsonSoundObjectLoad(std::string path) {
@@ -615,7 +615,7 @@ void Scene::initJsonSoundObjectLoad(std::string path) {
 		newSoundObject.loop = isLoop;
 		SoundObjects.push_back(newSoundObject); // Add the configured object to the vector
 	}
-	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene SoundObject from: " << path << std::endl;
+	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene SoundObject from: " << path << std::endl;
 }
 
 void Scene::JsonSoundObjectSave(std::string path)

@@ -13,11 +13,11 @@
 class RenderQuad
 {
 public:
-	unsigned int cubeVAO, cubeVBO, cubeEBO;
+	unsigned int VAO, VBO, EBO;
 
 	void init();
 
-	void skyboxBuffer();
+	void buffer();
 
 	void draw(Shader shader);
 };

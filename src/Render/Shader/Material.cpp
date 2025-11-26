@@ -123,5 +123,5 @@ void Material::jsonLoad(std::string path)
 
 
 	}
-	if (init::LogALL || init::LogModel) std::cout << "Loaded Scene Models from: " << path << std::endl;
+	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene Models from: " << path << std::endl;
 }

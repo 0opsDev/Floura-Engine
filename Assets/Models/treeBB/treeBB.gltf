@@ -15,11 +15,12 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Sphere"
+			"name":"Plane"
 		}
 	],
 	"materials":[
 		{
+			"alphaMode":"BLEND",
 			"doubleSided":true,
 			"name":"Material.001",
 			"pbrMetallicRoughness":{
@@ -27,15 +28,13 @@
 					"index":0
 				},
 				"metallicFactor":0,
-				"metallicRoughnessTexture":{
-					"index":1
-				}
+				"roughnessFactor":0.5
 			}
 		}
 	],
 	"meshes":[
 		{
-			"name":"Sphere",
+			"name":"Plane",
 			"primitives":[
 				{
 					"attributes":{
@@ -53,83 +52,74 @@
 		{
 			"sampler":0,
 			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
 		}
 	],
 	"images":[
 		{
-			"mimeType":"image/jpeg",
-			"name":"16x16",
-			"uri":"16x16.jpg"
-		},
-		{
 			"mimeType":"image/png",
-			"name":"Untitled",
-			"uri":"Untitled.png"
+			"name":"003-BryceElm1",
+			"uri":"003-BryceElm1.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":559,
+			"count":8,
 			"max":[
-				0.9999997019767761,
-				1,
-				0.9999993443489075
+				0.7071067690849304,
+				2,
+				0.7071067690849304
 			],
 			"min":[
-				-0.9999990463256836,
-				-1,
-				-1
+				-0.7071067690849304,
+				5.960464477539063e-08,
+				-0.7071067690849304
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":559,
+			"count":8,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":559,
+			"count":8,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":2880,
+			"count":12,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":6708,
+			"byteLength":96,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6708,
-			"byteOffset":6708,
+			"byteLength":96,
+			"byteOffset":96,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4472,
-			"byteOffset":13416,
+			"byteLength":64,
+			"byteOffset":192,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":5760,
-			"byteOffset":17888,
+			"byteLength":24,
+			"byteOffset":256,
 			"target":34963
 		}
 	],
@@ -141,8 +131,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":23648,
-			"uri":"sphere.bin"
+			"byteLength":280,
+			"uri":"treeBB.bin"
 		}
 	]
 }

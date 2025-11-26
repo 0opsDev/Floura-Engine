@@ -1,9 +1,8 @@
 [
-    {
-        "LogALL": false,
-        "LogModel": false,
-        "LogSound": false,
-        "LogSystems": true,
-        "LogLua": false
-    }
+  {
+    "LogALL": false,
+    "LogObject": false,
+    "LogSystems": true,
+    "LogLua": false
+  }
 ]

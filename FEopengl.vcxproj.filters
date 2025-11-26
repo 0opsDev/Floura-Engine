@@ -145,9 +145,6 @@
     <ClCompile Include="src\Render\Shader\Framebuffer.cpp">
       <Filter>src\Render\Shader</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\Shader\Cubemap.cpp">
-      <Filter>src\Render\Shader</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scripting\ScriptEngine.cpp">
       <Filter>src\Scripting</Filter>
     </ClCompile>
@@ -349,6 +346,12 @@
     <ClCompile Include="src\Render\Shader\FramebufferObject.cpp">
       <Filter>src\Render\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="src\Physics\phyworld.cpp">
+      <Filter>src\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\Cubemap.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -389,9 +392,6 @@
     </ClInclude>
     <ClInclude Include="src\Core\Main.h">
       <Filter>src\core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Shader\Cubemap.h">
-      <Filter>src\Render\Shader</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\Shader\Framebuffer.h">
       <Filter>src\Render\Shader</Filter>
@@ -582,6 +582,12 @@
     <ClInclude Include="src\Render\Shader\FramebufferObject.h">
       <Filter>src\Render\Shader</Filter>
     </ClInclude>
+    <ClInclude Include="src\Physics\phyworld.h">
+      <Filter>src\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\Cubemap.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="UserScripts\LuaStartup.json">
@@ -651,12 +657,6 @@
       <Filter>Resource Files\Shaders\gBuffer</Filter>
     </None>
     <None Include="Assets\Shaders\gBuffer\geometryPassGeom.vert">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Assets\Shaders\gBuffer\geometryPassSkybox.frag">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Assets\Shaders\gBuffer\geometryPassSkybox.vert">
       <Filter>Resource Files\Shaders\gBuffer</Filter>
     </None>
     <None Include="Assets\Shaders\gBuffer\geometryPassWobble.vert">

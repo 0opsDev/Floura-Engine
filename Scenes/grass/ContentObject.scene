@@ -112,5 +112,11 @@
         "ObjectType": "Model",
         "Path": "Assets/Models/treeBB/treeBB.gltf",
         "Type": "NULL"
+    },
+    {
+        "Name": "grassBB",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grassBB/grassBB.gltf",
+        "Type": "NULL"
     }
 ]
