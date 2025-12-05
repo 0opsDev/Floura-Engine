@@ -368,3 +368,6 @@ Build/
 
 # Ignore the FE Build.zip file
 FE Build.zip
+
+# Ignore the temp folder
+temp/

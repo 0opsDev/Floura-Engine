@@ -4,7 +4,7 @@
 #include <iostream>
 #include <camera/Camera.h>
 #include <UI/ImGui/ImGuiWindow.h>
-#include <Render/Shader/SkyBox.h>
+#include <Render/Object/SkyBox.h>
 //#include <Render/Cube/Billboard.h>
 #include "Render/Cube/CubeVisualizer.h"
 #include <Render/Object/line.h>
@@ -18,7 +18,6 @@ public:
 	static Shader gPassShaderBillBoard;
 	static Shader boxShader;
 	static Shader LineShader;
-	static float gamma;
 	static bool renderSkybox;
 	static bool doReflections;
 	static bool doFog;

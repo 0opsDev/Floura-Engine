@@ -1,5 +1,4 @@
 #include "shaderClass.h"
-#include "utils/init.h"
 #include <utils/logConsole.h>
 
 
@@ -78,10 +77,7 @@ void Shader::LoadShader(const char* vertexFile, const char* fragmentFile)
         //delete shaders because its already in the program
         glDeleteShader(vertexShader);//ep2
         glDeleteShader(fragmentShader);//ep2
-        if (init::LogALL || init::LogSystems)
-        {
-            LogConsole::print(("Vert: ", vertexFile, "Frag: ", fragmentFile));
-        }
+        //LogConsole::print(("Vert: ", vertexFile, "Frag: ", fragmentFile));
 
    
 }
@@ -140,8 +136,7 @@ void Shader::LoadShaderGeom(const char* vertexFile, const char* fragmentFile, co
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 	glDeleteShader(geometryShader);
-    if (init::LogALL || init::LogSystems)
-    {LogConsole::print(("Vert: ", vertexFile, "Frag: ", fragmentFile, "Geom", geometryFile));}
+    //LogConsole::print(("Vert: ", vertexFile, "Frag: ", fragmentFile, "Geom", geometryFile));}
 
 }
 

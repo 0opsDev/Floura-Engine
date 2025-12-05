@@ -97,7 +97,7 @@ void GeometryPass::updateGbufferResolution(unsigned int width, unsigned int heig
 void GeometryPass::gPassDraw(Model*& model, Shader& GPass) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	GPass.Activate();
-	GPass.setFloat("gamma", RenderClass::gamma);
+	GPass.setFloat("gamma", Camera::gamma);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -108,5 +108,5 @@ void GeometryPass::gPassDraw(Model*& model, Shader& GPass) {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 }

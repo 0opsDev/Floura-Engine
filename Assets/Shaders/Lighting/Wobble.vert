@@ -11,7 +11,7 @@ uniform mat4 camMatrix;
 uniform mat4 model; // Final model matrix combining all transformations
 uniform float deltatime;
 uniform float time;
-float speed = 1.0f;
+float speed = 10.0f;
 float frequency = 1.0f; // Frequency of the wave
 float amplitude = 0.01f; // Amplitude of the wave
 

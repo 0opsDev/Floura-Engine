@@ -5,6 +5,7 @@
 #include <Scene/IdManager.h>
 #include "Physics/Collision.h"
 
+
 #ifndef FE_OBJECT_H
 #define FE_OBJECT_H
 
@@ -136,12 +137,10 @@ public:
 		glm::vec3 velocity = glm::vec3(0.0f);
 		// applied motion
 		glm::vec3 force = glm::vec3(0.0f);
-		// change in motion
-		glm::vec3 acceleration = glm::vec3(0.0f);
 
 		// flags
 		bool affectedByGravity = false;
-		bool isCollidable = false; // reacts with other colliders
+		bool hasRigidbody = false;
 	};
 
 	static struct collider {

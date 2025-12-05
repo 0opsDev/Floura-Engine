@@ -18,18 +18,15 @@ class Camera
 public:
     // Stores camera transform
     static glm::vec3 Position;
-    static bool DoJump;
     static glm::vec3 Orientation;
     static glm::vec3 Up;
-    static bool s_DoGravity;
     static glm::mat4 cameraMatrix;
     static float s_scrollSpeed;
     static glm::vec2 sensitivity;
     static glm::mat4 view;
     static glm::mat4 projection;
     static float fov;
-    static bool isMoving;
-    static glm::vec3 cameraColliderScale;
+    static float gamma;
 
     // Prevents the camera from jumping around when first clicking left click
     static bool firstClick;

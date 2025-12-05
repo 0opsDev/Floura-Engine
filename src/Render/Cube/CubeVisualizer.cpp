@@ -3,7 +3,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <Core/Render.h>
 
-float s_Cube_Vertices[24] =
+const float s_Cube_Vertices[24] =
 {
 	//   Coordinates
 	-1.0f, -1.0f,  1.0f,
@@ -16,7 +16,7 @@ float s_Cube_Vertices[24] =
 	-1.0f,  1.0f, -1.0f
 };
 
-unsigned int s_Cube_Indices[36] =
+const unsigned int s_Cube_Indices[36] =
 {
 	// Right
 	1, 2, 6,
@@ -75,7 +75,7 @@ void CubeVisualizer::draw(glm::vec3 position,
 		return; // Skip rendering if not in regular or lighting pass
 	}
 	if (RenderClass::DoForwardLightingPass) {
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 		glEnable(GL_DEPTH_TEST);
 		glBindVertexArray(0);
@@ -105,7 +105,7 @@ void CubeVisualizer::draw(glm::vec3 position,
 		glDepthFunc(GL_LESS);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 		return;
 
 	// debug buffer would be cool, actually 3 debug buffers one for wireframe, another for hitboxes and the other for a polygon view simular to unreals

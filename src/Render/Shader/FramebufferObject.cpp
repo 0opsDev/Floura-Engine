@@ -1,14 +1,22 @@
+#include<glad/glad.h>
 #include "FramebufferObject.h"
+#include <iostream>
 
-FramebufferObject::FramebufferObject(glm::vec2 resolution, bool doRBO)
+void FramebufferObject::create(glm::vec2 resolution, bool doRBO)
 {
 	FramebufferObject::doRBO = doRBO;
 	FramebufferObject::resolution = resolution;
 	genBuffers();
 }
 
-FramebufferObject::~FramebufferObject()
+void FramebufferObject::Delete()
 {
+	glDeleteFramebuffers(1, &FBO);
+	if (doRBO)
+		glDeleteRenderbuffers(1, &RBO);
+
+	glDeleteTextures(1, &texture);
+
 }
 
 void FramebufferObject::resizeResolution(glm::vec2 resolution)

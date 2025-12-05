@@ -7,6 +7,7 @@
 #include <Scene/Object/Entity.h>
 #include <Physics/CubeCollider.h>
 #include <thread>
+#include "Physics/phyworld.h"
 using json = nlohmann::json;
 
 //testclass

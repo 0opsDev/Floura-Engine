@@ -1,5 +1,4 @@
 #include "Scripting/ScriptRunner.h"
-#include "utils/init.h"
 #include <fstream>
 #include <utils/logConsole.h>
 
@@ -67,7 +66,7 @@ void ScriptRunner::init(std::string path) {
 
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
-	if (init::LogALL || init::LogLua) std::cout << "[CPP] Lua initialization Duration: " << initDuration.count() / 1000000.0 << std::endl;
+	std::cout << "[CPP] Lua initialization Duration: " << initDuration.count() / 1000000.0 << std::endl;
 }
 
 void ScriptRunner::update() {

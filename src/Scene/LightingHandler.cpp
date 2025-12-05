@@ -1,5 +1,4 @@
 #include "LightingHandler.h"
-#include <utils/init.h>
 #include <Core/Render.h>
 #include <glm/gtx/euler_angles.hpp>
 #include <utils/logConsole.h>
@@ -326,7 +325,7 @@ void LightingHandler::deleteLight(int index)
 	}
 	IdManager::RemoveID(Lights[index].ID);
 	Lights.erase(Lights.begin() + index);
-	if (init::LogALL || init::LogObject) LogConsole::print("Deleted LightObject at index: " + std::to_string(index));
+	LogConsole::print("Deleted LightObject at index: " + std::to_string(index));
 
 	//IdManager::lowestLightIndexSync(); // sync up the index after deletion because the array has now changed
 }
@@ -386,7 +385,7 @@ void LightingHandler::loadScene(std::string path)
 		tempLight.enabled = newEnabled;
 		tempLight.ID.ObjType = 'l';
 		tempLight.ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
-		if (init::LogALL || init::LogObject) LogConsole::print("Loaded LightObject with ID: " + std::to_string(tempLight.ID.UniqueNumber));
+		LogConsole::print("Loaded LightObject with ID: " + std::to_string(tempLight.ID.UniqueNumber));
 		tempLight.ID.index = LightingHandler::Lights.size();
 		IdManager::AddID(tempLight.ID);
 
@@ -395,7 +394,7 @@ void LightingHandler::loadScene(std::string path)
 
 		// pushback here
 	}
-	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene LightObject from: " << path << std::endl;
+	std::cout << "Loaded Scene LightObject from: " << path << std::endl;
 }
 
 void LightingHandler::saveScene(std::string path)
@@ -432,18 +431,18 @@ void LightingHandler::saveScene(std::string path)
 		// Write to file
 		std::ofstream outFile(path, std::ios::out);
 		if (!outFile.is_open()) {
-			if (init::LogALL || init::LogSystems) std::cout << "Failed to write to " << path << std::endl;
+			std::cout << "Failed to write to " << path << std::endl;
 			return;
 		}
 
 		outFile << lightData.dump(4);  // Pretty-print with indentation
 		outFile.close();
 
-		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+		std::cout << "Successfully updated " << path << std::endl;
 
 	}
 	catch (const std::exception& e) {
-		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+		std::cout << "Exception: " << e.what() << std::endl;
 	}
 }
 

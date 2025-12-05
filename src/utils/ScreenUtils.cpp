@@ -1,5 +1,4 @@
 #include "screenutils.h" 
-#include "utils/init.h"
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <Render/window/WindowHandler.h>

@@ -31,6 +31,8 @@ public:
 
 	int drawType = 0; // 0 = triangles, 1 = lines, 2 = points
 
+    std::string name = "empty";
+
 private:
 
     VAO VAO;

@@ -1,5 +1,4 @@
 #include "WindowHandler.h"
-#include <utils/init.h>
 #include <stb/stb_image.h>
 
 
@@ -36,7 +35,7 @@ GLFWwindow* windowHandler::createWindow(int width, int height, const char* windo
 void windowHandler::SetScreenSize(GLFWwindow* window, unsigned int width, unsigned int height) {
 	glViewport(0, 0, width, height);
 	glfwSetWindowSize(window, width, height);
-	if (init::LogALL || init::LogSystems) std::cout << "set screensize: " << width << "*" << height << std::endl;
+	std::cout << "set screensize: " << width << "*" << height << std::endl;
 }
 
 void windowHandler::SetWindowIcon(GLFWwindow* window, std::string path) {
@@ -77,7 +76,7 @@ void windowHandler::InitMainWidnow() {
 
 	// put primary window where null is for fullscreen
 	window = createWindow(width, height, s_WindowTitle.c_str(), NULL, NULL);
-	if (init::LogALL || init::LogSystems) std::cout << "Primary monitor resolution: " << width << "x" << height << std::endl;
+	std::cout << "Primary monitor resolution: " << width << "x" << height << std::endl;
 
 	// window logo creation and assignment
 	SetWindowIcon(window, "assets/Icons/Icon.png");

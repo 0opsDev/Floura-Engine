@@ -6,7 +6,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <string>
-#include <vector>
 class Player
 {
 public:
@@ -14,11 +13,19 @@ public:
 	static bool isGrounded;
 	static bool isColliding;
 
-	static glm::vec3 feetpos;
-
 	static void init();
 
 	static void update();
+
+	static glm::vec3 cameraColliderScale;
+	static bool DoJump;
+	static bool s_DoGravity;
+	static bool isMoving;
+private:
+	static glm::vec3 velocity;
+	static glm::vec3 force;
+	static glm::vec3 gravity;
+	static float mass;
 
 };
 

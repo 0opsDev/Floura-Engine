@@ -6,7 +6,6 @@
 #include<string>
 #include<array>
 #include <stb/stb_image.h>
-#include <utils/init.h>
 #include "render/Shader/shaderClass.h"
 #include <camera/Camera.h>
 

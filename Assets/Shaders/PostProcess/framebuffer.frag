@@ -33,12 +33,15 @@ float logisticDepth(float depth, float steepness, float offset)
 }
 
 void main() {
-    if (!doFog) {
-        FragColor = texture(screenTexture, texCoords);
+    float depth = texture(depthMap, texCoords).r;
+
+    if (!doFog || depth == 1.0f) {
+        FragColor.rgb = pow(texture(screenTexture, texCoords).rgb, vec3(gamma));
+
         return;
     }
 
-    float depth = texture(depthMap, texCoords).r;
+    
     float Depth = logisticDepth(depth, 0.1f, DepthDistance);
     vec3 final = texture(screenTexture, texCoords).rgb * (1.0f - Depth) + vec3(Depth * fogColor);
 

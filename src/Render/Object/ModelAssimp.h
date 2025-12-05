@@ -34,12 +34,12 @@ public:
 
 	// AABBS position stored in local space
 	std::vector<Collision::AABB> MeshAABBs;
+	std::vector<Mesh> meshes;
 
 private:
 	
 	std::vector<Collision::AABB> FetchMeshAABBs();
 
-	std::vector<Mesh> meshes;
 	std::vector<RenderClass::transformation>localTransformation;
 	std::vector <glm::mat4> lModelMatrix;
 

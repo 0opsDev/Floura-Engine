@@ -1,9 +1,8 @@
 #include "SoundProgram.h"
-#include <utils/init.h>
 #include <Render/Object/Billboard.h>
 #include "SoundRunner.h"
 #include <UI/ImGui/ImGuiWindow.h>
-#include <Math/FE_math.h>
+#include <utils/FE_math.h>
 #include"utils/logConsole.h"
 
 ALCdevice* SoundProgram::device;

@@ -1,0 +1,58 @@
+[
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 9170,
+        "Location": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            10.0,
+            1.0,
+            10.0
+        ],
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "plane",
+        "path": "Assets/Models/basic shapes/plane.gltf",
+        "uvScale": [
+            10.0,
+            10.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 5725,
+        "Location": [
+            0.0,
+            4.0,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "path": "Assets/Models/basic shapes/cube.gltf",
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    }
+]

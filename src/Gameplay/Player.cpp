@@ -1,79 +1,121 @@
 #include "Player.h"
 #include <Sound/SoundProgram.h>
 #include <Sound/SoundRunner.h>
-#include <algorithm>
 #include <Render/window/WindowHandler.h>
+#include "Physics/CubeCollider.h"
 
 bool Player::isGrounded = false;
 bool Player::isColliding = false;
-glm::vec3 Player::feetpos;
+bool Player::s_DoGravity = false;
+bool Player::isMoving = false;
+bool Player::DoJump = true;
+glm::vec3 Player::velocity;
+glm::vec3 Player::force;
+glm::vec3 Player::gravity = glm::vec3(0.0f, -9.81f, 0.0f);
+glm::vec3 Player::cameraColliderScale = glm::vec3(1.0, 1.0, 1.0);
+float Player::mass = 70.0f;
+
+glm::vec3 lastpos = glm::vec3(0.0f);
+
 SoundProgram FootSound;
-float JumpTimeAccumulator = 0.0f;
-float PlayerPhysicsAccum = 0.0f;
-float fallSpeed;
-float tempcameracolYval;
 void Player::init() {
 
 	FootSound.CreateSound("Assets/Sounds/Footsteps.wav", "FootSound");
 	FootSound.Set3D(true);
-
-	tempcameracolYval = Camera::cameraColliderScale.y;
 }
 void Player::update() {
 
-	if (Camera::s_DoGravity) {
-			if (glfwGetKey(windowHandler::window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-				if (Camera::cameraColliderScale.y > (tempcameracolYval / 2)) {
-					Camera::cameraColliderScale.y -= 5 * TimeUtil::s_DeltaTime;
-				}
-			}
-			else {
-				if (Camera::cameraColliderScale.y < tempcameracolYval) {
-					Camera::cameraColliderScale.y += 5 * TimeUtil::s_DeltaTime;
-				}
-			}
+	float adjustedSpeed = 5.0f * TimeUtil::s_DeltaTime;
+	glm::vec3 flatOrientation = glm::normalize(glm::vec3(Camera::Orientation.x, 0.0f, Camera::Orientation.z));
+
+	if (glfwGetKey(windowHandler::window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		Camera::Position += adjustedSpeed * flatOrientation;
+	}
+	if (glfwGetKey(windowHandler::window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		Camera::Position += adjustedSpeed * -glm::normalize(glm::cross(flatOrientation, Camera::Up));
+	}
+	if (glfwGetKey(windowHandler::window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		Camera::Position += adjustedSpeed * -flatOrientation;
+	}
+	if (glfwGetKey(windowHandler::window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		Camera::Position += adjustedSpeed * glm::normalize(glm::cross(flatOrientation, Camera::Up));
 	}
 
-	PlayerPhysicsAccum += TimeUtil::s_DeltaTime;
-	fallSpeed += 0.1f * TimeUtil::s_DeltaTime;
-	if (fallSpeed > 1.0f) {
-		fallSpeed = 1.0f; // cap fall speed
+	if (!s_DoGravity)
+		DoJump = true;
+
+	if (glfwGetKey(windowHandler::window, GLFW_KEY_F2) == GLFW_PRESS) {
+		s_DoGravity = false;
+		velocity = glm::vec3(0.0f);
+		CubeCollider::CollideWithCamera = false;
 	}
-	if (PlayerPhysicsAccum >= 0.016) {
-		feetpos = glm::vec3(Camera::Position.x, (Camera::Position.y - Camera::cameraColliderScale.y), Camera::Position.z);
-		FootSound.SetSoundPosition(feetpos);
-		FootSound.updateCameraPosition();
-		
-		if (isColliding && Camera::isMoving) {
-			fallSpeed = 0.0f; // reset fall speed when colliding
-			FootSound.SetVolume(SoundRunner::entityVolume);
+	if (glfwGetKey(windowHandler::window, GLFW_KEY_F3) == GLFW_PRESS) {
+		s_DoGravity = true;
+		CubeCollider::CollideWithCamera = true;
+	}
 
-			float minSpeed = 5.0f;  // minimum speed
-			float maxSpeed = 20.0f;  // maximum speed
-			float normalizedSpeed = (Camera::speed - minSpeed) / (maxSpeed - minSpeed);
+	if (lastpos != Camera::Position && glfwGetKey(windowHandler::window, GLFW_KEY_W) == GLFW_PRESS ||
+		lastpos != Camera::Position && glfwGetKey(windowHandler::window, GLFW_KEY_A) == GLFW_PRESS ||
+		lastpos != Camera::Position && glfwGetKey(windowHandler::window, GLFW_KEY_S) == GLFW_PRESS ||
+		lastpos != Camera::Position && glfwGetKey(windowHandler::window, GLFW_KEY_D) == GLFW_PRESS) {
+		Player::isMoving = true;
+	}
+	else { Player::isMoving = false; }
 
-			// Clamp the value at 1.0
-			normalizedSpeed = std::clamp(normalizedSpeed, 0.0f, 1.0f);
-			FootSound.SetPitch(1 + normalizedSpeed);
-			//std::cout << "footsound" << std::endl;
-			if (!FootSound.isPlay) {
-				FootSound.PlaySound();
-				
+		if (isColliding) {
+			velocity = glm::vec3(0.0f);
+			if (glfwGetKey(windowHandler::window, GLFW_KEY_SPACE) == GLFW_PRESS && DoJump) //jump
+			{
+				velocity.y += 5.99f; // reset force at end
+				//force += glm::vec3(0.0f, 2800.0f, 0.0f) * mass;
+				//826.7
 			}
+
+			FootSound.SetSoundPosition(glm::vec3(Camera::Position.x, (Camera::Position.y - cameraColliderScale.y), Camera::Position.z));
+			FootSound.updateCameraPosition();
+
+			if (Player::isMoving) {
+				FootSound.SetVolume(SoundRunner::entityVolume);
+
+				float minSpeed = 5.0f;  // minimum speed
+				float maxSpeed = 20.0f;  // maximum speed
+				float normalizedSpeed = (Camera::speed - minSpeed) / (maxSpeed - minSpeed);
+
+				// Clamp the value at 1.0
+				normalizedSpeed = std::clamp(normalizedSpeed, 0.0f, 1.0f);
+				FootSound.SetPitch(1 + normalizedSpeed);
+				//std::cout << "footsound" << std::endl;
+				if (!FootSound.isPlay) {
+					FootSound.PlaySound();
+
+				}
+			}
+			else
+			{
+				FootSound.StopSound();
+			}
+
 		}
-		else
+		else 
 		{
 			FootSound.StopSound();
-			//Camera::DoJump = false;
 		}
-		if (Camera::s_DoGravity && !isColliding) {
-			Camera::Position.y -= fallSpeed;
-			//std::cout << TimeUtil::s_DeltaTime << std::endl;
+
+		if (s_DoGravity) {
+			force += mass * gravity; // applying foce
+
+			velocity += force / mass * TimeUtil::s_DeltaTime;
+			Camera::Position += Player::velocity * TimeUtil::s_DeltaTime;
+
+			force = glm::vec3(0.0f); // reset force at end
+
 		}
-		PlayerPhysicsAccum = 0.0f;
 
 		//Player::isGrounded = false;
 		Player::isColliding = false;
-	}
-
+		glm::vec3 lastpos = Camera::Position;
 }

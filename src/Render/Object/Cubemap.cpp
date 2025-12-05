@@ -15,12 +15,12 @@ Cubemap::Cubemap(std::string PathName) {
 
 		std::string Path = SkyboxJsonData[0]["Path"].get<std::string>() + "/";
 
-		if (init::LogALL || init::LogObject) LogConsole::print("Skybox Path: " + Path);
+		LogConsole::print("Skybox Path: " + Path);
 
 		for (int i = 0; i < 6; i++)
 		{
 			facesCubemap[i] = Path + SkyboxJsonData[0]["Faces"][i].get<std::string>();
-			if (init::LogALL || init::LogObject) LogConsole::print("Skybox Face: " + facesCubemap[i]);
+			LogConsole::print("Skybox Face: " + facesCubemap[i]);
 		}
 	}
 	else {
@@ -65,7 +65,7 @@ Cubemap::Cubemap(std::string PathName) {
 		}
 		else
 		{
-			if (init::LogALL || init::LogObject) LogConsole::print("Failed to load texture: " + facesCubemap[i]);
+			LogConsole::print("Failed to load texture: " + facesCubemap[i]);
 			stbi_image_free(data);
 		}
 	}

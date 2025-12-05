@@ -1,5 +1,4 @@
 #include "Material.h"
-#include <utils/init.h>
 #include <Core/Render.h>
 #include <Scene/LightingHandler.h>
 #include <utils/logConsole.h>
@@ -123,5 +122,5 @@ void Material::jsonLoad(std::string path)
 
 
 	}
-	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene Models from: " << path << std::endl;
+	std::cout << "Loaded Scene Models from: " << path << std::endl;
 }

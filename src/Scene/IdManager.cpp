@@ -1,6 +1,5 @@
 #include "IdManager.h"
 #include <utils/logConsole.h>
-#include <utils/init.h>
 #include "scene.h"
 #include "LightingHandler.h"
 
@@ -11,7 +10,7 @@ IdManager::LowestDeletedIndex IdManager::lowestDeletedIndex = { -1, -1, -1, -1, 
 void IdManager::onSceneLoad() {
 
 	clearAllIDs();
-	if (init::LogALL || init::LogSystems) LogConsole::print("IdManager - Scene Load");
+	LogConsole::print("IdManager - Scene Load");
 }
 
 void IdManager::clearAllIDs()
@@ -23,7 +22,7 @@ void IdManager::clearAllIDs()
 	lowestDeletedIndex.Sound = -1;
 	lowestDeletedIndex.Light = -1;
 	IDs.clear();
-	if (init::LogALL || init::LogSystems) LogConsole::print("IdManager - Cleared all IDs");
+	LogConsole::print("IdManager - Cleared all IDs");
 }
 
 void IdManager::update()
@@ -265,7 +264,7 @@ void IdManager::AddID(IdManager::ID& checkID)
 		// random number
 		checkID.UniqueNumber = rand() % 10000 + 1; // random number between 1 and 10000
 
-		if (init::LogALL || init::LogSystems) LogConsole::print("ID UniqueNumber was 0, assigned random number: " + std::to_string(checkID.UniqueNumber));
+		LogConsole::print("ID UniqueNumber was 0, assigned random number: " + std::to_string(checkID.UniqueNumber));
 
 	}
 	// check IDs with ID
@@ -284,8 +283,8 @@ void IdManager::AddID(IdManager::ID& checkID)
 	newID.UniqueNumber = checkID.UniqueNumber;
 	newID.index = checkID.index;
 	IDs.push_back(newID);
-	if (init::LogALL || init::LogSystems) LogConsole::print("Checked/Added ID - Type: " + std::to_string(static_cast<int>(checkID.ObjType)) + ", uniqueNumber: " + std::to_string(checkID.UniqueNumber) + ", Total IDs: " + std::to_string(IDs.size()));
-	if (init::LogALL || init::LogSystems) LogConsole::print("ID: " + std::to_string(checkID.ObjType) + "*" + std::to_string(checkID.UniqueNumber));
+	LogConsole::print("Checked/Added ID - Type: " + std::to_string(static_cast<int>(checkID.ObjType)) + ", uniqueNumber: " + std::to_string(checkID.UniqueNumber) + ", Total IDs: " + std::to_string(IDs.size()));
+	LogConsole::print("ID: " + std::to_string(checkID.ObjType) + "*" + std::to_string(checkID.UniqueNumber));
 }
 
 void IdManager::RemoveID(IdManager::ID& checkID)
@@ -295,9 +294,9 @@ void IdManager::RemoveID(IdManager::ID& checkID)
 		if (it->ObjType == checkID.ObjType && it->UniqueNumber == checkID.UniqueNumber) {
 			// ID found, remove it
 			IDs.erase(it);
-			if (init::LogALL || init::LogSystems) LogConsole::print("Removed ID - Type: " + std::to_string(static_cast<int>(checkID.ObjType)) + ", uniqueNumber: " + std::to_string(checkID.UniqueNumber) + ", Total IDs: " + std::to_string(IDs.size()));
+			LogConsole::print("Removed ID - Type: " + std::to_string(static_cast<int>(checkID.ObjType)) + ", uniqueNumber: " + std::to_string(checkID.UniqueNumber) + ", Total IDs: " + std::to_string(IDs.size()));
 			return;
 		}
 	}
-	if (init::LogALL || init::LogSystems) LogConsole::print("ID to remove not found - Type: " + std::to_string(static_cast<int>(checkID.ObjType)) + ", uniqueNumber: " + std::to_string(checkID.UniqueNumber));
+	LogConsole::print("ID to remove not found - Type: " + std::to_string(static_cast<int>(checkID.ObjType)) + ", uniqueNumber: " + std::to_string(checkID.UniqueNumber));
 }

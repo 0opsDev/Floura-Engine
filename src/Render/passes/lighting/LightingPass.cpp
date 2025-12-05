@@ -1,6 +1,6 @@
 #include "LightingPass.h"
 #include <Render/Shader/Framebuffer.h>
-#include "Render/Cube/RenderQuad.h"
+#include "Render/Object/RenderQuad.h"
 #include <Render/passes/geometry/geometryPass.h>
 
 GLuint LightingPass::computeTexture;
@@ -62,7 +62,7 @@ void LightingPass::resizeTexture(unsigned int width, unsigned int height) {
 }
 
 void RenderComputeToQuad() {
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	glDisable(GL_CULL_FACE);
 
 	//glActiveTexture(GL_TEXTURE1);
@@ -75,7 +75,7 @@ void RenderComputeToQuad() {
 	ComputeQuad.draw(ComputeQuadShader);
 
 	glEnable(GL_CULL_FACE);
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 
 }
 

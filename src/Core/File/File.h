@@ -9,7 +9,6 @@
 #include<iostream>
 #include<cerrno>
 #include <glm/fwd.hpp>
-#include <utils/init.h>
 #include <glm/gtx/string_cast.hpp>
 #include <Render/Shader/shaderClass.h>
 
@@ -31,6 +30,8 @@ public:
 
 	static void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram); //shader program switcher
 
+	static void loadSettings();
+	static void saveSettings();
 };
 
 #endif // FILE_H

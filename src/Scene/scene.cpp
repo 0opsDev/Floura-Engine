@@ -3,10 +3,7 @@
 #include <Gameplay/Player.h>
 #include <Scene/LightingHandler.h>
 #include <utils/logConsole.h>
-//BillBoardObject BillBoardObjects;
-//CubeCollider ColliderObject;
-//SoundProgram SoundObjects;
-//std::vector<ModelObject> Scene::objects;
+
 
 std::string Scene::sceneName = ""; // Map loading
 std::vector <CubeCollider> Scene::CubeColliderObject;
@@ -38,7 +35,6 @@ void Scene::LoadScene(std::string path) {
 	}
 
 	initJsonSettingsLoad(path + "/Settings.scene");
-	initCameraSettingsLoad(path + "/Camera.scene");
 	initJsonColliderLoad(path + "/Collider.scene");
 	LightingHandler::loadScene(path + "/Lights.scene");
 	JsonEnviromentLoad(path + "/Enviroment.scene"); // gives DefaultSkyboxPath
@@ -46,6 +42,7 @@ void Scene::LoadScene(std::string path) {
 	initJsonBillBoardLoad(path + "/BillBoard.scene"); // here
 	initJsonModelLoad(path + "/Model.scene");
 	initJsonSoundObjectLoad(path + "/Sound.scene");
+	initCameraSettingsLoad(path + "/Camera.scene");
 
 	LogConsole::print("Loaded scene from: " + path);
 }
@@ -58,13 +55,13 @@ void Scene::SaveScene(std::string path) {
 	}
 
 	JsonSettingsSave(path + "/Settings.scene");
-	JsonCameraSettingsSave(path + "/Camera.scene");
 	JsonColliderSave(path + "/Collider.scene");
 	LightingHandler::saveScene(path + "/Lights.scene");
 	JsonEnviromentSave(path + "/Enviroment.scene");
 	JsonBillBoardSave(path + "/BillBoard.scene");
 	JsonModelSave(path + "/Model.scene");
 	JsonSoundObjectSave(path + "/Sound.scene");
+	JsonCameraSettingsSave(path + "/Camera.scene");
 
 	LogConsole::print("Saved scene to: " + path);
 }
@@ -84,6 +81,9 @@ void Scene::JsonEnviromentSave(std::string path)
 		JsonEnviroment["DefaultSkyboxPath"] = Skybox::DefaultSkyboxPath;
 		JsonEnviroment["DoSkyColour"] = Skybox::DoSbRGBA;
 		JsonEnviroment["RenderSkybox"] = RenderClass::renderSkybox;
+		JsonEnviroment["SkyRotation"][0] = Skybox::rotation.x;
+		JsonEnviroment["SkyRotation"][1] = Skybox::rotation.y;
+		JsonEnviroment["SkyRotation"][2] = Skybox::rotation.z;
 
 		// directional light
 		JsonEnviroment["DirEnabled"] = LightingHandler::doDirLight;
@@ -130,17 +130,17 @@ void Scene::JsonEnviromentSave(std::string path)
 		std::ofstream outFile(path, std::ios::out);
 		if (!outFile.is_open()) {
 
-			if (init::LogALL || init::LogSystems || true) std::cout << ("Failed to write to ") << path << std::endl;
+			std::cout << ("Failed to write to ") << path << std::endl;
 		}
 
 		outFile << EnviromentData.dump(4);
 		outFile.close();
 
-		if (init::LogALL || init::LogSystems || true) std::cout << "Successfully updated " << path << std::endl;
+		std::cout << "Successfully updated " << path << std::endl;
 
 	}
 	catch (const std::exception& e) {
-		if (init::LogALL || init::LogSystems || true) std::cout << "Exception: " << e.what() << std::endl;
+		std::cout << "Exception: " << e.what() << std::endl;
 	}
 }
 
@@ -160,6 +160,9 @@ void Scene::JsonEnviromentLoad(std::string path)
 		Skybox::LoadSkyBoxTexture(Skybox::DefaultSkyboxPath);
 		Skybox::DoSbRGBA = EnviromentDefaultData[0]["DoSkyColour"];;
 		RenderClass::renderSkybox = EnviromentDefaultData[0]["RenderSkybox"];;
+		Skybox::rotation.x = EnviromentDefaultData[0]["SkyRotation"][0];
+		Skybox::rotation.y = EnviromentDefaultData[0]["SkyRotation"][1];
+		Skybox::rotation.z = EnviromentDefaultData[0]["SkyRotation"][2];
 
 		// directional light
 		LightingHandler::doDirLight = EnviromentDefaultData[0]["DirEnabled"];
@@ -231,6 +234,10 @@ void Scene::initJsonModelLoad(std::string path) {
 		newObject->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
 		//newObject->create('m', name, path, MaterialPath); // Load into this unique MaterialObject // this needs to run and somehow join up when complete?
 		// what about the idea of creating them in a state without a actual model, then doing the create function on a thread and push back when joinable;
+		
+		// doRender
+		newObject->component.flags.render = item.at("doRender").get<bool>();
+
 		entityObjects.push_back(std::move(newObject));
 		
 		entityObjects.back()->create('m', name, path, MaterialPath);
@@ -238,7 +245,7 @@ void Scene::initJsonModelLoad(std::string path) {
 
 
 	}
-	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene Models from: " << path << std::endl;
+	std::cout << "Loaded Scene Models from: " << path << std::endl;
 }
 
 void Scene::JsonModelSave(std::string path) {
@@ -267,6 +274,8 @@ void Scene::JsonModelSave(std::string path) {
 				modelJson["uvScale"] = { uvScale.x, uvScale.y };
 				// ID
 				modelJson["IDuniqueIdentifier"] = entityObjects[i]->ID.UniqueNumber;
+				//doRender
+				modelJson["doRender"] = entityObjects[i]->component.flags.render;
 
 				settingsData.push_back(modelJson);
 			}
@@ -278,18 +287,18 @@ void Scene::JsonModelSave(std::string path) {
 		// Write to file
 		std::ofstream outFile(path, std::ios::out);
 		if (!outFile.is_open()) {
-			if (init::LogALL || init::LogSystems) std::cout << "Failed to write to " << path << std::endl;
+			std::cout << "Failed to write to " << path << std::endl;
 			return;
 		}
 
 		outFile << settingsData.dump(4);  // Pretty-print with indentation
 		outFile.close();
 
-		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+		std::cout << "Successfully updated " << path << std::endl;
 
 	}
 	catch (const std::exception& e) {
-		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+		std::cout << "Exception: " << e.what() << std::endl;
 	}
 }
 
@@ -323,18 +332,18 @@ void Scene::JsonBillBoardSave(std::string path) {
 		// Write to file
 		std::ofstream outFile(path, std::ios::out);
 		if (!outFile.is_open()) {
-			if (init::LogALL || init::LogSystems) std::cout << "Failed to write to " << path << std::endl;
+			std::cout << "Failed to write to " << path << std::endl;
 			return;
 		}
 
 		outFile << settingsData.dump(4);  // Pretty-print with indentation
 		outFile.close();
 
-		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+		std::cout << "Successfully updated " << path << std::endl;
 
 	}
 	catch (const std::exception& e) {
-		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+		std::cout << "Exception: " << e.what() << std::endl;
 	}
 
 }
@@ -362,18 +371,18 @@ void Scene::JsonColliderSave(std::string path) {
 		// Write to file
 		std::ofstream outFile(path, std::ios::out);
 		if (!outFile.is_open()) {
-			if (init::LogALL || init::LogSystems) std::cout << "Failed to write to " << path << std::endl;
+			std::cout << "Failed to write to " << path << std::endl;
 			return;
 		}
 
 		outFile << ColliderData.dump(4);  // Pretty-print with indentation
 		outFile.close();
 
-		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+		std::cout << "Successfully updated " << path << std::endl;
 
 	}
 	catch (const std::exception& e) {
-		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+		std::cout << "Exception: " << e.what() << std::endl;
 	}
 }
 void Scene::JsonSettingsSave(std::string path) {
@@ -406,17 +415,17 @@ void Scene::JsonSettingsSave(std::string path) {
 		// Write back to file
 		std::ofstream outFile(path, std::ios::out);
 		if (!outFile.is_open()) {
-			if (init::LogALL || init::LogSystems) std::cout << ("Failed to write to ") << path << std::endl;
+			std::cout << ("Failed to write to ") << path << std::endl;
 		}
 
 		outFile << SettingsData.dump(4);
 		outFile.close();
 
-		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+		std::cout << "Successfully updated " << path << std::endl;
 
 	}
 	catch (const std::exception& e) {
-		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+		std::cout << "Exception: " << e.what() << std::endl;
 	}
 }
 
@@ -429,26 +438,28 @@ void Scene::JsonCameraSettingsSave(std::string path) {
 		JsonCamera["FOV"] = Main::cameraSettings[0];
 		JsonCamera["nearPlane"] = Main::cameraSettings[1];
 		JsonCamera["farPlane"] = Main::cameraSettings[2];
-		JsonCamera["cameraColliderScale"][0] = Camera::cameraColliderScale.x;
-		JsonCamera["cameraColliderScale"][1] = Camera::cameraColliderScale.y;
-		JsonCamera["cameraColliderScale"][2] = Camera::cameraColliderScale.z;
+		JsonCamera["cameraColliderScale"][0] = Player::cameraColliderScale.x;
+		JsonCamera["cameraColliderScale"][1] = Player::cameraColliderScale.y;
+		JsonCamera["cameraColliderScale"][2] = Player::cameraColliderScale.z;
+		JsonCamera["gamma"] = Camera::gamma;
+
 		CameraData.push_back(JsonCamera);
 
 		// Write to file
 		// Write back to file
 		std::ofstream outFile(path, std::ios::out);
 		if (!outFile.is_open()) {
-			if (init::LogALL || init::LogSystems) std::cout << ("Failed to write to ")<< path << std::endl;
+			std::cout << ("Failed to write to ")<< path << std::endl;
 		}
 
 		outFile << CameraData.dump(4);
 		outFile.close();
 
-		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+		std::cout << "Successfully updated " << path << std::endl;
 
 	}
 	catch (const std::exception& e) {
-		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+		std::cout << "Exception: " << e.what() << std::endl;
 	}
 }
 
@@ -520,7 +531,7 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 
 		entityObjects.push_back(std::move(newEntity)); // Add the configured object to the vector
 	}
-	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene BillBoards from: " << path << std::endl;
+	std::cout << "Loaded Scene BillBoards from: " << path << std::endl;
 }
 
 void Scene::initJsonColliderLoad(std::string path) {
@@ -567,7 +578,7 @@ void Scene::initJsonColliderLoad(std::string path) {
 
 		CubeColliderObject.push_back(newCubeCollider); // Add the configured object to the vector
 	}
-	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene CubeColliders from: " << path << std::endl;
+	std::cout << "Loaded Scene CubeColliders from: " << path << std::endl;
 }
 
 void Scene::initJsonSoundObjectLoad(std::string path) {
@@ -615,7 +626,7 @@ void Scene::initJsonSoundObjectLoad(std::string path) {
 		newSoundObject.loop = isLoop;
 		SoundObjects.push_back(newSoundObject); // Add the configured object to the vector
 	}
-	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene SoundObject from: " << path << std::endl;
+	std::cout << "Loaded Scene SoundObject from: " << path << std::endl;
 }
 
 void Scene::JsonSoundObjectSave(std::string path)
@@ -640,18 +651,18 @@ void Scene::JsonSoundObjectSave(std::string path)
 		// Write to file
 		std::ofstream outFile(path, std::ios::out);
 		if (!outFile.is_open()) {
-			if (init::LogALL || init::LogSystems) std::cout << "Failed to write to " << path << std::endl;
+			std::cout << "Failed to write to " << path << std::endl;
 			return;
 		}
 
 		outFile << SoundData.dump(4);  // Pretty-print with indentation
 		outFile.close();
 
-		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+		std::cout << "Successfully updated " << path << std::endl;
 
 	}
 	catch (const std::exception& e) {
-		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+		std::cout << "Exception: " << e.what() << std::endl;
 	}
 }
 
@@ -709,9 +720,10 @@ void Scene::initCameraSettingsLoad(std::string path) {
 		Main::cameraSettings[0] = fov;
 		Main::cameraSettings[1] = nearPlane;
 		Main::cameraSettings[2] = farPlane;
-		Camera::cameraColliderScale.x = CameraData[0]["cameraColliderScale"][0];
-		Camera::cameraColliderScale.y = CameraData[0]["cameraColliderScale"][1];
-		Camera::cameraColliderScale.z = CameraData[0]["cameraColliderScale"][2];
+		Player::cameraColliderScale.x = CameraData[0]["cameraColliderScale"][0];
+		Player::cameraColliderScale.y = CameraData[0]["cameraColliderScale"][1];
+		Player::cameraColliderScale.z = CameraData[0]["cameraColliderScale"][2];
+		Camera::gamma = CameraData[0]["gamma"].get<float>();
 
 	}
 	else {
@@ -735,15 +747,45 @@ void Scene::draw()
 	for (size_t i = 0; i < CubeColliderObject.size(); i++) {
 		CubeColliderObject[i].draw();
 	}
+	if (FEImGuiWindow::showViewportIcons) {
+		for (size_t i = 0; i < SoundObjects.size(); i++) {
+			if (SoundObjects[i].is3D)
+			{
+				SoundIcon->doPitch = true;
+				SoundIcon->updatePosition(SoundObjects[i].position);
+				SoundIcon->updateScale(glm::vec3(1));
+				SoundIcon->draw();
+			}
+		}
+		for (size_t i = 0; i < LightingHandler::Lights.size(); i++)
+		{
+
+			if (LightingHandler::Lights[i].type == 0) {
+				SpotLightIcon->doPitch = true;
+				SpotLightIcon->updatePosition(LightingHandler::Lights[i].position);
+				SpotLightIcon->updateScale(glm::vec3(0.3f));
+				SpotLightIcon->draw();
+			}
+			else if (LightingHandler::Lights[i].type) {
+				PointLightIcon->doPitch = true;
+				PointLightIcon->updatePosition(LightingHandler::Lights[i].position);
+				PointLightIcon->updateScale(glm::vec3(0.3f));
+				PointLightIcon->draw();
+			}
+		}
+	}
 }
 
 
 void Scene::Update() {
 
+	for (size_t i = 0; i < entityObjects.size(); i++)
+	{
+		entityObjects[i]->update();
+	}
+
 	for (size_t i = 0; i < CubeColliderObject.size(); i++) {
 		CubeColliderObject[i].update();
-		CubeColliderObject[i].draw();
-
 	}
 
 	for (size_t i = 0; i < SoundObjects.size(); i++) {
@@ -752,38 +794,10 @@ void Scene::Update() {
 		{
 			SoundObjects[i].updateCameraPosition();
 			SoundObjects[i].SetSoundPosition(SoundObjects[i].position);
-
-			if (FEImGuiWindow::showViewportIcons) {
-				SoundIcon->doPitch = true;
-				SoundIcon->updatePosition(SoundObjects[i].position);
-				SoundIcon->updateScale(glm::vec3(1));
-				SoundIcon->draw();
-			}
 		}
 		
 		if (!SoundObjects[i].isPlay && SoundObjects[i].loop || !SoundObjects[i].isPlay && SoundObjects[i].queuedPlay) {
 			SoundObjects[i].PlaySound();
-		}
-	}
-
-
-	for (size_t i = 0; i < LightingHandler::Lights.size(); i++)
-	{
-
-		if (FEImGuiWindow::showViewportIcons) {
-
-				if (LightingHandler::Lights[i].type == 0) {
-					SpotLightIcon->doPitch = true;
-					SpotLightIcon->updatePosition(LightingHandler::Lights[i].position);
-					SpotLightIcon->updateScale(glm::vec3(0.3f));
-					SpotLightIcon->draw();
-				}
-				else if (LightingHandler::Lights[i].type) {
-					PointLightIcon->doPitch = true;
-					PointLightIcon->updatePosition(LightingHandler::Lights[i].position);
-					PointLightIcon->updateScale(glm::vec3(0.3f));
-					PointLightIcon->draw();
-				}
 		}
 	}
 

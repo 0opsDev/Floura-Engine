@@ -1,11 +1,10 @@
 #include "Texture.h"
-#include "utils/init.h"
 #include <utils/logConsole.h>
 
 void Texture::createTexture(const char* image, const char* texType, GLuint slot)
 {
     path = image;
-    if (init::LogALL || init::LogObject) LogConsole::print("Texture loading started");
+    LogConsole::print("Texture loading started");
     // Assigns the type of the texture to the texture object
     type = texType;
     //std::cout << type << " U " << slot << std::endl;
@@ -123,13 +122,13 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
 
     // Unbinds the OpenGL Texture object so that it can't accidentally be modified
     glBindTexture(GL_TEXTURE_2D, 0);
-    if (init::LogALL || init::LogObject) LogConsole::print("Texture loading finished");
+    LogConsole::print("Texture loading finished");
 }
 
 void Texture::createTextureDetached(const char* image)
 {
     path = image;
-    if (init::LogALL || init::LogObject) LogConsole::print("Texture loading started");
+    LogConsole::print("Texture loading started");
     // Assigns the type of the texture to the texture object
     //std::cout << type << " U " << slot << std::endl;
 
@@ -244,7 +243,7 @@ void Texture::createTextureDetached(const char* image)
 
     // Unbinds the OpenGL Texture object so that it can't accidentally be modified
     glBindTexture(GL_TEXTURE_2D, 0);
-    if (init::LogALL || init::LogObject) LogConsole::print("Texture loading finished");
+    LogConsole::print("Texture loading finished");
 }
 
 void Texture::reload(GLuint slot)

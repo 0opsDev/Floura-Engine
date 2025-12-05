@@ -1,5 +1,4 @@
 #include "Scripting/ScriptEngine.h"
-#include "utils/init.h"
 #include "utils/timeUtil.h"
 #include <unordered_set>
 #include <vector>
@@ -10,11 +9,11 @@
 // Constructor
 ScriptEngine::ScriptEngine(std::string FunctionName, std::string Path) { //creates object
 	auto startInitTime = std::chrono::high_resolution_clock::now();
-	if (init::LogALL || init::LogLua) { std::cout << "[CPP] Lua script created: " << FunctionName << std::endl; }
+	std::cout << "[CPP] Lua script created: " << FunctionName << std::endl;
 	LoadLua(luaState, Path); //load lua file
 	auto stopInitTime = std::chrono::high_resolution_clock::now();
 	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
-	if (init::LogALL || init::LogLua) std::cout << "[CPP] Lua Interpret Duration: " << initDuration.count() / 1000000.0 << std::endl;
+	std::cout << "[CPP] Lua Interpret Duration: " << initDuration.count() / 1000000.0 << std::endl;
 }
 
 void ScriptEngine::LoadLua(sol::state& LuaState, std::string Path) {
@@ -23,13 +22,13 @@ void ScriptEngine::LoadLua(sol::state& LuaState, std::string Path) {
 	try
 	{
 		LuaState.safe_script_file(Path);
-		if (init::LogALL || init::LogLua) std::cout << "[CPP LoadLua] Lua File read OK! at: " << Path << std::endl;
+		std::cout << "[CPP LoadLua] Lua File read OK! at: " << Path << std::endl;
 	}
 	catch (const sol::error& e)
 	{
 		// Something went wrong with loading this script
-		if (init::LogALL || init::LogLua) std::cout << "[CPP LoadLua] Lua File read ERROR! at: " << Path << std::endl;
-		if (init::LogALL || init::LogLua) std::cout << std::string(e.what()) << "\n";
+		std::cout << "[CPP LoadLua] Lua File read ERROR! at: " << Path << std::endl;
+		std::cout << std::string(e.what()) << "\n";
 	}
 }
 
@@ -60,10 +59,6 @@ void ScriptEngine::runFunction(const std::string& name) {
 }
 
 void ScriptEngine::luaFunctions(){
-	luaModel LModel; LModel.DrawModel(luaState);
 	luaScreen LScreen; LScreen.SetScreen(luaState);
-	luaShader Lshader; Lshader.SetShader(luaState);
-	LuaGetKey LGetKey; LGetKey.ProcessKeyPresses(luaState);
-	luaSkybox Lskybox; Lskybox.SetSkybox(luaState);
 	LuaCamera Lcamera; Lcamera.SetCameraPos(luaState); Lcamera.SetCameraSpeed(luaState);
 }

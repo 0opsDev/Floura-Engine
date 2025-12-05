@@ -13,7 +13,7 @@
 #include <Scene/LightingHandler.h>
 #include "utils/logConsole.h"
 #include <Scene/ObjectManager.h>
-#include <Math/FE_math.h>
+#include <utils/FE_math.h>
 
 //#include <Instance.h>
 
@@ -256,7 +256,7 @@ void FEImGuiWindow::loadContentObjects(std::string path) {
 	}
 	FEImGuiWindow::MaterialIndexUpdate();
 
-	if (init::LogALL || init::LogObject) std::cout << "Loaded Scene ContentObject from: " << path << std::endl;
+	std::cout << "Loaded Scene ContentObject from: " << path << std::endl;
 
 }
 
@@ -281,15 +281,15 @@ void FEImGuiWindow::saveContentObjects(std::string path) {
 		// Write to file
 		std::ofstream outFile(path, std::ios::out);
 		if (!outFile.is_open()) {
-			if (init::LogALL || init::LogSystems) std::cout << "Failed to write to " << path << std::endl;
+			std::cout << "Failed to write to " << path << std::endl;
 			return;
 		}
 		outFile << ContentObjectData.dump(4);  // Pretty-print with indentation
 		outFile.close();
-		if (init::LogALL || init::LogSystems) std::cout << "Successfully updated " << path << std::endl;
+		std::cout << "Successfully updated " << path << std::endl;
 	}
 	catch (const std::exception& e) {
-		if (init::LogALL || init::LogSystems) std::cout << "Exception: " << e.what() << std::endl;
+		std::cout << "Exception: " << e.what() << std::endl;
 	}
 }
 
@@ -587,8 +587,6 @@ void FEImGuiWindow::RenderWindow() {
 		{
 			ScreenUtils::toggleFullscreen(windowHandler::window, windowHandler::width, windowHandler::height); //needs to be fixed //GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight
 		} //Toggle Fullscreen
-
-		ImGui::DragFloat("Gamma", &RenderClass::gamma);
 		ImGui::End();
 }
 
@@ -608,7 +606,7 @@ void FEImGuiWindow::CameraWindow() {
 		} // reset cam pos
 		ImGui::DragFloat("Camera Speed", &Camera::s_scrollSpeed); //Camera
 
-		FEImGui::DragVec3("Camera Collider Scale", Camera::cameraColliderScale, glm::vec3(0.0f), 100.0f);
+		FEImGui::DragVec3("Camera Collider Scale", Player::cameraColliderScale, glm::vec3(0.0f), 100.0f);
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
@@ -619,6 +617,7 @@ void FEImGuiWindow::CameraWindow() {
 		ImGui::DragFloat2("Camera Sensitivity", &Camera::sensitivity.x);
 		ImGui::Spacing();
 		ImGui::DragFloat("FOV", &Main::cameraSettings[0], 0.1f, 160.0f); //FOV
+		ImGui::DragFloat("Gamma", &Camera::gamma);
 		ImGui::DragFloat2("Near and Far Plane", &Main::cameraSettings[1]); // Near and FarPlane
 
 		ImGui::TreePop();// Ends The ImGui Window
@@ -628,7 +627,7 @@ void FEImGuiWindow::CameraWindow() {
 		ImGui::Text("Collisions: ");
 		ImGui::Text(("Foot Collision: " + std::to_string(Player::isColliding)).c_str());
 		ImGui::Checkbox("CollideWithCamera: ", &CubeCollider::CollideWithCamera);
-		ImGui::Checkbox("DoGravity: ", &Camera::s_DoGravity);
+		ImGui::Checkbox("DoGravity: ", &Player::s_DoGravity);
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
@@ -637,8 +636,8 @@ void FEImGuiWindow::CameraWindow() {
 
 void FEImGuiWindow::PanelsWindow() {
 	ImGui::Text("Settings (Press escape to use mouse)");
-	if (ImGui::SmallButton("load")) { Main::loadSettings(); } // load settings button
-	if (ImGui::SmallButton("save (just settings)")) { Main::saveSettings(); } // save settings button
+	if (ImGui::SmallButton("load")) { FileClass::loadSettings(); } // load settings button
+	if (ImGui::SmallButton("save (just settings)")) { FileClass::saveSettings(); } // save settings button
 	ImGui::Checkbox("Rendering", &FEImGuiWindow::imGuiPanels[1]);
 	ImGui::Checkbox("ViewPort", &FEImGuiWindow::imGuiPanels[3]);
 	ImGui::Checkbox("Scene Hierarchy", &FEImGuiWindow::imGuiPanels[4]);
@@ -772,7 +771,7 @@ void FEImGuiWindow::viewport() {
 
 	float window_width = ImGui::GetContentRegionAvail().x;
 	float window_height = ImGui::GetContentRegionAvail().y;
-	ImGui::Image((ImTextureID)(uintptr_t)Framebuffer::finalFB->texture, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::Image((ImTextureID)(uintptr_t)Framebuffer::Ftexture, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
 
 	//prevEnableLinearScaling
 	ScreenUtils::UpdateViewportResize();
@@ -1255,6 +1254,7 @@ void FEImGuiWindow::ModelWindow() {
 			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->LoadMaterial(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.Material.materialPath);
 			LogConsole::print("Reloaded Material: " + Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.Material.materialPath);
 		}
+		ImGui::Checkbox("doRender", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.flags.render);
 		ImGui::Checkbox("Cast Shadow", &castShadow);
 		ImGui::DragFloat2("UV Scale", &uvScale.x);
 		ImGui::TreePop();// Ends The ImGui Window
@@ -1271,6 +1271,20 @@ void FEImGuiWindow::ModelWindow() {
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 
+	ImGui::Spacing();
+	if (ImGui::TreeNode("Physics Component")) {
+
+		ImGui::Checkbox("has Dynamics ", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.hasRigidbody);
+
+		ImGui::Checkbox("affected By Gravity", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.affectedByGravity);
+
+		if (ImGui::SmallButton("Clear Motion"))
+		{
+			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.velocity = glm::vec3(0.0f);
+		}
+
+		ImGui::TreePop();// Ends The ImGui Window
+	}
 	ImGui::Spacing();
 	if (ImGui::TreeNode("Collider Component")) {
 
@@ -1290,7 +1304,16 @@ void FEImGuiWindow::ModelWindow() {
 	}
 	ImGui::Spacing();
 	if (ImGui::TreeNode("General Infomation:")) {
-		ImGui::Text(("	Material: " + Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.Material.materialPath).c_str());
+		ImGui::Text(("Material: " + Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.Material.materialPath).c_str());
+		std::string meshsize = "nummesh: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.Model->meshes.size());
+		ImGui::Text(meshsize.c_str());
+
+		ImGui::Text("mesh names:");
+		for (size_t i = 0; i < Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.Model->meshes.size(); i++)
+		{
+			std::string meshNames = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.Model->meshes[i].name;
+			ImGui::Text(meshNames.c_str());
+		}
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	ImGui::Spacing();
@@ -1351,7 +1374,22 @@ void FEImGuiWindow::BillBoardWindow() {
 	}
 	ImGui::Spacing();
 
-	
+	if (ImGui::TreeNode("Physics Component")) {
+
+		ImGui::Checkbox("has Dynamics ", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.hasRigidbody);
+
+		ImGui::Checkbox("affected By Gravity", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.affectedByGravity);
+
+		if (ImGui::SmallButton("Clear Motion"))
+		{
+			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.velocity = glm::vec3(0.0f);
+		}
+
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+
+	ImGui::Spacing();
+
 	ImGui::Checkbox("doPitch", &doPitch);
 	
 
@@ -1473,6 +1511,7 @@ void FEImGuiWindow::SkyBoxWindow() {
 	ImGui::Checkbox("Do Sky Colour", &Skybox::DoSbRGBA);
 	ImGui::Checkbox("Render Skybox", &RenderClass::renderSkybox);
 	ImGui::InputText("Skybox Path", SkyBoxPath, IM_ARRAYSIZE(SkyBoxPath));
+	ImGui::DragFloat3("Skybox Rotation", &Skybox::rotation.x);
 	if (ImGui::Button("Load Skybox")) { 
 		Skybox::DefaultSkyboxPath = SkyBoxPath;
 		Skybox::LoadSkyBoxTexture(SkyBoxPath);

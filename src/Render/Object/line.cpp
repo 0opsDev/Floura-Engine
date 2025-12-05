@@ -62,7 +62,7 @@ void Line3D::translate(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation)
 
 void Line3D::draw(glm::vec3 colour)
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     RenderClass::LineShader.Activate();

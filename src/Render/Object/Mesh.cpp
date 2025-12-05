@@ -2,7 +2,7 @@
 #include <utils/logConsole.h>
 #include <camera/Camera.h>
 #include <limits>
-#include <Math/FE_math.h>
+#include <utils/FE_math.h>
 
 void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
 {
@@ -90,7 +90,8 @@ void Mesh::draw(Shader& shader, glm::mat4 modelMatrix)
     glUniformMatrix3fv(glGetUniformLocation(shader.ID, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
     //glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // Draw the mesh
     if (drawType == 0)
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

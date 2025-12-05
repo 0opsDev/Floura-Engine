@@ -18,10 +18,6 @@ public:
 
 	//void Main::updateModelLua(std::vector<std::string> path, std::vector<std::string> modelName, std::vector<float> x, std::vector<float> y, std::vector<float> z)
 
-	static void loadSettings();
-
-	static void saveSettings();
-
 private:
 };
 #endif

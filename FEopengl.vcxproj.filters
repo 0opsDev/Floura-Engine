@@ -29,26 +29,14 @@
     <Filter Include="src\Scripting\functions">
       <UniqueIdentifier>{946f0760-cc03-4251-aa54-7f6b67b0c46a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Scripting\functions\Model">
-      <UniqueIdentifier>{0241d877-2240-4af9-9494-02015177f24d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\Scripting\functions\Screen">
       <UniqueIdentifier>{0f7da3f6-aa0d-44aa-8cdc-eb1a3c4e0ef3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Scripting\functions\Shader">
-      <UniqueIdentifier>{260acb11-bc07-4b0f-baf2-894de66a45d6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Scripting\functions\Input">
-      <UniqueIdentifier>{2ae9180a-6503-4392-abcd-db983393c318}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\utils">
       <UniqueIdentifier>{b5fe011a-526e-40ba-bd02-3a0f1eaa4bac}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\settings">
       <UniqueIdentifier>{51656b18-d3f8-4a06-9b4c-e04e4f1baa3d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\UserScripts">
-      <UniqueIdentifier>{7968ca2d-4921-4b76-ac28-dd1ea9edb422}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\imgui">
       <UniqueIdentifier>{126a8854-c9e5-4bc2-948d-6001410da2d9}</UniqueIdentifier>
@@ -76,9 +64,6 @@
     </Filter>
     <Filter Include="src\Sound">
       <UniqueIdentifier>{5dc11c93-5e42-4225-81c4-4e40beb27d2a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Scripting\functions\Sound">
-      <UniqueIdentifier>{000d8735-3881-4218-bde8-dbbe838582f1}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Render\Cube">
       <UniqueIdentifier>{7864b883-1de1-427b-91f5-6e8a809cce13}</UniqueIdentifier>
@@ -119,9 +104,6 @@
     <Filter Include="Resource Files\ImGuizmo">
       <UniqueIdentifier>{df62e9b4-9a19-4bc6-a8f2-f95807413273}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Math">
-      <UniqueIdentifier>{ba418121-a4b8-4472-b254-38cbd7a3c66f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\Scene">
       <UniqueIdentifier>{1ef4ae25-bf30-4b09-9792-4962eefbf700}</UniqueIdentifier>
     </Filter>
@@ -151,26 +133,11 @@
     <ClCompile Include="src\Scripting\ScriptRunner.cpp">
       <Filter>src\Scripting</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scripting\Functions\Model\LuaModel.cpp">
-      <Filter>src\Scripting\functions\Model</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp">
       <Filter>src\Scripting\functions\Screen</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scripting\Functions\Shader\LuaShader.cpp">
-      <Filter>src\Scripting\functions\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scripting\Functions\Input\LuaGetKey.cpp">
-      <Filter>src\Scripting\functions\Input</Filter>
-    </ClCompile>
     <ClCompile Include="src\camera\Camera.cpp">
       <Filter>src\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="src\utils\init.cpp">
-      <Filter>src\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\utils\InputUtil.cpp">
-      <Filter>src\utils</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\ScreenUtils.cpp">
       <Filter>src\utils</Filter>
@@ -187,12 +154,6 @@
     <ClCompile Include="src\UI\ImGui\ImGuiWindow.cpp">
       <Filter>src\UI\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\Shader\SkyBox.cpp">
-      <Filter>src\Render\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scripting\Functions\Shader\LuaSkybox.cpp">
-      <Filter>src\Scripting\functions\Shader</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scripting\Functions\Player\LuaCamera.cpp">
       <Filter>src\Scripting\functions\Player</Filter>
     </ClCompile>
@@ -204,9 +165,6 @@
     </ClCompile>
     <ClCompile Include="src\Sound\SoundRunner.cpp">
       <Filter>src\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scripting\Functions\Sound\LuaSound.cpp">
-      <Filter>src\Scripting\functions\Sound</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Render.cpp">
       <Filter>src\core</Filter>
@@ -225,9 +183,6 @@
     </ClCompile>
     <ClCompile Include="src\Render\Buffer\VBO.cpp">
       <Filter>src\Render\Buffer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\Cube\RenderQuad.cpp">
-      <Filter>src\Render\Cube</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\passes\dbg\dbgPass.cpp">
       <Filter>src\Render\passes\dbg</Filter>
@@ -286,9 +241,6 @@
     <ClCompile Include="src\UI\ImGui\FE_ImGui.cpp">
       <Filter>src\UI\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="src\Math\FE_math.cpp">
-      <Filter>src\Math</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scene\LightingHandler.cpp">
       <Filter>src\Scene</Filter>
     </ClCompile>
@@ -334,9 +286,6 @@
     <ClCompile Include="src\Render\Object\Mesh.cpp">
       <Filter>src\Render\Object</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\TaskScheduler.cpp">
-      <Filter>src\core</Filter>
-    </ClCompile>
     <ClCompile Include="src\Physics\Collision.cpp">
       <Filter>src\Physics</Filter>
     </ClCompile>
@@ -352,6 +301,15 @@
     <ClCompile Include="src\Render\Object\Cubemap.cpp">
       <Filter>src\Render\Object</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\FE_math.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\SkyBox.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\RenderQuad.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -360,29 +318,14 @@
     <ClInclude Include="src\Scripting\ScriptEngine.h">
       <Filter>src\Scripting</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scripting\Functions\Model\LuaModel.h">
-      <Filter>src\Scripting\functions\Model</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h">
       <Filter>src\Scripting\functions</Filter>
     </ClInclude>
     <ClInclude Include="src\Scripting\Functions\Screen\LuaScreen.h">
       <Filter>src\Scripting\functions\Screen</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scripting\Functions\Shader\LuaShader.h">
-      <Filter>src\Scripting\functions\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scripting\Functions\Input\LuaGetKey.h">
-      <Filter>src\Scripting\functions\Input</Filter>
-    </ClInclude>
     <ClInclude Include="src\camera\Camera.h">
       <Filter>src\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\init.h">
-      <Filter>src\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\InputUtil.h">
-      <Filter>src\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\ScreenUtils.h">
       <Filter>src\utils</Filter>
@@ -411,12 +354,6 @@
     <ClInclude Include="src\UI\ImGui\ImGuiWindow.h">
       <Filter>src\UI\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="src\Render\Shader\SkyBox.h">
-      <Filter>src\Render\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scripting\Functions\Shader\LuaSkybox.h">
-      <Filter>src\Scripting\functions\Shader</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scripting\Functions\Player\LuaCamera.h">
       <Filter>src\Scripting\functions\Player</Filter>
     </ClInclude>
@@ -428,9 +365,6 @@
     </ClInclude>
     <ClInclude Include="src\Sound\SoundRunner.h">
       <Filter>src\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scripting\Functions\Sound\LuaSound.h">
-      <Filter>src\Scripting\functions\Sound</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Render.h">
       <Filter>src\core</Filter>
@@ -446,9 +380,6 @@
     </ClInclude>
     <ClInclude Include="src\Gameplay\Player.h">
       <Filter>src\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Cube\RenderQuad.h">
-      <Filter>src\Render\Cube</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\passes\dbg\dbgPass.h">
       <Filter>src\Render\passes\dbg</Filter>
@@ -525,9 +456,6 @@
     <ClInclude Include="src\UI\ImGui\FE_ImGui.h">
       <Filter>src\UI\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="src\Math\FE_math.h">
-      <Filter>src\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scene\LightingHandler.h">
       <Filter>src\Scene</Filter>
     </ClInclude>
@@ -567,9 +495,6 @@
     <ClInclude Include="src\Render\Object\Mesh.h">
       <Filter>src\Render\Object</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\TaskScheduler.h">
-      <Filter>src\core</Filter>
-    </ClInclude>
     <ClInclude Include="src\Physics\Collision.h">
       <Filter>src\Physics</Filter>
     </ClInclude>
@@ -588,28 +513,19 @@
     <ClInclude Include="src\Render\Object\Cubemap.h">
       <Filter>src\Render\Object</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\FE_math.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\SkyBox.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\RenderQuad.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="UserScripts\LuaStartup.json">
-      <Filter>Resource Files\UserScripts</Filter>
-    </None>
-    <None Include="UserScripts\Main\Main.Lua">
-      <Filter>Resource Files\UserScripts</Filter>
-    </None>
-    <None Include="UserScripts\dbg\Test.Lua">
-      <Filter>Resource Files\UserScripts</Filter>
-    </None>
-    <None Include="UserScripts\Main\Shader.Lua">
-      <Filter>Resource Files\UserScripts</Filter>
-    </None>
     <None Include="Settings\Settings.json">
       <Filter>Resource Files\settings</Filter>
-    </None>
-    <None Include="Settings\LogConfig.json">
-      <Filter>Resource Files\settings</Filter>
-    </None>
-    <None Include="UserScripts\Main\Shortcuts.Lua">
-      <Filter>Resource Files\UserScripts</Filter>
     </None>
     <None Include="src\Libraries\include\ImGuizmo\LICENSE">
       <Filter>Resource Files\ImGuizmo</Filter>

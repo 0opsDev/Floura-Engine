@@ -222,7 +222,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
     }
+    aiString name = mesh->mName;
     Mesh nMesh;
+	nMesh.name = name.C_Str();
     nMesh.create(vertices, indices, textures);
     return Mesh(nMesh);
 }

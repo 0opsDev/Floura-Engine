@@ -1,5 +1,9 @@
 #include "File.h"
 #include <utils/logConsole.h>
+#include "Camera/Camera.h"
+#include <Render/window/WindowHandler.h>
+#include "scene/scene.h"
+
 
 std::string FileClass::currentPath = "";
 std::string FileClass::Contents = "";
@@ -7,24 +11,24 @@ std::string FileClass::Contents = "";
 void FileClass::saveContents() {
 	std::ofstream file(currentPath, std::ios::trunc);
 	if (!file.is_open()) {
-		if (init::LogALL || init::LogSystems) LogConsole::print("Failed to open file for writing: " + currentPath);
+		LogConsole::print("Failed to open file for writing: " + currentPath);
 		return;
 	}
 	file << Contents;
 	file.close();
-	if (init::LogALL || init::LogSystems) LogConsole::print("Saved contents to: " + currentPath);
+	LogConsole::print("Saved contents to: " + currentPath);
 }
 void FileClass::loadContents() {
 	std::ifstream file(currentPath);
 	if (!file.is_open()) {
-		if (init::LogALL || init::LogSystems) LogConsole::print("Failed to open file: " + currentPath);
+		LogConsole::print("Failed to open file: " + currentPath);
 		return;
 	}
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 	Contents = buffer.str();
 	file.close();
-	if (init::LogALL || init::LogSystems) LogConsole::print("Loaded contents from: " + currentPath);
+	LogConsole::print("Loaded contents from: " + currentPath);
 }
 
 std::pair<std::string, std::string> FileClass::getShaderPaths(int vertIndex, int fragIndex) {
@@ -52,11 +56,88 @@ void FileClass::loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgra
 		std::string vertFile = shaderPaths.first;
 		std::string fragFile = shaderPaths.second;
 
-		if (init::LogALL || init::LogSystems) LogConsole::print("Vert: " + vertFile + " Frag: " + fragFile);
+		LogConsole::print("Vert: " + vertFile + " Frag: " + fragFile);
 
 		shaderProgram.LoadShader(vertFile.c_str(), fragFile.c_str());
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error loading shader program: " << e.what() << std::endl;
+	}
+}
+
+void FileClass::loadSettings() {
+	// Load Settings.json
+	std::ifstream settingsFile("Settings/Settings.json");
+	if (settingsFile.is_open()) {
+		json settingsData;
+		settingsFile >> settingsData;
+		settingsFile.close();
+
+
+		if (settingsData[0].contains("Resolution")) {
+
+			//Resolution
+			// width
+			windowHandler::width = settingsData[0]["Resolution"][0];
+			Framebuffer::tempWidth = settingsData[0]["Resolution"][0];
+
+			// height
+			windowHandler::height = settingsData[0]["Resolution"][1];
+			Framebuffer::tempHeight = settingsData[0]["Resolution"][1];
+
+		}
+		if (settingsData[0].contains("Sensitivity")) {
+			Camera::sensitivity = glm::vec2(settingsData[0]["Sensitivity"][0].get<float>(), settingsData[0]["Sensitivity"][1].get<float>());
+		}
+		else {
+			Camera::sensitivity = glm::vec2(100.0f, 100.0f);
+		}
+
+		windowHandler::doVsync = settingsData[0]["Vsync"];
+		//Main::cameraSettings[0] = settingsData[0]["FOV"];
+		Scene::sceneName = settingsData[0]["Scene"].get<std::string>();
+
+		FEImGuiWindow::imGuiEnabled = settingsData[0]["imGui"];
+
+		std::cout << "Loaded settings from Settings.json" << std::endl;
+
+	}
+	else {
+		std::cerr << "Failed to open Settings/Settings.json" << std::endl;
+	}
+}
+
+void FileClass::saveSettings() {
+	try {
+		// Load the settings file
+		std::ifstream settingsFile("Settings/Settings.json", std::ios::in);
+		if (!settingsFile.is_open()) {
+			std::cout << "Failed to open Settings/Settings.json" << std::endl;
+		}
+
+		json settingsData;
+		settingsFile >> settingsData;
+		settingsFile.close();
+
+		settingsData[0]["Vsync"] = windowHandler::doVsync;
+		//settingsData[0]["FOV"] = Main::cameraSettings[0];
+
+		settingsData[0]["Sensitivity"][0] = Camera::sensitivity.x;
+		settingsData[0]["Sensitivity"][1] = Camera::sensitivity.y;
+
+		// Write back to file
+		std::ofstream outFile("Settings/Settings.json", std::ios::out);
+		if (!outFile.is_open()) {
+			std::cout << ("Failed to write to Settings.json") << std::endl;
+		}
+
+		outFile << settingsData.dump(4);
+		outFile.close();
+
+		std::cout << "Successfully updated Settings.json" << std::endl;
+
+	}
+	catch (const std::exception& e) {
+		std::cout << "Exception: " << e.what() << std::endl;
 	}
 }

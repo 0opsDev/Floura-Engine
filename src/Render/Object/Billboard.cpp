@@ -5,7 +5,7 @@
 #include <Core/Render.h>
 #include <Render/passes/geometry/geometryPass.h>
 
-float s_Plane_Vertices[] = {
+const float s_Plane_Vertices[] = {
 	// Positions       // Texture Coordinates
 	-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,  // Bottom-left
 	 1.0f, -1.0f, 0.0f,  1.0f, 0.0f,  // Bottom-right
@@ -13,7 +13,7 @@ float s_Plane_Vertices[] = {
 	-1.0f,  1.0f, 0.0f,  0.0f, 1.0f   // Top-left
 };
 
-unsigned int s_Plane_Indices[6] =
+const unsigned int s_Plane_Indices[6] =
 {
 	0, 1, 2, // First triangle
 	2, 3, 0  // Second triangle
@@ -118,7 +118,7 @@ void BillBoard::draw() {
 	model = glm::scale(model, globalTransformation.scale);
 
 	if (RenderClass::DoForwardLightingPass) {
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
 		
@@ -141,5 +141,5 @@ void BillBoard::draw() {
 		//FrameBuffer
 
 	// got just to reset the framebuffer to default
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::main->FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 }

@@ -1,27 +1,25 @@
 #include "Camera.h"
 #include "Core/Main.h"
 #include <glm/gtx/string_cast.hpp>
+#include "Gameplay/Player.h"
 
 // Global Variables
 bool MouseState = true, toggleESC = true;
 float timeAccumulator = 0;
-float Camera::s_scrollSpeed = 0;
+float Camera::s_scrollSpeed = 5.0f;
 glm::vec2 Camera::sensitivity;
-bool Camera::s_DoGravity = false;
 glm::mat4 Camera::cameraMatrix = glm::mat4(1.0f);
 glm::vec3 Camera::Position = glm::vec3(0,0,0);
-bool Camera::DoJump = true;
 glm::vec3 Camera::Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 Camera::Up = glm::vec3(0.0f, 1.0f, 0.0f);
-bool Camera::firstClick = true;
+bool Camera::firstClick = false;
 int Camera::width;
 int Camera::height;
 float Camera::speed = 0.1f;
 glm::mat4 Camera::view = glm::mat4(1.0f);
 glm::mat4 Camera::projection = glm::mat4(1.0f);
 float Camera::fov = 60;
-bool Camera::isMoving = false;
-glm::vec3 Camera::cameraColliderScale = glm::vec3(1.0,1.0,1.0);
+float Camera::gamma = 2.2f;
 
 void Camera::InitCamera(int width, int height, glm::vec3 position)
 {
@@ -57,10 +55,8 @@ void Camera::Matrix(Shader& shader, const char* uniform)
 }
 void Camera::Inputs(GLFWwindow* window)
 {
-    float deltaTime = TimeUtil::s_DeltaTime;
-    float adjustedSpeed = speed * deltaTime;
-	glm::vec3 lastpos = Position;
-	if (!s_DoGravity)
+    float adjustedSpeed = speed * TimeUtil::s_DeltaTime;
+	if (!Player::s_DoGravity)
 	{
         // Handles inputs
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -89,11 +85,11 @@ void Camera::Inputs(GLFWwindow* window)
         }
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
         {
-            s_scrollSpeed += 10.0f * deltaTime;
+            s_scrollSpeed += 10.0f * TimeUtil::s_DeltaTime;
         }
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         {
-            s_scrollSpeed -= 10.0f * deltaTime;
+            s_scrollSpeed -= 10.0f * TimeUtil::s_DeltaTime;
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         {
@@ -107,8 +103,8 @@ void Camera::Inputs(GLFWwindow* window)
     else {
         // Flattened forward direction (ignore Y component)
         glm::vec3 flatOrientation = glm::normalize(glm::vec3(Orientation.x, 0.0f, Orientation.z));
-
-        // Handles inputs
+        /*
+                // Handles inputs
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         {
             Position += adjustedSpeed * flatOrientation;
@@ -125,30 +121,10 @@ void Camera::Inputs(GLFWwindow* window)
         {
             Position += adjustedSpeed * glm::normalize(glm::cross(flatOrientation, Up));
         }
-		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
-		{
-            if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            {
-                speed = (10.0f + s_scrollSpeed);
-            }
-		}
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-        {
-            speed = (5.0f + s_scrollSpeed);
-        }
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && DoJump) //jump
-        {
-            Position += ((speed) * deltaTime) * Up;
-        }
+        */
+
+        speed = s_scrollSpeed;
     }
-    
-    if (lastpos != Position && glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ||
-        lastpos != Position && glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ||
-        lastpos != Position && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
-        lastpos != Position && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		isMoving = true;
-    }
-    else { isMoving = false; }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {

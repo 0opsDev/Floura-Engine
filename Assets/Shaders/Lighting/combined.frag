@@ -64,6 +64,7 @@ float linearizeDepth(float depth)
 
 vec3 CalcNewNormal()
 {
+	//	return normalize(Normal); 
 	// texture
 	//vec3 normalTex = texture(texture_normal0, texCoord).xyz;
 

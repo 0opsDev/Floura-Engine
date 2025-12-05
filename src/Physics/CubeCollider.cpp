@@ -11,11 +11,14 @@ bool CubeCollider::showBoxCollider = false;
 void CubeCollider::update() {
     if (CollideWithCamera && enabled) {
 
-        Collision::HitResult newData = Collision::AABBvsAABB(colliderXYZ, colliderScale, (glm::vec3(Camera::Position.x, (Camera::Position.y - (Camera::cameraColliderScale.y / 2.0f)), Camera::Position.z)), Camera::cameraColliderScale); // b is victim
+        Collision::HitResult newData = Collision::AABBvsAABB(colliderXYZ, colliderScale, (glm::vec3(Camera::Position.x, (Camera::Position.y - (Player::cameraColliderScale.y / 2.0f)), Camera::Position.z)), Player::cameraColliderScale); // b is victim
         if (newData.isColliding)
         {
-            Player::isColliding = true; // Set collision state
-            Camera::Position = glm::vec3(newData.lastHit.x, (newData.lastHit.y + (Camera::cameraColliderScale.y / 2.0f)), newData.lastHit.z);
+
+            if (newData.collisionNormal == glm::vec3(0.0f, 1.0f, 0.0f)) // up or down
+                Player::isColliding = true; // Set collision state
+
+            Camera::Position = glm::vec3(newData.lastHit.x, (newData.lastHit.y + (Player::cameraColliderScale.y / 2.0f)), newData.lastHit.z);
         }
     }
 }
