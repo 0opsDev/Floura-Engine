@@ -28,7 +28,8 @@
             0.10000000149011612,
             113.0
         ],
-        "dirShadowMapHardness": 2,
+        "dirShadowMapHardness": 4,
+        "dirShadowMapSamples": 3,
         "dirSmDistance": 25.0,
         "dirSmHeight": 20.0,
         "skyRGBA": [

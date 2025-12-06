@@ -79,6 +79,22 @@ void entity::update()
 		component.physics.force = glm::vec3(0.0f); // reset force at end
 	}
 	updateCollision();
+
+	// update mesh positions here vv
+	switch (type)
+	{
+	case 'm': // model
+		component.renderHeads.Model->updatePosition(component.systems.transformation.position);
+		component.renderHeads.Model->updateRotation(component.systems.transformation.rotation);
+		component.renderHeads.Model->updateScale(component.systems.transformation.scale);
+		break;
+	case 'b': // billboard
+		component.renderHeads.BillBoard->updatePosition(component.systems.transformation.position);
+		component.renderHeads.BillBoard->updateScale(component.systems.transformation.scale);
+		break;
+	default:
+		break;
+	}
 }
 
 void entity::updateLights()
@@ -114,17 +130,18 @@ void entity::Delete()
 void entity::draw()
 {
 
+	if (!component.flags.render)
+	{
+		return;
+	}
+
 	switch (type)
 	{
 	case 'm': // model
 
 		component.systems.material.Material.update();
 
-		component.renderHeads.Model->updatePosition(component.systems.transformation.position);
-		component.renderHeads.Model->updateRotation(component.systems.transformation.rotation);
-		component.renderHeads.Model->updateScale(component.systems.transformation.scale);
-
-		if (!component.flags.render || !RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
+		if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
 			return; // Skip rendering if not in regular or lighting pass
 		}
 
@@ -163,14 +180,6 @@ void entity::draw()
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		break;
 	case 'b': // billboard
-		component.renderHeads.BillBoard->updatePosition(component.systems.transformation.position);
-		component.renderHeads.BillBoard->updateScale(component.systems.transformation.scale);
-
-		if (!component.flags.render)
-		{
-			return;
-		}
-
 		component.renderHeads.BillBoard->draw();
 		break;
 	}

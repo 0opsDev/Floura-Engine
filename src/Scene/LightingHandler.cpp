@@ -31,6 +31,7 @@ glm::vec2 LightingHandler::dirNearFar = glm::vec2(0.1f, 75.0f); // 0.1f 75.0f
 float LightingHandler::dirShadowheight = 20.0f;
 bool LightingHandler::doDirShadowMap = true;
 int LightingHandler::dirShadowMapHardness = 2.0f;
+int LightingHandler::dirShadowMapSamples = 1.0f;
 
 glm::mat4 LightingHandler::lightProjection;
 Shader LightingHandler::dirShadowMapProgram;
@@ -283,6 +284,7 @@ void LightingHandler::update(Shader Shader)
 		// shadow map
 		Shader.setFloat("DirSMMaxBias", DirSMMaxBias);
 		Shader.setInt("dirShadowMapHardness", dirShadowMapHardness);
+		Shader.setInt("dirShadowMapSamples", dirShadowMapSamples);
 		glUniformMatrix4fv(glGetUniformLocation(Shader.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
 		glActiveTexture(GL_TEXTURE0 + 8);

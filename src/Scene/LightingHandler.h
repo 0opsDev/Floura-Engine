@@ -36,6 +36,7 @@ public:
 	static float dirShadowheight;
 	static bool doDirShadowMap;
 	static int dirShadowMapHardness;
+	static int dirShadowMapSamples;
 
 	static struct ShadowMaps
 	{
@@ -63,7 +64,7 @@ public:
 		int type;
 		bool enabled;
 		IdManager::ID ID;
-		ShadowMaps ShadowMap; // render/bake shadow map for STATIC lights
+		ShadowMaps ShadowMap = {0,0,0,0,0}; // render/bake shadow map for STATIC lights
 	};
 	static std::vector<Light> Lights;
 

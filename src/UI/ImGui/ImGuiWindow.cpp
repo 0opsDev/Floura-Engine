@@ -1561,6 +1561,7 @@ void FEImGuiWindow::InspectorWindow() {
 		ImGui::DragFloat("Distance", &LightingHandler::distance);
 		ImGui::DragFloat("Height", &LightingHandler::dirShadowheight);
 		ImGui::DragInt("Hardness", &LightingHandler::dirShadowMapHardness);
+		ImGui::DragInt("Samples", &LightingHandler::dirShadowMapSamples);
 		ImGui::DragFloat("Bias", &LightingHandler::DirSMMaxBias);
 		
 		ImGui::Image((ImTextureID)(uintptr_t)LightingHandler::dirShadowMap, ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));

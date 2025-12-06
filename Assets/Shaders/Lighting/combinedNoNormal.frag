@@ -33,7 +33,9 @@ uniform bool doDirLight;
 uniform bool doDirSpecularLight;
 uniform bool doDirShadowMap;
 uniform int dirShadowMapHardness;
+uniform int dirShadowMapSamples;
 uniform float DirSMMaxBias;
+
 
 struct Light
 {
@@ -57,6 +59,13 @@ float linearizeDepth(float depth)
 	return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
 }
 
+float random(vec3 seed) {
+
+	vec4 seed4 = vec4(seed, 1.0);
+	float dot_product = dot(seed4, vec4(12.9898, 78.233, 45.164, 94.673));
+	return fract(sin(dot_product) * 43758.5453);
+}
+
 vec4 direcLight()
 { // normals need to be recalculated based on rotation
 
@@ -68,6 +77,10 @@ vec4 direcLight()
 	// shadow map 
 	float shadow = 0.0f;
 	vec3 lightCoords = fragPosLight.xyz / fragPosLight.w;
+
+
+	vec3 seed = vec3(gl_FragCoord.xy, 0.0);
+
 	if (lightCoords.z <= 1.0f && doDirShadowMap)
 	{
 		lightCoords = (lightCoords + 1.0f) / 2.0f;
@@ -84,9 +97,12 @@ vec4 direcLight()
 		{
 		    for(int x = -sampleRadius; x <= sampleRadius; x++)
 		    {
-		        float closestDepth = texture(shadowMap, lightCoords.xy + vec2(x, y) * pixelSize).r;
+				float angle = random(seed + float(x)) * 6.2831853;
+				vec2 offset = vec2(cos(angle), sin(angle)) * dirShadowMapSamples;
+				
+		        float closestDepth = texture(shadowMap, lightCoords.xy + vec2(x, y) * (pixelSize * offset)).r;
 				if (currentDepth > closestDepth + bias)
-					shadow += 1.0f;     
+					shadow += 1.0f; 
 		    }    
 		}
 		shadow /= pow((sampleRadius * 2 + 1), 2);

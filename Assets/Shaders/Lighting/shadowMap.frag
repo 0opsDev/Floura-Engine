@@ -6,9 +6,9 @@ uniform sampler2D diffuse0;
 void main()
 {
 
-	vec4 diffuseTex = texture(diffuse0, texCoord);
+	float diffuseTex = texture(diffuse0, texCoord).a;
 
-	if (diffuseTex.a < 0.1)
+	if (diffuseTex < 0.1)
 	discard;
 
 }
