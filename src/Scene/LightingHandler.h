@@ -10,6 +10,7 @@
 #include <Render/Shader/shaderClass.h>
 #include "Scene/IdManager.h"
 #include <Render/Object/ModelAssimp.h>
+#include <Render/Object/Billboard.h>
 
 using json = nlohmann::json;
 
@@ -29,7 +30,10 @@ public:
 
 	// dir light
 	static glm::mat4 lightProjection;
+
 	static Shader dirShadowMapProgram;
+	static Shader dirShadowMapProgramBB;
+
 	static unsigned int shadowMapFBO, shadowMapHeight, shadowMapWidth, dirShadowMap;
 	static float distance;
 	static glm::vec2 dirNearFar;
@@ -80,6 +84,8 @@ public:
 
 	static void drawShadowMap(Model*& model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale);
 
+	static void drawShadowMapBillboard(BillBoard*& bilboard, glm::vec3 translation, glm::vec3 scale);
+
 	static void update(Shader ModelShader);
 
 	static void createLight();
@@ -91,6 +97,8 @@ public:
 	static void saveScene(std::string path);
 
 	static void deleteScene();
+
+	static void cleanup();
 
 private:
 

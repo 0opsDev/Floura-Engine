@@ -75,7 +75,7 @@ public:
 	// billboard specific
 	void setDoPitch(bool doPitch) {
 		if (type == 'b') {
-			component.renderHeads.BillBoard->doPitch = doPitch;
+		component.renderHeads.BillBoard->doPitch = doPitch; // probably because the space in memory hasnt been created for the billboard yet
 		}
 	}
 	bool FetchDoPitch() {
@@ -156,6 +156,7 @@ public:
 	static struct render {
 		Model* Model;
 		BillBoard* BillBoard;
+		float smoothnessValue = 0.0f;
 	};
 
 	public:

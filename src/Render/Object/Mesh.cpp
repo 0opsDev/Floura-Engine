@@ -3,6 +3,7 @@
 #include <camera/Camera.h>
 #include <limits>
 #include <utils/FE_math.h>
+#include <Render/Object/SkyBox.h>
 
 void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
 {
@@ -78,7 +79,6 @@ void Mesh::draw(Shader& shader, glm::mat4 modelMatrix)
         textures[i].texUnit(shader, (type + "0").c_str(), textures[i].unit);
         textures[i].Bind();
     }
-
     // Camera Matrix
     glUniform3f(glGetUniformLocation(shader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
     Camera::Matrix(shader, "camMatrix");
@@ -101,6 +101,8 @@ void Mesh::draw(Shader& shader, glm::mat4 modelMatrix)
     glDrawElements(GL_POINTS, indices.size(), GL_UNSIGNED_INT, 0);
 
     //glDisable(GL_BLEND);
+
+    //glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Mesh::setupMesh()

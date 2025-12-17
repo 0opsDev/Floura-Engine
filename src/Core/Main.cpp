@@ -121,9 +121,11 @@ int main() // global variables do not work with threads
 	}
 	RenderClass::Cleanup();
 	Skybox::Delete();
+	Skybox::cleanup();
 	TempScene::Delete(); // Delete scene
 	SoundRunner::Delete();
 	Scene::Delete();
+	LightingHandler::cleanup();
 	glfwDestroyWindow(windowHandler::window), glfwTerminate(); // Kill opengl
 	return 0;
 }

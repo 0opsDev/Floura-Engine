@@ -138,7 +138,8 @@ void entity::draw()
 	switch (type)
 	{
 	case 'm': // model
-
+		Skybox::bind(5);
+		Skybox::cubemapToShader(component.systems.material.Material.ModelShader, 5);
 		component.systems.material.Material.update();
 
 		if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
@@ -158,6 +159,8 @@ void entity::draw()
 
 		component.systems.material.Material.ModelShader.Activate();
 		component.systems.material.Material.ModelShader.setFloat2("uvScale", component.systems.material.uvScale);
+		component.systems.material.Material.ModelShader.setFloat("smoothnessValue", component.renderHeads.smoothnessValue);
+		//smoothnessValue
 		component.systems.material.Material.ModelGpassShader.Activate();
 		component.systems.material.Material.ModelGpassShader.setFloat2("uvScale", component.systems.material.uvScale);
 
@@ -178,6 +181,9 @@ void entity::draw()
 		glCullFace(GL_BACK); // Reset culling to default
 		glDisable(GL_CULL_FACE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		Skybox::unbind();
+
 		break;
 	case 'b': // billboard
 		component.renderHeads.BillBoard->draw();
@@ -195,6 +201,9 @@ void entity::drawShadowMap()
 	{
 	case 'm': // model
 		LightingHandler::drawShadowMap(component.renderHeads.Model, component.systems.transformation.position, component.systems.transformation.rotation, component.systems.transformation.scale);
+		break;
+	case 'b': // billboard
+		LightingHandler::drawShadowMapBillboard(component.renderHeads.BillBoard, component.systems.transformation.position, component.systems.transformation.scale);
 		break;
 	}
 }

@@ -70,5 +70,35 @@
         "ObjectType": "Model",
         "Path": "Assets/Models/basic shapes/plane.gltf",
         "Type": "NULL"
+    },
+    {
+        "Name": "bistro",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/bistro/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "metal sphere",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/sphere/met.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "lion_head_2k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/lion_head_2k.gltf/lion_head_2k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "paveplane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/planes/paveplane.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "charolettenbrunn_park",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/charolettenbrunn_park/Skybox.json",
+        "Type": "NULL"
     }
 ]

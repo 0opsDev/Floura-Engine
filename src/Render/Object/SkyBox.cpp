@@ -6,6 +6,7 @@
 unsigned int Skybox::VAO;
 unsigned int Skybox::VBO;
 unsigned int Skybox::EBO;
+
 bool Skybox::DoSbRGBA = true;
 Shader skyboxShader;
 std::string Skybox::DefaultSkyboxPath;
@@ -64,9 +65,13 @@ void Skybox::init() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 }
 
 void Skybox::LoadSkyBoxTexture(std::string PathName) {
+	if (SkyboxCubemap != nullptr) {
+		SkyboxCubemap->~Cubemap();
+	}
 	SkyboxCubemap = new Cubemap(PathName); // update it to parse in string which is a path,
 }
 
@@ -117,7 +122,28 @@ void Skybox::draw() {
 
 }
 
+void Skybox::bind(int unit)
+{
+	glActiveTexture(GL_TEXTURE0 + unit);// + textureUnit
+	glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxCubemap->ID);
+}
+
+void Skybox::cubemapToShader(Shader& shader, int unit)
+{
+	shader.Activate();
+	shader.setInt("skybox", unit);
+}
+
+void Skybox::unbind()
+{
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+
 void Skybox::Delete() {
-	skyboxShader.Delete();
 	SkyboxCubemap->~Cubemap();
+}
+
+void Skybox::cleanup()
+{
+	skyboxShader.Delete();
 }

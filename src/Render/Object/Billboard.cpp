@@ -4,6 +4,8 @@
 #include <Render/Shader/Framebuffer.h>
 #include <Core/Render.h>
 #include <Render/passes/geometry/geometryPass.h>
+#include <Scene/LightingHandler.h>
+
 
 const float s_Plane_Vertices[] = {
 	// Positions       // Texture Coordinates
@@ -88,7 +90,49 @@ void BillBoard::drawF(glm::mat4 modelMatrix, Shader shader, glm::mat4 camMatrix)
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0); // E
 }
+// temporary draw function (add materials for bb soon)
+void BillBoard::drawShadowMap() 
+{
+	//LightingHandler::dirShadowMapProgramBB;
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+	// Compute the forward vector towards the camera
+	glm::vec3 camForward = glm::normalize(Camera::Position - globalTransformation.position);
 
+	// Lock pitch if `doPitch == false`
+	if (!doPitch) {
+		camForward.y = 0.0f;
+		camForward = glm::normalize(camForward);
+	}
+
+	// Compute right & up vectors
+	glm::vec3 camRight = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), camForward));
+	glm::vec3 camUp = glm::normalize(glm::cross(camForward, camRight));
+
+	// Construct billboard rotation matrix
+	glm::mat4 billboardRotation = glm::mat4(glm::mat3(camRight, camUp, camForward));
+
+	// Apply transformations: translation -> rotation -> scale
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, globalTransformation.position);
+	model = model * billboardRotation;  // Ensure billboard rotation before scaling
+	model = glm::scale(model, globalTransformation.scale);
+	//draw here
+	// Enable depth testing
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+	LightingHandler::dirShadowMapProgramBB.Activate(); // s
+	LightingHandler::dirShadowMapProgramBB.setMat4("model", model);
+
+	// Render the billboard
+	glBindVertexArray(cubeVAO);
+	Tex.Bind();
+	LightingHandler::dirShadowMapProgramBB.setInt("texture0", 0);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0); // E
+}
 void BillBoard::draw() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);

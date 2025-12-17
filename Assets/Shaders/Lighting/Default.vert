@@ -13,6 +13,7 @@ uniform mat4 model; // Final model matrix combining all transformations
 uniform mat4 lightProjection;
 uniform mat3 normalMatrix;
 uniform vec2 uvScale; 
+uniform vec3 camPos;
 
 out vec3 crntPos;
 out vec3 Normal;
@@ -25,6 +26,10 @@ out vec3 Normal0;
 out vec3 Tangent0;
 out vec3 Bitangent0;
 
+// cubemap
+out vec3 reflectedVector;
+out vec3 camPositon;
+out vec3 NviewVector;
 
 
 void main()
@@ -41,6 +46,12 @@ void main()
     color = aColor;
     texCoord = vec2(aTex.x  * uvScale.x, aTex.y * uvScale.y);
     fragPosLight = lightProjection * vec4(crntPos, 1.0f);
+
+    vec3 viewVector = crntPos.xyz - camPos;
+    NviewVector = viewVector;
+    reflectedVector = reflect(viewVector, Norm);
+
+    camPositon = camPos;
 
     gl_Position = camMatrix * vec4(crntPos, 1.0f);
 }

@@ -568,7 +568,14 @@ void FEImGuiWindow::SystemInfomation() {
 
 void FEImGuiWindow::RenderWindow() {
 	ImGui::Begin("Rendering"); // ImGUI window creation
-	if (ImGui::SmallButton("Reload Shaders?")) RenderClass::initGlobalShaders();
+	if (ImGui::SmallButton("Reload Model Shaders?")) 
+	{
+		for (size_t i = 0; i < Scene::entityObjects.size(); i++)
+		{
+			Scene::entityObjects[i]->LoadMaterial(Scene::entityObjects[i]->component.systems.material.Material.materialPath);
+		}
+	}
+	if (ImGui::SmallButton("Reload Global Shaders")) RenderClass::initGlobalShaders();
 
 	ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
 		ImGui::Text("Framerate Limiters");
@@ -845,6 +852,7 @@ void FEImGuiWindow::create() {
 
 
 }
+static bool open_state = false;
 
 void FEImGuiWindow::HierarchyList() { // have size of icons increase with window size 
 	ImGui::Begin("Scene hierarchy"); // ImGUI window creation
@@ -908,32 +916,61 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 	}
 	ImGui::NewLine();
 	ImGui::Text("Objects:");
-	
+
 	for (size_t i = 0; i < Scene::entityObjects.size(); i++)
 	{
 		// model
 		if (Scene::entityObjects[i]->fetchType() == 'm') // check if model entity
 		{
 			ImGui::BeginGroup();
-			ImGui::Image(
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+			ImGui::ImageButton(
+				("##openButton" + std::to_string(i)).c_str(),
 				(ImTextureID)(intptr_t)FEImGuiWindow::ModelIcon.ID,
 				ImVec2(icon_size, icon_size)
 			);
+			if (ImGui::IsItemClicked()) {
+				FEImGuiWindow::SelectedObjectType = "Model";
+				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
+			}
+			ImGui::PopStyleColor(3);
+
 			ImGui::SameLine();
 			if (ImGui::MenuItem((Scene::entityObjects[i]->fetchName() + "##" + std::to_string(i)).c_str())) {
 				FEImGuiWindow::SelectedObjectType = "Model";
 				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
 			}
 			ImGui::EndGroup();
+			//ImGui::SetNextItemOpen(open_state);
+			//if (ImGui::TreeNode(("expand##" + std::to_string(i)).c_str()))
+			//{
+			//	ImGui::Text("Node contents...");
+			//	ImGui::TreePop();
+			//}
 		}
 		// billboard
 		else if (Scene::entityObjects[i]->fetchType() == 'b') // check if billboard entity
 		{
 			ImGui::BeginGroup();
-			ImGui::Image(
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+			ImGui::ImageButton(
+				("##openButton" + std::to_string(i)).c_str(),
 				(ImTextureID)(intptr_t)FEImGuiWindow::BillBoardIcon.ID,
 				ImVec2(icon_size, icon_size)
 			);
+			if (ImGui::IsItemClicked()) {
+				FEImGuiWindow::SelectedObjectType = "Billboard";
+				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
+			}
+			ImGui::PopStyleColor(3);
+
+
 			ImGui::SameLine();
 			if (ImGui::MenuItem((Scene::entityObjects[i]->fetchName() + "##" + std::to_string(i)).c_str())) {
 				FEImGuiWindow::SelectedObjectType = "Billboard";
@@ -945,24 +982,21 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 	}
 		for (size_t i = 0; i < Scene::SoundObjects.size(); i++) {
 			ImGui::BeginGroup();
-			if (Scene::SoundObjects[i].isPlay)
-			{
-				ImGui::Image(
-					(ImTextureID)(intptr_t)FEImGuiWindow::SoundIcon.ID, // if is playing light up yellow
-					ImVec2(icon_size, icon_size),
-					ImVec2(0, 0),
-					ImVec2(1, 1),
-					ImVec4(1.0f, 1.0f, 0.0f, 1.0f), // tint yellow
-					ImVec4(0, 0, 0, 0) // no border
-				);
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+			ImGui::ImageButton(
+				("##openButtonS" + std::to_string(i)).c_str(),
+				(ImTextureID)(intptr_t)FEImGuiWindow::SoundIcon.ID,
+				ImVec2(icon_size, icon_size)
+			);
+			if (ImGui::IsItemClicked()) {
+				FEImGuiWindow::SelectedObjectType = "Sound";
+				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
 			}
-			else
-			{
-				ImGui::Image(
-					(ImTextureID)(intptr_t)FEImGuiWindow::SoundIcon.ID, // if is playing light up yellow
-					ImVec2(icon_size, icon_size)
-				);
-			}
+			ImGui::PopStyleColor(3);
+			// removed the isplayng check that changed tint, its useless
 
 			ImGui::SameLine();
 			if (ImGui::MenuItem((Scene::SoundObjects[i].name + "##" + std::to_string(i)).c_str())) { 
@@ -974,8 +1008,20 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 
 		for (size_t i = 0; i < Scene::CubeColliderObject.size(); i++) {
 			ImGui::BeginGroup();
-			ImGui::Image(
-				(ImTextureID)(intptr_t)FEImGuiWindow::colliderIcon.ID, ImVec2(icon_size, icon_size));
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+			ImGui::ImageButton(
+				("##openButtonC" + std::to_string(i)).c_str(),
+				(ImTextureID)(intptr_t)FEImGuiWindow::colliderIcon.ID,
+				ImVec2(icon_size, icon_size)
+			);
+			if (ImGui::IsItemClicked()) {
+				FEImGuiWindow::SelectedObjectType = "Collider";
+				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
+			}
+			ImGui::PopStyleColor(3);
+
 			ImGui::SameLine();
 			if (ImGui::MenuItem((Scene::CubeColliderObject[i].name + "##" + std::to_string(i)).c_str())) {
 				FEImGuiWindow::SelectedObjectType = "Collider";
@@ -986,12 +1032,45 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 		for (size_t i = 0; i < LightingHandler::Lights.size(); i++) {
 			ImGui::BeginGroup();
 			if (LightingHandler::Lights[i].type == 0) { // spot light
-				ImGui::Image(
-					(ImTextureID)(intptr_t)FEImGuiWindow::spotLightIcon.ID, ImVec2(icon_size, icon_size), ImVec2(0,0), ImVec2(1, 1), ImVec4(LightingHandler::Lights[i].colour.x, LightingHandler::Lights[i].colour.y, LightingHandler::Lights[i].colour.z, 1.0f), ImVec4(0, 0, 0, 0) );
+
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+				ImGui::ImageButton(
+					("##openButtonL" + std::to_string(i)).c_str(),
+					(ImTextureID)(intptr_t)FEImGuiWindow::spotLightIcon.ID,
+					ImVec2(icon_size, icon_size),
+					ImVec2(0, 0), ImVec2(1, 1),
+					ImVec4(LightingHandler::Lights[i].colour.x,
+						LightingHandler::Lights[i].colour.y,
+						LightingHandler::Lights[i].colour.z, 1.0f),
+					ImVec4(0, 0, 0, 0)
+				);
+				if (ImGui::IsItemClicked()) {
+					FEImGuiWindow::SelectedObjectType = "Light";
+					FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
+				}
+				ImGui::PopStyleColor(3);
 			}
 			else if (LightingHandler::Lights[i].type == 1) { // point light
-				ImGui::Image(
-					(ImTextureID)(intptr_t)FEImGuiWindow::pointLightIcon.ID, ImVec2(icon_size, icon_size), ImVec2(0, 0), ImVec2(1, 1), ImVec4(LightingHandler::Lights[i].colour.x, LightingHandler::Lights[i].colour.y, LightingHandler::Lights[i].colour.z, 1.0f), ImVec4(0, 0, 0, 0));
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+				ImGui::ImageButton(
+					("##openButtonL" + std::to_string(i)).c_str(),
+					(ImTextureID)(intptr_t)FEImGuiWindow::pointLightIcon.ID,
+					ImVec2(icon_size, icon_size),
+					ImVec2(0, 0), ImVec2(1, 1),
+					ImVec4(LightingHandler::Lights[i].colour.x,
+						LightingHandler::Lights[i].colour.y,
+						LightingHandler::Lights[i].colour.z, 1.0f),
+					ImVec4(0, 0, 0, 0)
+				);
+				if (ImGui::IsItemClicked()) {
+					FEImGuiWindow::SelectedObjectType = "Light";
+					FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
+				}
+				ImGui::PopStyleColor(3);
 			}
 			ImGui::SameLine();
 			if (ImGui::MenuItem(("Light X:" + std::to_string(static_cast<int>(LightingHandler::Lights[i].position.x))
@@ -1257,6 +1336,9 @@ void FEImGuiWindow::ModelWindow() {
 		ImGui::Checkbox("doRender", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.flags.render);
 		ImGui::Checkbox("Cast Shadow", &castShadow);
 		ImGui::DragFloat2("UV Scale", &uvScale.x);
+		ImGui::DragFloat("reflective smoothness", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.smoothnessValue);
+
+		//smoothnessValue
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	ImGui::Spacing();

@@ -641,6 +641,12 @@
     <None Include="Assets\Shaders\Db\line.frag">
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
+    <None Include="Assets\Shaders\Db\BillBoardSM.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\BillBoardSM.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\Libraries\include\imgui\LICENSE.txt">

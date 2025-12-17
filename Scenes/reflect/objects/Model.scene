@@ -1,0 +1,89 @@
+[
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 9170,
+        "Location": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            5.0,
+            5.0
+        ],
+        "doRender": true,
+        "isBackFaceCulling": false,
+        "name": "vase",
+        "path": "Assets/Models/brass_vase_03_2k.gltf/brass_vase_03_2k.gltf",
+        "smoothnessValue": 1.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 5725,
+        "Location": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            12.0,
+            12.0,
+            12.0
+        ],
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "pave",
+        "path": "Assets/Models/planes/paveplane.gltf",
+        "smoothnessValue": 1.0,
+        "uvScale": [
+            12.0,
+            12.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 9359,
+        "Location": [
+            -19.580583572387695,
+            1.9279489517211914,
+            -2.809673309326172
+        ],
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "sphere",
+        "path": "Assets/Models/basic shapes/sphere.gltf",
+        "smoothnessValue": 1.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    }
+]

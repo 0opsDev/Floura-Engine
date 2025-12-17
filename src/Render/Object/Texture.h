@@ -13,7 +13,7 @@ public:
 	std::string type;
 	GLuint unit;
 	std::string path;
-	bool filterNearest = false;
+	bool filterNearest = true;
 	bool flipVertical = false;
 	void createTexture(const char* image, const char* texType, GLuint slot);
 

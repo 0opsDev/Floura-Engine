@@ -73,5 +73,5 @@ Cubemap::Cubemap(std::string PathName) {
 
 Cubemap::~Cubemap()
 {
-	glDeleteTextures(1, &ID);
+	glDeleteTextures(1, &ID);	
 }

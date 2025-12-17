@@ -25,6 +25,7 @@ public:
 
 	void updateScale(glm::vec3 Scale);
 
+	void drawShadowMap();
 	void draw();
 	bool doPitch = true;
 	Texture Tex;

@@ -21,7 +21,6 @@ public:
 
 	Cubemap(std::string PathName);
 	~Cubemap();
-
 };
 
 #endif

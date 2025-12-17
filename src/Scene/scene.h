@@ -63,6 +63,8 @@ public:
 
 	static void initCameraSettingsLoad(std::string path);
 
+	static void shadowmapDraw();
+
 	static void draw();
 
 	static void Update();

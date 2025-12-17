@@ -32,8 +32,8 @@ uniform float dirSpecularLight;
 uniform bool doDirLight;
 uniform bool doDirSpecularLight;
 uniform bool doDirShadowMap;
-uniform int dirShadowMapHardness;
-uniform int dirShadowMapSamples;
+uniform int FilterRadius;
+uniform int NumberOfSamples;
 uniform float DirSMMaxBias;
 
 
@@ -52,7 +52,12 @@ uniform int lightCount;
 
 uniform float NearPlane;
 uniform float FarPlane;
-uniform vec3 camPos;
+uniform vec3 camPositon;
+
+// reflections
+in vec3 reflectedVector;
+uniform samplerCube skybox; 
+uniform float smoothnessValue;
 
 float linearizeDepth(float depth)
 {
@@ -66,6 +71,54 @@ float random(vec3 seed) {
 	return fract(sin(dot_product) * 43758.5453);
 }
 
+float CalcShadowFactorDIR(vec4 LightSpacePos, vec3 lightDirection, vec3 normal)
+{
+	// perform perspective divide
+	vec3 lightCoords = LightSpacePos.xyz / LightSpacePos.w;
+
+	// seed for jitter
+	vec3 seed = vec3(gl_FragCoord.xy, 0.0);
+
+	float shadow = 0.0f;
+
+	// shadow calculation
+	if (lightCoords.z <= 1.0f)
+	{
+
+		// transform to [0,1] range
+		lightCoords = (lightCoords + 1.0f) / 2.0f;
+		// get the current depth
+		float currentDepth = lightCoords.z;
+		// calculate shadow bias
+		float bias = max(DirSMMaxBias * (1.0f - dot(normal, lightDirection)), 0.0005f);
+		// PCF
+		int sampleRadius = FilterRadius; // FilterRadius // NumberOfSamples
+		vec2 pixelSize = (float(NumberOfSamples) * 0.1) / textureSize(shadowMap, 0);
+		for(int y = -sampleRadius; y <= sampleRadius; y++)
+		{
+		    for(int x = -sampleRadius; x <= sampleRadius; x++)
+		    {
+
+					//float angle = random(seed + float(x)) * 6.2831853;
+
+					//vec2 offset = vec2(cos(angle), sin(angle))*NumberOfSamples;
+
+					//float closestDepth = texture(shadowMap, lightCoords.xy + vec2(x,y) * pixelSize).r; // noise
+					float closestDepth = texture(shadowMap, lightCoords.xy + vec2(x, y) * pixelSize).r; // no noise
+					if (currentDepth > closestDepth + bias)
+						shadow += 1.0f;
+     
+		    }    
+		}
+
+		shadow /= pow((sampleRadius * 2 + 1), 2);
+
+
+	}
+
+return shadow;
+}
+
 vec4 direcLight()
 { // normals need to be recalculated based on rotation
 
@@ -76,52 +129,25 @@ vec4 direcLight()
 
 	// shadow map 
 	float shadow = 0.0f;
-	vec3 lightCoords = fragPosLight.xyz / fragPosLight.w;
 
-
-	vec3 seed = vec3(gl_FragCoord.xy, 0.0);
-
-	if (lightCoords.z <= 1.0f && doDirShadowMap)
-	{
-		lightCoords = (lightCoords + 1.0f) / 2.0f;
-
-		//float closestDepth = texture(shadowMap, lightCoords.xy).r;
-		float currentDepth = lightCoords.z;
-
-		//float bias = 0.005f; // 0.025f
-		float bias = max(DirSMMaxBias * (1.0f - dot(normal, lightDirection)), 0.0005f);
-
-		int sampleRadius = dirShadowMapHardness;
-		vec2 pixelSize = 1.0 / textureSize(shadowMap, 0);
-		for(int y = -sampleRadius; y <= sampleRadius; y++)
-		{
-		    for(int x = -sampleRadius; x <= sampleRadius; x++)
-		    {
-				float angle = random(seed + float(x)) * 6.2831853;
-				vec2 offset = vec2(cos(angle), sin(angle)) * dirShadowMapSamples;
-				
-		        float closestDepth = texture(shadowMap, lightCoords.xy + vec2(x, y) * (pixelSize * offset)).r;
-				if (currentDepth > closestDepth + bias)
-					shadow += 1.0f; 
-		    }    
-		}
-		shadow /= pow((sampleRadius * 2 + 1), 2);
-
+	if (doDirShadowMap)
+	shadow = CalcShadowFactorDIR(fragPosLight, lightDirection, normal);
+	// shadow map end
 	
-	}
-		float specular = 0.0f;
+	
+	float specular = 0.0f;
 	if (doReflect && doDirSpecularLight && diffuse != 0.0f){
-	vec3 viewDirection = normalize(camPos - crntPos);
+	vec3 viewDirection = normalize(camPositon - crntPos);
 	vec3 reflectionDirection = reflect(-lightDirection, normal);
 
 	vec3 halfwayVec = normalize(lightDirection + viewDirection);
 
 	float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 32);
 	specular = specAmount * dirSpecularLight;
-	return (texture(texture_diffuse0, texCoord) * (diffuse * (1.0f - shadow) + directAmbient) + texture(texture_roughness0, texCoord).r * specular * (1.0f - shadow)) * vec4(directLightCol, 1.0f);
+	return ((diffuse * (1.0f - shadow) + directAmbient) + texture(texture_roughness0, texCoord).r * specular * (1.0f - shadow)) * vec4(directLightCol, 1.0f);
 	}
 	else{
-	return (texture(texture_diffuse0, texCoord) * (diffuse * (1.0f - shadow) + directAmbient)) * vec4(directLightCol, 1.0f);
+	return ((diffuse * (1.0f - shadow) + directAmbient)) * vec4(directLightCol, 1.0f);
 	}
 }
 
@@ -150,7 +176,7 @@ vec4 pointLight(int iteration)
 	if (doReflect && diffuse != 0.0f){
 	// specular lighting
 		//float specularLight = 0.50f;
-		vec3 viewDirection = normalize( (camPos) - crntPos);
+		vec3 viewDirection = normalize( (camPositon) - crntPos);
 		vec3 reflectionDirection = reflect(-lightDirection, normal);
 
 		vec3 halfwayVec = normalize(lightDirection + viewDirection);
@@ -158,10 +184,10 @@ vec4 pointLight(int iteration)
 		float specAmount = pow(max(dot(normal, halfwayVec), 0.1f), 16);
 		specular = specAmount * specularLight;
 
-		finalColour = finalColour + (texture(texture_diffuse0, texCoord) * (diffuse * inten + 0.0f) + texture(texture_roughness0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0 ) * inten;
+		finalColour = finalColour + ((diffuse * inten + 0.0f) + texture(texture_roughness0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0 ) * inten;
 	}
 	else{
-		finalColour = finalColour + (texture(texture_diffuse0, texCoord) * (diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
+		finalColour = finalColour + ((diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
 		//finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
 	}
 
@@ -193,7 +219,7 @@ vec4 spotLight(int iteration)
 
 		// specular lighting
 	//float specularLight = 0.50f;
-	vec3 viewDirection = normalize(camPos - crntPos);
+	vec3 viewDirection = normalize(camPositon - crntPos);
 	vec3 reflectionDirection = reflect(-lightDirection, normal);
 
 	vec3 halfwayVec = normalize(lightDirection + viewDirection);
@@ -201,12 +227,12 @@ vec4 spotLight(int iteration)
 	float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 16);
 	specular = specAmount * specularLight;
 
-	finalColour = finalColour + (texture(texture_diffuse0, texCoord) * (diffuse * inten + 0.0f) + texture(texture_roughness0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0) * inten;
+	finalColour = finalColour + ((diffuse * inten + 0.0f) + texture(texture_roughness0, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0) * inten;
 
 	}
 	else{
 	
-	finalColour = finalColour + (texture(texture_diffuse0, texCoord) * (diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
+	finalColour = finalColour + ((diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
 	//	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
 	}
 
@@ -216,17 +242,8 @@ vec4 spotLight(int iteration)
 }
 
 vec4 lights(){
-	vec4 diffuseTex = texture(texture_diffuse0, texCoord);
 	vec4 finalColour = vec4(0.0);
-
-	//early cutoff
-	if (diffuseTex.a < 0.1)
-	discard;
-
-	if (linearizeDepth(gl_FragCoord.z) >= FarPlane) {
-	discard;
     //return (diffuseTex * skyColor);
-	}
 	int maxLights = 64;
 	for (int i = 0; i < min(lightCount, maxLights); i++)
 		{
@@ -247,16 +264,51 @@ vec4 lights(){
 		finalColour += direcLight();
 	}
 		///return vec4(finalColour.xyz, diffuseTex.a);
-		return vec4(finalColour.xyz, diffuseTex.a);
+		return vec4(finalColour);
 		//return vec4((diffuseTex.xyz * skyColor.xyz) + finalColour.xyz, diffuseTex.a);
 		//return (diffuseTex.xyz * skyColor.xyz) + finalColour.xyz;
 } 
 
+vec4 reflections(vec4 inp)
+{
+	vec4 final;
+	if (doReflect)
+	{
+	vec4 reflectedColour = texture(skybox, reflectedVector);
+
+	float roughness = texture(texture_roughness0, texCoord).r;
+	float smoothness = smoothnessValue * roughness;
+
+	final = mix(inp, reflectedColour, smoothness); //0.5f
+	//return;
+	}
+	else
+	final = inp;
+
+	return final;
+}
+
+
 void main()
 {
-	FragColor = lights();
+	//early cutoffs
+	if (linearizeDepth(gl_FragCoord.z) >= FarPlane)
+	discard;
+
+	vec4 diffuseTex = texture(texture_diffuse0, texCoord);
+	if (diffuseTex.a < 0.1)
+	discard;
+
+	vec4 reflectedDiffuse = reflections(diffuseTex);
+
+	vec4 light = lights();
+
+	vec4 final = reflectedDiffuse * vec4(light.rgb, diffuseTex.a);
 	//FragColor = texture(texture_diffuse0, texCoord);
-	//FragColor = texture(texture_roughness0, texCoord);
-	//FragColor = texture(texture_normal0, texCoord);
-	//FragColor = texture(texture_displacement0, texCoord);
+	//vec4 final = texture(texture_roughness0, texCoord); // needs to have var determine if there is a roughness map <<<
+	//vec4 final = texture(texture_normal0, texCoord);
+
+	//FragColor = reflections(final);
+	FragColor = final;
+	//FragColor = light;
 }

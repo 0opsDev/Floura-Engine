@@ -35,9 +35,16 @@ int LightingHandler::dirShadowMapSamples = 1.0f;
 
 glm::mat4 LightingHandler::lightProjection;
 Shader LightingHandler::dirShadowMapProgram;
+Shader LightingHandler::dirShadowMapProgramBB;
+
 
 void LightingHandler::setupShadowMapBuffer() {
 	LightingHandler::dirShadowMapProgram.LoadShader("Assets/Shaders/Lighting/shadowMap.vert", "Assets/Shaders/Lighting/shadowMap.frag");
+
+	// billboard
+	LightingHandler::dirShadowMapProgramBB.LoadShader("Assets/Shaders/Db/BillBoardSM.vert", "Assets/Shaders/Db/BillBoardSM.frag");
+
+
 	shadowMapWidth = 4096;
 	shadowMapHeight = 4096;
 	//shadowMapWidth = 2046;
@@ -222,6 +229,36 @@ void LightingHandler::drawShadowMap(Model*& model, glm::vec3 translation, glm::v
 
 }
 
+void LightingHandler::drawShadowMapBillboard(BillBoard*& bilboard, glm::vec3 translation, glm::vec3 scale) {
+	if (!doDirShadowMap)
+	{
+		return;
+	}
+	glm::mat4 orthgonalProjection = glm::ortho(-distance, distance, -distance, distance, dirNearFar.x, dirNearFar.y); // last two are near and far 
+
+	glm::vec3 CameraPos = Camera::Position;
+	glm::vec3 dirLightDirection = dirLightPosOut;
+	glm::vec3 lightEyePosition = CameraPos + (dirShadowheight * dirLightDirection);
+	glm::mat4 lightView = glm::lookAt(lightEyePosition, CameraPos, glm::vec3(0.0f, 1.0f, 0.0f));
+	lightProjection = orthgonalProjection * lightView;
+
+
+	glEnable(GL_DEPTH_TEST);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+	glViewport(0, 0, shadowMapWidth, shadowMapHeight); // dont touch for now
+	//glClear(GL_DEPTH_BUFFER_BIT);
+	LightingHandler::dirShadowMapProgramBB.Activate();
+	glUniformMatrix4fv(glGetUniformLocation(LightingHandler::dirShadowMapProgramBB.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
+
+	//glCullFace(GL_FRONT);
+	bilboard->drawShadowMap();
+	//glCullFace(GL_BACK);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, Camera::width, Camera::height); // dont touch for now
+
+}
+
 void LightingHandler::update(Shader Shader)
 {
 	Shader.Activate();
@@ -283,8 +320,8 @@ void LightingHandler::update(Shader Shader)
 	{
 		// shadow map
 		Shader.setFloat("DirSMMaxBias", DirSMMaxBias);
-		Shader.setInt("dirShadowMapHardness", dirShadowMapHardness);
-		Shader.setInt("dirShadowMapSamples", dirShadowMapSamples);
+		Shader.setInt("FilterRadius", dirShadowMapHardness);
+		Shader.setInt("NumberOfSamples", dirShadowMapSamples);
 		glUniformMatrix4fv(glGetUniformLocation(Shader.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
 		glActiveTexture(GL_TEXTURE0 + 8);
@@ -456,4 +493,11 @@ void LightingHandler::deleteScene()
 		//IdManager::RemoveID(Lights[i].ID);
 	}
 	Lights.clear();
+}
+
+void LightingHandler::cleanup()
+{
+	// shaders
+	dirShadowMapProgram.Delete();
+	dirShadowMapProgramBB.Delete();
 }

@@ -1,58 +1,89 @@
 [
     {
         "CastShadow": true,
-        "IDuniqueIdentifier": 9170,
+        "IDuniqueIdentifier": 6335,
         "Location": [
-            0.0,
-            0.0,
+            3.0,
+            1.5,
             0.0
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
             0.0
         ],
         "Scale": [
-            10.0,
             1.0,
-            10.0
+            1.0,
+            1.0
         ],
         "doRender": true,
         "isBackFaceCulling": true,
-        "name": "plane",
-        "path": "Assets/Models/basic shapes/plane.gltf",
+        "name": "metal sphere",
+        "path": "Assets/Models/sphere/met.gltf",
+        "smoothnessValue": 1.0,
         "uvScale": [
-            10.0,
-            10.0
+            1.0,
+            1.0
         ]
     },
     {
         "CastShadow": true,
-        "IDuniqueIdentifier": 5725,
+        "IDuniqueIdentifier": 8146,
         "Location": [
+            -3.0,
             0.0,
-            4.0,
-            0.0
+            -2.799999952316284
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
             0.0
         ],
         "Scale": [
-            1.0,
-            1.0,
-            1.0
+            5.540399551391602,
+            5.540399551391602,
+            5.540399551391602
         ],
         "doRender": true,
         "isBackFaceCulling": true,
-        "name": "cube",
-        "path": "Assets/Models/basic shapes/cube.gltf",
+        "name": "lion_head_2k",
+        "path": "Assets/Models/lion_head_2k.gltf/lion_head_2k.gltf",
+        "smoothnessValue": 0.30000001192092896,
         "uvScale": [
             1.0,
             1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "IDuniqueIdentifier": 3282,
+        "Location": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            5.0,
+            5.0
+        ],
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "paveplane",
+        "path": "Assets/Models/planes/paveplane.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            5.0,
+            5.0
         ]
     }
 ]

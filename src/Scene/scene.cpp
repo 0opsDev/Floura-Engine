@@ -234,6 +234,8 @@ void Scene::initJsonModelLoad(std::string path) {
 			item.at("uvScale")[1]));
 
 		newObject->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
+		newObject->component.renderHeads.smoothnessValue = item.at("smoothnessValue").get<float>();
+
 		//newObject->create('m', name, path, MaterialPath); // Load into this unique MaterialObject // this needs to run and somehow join up when complete?
 		// what about the idea of creating them in a state without a actual model, then doing the create function on a thread and push back when joinable;
 		
@@ -278,6 +280,7 @@ void Scene::JsonModelSave(std::string path) {
 				modelJson["IDuniqueIdentifier"] = entityObjects[i]->ID.UniqueNumber;
 				//doRender
 				modelJson["doRender"] = entityObjects[i]->component.flags.render;
+				modelJson["smoothnessValue"] = entityObjects[i]->component.renderHeads.smoothnessValue;
 
 				settingsData.push_back(modelJson);
 			}
@@ -521,16 +524,17 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 	for (const auto& item : BillBoardFileData) {
 		std::unique_ptr<entity> newEntity = std::make_unique<entity>(); // Use std::make_unique
 
-		newEntity->setDoPitch(item.at("doPitch").get<bool>());
+		//std::cout << "BillBoard doPitch: " << item.at("doPitch") <<std::endl;
 		newEntity->setPosition(glm::vec3(item.at("position")[0], item.at("position")[1], item.at("position")[2]));
 		newEntity->setScale(glm::vec3(item.at("scale")[0], item.at("scale")[1], item.at("scale")[2]));
-		// ID
+		// IDs
 		newEntity->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
 
 		std::string name = item.at("name").get<std::string>();
 		std::string nPath = item.at("path").get<std::string>();
 		newEntity->create('b', name, nPath, ""); // type, name, path, materialpath // add material path for bb later
-
+		
+		newEntity->setDoPitch(item.at("doPitch"));
 		entityObjects.push_back(std::move(newEntity)); // Add the configured object to the vector
 	}
 	std::cout << "Loaded Scene BillBoards from: " << path << std::endl;
@@ -733,12 +737,17 @@ void Scene::initCameraSettingsLoad(std::string path) {
 	}
 }
 
-void Scene::draw() 
+
+void Scene::shadowmapDraw()
 {
 	for (size_t i = 0; i < entityObjects.size(); i++)
 	{
 		entityObjects[i]->drawShadowMap();
 	}
+}
+
+void Scene::draw() 
+{
 	// entities shadow map should go above here
 	for (size_t i = 0; i < entityObjects.size(); i++)
 	{
@@ -807,7 +816,10 @@ void Scene::Update() {
 }
 
 void Scene::Delete() {
-
+	// deselect object probably
+	FEImGuiWindow::SelectedObjectIndex = -1;
+	FEImGuiWindow::SelectedObjectType = ' ';
+	
 	for (size_t i = 0; i < entityObjects.size(); i++)
 	{
 		entityObjects[i]->Delete(); }
@@ -828,6 +840,8 @@ void Scene::Delete() {
 	SoundObjects.clear();
 
 	LightingHandler::deleteScene();
+	
+	// no skybox delete for now
 
 	if (FEImGuiWindow::imGuiEnabled) {
 		FEImGuiWindow::ContentObjects.clear();

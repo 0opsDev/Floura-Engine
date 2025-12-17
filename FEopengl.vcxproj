@@ -283,6 +283,8 @@
   <ItemGroup>
     <None Include="Assets\Shaders\Db\BillBoard.frag" />
     <None Include="Assets\Shaders\Db\BillBoard.vert" />
+    <None Include="Assets\Shaders\Db\BillBoardSM.frag" />
+    <None Include="Assets\Shaders\Db\BillBoardSM.vert" />
     <None Include="Assets\Shaders\Db\ComputeRenderQuad.frag" />
     <None Include="Assets\Shaders\Db\computeShader.comp" />
     <None Include="Assets\Shaders\Db\emptycomputeShader.comp" />

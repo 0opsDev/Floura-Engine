@@ -104,7 +104,6 @@ void Player::update() {
 		{
 			FootSound.StopSound();
 		}
-
 		if (s_DoGravity) {
 			force += mass * gravity; // applying foce
 
@@ -112,7 +111,6 @@ void Player::update() {
 			Camera::Position += Player::velocity * TimeUtil::s_DeltaTime;
 
 			force = glm::vec3(0.0f); // reset force at end
-
 		}
 
 		//Player::isGrounded = false;

@@ -170,6 +170,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox) { // should add skybox.scene
 		Skybox::draw();
 	}
+	Scene::shadowmapDraw();
 	Scene::draw();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
