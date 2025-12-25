@@ -1,21 +1,21 @@
 #include "TimeUtil.h"
 #include <GLFW/glfw3.h>
 
-float TimeUtil::s_DeltaTime = 0.0f;
-float TimeUtil::s_lastFrameTime = 0.0f;
-float TimeUtil::s_frameRate = 0;
-float TimeUtil::s_frameRate1hz = 0;
+float TimeUtil::deltatime = 0.0f;
+float TimeUtil::lastFrameTime = 0.0f;
+float TimeUtil::frameRate = 0;
+float TimeUtil::frameRate1hz = 0;
 float TimeUtil::TimeAccumulator= 0;
 
-void TimeUtil::updateDeltaTime() {
+void TimeUtil::update() {
     float currentFrameTime = static_cast<float>(glfwGetTime());
-    s_DeltaTime = currentFrameTime - s_lastFrameTime;
-    s_lastFrameTime = currentFrameTime;
-    s_frameRate = static_cast<int>(1.0f / s_DeltaTime);
-    TimeAccumulator += s_DeltaTime;
+    deltatime = currentFrameTime - lastFrameTime;
+    lastFrameTime = currentFrameTime;
+    frameRate = static_cast<int>(1.0f / deltatime);
+    TimeAccumulator += deltatime;
 
     if (TimeAccumulator >= 1.0) {
-        s_frameRate1hz = static_cast<int>(1.0f / s_DeltaTime);
+        frameRate1hz = static_cast<int>(1.0f / deltatime);
         TimeAccumulator = 0;
     }
 }

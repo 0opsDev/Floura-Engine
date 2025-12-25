@@ -6,7 +6,6 @@
 
 
 std::string Scene::sceneName = ""; // Map loading
-std::vector <CubeCollider> Scene::CubeColliderObject;
 std::vector <SoundProgram> Scene::SoundObjects;
 std::vector <std::unique_ptr<entity>> Scene::entityObjects;
 
@@ -35,7 +34,6 @@ void Scene::LoadScene(std::string path) {
 	}
 
 	initJsonSettingsLoad(path + "/Settings.scene");
-	initJsonColliderLoad(path + "/Collider.scene");
 	LightingHandler::loadScene(path + "/Lights.scene");
 	JsonEnviromentLoad(path + "/Enviroment.scene"); // gives DefaultSkyboxPath
 	Skybox::LoadSkyBoxTexture(Skybox::DefaultSkyboxPath); // cleanup this class, could add a load cubemap texture function to the texture class
@@ -55,7 +53,6 @@ void Scene::SaveScene(std::string path) {
 	}
 
 	JsonSettingsSave(path + "/Settings.scene");
-	JsonColliderSave(path + "/Collider.scene");
 	LightingHandler::saveScene(path + "/Lights.scene");
 	JsonEnviromentSave(path + "/Enviroment.scene");
 	JsonBillBoardSave(path + "/BillBoard.scene");
@@ -353,43 +350,6 @@ void Scene::JsonBillBoardSave(std::string path) {
 
 }
 
-void Scene::JsonColliderSave(std::string path) {
-	try {
-		json ColliderData = json::array();  // New JSON array to hold model data
-
-		// Serialize each modelObject into JSON
-		for (const auto& obj : CubeColliderObject) {
-			json CubeColliderJson;
-			CubeColliderJson["name"] = obj.name;
-
-			CubeColliderJson["enabled"] = obj.enabled;
-
-			CubeColliderJson["position"] = { obj.colliderXYZ.x, obj.colliderXYZ.y, obj.colliderXYZ.z };
-			CubeColliderJson["scale"] = { obj.colliderScale.x, obj.colliderScale.y, obj.colliderScale.z };
-			// ID
-			CubeColliderJson["IDuniqueIdentifier"] = obj.ID.UniqueNumber;
-
-
-			ColliderData.push_back(CubeColliderJson);
-		}
-
-		// Write to file
-		std::ofstream outFile(path, std::ios::out);
-		if (!outFile.is_open()) {
-			std::cout << "Failed to write to " << path << std::endl;
-			return;
-		}
-
-		outFile << ColliderData.dump(4);  // Pretty-print with indentation
-		outFile.close();
-
-		std::cout << "Successfully updated " << path << std::endl;
-
-	}
-	catch (const std::exception& e) {
-		std::cout << "Exception: " << e.what() << std::endl;
-	}
-}
 void Scene::JsonSettingsSave(std::string path) {
 	try {
 		json SettingsData = json::array();  // New JSON array to hold model data
@@ -477,16 +437,6 @@ void Scene::AddSceneSoundObject(std::string name, std::string path) {
 	SoundObjects.push_back(nSoundProjram);
 }
 
-void Scene::AddSceneColliderObject(std::string name) {
-
-	CubeCollider newCubeColliderObject; // Create a temporary CubeCollider
-	newCubeColliderObject.init();
-	newCubeColliderObject.name = name;
-	CubeColliderObject.push_back(newCubeColliderObject);
-	LogConsole::print("Created CubeCollider Object: " + name);
-}
-
-
 void Scene::AddEntityObject(char type, std::string name, std::string path)
 {
 	std::unique_ptr<entity> newEntity = std::make_unique<entity>(); // Use std::make_unique
@@ -538,53 +488,6 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 		entityObjects.push_back(std::move(newEntity)); // Add the configured object to the vector
 	}
 	std::cout << "Loaded Scene BillBoards from: " << path << std::endl;
-}
-
-void Scene::initJsonColliderLoad(std::string path) {
-	std::ifstream file(path);
-	if (!file.is_open()) {
-		std::cout << "Collider Failed to open file: " << path << std::endl;
-		return;
-	}
-	json CubeColliderFileData;
-	try {
-		file >> CubeColliderFileData;
-	}
-	catch (const nlohmann::json::parse_error& e) {
-		// This catch block specifically handles JSON parsing errors,
-		// which gives more precise error information from the library.
-		std::cout << "JSON Parse Error loading CubeCollider data: " << e.what() << std::endl;
-		std::cout << "Error byte position: " << e.byte << std::endl; // Specific to nlohmann::json
-	}
-	catch (const std::ios_base::failure& e) {
-		// This catch block handles file I/O errors (e.g., file not found, permission issues).
-		std::cout << "File I/O Error loading CubeCollider data: " << e.what() << std::endl;
-	}
-	catch (const std::exception& e) {
-		// A general catch-all for any other std::exception derived errors.
-		std::cout << "An unexpected error occurred loading CubeCollider data: " << e.what() << std::endl;
-	}
-	file.close();
-
-	for (const auto& item : CubeColliderFileData) {
-
-		CubeCollider newCubeCollider;
-		std::string name = item.at("name").get<std::string>();
-		bool enabled = item.at("enabled").get<bool>();
-		glm::vec3 position = glm::vec3(item.at("position")[0], item.at("position")[1], item.at("position")[2]);
-		glm::vec3 scale = glm::vec3(item.at("scale")[0], item.at("scale")[1], item.at("scale")[2]);
-
-		newCubeCollider.init();
-		newCubeCollider.name = name;
-		newCubeCollider.colliderXYZ = position;
-		newCubeCollider.colliderScale = scale;
-		newCubeCollider.enabled = enabled;
-		// ID
-		newCubeCollider.ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
-
-		CubeColliderObject.push_back(newCubeCollider); // Add the configured object to the vector
-	}
-	std::cout << "Loaded Scene CubeColliders from: " << path << std::endl;
 }
 
 void Scene::initJsonSoundObjectLoad(std::string path) {
@@ -755,9 +658,6 @@ void Scene::draw()
 		entityObjects[i]->draw();
 	}
 
-	for (size_t i = 0; i < CubeColliderObject.size(); i++) {
-		CubeColliderObject[i].draw();
-	}
 	if (FEImGuiWindow::showViewportIcons) {
 		for (size_t i = 0; i < SoundObjects.size(); i++) {
 			if (SoundObjects[i].is3D)
@@ -795,10 +695,6 @@ void Scene::Update() {
 		entityObjects[i]->update();
 	}
 
-	for (size_t i = 0; i < CubeColliderObject.size(); i++) {
-		CubeColliderObject[i].update();
-	}
-
 	for (size_t i = 0; i < SoundObjects.size(); i++) {
 
 		if (SoundObjects[i].is3D)
@@ -824,8 +720,6 @@ void Scene::Delete() {
 	{
 		entityObjects[i]->Delete(); }
 	entityObjects.clear();
-
-	CubeColliderObject.clear();
 
 	for (size_t i = 0; i < SoundObjects.size(); i++) {
 		if (SoundObjects[i].isPlay) {

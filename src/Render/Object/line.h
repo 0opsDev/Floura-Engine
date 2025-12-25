@@ -12,6 +12,7 @@ public:
 	void updateVBO(glm::vec3 pos1, glm::vec3 pos2);
 	~Line3D();
 	void translate(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
+	void translatemat4rot(glm::vec3 position, glm::vec3 scale, glm::mat4 rotation);
 	void draw(glm::vec3 colour);
 
 private:

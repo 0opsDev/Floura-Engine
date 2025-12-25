@@ -5,7 +5,7 @@
 #include<glad/glad.h>
 #include<render/Shader/shaderClass.h>
 #include <GLFW/glfw3.h>
-#include <UI/ImGui/ImGuiWindow.h>
+#include <Editor/UI/ImGui/ImGuiWindow.h>
 #include <utils/ScreenUtils.h>
 #include <camera/Camera.h>
 #include "FramebufferObject.h"

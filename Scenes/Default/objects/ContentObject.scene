@@ -100,5 +100,47 @@
         "ObjectType": "Skybox",
         "Path": "Assets/Skybox/charolettenbrunn_park/Skybox.json",
         "Type": "NULL"
+    },
+    {
+        "Name": "barrel2",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/barrel/barrel2.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "triangle",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/triangle/triangle.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "glass2",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/glass/glass2.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "white_oak",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/white_oak/white_oak.obj",
+        "Type": "NULL"
+    },
+    {
+        "Name": "grass",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grasspane/grass.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "grassfol",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grasspane/grassfol.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "lpshead",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/lpshead/head.OBJ",
+        "Type": "NULL"
     }
 ]

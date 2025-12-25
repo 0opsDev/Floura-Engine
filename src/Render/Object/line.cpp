@@ -45,19 +45,26 @@ Line3D::~Line3D() // Delete
 }
 void Line3D::translate(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation)
 {
-    glm::mat4 Trans = glm::mat4(1.0f);
     glm::mat4 Rot = glm::mat4(1.0f);
-    glm::mat4 Sca = glm::mat4(1.0f);
-
-    Trans = glm::translate(Trans, position);
+    glm::mat4 Trans = glm::translate(Trans, position);
 
     Rot = glm::rotate(Rot, glm::radians(rotation.x), glm::vec3(1, 0, 0));
     Rot = glm::rotate(Rot, glm::radians(rotation.y), glm::vec3(0, 1, 0));
     Rot = glm::rotate(Rot, glm::radians(rotation.z), glm::vec3(0, 0, 1));
 
-    Sca = glm::scale(Sca, scale);
+    glm::mat4 Sca = glm::scale(Sca, scale);
 
     lineMatrix = Trans * Rot * Sca;
+}
+
+
+void Line3D::translatemat4rot(glm::vec3 position, glm::vec3 scale, glm::mat4 rotation)
+{
+    glm::mat4 Trans = glm::translate(Trans, position);
+
+    glm::mat4 Sca = glm::scale(Sca, scale);
+
+    lineMatrix = Trans * rotation * Sca;
 }
 
 void Line3D::draw(glm::vec3 colour)

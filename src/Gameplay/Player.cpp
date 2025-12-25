@@ -2,8 +2,8 @@
 #include <Sound/SoundProgram.h>
 #include <Sound/SoundRunner.h>
 #include <Render/window/WindowHandler.h>
-#include "Physics/CubeCollider.h"
 
+bool Player::CollideWithCamera = true;
 bool Player::isGrounded = false;
 bool Player::isColliding = false;
 bool Player::s_DoGravity = false;
@@ -25,7 +25,7 @@ void Player::init() {
 }
 void Player::update() {
 
-	float adjustedSpeed = 5.0f * TimeUtil::s_DeltaTime;
+	float adjustedSpeed = 5.0f * TimeUtil::deltatime;
 	glm::vec3 flatOrientation = glm::normalize(glm::vec3(Camera::Orientation.x, 0.0f, Camera::Orientation.z));
 
 	if (glfwGetKey(windowHandler::window, GLFW_KEY_W) == GLFW_PRESS)
@@ -51,11 +51,11 @@ void Player::update() {
 	if (glfwGetKey(windowHandler::window, GLFW_KEY_F2) == GLFW_PRESS) {
 		s_DoGravity = false;
 		velocity = glm::vec3(0.0f);
-		CubeCollider::CollideWithCamera = false;
+		Player::CollideWithCamera = false;
 	}
 	if (glfwGetKey(windowHandler::window, GLFW_KEY_F3) == GLFW_PRESS) {
 		s_DoGravity = true;
-		CubeCollider::CollideWithCamera = true;
+		Player::CollideWithCamera = true;
 	}
 
 	if (lastpos != Camera::Position && glfwGetKey(windowHandler::window, GLFW_KEY_W) == GLFW_PRESS ||
@@ -107,8 +107,8 @@ void Player::update() {
 		if (s_DoGravity) {
 			force += mass * gravity; // applying foce
 
-			velocity += force / mass * TimeUtil::s_DeltaTime;
-			Camera::Position += Player::velocity * TimeUtil::s_DeltaTime;
+			velocity += force / mass * TimeUtil::deltatime;
+			Camera::Position += Player::velocity * TimeUtil::deltatime;
 
 			force = glm::vec3(0.0f); // reset force at end
 		}

@@ -27,7 +27,6 @@ public:
 
 	static void lowestIndexSync(); // syncs up the lowest deleted index with the actual lowest deleted index in the array
 	static void lowestObjectIndexSync();
-	static void lowestColliderIndexSync();
 	static void lowestSoundIndexSync();
 	static void lowestLightIndexSync();
 

@@ -15,6 +15,38 @@ void Model::updateScale(glm::vec3 Scale)
     globalTransformation.scale = Scale;
 }
 
+void Model::updateTranformation()
+{
+    glm::mat4 globalTrans = glm::mat4(1.0f);
+    glm::mat4 globalRot = glm::mat4(1.0f);
+    glm::mat4 globalSca = glm::mat4(1.0f);
+
+    globalTrans = glm::translate(globalTrans, globalTransformation.position);
+
+    globalRot = glm::rotate(globalRot, glm::radians(globalTransformation.rotation.x), glm::vec3(1, 0, 0));
+    globalRot = glm::rotate(globalRot, glm::radians(globalTransformation.rotation.y), glm::vec3(0, 1, 0));
+    globalRot = glm::rotate(globalRot, glm::radians(globalTransformation.rotation.z), glm::vec3(0, 0, 1));
+
+
+    globalSca = glm::scale(globalSca, globalTransformation.scale);
+
+    glm::mat4 gModelMatrix = globalTrans * globalRot * globalSca;
+
+    for (unsigned int i = 0; i < meshes.size(); i++)
+    {
+        glm::mat4 finalMatrix = gModelMatrix * lModelMatrix[i]; // * by local transform
+		glm::vec3 finalRot = globalTransformation.rotation + localTransformation[i].rotation;
+		glm::vec3 finalScale = globalTransformation.scale * localTransformation[i].scale;
+
+        meshes[i].updateMatrix(finalMatrix);
+		meshes[i].updatePosition(localTransformation[i].position);
+		meshes[i].updateGlobalPosition(globalTransformation.position);
+		meshes[i].updateRotation(finalRot);
+		meshes[i].updateScale(finalScale);
+	}
+
+}
+
 Model::Model(const char* file)
 {
 	loadModel(file);
@@ -46,33 +78,34 @@ Model::~Model() {
 
 void Model::draw(Shader& shader)
 {
-    glm::mat4 globalTrans = glm::mat4(1.0f);
-    glm::mat4 globalRot = glm::mat4(1.0f);
-    glm::mat4 globalSca = glm::mat4(1.0f);
-
-    globalTrans = glm::translate(globalTrans, globalTransformation.position);
-
-    globalRot = glm::rotate(globalRot, glm::radians(globalTransformation.rotation.x), glm::vec3(1, 0, 0));
-    globalRot = glm::rotate(globalRot, glm::radians(globalTransformation.rotation.y), glm::vec3(0, 1, 0));
-    globalRot = glm::rotate(globalRot, glm::radians(globalTransformation.rotation.z), glm::vec3(0, 0, 1));
-
-
-    globalSca = glm::scale(globalSca, globalTransformation.scale);
-
-    glm::mat4 gModelMatrix = globalTrans * globalRot * globalSca;
 	// draw all meshes and parse in data
     for (unsigned int i = 0; i < meshes.size(); i++)
     {
-        glm::mat4 finalMatrix = gModelMatrix * lModelMatrix[i]; // * by local transform
-        meshes[i].draw(shader, finalMatrix);
-    }
+        meshes[i].draw(shader);
+    }  
+}
 
-        
+void Model::createMeshAABBs()
+{
+    for (size_t i = 0; i < meshes.size(); i++)
+    {
+		meshes[i].createAABB();
+	}
 }
 
 void Model::updateMeshAABBs()
 {
-    MeshAABBs = FetchMeshAABBs();
+    MeshAABBs.clear();
+    for (size_t i = 0; i < meshes.size(); i++)
+    {
+        meshes[i].updateAABB();
+		
+		Collision::AABB updatedAABB = meshes[i].returnAABB();
+		//updatedAABB.position += localTransformation[i].position;
+		//updatedAABB.size *= localTransformation[i].scale;
+        MeshAABBs.push_back(updatedAABB);
+    }
+    //MeshAABBs = FetchMeshAABBs();
 }
 
 std::vector<Collision::AABB> Model::FetchMeshAABBs()
@@ -82,12 +115,13 @@ std::vector<Collision::AABB> Model::FetchMeshAABBs()
     {
         // create temp aabb generate AABBdata and push into array
         Collision::AABB newAABB;
-        newAABB = meshes[i].createAABBfromMesh();
-        newAABB.position *= localTransformation[i].position;
-        newAABB.size *= localTransformation[i].scale;
+        
+        //newAABB = meshes[i].createAABBfromMesh();
+        //newAABB.position *= localTransformation[i].position;
+        //newAABB.size *= localTransformation[i].scale;
         //std::cout << "x: " << localTransformation[i].position.x << " y: " << localTransformation[i].position.y << " z: " << localTransformation[i].position.z << std::endl;
         //localTransformation
-        newAABBs.push_back(newAABB);
+        //newAABBs.push_back(newAABB);
     }
     // return mesh AABBs
     return newAABBs;
@@ -145,6 +179,9 @@ void Model::processPositions(aiNode* node)
     newTransformation.position = glm::vec3(position.x, position.y, position.z);
     newTransformation.scale = glm::vec3(scale.x, scale.y, scale.z);
     newTransformation.qRotation = glm::quat(rotation.w, rotation.x, rotation.y, rotation.z);
+    glm::vec3 euler_radians = glm::eulerAngles(newTransformation.qRotation);
+    newTransformation.rotation = glm::degrees(euler_radians);
+
     //std::cout << "ppAI pos: x: " << position.x << " y: " << position.y << " z: " << position.z << std::endl;
     //std::cout << "PP pos: x: " << newTransformation.position.x << " y: " << newTransformation.position.y << " z: " << newTransformation.position.z << std::endl;
     localTransformation.push_back(newTransformation);

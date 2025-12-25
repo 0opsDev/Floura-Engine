@@ -1,7 +1,6 @@
 #include "SoundProgram.h"
 #include <Render/Object/Billboard.h>
 #include "SoundRunner.h"
-#include <UI/ImGui/ImGuiWindow.h>
 #include <utils/FE_math.h>
 #include"utils/logConsole.h"
 
@@ -132,9 +131,7 @@ bool SoundProgram::loadWavFile(const std::string& filename, ALuint* buffer) {
     short channels;
     file.read(reinterpret_cast<char*>(&channels), 2);
 
-    if (channels > 1) {
-        LogConsole::print("Directional sound only works with mono WAV files.");
-    }
+    if (channels > 1) LogConsole::print("Directional sound only works with mono WAV files.");
 
     int sampleRate;
     file.read(reinterpret_cast<char*>(&sampleRate), 4);

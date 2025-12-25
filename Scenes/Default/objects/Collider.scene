@@ -2,16 +2,16 @@
     {
         "IDuniqueIdentifier": 1065353216,
         "enabled": true,
-        "name": "ground",
+        "name": "Name",
         "position": [
             0.0,
-            -1.0,
+            -3.0,
             0.0
         ],
         "scale": [
-            10.0,
+            30.0,
             1.0,
-            10.0
+            30.0
         ]
     }
 ]

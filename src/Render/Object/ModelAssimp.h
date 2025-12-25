@@ -12,7 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include "core/Render.h"
-#include "Physics/Collision.h"
+#include "Systems/Physics/Collision.h"
 
 class Model {
 public:
@@ -25,24 +25,25 @@ public:
 
 	void updateScale(glm::vec3 Scale);
 
+	void updateTranformation();
+
 	Model(const char* file);
 	~Model();
 
 	void draw(Shader &shader);
+
+	void createMeshAABBs();
 
 	void updateMeshAABBs();
 
 	// AABBS position stored in local space
 	std::vector<Collision::AABB> MeshAABBs;
 	std::vector<Mesh> meshes;
-
-private:
-	
-	std::vector<Collision::AABB> FetchMeshAABBs();
-
 	std::vector<RenderClass::transformation>localTransformation;
 	std::vector <glm::mat4> lModelMatrix;
 
+private:
+	std::vector<Collision::AABB> FetchMeshAABBs();
 	std::string directory;
 	std::vector<std::string> loadedTexPath;
 	std::vector<Texture> loadedTex;

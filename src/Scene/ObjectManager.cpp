@@ -33,19 +33,6 @@ void entityDuplicate(int index) {
 	LogConsole::print("cloned Entity: " + name);
 }
 
-void colliderDuplicate(int index) {
-	std::string name = Scene::CubeColliderObject[index].name + "_copy";
-	CubeCollider newCubeColliderObject; // Create a temporary CubeCollider
-	newCubeColliderObject.init();
-	newCubeColliderObject.name = name;
-	newCubeColliderObject.colliderRotation = Scene::CubeColliderObject[index].colliderRotation;
-	newCubeColliderObject.colliderScale = Scene::CubeColliderObject[index].colliderScale;
-	newCubeColliderObject.colliderXYZ = Scene::CubeColliderObject[index].colliderXYZ;
-	newCubeColliderObject.enabled = Scene::CubeColliderObject[index].enabled;
-	Scene::CubeColliderObject.push_back(newCubeColliderObject);
-	LogConsole::print("Created CubeCollider Object: " + name);
-}
-
 void soundDuplicate(int index) {
 	// To be implemented
 }
@@ -84,9 +71,6 @@ void ObjectManager::duplicateObject(unsigned char ObjType, unsigned int UniqueNu
 		case 'o': // object
 			entityDuplicate(index);
 			break;
-		case 'c': // collider
-			colliderDuplicate(index);
-			break;
 		case 's': // sound
 			soundDuplicate(index);
 			break;
@@ -109,10 +93,6 @@ void deleteObjectSwitch(unsigned char ObjType, int index)
 	case 'o': // object
 		Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->Delete();
 		Scene::entityObjects.erase(Scene::entityObjects.begin() + FEImGuiWindow::SelectedObjectIndex);
-		break;
-	case 'c': // collider
-		Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].Delete();
-		Scene::CubeColliderObject.erase(Scene::CubeColliderObject.begin() + FEImGuiWindow::SelectedObjectIndex);
 		break;
 	case 'l':
 		LightingHandler::deleteLight(FEImGuiWindow::SelectedObjectIndex);
@@ -163,9 +143,6 @@ void ObjectManager::renameObject(unsigned char ObjType, unsigned int UniqueNumbe
 		case 'o': // object
 			Scene::entityObjects[index]->setName(newName);
 			break;
-		case 'c': // collider
-			Scene::CubeColliderObject[index].name = newName;
-			break;
 		case 's': // sound
 			Scene::SoundObjects[index].name = newName;
 			break;
@@ -188,9 +165,6 @@ void ObjectManager::renameObjectwIndex(unsigned char ObjType, unsigned int index
 		{
 		case 'o': // object
 			Scene::entityObjects[index]->setName(newName);
-			break;
-		case 'c': // collider
-			Scene::CubeColliderObject[index].name = newName;
 			break;
 		case 's': // sound
 			Scene::SoundObjects[index].name = newName;

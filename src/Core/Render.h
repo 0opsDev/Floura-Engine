@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <camera/Camera.h>
-#include <UI/ImGui/ImGuiWindow.h>
+#include <Editor/UI/ImGui/ImGuiWindow.h>
 #include <Render/Object/SkyBox.h>
 //#include <Render/Cube/Billboard.h>
 #include "Render/Cube/CubeVisualizer.h"
@@ -32,7 +32,7 @@ public:
 	static struct transformation {
 		glm::vec3 position = glm::vec3(0.0f);
 		glm::vec3 rotation = glm::vec3(0.0f);
-		glm::quat qRotation;
+		glm::quat qRotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
 		glm::vec3 scale = glm::vec3(1.0f);
 	};
 
@@ -49,10 +49,6 @@ public:
 	static void Render(GLFWwindow* window, unsigned int width, unsigned int height);
 
 	static void DeferredLightingPass();
-
-	static void HybridLightingPass();
-
-	static void Swapchain(GLFWwindow* window);
 
 	static void Cleanup();
 

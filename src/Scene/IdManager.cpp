@@ -45,7 +45,6 @@ void IdManager::lowestIndexSync()
 
 		//lowestModelIndexSync();
 		lowestObjectIndexSync();
-		lowestColliderIndexSync();
 		//lowestSoundIndexSync();
 		lowestLightIndexSync();
 
@@ -97,51 +96,6 @@ void IdManager::lowestObjectIndexSync()
 					if (lowestDeletedIndex.object == -1);
 					{
 						lowestDeletedIndex.object++;
-					}
-
-				}
-			}
-		}
-	}
-}
-
-void IdManager::lowestColliderIndexSync() {
-	if (lowestDeletedIndex.Collider >= 0)
-	{
-		// check if lowestDeletedIndex.Collider is now out of bounds
-		if (lowestDeletedIndex.Collider == static_cast<int>(Scene::CubeColliderObject.size()) || lowestDeletedIndex.Collider >= static_cast<int>(Scene::CubeColliderObject.size()))
-		{
-			lowestDeletedIndex.Collider = -1;
-			LogConsole::print("Lowest Deleted Collider Index is now: " + std::to_string(lowestDeletedIndex.Collider));
-		}
-		for (size_t i = lowestDeletedIndex.Collider; i < Scene::CubeColliderObject.size(); i++)
-		{
-			// for all ids in IdManager
-			for (size_t indMananger = 0; indMananger < IDs.size(); indMananger++)
-			{
-				// check if both ids match
-				if (IDmatch(Scene::CubeColliderObject[i].ID, IDs[indMananger]))
-				{
-					LogConsole::print("Collider ID match at index: " + std::to_string(i) + " with UniqueNumber: " + std::to_string(Scene::CubeColliderObject[i].ID.UniqueNumber));
-					// if both match, check if index is the same, if not, update it						
-					if (Scene::CubeColliderObject[i].ID.index != i)
-					{
-						// update index
-						Scene::CubeColliderObject[i].ID.index = i;
-						IDs[indMananger].index = i; // also update the index in the IdManager
-						LogConsole::print("Updated Collider ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(Scene::CubeColliderObject[i].ID.UniqueNumber));
-						LogConsole::print("Also Updated IdManager ID index to: " + std::to_string(i) + " for UniqueNumber: " + std::to_string(IDs[indMananger].UniqueNumber));
-					}
-					// check if lowestDeletedIndex.BillBoard is now out of bounds
-					if (lowestDeletedIndex.Collider == static_cast<int>(Scene::CubeColliderObject.size()) || lowestDeletedIndex.Collider >= static_cast<int>(Scene::CubeColliderObject.size()))
-					{
-						lowestDeletedIndex.Collider = -1;
-						LogConsole::print("Lowest Deleted Collider Index is now: " + std::to_string(lowestDeletedIndex.Collider));
-					}
-					// increment lowestDeletedIndex.Collider because both ids matched
-					if (lowestDeletedIndex.Collider != -1);
-					{
-						lowestDeletedIndex.Collider++;
 					}
 
 				}

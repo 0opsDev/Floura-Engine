@@ -148,6 +148,10 @@
     <ClCompile Include="src\Core\glad.c" />
     <ClCompile Include="src\Core\Main.cpp" />
     <ClCompile Include="src\Core\Render.cpp" />
+    <ClCompile Include="src\Editor\UI\ImGui\FE_ImGui.cpp" />
+    <ClCompile Include="src\Editor\UI\ImGui\ImGuiInclude\EcsInspector.cpp" />
+    <ClCompile Include="src\Editor\UI\ImGui\ImGuiWindow.cpp" />
+    <ClCompile Include="src\Editor\UI\ImGui\OpenSceneWindow.cpp" />
     <ClCompile Include="src\Gameplay\Player.cpp" />
     <ClCompile Include="src\Libraries\include\ImGuizmo\GraphEditor.cpp" />
     <ClCompile Include="src\Libraries\include\ImGuizmo\ImCurveEdit.cpp" />
@@ -161,9 +165,6 @@
     <ClCompile Include="src\Libraries\include\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\Libraries\include\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="src\Physics\Collision.cpp" />
-    <ClCompile Include="src\Physics\CubeCollider.cpp" />
-    <ClCompile Include="src\Physics\phyworld.cpp" />
     <ClCompile Include="src\Render\Buffer\EBO.cpp" />
     <ClCompile Include="src\Render\Buffer\VAO.cpp" />
     <ClCompile Include="src\Render\Buffer\VBO.cpp" />
@@ -174,7 +175,6 @@
     <ClCompile Include="src\Render\Object\Mesh.cpp" />
     <ClCompile Include="src\Render\Object\ModelAssimp.cpp" />
     <ClCompile Include="src\Render\Object\RenderQuad.cpp" />
-    <ClCompile Include="src\Render\Object\Shape3D.cpp" />
     <ClCompile Include="src\Render\Object\SkyBox.cpp" />
     <ClCompile Include="src\Render\Object\stb.cpp" />
     <ClCompile Include="src\Render\Object\Texture.cpp" />
@@ -199,9 +199,7 @@
     <ClCompile Include="src\Scripting\ScriptRunner.cpp" />
     <ClCompile Include="src\Sound\SoundProgram.cpp" />
     <ClCompile Include="src\Sound\SoundRunner.cpp" />
-    <ClCompile Include="src\UI\ImGui\FE_ImGui.cpp" />
-    <ClCompile Include="src\UI\ImGui\ImGuiWindow.cpp" />
-    <ClCompile Include="src\UI\OpenSceneWindow.cpp" />
+    <ClCompile Include="src\Systems\Physics\Collision.cpp" />
     <ClCompile Include="src\utils\FE_math.cpp" />
     <ClCompile Include="src\utils\logConsole.cpp" />
     <ClCompile Include="src\utils\noise.cpp" />
@@ -215,6 +213,11 @@
     <ClInclude Include="src\Core\File\File.h" />
     <ClInclude Include="src\Core\Main.h" />
     <ClInclude Include="src\Core\Render.h" />
+    <ClInclude Include="src\Editor\UI\ImGui\FE_ImGui.h" />
+    <ClInclude Include="src\Editor\UI\ImGui\ImGuiInclude.h" />
+    <ClInclude Include="src\Editor\UI\ImGui\ImGuiInclude\EcsInspector.h" />
+    <ClInclude Include="src\Editor\UI\ImGui\ImGuiWindow.h" />
+    <ClInclude Include="src\Editor\UI\ImGui\OpenSceneWindow.h" />
     <ClInclude Include="src\Gameplay\Player.h" />
     <ClInclude Include="src\Libraries\include\ImGuizmo\GraphEditor.h" />
     <ClInclude Include="src\Libraries\include\ImGuizmo\ImApp.h" />
@@ -232,9 +235,6 @@
     <ClInclude Include="src\Libraries\include\imgui\imstb_rectpack.h" />
     <ClInclude Include="src\Libraries\include\imgui\imstb_textedit.h" />
     <ClInclude Include="src\Libraries\include\imgui\imstb_truetype.h" />
-    <ClInclude Include="src\Physics\Collision.h" />
-    <ClInclude Include="src\Physics\CubeCollider.h" />
-    <ClInclude Include="src\Physics\phyworld.h" />
     <ClInclude Include="src\Render\Buffer\EBO.h" />
     <ClInclude Include="src\Render\Buffer\VAO.h" />
     <ClInclude Include="src\Render\Buffer\VBO.h" />
@@ -245,7 +245,6 @@
     <ClInclude Include="src\Render\Object\Mesh.h" />
     <ClInclude Include="src\Render\Object\ModelAssimp.h" />
     <ClInclude Include="src\Render\Object\RenderQuad.h" />
-    <ClInclude Include="src\Render\Object\Shape3D.h" />
     <ClInclude Include="src\Render\Object\SkyBox.h" />
     <ClInclude Include="src\Render\Object\Texture.h" />
     <ClInclude Include="src\Render\passes\dbg\dbgPass.h" />
@@ -270,10 +269,7 @@
     <ClInclude Include="src\Scripting\ScriptRunner.h" />
     <ClInclude Include="src\Sound\SoundProgram.h" />
     <ClInclude Include="src\Sound\SoundRunner.h" />
-    <ClInclude Include="src\UI\ImGui\FE_ImGui.h" />
-    <ClInclude Include="src\UI\ImGui\ImGuiInclude.h" />
-    <ClInclude Include="src\UI\ImGui\ImGuiWindow.h" />
-    <ClInclude Include="src\UI\OpenSceneWindow.h" />
+    <ClInclude Include="src\Systems\Physics\Collision.h" />
     <ClInclude Include="src\utils\FE_math.h" />
     <ClInclude Include="src\utils\logConsole.h" />
     <ClInclude Include="src\utils\noise.h" />
@@ -305,7 +301,6 @@
     <None Include="Assets\Shaders\Lighting\albedoGeom.frag" />
     <None Include="Assets\Shaders\Lighting\combined.frag" />
     <None Include="Assets\Shaders\Lighting\combinedNoNormal.frag" />
-    <None Include="Assets\Shaders\Lighting\ComputeRenderQuad.frag" />
     <None Include="Assets\Shaders\Lighting\Default.geom" />
     <None Include="Assets\Shaders\Lighting\Default.vert" />
     <None Include="Assets\Shaders\Lighting\DefaultGeom.vert" />

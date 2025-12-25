@@ -21,10 +21,10 @@ public:
     static glm::vec3 Orientation;
     static glm::vec3 Up;
     static glm::mat4 cameraMatrix;
-    static float s_scrollSpeed;
     static glm::vec2 sensitivity;
     static glm::mat4 view;
     static glm::mat4 projection;
+    static float s_scrollSpeed;
     static float fov;
     static float gamma;
 

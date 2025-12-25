@@ -71,9 +71,6 @@
     <Filter Include="src\Gameplay">
       <UniqueIdentifier>{cdbd80a8-a2ca-49dc-9ca6-613f3b6c6a48}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Physics">
-      <UniqueIdentifier>{07bd4dd7-56dd-4548-9f1e-638f788b53af}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Shaders\gBuffer">
       <UniqueIdentifier>{d6d77359-9a36-46f6-b25d-4261aef74e5f}</UniqueIdentifier>
     </Filter>
@@ -98,9 +95,6 @@
     <Filter Include="src\UI">
       <UniqueIdentifier>{ae2232b3-13c0-48b3-9f18-c55b926f1396}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\UI\ImGui">
-      <UniqueIdentifier>{40f461af-3af1-4ee8-903c-1e8fa21ea181}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\ImGuizmo">
       <UniqueIdentifier>{df62e9b4-9a19-4bc6-a8f2-f95807413273}</UniqueIdentifier>
     </Filter>
@@ -112,6 +106,27 @@
     </Filter>
     <Filter Include="src\Render\Object">
       <UniqueIdentifier>{b99da5f8-89b6-4062-be62-907fb66e4d80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Editor">
+      <UniqueIdentifier>{c2ade511-6162-4595-ace2-60dc3017ab34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Systems">
+      <UniqueIdentifier>{d5583937-505e-4c60-a32b-626b3e59f536}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Editor\UI">
+      <UniqueIdentifier>{aab72c61-8544-4d1e-93bd-6b5f4f3d12f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Editor\util">
+      <UniqueIdentifier>{22b36c59-d38d-42a3-a34e-0d1f17f5f7c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Editor\UI\ImGui">
+      <UniqueIdentifier>{ed360ed9-c319-4a37-b8b7-e132623692da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Systems\Physics">
+      <UniqueIdentifier>{9ba85196-4833-4d54-90e0-0824a5dd8a23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Editor\UI\ImGui\ImGuiInclude">
+      <UniqueIdentifier>{f421cb9f-e860-458e-9c20-1329d301beab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -151,9 +166,6 @@
     <ClCompile Include="src\Core\glad.c">
       <Filter>src\core</Filter>
     </ClCompile>
-    <ClCompile Include="src\UI\ImGui\ImGuiWindow.cpp">
-      <Filter>src\UI\ImGui</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scripting\Functions\Player\LuaCamera.cpp">
       <Filter>src\Scripting\functions\Player</Filter>
     </ClCompile>
@@ -171,9 +183,6 @@
     </ClCompile>
     <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp">
       <Filter>src\Render\Cube</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Physics\CubeCollider.cpp">
-      <Filter>src\Physics</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\noise.cpp">
       <Filter>src\utils</Filter>
@@ -238,14 +247,8 @@
     <ClCompile Include="src\Libraries\include\ImGuizmo\ImSequencer.cpp">
       <Filter>Resource Files\ImGuizmo</Filter>
     </ClCompile>
-    <ClCompile Include="src\UI\ImGui\FE_ImGui.cpp">
-      <Filter>src\UI\ImGui</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scene\LightingHandler.cpp">
       <Filter>src\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\UI\OpenSceneWindow.cpp">
-      <Filter>src\UI</Filter>
     </ClCompile>
     <ClCompile Include="src\Scene\tempscene.cpp">
       <Filter>src\Scene</Filter>
@@ -277,26 +280,17 @@
     <ClCompile Include="src\Render\Object\stb.cpp">
       <Filter>src\Render\Object</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\Object\Shape3D.cpp">
-      <Filter>src\Render\Object</Filter>
-    </ClCompile>
     <ClCompile Include="src\Render\Object\ModelAssimp.cpp">
       <Filter>src\Render\Object</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\Object\Mesh.cpp">
       <Filter>src\Render\Object</Filter>
     </ClCompile>
-    <ClCompile Include="src\Physics\Collision.cpp">
-      <Filter>src\Physics</Filter>
-    </ClCompile>
     <ClCompile Include="src\Render\Object\line.cpp">
       <Filter>src\Render\Object</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\Shader\FramebufferObject.cpp">
       <Filter>src\Render\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Physics\phyworld.cpp">
-      <Filter>src\Physics</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\Object\Cubemap.cpp">
       <Filter>src\Render\Object</Filter>
@@ -309,6 +303,21 @@
     </ClCompile>
     <ClCompile Include="src\Render\Object\RenderQuad.cpp">
       <Filter>src\Render\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\UI\ImGui\ImGuiWindow.cpp">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\UI\ImGui\FE_ImGui.cpp">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\UI\ImGui\OpenSceneWindow.cpp">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\Physics\Collision.cpp">
+      <Filter>src\Systems\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\UI\ImGui\ImGuiInclude\EcsInspector.cpp">
+      <Filter>src\Editor\UI\ImGui\ImGuiInclude</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -351,9 +360,6 @@
     <ClInclude Include="src\Render\Buffer\VBO.h">
       <Filter>src\Render\Buffer</Filter>
     </ClInclude>
-    <ClInclude Include="src\UI\ImGui\ImGuiWindow.h">
-      <Filter>src\UI\ImGui</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scripting\Functions\Player\LuaCamera.h">
       <Filter>src\Scripting\functions\Player</Filter>
     </ClInclude>
@@ -371,9 +377,6 @@
     </ClInclude>
     <ClInclude Include="src\Render\Cube\CubeVisualizer.h">
       <Filter>src\Render\Cube</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Physics\CubeCollider.h">
-      <Filter>src\Physics</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\noise.h">
       <Filter>src\utils</Filter>
@@ -401,9 +404,6 @@
     </ClInclude>
     <ClInclude Include="src\Render\Shader\Material.h">
       <Filter>src\Render\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="src\UI\ImGui\ImGuiInclude.h">
-      <Filter>src\UI\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="src\Libraries\include\imgui\imconfig.h">
       <Filter>Resource Files\imgui</Filter>
@@ -453,14 +453,8 @@
     <ClInclude Include="src\Libraries\include\ImGuizmo\ImApp.h">
       <Filter>Resource Files\ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="src\UI\ImGui\FE_ImGui.h">
-      <Filter>src\UI\ImGui</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scene\LightingHandler.h">
       <Filter>src\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\UI\OpenSceneWindow.h">
-      <Filter>src\UI</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene\tempscene.h">
       <Filter>src\Scene</Filter>
@@ -486,17 +480,11 @@
     <ClInclude Include="src\Render\Object\Texture.h">
       <Filter>src\Render\Object</Filter>
     </ClInclude>
-    <ClInclude Include="src\Render\Object\Shape3D.h">
-      <Filter>src\Render\Object</Filter>
-    </ClInclude>
     <ClInclude Include="src\Render\Object\ModelAssimp.h">
       <Filter>src\Render\Object</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\Object\Mesh.h">
       <Filter>src\Render\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Physics\Collision.h">
-      <Filter>src\Physics</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\Object\line.h">
       <Filter>src\Render\Object</Filter>
@@ -506,9 +494,6 @@
     </ClInclude>
     <ClInclude Include="src\Render\Shader\FramebufferObject.h">
       <Filter>src\Render\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Physics\phyworld.h">
-      <Filter>src\Physics</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\Object\Cubemap.h">
       <Filter>src\Render\Object</Filter>
@@ -521,6 +506,24 @@
     </ClInclude>
     <ClInclude Include="src\Render\Object\RenderQuad.h">
       <Filter>src\Render\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\UI\ImGui\ImGuiWindow.h">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\UI\ImGui\FE_ImGui.h">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\UI\ImGui\ImGuiInclude.h">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\UI\ImGui\OpenSceneWindow.h">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\Physics\Collision.h">
+      <Filter>src\Systems\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\UI\ImGui\ImGuiInclude\EcsInspector.h">
+      <Filter>src\Editor\UI\ImGui\ImGuiInclude</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -585,9 +588,6 @@
       <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
     <None Include="Assets\Shaders\Lighting\combined.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\ComputeRenderQuad.frag">
       <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
     <None Include="Assets\Shaders\Lighting\Default.geom">

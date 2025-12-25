@@ -3,7 +3,7 @@
 #include <Render/Object/Billboard.h>
 #include <Render/Shader/Material.h>
 #include <Scene/IdManager.h>
-#include "Physics/Collision.h"
+#include "Systems/Physics/Collision.h"
 
 
 #ifndef FE_OBJECT_H
@@ -41,6 +41,8 @@ public:
 
 	void Delete();
 
+	Collision::HitResult RayVsTriangle(glm::vec3 rayPos, glm::vec3 rayDir);
+
 	std::string fetchName();
 	void setName(const std::string& name);
 	char fetchType();
@@ -65,12 +67,15 @@ public:
 	}
 	void setPosition(const glm::vec3& position) {
 		component.systems.transformation.position = position;
+		component.renderHeads.dirtyTransform = true;
 	}
 	void setRotation(const glm::vec3& rotation) {
 		component.systems.transformation.rotation = rotation;
+		component.renderHeads.dirtyTransform = true;
 	}
 	void setScale(const glm::vec3& scale) {
 		component.systems.transformation.scale = scale;
+		component.renderHeads.dirtyTransform = true;
 	}
 	// billboard specific
 	void setDoPitch(bool doPitch) {
@@ -157,6 +162,7 @@ public:
 		Model* Model;
 		BillBoard* BillBoard;
 		float smoothnessValue = 0.0f;
+		bool dirtyTransform = false;
 	};
 
 	public:

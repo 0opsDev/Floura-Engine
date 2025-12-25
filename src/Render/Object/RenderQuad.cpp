@@ -18,8 +18,6 @@ const unsigned int s_Plane_Indicez[6] =
 
 void RenderQuad::init() {
 	buffer(); // create buffer in memory for skybox
-
-	//LoadBillBoardTexture(path);
 }
 
 void RenderQuad::buffer() {
@@ -49,29 +47,9 @@ void RenderQuad::buffer() {
 }
 
 void RenderQuad::draw(Shader shader) {
-		// Enable depth testing
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
-
-		// Activate shader
-		shader.Activate();
-
-		// Apply transformations: translation -> rotation -> scale
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0, 2, 0));
-		model = model;
-		model = glm::scale(model, glm::vec3(1));
-
-		shader.Activate();
-		// Pass transformations to shader
-		shader.setMat4("model", model);
-
-		shader.setMat4("camMatrix", Camera::cameraMatrix);
-
-		//glBindTexture(GL_TEXTURE_2D, 0); // unbind tex
-		// Render the billboard
 		glBindVertexArray(VAO);
-		//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);

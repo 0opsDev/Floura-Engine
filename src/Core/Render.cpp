@@ -54,12 +54,22 @@ void initGLenable(bool frontFaceSide) {
 
 void RenderClass::init(unsigned int width, unsigned int height) {
 
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4), glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6); // Window Minimum and Maximum version
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //OpenGl Profile
+	glfwWindowHint(GLFW_RESIZABLE, 1); // Start Resizable
+	glfwWindowHint(GLFW_MAXIMIZED, 0); // Start Maximized
+	glfwWindowHint(GLFW_DEPTH_BITS, 16); // DepthBuffer Bit
+	glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
+
+	windowHandler::InitMainWidnow();
+	gladLoadGL(); // load open gl config
+
 	windowHandler::setVSync(windowHandler::doVsync); // Set Vsync to value of doVsync (bool)
 
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	initGLenable(false); //bool for direction of polys
-	//glEnable(GL_FRAMEBUFFER_SRGB);
 	GeometryPass::init(); // Initialize geometry pass settings
 
 	lightingRenderQuad.init();
@@ -78,6 +88,8 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 		ImGuizmo::SetOrthographic(false);
 		FEImGuiWindow::initImGui(windowHandler::window); // Initialize ImGUI
 	}
+
+	Skybox::init();
 
 	WhiteCube = new CubeVisualizer;
 	line = new Line3D(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -149,15 +161,11 @@ void RenderClass::ClearFramebuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int height) {
-
+float Counter;
+void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int height) 
+{
 	// set clear colour
 	glClearColor(RenderClass::gammaCorrect(skyRGBA.r), RenderClass::gammaCorrect(skyRGBA.g), RenderClass::gammaCorrect(skyRGBA.b), 1.0f);
-
-	auto startInitTime = std::chrono::high_resolution_clock::now();
-
-	auto stopInitTime = std::chrono::high_resolution_clock::now();
-	auto initDuration = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime - startInitTime);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	glEnable(GL_DEPTH_TEST); // this line here caused me so much hell
 
@@ -165,43 +173,33 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 		glClearColor(pow(0.0f, Camera::gamma), pow(0.0f, Camera::gamma), pow(0.0f, Camera::gamma), 1.0f);
 	}
-	auto startInitTime2 = std::chrono::high_resolution_clock::now();
 
-	if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox) { // should add skybox.scene
+	if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox) // should add skybox.scene
 		Skybox::draw();
-	}
+
 	Scene::shadowmapDraw();
 	Scene::draw();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
-	if (DoDeferredLightingPass) {
+	if (DoDeferredLightingPass)
 		DeferredLightingPass(); // Forward Lighting Pass
-	}
-	if (DoComputeLightingPass) {
+	if (DoComputeLightingPass)
 		LightingPass::computeRender(); // Run compute shader for lighting pass
-	}
-
-	auto stopInitTime2 = std::chrono::high_resolution_clock::now();
-	auto initDuration2 = std::chrono::duration_cast<std::chrono::microseconds>(stopInitTime2 - startInitTime2);
-	FEImGuiWindow::lPassTime = (initDuration2.count() / 1000.0);
-
-	//glDepthFunc(GL_LEQUAL);
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
-	//glBindVertexArray(0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glDisable(GL_CULL_FACE);
 
 	// Framebuffer logic
 	Framebuffer::FBODraw(FEImGuiWindow::imGuiPanels[0], window);
+
+	if (FEImGuiWindow::imGuiEnabled) {
+		Counter += TimeUtil::deltatime;
+		if (Counter >= 1 / 10.0f) { if (glfwGetKey(windowHandler::window, GLFW_KEY_F1) == GLFW_PRESS) { FEImGuiWindow::imGuiPanels[0] = !FEImGuiWindow::imGuiPanels[0]; } Counter = 0; }
+		if (FEImGuiWindow::imGuiPanels[0]) FEImGuiWindow::Update();
+	}
+
+	glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
+	glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
 }
 
 void RenderClass::DeferredLightingPass() {
-
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
-	//glEnable(GL_CULL_FACE);
-		//glDisable(GL_DEPTH_TEST);
-		//glDepthFunc(GL_LESS);
 	glDisable(GL_CULL_FACE);
 	GBLpass.Activate();
 	// gPass textures bound to FB
@@ -250,22 +248,6 @@ void RenderClass::DeferredLightingPass() {
 	GBLpass.setFloat("time", glfwGetTime());
 	//shader.
 	lightingRenderQuad.draw(GBLpass);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
-
-}
-
-void RenderClass::HybridLightingPass() {
-
-}
-
-void RenderClass::Swapchain(GLFWwindow* window) {
-
-
-	Camera::updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
-
-	glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
-	glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
 }
 
 void RenderClass::Cleanup() {

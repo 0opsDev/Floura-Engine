@@ -10,6 +10,8 @@ class Player
 {
 public:
 
+
+	static bool CollideWithCamera;
 	static bool isGrounded;
 	static bool isColliding;
 

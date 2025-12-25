@@ -63,11 +63,11 @@ void Material::updateTime()
 {
 
 	ModelShader.Activate();
-	ModelShader.setFloat("deltatime", TimeUtil::s_DeltaTime);
+	ModelShader.setFloat("deltatime", TimeUtil::deltatime);
 	ModelShader.setFloat("time", glfwGetTime());
 
 	ModelGpassShader.Activate();
-	ModelGpassShader.setFloat("deltatime", TimeUtil::s_DeltaTime);
+	ModelGpassShader.setFloat("deltatime", TimeUtil::deltatime);
 	ModelGpassShader.setFloat("time", glfwGetTime());
 
 }

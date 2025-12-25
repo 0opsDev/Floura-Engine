@@ -46,4 +46,7 @@ void main() {
     vec3 final = texture(screenTexture, texCoords).rgb * (1.0f - Depth) + vec3(Depth * fogColor);
 
     FragColor.rgb = pow(final.rgb, vec3(gamma));
+
+
+    //FragColor.rgb = vec3(1.0f, 0.0f, 0.0f);
 }

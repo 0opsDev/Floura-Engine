@@ -50,7 +50,7 @@ void Mesh::createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuin
     setupMesh();
 }
 
-void Mesh::draw(Shader& shader, glm::mat4 modelMatrix)
+void Mesh::draw(Shader& shader)
 {
     shader.Activate();
     VAO.Bind();
@@ -84,8 +84,8 @@ void Mesh::draw(Shader& shader, glm::mat4 modelMatrix)
     Camera::Matrix(shader, "camMatrix");
 
     // Push model matrix to the vertex shader
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
-    glm::mat3 model3x3 = glm::mat3(modelMatrix);
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(meshMatrix));
+    glm::mat3 model3x3 = glm::mat3(meshMatrix);
     glm::mat3 normalMatrix = glm::transpose(glm::inverse(model3x3));
     glUniformMatrix3fv(glGetUniformLocation(shader.ID, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
@@ -141,70 +141,34 @@ void Mesh::Delete()
     indices.clear();
 }
 
-
-glm::vec2 Mesh::findTwoFurthestVerticesX()
+void Mesh::updatePosition(glm::vec3 position)
 {
-    // max and min points
-    glm::vec3 minX = glm::vec3(std::numeric_limits<float>::max());
-    glm::vec3 maxX = glm::vec3(std::numeric_limits<float>::lowest());
-	
-
-    for (size_t x = 0; x < vertices.size(); x++)
-    {
-		minX = (vertices[x].position.x < minX.x) ? vertices[x].position : minX;
-		maxX = (vertices[x].position.x > maxX.x) ? vertices[x].position : maxX;
-	}
-	return glm::vec2(minX.x, maxX.x);
+    Mesh::position = position;
+}
+void Mesh::updateGlobalPosition(glm::vec3 position)
+{
+    Mesh::globalPosition = position;
+}
+void Mesh::updateRotation(glm::vec3 rotation)
+{
+    glm::vec3 RotRaidans = glm::radians(rotation);
+    Mesh::rotation = glm::quat(RotRaidans);
+}
+void Mesh::updateScale(glm::vec3 scale)
+{
+    Mesh::scale = scale;
+}
+void Mesh::updateMatrix(glm::mat4 matrix)
+{
+	Mesh::meshMatrix = matrix;
 }
 
-glm::vec2 Mesh::findTwoFurthestVerticesY()
-{
-    glm::vec3 minY = glm::vec3(std::numeric_limits<float>::max());
-    glm::vec3 maxY = glm::vec3(std::numeric_limits<float>::lowest());
-    for (size_t x = 0; x < vertices.size(); x++)
-    {
-        minY = (vertices[x].position.y < minY.y) ? vertices[x].position : minY;
-        maxY = (vertices[x].position.y > maxY.y) ? vertices[x].position : maxY;
-    }
-	return glm::vec2(minY.y, maxY.y);
-}
-glm::vec2 Mesh::findTwoFurthestVerticesZ()
-{
-    glm::vec3 minZ = glm::vec3(std::numeric_limits<float>::max());
-    glm::vec3 maxZ = glm::vec3(std::numeric_limits<float>::lowest());
-    for (size_t x = 0; x < vertices.size(); x++)
-    {
-        minZ = (vertices[x].position.z < minZ.z) ? vertices[x].position : minZ;
-        maxZ = (vertices[x].position.z > maxZ.z) ? vertices[x].position : maxZ;
-    }
-	return glm::vec2(minZ.z, maxZ.z);
-}
-
-Collision::AABB Mesh::createAABBfromMesh()
+// instead of always scanning thru all the verticies grab the 8 furthest points on each axis and make a box from that
+// store these 8 points, then just make a update function that just updates the aabb local transforms, including rotation
+Collision::AABB Mesh::createAABBfromMesh() // local and global transfoms needto be applied
 {
     // optimise later btw
     Collision::AABB AABB;
-
-    /*
-        // find largest distance on each axis
-    glm::vec2 X = Mesh::findTwoFurthestVerticesX();
-    glm::vec2 Y = Mesh::findTwoFurthestVerticesY();
-    glm::vec2 Z = Mesh::findTwoFurthestVerticesZ();
-
-    // find the centre in all 3 axis
-    AABB.position = glm::vec3( // centre becomes location
-        FE_Math::calculateCenter1D(X),
-        FE_Math::calculateCenter1D(Y),
-        FE_Math::calculateCenter1D(Z)
-    );
-
-    // find distance from furthest to the centre to each axis // edges to centre
-    AABB.size = glm::vec3( // distance becomes size
-        FE_Math::distanceFromTwoPoints1D(glm::vec2(AABB.position.x, FE_Math::furthestPoint(X))),
-        FE_Math::distanceFromTwoPoints1D(glm::vec2(AABB.position.y, FE_Math::furthestPoint(Y))),
-        FE_Math::distanceFromTwoPoints1D(glm::vec2(AABB.position.z, FE_Math::furthestPoint(Z)))
-    );
-    */
 
     glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
     glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
@@ -220,4 +184,38 @@ Collision::AABB Mesh::createAABBfromMesh()
     
     
     return AABB;
+}
+
+// placeholders
+void Mesh::createAABB()
+{
+    aabbPoints = Collision::fetchFurthestVertices(this->vertices);
+
+    // create aabb from those points
+	boxCollider = Collision::createAABBfromRubiksCubePoints(aabbPoints);
+    boxCollider.size = FE_Math::pad(boxCollider.position);
+    
+}
+
+void Mesh::updateAABB() // no args for now
+{
+    Collision::rubiksCubePoints newpoints = aabbPoints;
+
+	glm::quat finalRot = rotation; // for now
+    glm::vec3 finalGlobalPos = globalPosition;
+    glm::vec3 finalpos = position; // for now
+    glm::vec3 finalscale = scale; // for now
+	// up
+    FE_Math::transformPoint(newpoints.ULF, meshMatrix);
+    FE_Math::transformPoint(newpoints.URF, meshMatrix);
+    FE_Math::transformPoint(newpoints.URB, meshMatrix);
+    FE_Math::transformPoint(newpoints.ULB, meshMatrix);
+	// down
+    FE_Math::transformPoint(newpoints.DLF, meshMatrix);
+    FE_Math::transformPoint(newpoints.DRF, meshMatrix);
+    FE_Math::transformPoint(newpoints.DRB, meshMatrix);
+    FE_Math::transformPoint(newpoints.DLB, meshMatrix);
+
+    boxCollider = Collision::createAABBfromRubiksCubePoints(newpoints);
+    boxCollider.size = FE_Math::pad(boxCollider.size);
 }

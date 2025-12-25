@@ -1,5 +1,6 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/fwd.hpp>
+#include <vector>
 #ifndef FE_MATH_CLASS_H
 #define FE_MATH_CLASS_H
 
@@ -18,6 +19,32 @@ public:
 	static float distanceFromTwoPoints1D(glm::vec2 input);
 
 	static float furthestPoint(glm::vec2 input);
+
+	static float magnitude(glm::vec3 v);
+
+	static float AreaOfTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3);
+
+	static glm::vec3 RadiansToNormal(float yawRad, float pitchRad);
+
+	static void NormalToRadians(glm::vec3 normal, float& yawRad, float& pitchRad);
+
+	static glm::vec3 getForwardFromMatrix(const glm::mat4& matrix);
+
+	static glm::vec3 getForwardFromViewMatrix(const glm::mat4& viewMatrix);
+
+	static glm::vec2 findTwoFurthestPointsX(std::vector<glm::vec3> points);
+
+	static glm::vec2 findTwoFurthestPointsY(std::vector<glm::vec3> points);
+
+	static glm::vec2 findTwoFurthestPointsZ(std::vector<glm::vec3> points);
+
+	static void transformPoint(glm::vec3& point, glm::mat4 matrix);
+
+	// pad vec3 from 0.0f
+	static glm::vec3 pad(glm::vec3 value);
+
+	static glm::vec3 normalFrom2Points(glm::vec3 p1, glm::vec3 p2);
+
 };
 
 #endif // FE_MATH_CLASS_H

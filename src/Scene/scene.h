@@ -5,9 +5,7 @@
 #include <Sound/SoundProgram.h>
 #include <Sound/SoundRunner.h>
 #include <Scene/Object/Entity.h>
-#include <Physics/CubeCollider.h>
 #include <thread>
-#include "Physics/phyworld.h"
 using json = nlohmann::json;
 
 //testclass
@@ -16,7 +14,6 @@ class Scene
 public:
 
 	static std::string sceneName; // Map loading
-	static std::vector <CubeCollider> CubeColliderObject;
 	static std::vector <SoundProgram> SoundObjects;
 	static std::vector <std::unique_ptr<entity>> entityObjects;
 	// 4th component is radius
@@ -39,21 +36,15 @@ public:
 	
 	static void JsonBillBoardSave(std::string path);
 
-	static void JsonColliderSave(std::string path);
-
 	static void JsonSettingsSave(std::string path);
 
 	static void JsonCameraSettingsSave(std::string path);
 
 	static void AddSceneSoundObject(std::string name, std::string path);
 
-	static void AddSceneColliderObject(std::string name);
-
 	static void AddEntityObject(char type, std::string name, std::string path);
 
 	static void initJsonBillBoardLoad(std::string path);
-
-	static void initJsonColliderLoad(std::string path);
 
 	static void initJsonSoundObjectLoad(std::string path); 
 

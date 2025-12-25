@@ -19,7 +19,7 @@ void ScriptObject::LoadLua(sol::state& LuaState, std::string Path) {
 }
 
 void ScriptObject::UpdateDelta() {
-	TimeAccumulator += TimeUtil::s_DeltaTime;
+	TimeAccumulator += TimeUtil::deltatime;
 	if (TimeAccumulator >= 1 / tickrate) {
 
 		luaFunctions();

@@ -55,7 +55,7 @@ void Camera::Matrix(Shader& shader, const char* uniform)
 }
 void Camera::Inputs(GLFWwindow* window)
 {
-    float adjustedSpeed = speed * TimeUtil::s_DeltaTime;
+    float adjustedSpeed = speed * TimeUtil::deltatime;
 	if (!Player::s_DoGravity)
 	{
         // Handles inputs
@@ -85,11 +85,11 @@ void Camera::Inputs(GLFWwindow* window)
         }
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
         {
-            s_scrollSpeed += 10.0f * TimeUtil::s_DeltaTime;
+            s_scrollSpeed += 10.0f * TimeUtil::deltatime;
         }
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         {
-            s_scrollSpeed -= 10.0f * TimeUtil::s_DeltaTime;
+            s_scrollSpeed -= 10.0f * TimeUtil::deltatime;
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         {

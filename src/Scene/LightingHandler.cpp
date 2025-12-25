@@ -204,6 +204,7 @@ void LightingHandler::drawShadowMap(Model*& model, glm::vec3 translation, glm::v
 	{
 		return;
 	}
+
 	glm::mat4 orthgonalProjection = glm::ortho(-distance, distance, -distance, distance, dirNearFar.x, dirNearFar.y); // last two are near and far 
 
 	glm::vec3 CameraPos = Camera::Position;
@@ -221,6 +222,7 @@ void LightingHandler::drawShadowMap(Model*& model, glm::vec3 translation, glm::v
 	glUniformMatrix4fv(glGetUniformLocation(LightingHandler::dirShadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 
 	//glCullFace(GL_FRONT);
+	//model->setCurrentCullCam(LightingHandler::lightProjection); // set culling for shadow map
 	model->draw(LightingHandler::dirShadowMapProgram);
 	//glCullFace(GL_BACK);
 
