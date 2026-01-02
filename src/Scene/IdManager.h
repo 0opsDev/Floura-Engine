@@ -9,7 +9,7 @@ class IdManager
 {
 public:
 
-	static struct LowestDeletedIndex { // -1 = none (for syncing up the tree ^^)
+	struct LowestDeletedIndex { // -1 = none (for syncing up the tree ^^)
 		int object;
 		int Model;
 		int BillBoard;

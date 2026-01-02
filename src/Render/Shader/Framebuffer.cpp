@@ -1,6 +1,6 @@
 #include "Render/Shader/Framebuffer.h"
 #include <Render/passes/geometry/geometryPass.h>
-#include <Render/passes/lighting/LightingPass.h>
+#include <Render/passes/lighting/raytracer.h>
 #include <Render/window/WindowHandler.h>
 #include <utils/logConsole.h>
 
@@ -41,25 +41,24 @@ void Framebuffer::setupFBO(unsigned int width, unsigned int height) {
 	// GEN TEX and bind tex to fbo
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
 
-		glGenRenderbuffers(1, &RBO);
-		glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, RBO);
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+
 
 	// Error checking
 	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
 		std::cout << "Framebuffer error: " << fboStatus << std::endl;
 	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
 	// GEN FBO
@@ -68,7 +67,7 @@ void Framebuffer::setupFBO(unsigned int width, unsigned int height) {
 	// GEN TEX and bind tex to fbo
 	glGenTextures(1, &Ftexture);
 	glBindTexture(GL_TEXTURE_2D, Ftexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -81,27 +80,26 @@ void Framebuffer::setupFBO(unsigned int width, unsigned int height) {
 		std::cout << "Framebuffer error: " << fboStatus2 << std::endl;
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int height) {
 	Framebuffer::ViewPortWidth = width;
 	Framebuffer::ViewPortHeight = height;
 
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	// update renderbuffer texture
 	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	glBindTexture(GL_TEXTURE_2D, Ftexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	GeometryPass::updateGbufferResolution(width, height);
 
-	LightingPass::resizeTexture(width, height);
+	raytracer::resizeTexture(width, height);
 }
 
 void Framebuffer::FBO2Draw() {
@@ -110,52 +108,39 @@ void Framebuffer::FBO2Draw() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	rq.draw(frameBufferProgram);
+	rq.draw();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Ftexture);
-	rq.draw(frameBufferProgram);
+	rq.draw();
 
 	glEnable(GL_DEPTH_TEST);
 }
 
-float current_width = 0;
-float current_height = 0;
+void ResizeLogic(GLFWwindow* window) {
 
-void ResizeLogic(bool imGuiPanels, GLFWwindow* window, unsigned int Vwidth,
-	unsigned int Vheight) {
-	if (!imGuiPanels) {
 		ScreenUtils::UpdateWindowResize(window);
 		int newWidth, newHeight;
-		glfwGetFramebufferSize(window, &newWidth, &newHeight);
+		glfwGetWindowSize(window, &newWidth, &newHeight);
 
-		current_width = newWidth;
-		current_height = newHeight;
-		//camera.UpdateRes(newWidth, newHeight);
-		
-
-	}
 	// we need a way to make isResizing == true when opengl window is resized
-	if (ScreenUtils::isResizing == true) {
-		Framebuffer::updateFrameBufferResolution(current_width, current_height);
-		glViewport(0, 0, (current_width), (current_height ));
-		Camera::SetViewportSize(current_width, current_height);
+	if (ScreenUtils::isResizing == true) 
+	{
+		Framebuffer::updateFrameBufferResolution(newWidth, newHeight); // Update frame buffer resolution
+		glViewport(0, 0, newWidth, newHeight);
+		Camera::SetViewportSize(newWidth, newHeight);
+		ScreenUtils::isResizing = false;
 	}
 }
 
 void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
-	glUseProgram(0);
 
 	if (!imGuiPanels) {
-		ResizeLogic(imGuiPanels, window, windowHandler::window_width, windowHandler::window_height);
+		ResizeLogic(window);
 	}
-	glDepthFunc(GL_LESS);
 
-	// draw main fbo, then we should just draw fbo2
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	frameBufferProgram.Activate();
 
 	frameBufferProgram.setMat4("view", Camera::view);
@@ -191,19 +176,26 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 
 	frameBufferProgram.setFloat("gamma", Camera::gamma);
 
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
+	frameBufferProgram.setInt("depthMap", 6);
+
 	if (!imGuiPanels) {
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, ViewPortWidth, ViewPortHeight);
+
 		glDisable(GL_DEPTH_TEST);
-		frameBufferProgram.setInt("depthMap", 5);
-		rq.draw(frameBufferProgram);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		rq.draw();
+		glEnable(GL_DEPTH_TEST);
 	}
-	else{
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
-		frameBufferProgram.setInt("depthMap", 6);
-		// copy contents of FB to FB2 and Display FB2
+	else
+	{
+		frameBufferProgram.Activate();
 		Framebuffer::FBO2Draw();
 	}
-
 }
 
 void Framebuffer::Delete()

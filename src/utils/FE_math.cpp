@@ -175,7 +175,7 @@ glm::vec3 FE_Math::pad(glm::vec3 value)
     return newPad;
 }
 
-glm::vec3 normalFrom2Points(glm::vec3 p1, glm::vec3 p2)
+glm::vec3 FE_Math::normalFrom2Points(glm::vec3 p1, glm::vec3 p2)
 {
     // direction vector
     glm::vec3 v = glm::normalize(p2 - p1);

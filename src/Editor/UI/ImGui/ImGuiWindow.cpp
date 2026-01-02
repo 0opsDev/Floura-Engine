@@ -2,7 +2,7 @@
 #include <Scripting/ScriptRunner.h>
 #include <Core/File/File.h>
 #include <Sound/SoundRunner.h>
-#include <Render/passes/lighting/LightingPass.h>
+#include <Render/passes/lighting/raytracer.h>
 #include <Scene/scene.h>
 #include <Gameplay/Player.h>
 #include <Render/window/WindowHandler.h>
@@ -14,7 +14,7 @@
 #include <Scene/ObjectManager.h>
 #include <utils/FE_math.h>
 #include "ImGuiInclude/EcsInspector.h"
-
+#include "Render/passes/post/denoise.h"
 //#include <Instance.h>
 
 
@@ -339,6 +339,8 @@ void FEImGuiWindow::Update() {
 	//glDisable(GL_FRAMEBUFFER_SRGB);
 	ImGui_ImplOpenGL3_NewFrame(); ImGui_ImplGlfw_NewFrame(); ImGui::NewFrame();
 	ImGuizmo::BeginFrame();
+	
+
 	//glEnable(GL_FRAMEBUFFER_SRGB);
 	menuwindow();
 
@@ -373,27 +375,17 @@ void FEImGuiWindow::Update() {
 
 					if (SelectedTransform == 0) Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setPosition(position);
 					else if (SelectedTransform == 1) Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setScale(scale);
-					else if (SelectedTransform == 2) Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setRotation(rotation_unstable);
-					
-					
+					else if (SelectedTransform == 2) Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setRotation(rotation_unstable);	
 				}
-
 			}
-
 		}
-
 		else if (FEImGuiWindow::SelectedObjectType == "Light") LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position = igPosition(LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position);
 		else if (FEImGuiWindow::SelectedObjectType == "Sound") Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].position = igPosition(Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].position);
 	}
 
 	//scene
-	
-	//glDisable(GL_FRAMEBUFFER_SRGB);		
 	ImGui::Render(); // Renders the ImGUI elements
-	
-	//glDisable(GL_FRAMEBUFFER_SRGB);
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	//glEnable(GL_FRAMEBUFFER_SRGB);
 }
 
 void FEImGuiWindow::menuwindow()
@@ -549,6 +541,18 @@ void FEImGuiWindow::RenderWindow() {
 		{
 			ScreenUtils::toggleFullscreen(windowHandler::window, windowHandler::width, windowHandler::height); //needs to be fixed //GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight
 		} //Toggle Fullscreen
+		ImGui::Text("denoiser");
+		ImGui::Checkbox("Do Denoise", &denoiser::doDenoise);
+		ImGui::DragInt("minRadius", &denoiser::minRadius);
+		ImGui::Text("raytracer");
+		ImGui::DragFloat("downscaleFactor", &raytracer::downscaleFactor);
+		ImGui::Checkbox("doAccumulate", &raytracer::doAccumulate);
+		ImGui::Checkbox("reset Accumulation On Dirty", &raytracer::resetAccumulationOnDirty);
+		ImGui::DragFloat("Noise Threshold", &raytracer::noiseThreshold);
+		ImGui::DragFloat("Max Distance", &raytracer::maxDistance);
+		ImGui::DragFloat("Reflection Distance", &raytracer::reflectionDistance);
+		ImGui::DragInt("Reflection Bounces", &raytracer::reflectionBounces);
+
 		ImGui::End();
 }
 
@@ -690,13 +694,10 @@ void FEImGuiWindow::viewport() {
 	//prevEnableLinearScaling
 	ScreenUtils::UpdateViewportResize();
 	if (ScreenUtils::isResizing == true) {
-		//std::cout << "Resolution scale changed!" << std::endl;
 		Framebuffer::updateFrameBufferResolution(static_cast<unsigned int>(window_width), static_cast<unsigned int>(window_height)); // Update frame buffer resolution
 		glViewport(0, 0, static_cast<GLsizei>(window_width), static_cast<GLsizei>(window_height));
 
 		Camera::SetViewportSize(static_cast<int>(window_width), static_cast<int>(window_height));
-		//std::cout << window_width << " " << camera.width << std::endl;
-		//std::cout << window_height << " " << camera.height << std::endl;
 	}
 
 	ImVec2 viewportPos = ImGui::GetItemRectMin();    // top-left corner relative to window

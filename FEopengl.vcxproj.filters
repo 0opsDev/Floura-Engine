@@ -128,6 +128,12 @@
     <Filter Include="src\Editor\UI\ImGui\ImGuiInclude">
       <UniqueIdentifier>{f421cb9f-e860-458e-9c20-1329d301beab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\compute">
+      <UniqueIdentifier>{94122167-45de-41be-971b-f9e27adb9f7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\passes\post">
+      <UniqueIdentifier>{f70099a8-3088-4d2a-b027-a1a473a3e1b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Render\shader\ShaderClass.cpp">
@@ -199,7 +205,7 @@
     <ClCompile Include="src\Render\passes\geometry\geometryPass.cpp">
       <Filter>src\Render\passes\geometry</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\passes\lighting\LightingPass.cpp">
+    <ClCompile Include="src\Render\passes\lighting\raytracer.cpp">
       <Filter>src\Render\passes\lighting</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\window\WindowHandler.cpp">
@@ -319,6 +325,9 @@
     <ClCompile Include="src\Editor\UI\ImGui\ImGuiInclude\EcsInspector.cpp">
       <Filter>src\Editor\UI\ImGui\ImGuiInclude</Filter>
     </ClCompile>
+    <ClCompile Include="src\Render\passes\post\denoise.cpp">
+      <Filter>src\Render\passes\post</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\ScriptRunner.h">
@@ -390,7 +399,7 @@
     <ClInclude Include="src\Render\passes\geometry\geometryPass.h">
       <Filter>src\Render\passes\geometry</Filter>
     </ClInclude>
-    <ClInclude Include="src\Render\passes\lighting\LightingPass.h">
+    <ClInclude Include="src\Render\passes\lighting\raytracer.h">
       <Filter>src\Render\passes\lighting</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\window\WindowHandler.h">
@@ -525,6 +534,9 @@
     <ClInclude Include="src\Editor\UI\ImGui\ImGuiInclude\EcsInspector.h">
       <Filter>src\Editor\UI\ImGui\ImGuiInclude</Filter>
     </ClInclude>
+    <ClInclude Include="src\Render\passes\post\denoise.h">
+      <Filter>src\Render\passes\post</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Settings.json">
@@ -540,12 +552,6 @@
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
     <None Include="Assets\Shaders\Db\ComputeRenderQuad.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\computeShader.comp">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\emptycomputeShader.comp">
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
     <None Include="Assets\Shaders\Db\OrangeHitbox.frag">
@@ -646,6 +652,30 @@
     </None>
     <None Include="Assets\Shaders\Db\BillBoardSM.vert">
       <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\compute\viewmatrix.comp">
+      <Filter>Resource Files\Shaders\compute</Filter>
+    </None>
+    <None Include="Assets\Shaders\compute\Raytrace.comp">
+      <Filter>Resource Files\Shaders\compute</Filter>
+    </None>
+    <None Include="Assets\Shaders\compute\emptycomputeShader.comp">
+      <Filter>Resource Files\Shaders\compute</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\VertexViewer.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\VertexViewer.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\VerticeViewer.geom">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\VerticeViewer.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\compute\denoise.comp">
+      <Filter>Resource Files\Shaders\compute</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

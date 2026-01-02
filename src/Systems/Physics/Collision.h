@@ -15,35 +15,35 @@ class Collision
 {
 public:
 
-	static struct HitResult {
+	struct HitResult {
 		bool isColliding = false;
 		float distance = 0.0f;
 		float depth = 0.0f;
 		glm::vec3 lastHit = glm::vec3(0.0f);
 		glm::vec3 collisionNormal = glm::vec3(0.0f);
 
-	};
+	}; 
 
-	static struct AABB
+	struct AABB
 	{
 		glm::vec3 position = glm::vec3(0.0f);
 		glm::vec3 size = glm::vec3(0.0f);
 	};
 
-	static struct Sphere
+	struct Sphere
 	{
 		glm::vec3 position = glm::vec3(0.0f);
 		float radius = 1.0f;
 	};
 
-	static struct collisionObject
+	struct collisionObject
 	{
 		AABB aabb;
 		Sphere sphere;
 		char type; // A = AABB, S = sphere
 	};
 
-	static struct tri
+	struct tri
 	{
 		glm::vec3 a = glm::vec3(0.0f);
 		glm::vec3 b = glm::vec3(0.0f);
@@ -51,11 +51,11 @@ public:
 	};
 
 
-	static bool Collision::showBoxCollider;
+	static bool showBoxCollider;
 
 	// AABB
 
-	static struct rubiksCubePoints
+	struct rubiksCubePoints
 	{
 		// based off rubix cube notation
 		glm::vec3 ULF = glm::vec3(0.0f); // up left front

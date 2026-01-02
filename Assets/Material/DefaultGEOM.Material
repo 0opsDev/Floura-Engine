@@ -7,8 +7,7 @@
 		"VertexShader": "Assets/Shaders/Lighting/DefaultGeom.vert",
 		"GeomShader": "Assets/Shaders/Lighting/Default.geom",
 		"GPassFragShader": "Assets/Shaders/gBuffer/geometryPass.frag",
-		"GPassVertShader": "Assets/Shaders/gBuffer/geometryPassGeom.vert",
-		"GPassGeomShader": "Assets/Shaders/gBuffer/GeometryPass.geom",
+		"GPassVertShader": "Assets/Shaders/gBuffer/geometryPass.vert",
 		"variables": {
 			"type": ["bool"],
 			"name": ["doReflect"],

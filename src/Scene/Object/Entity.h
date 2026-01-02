@@ -49,7 +49,7 @@ public:
 	std::string fetchPath();
 
 
-	static struct material {
+	struct material {
 		Material Material;
 		glm::vec2 uvScale = glm::vec2(1.0f, 1.0f);
 	};
@@ -113,7 +113,7 @@ public:
 	char type;
 	std::string path;
 
-	static struct flags {
+	struct flags {
 		bool isStatic = false;
 		bool castsShadow = true;
 		bool render = true;
@@ -124,18 +124,18 @@ public:
 
 	};
 
-	static struct transformation {
+	struct transformation {
 		glm::vec3 position = glm::vec3(0.0f);
 		glm::vec3 rotation = glm::vec3(0.0f);
 		glm::vec3 scale = glm::vec3(1.0f);
 	};
 
-	static struct systems {
+	struct systems {
 		transformation transformation;
 		material material;
 	};
 
-	static struct physics { // should have physics handler
+	struct physics { // should have physics handler
 
 		float mass = 1.0f;
 		// current motion
@@ -148,7 +148,7 @@ public:
 		bool hasRigidbody = false;
 	};
 
-	static struct collider {
+	struct collider {
 		char type; // b = box, s = sphere, m = mesh, c = capsule etc
 		glm::vec3 colliderPosition = glm::vec3(0.0f);
 		glm::vec3 colliderScale = glm::vec3(1.0f);
@@ -158,7 +158,7 @@ public:
 		void updateMeshAABBs();
 	private:
 
-	static struct render {
+	struct render {
 		Model* Model;
 		BillBoard* BillBoard;
 		float smoothnessValue = 0.0f;
@@ -166,7 +166,7 @@ public:
 	};
 
 	public:
-	static struct components {
+	struct components {
 		flags flags;
 		physics physics;
 		collider collider;

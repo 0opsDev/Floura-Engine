@@ -18,7 +18,9 @@ public:
 
 	void buffer();
 
-	void draw(Shader shader);
+	void draw();
+
+	void drawtex(unsigned int& tex);
 };
 
 #endif // RENDERQUAD_CLASS_H

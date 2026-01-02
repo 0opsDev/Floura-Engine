@@ -2,7 +2,8 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <Render/window/WindowHandler.h>
-
+#include <glm/ext/vector_float3.hpp>
+#include <glm/gtx/norm.hpp>
 int windowedPosX= 0 , windowedPosY = 0;
 
 bool ScreenUtils::isFullscreen;
@@ -45,18 +46,17 @@ void ScreenUtils::UpdateViewportResize(){
 	
 }
 
+glm::vec2 previous = glm::vec2(0.0f);
 void ScreenUtils::UpdateWindowResize(GLFWwindow* window) {
 	int width, height;
-	glfwGetFramebufferSize(window, &width, &height);
-	ImVec2 currentSize = ImVec2(width, height);
+	glfwGetWindowSize(window, &width, &height);
+	glm::vec2 currentSize = glm::vec2(width, height);
 
-	if (currentSize.x != prevSize.x || currentSize.y != prevSize.y) {
+	if (currentSize.x != previous.x || currentSize.y != previous.y) {
 		// Window size has changed
+		std::cout << currentSize.x << currentSize.y << std::endl;
 		isResizing = true;
 	}
-	else {
-		isResizing = false;
-	}
-
-	prevSize = currentSize; // Update the previous size
+	
+	previous = currentSize; // Update the previous size
 }

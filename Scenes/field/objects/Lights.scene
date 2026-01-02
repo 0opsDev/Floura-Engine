@@ -1,0 +1,44 @@
+[
+    {
+        "IDuniqueIdentifier": 126,
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            -9.315475463867188,
+            0.0,
+            0.0
+        ],
+        "radius": 10.0,
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "type": "pointlight"
+    },
+    {
+        "IDuniqueIdentifier": 8468,
+        "colour": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enabled": true,
+        "position": [
+            5.161492347717285,
+            3.116177558898926,
+            0.0
+        ],
+        "radius": 100.0,
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "type": "spotlight"
+    }
+]

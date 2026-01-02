@@ -47,6 +47,5 @@ void main() {
 
     FragColor.rgb = pow(final.rgb, vec3(gamma));
 
-
-    //FragColor.rgb = vec3(1.0f, 0.0f, 0.0f);
+    //FragColor.rgb = texture(gAlbedoSpec, texCoords).rgb;
 }

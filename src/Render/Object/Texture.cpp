@@ -19,13 +19,12 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
     unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
     //std::cout << "\n" << image << " < image \n" << widthImg << " < widthImg \n" << heightImg << " < heightImg \n" << numColCh << " < numColCh \n" << std::endl;
 
-    if (!bytes)
-    {
-        std::cout << "\nFailed to load texture: " << image << "\n" << std::endl;
-        // load fallback texture
-        widthImg = 2; heightImg = 2; numColCh = 3;
-        bytes = stbi_load("Assets/icons/placeholder.png", &widthImg, &heightImg, &numColCh, 0);
-        //throw std::runtime_error("Failed to load texture: " + std::string(image));
+    if (!bytes) {
+        std::cerr << "\nFailed to load texture: " << image << "\n" << std::endl;
+        static unsigned char fallbackPixel[] = { 255, 0, 255 };
+        widthImg = 1; heightImg = 1; numColCh = 3;
+        bytes = fallbackPixel; 
+        skipstbi = true;
     }
 
     // Generates an OpenGL texture object
@@ -34,16 +33,8 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
     glActiveTexture(GL_TEXTURE0 + slot);
     unit = slot;
     glBindTexture(GL_TEXTURE_2D, ID);
-
-    // Configures the type of algorithm that is used to make the image smaller or bigger
-    if (filterNearest) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
-    else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // Configures the way the texture repeats (if it does at all)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -117,6 +108,7 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
     // Generates MipMaps
     glGenerateMipmap(GL_TEXTURE_2D);
 
+    if (!skipstbi)
     // Deletes the image data as it is already in the OpenGL Texture object
     stbi_image_free(bytes);
 
@@ -143,10 +135,10 @@ void Texture::createTextureDetached(const char* image)
     if (!bytes)
     {
         std::cerr << "\nFailed to load texture: " << image << "\n" << std::endl;
-        // load fallback texture
-        widthImg = 2; heightImg = 2; numColCh = 3;
-        bytes = stbi_load("Assets/icons/placeholder.png", &widthImg, &heightImg, &numColCh, 0);
-        //throw std::runtime_error("Failed to load texture: " + std::string(image));
+        static unsigned char fallbackPixel[] = { 255, 0, 255 };
+        widthImg = 1; heightImg = 1; numColCh = 3;
+        bytes = fallbackPixel;
+        skipstbi = true;
     }
 
     // Generates an OpenGL texture object
@@ -157,15 +149,8 @@ void Texture::createTextureDetached(const char* image)
     glBindTexture(GL_TEXTURE_2D, ID);
 
     // Configures the type of algorithm that is used to make the image smaller or bigger
-    if (filterNearest) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
-    else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    }
-
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     // Configures the way the texture repeats (if it does at all)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -238,6 +223,7 @@ void Texture::createTextureDetached(const char* image)
     // Generates MipMaps
     glGenerateMipmap(GL_TEXTURE_2D);
 
+    if (!skipstbi)
     // Deletes the image data as it is already in the OpenGL Texture object
     stbi_image_free(bytes);
 
@@ -254,15 +240,12 @@ void Texture::reload(GLuint slot)
     glBindTexture(GL_TEXTURE_2D, ID);
 
     // Configures the type of algorithm that is used to make the image smaller or bigger
-    if (filterNearest) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
-    else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 

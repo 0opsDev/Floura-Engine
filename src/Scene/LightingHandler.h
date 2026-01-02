@@ -42,7 +42,7 @@ public:
 	static int dirShadowMapHardness;
 	static int dirShadowMapSamples;
 
-	static struct ShadowMaps
+	struct ShadowMaps
 	{
 		unsigned int shadowMapFBO;
 		unsigned int shadowMapHeight;
@@ -60,7 +60,7 @@ public:
 	static std::vector<ShadowMaps> SpotShadowMap;
 
 
-	static struct Light {
+	struct Light {
 		glm::vec3 position;
 		glm::vec3 rotation;
 		glm::vec3 colour;

@@ -27,17 +27,16 @@ void Material::LoadMaterial(std::string path)
 	if (type == "Standard")
 	{
 		ModelShader.LoadShader((VertexShaderPath).c_str(), (FragmentShaderPath).c_str());
-		ModelGpassShader.LoadShader((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str());
 	}
 	else if (type == "Geometry")
 	{
 		ModelShader.LoadShaderGeom((VertexShaderPath).c_str(), (FragmentShaderPath).c_str(), (GeometryShaderPath).c_str());
-		ModelGpassShader.LoadShaderGeom((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str(), (GeometryGPShaderPath).c_str());
-
+		
 		// normal gpass for now
 		//ModelGpassShader.LoadShader((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str()); 
 	}
-	
+	ModelGpassShader.LoadShader((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str());
+	// should prolly add back
 }
 
 void Material::ClearMaterial()
@@ -114,9 +113,6 @@ void Material::jsonLoad(std::string path)
 		// if they exsist 
 		if (item.contains("GeomShader")) {
 			GeometryShaderPath = item.at("GeomShader").get<std::string>();
-		}
-		if (item.contains("GPassGeomShader")) {
-			GeometryGPShaderPath = item.at("GPassGeomShader").get<std::string>();
 		}
 
 

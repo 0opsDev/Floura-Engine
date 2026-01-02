@@ -8,6 +8,7 @@
 //#include <Render/Cube/Billboard.h>
 #include "Render/Cube/CubeVisualizer.h"
 #include <Render/Object/line.h>
+#include "Render/Object/Texture.h"
 
 class RenderClass
 {
@@ -25,11 +26,10 @@ public:
 	static GLfloat DepthPlane[];
 	static glm::vec3 skyRGBA;
 	static glm::vec3 fogRGBA;
-
 	static CubeVisualizer* WhiteCube;
 	static Line3D* line;
 
-	static struct transformation {
+	struct transformation {
 		glm::vec3 position = glm::vec3(0.0f);
 		glm::vec3 rotation = glm::vec3(0.0f);
 		glm::quat qRotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);

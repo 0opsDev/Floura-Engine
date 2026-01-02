@@ -99,7 +99,6 @@ public:
 		static void ConsoleWindow();
 
 		static void FrameSequencerWindow();
-
 };
 
 #endif

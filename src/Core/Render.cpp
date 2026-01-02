@@ -4,10 +4,11 @@
 #include <glm/gtx/norm.hpp>
 #include "Render/Object/RenderQuad.h"
 #include <Render/passes/geometry/geometryPass.h>
-#include <Render/passes/lighting/LightingPass.h>
+#include <Render/passes/lighting/raytracer.h>
 #include <Render/window/WindowHandler.h>
 #include <Scene/LightingHandler.h>
 #include <Scene/scene.h>
+#include "Render/passes/post/denoise.h"
 
 Shader RenderClass::billBoardShader;
 Shader RenderClass::gPassShaderBillBoard;
@@ -59,7 +60,7 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //OpenGl Profile
 	glfwWindowHint(GLFW_RESIZABLE, 1); // Start Resizable
 	glfwWindowHint(GLFW_MAXIMIZED, 0); // Start Maximized
-	glfwWindowHint(GLFW_DEPTH_BITS, 16); // DepthBuffer Bit
+	glfwWindowHint(GLFW_DEPTH_BITS, 24); // DepthBuffer Bit
 	glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
 
 	windowHandler::InitMainWidnow();
@@ -70,13 +71,16 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	initGLenable(false); //bool for direction of polys
+
 	GeometryPass::init(); // Initialize geometry pass settings
 
 	lightingRenderQuad.init();
 	// put in one function
 	Framebuffer::setupFBO(width, height);
 	GeometryPass::setupGbuffers(width, height); // here
-	LightingPass::initcomputeShader(width, height); // Initialize compute shader for lighting pass
+	raytracer::init();
+	raytracer::initcomputeShader(width, height); // Initialize compute shader for lighting pass
+	denoiser::initcomputeShader(width, height);
 
 	initGlobalShaders();
 	LightingHandler::setupShadowMapBuffer();
@@ -87,6 +91,10 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 		FEImGuiWindow::init();
 		ImGuizmo::SetOrthographic(false);
 		FEImGuiWindow::initImGui(windowHandler::window); // Initialize ImGUI
+	}
+	else
+	{
+		FEImGuiWindow::imGuiPanels[0] = false;
 	}
 
 	Skybox::init();
@@ -184,8 +192,13 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	if (DoDeferredLightingPass)
 		DeferredLightingPass(); // Forward Lighting Pass
 	if (DoComputeLightingPass)
-		LightingPass::computeRender(); // Run compute shader for lighting pass
+	{
+		raytracer::render(); // Run compute shader for lighting pass
+		denoiser::render();
+	}
 
+	glActiveTexture(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	// Framebuffer logic
 	Framebuffer::FBODraw(FEImGuiWindow::imGuiPanels[0], window);
 
@@ -201,6 +214,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 
 void RenderClass::DeferredLightingPass() {
 	glDisable(GL_CULL_FACE);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 	GBLpass.Activate();
 	// gPass textures bound to FB
 	// send gPass textures to shader
@@ -247,7 +261,10 @@ void RenderClass::DeferredLightingPass() {
 	GBLpass.setFloat2("screenSize", glm::vec2(Camera::width, Camera::height));
 	GBLpass.setFloat("time", glfwGetTime());
 	//shader.
-	lightingRenderQuad.draw(GBLpass);
+	lightingRenderQuad.draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glActiveTexture(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void RenderClass::Cleanup() {

@@ -1,100 +1,13 @@
 [
     {
         "CastShadow": true,
-        "IDuniqueIdentifier": 1479,
-        "Location": [
-            -18.46712303161621,
-            -1.4056074619293213,
-            12.86197280883789
-        ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
-        "Rotation": [
-            0.0,
-            -0.0,
-            0.0
-        ],
-        "Scale": [
-            0.014000000432133675,
-            0.014000000432133675,
-            0.014000000432133675
-        ],
-        "doRender": true,
-        "isBackFaceCulling": false,
-        "name": "white_oak",
-        "path": "Assets/Models/white_oak/white_oak.obj",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "IDuniqueIdentifier": 6335,
-        "Location": [
-            7.49669075012207,
-            -0.05978834629058838,
-            -7.310732841491699
-        ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
-        "Rotation": [
-            1.5,
-            47.70000076293945,
-            -4.800000190734863
-        ],
-        "Scale": [
-            0.014000000432133675,
-            0.014000000432133675,
-            0.014000000432133675
-        ],
-        "doRender": true,
-        "isBackFaceCulling": false,
-        "name": "white_oak",
-        "path": "Assets/Models/white_oak/white_oak.obj",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "IDuniqueIdentifier": 6501,
-        "Location": [
-            9.1346435546875,
-            -1.7891664505004883,
-            11.389543533325195
-        ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
-        "Rotation": [
-            6.199999809265137,
-            114.0999984741211,
-            3.299999952316284
-        ],
-        "Scale": [
-            0.014000000432133675,
-            0.014000000432133675,
-            0.014000000432133675
-        ],
-        "doRender": true,
-        "isBackFaceCulling": false,
-        "name": "white_oak",
-        "path": "Assets/Models/white_oak/white_oak.obj",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "IDuniqueIdentifier": 9359,
+        "IDuniqueIdentifier": 42,
         "Location": [
             0.0,
             0.0,
             0.0
         ],
-        "MaterialPath": "Assets/Material/Default.Material",
+        "MaterialPath": "Assets/Material/albedo.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -107,124 +20,8 @@
         ],
         "doRender": true,
         "isBackFaceCulling": true,
-        "name": "grass",
-        "path": "Assets/Models/grasspane/grass.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "IDuniqueIdentifier": 9170,
-        "Location": [
-            -21.647363662719727,
-            -0.9113112688064575,
-            -20.890005111694336
-        ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            0.014000000432133675,
-            0.014000000432133675,
-            0.014000000432133675
-        ],
-        "doRender": true,
-        "isBackFaceCulling": false,
-        "name": "white_oak",
-        "path": "Assets/Models/white_oak/white_oak.obj",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "IDuniqueIdentifier": 5725,
-        "Location": [
-            5.310851573944092,
-            -1.7764348983764648,
-            22.58510398864746
-        ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
-        "Rotation": [
-            -5.5,
-            20.100000381469727,
-            17.0
-        ],
-        "Scale": [
-            0.014000000432133675,
-            0.014000000432133675,
-            0.014000000432133675
-        ],
-        "doRender": true,
-        "isBackFaceCulling": false,
-        "name": "white_oak",
-        "path": "Assets/Models/white_oak/white_oak.obj",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "IDuniqueIdentifier": 6963,
-        "Location": [
-            -10.59359359741211,
-            -1.9075074195861816,
-            -4.994030952453613
-        ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
-        "Rotation": [
-            -0.30000001192092896,
-            18.5,
-            10.300000190734863
-        ],
-        "Scale": [
-            0.014000000432133675,
-            0.014000000432133675,
-            0.014000000432133675
-        ],
-        "doRender": true,
-        "isBackFaceCulling": false,
-        "name": "white_oak",
-        "path": "Assets/Models/white_oak/white_oak.obj",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "IDuniqueIdentifier": 5706,
-        "Location": [
-            0.0,
-            -0.14426979422569275,
-            -5.038552761077881
-        ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            5.0,
-            5.0,
-            5.0
-        ],
-        "doRender": true,
-        "isBackFaceCulling": true,
-        "name": "lpshead",
-        "path": "Assets/Models/lpshead/head.OBJ",
+        "name": "redball",
+        "path": "Assets/Models/redball.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,

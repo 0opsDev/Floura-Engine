@@ -13,7 +13,6 @@ public:
 	std::string type;
 	GLuint unit;
 	std::string path;
-	bool filterNearest = true;
 	bool flipVertical = false;
 	void createTexture(const char* image, const char* texType, GLuint slot);
 
@@ -30,6 +29,9 @@ public:
 	void Unbind();
 	// Deletes a texture
 	void Delete();
+
+private:
+	bool skipstbi = false;
 };
 #endif
 

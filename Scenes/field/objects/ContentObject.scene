@@ -1,0 +1,146 @@
+[
+    {
+        "Name": "clearsky",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/clearsky/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "albedo",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/albedo.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "depth",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/depth.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Default",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/Default.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "DefaultNoNormals",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/DefaultNoNormals.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "QwantaniNight",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/QwantaniNight/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "OvercastSoilPuresky",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/OvercastSoilPuresky/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sunset",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/sunset/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Wobble",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/Wobble.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cube",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/cube.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sphere",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/sphere.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "plane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/plane.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "bistro",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/bistro/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "metal sphere",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/sphere/met.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "lion_head_2k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/lion_head_2k.gltf/lion_head_2k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "paveplane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/planes/paveplane.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "charolettenbrunn_park",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/charolettenbrunn_park/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "barrel2",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/barrel/barrel2.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "triangle",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/triangle/triangle.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "glass2",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/glass/glass2.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "white_oak",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/white_oak/white_oak.obj",
+        "Type": "NULL"
+    },
+    {
+        "Name": "grass",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grasspane/grass.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "grassfol",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grasspane/grassfol.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "lpshead",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/lpshead/head.OBJ",
+        "Type": "NULL"
+    }
+]

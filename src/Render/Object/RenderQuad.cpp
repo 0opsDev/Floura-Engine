@@ -46,11 +46,19 @@ void RenderQuad::buffer() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void RenderQuad::draw(Shader shader) {
-		glEnable(GL_DEPTH_TEST);
+void RenderQuad::draw() {
 		glDepthFunc(GL_LEQUAL);
 		glBindVertexArray(VAO);
+		glDisable(GL_DEPTH_TEST);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_2D, 0);
 }
+void RenderQuad::drawtex(unsigned int& tex)
+{
+	glDepthFunc(GL_LEQUAL);
+	glBindVertexArray(VAO);
+	glDisable(GL_DEPTH_TEST);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+	

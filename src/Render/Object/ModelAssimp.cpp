@@ -221,7 +221,16 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         vector.z = mesh->mBitangents[i].z;
         vertex.biTangent = vector;
 
-        if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
+        if (mesh->GetNumColorChannels() > 0)
+        {
+            vertex.color.x = mesh->mColors[1][i].r;
+            vertex.color.y = mesh->mColors[1][i].g;
+            vertex.color.z = mesh->mColors[1][i].b;
+        }
+        else
+            vertex.color = glm::vec3(1.0f, 1.0f, 1.0f);
+
+        if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates? // determine colour here
         {
             glm::vec2 vec;
             vec.x = mesh->mTextureCoords[0][i].x;
@@ -230,6 +239,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         }
         else
             vertex.texUV = glm::vec2(0.0f, 0.0f);
+            
             
         vertices.push_back(vertex);
     }

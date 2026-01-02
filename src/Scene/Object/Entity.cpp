@@ -147,11 +147,22 @@ Collision::HitResult entity::RayVsTriangle(glm::vec3 rayPos, glm::vec3 rayDir)
 		Collision::HitResult AABB = Collision::AABBvsRay(component.renderHeads.Model->meshes[x].boxCollider.position, component.renderHeads.Model->meshes[x].boxCollider.size, rayPos, rayDir);
 		if (AABB.isColliding)
 		{
-			for (size_t y = 0; y < component.renderHeads.Model->meshes[x].vertices.size(); y += 3)
+			for (size_t y = 0; y < component.renderHeads.Model->meshes[x].indices.size(); y += 3)
 			{
-				glm::vec3 a = component.renderHeads.Model->meshes[x].vertices[y].position;
-				glm::vec3 b = component.renderHeads.Model->meshes[x].vertices[y + 1].position;
-				glm::vec3 c = component.renderHeads.Model->meshes[x].vertices[y + 2].position;
+				unsigned int i0 = component.renderHeads.Model->meshes[x].indices[y];
+				unsigned int i1 = component.renderHeads.Model->meshes[x].indices[y + 1];
+				unsigned int i2 = component.renderHeads.Model->meshes[x].indices[y + 2];
+
+				if (i0 >= component.renderHeads.Model->meshes[x].vertices.size() ||
+					i1 >= component.renderHeads.Model->meshes[x].vertices.size() ||
+					i2 >= component.renderHeads.Model->meshes[x].vertices.size()) {
+					continue;
+				}
+
+
+				glm::vec3 a = component.renderHeads.Model->meshes[x].vertices[i0].position;
+				glm::vec3 b = component.renderHeads.Model->meshes[x].vertices[i1].position;
+				glm::vec3 c = component.renderHeads.Model->meshes[x].vertices[i2].position;
 
 				FE_Math::transformPoint(a, finalMatrix);
 				FE_Math::transformPoint(b, finalMatrix);

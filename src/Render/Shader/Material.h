@@ -35,7 +35,6 @@ private:
 	std::string FragmentGPShaderPath;
 	std::string VertexGPShaderPath;
 	std::string GeometryShaderPath;
-	std::string GeometryGPShaderPath;
 
 	void updateTime();
 

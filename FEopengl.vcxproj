@@ -180,7 +180,8 @@
     <ClCompile Include="src\Render\Object\Texture.cpp" />
     <ClCompile Include="src\Render\passes\dbg\dbgPass.cpp" />
     <ClCompile Include="src\Render\passes\geometry\geometryPass.cpp" />
-    <ClCompile Include="src\Render\passes\lighting\LightingPass.cpp" />
+    <ClCompile Include="src\Render\passes\lighting\raytracer.cpp" />
+    <ClCompile Include="src\Render\passes\post\denoise.cpp" />
     <ClCompile Include="src\Render\Shader\Framebuffer.cpp" />
     <ClCompile Include="src\Render\Shader\FramebufferObject.cpp" />
     <ClCompile Include="src\Render\Shader\Material.cpp" />
@@ -249,7 +250,8 @@
     <ClInclude Include="src\Render\Object\Texture.h" />
     <ClInclude Include="src\Render\passes\dbg\dbgPass.h" />
     <ClInclude Include="src\Render\passes\geometry\geometryPass.h" />
-    <ClInclude Include="src\Render\passes\lighting\LightingPass.h" />
+    <ClInclude Include="src\Render\passes\lighting\raytracer.h" />
+    <ClInclude Include="src\Render\passes\post\denoise.h" />
     <ClInclude Include="src\Render\Shader\Framebuffer.h" />
     <ClInclude Include="src\Render\Shader\FramebufferObject.h" />
     <ClInclude Include="src\Render\Shader\Material.h" />
@@ -277,19 +279,25 @@
     <ClInclude Include="src\utils\timeUtil.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Shaders\compute\denoise.comp" />
+    <None Include="Assets\Shaders\compute\emptycomputeShader.comp" />
+    <None Include="Assets\Shaders\compute\Raytrace.comp" />
+    <None Include="Assets\Shaders\compute\viewmatrix.comp" />
     <None Include="Assets\Shaders\Db\BillBoard.frag" />
     <None Include="Assets\Shaders\Db\BillBoard.vert" />
     <None Include="Assets\Shaders\Db\BillBoardSM.frag" />
     <None Include="Assets\Shaders\Db\BillBoardSM.vert" />
     <None Include="Assets\Shaders\Db\ComputeRenderQuad.frag" />
-    <None Include="Assets\Shaders\Db\computeShader.comp" />
-    <None Include="Assets\Shaders\Db\emptycomputeShader.comp" />
     <None Include="Assets\Shaders\Db\line.frag" />
     <None Include="Assets\Shaders\Db\line.vert" />
     <None Include="Assets\Shaders\Db\OrangeHitbox.frag" />
+    <None Include="Assets\Shaders\Db\VertexViewer.frag" />
+    <None Include="Assets\Shaders\Db\VertexViewer.vert" />
     <None Include="Assets\Shaders\Db\RenderQuad.frag" />
     <None Include="Assets\Shaders\Db\RenderQuad.vert" />
     <None Include="Assets\Shaders\Db\solidColour.frag" />
+    <None Include="Assets\Shaders\Db\VerticeViewer.geom" />
+    <None Include="Assets\Shaders\Db\VerticeViewer.vert" />
     <None Include="Assets\Shaders\gBuffer\geometryPass.frag" />
     <None Include="Assets\Shaders\gBuffer\GeometryPass.geom" />
     <None Include="Assets\Shaders\gBuffer\geometryPass.vert" />

@@ -9,29 +9,29 @@
         ],
         "DirEnabled": true,
         "DirRotation": [
-            162.60000610351563,
-            44.099998474121094,
+            150.6999969482422,
+            75.5999984741211,
             0.0
         ],
-        "DirSMMaxBias": 0.0020000000949949026,
+        "DirSMMaxBias": 0.004999999888241291,
         "DirSpecEnabled": true,
         "DirSpecular": 0.10000000149011612,
-        "DoShadowMap": true,
+        "DoShadowMap": false,
         "DoSkyColour": false,
-        "RenderSkybox": true,
+        "RenderSkybox": false,
         "SkyRotation": [
-            0.0,
+            0.5,
             0.0,
             0.0
         ],
         "dirNearFar": [
             0.10000000149011612,
-            100.0
+            90.0
         ],
         "dirShadowMapHardness": 4,
         "dirShadowMapSamples": 4,
-        "dirSmDistance": 40.0,
-        "dirSmHeight": 40.0,
+        "dirSmDistance": 20.0,
+        "dirSmHeight": 15.0,
         "skyRGBA": [
             0.0,
             0.0,
