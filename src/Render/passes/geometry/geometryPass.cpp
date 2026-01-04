@@ -1,6 +1,6 @@
 #include "geometryPass.h"
 #include <Render/Shader/Framebuffer.h>
-
+#include "Scene/scene.h"
 
 Shader gPassShader;
 unsigned int GeometryPass::depthTexture;
@@ -97,12 +97,12 @@ void GeometryPass::updateGbufferResolution(unsigned int width, unsigned int heig
 void GeometryPass::gPassDraw(Model*& model, Shader& GPass) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	GPass.Activate();
-	GPass.setFloat("gamma", Camera::gamma);
+	GPass.setFloat("gamma", Scene::maincamera.gamma);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
-	Camera::Matrix(GPass, "camMatrix"); // Send Camera Matrix To Shader Prog
+	Scene::maincamera.Matrix(GPass, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 	model->draw(GPass);
 

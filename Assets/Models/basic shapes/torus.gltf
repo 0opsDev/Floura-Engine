@@ -27,9 +27,7 @@
 					"index":0
 				},
 				"metallicFactor":0,
-				"metallicRoughnessTexture":{
-					"index":1
-				}
+				"roughnessFactor":0.5
 			}
 		}
 	],
@@ -41,9 +39,11 @@
 					"attributes":{
 						"POSITION":0,
 						"NORMAL":1,
-						"TEXCOORD_0":2
+						"TEXCOORD_0":2,
+						"COLOR_0":3,
+						"COLOR_1":4
 					},
-					"indices":3,
+					"indices":5,
 					"material":0
 				}
 			]
@@ -53,29 +53,20 @@
 		{
 			"sampler":0,
 			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
 		}
 	],
 	"images":[
 		{
-			"mimeType":"image/jpeg",
-			"name":"16x16",
-			"uri":"16x16.jpg"
-		},
-		{
 			"mimeType":"image/png",
-			"name":"Untitled",
-			"uri":"Untitled.png"
+			"name":"tile1024",
+			"uri":"tile1024.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":2304,
+			"count":791,
 			"max":[
 				1.25,
 				0.25,
@@ -91,17 +82,31 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":2304,
+			"count":791,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":2304,
+			"count":791,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
+			"componentType":5121,
+			"count":791,
+			"normalized":true,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":4,
+			"componentType":5123,
+			"count":791,
+			"normalized":true,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":5,
 			"componentType":5123,
 			"count":3456,
 			"type":"SCALAR"
@@ -110,26 +115,38 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":27648,
+			"byteLength":9492,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":27648,
-			"byteOffset":27648,
+			"byteLength":9492,
+			"byteOffset":9492,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":18432,
-			"byteOffset":55296,
+			"byteLength":6328,
+			"byteOffset":18984,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":3164,
+			"byteOffset":25312,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":6328,
+			"byteOffset":28476,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":6912,
-			"byteOffset":73728,
+			"byteOffset":34804,
 			"target":34963
 		}
 	],
@@ -141,7 +158,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":80640,
+			"byteLength":41716,
 			"uri":"torus.bin"
 		}
 	]

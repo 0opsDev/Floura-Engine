@@ -3,6 +3,7 @@
 #include <Render/passes/lighting/raytracer.h>
 #include <Render/window/WindowHandler.h>
 #include <utils/logConsole.h>
+#include "Scene/scene.h"
 
 int Framebuffer::tempWidth;
 int Framebuffer::tempHeight;
@@ -130,7 +131,7 @@ void ResizeLogic(GLFWwindow* window) {
 	{
 		Framebuffer::updateFrameBufferResolution(newWidth, newHeight); // Update frame buffer resolution
 		glViewport(0, 0, newWidth, newHeight);
-		Camera::SetViewportSize(newWidth, newHeight);
+		Scene::maincamera.SetViewportSize(newWidth, newHeight);
 		ScreenUtils::isResizing = false;
 	}
 }
@@ -143,9 +144,9 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 
 	frameBufferProgram.Activate();
 
-	frameBufferProgram.setMat4("view", Camera::view);
-	frameBufferProgram.setMat4("projection", Camera::projection);
-	frameBufferProgram.setMat4("cameraMatrix", Camera::cameraMatrix);
+	frameBufferProgram.setMat4("view", Scene::maincamera.view);
+	frameBufferProgram.setMat4("projection", Scene::maincamera.projection);
+	frameBufferProgram.setMat4("cameraMatrix", Scene::maincamera.cameraMatrix);
 	frameBufferProgram.setFloat("time", glfwGetTime());
 	frameBufferProgram.setFloat("deltaTime", TimeUtil::deltatime);
 	frameBufferProgram.setFloat("DepthDistance", RenderClass::DepthDistance);
@@ -174,7 +175,7 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
 
-	frameBufferProgram.setFloat("gamma", Camera::gamma);
+	frameBufferProgram.setFloat("gamma", Scene::maincamera.gamma);
 
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);

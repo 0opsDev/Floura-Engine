@@ -2,6 +2,7 @@
 #include <Core/Render.h>
 #include <Scene/LightingHandler.h>
 #include <utils/logConsole.h>
+#include "Scene/scene.h"
 
 /*
 what should a material do in order
@@ -48,12 +49,12 @@ void Material::ClearMaterial()
 void Material::update()
 {
 	// this is where we activate and send off all the uniforms to the shader
-	Camera::Matrix(ModelShader, "camMatrix"); // Send Camera Matrix To Shader Prog
+	Scene::maincamera.Matrix(ModelShader, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 	ModelShader.Activate();
 	//uvScale
 	ModelGpassShader.Activate();
-	Camera::Matrix(ModelGpassShader, "camMatrix"); // Send Camera Matrix To Shader Prog
+	Scene::maincamera.Matrix(ModelGpassShader, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 	updateTime();
 }

@@ -32,7 +32,7 @@ int main()
 	ScriptRunner::init(Scene::sceneName + "/LuaStartup.json");
 	SoundRunner::init();
 	RenderClass::init(windowHandler::width, windowHandler::height);
-	Camera::InitCamera(windowHandler::width, windowHandler::height, Scene::initalCameraPos); 	// camera ratio pos
+	Scene::maincamera.InitCamera(windowHandler::width, windowHandler::height, Scene::initalCameraPos); 	// camera ratio pos
 	Scene::init();
 	Scene::LoadScene(Scene::sceneName);
 
@@ -43,10 +43,9 @@ int main()
 	while (!glfwWindowShouldClose(windowHandler::window)) // GAME LOOP
 	{
 		TimeUtil::update();
-		IdManager::update();
 		ScriptRunner::update();
-		Camera::Inputs(windowHandler::window);
-		Camera::updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
+		Scene::maincamera.Inputs(windowHandler::window);
+		Scene::maincamera.updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
 		Scene::Update();
 		RenderClass::ClearFramebuffers(); // Clear Framebuffers
 		TempScene::Update();

@@ -13,11 +13,15 @@
 #include <glm/gtx/quaternion.hpp>
 #include "core/Render.h"
 #include "Systems/Physics/Collision.h"
+#include <xhash>
 
 class Model {
 public:
 
+	uint64_t UUID;
+
 	RenderClass::transformation globalTransformation;
+	glm::mat4 gModelMatrix = glm::mat4(1.0f);
 
 	void updatePosition(glm::vec3 Position);
 
@@ -43,7 +47,6 @@ public:
 	std::vector <glm::mat4> lModelMatrix;
 
 private:
-	std::vector<Collision::AABB> FetchMeshAABBs();
 	std::string directory;
 	std::vector<std::string> loadedTexPath;
 	std::vector<Texture> loadedTex;

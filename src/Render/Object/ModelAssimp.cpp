@@ -1,5 +1,7 @@
 #include "ModelAssimp.h"
 
+#include "Systems/util/UUID.h"
+#include  <utils/FE_math.h>
 void Model::updatePosition(glm::vec3 Position)
 {
     globalTransformation.position = Position;
@@ -17,20 +19,8 @@ void Model::updateScale(glm::vec3 Scale)
 
 void Model::updateTranformation()
 {
-    glm::mat4 globalTrans = glm::mat4(1.0f);
-    glm::mat4 globalRot = glm::mat4(1.0f);
-    glm::mat4 globalSca = glm::mat4(1.0f);
 
-    globalTrans = glm::translate(globalTrans, globalTransformation.position);
-
-    globalRot = glm::rotate(globalRot, glm::radians(globalTransformation.rotation.x), glm::vec3(1, 0, 0));
-    globalRot = glm::rotate(globalRot, glm::radians(globalTransformation.rotation.y), glm::vec3(0, 1, 0));
-    globalRot = glm::rotate(globalRot, glm::radians(globalTransformation.rotation.z), glm::vec3(0, 0, 1));
-
-
-    globalSca = glm::scale(globalSca, globalTransformation.scale);
-
-    glm::mat4 gModelMatrix = globalTrans * globalRot * globalSca;
+    gModelMatrix = FE_Math::composeMatrixWDegrees(globalTransformation.position, globalTransformation.scale, globalTransformation.rotation);
 
     for (unsigned int i = 0; i < meshes.size(); i++)
     {
@@ -49,6 +39,7 @@ void Model::updateTranformation()
 
 Model::Model(const char* file)
 {
+    UUID = UUID::returnHandle();
 	loadModel(file);
 }
 
@@ -107,25 +98,6 @@ void Model::updateMeshAABBs()
     }
     //MeshAABBs = FetchMeshAABBs();
 }
-
-std::vector<Collision::AABB> Model::FetchMeshAABBs()
-{
-    std::vector<Collision::AABB> newAABBs;
-    for (size_t i = 0; i < meshes.size(); i++)
-    {
-        // create temp aabb generate AABBdata and push into array
-        Collision::AABB newAABB;
-        
-        //newAABB = meshes[i].createAABBfromMesh();
-        //newAABB.position *= localTransformation[i].position;
-        //newAABB.size *= localTransformation[i].scale;
-        //std::cout << "x: " << localTransformation[i].position.x << " y: " << localTransformation[i].position.y << " z: " << localTransformation[i].position.z << std::endl;
-        //localTransformation
-        //newAABBs.push_back(newAABB);
-    }
-    // return mesh AABBs
-    return newAABBs;
-};
 
 void Model::loadModel(std::string path)
 {

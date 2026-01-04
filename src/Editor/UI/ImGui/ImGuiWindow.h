@@ -92,8 +92,6 @@ public:
 
 		static void MaterialIndexUpdate();
 
-		//static void ColliderWindow();
-
 		static void SceneFolderWindow();
 
 		static void ConsoleWindow();

@@ -87,10 +87,10 @@ void FileClass::loadSettings() {
 
 		}
 		if (settingsData[0].contains("Sensitivity")) {
-			Camera::sensitivity = glm::vec2(settingsData[0]["Sensitivity"][0].get<float>(), settingsData[0]["Sensitivity"][1].get<float>());
+			Scene::maincamera.sensitivity = glm::vec2(settingsData[0]["Sensitivity"][0].get<float>(), settingsData[0]["Sensitivity"][1].get<float>());
 		}
 		else {
-			Camera::sensitivity = glm::vec2(100.0f, 100.0f);
+			Scene::maincamera.sensitivity = glm::vec2(100.0f, 100.0f);
 		}
 
 		windowHandler::doVsync = settingsData[0]["Vsync"];
@@ -122,8 +122,8 @@ void FileClass::saveSettings() {
 		settingsData[0]["Vsync"] = windowHandler::doVsync;
 		//settingsData[0]["FOV"] = Main::cameraSettings[0];
 
-		settingsData[0]["Sensitivity"][0] = Camera::sensitivity.x;
-		settingsData[0]["Sensitivity"][1] = Camera::sensitivity.y;
+		settingsData[0]["Sensitivity"][0] = Scene::maincamera.sensitivity.x;
+		settingsData[0]["Sensitivity"][1] = Scene::maincamera.sensitivity.y;
 
 		// Write back to file
 		std::ofstream outFile("Settings/Settings.json", std::ios::out);

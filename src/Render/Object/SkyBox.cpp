@@ -2,6 +2,8 @@
 #include <glm/gtx/string_cast.hpp>
 #include <Core/Render.h>
 #include <Render/passes/geometry/geometryPass.h>
+#include "Scene/scene.h"
+
 
 unsigned int Skybox::VAO;
 unsigned int Skybox::VBO;
@@ -85,7 +87,7 @@ void Skybox::draw() {
 	glm::mat4 view = glm::mat4(1.0f);
 	// We make the mat4 into a mat3 and then a mat4 again in order to get rid of the last row and column
 	// The last row and column affect the translation of the skybox (which we don't want to affect)
-	view = glm::mat4(glm::mat3(Camera::view));
+	view = glm::mat4(glm::mat3(Scene::maincamera.view));
 	//std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
 
 
@@ -103,7 +105,7 @@ void Skybox::draw() {
 		//std::cout << "height" << height << std::endl;
 		skyboxShader.Activate();
 		skyboxShader.setMat4("view", view);
-		skyboxShader.setMat4("projection", Camera::projection);
+		skyboxShader.setMat4("projection", Scene::maincamera.projection);
 		skyboxShader.setInt("skybox", 0);
 		skyboxShader.setFloat3("skyRGBA", RenderClass::gammaCorrect3(RenderClass::skyRGBA));
 		skyboxShader.setBool("DoSbRGBA", DoSbRGBA);

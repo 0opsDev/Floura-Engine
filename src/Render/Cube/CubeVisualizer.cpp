@@ -2,6 +2,7 @@
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
 #include <Core/Render.h>
+#include "Scene/scene.h"
 
 const float s_Cube_Vertices[24] =
 {
@@ -91,9 +92,9 @@ void CubeVisualizer::draw(glm::vec3 position,
 		model = glm::scale(model, scale);
 		RenderClass::boxShader.setMat4("model", model);
 		//feed model matrix known as inside the shader "model"
-		RenderClass::boxShader.setMat4("camMatrix", Camera::cameraMatrix);
+		RenderClass::boxShader.setMat4("camMatrix", Scene::maincamera.cameraMatrix);
 		
-		glUniform3f(glGetUniformLocation(RenderClass::boxShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
+		glUniform3f(glGetUniformLocation(RenderClass::boxShader.ID, "camPos"), Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z);
 
 		glUniform3f(glGetUniformLocation(RenderClass::boxShader.ID, "colour"), colour.x, colour.y, colour.z);
 		glBindVertexArray(cubeVAO);

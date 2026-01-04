@@ -5,12 +5,14 @@
 #include <Scene/LightingHandler.h>
 #include <Render/passes/geometry/geometryPass.h>
 #include <Gameplay/Player.h>
+#include "Systems/util/UUID.h"
+#include "Render/passes/lighting/raytracer.h"
 
-void entity::create(const char& type, const std::string& name, const std::string& path, const std::string& materialPath)
+void entity::createwUUID(uint64_t nUUID, const char& type, const std::string& name, const std::string& path, const std::string& materialPath)
 {
-	ID.ObjType = 'o';
-	ID.index = Scene::entityObjects.size(); // fetch array size from scene based on type
-	IdManager::AddID(ID);
+	entity::UUID = nUUID;
+	UUIDstring = UUID::UUIDToString(UUID);
+	//std::cout << UUIDstring << std::endl;
 
 	// set type
 	entity::type = type;
@@ -19,17 +21,6 @@ void entity::create(const char& type, const std::string& name, const std::string
 	// set path 
 	entity::path = path;
 
-	// load material
-	
-
-	/*
-	TYPES:
-	m = model
-	b = billboard
-	c = collider
-	p = particle
-	e = empty
-	*/
 	switch (type)
 	{
 	case 'm': // model
@@ -39,12 +30,34 @@ void entity::create(const char& type, const std::string& name, const std::string
 	case 'b': // billboard
 		createBillBoard(path);
 		break;
-	case 'e': // empty
+	default:
+		LogConsole::print("Entity Create: Unknown type '" + std::string(1, type) + "' for entity: " + name);
+		break;
+	}
+}
 
+
+void entity::create(const char& type, const std::string& name, const std::string& path, const std::string& materialPath)
+{
+	UUID = UUID::returnHandle();
+	UUIDstring = UUID::UUIDToString(UUID);
+	//std::cout << UUIDstring << std::endl;
+
+	// set type
+	entity::type = type;
+	// set name 
+	entity::name = name;
+	// set path 
+	entity::path = path;
+	
+	switch (type)
+	{
+	case 'm': // model
+		createModel(path, materialPath);
 		break;
-	case 'c': // collider
-		break;
-	case 'p': // particle
+
+	case 'b': // billboard
+		createBillBoard(path);
 		break;
 	default:
 		LogConsole::print("Entity Create: Unknown type '" + std::string(1, type) + "' for entity: " + name);
@@ -83,6 +96,9 @@ void entity::update()
 		component.renderHeads.Model->updateScale(component.systems.transformation.scale);
 		component.renderHeads.Model->updateTranformation();
 		component.renderHeads.Model->updateMeshAABBs();
+		raytracer::updateboundingboxes(component.renderHeads.Model);
+		raytracer::modelMatrixUpdate(component.renderHeads.Model->UUID, component.renderHeads.Model->gModelMatrix);
+
 		break;
 	case 'b': // billboard
 		component.renderHeads.BillBoard->updatePosition(component.systems.transformation.position);
@@ -103,6 +119,8 @@ void entity::Delete()
 	switch (type)
 	{
 	case 'm': // model
+		// 
+		raytracer::removeFromRaytracer(component.renderHeads.Model->UUID);
 		delete component.renderHeads.Model;
 		component.systems.material.Material.ClearMaterial();
 		component.renderHeads.Model = nullptr;
@@ -112,30 +130,16 @@ void entity::Delete()
 		component.renderHeads.BillBoard = nullptr;
 		break;
 	}
-	//update lowest free index
-	if (ID.index < IdManager::lowestDeletedIndex.object || IdManager::lowestDeletedIndex.BillBoard == -1) {
-		IdManager::lowestDeletedIndex.object = ID.index;
-		LogConsole::print("Lowest Deleted object Index is now: " + std::to_string(IdManager::lowestDeletedIndex.object));
-	}
-
-	IdManager::RemoveID(ID);
-	//IdManager::lowestBillBoardIndexSync(); // sync up the index after deletion because the array has now changed
 }
 
 Collision::HitResult entity::RayVsTriangle(glm::vec3 rayPos, glm::vec3 rayDir)
 {
 	Collision::HitResult finalResult;
 	finalResult.isColliding = false;
-	finalResult.distance = std::numeric_limits<float>::max();
-	
-	// transformations
-	glm::mat4 globalTrans = glm::translate(glm::mat4(1.0f), component.renderHeads.Model->globalTransformation.position);
-	glm::mat4 globalRot = glm::mat4(1.0f);
-	globalRot = glm::rotate(globalRot, glm::radians(component.renderHeads.Model->globalTransformation.rotation.x), glm::vec3(1, 0, 0));
-	globalRot = glm::rotate(globalRot, glm::radians(component.renderHeads.Model->globalTransformation.rotation.y), glm::vec3(0, 1, 0));
-	globalRot = glm::rotate(globalRot, glm::radians(component.renderHeads.Model->globalTransformation.rotation.z), glm::vec3(0, 0, 1));
-	glm::mat4 globalSca = glm::scale(glm::mat4(1.0f), component.renderHeads.Model->globalTransformation.scale);
-	glm::mat4 gModelMatrix = globalTrans * globalRot * globalSca;
+	finalResult.distance = std::numeric_limits<float>::max();	
+
+	glm::mat4 gModelMatrix = FE_Math::composeMatrixWDegrees(component.renderHeads.Model->globalTransformation.position, 
+		component.renderHeads.Model->globalTransformation.scale, component.renderHeads.Model->globalTransformation.rotation);
 
 	// for each mesh
 	for (size_t x = 0; x < component.renderHeads.Model->meshes.size(); x++)
@@ -258,28 +262,9 @@ void entity::drawShadowMap()
 		break;
 	}
 }
-// getters
-std::string entity::fetchName()
-{
-	return name;
-}
-char entity::fetchType()
-{
-	return type;
-}
-std::string entity::fetchPath()
-{
-	return path;
-}
 
 // fetch model matrix,
 // fetch model data
-
-// setters
-void entity::setName(const std::string& name)
-{
-	entity::name = name;
-}
 
 void entity::updateCollision()
 {
@@ -307,13 +292,13 @@ void entity::updateCollision()
 
 			// Collision check using global position and scale
 			Collision::HitResult collisionData = Collision::AABBvsAABB(globalPosition, globalSize,
-				glm::vec3(Camera::Position.x, (Camera::Position.y - (Player::cameraColliderScale.y / 2.0f)), Camera::Position.z),
+				glm::vec3(Scene::maincamera.Position.x, (Scene::maincamera.Position.y - (Player::cameraColliderScale.y / 2.0f)), Scene::maincamera.Position.z),
 				Player::cameraColliderScale);
 
 			// Handle collision logic
 			if (collisionData.isColliding)
 			{
-				Camera::Position = glm::vec3(collisionData.lastHit.x,
+				Scene::maincamera.Position = glm::vec3(collisionData.lastHit.x,
 					(collisionData.lastHit.y + (Player::cameraColliderScale.y / 2.0f)),
 					collisionData.lastHit.z);
 
@@ -352,6 +337,13 @@ void entity::createModel(const std::string& path, const std::string& materialPat
 
 	component.renderHeads.Model->createMeshAABBs();
 	//entity::updateMeshAABBs();
+
+	// update transformation for raytracer
+	component.renderHeads.Model->updatePosition(component.systems.transformation.position);
+	component.renderHeads.Model->updateRotation(component.systems.transformation.rotation);
+	component.renderHeads.Model->updateScale(component.systems.transformation.scale);
+	component.renderHeads.Model->updateTranformation();
+	raytracer::uploadToRaytracer(component.renderHeads.Model);
 }
 
 void entity::createBillBoard(const std::string& path)

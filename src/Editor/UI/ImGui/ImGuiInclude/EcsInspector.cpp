@@ -72,16 +72,13 @@ void EcsInspector::ModelWindow() {
 	glm::vec3 modelPos = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchPosition();
 	glm::vec3 modelScale = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchScale();
 	glm::vec3 modelRot = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchRotation();
-	bool castShadow = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->FetchCastsShadow();
-	bool doCulling = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchDoCulling();
-	glm::vec2 uvScale = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchUVScale();
 
 	ImGui::Spacing();
-	ImGui::Text((Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchName()).c_str());
+	ImGui::Text((Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name).c_str());
 	//ID
-	ImGui::Text(("ID: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.ObjType) + "*" + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber)).c_str());
+	ImGui::Text(("UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->UUIDstring)).c_str());
 	// Index attached to ID
-	ImGui::Text(("ID Attached Index: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.index)).c_str());
+	//ImGui::Text(("ID Attached Index: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.index)).c_str());
 
 	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
 	ImGui::SameLine();
@@ -105,8 +102,8 @@ void EcsInspector::ModelWindow() {
 			LogConsole::print("Reloaded Material: " + Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.Material.materialPath);
 		}
 		ImGui::Checkbox("doRender", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.flags.render);
-		ImGui::Checkbox("Cast Shadow", &castShadow);
-		ImGui::DragFloat2("UV Scale", &uvScale.x);
+		ImGui::Checkbox("Cast Shadow", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.flags.castsShadow);
+		ImGui::DragFloat2("UV Scale", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.uvScale.x);
 		ImGui::DragFloat("reflective smoothness", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.smoothnessValue);
 
 		//smoothnessValue
@@ -151,7 +148,7 @@ void EcsInspector::ModelWindow() {
 	ImGui::Spacing();
 	if (ImGui::TreeNode("Culling Component")) {
 
-		ImGui::Checkbox("isBackFaceCulling", &doCulling);
+		ImGui::Checkbox("isBackFaceCulling", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.flags.doCulling);
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
@@ -180,40 +177,32 @@ void EcsInspector::ModelWindow() {
 	}
 	ImGui::SameLine();
 	if (ImGui::SmallButton("Duplicate")) {
-		ObjectManager::duplicateObject('o', Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber);
+		//ObjectManager::duplicateObject('o', Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber);
 	}
 	ImGui::SameLine();
 	if (ImGui::SmallButton("Focus Camera")) {
-		Camera::Position = modelPos;
+		Scene::maincamera.Position = modelPos;
 	}
 
 	Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setPosition(modelPos);
 	Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setScale(modelScale);
 	Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setRotation(modelRot);
-	Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->SetCastsShadow(castShadow);
-	Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setDoCulling(doCulling);
-	Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setUVScale(uvScale);
 }
-
 void EcsInspector::BillBoardWindow() {
 
 	glm::vec3 bPos = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchPosition();
 	glm::vec3 bScale = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchScale();
-	bool doPitch = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->FetchDoPitch();
 
-	ImGui::Text((Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchName()).c_str());
+	ImGui::Text((Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name).c_str());
 
 
-	// ID
-	ImGui::Text(("ID: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.ObjType) + "*" + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber)).c_str());
-	// Index attached to ID
-	ImGui::Text(("ID Attached Index: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.index)).c_str());
+	ImGui::Text(("UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->UUIDstring)).c_str());
 
 	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
 	ImGui::SameLine();
 	if (ImGui::SmallButton("Apply Name"))
 	{
-		ObjectManager::renameObject('o', Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber, ObjectManager::NameBuffer);
+		//ObjectManager::renameObject('o', Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber, ObjectManager::NameBuffer);
 		ObjectManager::renameObjectwIndex('o', FEImGuiWindow::SelectedObjectIndex, ObjectManager::NameBuffer); // needs to use object index
 	}
 
@@ -243,7 +232,7 @@ void EcsInspector::BillBoardWindow() {
 
 	ImGui::Spacing();
 
-	ImGui::Checkbox("doPitch", &doPitch);
+	ImGui::Checkbox("doPitch", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.BillBoard->doPitch);
 
 
 	ImGui::Spacing();
@@ -255,16 +244,15 @@ void EcsInspector::BillBoardWindow() {
 	}
 	ImGui::SameLine();
 	if (ImGui::SmallButton("Duplicate")) {
-		ObjectManager::duplicateObject('o', Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber); // should be o
+		//ObjectManager::duplicateObject('o', Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber); // should be o
 	}
 	ImGui::SameLine();
 	if (ImGui::SmallButton("Focus Camera")) {
-		Camera::Position = bPos;
+		Scene::maincamera.Position = bPos;
 	}
 
 	Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setPosition(bPos);
 	Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setScale(bScale);
-	Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setDoPitch(doPitch);
 
 
 }
@@ -298,9 +286,9 @@ void EcsInspector::SoundWindow()
 void EcsInspector::LightWindow() {
 
 	//ID
-	ImGui::Text(("ID: " + std::to_string(LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.ObjType) + "*" + std::to_string(LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber)).c_str());
+	//ImGui::Text(("ID: " + std::to_string(LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.ObjType) + "*" + std::to_string(LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber)).c_str());
 	// Index attached to ID
-	ImGui::Text(("ID Attached Index: " + std::to_string(LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.index)).c_str());
+	//ImGui::Text(("ID Attached Index: " + std::to_string(LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.index)).c_str());
 
 	FEImGui::DragVec3("Position", LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position, glm::vec3(0.0f), 100.0f);
 	FEImGui::DragVec3("Rotation", LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].rotation, glm::vec3(0.0f), 100.0f);
@@ -332,11 +320,11 @@ void EcsInspector::LightWindow() {
 	}
 	ImGui::SameLine();
 	if (ImGui::SmallButton("Duplicate")) {
-		ObjectManager::duplicateObject('l', LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber);
+		//ObjectManager::duplicateObject('l', LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber);
 	}
 	ImGui::SameLine();
 	if (ImGui::SmallButton("Focus Camera")) {
-		Camera::Position = LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position;
+		Scene::maincamera.Position = LightingHandler::Lights[FEImGuiWindow::SelectedObjectIndex].position;
 	}
 }
 char SkyBoxPath[128] = "Assets/Skybox/";
@@ -358,15 +346,15 @@ void EcsInspector::CameraWindow() {
 		ImGui::Text("Transformations: ");
 
 
-		FEImGui::DragVec3("Camera Position", Camera::Position, Scene::initalCameraPos, 100.0f);
+		FEImGui::DragVec3("Camera Position", Scene::maincamera.Position, Scene::initalCameraPos, 100.0f);
 
 		FEImGui::DragVec3("Inital Camera Position", Scene::initalCameraPos, glm::vec3(0.0f), 100.0f);
 
 		//ImGui::DragFloat3("inital Camera Position", &Scene::initalCameraPos.x); // set inital cam pos
 		if (ImGui::SmallButton("Reset Camera Position")) {
-			Camera::Position = Scene::initalCameraPos;
+			Scene::maincamera.Position = Scene::initalCameraPos;
 		} // reset cam pos
-		ImGui::DragFloat("Camera Speed", &Camera::s_scrollSpeed); //Camera
+		ImGui::DragFloat("Camera Speed", &Scene::maincamera.s_scrollSpeed); //Camera
 
 		FEImGui::DragVec3("Camera Collider Scale", Player::cameraColliderScale, glm::vec3(0.0f), 100.0f);
 
@@ -376,10 +364,10 @@ void EcsInspector::CameraWindow() {
 	if (ImGui::TreeNode("Settings Component")) {
 		ImGui::Text("Settings: ");
 		//sensitivity
-		ImGui::DragFloat2("Camera Sensitivity", &Camera::sensitivity.x);
+		ImGui::DragFloat2("Camera Sensitivity", &Scene::maincamera.sensitivity.x);
 		ImGui::Spacing();
 		ImGui::DragFloat("FOV", &Main::cameraSettings[0], 0.1f, 160.0f); //FOV
-		ImGui::DragFloat("Gamma", &Camera::gamma);
+		ImGui::DragFloat("Gamma", &Scene::maincamera.gamma);
 		ImGui::DragFloat2("Near and Far Plane", &Main::cameraSettings[1]); // Near and FarPlane
 
 		ImGui::TreePop();// Ends The ImGui Window

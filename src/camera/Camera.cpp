@@ -6,20 +6,6 @@
 // Global Variables
 bool MouseState = true, toggleESC = true;
 float timeAccumulator = 0;
-float Camera::s_scrollSpeed = 5.0f;
-glm::vec2 Camera::sensitivity;
-glm::mat4 Camera::cameraMatrix = glm::mat4(1.0f);
-glm::vec3 Camera::Position = glm::vec3(0,0,0);
-glm::vec3 Camera::Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 Camera::Up = glm::vec3(0.0f, 1.0f, 0.0f);
-bool Camera::firstClick = false;
-int Camera::width;
-int Camera::height;
-float Camera::speed = 0.1f;
-glm::mat4 Camera::view = glm::mat4(1.0f);
-glm::mat4 Camera::projection = glm::mat4(1.0f);
-float Camera::fov = 60;
-float Camera::gamma = 2.2f;
 
 void Camera::InitCamera(int width, int height, glm::vec3 position)
 {

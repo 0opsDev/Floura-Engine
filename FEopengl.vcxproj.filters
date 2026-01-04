@@ -134,6 +134,9 @@
     <Filter Include="src\Render\passes\post">
       <UniqueIdentifier>{f70099a8-3088-4d2a-b027-a1a473a3e1b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Systems\util">
+      <UniqueIdentifier>{5af0cd9b-9e7c-400d-871b-59b7c687433a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Render\shader\ShaderClass.cpp">
@@ -265,9 +268,6 @@
     <ClCompile Include="src\Scene\Object\Entity.cpp">
       <Filter>src\Scene\Object</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scene\IdManager.cpp">
-      <Filter>src\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\utils\logConsole.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
@@ -327,6 +327,9 @@
     </ClCompile>
     <ClCompile Include="src\Render\passes\post\denoise.cpp">
       <Filter>src\Render\passes\post</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\util\UUID.cpp">
+      <Filter>src\Systems\util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -471,9 +474,6 @@
     <ClInclude Include="src\Scene\scene.h">
       <Filter>src\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scene\IdManager.h">
-      <Filter>src\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\utils\logConsole.h">
       <Filter>src\utils</Filter>
     </ClInclude>
@@ -536,6 +536,9 @@
     </ClInclude>
     <ClInclude Include="src\Render\passes\post\denoise.h">
       <Filter>src\Render\passes\post</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\util\UUID.h">
+      <Filter>src\Systems\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -8,10 +8,12 @@
 #include "Render/Buffer/VAO.h"
 #include "Render/Buffer/EBO.h"
 #include "Render/Object/Texture.h"
+#include <xhash>
 
 class Mesh {
 public:
 
+    uint64_t UUID;
 
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;

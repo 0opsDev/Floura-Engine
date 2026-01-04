@@ -3,6 +3,8 @@
 #include "SoundRunner.h"
 #include <utils/FE_math.h>
 #include"utils/logConsole.h"
+#include "Scene/scene.h"
+
 
 ALCdevice* SoundProgram::device;
 ALCcontext* SoundProgram::context;
@@ -58,12 +60,12 @@ void SoundProgram::SetListenerPosition(glm::vec3 position) {
 
 void SoundProgram::updateCameraPosition() {
     // Update listener's position
-    SetListenerPosition(Camera::Position);
+    SetListenerPosition(Scene::maincamera.Position);
 
     // Use Camera orientation and up vector for 3D audio orientation
     ALfloat orientation[] = {
-        Camera::Orientation.x, Camera::Orientation.y, Camera::Orientation.z,  // Forward
-        Camera::Up.x,         Camera::Up.y,         Camera::Up.z              // Up
+        Scene::maincamera.Orientation.x, Scene::maincamera.Orientation.y, Scene::maincamera.Orientation.z,  // Forward
+        Scene::maincamera.Up.x,         Scene::maincamera.Up.y,         Scene::maincamera.Up.z              // Up
     };
     alListenerfv(AL_ORIENTATION, orientation);
 }

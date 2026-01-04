@@ -8,7 +8,6 @@
 #include <glm/fwd.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <Render/Shader/shaderClass.h>
-#include "Scene/IdManager.h"
 #include <Render/Object/ModelAssimp.h>
 #include <Render/Object/Billboard.h>
 
@@ -67,7 +66,6 @@ public:
 		float radius;
 		int type;
 		bool enabled;
-		IdManager::ID ID;
 		ShadowMaps ShadowMap = {0,0,0,0,0}; // render/bake shadow map for STATIC lights
 	};
 	static std::vector<Light> Lights;

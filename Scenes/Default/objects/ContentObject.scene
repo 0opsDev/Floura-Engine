@@ -30,12 +30,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "redball",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/redball.gltf",
-        "Type": "NULL"
-    },
-    {
         "Name": "Default",
         "ObjectType": "Material",
         "Path": "Assets/Material/Default.Material",
@@ -72,12 +66,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "torus",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/whitetorus.gltf",
-        "Type": "NULL"
-    },
-    {
         "Name": "blackball",
         "ObjectType": "Model",
         "Path": "Assets/Models/blackball.gltf",
@@ -99,6 +87,60 @@
         "Name": "room",
         "ObjectType": "Model",
         "Path": "Assets/Models/breakfast_room/room.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "blue noise",
+        "ObjectType": "BillBoard",
+        "Path": "Assets/Dependants/LDR_LLL1_0.png",
+        "Type": "NULL"
+    },
+    {
+        "Name": "grass",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grasspane/grass.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "head",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/lpshead/head.OBJ",
+        "Type": "NULL"
+    },
+    {
+        "Name": "plane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/plane.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cube",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/cube.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cylinder",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/cylinder.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "slope",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/slope.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sphere",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/sphere.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "lion_head_2k.",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/lion_head_2k.gltf/lion_head_2k.gltf",
         "Type": "NULL"
     }
 ]

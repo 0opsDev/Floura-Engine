@@ -1,4 +1,7 @@
 #version 460 core
+
+#extension GL_ARB_gpu_shader_int64 : enable
+
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 
 layout(rgba32f, binding = 0) uniform image2D screen;
@@ -27,10 +30,30 @@ struct rayMesh
 {
 	vec4 AABBpos; // 16
 	vec4 AABBscale; // 16
+
 	int triangleCount; // 4
 	int meshIndex; // 4
-    vec2 pad;
-    // padding on the cpu side
+    int modelIndex;
+    int materialIndex;
+
+    uint64_t modelUUID;
+    uint64_t meshUUID;
+};
+
+struct modelQuickData
+{
+    uint64_t modelUUID;
+    uint64_t padding;
+    mat4 ModelMatrix;
+};
+
+struct rootnodeAABB
+{
+    vec4 position;
+    vec4 scale;
+
+    uint64_t modelUUID;
+	uint64_t padding;
 };
 
 layout(std430, binding = 3) buffer TriangleBuffer {
@@ -38,6 +61,12 @@ layout(std430, binding = 3) buffer TriangleBuffer {
 };
 layout(std430, binding = 4) buffer MeshBuffer {
     rayMesh meshes[];
+};
+layout(std430, binding = 5) buffer QuickBuffer {
+    modelQuickData quickModels[];
+};
+layout(std430, binding = 6) buffer RootAABBBuffer {
+    rootnodeAABB rootAABBs[];
 };
 // uniforms
 
@@ -72,6 +101,12 @@ struct hitResult
     vec4 colour;
     vec2 uv;
     vec3 lightNormal;
+};
+
+vec3 transformPoint(vec3 p, mat4 matrix)
+{
+    vec4 transformed = matrix * glm::vec4(p, 1.0f);
+    return vec3(transformed);
 };
 
 hitResult AabbVsRay(vec3 rayOrigin, vec3 rayDir, vec3 position, vec3 scale)
@@ -228,12 +263,36 @@ hitResult BreadPhaseSceneTrace(vec3 rayOrigin, vec3 rayDir, float maxDist)
     finalhit.hit = false; 
     finalhit.hitDistance = maxDist; 
 
+    mat4 currentMatrix = 
+    mat4(1.0f, 0.0f, 0.0f, 0.0f,
+         0.0f, 1.0f, 0.0f, 0.0f,
+         0.0f, 0.0f, 1.0f, 0.0f,
+         0.0f, 0.0f, 0.0f, 1.0f ); // defualt value
+
+         vec3 rootPos = vec3(0.0f);
+         vec3 rootScale = vec3(0.0f);
+
+    // quickModels;
     int triOffset = 0; 
     // for each mesh
     for (int i = 0; i < meshes.length(); i++)
     {
+
+            // UUID match and matrix
+            for (int m = 0; m < quickModels.length(); m++)
+            {
+                if (meshes[i].modelUUID == quickModels[m].modelUUID)
+                {
+                   //rootAABBs
+                    currentMatrix = quickModels[m].ModelMatrix;
+                    rootPos = rootAABBs[m].position.xyz;
+                    rootScale = rootAABBs[m].scale.xyz;
+                    break;
+                }
+            }
+
         // run aabbvsray
-        hitResult boxHR = AabbVsRay(rayOrigin, rayDir, meshes[i].AABBpos.xyz, meshes[i].AABBscale.xyz);
+        hitResult boxHR = AabbVsRay(rayOrigin, rayDir, rootPos, rootScale);
        
         // box hit, and make sure closest ontop
         if (boxHR.hit && boxHR.hitDistance < finalhit.hitDistance)
@@ -244,8 +303,14 @@ hitResult BreadPhaseSceneTrace(vec3 rayOrigin, vec3 rayDir, float maxDist)
             // segmant trace
             for (int t = start; t < end; t++)
             {
+                triangle newtri = triangles[t];
+                newtri.a.xyz = transformPoint(triangles[t].a.xyz, currentMatrix);
+                newtri.b.xyz = transformPoint(triangles[t].b.xyz, currentMatrix);
+                newtri.c.xyz = transformPoint(triangles[t].c.xyz, currentMatrix);
+
+                //currentMatrix transformPoint
                 // run triangle hit result
-                hitResult triHit = triangleVsRay(rayOrigin, rayDir, triangles[t], maxDist);
+                hitResult triHit = triangleVsRay(rayOrigin, rayDir, newtri, maxDist);
                 //  tri hit, cloest on top
                 if (triHit.hit && triHit.hitDistance < finalhit.hitDistance)
                 {
@@ -353,20 +418,6 @@ vec3 reflectionPass(hitResult hit, vec3 incidentDir, int bounces, float maxDist)
     return reflectionColour;
 };
 
-hitResult AABBScenetrace(vec3 rayOrigin, vec3 rayDir) // dbg
-{
-    hitResult hr;
-    hr.hit = false;
-    for (int i = 0; i < meshes.length(); i++)
-    {
-    //meshes
-    //if (AabbVsRay(rayOrigin, rayDir, meshes[i].AABBpos.xyz, meshes[i].AABBscale.xyz) == true) {hr.hit = true; hr.colour.xyz = vec3(random(meshes[i].AABBpos.xyz), random(meshes[i].AABBpos.xyz *2),random(meshes[i].AABBpos.xyz * 3));}
-    
-    
-    }
-    return hr;
-}
-
 void main() {
     // Intentionally does nothing
     const ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
@@ -385,11 +436,10 @@ void main() {
     }
 
     // if pixel already exisits skip
-    vec4 existingColor = imageLoad(screen, pixelCoords);
-    if (existingColor.a > 0.0f) {return;}
+    vec4 existingColor = imageLoad(NoiseMask, pixelCoords);
+    if (existingColor.r < 1.0f ) {return;}
 
     imageStore(NoiseMask, pixelCoords, noiseStatus);
-
 
     vec2 noiseUV = vec2(gl_GlobalInvocationID.xy) / vec2(textureSize(BlueNoiseTex, 0));
     float noiseVal = texture(BlueNoiseTex, noiseUV).r;
@@ -403,20 +453,6 @@ void main() {
 
     vec3 rayDir = rayDirfromCam(invProj, invView, pixelCoords, size);
 
-
-    // here
-    //hitResult nhr = AABBScenetrace(cameraPosition, rayDir);
-    //if (nhr.hit == true) 
-    //    finalcolour = nhr.colour;
-
-    //imageStore(screen, pixelCoords, finalcolour);
-    //imageStore(NoiseMask, pixelCoords, noiseStatus);
-
-    //return;
-    // to here
-    // SegmantTrace
-
-    //hitResult firstHit = simpleTrace(cameraPosition, rayDir, maxDistance);
     hitResult firstHit = BreadPhaseSceneTrace(cameraPosition, rayDir, maxDistance);
     if (firstHit.hit)
     {
@@ -428,6 +464,4 @@ void main() {
     }
     imageStore(screen, pixelCoords, finalcolour);
     imageStore(NoiseMask, pixelCoords, noiseStatus);
-    //imageStore(screen, pixelCoords, vec4(normalize(firstHit.normal) * 0.5 + 0.5, 1.0));
-    //imageStore(screen, pixelCoords, vec4(normalize(firstHit.lightNormal) * 0.5 + 0.5, 1.0));
 } // closer

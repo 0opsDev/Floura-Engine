@@ -27,9 +27,7 @@
 					"index":0
 				},
 				"metallicFactor":0,
-				"metallicRoughnessTexture":{
-					"index":1
-				}
+				"roughnessFactor":0.5
 			}
 		}
 	],
@@ -41,9 +39,11 @@
 					"attributes":{
 						"POSITION":0,
 						"NORMAL":1,
-						"TEXCOORD_0":2
+						"TEXCOORD_0":2,
+						"COLOR_0":3,
+						"COLOR_1":4
 					},
-					"indices":3,
+					"indices":5,
 					"material":0
 				}
 			]
@@ -53,22 +53,13 @@
 		{
 			"sampler":0,
 			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
 		}
 	],
 	"images":[
 		{
-			"mimeType":"image/jpeg",
-			"name":"16x16",
-			"uri":"16x16.jpg"
-		},
-		{
 			"mimeType":"image/png",
-			"name":"Untitled",
-			"uri":"Untitled.png"
+			"name":"tile1024",
+			"uri":"tile1024.png"
 		}
 	],
 	"accessors":[
@@ -102,6 +93,20 @@
 		},
 		{
 			"bufferView":3,
+			"componentType":5121,
+			"count":559,
+			"normalized":true,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":4,
+			"componentType":5123,
+			"count":559,
+			"normalized":true,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":5,
 			"componentType":5123,
 			"count":2880,
 			"type":"SCALAR"
@@ -128,8 +133,20 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":5760,
+			"byteLength":2236,
 			"byteOffset":17888,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":4472,
+			"byteOffset":20124,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":5760,
+			"byteOffset":24596,
 			"target":34963
 		}
 	],
@@ -141,7 +158,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":23648,
+			"byteLength":30356,
 			"uri":"sphere.bin"
 		}
 	]

@@ -6,6 +6,7 @@
 #include <Sound/SoundRunner.h>
 #include <Scene/Object/Entity.h>
 #include <thread>
+#include "Camera/Camera.h"
 using json = nlohmann::json;
 
 //testclass
@@ -16,8 +17,7 @@ public:
 	static std::string sceneName; // Map loading
 	static std::vector <SoundProgram> SoundObjects;
 	static std::vector <std::unique_ptr<entity>> entityObjects;
-	// 4th component is radius
-
+	static Camera maincamera;
 	static glm::vec3 initalCameraPos;
 
 	static void init();

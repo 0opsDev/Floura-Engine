@@ -2,7 +2,7 @@
 #include <Sound/SoundProgram.h>
 #include <Sound/SoundRunner.h>
 #include <Render/window/WindowHandler.h>
-
+#include "Scene/scene.h"
 bool Player::CollideWithCamera = true;
 bool Player::isGrounded = false;
 bool Player::isColliding = false;
@@ -26,23 +26,23 @@ void Player::init() {
 void Player::update() {
 
 	float adjustedSpeed = 5.0f * TimeUtil::deltatime;
-	glm::vec3 flatOrientation = glm::normalize(glm::vec3(Camera::Orientation.x, 0.0f, Camera::Orientation.z));
+	glm::vec3 flatOrientation = glm::normalize(glm::vec3(Scene::maincamera.Orientation.x, 0.0f, Scene::maincamera.Orientation.z));
 
 	if (glfwGetKey(windowHandler::window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		Camera::Position += adjustedSpeed * flatOrientation;
+		Scene::maincamera.Position += adjustedSpeed * flatOrientation;
 	}
 	if (glfwGetKey(windowHandler::window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		Camera::Position += adjustedSpeed * -glm::normalize(glm::cross(flatOrientation, Camera::Up));
+		Scene::maincamera.Position += adjustedSpeed * -glm::normalize(glm::cross(flatOrientation, Scene::maincamera.Up));
 	}
 	if (glfwGetKey(windowHandler::window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		Camera::Position += adjustedSpeed * -flatOrientation;
+		Scene::maincamera.Position += adjustedSpeed * -flatOrientation;
 	}
 	if (glfwGetKey(windowHandler::window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		Camera::Position += adjustedSpeed * glm::normalize(glm::cross(flatOrientation, Camera::Up));
+		Scene::maincamera.Position += adjustedSpeed * glm::normalize(glm::cross(flatOrientation, Scene::maincamera.Up));
 	}
 
 	if (!s_DoGravity)
@@ -58,10 +58,10 @@ void Player::update() {
 		Player::CollideWithCamera = true;
 	}
 
-	if (lastpos != Camera::Position && glfwGetKey(windowHandler::window, GLFW_KEY_W) == GLFW_PRESS ||
-		lastpos != Camera::Position && glfwGetKey(windowHandler::window, GLFW_KEY_A) == GLFW_PRESS ||
-		lastpos != Camera::Position && glfwGetKey(windowHandler::window, GLFW_KEY_S) == GLFW_PRESS ||
-		lastpos != Camera::Position && glfwGetKey(windowHandler::window, GLFW_KEY_D) == GLFW_PRESS) {
+	if (lastpos != Scene::maincamera.Position && glfwGetKey(windowHandler::window, GLFW_KEY_W) == GLFW_PRESS ||
+		lastpos != Scene::maincamera.Position && glfwGetKey(windowHandler::window, GLFW_KEY_A) == GLFW_PRESS ||
+		lastpos != Scene::maincamera.Position && glfwGetKey(windowHandler::window, GLFW_KEY_S) == GLFW_PRESS ||
+		lastpos != Scene::maincamera.Position && glfwGetKey(windowHandler::window, GLFW_KEY_D) == GLFW_PRESS) {
 		Player::isMoving = true;
 	}
 	else { Player::isMoving = false; }
@@ -75,7 +75,7 @@ void Player::update() {
 				//826.7
 			}
 
-			FootSound.SetSoundPosition(glm::vec3(Camera::Position.x, (Camera::Position.y - cameraColliderScale.y), Camera::Position.z));
+			FootSound.SetSoundPosition(glm::vec3(Scene::maincamera.Position.x, (Scene::maincamera.Position.y - cameraColliderScale.y), Scene::maincamera.Position.z));
 			FootSound.updateCameraPosition();
 
 			if (Player::isMoving) {
@@ -83,7 +83,7 @@ void Player::update() {
 
 				float minSpeed = 5.0f;  // minimum speed
 				float maxSpeed = 20.0f;  // maximum speed
-				float normalizedSpeed = (Camera::speed - minSpeed) / (maxSpeed - minSpeed);
+				float normalizedSpeed = (Scene::maincamera.speed - minSpeed) / (maxSpeed - minSpeed);
 
 				// Clamp the value at 1.0
 				normalizedSpeed = std::clamp(normalizedSpeed, 0.0f, 1.0f);
@@ -108,12 +108,12 @@ void Player::update() {
 			force += mass * gravity; // applying foce
 
 			velocity += force / mass * TimeUtil::deltatime;
-			Camera::Position += Player::velocity * TimeUtil::deltatime;
+			Scene::maincamera.Position += Player::velocity * TimeUtil::deltatime;
 
 			force = glm::vec3(0.0f); // reset force at end
 		}
 
 		//Player::isGrounded = false;
 		Player::isColliding = false;
-		glm::vec3 lastpos = Camera::Position;
+		glm::vec3 lastpos = Scene::maincamera.Position;
 }

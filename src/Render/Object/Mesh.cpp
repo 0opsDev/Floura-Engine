@@ -4,9 +4,13 @@
 #include <limits>
 #include <utils/FE_math.h>
 #include <Render/Object/SkyBox.h>
+#include "Scene/scene.h"
+#include "Systems/util/UUID.h"
 
 void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
 {
+    UUID = UUID::returnHandle();
+
     // err checking
     if (vertices.empty()) {
          LogConsole::print("mesh.cpp Vertices are empty");
@@ -80,8 +84,8 @@ void Mesh::draw(Shader& shader)
         textures[i].Bind();
     }
     // Camera Matrix
-    glUniform3f(glGetUniformLocation(shader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
-    Camera::Matrix(shader, "camMatrix");
+    glUniform3f(glGetUniformLocation(shader.ID, "camPos"), Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z);
+    Scene::maincamera.Matrix(shader, "camMatrix");
 
     // Push model matrix to the vertex shader
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(meshMatrix));

@@ -21,7 +21,7 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Material",
+			"name":"Material.001",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":0
@@ -33,15 +33,17 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube",
+			"name":"Cube.001",
 			"primitives":[
 				{
 					"attributes":{
 						"POSITION":0,
 						"NORMAL":1,
-						"TEXCOORD_0":2
+						"TEXCOORD_0":2,
+						"COLOR_0":3,
+						"COLOR_1":4
 					},
-					"indices":3,
+					"indices":5,
 					"material":0
 				}
 			]
@@ -55,9 +57,9 @@
 	],
 	"images":[
 		{
-			"mimeType":"image/jpeg",
-			"name":"16x16",
-			"uri":"16x16.jpg"
+			"mimeType":"image/png",
+			"name":"tile1024",
+			"uri":"tile1024.png"
 		}
 	],
 	"accessors":[
@@ -91,6 +93,20 @@
 		},
 		{
 			"bufferView":3,
+			"componentType":5121,
+			"count":24,
+			"normalized":true,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":4,
+			"componentType":5123,
+			"count":24,
+			"normalized":true,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":5,
 			"componentType":5123,
 			"count":36,
 			"type":"SCALAR"
@@ -117,20 +133,32 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":72,
+			"byteLength":96,
 			"byteOffset":768,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":192,
+			"byteOffset":864,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":72,
+			"byteOffset":1056,
 			"target":34963
 		}
 	],
 	"samplers":[
 		{
-			"magFilter":9728,
-			"minFilter":9984
+			"magFilter":9729,
+			"minFilter":9987
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":840,
+			"byteLength":1128,
 			"uri":"cube.bin"
 		}
 	]

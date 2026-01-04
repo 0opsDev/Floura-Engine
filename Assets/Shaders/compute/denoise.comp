@@ -7,7 +7,7 @@ layout(rgba32f, binding = 2) uniform image2D NoiseMask;
 
 // uniforms
 uniform bool doDenoise;
-float alphavalue = 1.0f;
+float alphavalue = 0.5f;
 uniform int minRadius;
 
 void main() {

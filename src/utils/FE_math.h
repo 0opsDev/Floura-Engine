@@ -45,6 +45,8 @@ public:
 
 	static glm::vec3 normalFrom2Points(glm::vec3 p1, glm::vec3 p2);
 
+	static glm::mat4 composeMatrixWDegrees(glm::vec3 p, glm::vec3 s, glm::vec3 r);
+
 };
 
 #endif // FE_MATH_CLASS_H

@@ -1,5 +1,7 @@
 #include "line.h"
 #include <Core/Render.h>
+#include "Scene/scene.h"
+
 
 Line3D::Line3D(glm::vec3 pos1, glm::vec3 pos2)
 {
@@ -80,8 +82,8 @@ void Line3D::draw(glm::vec3 colour)
     // Push model matrix to the vertex shader
     glUniformMatrix4fv(glGetUniformLocation(RenderClass::LineShader.ID, "lineMatrix"), 1, GL_FALSE, glm::value_ptr(lineMatrix));
     // Camera Matrix
-    glUniform3f(glGetUniformLocation(RenderClass::LineShader.ID, "camPos"), Camera::Position.x, Camera::Position.y, Camera::Position.z);
-    Camera::Matrix(RenderClass::LineShader, "camMatrix");
+    glUniform3f(glGetUniformLocation(RenderClass::LineShader.ID, "camPos"), Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z);
+    Scene::maincamera.Matrix(RenderClass::LineShader, "camMatrix");
     // Draw the mesh
     glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
     //glDrawElements(GL_POINTS, indices.size(), GL_UNSIGNED_INT, 0);

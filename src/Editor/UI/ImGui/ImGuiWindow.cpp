@@ -296,7 +296,7 @@ glm::vec3 igPosition(glm::vec3 input)
 {
 	glm::mat4 T = glm::translate(glm::mat4(1.0f), input);
 
-	ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+	ImGuizmo::Manipulate(glm::value_ptr(Scene::maincamera.view), glm::value_ptr(Scene::maincamera.projection),
 		ImGuizmo::TRANSLATE, ImGuizmo::LOCAL,
 		glm::value_ptr(T));
 
@@ -312,19 +312,19 @@ glm::mat4 useGuizmo(glm::vec3 inputPosition, glm::vec3 inputRotation, glm::vec3 
 
 	if (SelectedTransform == 0)
 	{
-		ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+		ImGuizmo::Manipulate(glm::value_ptr(Scene::maincamera.view), glm::value_ptr(Scene::maincamera.projection),
 			ImGuizmo::TRANSLATE, ImGuizmo::WORLD,
 			glm::value_ptr(mat));
 	}
 	else if (SelectedTransform == 1)
 	{
-		ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+		ImGuizmo::Manipulate(glm::value_ptr(Scene::maincamera.view), glm::value_ptr(Scene::maincamera.projection),
 			ImGuizmo::SCALE, ImGuizmo::WORLD,
 			glm::value_ptr(mat));
 	}
 	else if (SelectedTransform == 2)
 	{
-		ImGuizmo::Manipulate(glm::value_ptr(Camera::view), glm::value_ptr(Camera::projection),
+		ImGuizmo::Manipulate(glm::value_ptr(Scene::maincamera.view), glm::value_ptr(Scene::maincamera.projection),
 			ImGuizmo::ROTATE, ImGuizmo::WORLD,
 			glm::value_ptr(mat));
 	}
@@ -464,7 +464,7 @@ void FEImGuiWindow::menuwindow()
 		if (ImGui::BeginMenu("Debug")) {
 			ImGui::Checkbox("DoDeferredLightingPass", &RenderClass::DoDeferredLightingPass);
 			ImGui::Checkbox("DoForwardLightingPass", &RenderClass::DoForwardLightingPass);
-			ImGui::Checkbox("DoComputeLightingPass", &RenderClass::DoComputeLightingPass);
+			ImGui::Checkbox("DoRaytracedPass", &RenderClass::DoComputeLightingPass);
 			ImGui::Checkbox("doPlayerBoxCollision: ", &Player::CollideWithCamera);
 			ImGui::EndMenu();
 		}
@@ -545,6 +545,7 @@ void FEImGuiWindow::RenderWindow() {
 		ImGui::Checkbox("Do Denoise", &denoiser::doDenoise);
 		ImGui::DragInt("minRadius", &denoiser::minRadius);
 		ImGui::Text("raytracer");
+		ImGui::Checkbox("DoRaytracedPass", &RenderClass::DoComputeLightingPass);
 		ImGui::DragFloat("downscaleFactor", &raytracer::downscaleFactor);
 		ImGui::Checkbox("doAccumulate", &raytracer::doAccumulate);
 		ImGui::Checkbox("reset Accumulation On Dirty", &raytracer::resetAccumulationOnDirty);
@@ -697,7 +698,7 @@ void FEImGuiWindow::viewport() {
 		Framebuffer::updateFrameBufferResolution(static_cast<unsigned int>(window_width), static_cast<unsigned int>(window_height)); // Update frame buffer resolution
 		glViewport(0, 0, static_cast<GLsizei>(window_width), static_cast<GLsizei>(window_height));
 
-		Camera::SetViewportSize(static_cast<int>(window_width), static_cast<int>(window_height));
+		Scene::maincamera.SetViewportSize(static_cast<int>(window_width), static_cast<int>(window_height));
 	}
 
 	ImVec2 viewportPos = ImGui::GetItemRectMin();    // top-left corner relative to window
@@ -847,7 +848,7 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 			ImGui::PopStyleColor(3);
 
 			ImGui::SameLine();
-			if (ImGui::MenuItem((Scene::entityObjects[i]->fetchName() + "##" + std::to_string(i)).c_str())) {
+			if (ImGui::MenuItem((Scene::entityObjects[i]->name + "##" + std::to_string(i)).c_str())) {
 				FEImGuiWindow::SelectedObjectType = "Model";
 				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
 			}
@@ -880,7 +881,7 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 
 
 			ImGui::SameLine();
-			if (ImGui::MenuItem((Scene::entityObjects[i]->fetchName() + "##" + std::to_string(i)).c_str())) {
+			if (ImGui::MenuItem((Scene::entityObjects[i]->name + "##" + std::to_string(i)).c_str())) {
 				FEImGuiWindow::SelectedObjectType = "Billboard";
 				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
 			}

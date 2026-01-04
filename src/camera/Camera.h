@@ -17,40 +17,37 @@ class Camera
 {
 public:
     // Stores camera transform
-    static glm::vec3 Position;
-    static glm::vec3 Orientation;
-    static glm::vec3 Up;
-    static glm::mat4 cameraMatrix;
-    static glm::vec2 sensitivity;
-    static glm::mat4 view;
-    static glm::mat4 projection;
-    static float s_scrollSpeed;
-    static float fov;
-    static float gamma;
-
-    // Prevents the camera from jumping around when first clicking left click
-    static bool firstClick;
-    // Camera resolution
-    static int width;
-    static int height;
-    static float speed;
+    float s_scrollSpeed = 5.0f;
+    glm::vec2 sensitivity;
+    glm::mat4 cameraMatrix = glm::mat4(1.0f);
+    glm::vec3 Position = glm::vec3(0, 0, 0);
+    glm::vec3 Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
+    bool firstClick = false;
+    int width;
+    int height;
+    float speed = 0.1f;
+    glm::mat4 view = glm::mat4(1.0f);
+    glm::mat4 projection = glm::mat4(1.0f);
+    float fov = 60;
+    float gamma = 2.2f;
     
 
     // Camera constructor
-    void static InitCamera(int width, int height, glm::vec3 position);
-    void static SetViewportSize(int newWidth, int newHeight);
+    void InitCamera(int width, int height, glm::vec3 position);
+    void SetViewportSize(int newWidth, int newHeight);
     // Updates and exports the camera matrix to the Vertex Shader
-    void static updateMatrix(float FOVdeg, float nearPlane, float farPlane);
-    void static Matrix(Shader& shader, const char* uniform);
+    void updateMatrix(float FOVdeg, float nearPlane, float farPlane);
+    void Matrix(Shader& shader, const char* uniform);
 
     // Handles camera inputs
-    void static Inputs(GLFWwindow* window);
+    void Inputs(GLFWwindow* window);
 
-    static bool isPointInFrustum(const glm::vec3& worldPos);
+    bool isPointInFrustum(const glm::vec3& worldPos);
 
-    static bool isRadiusInFrustum(const glm::vec3& worldPos, const float radius);
+    bool isRadiusInFrustum(const glm::vec3& worldPos, const float radius);
 
-    static bool isBoxInFrustum(const glm::vec3& worldPos, const glm::vec3& Scale);
+    bool isBoxInFrustum(const glm::vec3& worldPos, const glm::vec3& Scale);
 
 };
 

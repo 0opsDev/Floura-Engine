@@ -179,7 +179,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 
 	if (FEImGuiWindow::isWireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
-		glClearColor(pow(0.0f, Camera::gamma), pow(0.0f, Camera::gamma), pow(0.0f, Camera::gamma), 1.0f);
+		glClearColor(pow(0.0f, Scene::maincamera.gamma), pow(0.0f, Scene::maincamera.gamma), pow(0.0f, Scene::maincamera.gamma), 1.0f);
 	}
 
 	if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox) // should add skybox.scene
@@ -193,7 +193,9 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 		DeferredLightingPass(); // Forward Lighting Pass
 	if (DoComputeLightingPass)
 	{
+		if (raytracer::RTGlobalTransformFlag) raytracer::updateQuickModelData();
 		raytracer::render(); // Run compute shader for lighting pass
+		raytracer::RTGlobalTransformFlag = false;
 		denoiser::render();
 	}
 
@@ -245,20 +247,20 @@ void RenderClass::DeferredLightingPass() {
 	GBLpass.setFloat3("fogColor", RenderClass::gammaCorrect3(fogRGBA));
 
 	//mat4
-	GBLpass.setMat4("cameraMatrix", Camera::cameraMatrix);
-	GBLpass.setMat4("projectionMatrix", Camera::projection);
+	GBLpass.setMat4("cameraMatrix", Scene::maincamera.cameraMatrix);
+	GBLpass.setMat4("projectionMatrix", Scene::maincamera.projection);
 
-	glm::mat4 inverseProjection = glm::inverse(Camera::projection);
+	glm::mat4 inverseProjection = glm::inverse(Scene::maincamera.projection);
 	GBLpass.setMat4("inverseProjection", inverseProjection);
 
-	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(Camera::cameraMatrix)));
+	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(Scene::maincamera.cameraMatrix)));
 	GBLpass.setMat3("normalMatrix", normalMatrix);
 
-	GBLpass.setFloat3("orientation", Camera::Orientation);
-	GBLpass.setFloat3("cameraPos", Camera::Position);
-	GBLpass.setFloat3("cameraDirection", Camera::Orientation);
+	GBLpass.setFloat3("orientation", Scene::maincamera.Orientation);
+	GBLpass.setFloat3("cameraPos", Scene::maincamera.Position);
+	GBLpass.setFloat3("cameraDirection", Scene::maincamera.Orientation);
 	//std::cout << Camera::width << " " << Camera::height << std::endl;
-	GBLpass.setFloat2("screenSize", glm::vec2(Camera::width, Camera::height));
+	GBLpass.setFloat2("screenSize", glm::vec2(Scene::maincamera.width, Scene::maincamera.height));
 	GBLpass.setFloat("time", glfwGetTime());
 	//shader.
 	lightingRenderQuad.draw();
@@ -282,9 +284,9 @@ void RenderClass::Cleanup() {
 }
 
 float RenderClass::gammaCorrect(float input) {
-	return pow(input, 1.0f / Camera::gamma);
+	return pow(input, 1.0f / Scene::maincamera.gamma);
 }
 
 glm::vec3 RenderClass::gammaCorrect3(glm::vec3 input) {
-	return pow(input, glm::vec3(1.0f / Camera::gamma) );
+	return pow(input, glm::vec3(1.0f / Scene::maincamera.gamma) );
 }

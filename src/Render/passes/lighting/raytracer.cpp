@@ -5,7 +5,8 @@
 #include <utils/FE_math.h>
 #include"Render/passes/post/denoise.h"
 #include "Core/Render.h"
-
+#include "Scene/scene.h"
+bool raytracer::RTGlobalTransformFlag = false;
 GLuint raytracer::computeTexture;
 GLuint raytracer::NoiseMask;
 RenderQuad ComputeQuad;
@@ -13,15 +14,17 @@ Shader ComputeQuadShader;
 Shader testCompute;
 unsigned int CurrentWidth;
 unsigned int CurrentHeight;
-
+std::vector<raytracer::modelData> raytracer::modelArray;
 
 GLuint raytracer::triangleSSBOID;
 GLuint raytracer::meshSSBOID;
-float raytracer::downscaleFactor = 0.77f;
+GLuint raytracer::quickSSBOID;
+GLuint raytracer::bvhSSBO;
+float raytracer::downscaleFactor = 0.58f;
 float raytracer::maxDistance = 100.0f;
 float raytracer::noiseThreshold = 0.1f;
 float raytracer::reflectionDistance = 30.0f;
-int raytracer::reflectionBounces = 1;
+int raytracer::reflectionBounces = 2;
 bool raytracer::doAccumulate = true;
 bool raytracer::resetAccumulationOnDirty = true;
 Texture* raytracer::bluenoise;
@@ -44,47 +47,65 @@ void raytracer::init() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, meshSSBOID);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // Unbind
 
+	//quickSSBOID
+	glGenBuffers(1, &quickSSBOID);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, quickSSBOID);
+	// allocate 1024 bytes
+	glBufferData(GL_SHADER_STORAGE_BUFFER, 1024, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, quickSSBOID);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // Unbind
+
+	//bvhSSBO
+	glGenBuffers(1, &bvhSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, bvhSSBO);
+	// allocate 1024 bytes
+	glBufferData(GL_SHADER_STORAGE_BUFFER, 1024, NULL, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, bvhSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // Unbind
+
+	// load bluenoise texture
 	bluenoise = new Texture();
 	bluenoise->createTexture("Assets/Dependants/LDR_LLL1_0.png", "misc", 5);
-
-	Model* tempModel = new Model("Assets/Models/redball.gltf"); // "Assets/Models/redball.gltf"
-	tempModel->updatePosition(glm::vec3(0.0f));
-	tempModel->updateRotation(glm::vec3(0.0f));
-	tempModel->updateScale(glm::vec3(1.0f));
-	tempModel->updateTranformation();
-	raytracer::uploadToRaytracer(tempModel);
-	delete tempModel;
-	tempModel = nullptr;
 }
 
 void raytracer::uploadToRaytracer(Model* model)
 {
+	 // modelHarddata
+	modelData newCpuModel;
+
+	rayModel rModel;
+	// should checkk if alredy uuid already exisits in modelaray
+	rModel.modelUUID = model->UUID;
+	rModel.meshCount = model->meshes.size();
+	newCpuModel.quickdata.quickModel.modelUUID = rModel.modelUUID;
+
+	// prevent duplicates
+	if (!modelArray.empty())
+	{
+		for (size_t i = 0; i < modelArray.size(); i++)
+		{
+			if (modelArray[i].harddata.rayModel.modelUUID == rModel.modelUUID)
+				return;
+		}
+	}
 	
+	 glm::mat4 modelMatrix = FE_Math::composeMatrixWDegrees(
+		model->globalTransformation.position, model->globalTransformation.scale,
+		model->globalTransformation.rotation);
+
+	// push the raymodel into model array
+	newCpuModel.harddata.rayModel = rModel;
 	model->createMeshAABBs();
 	model->updateMeshAABBs();
-	std::vector<triangle> tri;
-	std::vector<rayMesh> meshes;
-
-
-
-	// transformations
-	glm::mat4 globalTrans = glm::translate(glm::mat4(1.0f), model->globalTransformation.position);
-	glm::mat4 globalRot = glm::mat4(1.0f);
-	globalRot = glm::rotate(globalRot, glm::radians(model->globalTransformation.rotation.x), glm::vec3(1, 0, 0));
-	globalRot = glm::rotate(globalRot, glm::radians(model->globalTransformation.rotation.y), glm::vec3(0, 1, 0));
-	globalRot = glm::rotate(globalRot, glm::radians(model->globalTransformation.rotation.z), glm::vec3(0, 0, 1));
-	glm::mat4 globalSca = glm::scale(glm::mat4(1.0f), model->globalTransformation.scale);
-	glm::mat4 gModelMatrix = globalTrans * globalRot * globalSca;
 
 	for (size_t x = 0; x < model->meshes.size(); x++)
 	{
 
 		// use texture arrays + meshindex
 
-		glm::mat4 finalMatrix = gModelMatrix * model->lModelMatrix[x];
+		glm::mat4 finalMatrix = model->lModelMatrix[x]; // rModel.ModelMatrix *
 
-
-		 //     // 	component.renderHeads.Model->createMeshAABBs();
+		// 	component.renderHeads.Model->createMeshAABBs();
 		rayMesh newMesh;
 		newMesh.triangleCount = (int)model->meshes[x].indices.size() / 3;
 
@@ -92,7 +113,11 @@ void raytracer::uploadToRaytracer(Model* model)
 		newMesh.AABBscale = glm::vec4(model->meshes[x].boxCollider.size, 1.0f);
 
 		newMesh.meshIndex = x;
+		newMesh.modelUUID = model->UUID;
+		newMesh.meshUUID = model->meshes[x].UUID;
 
+		//std::cout << newMesh.meshUUID << std::endl;
+		//std::cout << newMesh.modelUUID << std::endl;
 		for (size_t y = 0; y + 2 < model->meshes[x].indices.size(); y += 3)
 		{
 			triangle newtriangle;
@@ -149,20 +174,130 @@ void raytracer::uploadToRaytracer(Model* model)
 			newtriangle.bBiTangent = glm::vec4(model->meshes[x].vertices[i1].biTangent, 1.0f);
 			newtriangle.cBiTangent = glm::vec4(model->meshes[x].vertices[i2].biTangent, 1.0f);
 
-			tri.push_back(newtriangle);
+			newCpuModel.harddata.tris.push_back(newtriangle);
 		}
-		meshes.push_back(newMesh);
+		newCpuModel.harddata.meshes.push_back(newMesh);
 	}
+
+	modelArray.push_back(newCpuModel);
+
+	UpdateModelBuffer();
+
+}
+
+void raytracer::removeFromRaytracer(uint64_t modelUUID)
+{
+	for (size_t x = 0; x < modelArray.size(); x++)
+	{
+		if (modelArray[x].harddata.rayModel.modelUUID == modelUUID)
+		{
+			//std::cout << "Removing model from raytracer with UUID: " << modelUUID << std::endl;
+			modelArray.erase(modelArray.begin() + x);
+			break;
+		}
+	}
+	UpdateModelBuffer();
+}
+
+void raytracer::UpdateModelBuffer()
+{
+	std::vector<triangle> newTriangleArray;
+	std::vector<rayMesh> newMeshArray;
+
+	for (size_t x = 0; x < modelArray.size(); x++)
+	{
+		for (size_t z = 0; z < modelArray[x].harddata.tris.size(); z++)
+		{
+			triangle newTriangle;
+			newTriangle = modelArray[x].harddata.tris[z];
+			newTriangleArray.push_back(newTriangle);
+		}
+		for (size_t z = 0; z < modelArray[x].harddata.meshes.size(); z++)
+		{
+			rayMesh newMesh;
+			newMesh = modelArray[x].harddata.meshes[z];
+			newMeshArray.push_back(newMesh);
+		}
+	}
+
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, triangleSSBOID);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, tri.size() * sizeof(triangle), tri.data(), GL_STATIC_DRAW); // gl buffer data wipes whole array
+	glBufferData(GL_SHADER_STORAGE_BUFFER, newTriangleArray.size() * sizeof(triangle), newTriangleArray.data(), GL_STATIC_DRAW); // gl buffer data wipes whole array
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, triangleSSBOID);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	// meshSSBOID
-	std::cout << "C++ Mesh Size: " << sizeof(rayMesh) << " bytes" << std::endl;
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, meshSSBOID);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, meshes.size() * sizeof(rayMesh), meshes.data(), GL_STATIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, newMeshArray.size() * sizeof(rayMesh), newMeshArray.data(), GL_STATIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, meshSSBOID);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+}
+
+void raytracer::updateboundingboxes(Model* model)
+{
+	//modelData
+	for (size_t i = 0; i < modelArray.size(); i++)
+	{
+		for (size_t x = 0; x < modelArray[i].harddata.meshes.size(); x++)
+		{
+			// find matching model uuid
+			if (modelArray[i].harddata.meshes[x].modelUUID == model->UUID)
+			{
+				// update aabb
+				modelArray[i].harddata.meshes[x].AABBpos = glm::vec4(model->meshes[x].boxCollider.position, 1.0f);
+				modelArray[i].harddata.meshes[x].AABBscale = glm::vec4(model->meshes[x].boxCollider.size, 1.0f);
+
+				modelArray[i].quickdata.rootNode.rootPos = glm::vec4(model->meshes[x].boxCollider.position, 1.0f);
+				modelArray[i].quickdata.rootNode.rootscale = glm::vec4(model->meshes[x].boxCollider.size, 1.0f);
+
+				modelArray[i].quickdata.rootNode.modelUUID = model->UUID;
+			}
+		}
+
+	}
+
+}
+
+void raytracer::modelMatrixUpdate(uint64_t modelUUID, glm::mat4 newModelMatrix)
+{
+	for (size_t i = 0; i < modelArray.size(); i++)
+	{
+		if (modelArray[i].quickdata.quickModel.modelUUID == modelUUID) // move aabb bounds here too
+		{
+			modelArray[i].quickdata.quickModel.ModelMatrix = newModelMatrix;
+			break;
+		}
+	}
+}
+
+void raytracer::updateQuickModelData()
+{
+	std::vector<quickRayModel> newQuickDataArray;
+	std::vector<boxRootNode> newRootNodeArray;
+	for (size_t i = 0; i < modelArray.size(); i++)
+	{
+		quickRayModel newQuickData;
+		newQuickData.ModelMatrix = modelArray[i].quickdata.quickModel.ModelMatrix;
+		newQuickData.modelUUID = modelArray[i].quickdata.quickModel.modelUUID;
+		newQuickDataArray.push_back(newQuickData);
+
+		boxRootNode newRootNode;
+		newRootNode.rootPos = modelArray[i].quickdata.rootNode.rootPos;
+		newRootNode.rootscale = modelArray[i].quickdata.rootNode.rootscale;
+		newRootNode.modelUUID = modelArray[i].quickdata.rootNode.modelUUID;
+		newRootNodeArray.push_back(newRootNode);
+	}
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, quickSSBOID);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, newQuickDataArray.size() * sizeof(quickRayModel), newQuickDataArray.data(), GL_STATIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, quickSSBOID);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	// bvhSSBO
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, bvhSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, newRootNodeArray.size() * sizeof(boxRootNode), newRootNodeArray.data(), GL_STATIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, bvhSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
 }
 
 
@@ -245,12 +380,12 @@ void raytracer::render() {
 
 	testCompute.Activate();
 	testCompute.setFloat4("u_BaseColour", glm::vec4(glm::vec3(RenderClass::gammaCorrect3(RenderClass::skyRGBA)), 1.0f) ); // glm::vec3(RenderClass::gammaCorrect3(RenderClass::skyRGBA)), 1.0f)
-	testCompute.setMat4("u_ViewMatrix", Camera::view);
-	testCompute.setMat4("u_ProjectionMatrix", Camera::projection);
-	testCompute.setFloat3("cameraPosition", Camera::Position);	
-	testCompute.setFloat3("orientation", Camera::Orientation);
-	testCompute.setFloat3("camUp", Camera::Up);
-	testCompute.setFloat("fov", Camera::fov);
+	testCompute.setMat4("u_ViewMatrix", Scene::maincamera.view);
+	testCompute.setMat4("u_ProjectionMatrix", Scene::maincamera.projection);
+	testCompute.setFloat3("cameraPosition", Scene::maincamera.Position);
+	testCompute.setFloat3("orientation", Scene::maincamera.Orientation);
+	testCompute.setFloat3("camUp", Scene::maincamera.Up);
+	testCompute.setFloat("fov", Scene::maincamera.fov);
 	testCompute.setFloat("time", glfwGetTime());
 	testCompute.setFloat("deltatime", TimeUtil::deltatime);
 
@@ -261,9 +396,11 @@ void raytracer::render() {
 	testCompute.setFloat3("skycolour", RenderClass::gammaCorrect3(RenderClass::skyRGBA));
 	
 	
-	if (oldCampos != Camera::Position && resetAccumulationOnDirty || oldOrientation != Camera::Orientation && resetAccumulationOnDirty || resized && resetAccumulationOnDirty)
+	if (oldCampos != Scene::maincamera.Position && resetAccumulationOnDirty 
+		|| oldOrientation != Scene::maincamera.Orientation && resetAccumulationOnDirty 
+		|| resized && resetAccumulationOnDirty || RTGlobalTransformFlag)
 	{
-		oldCampos = Camera::Position; oldOrientation = Camera::Orientation; resized = false;
+		oldCampos = Scene::maincamera.Position; oldOrientation = Scene::maincamera.Orientation; resized = false;
 		testCompute.setBool("doAccumulate", false);
 	}
 	else

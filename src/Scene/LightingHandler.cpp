@@ -2,7 +2,7 @@
 #include <Core/Render.h>
 #include <glm/gtx/euler_angles.hpp>
 #include <utils/logConsole.h>
-
+#include "Scene/scene.h"
 
 int LightingHandler::amountPointShadowMaps = 4;
 int LightingHandler::amountPointNear;
@@ -207,7 +207,7 @@ void LightingHandler::drawShadowMap(Model*& model, glm::vec3 translation, glm::v
 
 	glm::mat4 orthgonalProjection = glm::ortho(-distance, distance, -distance, distance, dirNearFar.x, dirNearFar.y); // last two are near and far 
 
-	glm::vec3 CameraPos = Camera::Position;
+	glm::vec3 CameraPos = Scene::maincamera.Position;
 	glm::vec3 dirLightDirection = dirLightPosOut;
 	glm::vec3 lightEyePosition = CameraPos + (dirShadowheight * dirLightDirection);
 	glm::mat4 lightView = glm::lookAt(lightEyePosition, CameraPos, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -227,7 +227,7 @@ void LightingHandler::drawShadowMap(Model*& model, glm::vec3 translation, glm::v
 	//glCullFace(GL_BACK);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, Camera::width, Camera::height); // dont touch for now
+	glViewport(0, 0, Scene::maincamera.width, Scene::maincamera.height); // dont touch for now
 
 }
 
@@ -238,7 +238,7 @@ void LightingHandler::drawShadowMapBillboard(BillBoard*& bilboard, glm::vec3 tra
 	}
 	glm::mat4 orthgonalProjection = glm::ortho(-distance, distance, -distance, distance, dirNearFar.x, dirNearFar.y); // last two are near and far 
 
-	glm::vec3 CameraPos = Camera::Position;
+	glm::vec3 CameraPos = Scene::maincamera.Position;
 	glm::vec3 dirLightDirection = dirLightPosOut;
 	glm::vec3 lightEyePosition = CameraPos + (dirShadowheight * dirLightDirection);
 	glm::mat4 lightView = glm::lookAt(lightEyePosition, CameraPos, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -257,7 +257,7 @@ void LightingHandler::drawShadowMapBillboard(BillBoard*& bilboard, glm::vec3 tra
 	//glCullFace(GL_BACK);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, Camera::width, Camera::height); // dont touch for now
+	glViewport(0, 0, Scene::maincamera.width, Scene::maincamera.height); // dont touch for now
 
 }
 
@@ -344,10 +344,6 @@ void LightingHandler::createLight()
 	tempLight.type = 0;
 	tempLight.enabled = true;
 
-	tempLight.ID.ObjType = 'l';
-	tempLight.ID.index = static_cast<unsigned int>(LightingHandler::Lights.size());
-	IdManager::AddID(tempLight.ID);
-
 	Lights.push_back(tempLight);
 
 	LogConsole::print("Created LightObject");
@@ -355,16 +351,6 @@ void LightingHandler::createLight()
 
 void LightingHandler::deleteLight(int index)
 {
-	//update lowest free index
-	if (index < IdManager::lowestDeletedIndex.Light || IdManager::lowestDeletedIndex.Light == -1) {
-		IdManager::lowestDeletedIndex.Light = index;
-		LogConsole::print("Lowest Deleted LightObject Index is now: " + std::to_string(IdManager::lowestDeletedIndex.Light));
-	}
-	if (index < 0 || index >= static_cast<int>(Lights.size())) {
-		std::cout << "Invalid index: " << index << std::endl;
-		return;
-	}
-	IdManager::RemoveID(Lights[index].ID);
 	Lights.erase(Lights.begin() + index);
 	LogConsole::print("Deleted LightObject at index: " + std::to_string(index));
 
@@ -424,11 +410,6 @@ void LightingHandler::loadScene(std::string path)
 		}
 
 		tempLight.enabled = newEnabled;
-		tempLight.ID.ObjType = 'l';
-		tempLight.ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
-		LogConsole::print("Loaded LightObject with ID: " + std::to_string(tempLight.ID.UniqueNumber));
-		tempLight.ID.index = LightingHandler::Lights.size();
-		IdManager::AddID(tempLight.ID);
 
 		Lights.push_back(tempLight);
 
@@ -463,7 +444,7 @@ void LightingHandler::saveScene(std::string path)
 
 			LightJson["enabled"] = LightingHandler::Lights[iteration].enabled;
 			// ID
-			LightJson["IDuniqueIdentifier"] = LightingHandler::Lights[iteration].ID.UniqueNumber;
+			//LightJson["IDuniqueIdentifier"] = LightingHandler::Lights[iteration].ID.UniqueNumber;
 
 			lightData.push_back(LightJson);
 			iteration++;

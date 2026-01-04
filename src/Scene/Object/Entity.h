@@ -2,116 +2,22 @@
 #include <Render/Object/ModelAssimp.h>
 #include <Render/Object/Billboard.h>
 #include <Render/Shader/Material.h>
-#include <Scene/IdManager.h>
 #include "Systems/Physics/Collision.h"
-
+#include "Render/passes/lighting/raytracer.h"
+#include <xhash>
 
 #ifndef FE_OBJECT_H
 #define FE_OBJECT_H
-
-/*
-TYPES:
-m = model
-b = billboard
-c = collider
-p = particle
-e = empty // could make d for dummy
-s = sound
-h = shape
-*/
-
 
 class entity
 {
 public:
 
-	IdManager::ID ID;
-
-	void create(const char& type, const std::string& name, const std::string& path, const std::string& materialPath);
-
-	void LoadMaterial(std::string path);
-
-	void update();
-
-	void draw();
-
-	void drawShadowMap();
-
-	void updateLights();
-
-	void Delete();
-
-	Collision::HitResult RayVsTriangle(glm::vec3 rayPos, glm::vec3 rayDir);
-
-	std::string fetchName();
-	void setName(const std::string& name);
-	char fetchType();
-	std::string fetchPath();
-
-
+	//structs
 	struct material {
 		Material Material;
 		glm::vec2 uvScale = glm::vec2(1.0f, 1.0f);
 	};
-	
-
-	// transformations
-	glm::vec3 fetchPosition() {
-		return component.systems.transformation.position;
-	}
-	glm::vec3 fetchRotation() {
-		return component.systems.transformation.rotation;
-	}
-	glm::vec3 fetchScale() {
-		return component.systems.transformation.scale;
-	}
-	void setPosition(const glm::vec3& position) {
-		component.systems.transformation.position = position;
-		component.renderHeads.dirtyTransform = true;
-	}
-	void setRotation(const glm::vec3& rotation) {
-		component.systems.transformation.rotation = rotation;
-		component.renderHeads.dirtyTransform = true;
-	}
-	void setScale(const glm::vec3& scale) {
-		component.systems.transformation.scale = scale;
-		component.renderHeads.dirtyTransform = true;
-	}
-	// billboard specific
-	void setDoPitch(bool doPitch) {
-		if (type == 'b') {
-		component.renderHeads.BillBoard->doPitch = doPitch; // probably because the space in memory hasnt been created for the billboard yet
-		}
-	}
-	bool FetchDoPitch() {
-		
-		return component.renderHeads.BillBoard->doPitch;
-	}
-	bool FetchCastsShadow() {
-		return component.flags.castsShadow;
-	}
-	void SetCastsShadow(bool castShadow) {
-		component.flags.castsShadow = castShadow;
-	}
-	bool fetchDoCulling() {
-		return component.flags.doCulling;
-	}
-	void setDoCulling(bool doCulling) {
-		component.flags.doCulling = doCulling;
-	}
-	glm::vec2 fetchUVScale() {
-		return component.systems.material.uvScale;;
-	}
-	void setUVScale(const glm::vec2& uvScale) {
-		component.systems.material.uvScale = uvScale;
-	}
-
-
-	private:
-
-	std::string name;
-	char type;
-	std::string path;
 
 	struct flags {
 		bool isStatic = false;
@@ -153,10 +59,6 @@ public:
 		glm::vec3 colliderPosition = glm::vec3(0.0f);
 		glm::vec3 colliderScale = glm::vec3(1.0f);
 	};
-	public:
-		void updateCollision();
-		void updateMeshAABBs();
-	private:
 
 	struct render {
 		Model* Model;
@@ -165,7 +67,6 @@ public:
 		bool dirtyTransform = false;
 	};
 
-	public:
 	struct components {
 		flags flags;
 		physics physics;
@@ -173,13 +74,76 @@ public:
 		systems systems;
 		render renderHeads;
 	};
+	std::string name;
+	char type;
+	std::string path;
+
+	//
+
+	void createwUUID(uint64_t nUUID, const char& type, const std::string& name, const std::string& path, const std::string& materialPath);
+
+	void create(const char& type, const std::string& name, const std::string& path, const std::string& materialPath);
+
+	void LoadMaterial(std::string path);
+
+	void update();
+
+	void draw();
+
+	void drawShadowMap();
+
+	void updateLights();
+
+	void Delete();
+
+	Collision::HitResult RayVsTriangle(glm::vec3 rayPos, glm::vec3 rayDir);
+	char fetchType() {return type;}
+	std::string fetchPath() {return path;}
+	public:
+		void updateCollision();
+		void updateMeshAABBs();
 
 	components component;
+	uint64_t UUID;
+	std::string UUIDstring;
 
 	private:
 	void createModel(const std::string& path, const std::string& materialPath);
 
 	void createBillBoard(const std::string& path);
+
+
+	public:
+
+	// transformations
+	glm::vec3 fetchPosition() {
+		return component.systems.transformation.position;
+	}
+	glm::vec3 fetchRotation() {
+		return component.systems.transformation.rotation;
+	}
+	glm::vec3 fetchScale() {
+		return component.systems.transformation.scale;
+	}
+	void setPosition(const glm::vec3& position) {
+
+		if (position == component.systems.transformation.position) return;
+		component.systems.transformation.position = position;
+		raytracer::RTGlobalTransformFlag = true;
+		component.renderHeads.dirtyTransform = true;
+	}
+	void setRotation(const glm::vec3& rotation) {
+		if (rotation == component.systems.transformation.rotation) return;
+		component.systems.transformation.rotation = rotation;
+		raytracer::RTGlobalTransformFlag = true;
+		component.renderHeads.dirtyTransform = true;
+	}
+	void setScale(const glm::vec3& scale) {
+		if (scale == component.systems.transformation.scale) return;
+		component.systems.transformation.scale = scale;
+		raytracer::RTGlobalTransformFlag = true;
+		component.renderHeads.dirtyTransform = true;
+	}
 };
 
 #endif

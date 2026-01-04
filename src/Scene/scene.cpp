@@ -3,14 +3,15 @@
 #include <Gameplay/Player.h>
 #include <Scene/LightingHandler.h>
 #include <utils/logConsole.h>
-
+#include "Systems/util/UUID.h"
+#include <xhash>
 
 std::string Scene::sceneName = ""; // Map loading
 std::vector <SoundProgram> Scene::SoundObjects;
 std::vector <std::unique_ptr<entity>> Scene::entityObjects;
+Camera Scene::maincamera;
 
 glm::vec3 Scene::initalCameraPos = glm::vec3(0, 0, 0);
-
 
 BillBoard* PointLightIcon;
 BillBoard* SpotLightIcon;
@@ -27,7 +28,6 @@ void Scene::LoadScene(std::string path) {
 
 	// Attemp to delete previous scene
 	Delete();
-	IdManager::onSceneLoad();
 
 	if (FEImGuiWindow::imGuiEnabled) {
 		FEImGuiWindow::loadContentObjects(path + "/ContentObject.scene");
@@ -225,12 +225,12 @@ void Scene::initJsonModelLoad(std::string path) {
 		newObject->setRotation(glm::vec3(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2]));
 		newObject->setScale(glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]));
 
-		newObject->setDoCulling(item.at("isBackFaceCulling").get<bool>());
-		newObject->SetCastsShadow(item.at("CastShadow").get<bool>());
-		newObject->setUVScale(glm::vec2(item.at("uvScale")[0],
-			item.at("uvScale")[1]));
+		newObject->component.flags.doCulling = item.at("isBackFaceCulling").get<bool>();
+		newObject->component.flags.castsShadow = item.at("CastShadow").get<bool>();
+		newObject->component.systems.material.uvScale = glm::vec2(item.at("uvScale")[0],
+			item.at("uvScale")[1]);
 
-		newObject->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
+		//newObject->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
 		newObject->component.renderHeads.smoothnessValue = item.at("smoothnessValue").get<float>();
 
 		//newObject->create('m', name, path, MaterialPath); // Load into this unique MaterialObject // this needs to run and somehow join up when complete?
@@ -239,9 +239,11 @@ void Scene::initJsonModelLoad(std::string path) {
 		// doRender
 		newObject->component.flags.render = item.at("doRender").get<bool>();
 
+		uint64_t tempUUID = UUID::StringToUUID(item.at("UUID").get<std::string>());
+
 		entityObjects.push_back(std::move(newObject));
 		
-		entityObjects.back()->create('m', name, path, MaterialPath);
+		entityObjects.back()->createwUUID(tempUUID, 'm', name, path, MaterialPath);
 
 
 
@@ -257,7 +259,7 @@ void Scene::JsonModelSave(std::string path) {
 			if (entityObjects[i]->fetchType() == 'm') // model
 			{
 				json modelJson;
-				modelJson["name"] = entityObjects[i]->fetchName();
+				modelJson["name"] = entityObjects[i]->name;
 
 				modelJson["path"] = entityObjects[i]->fetchPath();
 				glm::vec3 objPos = entityObjects[i]->fetchPosition();
@@ -268,16 +270,17 @@ void Scene::JsonModelSave(std::string path) {
 				modelJson["Rotation"] = { objRot.x, objRot.y, objRot.z };
 				modelJson["Scale"] = { objScale.x, objScale.y, objScale.z };
 
-				modelJson["isBackFaceCulling"] = entityObjects[i]->fetchDoCulling();
+				modelJson["isBackFaceCulling"] = entityObjects[i]->component.flags.doCulling;
 				modelJson["MaterialPath"] = entityObjects[i]->component.systems.material.Material.materialPath;
-				modelJson["CastShadow"] = entityObjects[i]->FetchCastsShadow();
-				glm::vec2 uvScale = entityObjects[i]->fetchUVScale();
+				modelJson["CastShadow"] = entityObjects[i]->component.flags.castsShadow;
+				glm::vec2 uvScale = Scene::entityObjects[i]->component.systems.material.uvScale;
 				modelJson["uvScale"] = { uvScale.x, uvScale.y };
 				// ID
-				modelJson["IDuniqueIdentifier"] = entityObjects[i]->ID.UniqueNumber;
+				//modelJson["IDuniqueIdentifier"] = entityObjects[i]->ID.UniqueNumber;
 				//doRender
 				modelJson["doRender"] = entityObjects[i]->component.flags.render;
 				modelJson["smoothnessValue"] = entityObjects[i]->component.renderHeads.smoothnessValue;
+				modelJson["UUID"] = entityObjects[i]->UUIDstring;
 
 				settingsData.push_back(modelJson);
 			}
@@ -314,19 +317,17 @@ void Scene::JsonBillBoardSave(std::string path) {
 			if (entityObjects[i]->fetchType() == 'b')
 			{
 				json BillBoardJson;
-				BillBoardJson["name"] = entityObjects[i]->fetchName();
+				BillBoardJson["name"] = entityObjects[i]->name;
 				BillBoardJson["path"] = entityObjects[i]->fetchPath();
 
-				BillBoardJson["doPitch"] = entityObjects[i]->FetchDoPitch();
+				BillBoardJson["doPitch"] = entityObjects[i]->component.renderHeads.BillBoard->doPitch;
 
 				glm::vec3 objPos = entityObjects[i]->fetchPosition();
 				glm::vec3 objScale = entityObjects[i]->fetchScale();
 
 				BillBoardJson["position"] = { objPos.x, objPos.y, objPos.z };
 				BillBoardJson["scale"] = { objScale.x, objScale.y, objScale.z };
-
-				// ID
-				BillBoardJson["IDuniqueIdentifier"] = entityObjects[i]->ID.UniqueNumber;
+				BillBoardJson["UUID"] = entityObjects[i]->UUIDstring;
 
 				settingsData.push_back(BillBoardJson);
 			}
@@ -406,7 +407,7 @@ void Scene::JsonCameraSettingsSave(std::string path) {
 		JsonCamera["cameraColliderScale"][0] = Player::cameraColliderScale.x;
 		JsonCamera["cameraColliderScale"][1] = Player::cameraColliderScale.y;
 		JsonCamera["cameraColliderScale"][2] = Player::cameraColliderScale.z;
-		JsonCamera["gamma"] = Camera::gamma;
+		JsonCamera["gamma"] = Scene::maincamera.gamma;
 
 		CameraData.push_back(JsonCamera);
 
@@ -478,13 +479,18 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 		newEntity->setPosition(glm::vec3(item.at("position")[0], item.at("position")[1], item.at("position")[2]));
 		newEntity->setScale(glm::vec3(item.at("scale")[0], item.at("scale")[1], item.at("scale")[2]));
 		// IDs
-		newEntity->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
+		//newEntity->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
 
 		std::string name = item.at("name").get<std::string>();
 		std::string nPath = item.at("path").get<std::string>();
-		newEntity->create('b', name, nPath, ""); // type, name, path, materialpath // add material path for bb later
+
+
+
+		uint64_t tempUUID = UUID::StringToUUID(item.at("UUID").get<std::string>());
+
+		newEntity->createwUUID(tempUUID, 'b', name, nPath, ""); // type, name, path, materialpath // add material path for bb later
 		
-		newEntity->setDoPitch(item.at("doPitch"));
+		newEntity->component.renderHeads.BillBoard->doPitch = item.at("doPitch");
 		entityObjects.push_back(std::move(newEntity)); // Add the configured object to the vector
 	}
 	std::cout << "Loaded Scene BillBoards from: " << path << std::endl;
@@ -621,7 +627,7 @@ void Scene::initCameraSettingsLoad(std::string path) {
 			(CameraData[0]["initialCameraPos"][1]),
 			(CameraData[0]["initialCameraPos"][2])
 		);
-		Camera::Position = Scene::initalCameraPos;
+		Scene::maincamera.Position = Scene::initalCameraPos;
 		float fov = CameraData[0]["FOV"].get<float>();
 		//std::cout << fov << std::endl;
 		float nearPlane = CameraData[0]["nearPlane"].get<float>();
@@ -632,7 +638,7 @@ void Scene::initCameraSettingsLoad(std::string path) {
 		Player::cameraColliderScale.x = CameraData[0]["cameraColliderScale"][0];
 		Player::cameraColliderScale.y = CameraData[0]["cameraColliderScale"][1];
 		Player::cameraColliderScale.z = CameraData[0]["cameraColliderScale"][2];
-		Camera::gamma = CameraData[0]["gamma"].get<float>();
+		Scene::maincamera.gamma = CameraData[0]["gamma"].get<float>();
 
 	}
 	else {

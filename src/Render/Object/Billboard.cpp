@@ -5,7 +5,7 @@
 #include <Core/Render.h>
 #include <Render/passes/geometry/geometryPass.h>
 #include <Scene/LightingHandler.h>
-
+#include "Scene/scene.h"
 
 const float s_Plane_Vertices[] = {
 	// Positions       // Texture Coordinates
@@ -97,7 +97,7 @@ void BillBoard::drawShadowMap()
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
 	// Compute the forward vector towards the camera
-	glm::vec3 camForward = glm::normalize(Camera::Position - globalTransformation.position);
+	glm::vec3 camForward = glm::normalize(Scene::maincamera.Position - globalTransformation.position);
 
 	// Lock pitch if `doPitch == false`
 	if (!doPitch) {
@@ -140,7 +140,7 @@ void BillBoard::draw() {
 		return; // Skip rendering if not in regular or lighting pass
 	}
 	// Compute the forward vector towards the camera
-	glm::vec3 camForward = glm::normalize(Camera::Position - globalTransformation.position);
+	glm::vec3 camForward = glm::normalize(Scene::maincamera.Position - globalTransformation.position);
 
 	// Lock pitch if `doPitch == false`
 	if (!doPitch) {
@@ -167,7 +167,7 @@ void BillBoard::draw() {
 
 		
 
-		drawF(model, RenderClass::billBoardShader, Camera::cameraMatrix);
+		drawF(model, RenderClass::billBoardShader, Scene::maincamera.cameraMatrix);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -178,7 +178,7 @@ void BillBoard::draw() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); 
 		glBindFramebuffer(GL_FRAMEBUFFER, GeometryPass::gBuffer);
 
-		drawF(model, RenderClass::gPassShaderBillBoard, Camera::cameraMatrix);
+		drawF(model, RenderClass::gPassShaderBillBoard, Scene::maincamera.cameraMatrix);
 
 		glDisable(GL_CULL_FACE); 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); 

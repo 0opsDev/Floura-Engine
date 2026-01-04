@@ -1,16 +1,17 @@
 #include "LuaCamera.h"
 #include <camera/Camera.h>
+#include "Scene/scene.h"
 
 void LuaCamera::SetCameraPos(sol::state& luaState) {
 	luaState["SetCameraPos"] = [](float x, float y, float z) {
-		Camera::Position.x = x;
-		Camera::Position.y = y;
-		Camera::Position.z = z;
+		Scene::maincamera.Position.x = x;
+		Scene::maincamera.Position.y = y;
+		Scene::maincamera.Position.z = z;
 	};
 }
 
 void LuaCamera::SetCameraSpeed(sol::state& luaState) {
 	luaState["SetCameraSpeed"] = [](float Speed) {
-		Camera::s_scrollSpeed = Speed;
+		Scene::maincamera.s_scrollSpeed = Speed;
 	};
 }
