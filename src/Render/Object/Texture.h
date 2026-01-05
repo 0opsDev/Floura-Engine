@@ -16,9 +16,6 @@ public:
 	bool flipVertical = false;
 	void createTexture(const char* image, const char* texType, GLuint slot);
 
-	// Texture detached from OpenGL pipeline
-	void createTextureDetached(const char* image);
-
 	void reload(GLuint slot);
 
 	// Assigns a texture unit to a texture

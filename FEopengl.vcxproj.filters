@@ -23,15 +23,6 @@
     <Filter Include="src\Render\Buffer">
       <UniqueIdentifier>{6fc961bd-ce5d-4918-a0c5-963435c987fe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Scripting">
-      <UniqueIdentifier>{5212ba28-a4f3-45bc-a5d8-1db7767b92e9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Scripting\functions">
-      <UniqueIdentifier>{946f0760-cc03-4251-aa54-7f6b67b0c46a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Scripting\functions\Screen">
-      <UniqueIdentifier>{0f7da3f6-aa0d-44aa-8cdc-eb1a3c4e0ef3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\utils">
       <UniqueIdentifier>{b5fe011a-526e-40ba-bd02-3a0f1eaa4bac}</UniqueIdentifier>
     </Filter>
@@ -47,44 +38,8 @@
     <Filter Include="Resource Files\Shaders\Db">
       <UniqueIdentifier>{20b5557a-530c-429f-b02b-1a2ef8cafcbc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shaders\Post Process">
-      <UniqueIdentifier>{4057e73a-f53b-4cb2-9f85-a8deaf84f57f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Shaders\Lighting">
       <UniqueIdentifier>{68973aa0-8d3c-44bd-97d7-a544a9e59406}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Shaders\Skybox">
-      <UniqueIdentifier>{e96aaa03-9abd-4e46-a63a-bb33a658f71a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Scripting\functions\Player">
-      <UniqueIdentifier>{1c395904-ada3-44b2-823d-d7505c7cadd4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\core\File">
-      <UniqueIdentifier>{8876711e-32c6-48f8-a1a0-9590543857ea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Sound">
-      <UniqueIdentifier>{5dc11c93-5e42-4225-81c4-4e40beb27d2a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Render\Cube">
-      <UniqueIdentifier>{7864b883-1de1-427b-91f5-6e8a809cce13}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Gameplay">
-      <UniqueIdentifier>{cdbd80a8-a2ca-49dc-9ca6-613f3b6c6a48}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Shaders\gBuffer">
-      <UniqueIdentifier>{d6d77359-9a36-46f6-b25d-4261aef74e5f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Render\passes">
-      <UniqueIdentifier>{ac0274bb-9aa7-46af-bf89-af23776bfe37}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Render\passes\geometry">
-      <UniqueIdentifier>{704351ba-9e9b-4b09-bc18-4c7b4daef533}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Render\passes\lighting">
-      <UniqueIdentifier>{2a9a4610-76c8-4f24-80c5-efb4705ba378}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Render\passes\dbg">
-      <UniqueIdentifier>{5457fc8a-6ff0-497f-8c4a-2bda7506bfe0}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Render\window">
       <UniqueIdentifier>{8698ad57-7501-45ad-95b0-589b48a33176}</UniqueIdentifier>
@@ -92,50 +47,11 @@
     <Filter Include="Resource Files\ImGuiFileDialog">
       <UniqueIdentifier>{3659b2c4-149e-4884-8ec9-3b15748bbefd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\UI">
-      <UniqueIdentifier>{ae2232b3-13c0-48b3-9f18-c55b926f1396}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\ImGuizmo">
       <UniqueIdentifier>{df62e9b4-9a19-4bc6-a8f2-f95807413273}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Scene">
-      <UniqueIdentifier>{1ef4ae25-bf30-4b09-9792-4962eefbf700}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Scene\Object">
-      <UniqueIdentifier>{2ac7b958-ace5-4fe8-9912-fcfd67e173a3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\Render\Object">
       <UniqueIdentifier>{b99da5f8-89b6-4062-be62-907fb66e4d80}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Editor">
-      <UniqueIdentifier>{c2ade511-6162-4595-ace2-60dc3017ab34}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Systems">
-      <UniqueIdentifier>{d5583937-505e-4c60-a32b-626b3e59f536}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Editor\UI">
-      <UniqueIdentifier>{aab72c61-8544-4d1e-93bd-6b5f4f3d12f1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Editor\util">
-      <UniqueIdentifier>{22b36c59-d38d-42a3-a34e-0d1f17f5f7c2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Editor\UI\ImGui">
-      <UniqueIdentifier>{ed360ed9-c319-4a37-b8b7-e132623692da}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Systems\Physics">
-      <UniqueIdentifier>{9ba85196-4833-4d54-90e0-0824a5dd8a23}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Editor\UI\ImGui\ImGuiInclude">
-      <UniqueIdentifier>{f421cb9f-e860-458e-9c20-1329d301beab}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Shaders\compute">
-      <UniqueIdentifier>{94122167-45de-41be-971b-f9e27adb9f7a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Render\passes\post">
-      <UniqueIdentifier>{f70099a8-3088-4d2a-b027-a1a473a3e1b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Systems\util">
-      <UniqueIdentifier>{5af0cd9b-9e7c-400d-871b-59b7c687433a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -147,18 +63,6 @@
     </ClCompile>
     <ClCompile Include="src\Render\Buffer\VAO.cpp">
       <Filter>src\Render\Buffer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\Shader\Framebuffer.cpp">
-      <Filter>src\Render\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scripting\ScriptEngine.cpp">
-      <Filter>src\Scripting</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scripting\ScriptRunner.cpp">
-      <Filter>src\Scripting</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp">
-      <Filter>src\Scripting\functions\Screen</Filter>
     </ClCompile>
     <ClCompile Include="src\camera\Camera.cpp">
       <Filter>src\Camera</Filter>
@@ -175,50 +79,14 @@
     <ClCompile Include="src\Core\glad.c">
       <Filter>src\core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scripting\Functions\Player\LuaCamera.cpp">
-      <Filter>src\Scripting\functions\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\File\File.cpp">
-      <Filter>src\core\File</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Sound\SoundProgram.cpp">
-      <Filter>src\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Sound\SoundRunner.cpp">
-      <Filter>src\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Core\Render.cpp">
-      <Filter>src\core</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp">
-      <Filter>src\Render\Cube</Filter>
-    </ClCompile>
-    <ClCompile Include="src\utils\noise.cpp">
-      <Filter>src\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Gameplay\Player.cpp">
-      <Filter>src\Gameplay</Filter>
-    </ClCompile>
     <ClCompile Include="src\Render\Buffer\VBO.cpp">
       <Filter>src\Render\Buffer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\passes\dbg\dbgPass.cpp">
-      <Filter>src\Render\passes\dbg</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\passes\geometry\geometryPass.cpp">
-      <Filter>src\Render\passes\geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\passes\lighting\raytracer.cpp">
-      <Filter>src\Render\passes\lighting</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\window\WindowHandler.cpp">
       <Filter>src\Render\window</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\ImGuiFileDialog\ImGuiFileDialog.cpp">
       <Filter>Resource Files\ImGuiFileDialog</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\Shader\Material.cpp">
-      <Filter>src\Render\Shader</Filter>
     </ClCompile>
     <ClCompile Include="src\Libraries\include\imgui\imgui.cpp">
       <Filter>Resource Files\imgui</Filter>
@@ -256,30 +124,6 @@
     <ClCompile Include="src\Libraries\include\ImGuizmo\ImSequencer.cpp">
       <Filter>Resource Files\ImGuizmo</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scene\LightingHandler.cpp">
-      <Filter>src\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scene\tempscene.cpp">
-      <Filter>src\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scene\scene.cpp">
-      <Filter>src\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scene\Object\Entity.cpp">
-      <Filter>src\Scene\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\utils\logConsole.cpp">
-      <Filter>src\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scene\ObjectManager.cpp">
-      <Filter>src\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scripting\ScriptObject.cpp">
-      <Filter>src\Scripting</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\Object\Billboard.cpp">
-      <Filter>src\Render\Object</Filter>
-    </ClCompile>
     <ClCompile Include="src\Render\Object\Texture.cpp">
       <Filter>src\Render\Object</Filter>
     </ClCompile>
@@ -292,59 +136,11 @@
     <ClCompile Include="src\Render\Object\Mesh.cpp">
       <Filter>src\Render\Object</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\Object\line.cpp">
-      <Filter>src\Render\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\Shader\FramebufferObject.cpp">
-      <Filter>src\Render\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\Object\Cubemap.cpp">
-      <Filter>src\Render\Object</Filter>
-    </ClCompile>
     <ClCompile Include="src\utils\FE_math.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\Object\SkyBox.cpp">
-      <Filter>src\Render\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\Object\RenderQuad.cpp">
-      <Filter>src\Render\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Editor\UI\ImGui\ImGuiWindow.cpp">
-      <Filter>src\Editor\UI\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Editor\UI\ImGui\FE_ImGui.cpp">
-      <Filter>src\Editor\UI\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Editor\UI\ImGui\OpenSceneWindow.cpp">
-      <Filter>src\Editor\UI\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Systems\Physics\Collision.cpp">
-      <Filter>src\Systems\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Editor\UI\ImGui\ImGuiInclude\EcsInspector.cpp">
-      <Filter>src\Editor\UI\ImGui\ImGuiInclude</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\passes\post\denoise.cpp">
-      <Filter>src\Render\passes\post</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Systems\util\UUID.cpp">
-      <Filter>src\Systems\util</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Scripting\ScriptRunner.h">
-      <Filter>src\Scripting</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scripting\ScriptEngine.h">
-      <Filter>src\Scripting</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h">
-      <Filter>src\Scripting\functions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scripting\Functions\Screen\LuaScreen.h">
-      <Filter>src\Scripting\functions\Screen</Filter>
-    </ClInclude>
     <ClInclude Include="src\camera\Camera.h">
       <Filter>src\Camera</Filter>
     </ClInclude>
@@ -356,9 +152,6 @@
     </ClInclude>
     <ClInclude Include="src\Core\Main.h">
       <Filter>src\core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Shader\Framebuffer.h">
-      <Filter>src\Render\Shader</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\shader\shaderClass.h">
       <Filter>src\Render\Shader</Filter>
@@ -372,39 +165,6 @@
     <ClInclude Include="src\Render\Buffer\VBO.h">
       <Filter>src\Render\Buffer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scripting\Functions\Player\LuaCamera.h">
-      <Filter>src\Scripting\functions\Player</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\File\File.h">
-      <Filter>src\core\File</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Sound\SoundProgram.h">
-      <Filter>src\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Sound\SoundRunner.h">
-      <Filter>src\Sound</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Render.h">
-      <Filter>src\core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Cube\CubeVisualizer.h">
-      <Filter>src\Render\Cube</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\noise.h">
-      <Filter>src\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Gameplay\Player.h">
-      <Filter>src\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\passes\dbg\dbgPass.h">
-      <Filter>src\Render\passes\dbg</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\passes\geometry\geometryPass.h">
-      <Filter>src\Render\passes\geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\passes\lighting\raytracer.h">
-      <Filter>src\Render\passes\lighting</Filter>
-    </ClInclude>
     <ClInclude Include="src\Render\window\WindowHandler.h">
       <Filter>src\Render\window</Filter>
     </ClInclude>
@@ -413,9 +173,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\ImGuiFileDialog\ImGuiFileDialogConfig.h">
       <Filter>Resource Files\ImGuiFileDialog</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Shader\Material.h">
-      <Filter>src\Render\Shader</Filter>
     </ClInclude>
     <ClInclude Include="src\Libraries\include\imgui\imconfig.h">
       <Filter>Resource Files\imgui</Filter>
@@ -465,27 +222,6 @@
     <ClInclude Include="src\Libraries\include\ImGuizmo\ImApp.h">
       <Filter>Resource Files\ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scene\LightingHandler.h">
-      <Filter>src\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\tempscene.h">
-      <Filter>src\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\scene.h">
-      <Filter>src\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\logConsole.h">
-      <Filter>src\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\ObjectManager.h">
-      <Filter>src\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scripting\ScriptObject.h">
-      <Filter>src\Scripting</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Object\Billboard.h">
-      <Filter>src\Render\Object</Filter>
-    </ClInclude>
     <ClInclude Include="src\Render\Object\Texture.h">
       <Filter>src\Render\Object</Filter>
     </ClInclude>
@@ -495,50 +231,8 @@
     <ClInclude Include="src\Render\Object\Mesh.h">
       <Filter>src\Render\Object</Filter>
     </ClInclude>
-    <ClInclude Include="src\Render\Object\line.h">
-      <Filter>src\Render\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\Object\Entity.h">
-      <Filter>src\Scene\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Shader\FramebufferObject.h">
-      <Filter>src\Render\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Object\Cubemap.h">
-      <Filter>src\Render\Object</Filter>
-    </ClInclude>
     <ClInclude Include="src\utils\FE_math.h">
       <Filter>src\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Object\SkyBox.h">
-      <Filter>src\Render\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Object\RenderQuad.h">
-      <Filter>src\Render\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Editor\UI\ImGui\ImGuiWindow.h">
-      <Filter>src\Editor\UI\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Editor\UI\ImGui\FE_ImGui.h">
-      <Filter>src\Editor\UI\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Editor\UI\ImGui\ImGuiInclude.h">
-      <Filter>src\Editor\UI\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Editor\UI\ImGui\OpenSceneWindow.h">
-      <Filter>src\Editor\UI\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Systems\Physics\Collision.h">
-      <Filter>src\Systems\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Editor\UI\ImGui\ImGuiInclude\EcsInspector.h">
-      <Filter>src\Editor\UI\ImGui\ImGuiInclude</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\passes\post\denoise.h">
-      <Filter>src\Render\passes\post</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Systems\util\UUID.h">
-      <Filter>src\Systems\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -548,137 +242,17 @@
     <None Include="src\Libraries\include\ImGuizmo\LICENSE">
       <Filter>Resource Files\ImGuizmo</Filter>
     </None>
-    <None Include="Assets\Shaders\Db\BillBoard.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\BillBoard.vert">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\ComputeRenderQuad.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\OrangeHitbox.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
     <None Include="Assets\Shaders\Db\RenderQuad.frag">
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
     <None Include="Assets\Shaders\Db\RenderQuad.vert">
       <Filter>Resource Files\Shaders\Db</Filter>
     </None>
-    <None Include="Assets\Shaders\Db\solidColour.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\gBuffer\geometryPass.frag">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Assets\Shaders\gBuffer\GeometryPass.geom">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Assets\Shaders\gBuffer\geometryPass.vert">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Assets\Shaders\gBuffer\geometryPassBillBoard.frag">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Assets\Shaders\gBuffer\geometryPassBillBoard.vert">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Assets\Shaders\gBuffer\geometryPassGeom.vert">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
-    <None Include="Assets\Shaders\gBuffer\geometryPassWobble.vert">
-      <Filter>Resource Files\Shaders\gBuffer</Filter>
-    </None>
     <None Include="Assets\Shaders\Lighting\albedo.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\albedoGeom.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\combined.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\Default.geom">
       <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
     <None Include="Assets\Shaders\Lighting\Default.vert">
       <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\DefaultGeom.vert">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\geomfur.geom">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\NormalView.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\PS1.vert">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\shadowMap.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\shadowMap.vert">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\SpecularView.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\Wobble.vert">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\PostProcess\framebuffer.frag">
-      <Filter>Resource Files\Shaders\Post Process</Filter>
-    </None>
-    <None Include="Assets\Shaders\PostProcess\framebuffer.vert">
-      <Filter>Resource Files\Shaders\Post Process</Filter>
-    </None>
-    <None Include="Assets\Shaders\Skybox\skybox.frag">
-      <Filter>Resource Files\Shaders\Skybox</Filter>
-    </None>
-    <None Include="Assets\Shaders\Skybox\skybox.vert">
-      <Filter>Resource Files\Shaders\Skybox</Filter>
-    </None>
-    <None Include="Assets\Shaders\Lighting\combinedNoNormal.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\line.vert">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\line.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\BillBoardSM.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\BillBoardSM.vert">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\compute\viewmatrix.comp">
-      <Filter>Resource Files\Shaders\compute</Filter>
-    </None>
-    <None Include="Assets\Shaders\compute\Raytrace.comp">
-      <Filter>Resource Files\Shaders\compute</Filter>
-    </None>
-    <None Include="Assets\Shaders\compute\emptycomputeShader.comp">
-      <Filter>Resource Files\Shaders\compute</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\VertexViewer.vert">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\VertexViewer.frag">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\VerticeViewer.geom">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\Db\VerticeViewer.vert">
-      <Filter>Resource Files\Shaders\Db</Filter>
-    </None>
-    <None Include="Assets\Shaders\compute\denoise.comp">
-      <Filter>Resource Files\Shaders\compute</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

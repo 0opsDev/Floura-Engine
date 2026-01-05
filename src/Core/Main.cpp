@@ -1,69 +1,73 @@
 #include "Main.h"
 #include "utils/timeUtil.h" 
-#include <thread>
-#include <chrono>
-#include "Scripting/ScriptRunner.h"
-#include "File/File.h"
-#include <Editor/UI/ImGui/ImGuiWindow.h>
-#include "Render.h"
-#include "scene/tempscene.h"
-#include "scene/scene.h"
-#include <Gameplay/Player.h>
 #include <Render/window/WindowHandler.h>
-#include <Scene/LightingHandler.h>
-#include "Editor/UI/ImGui/OpenSceneWindow.h"
-#include <windows.h>
-#include "Sound/SoundRunner.h"
-
-bool Main::sleepState = true;
-float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far // move this to camera class or something
-
-void CloseConsoleWindow() { 
-	HWND hwnd = GetConsoleWindow();
-	if (hwnd != nullptr) { FreeConsole(); PostMessage(hwnd, WM_CLOSE, 0, 0); } 
-}
+#include "Render/Object/ModelAssimp.h"
+#include "utils/FE_math.h"
 
 int main()
 {
-	//CloseConsoleWindow();
 
-	Main::sleepState = true;
-	FileClass::loadSettings();
-	ScriptRunner::init(Scene::sceneName + "/LuaStartup.json");
-	SoundRunner::init();
-	RenderClass::init(windowHandler::width, windowHandler::height);
-	Scene::maincamera.InitCamera(windowHandler::width, windowHandler::height, Scene::initalCameraPos); 	// camera ratio pos
-	Scene::init();
-	Scene::LoadScene(Scene::sceneName);
+	windowHandler::width = 800;
+	windowHandler::height = 600;
+	Camera camera;
+	camera.sensitivity = glm::vec2(100.0f);
 
-	//two classes to test stuff
-	TempScene::init();
-	Player::init();
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4), glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6); // Window Minimum and Maximum version
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //OpenGl Profile
+	glfwWindowHint(GLFW_RESIZABLE, 1); // Start Resizable
+	glfwWindowHint(GLFW_MAXIMIZED, 0); // Start Maximized
+	glfwWindowHint(GLFW_DEPTH_BITS, 16); // DepthBuffer Bit
+	glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
+
+	windowHandler::InitMainWidnow();
+	gladLoadGL(); // load open gl config
+
+	windowHandler::setVSync(false); // Set Vsync to value of doVsync (bool)
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+
+	glFrontFace(GL_CCW);
+
+
+	camera.InitCamera(windowHandler::width, windowHandler::height, glm::vec3(0.0f)); 	// camera ratio pos
+
+
+	Model cubeModel("Assets/Models/lion_head_2k.gltf/lion_head_2k.gltf");
+	glm::vec3 position = glm::vec3(0.0f, -3.0f, -5.0f);
+	glm::vec3 scale = glm::vec3(15.0f, 15.0f, 15.0f);
+	glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	cubeModel.gModelMatrix = FE_Math::composeMatrixWDegrees(position, scale, rotation);
+
+	Shader regular;
+	regular.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Lighting/albedo.frag");
 
 	while (!glfwWindowShouldClose(windowHandler::window)) // GAME LOOP
 	{
 		TimeUtil::update();
-		ScriptRunner::update();
-		Scene::maincamera.Inputs(windowHandler::window);
-		Scene::maincamera.updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
-		Scene::Update();
-		RenderClass::ClearFramebuffers(); // Clear Framebuffers
-		TempScene::Update();
-		Player::update();
-		RenderClass::Render(windowHandler::window, windowHandler::width, windowHandler::height);
-	}
-	// Cleanup: Delete all objects on close
-	Main::sleepState = false;
+		camera.Inputs(windowHandler::window);
+		camera.updateMatrix(60.0f, 0.1f, 1000.0f);
 
-	if (FEImGuiWindow::imGuiEnabled)
-		ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
-	RenderClass::Cleanup();
-	Skybox::Delete();
-	Skybox::cleanup();
-	TempScene::Delete(); // Delete scene
-	SoundRunner::Delete();
-	Scene::Delete();
-	LightingHandler::cleanup();
-	glfwDestroyWindow(windowHandler::window), glfwTerminate(); // Kill opengl
+		glViewport(0, 0, windowHandler::width, windowHandler::height);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glEnable(GL_CULL_FACE);
+
+		cubeModel.draw(regular, camera);
+
+		glfwSwapBuffers(windowHandler::window);
+		glfwPollEvents();
+	}
+
+	glfwDestroyWindow(windowHandler::window), glfwTerminate();
 	return 0;
 }

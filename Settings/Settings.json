@@ -1,9 +1,0 @@
-[
-  {
-    "Scene": "Scenes/Default/objects",
-    "Sensitivity": [ 100.0, 100.0 ],
-    "Vsync": false,
-    "Resolution": [ 1920, 1080 ],
-    "imGui": true
-  }
-]

@@ -1,7 +1,6 @@
 #include "Camera.h"
 #include "Core/Main.h"
 #include <glm/gtx/string_cast.hpp>
-#include "Gameplay/Player.h"
 
 // Global Variables
 bool MouseState = true, toggleESC = true;
@@ -42,7 +41,7 @@ void Camera::Matrix(Shader& shader, const char* uniform)
 void Camera::Inputs(GLFWwindow* window)
 {
     float adjustedSpeed = speed * TimeUtil::deltatime;
-	if (!Player::s_DoGravity)
+	if (true)
 	{
         // Handles inputs
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -86,31 +85,6 @@ void Camera::Inputs(GLFWwindow* window)
             speed = (5.0f + s_scrollSpeed);
         }
 	}
-    else {
-        // Flattened forward direction (ignore Y component)
-        glm::vec3 flatOrientation = glm::normalize(glm::vec3(Orientation.x, 0.0f, Orientation.z));
-        /*
-                // Handles inputs
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        {
-            Position += adjustedSpeed * flatOrientation;
-        }
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        {
-            Position += adjustedSpeed * -glm::normalize(glm::cross(flatOrientation, Up));
-        }
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        {
-            Position += adjustedSpeed * -flatOrientation;
-        }
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        {
-            Position += adjustedSpeed * glm::normalize(glm::cross(flatOrientation, Up));
-        }
-        */
-
-        speed = s_scrollSpeed;
-    }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
@@ -173,51 +147,4 @@ void Camera::Inputs(GLFWwindow* window)
         // Makes sure the next time the camera looks around it doesn't jump
         firstClick = true;
     }
-}
-
-bool Camera::isPointInFrustum(const glm::vec3& worldPos)
-{
-    glm::vec4 clipPos = Camera::cameraMatrix * glm::vec4(worldPos, 1.0f);
-    if (clipPos.w <= 0.0f) return false;
-
-    glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
-
-    return ndc.x >= -1.0f && ndc.x <= 1.0f &&
-        ndc.y >= -1.0f && ndc.y <= 1.0f &&
-        ndc.z >= -1.0f && ndc.z <= 1.0f;
-}
-
-bool Camera::isRadiusInFrustum(const glm::vec3& worldPos, const float radius)
-{
-    glm::vec4 clipPos = Camera::cameraMatrix * glm::vec4(worldPos, 1.0f);
-    if (clipPos.w <= 0.0f) return false;
-
-    float ndcRadius = radius / clipPos.w;
-
-    float ndcRadiusX = (ndcRadius + 1 + (0.1));
-    float ndcRadiusY = (ndcRadius + 1 + (0.1));
-    float ndcRadiusZ = (ndcRadius + 1 + (0.1));
-
-    glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
-
-    return ndc.x + ndcRadiusX >= -1.0f && ndc.x - ndcRadiusX <= 1.0f &&
-        ndc.y + ndcRadiusY >= -1.0f && ndc.y - ndcRadiusY <= 1.0f &&
-        ndc.z + ndcRadiusZ >= -1.0f && ndc.z - ndcRadiusZ <= 1.0f;
-}
-
-bool Camera::isBoxInFrustum(const glm::vec3& worldPos, const glm::vec3& Scale)
-{
-    glm::vec4 clipPos = Camera::cameraMatrix * glm::vec4(worldPos, 1.0f);
-    if (clipPos.w <= 0.0f) return false;
-
-    glm::vec3 ndcRadius;
-    ndcRadius.x = (Scale.x + 1 + (0.1)) / clipPos.w;
-    ndcRadius.y = (Scale.y + 1 + (0.1)) / clipPos.w;
-    ndcRadius.z = (Scale.z + 1 + (0.1)) / clipPos.w;
-
-    glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
-
-    return ndc.x + ndcRadius.x >= -1.0f && ndc.x - ndcRadius.x <= 1.0f &&
-        ndc.y + ndcRadius.y >= -1.0f && ndc.y - ndcRadius.y <= 1.0f &&
-        ndc.z + ndcRadius.z >= -1.0f && ndc.z - ndcRadius.y <= 1.0f;
 }
