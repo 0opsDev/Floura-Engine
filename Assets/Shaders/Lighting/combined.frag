@@ -326,7 +326,7 @@ vec4 reflections(vec4 inp)
 void main()
 {
 	//early cutoffs
-	if (linearizeDepth(gl_FragCoord.z) >= FarPlane)
+	if (linearizeDepth(gl_FragCoord.z) > FarPlane)
 	discard;
 
 	vec4 diffuseTex = texture(texture_diffuse0, texCoord);

@@ -6,8 +6,9 @@ layout(rgba32f, binding = 1) uniform image2D denoiseTex;
 layout(rgba32f, binding = 2) uniform image2D NoiseMask;
 
 // uniforms
+uniform sampler2D depthMap; // use this later for denoising, also take normal
 uniform bool doDenoise;
-float alphavalue = 0.5f;
+float alphavalue = 0.3f;
 uniform int minRadius;
 
 void main() {
@@ -21,6 +22,12 @@ void main() {
 
     vec4 colour = imageLoad(raytracedTex, pixelCoords);
     float isNoisy = imageLoad(NoiseMask, pixelCoords).r;
+
+    if (colour.a < 0.1f)
+    {
+        imageStore(denoiseTex, pixelCoords, vec4(0.0f));
+        return;
+    }
 
     // if denosing is turned off
     //if (pixelCoords.x < size.x * 0.5f ){
@@ -46,6 +53,10 @@ void main() {
                 neighbourCoords = clamp(neighbourCoords, ivec2(0, 0), size - 1);
                 float neighbourNoise = imageLoad(NoiseMask, neighbourCoords).r;
 
+                float neighbourColouralpha = imageLoad(raytracedTex, neighbourCoords).a;
+                if (neighbourColouralpha < 0.1f)
+                continue;
+
                 dencity += neighbourNoise;
             }
     }
@@ -67,12 +78,17 @@ void main() {
                 ivec2 neighbourCoords = pixelCoords + ivec2(x, y);
                 neighbourCoords = clamp(neighbourCoords, ivec2(0, 0), size - 1);
 
-                vec3 neighbourColour = imageLoad(raytracedTex, neighbourCoords).rgb;
+                vec4 neighbourColour = imageLoad(raytracedTex, neighbourCoords);
                 float neighbourNoise = imageLoad(NoiseMask, neighbourCoords).r;
-                float w = 1.0f - neighbourNoise;
-                w = w * w;
 
-                accumulated += neighbourColour * w;
+                //if (neighbourColour.a < 0.1f)
+                //continue;
+
+
+                float w = 1.0f - neighbourNoise;
+                w = max(w * w, 0.0001f);
+
+                accumulated += neighbourColour.rgb * w;
                 weight += w;
             }
     }

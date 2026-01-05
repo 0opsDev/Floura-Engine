@@ -22,7 +22,7 @@
         "isBackFaceCulling": true,
         "name": "torus",
         "path": "Assets/Models/basic shapes/torus.gltf",
-        "smoothnessValue": 0.0,
+        "smoothnessValue": 0.4000000059604645,
         "uvScale": [
             1.0,
             1.0
@@ -32,7 +32,7 @@
         "CastShadow": true,
         "Location": [
             0.0,
-            -1.0,
+            0.0,
             0.0
         ],
         "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
@@ -51,7 +51,7 @@
         "isBackFaceCulling": true,
         "name": "plane",
         "path": "Assets/Models/basic shapes/plane.gltf",
-        "smoothnessValue": 0.0,
+        "smoothnessValue": 0.4000000059604645,
         "uvScale": [
             20.0,
             20.0
@@ -80,7 +80,7 @@
         "isBackFaceCulling": true,
         "name": "slope",
         "path": "Assets/Models/basic shapes/slope.gltf",
-        "smoothnessValue": 0.0,
+        "smoothnessValue": 0.4000000059604645,
         "uvScale": [
             4.0,
             18.0
@@ -109,7 +109,7 @@
         "isBackFaceCulling": true,
         "name": "slope",
         "path": "Assets/Models/basic shapes/slope.gltf",
-        "smoothnessValue": 0.0,
+        "smoothnessValue": 0.4000000059604645,
         "uvScale": [
             4.0,
             18.0
@@ -138,7 +138,7 @@
         "isBackFaceCulling": true,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf",
-        "smoothnessValue": 0.0,
+        "smoothnessValue": 0.4000000059604645,
         "uvScale": [
             20.0,
             8.0
@@ -167,7 +167,7 @@
         "isBackFaceCulling": true,
         "name": "slope",
         "path": "Assets/Models/basic shapes/slope.gltf",
-        "smoothnessValue": 0.0,
+        "smoothnessValue": 0.4000000059604645,
         "uvScale": [
             3.0,
             3.0
@@ -196,7 +196,7 @@
         "isBackFaceCulling": true,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf",
-        "smoothnessValue": 0.0,
+        "smoothnessValue": 0.4000000059604645,
         "uvScale": [
             7.0,
             7.0
@@ -225,7 +225,7 @@
         "isBackFaceCulling": true,
         "name": "cylinder",
         "path": "Assets/Models/basic shapes/cylinder.gltf",
-        "smoothnessValue": 0.0,
+        "smoothnessValue": 0.4000000059604645,
         "uvScale": [
             2.0,
             7.0
@@ -254,7 +254,7 @@
         "isBackFaceCulling": true,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf",
-        "smoothnessValue": 0.0,
+        "smoothnessValue": 0.4000000059604645,
         "uvScale": [
             18.0,
             10.0
@@ -283,7 +283,7 @@
         "isBackFaceCulling": true,
         "name": "cylinder",
         "path": "Assets/Models/basic shapes/cylinder.gltf",
-        "smoothnessValue": 0.0,
+        "smoothnessValue": 0.4000000059604645,
         "uvScale": [
             1.0,
             1.0

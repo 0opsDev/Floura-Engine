@@ -77,11 +77,15 @@ void denoiser::RenderToQuad() {
 
 void denoiser::render() {
 
-	denoiseCompute.ActivateCompute(ceil(CurrentWidth / 8), ceil(CurrentHeight / 4), 1);
-
 	denoiseCompute.Activate();
 	denoiseCompute.setBool("doDenoise", doDenoise);
 	denoiseCompute.setInt("minRadius", minRadius);
+
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
+	denoiseCompute.setInt("depthMap", 5);
+
+	denoiseCompute.ActivateCompute((CurrentWidth + 7) / 8, (CurrentHeight + 3) / 4, 1);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

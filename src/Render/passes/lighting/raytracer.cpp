@@ -22,8 +22,8 @@ GLuint raytracer::quickSSBOID;
 GLuint raytracer::bvhSSBO;
 float raytracer::downscaleFactor = 0.58f;
 float raytracer::maxDistance = 100.0f;
-float raytracer::noiseThreshold = 0.1f;
-float raytracer::reflectionDistance = 30.0f;
+float raytracer::noiseThreshold = 0.3f;
+float raytracer::reflectionDistance = 50.0f;
 int raytracer::reflectionBounces = 2;
 bool raytracer::doAccumulate = true;
 bool raytracer::resetAccumulationOnDirty = true;
@@ -65,7 +65,7 @@ void raytracer::init() {
 
 	// load bluenoise texture
 	bluenoise = new Texture();
-	bluenoise->createTexture("Assets/Dependants/LDR_LLL1_0.png", "misc", 5);
+	bluenoise->createTexture("Assets/Dependants/LDR_LLL1_0.png", "misc", 6);
 }
 
 void raytracer::uploadToRaytracer(Model* model)
@@ -408,8 +408,13 @@ void raytracer::render() {
 		testCompute.setBool("doAccumulate", doAccumulate);
 	}
 	testCompute.Activate();
+
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
+	testCompute.setInt("depthMap", 5);
+
 	bluenoise->Bind();
-	testCompute.setInt("BlueNoiseTex", 5);
-	testCompute.ActivateCompute(ceil(CurrentWidth / 8), ceil(CurrentHeight / 4), 1);
+	testCompute.setInt("BlueNoiseTex", 6);
+	testCompute.ActivateCompute((CurrentWidth + 7) / 8, (CurrentHeight + 3) / 4, 1);
 	bluenoise->Unbind();
 }

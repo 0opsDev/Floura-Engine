@@ -7,6 +7,7 @@ layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D screen;
 layout(rgba32f, binding = 2) uniform image2D NoiseMask;
 
+uniform sampler2D depthMap;
 
 struct triangle // need 16 byte allignment
 {
@@ -92,6 +93,7 @@ uniform sampler2D BlueNoiseTex;
 // aabb
 
 // hit result struct
+
 struct hitResult
 {
     bool hit;
@@ -102,6 +104,12 @@ struct hitResult
     vec2 uv;
     vec3 lightNormal;
 };
+
+float linearizeDepth(float depth, float NearPlane, float FarPlane)
+{
+	return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
+}
+
 
 vec3 transformPoint(vec3 p, mat4 matrix)
 {
@@ -426,7 +434,7 @@ void main() {
     // return if off screen
     if (pixelCoords.x >= size.x || pixelCoords.y >= size.y) return;
 
-    vec4 finalcolour = vec4(skycolour, 0.0f);
+    vec4 finalcolour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
     vec4 noiseStatus = vec4(1.0, 1.0, 1.0, 1.0);
 
     // clear image with bluish colour
@@ -435,9 +443,23 @@ void main() {
         imageStore(NoiseMask, pixelCoords, noiseStatus);
     }
 
+    const ivec2 depthsize = textureSize(depthMap, 0);
+
+    vec2 depthUV = vec2(pixelCoords) / vec2(size);
+
+    float gDepth = texture(depthMap, depthUV).r;
+
+    float depthDist = linearizeDepth(gDepth, 0.1f, maxDistance);
+
+    if (depthDist >= maxDistance)
+    {
+        imageStore(screen, pixelCoords, vec4(skycolour, 0.0f));
+        return;
+    }
+
     // if pixel already exisits skip
     vec4 existingColor = imageLoad(NoiseMask, pixelCoords);
-    if (existingColor.r < 1.0f ) {return;}
+    if (existingColor.r < 1.0f) {return;}
 
     imageStore(NoiseMask, pixelCoords, noiseStatus);
 
@@ -462,6 +484,7 @@ void main() {
     //if (reflectionBounces > 0)finalcolour.xyz = reflectionPass(firstHit, rayDir, reflectionBounces, reflectionDistance);
 
     }
+    // imageStore(screen, pixelCoords, vec4(vec3(gDepth), 1.0f));
     imageStore(screen, pixelCoords, finalcolour);
     imageStore(NoiseMask, pixelCoords, noiseStatus);
 } // closer
