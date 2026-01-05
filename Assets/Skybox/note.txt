@@ -1,0 +1,1 @@
+crashes on 24 bit colour depth, use 32 for now

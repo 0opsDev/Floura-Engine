@@ -1,6 +1,7 @@
 #ifndef MESH_CLASS_H
 #define MESH_CLASS_H
 
+#include "Systems/Physics/Collision.h"
 #include <Render/Shader/shaderClass.h>
 #include "string"
 #include "iostream"
@@ -8,23 +9,58 @@
 #include "Render/Buffer/EBO.h"
 #include "Render/Object/Texture.h"
 #include <xhash>
-#include "camera/Camera.h"
+
 class Mesh {
 public:
+
+    uint64_t UUID;
 
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     std::vector<Texture> textures;
 
     void create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures);
-    void draw(Shader &shader, Camera camera, glm::mat4 meshMatrix);
+    void createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
+    void draw(Shader &shader);
 
     void Delete();
+
+    void updatePosition(glm::vec3 position);
+	void updateGlobalPosition(glm::vec3 position);
+	void updateRotation(glm::vec3 rotation);
+	void updateScale(glm::vec3 scale);
+	void updateMatrix(glm::mat4 matrix);
+
+    
+
+    void createAABB();
+	void updateAABB(); // no args for now
+
+	Collision::AABB boxCollider;
+	Collision::AABB returnAABB() { return boxCollider; }
+	Collision::rubiksCubePoints aabbPoints;
+
+    // find 8 futhest sides
+
+	// construct from those 8 points
+    // check if any other amount of points would give a better fit
+
+	int drawType = 0; // 0 = triangles, 1 = lines, 2 = points
+
+    std::string name = "empty";
     
 private:
+    
+    glm::mat4 meshMatrix = glm::mat4(1.0f);
+    glm::vec3 position = glm::vec3(0.0f);
+    glm::vec3 globalPosition = glm::vec3(0.0f);
+    glm::quat rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
+    glm::vec3 scale = glm::vec3(1.0f);
 
     VAO VAO;
     void setupMesh();
+
+	Collision::AABB createAABBfromMesh(); // moved to private for now
 };
 
 #endif

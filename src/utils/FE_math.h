@@ -7,6 +7,44 @@
 class FE_Math
 {
 public:
+
+	static bool isInRange(glm::vec3 victimPosition, glm::vec3 viewPosition, float range);
+
+	static float GetProximityValueLinear(const glm::vec3& object_position, const glm::vec3& camera_position, float radius, float min, float max);
+
+	static glm::mat4 composeMatrix(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation);
+
+	static float calculateCenter1D(glm::vec2 input);
+
+	static float distanceFromTwoPoints1D(glm::vec2 input);
+
+	static float furthestPoint(glm::vec2 input);
+
+	static float magnitude(glm::vec3 v);
+
+	static float AreaOfTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3);
+
+	static glm::vec3 RadiansToNormal(float yawRad, float pitchRad);
+
+	static void NormalToRadians(glm::vec3 normal, float& yawRad, float& pitchRad);
+
+	static glm::vec3 getForwardFromMatrix(const glm::mat4& matrix);
+
+	static glm::vec3 getForwardFromViewMatrix(const glm::mat4& viewMatrix);
+
+	static glm::vec2 findTwoFurthestPointsX(std::vector<glm::vec3> points);
+
+	static glm::vec2 findTwoFurthestPointsY(std::vector<glm::vec3> points);
+
+	static glm::vec2 findTwoFurthestPointsZ(std::vector<glm::vec3> points);
+
+	static void transformPoint(glm::vec3& point, glm::mat4 matrix);
+
+	// pad vec3 from 0.0f
+	static glm::vec3 pad(glm::vec3 value);
+
+	static glm::vec3 normalFrom2Points(glm::vec3 p1, glm::vec3 p2);
+
 	static glm::mat4 composeMatrixWDegrees(glm::vec3 p, glm::vec3 s, glm::vec3 r);
 
 };

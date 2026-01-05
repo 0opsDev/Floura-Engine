@@ -11,30 +11,39 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include "core/Render.h"
+#include "Systems/Physics/Collision.h"
 #include <xhash>
 
 class Model {
 public:
 
-	struct transformation {
-		glm::vec3 position = glm::vec3(0.0f);
-		glm::vec3 rotation = glm::vec3(0.0f);
-		glm::quat qRotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
-		glm::vec3 scale = glm::vec3(1.0f);
-	};
+	uint64_t UUID;
 
-	transformation globalTransformation;
+	RenderClass::transformation globalTransformation;
 	glm::mat4 gModelMatrix = glm::mat4(1.0f);
 
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	void updatePosition(glm::vec3 Position);
+
+	void updateRotation(glm::vec3 Rotation);
+
+	void updateScale(glm::vec3 Scale);
+
+	void updateTranformation();
 
 	Model(const char* file);
 	~Model();
 
-	void draw(Shader &shader, Camera camera);
+	void draw(Shader &shader);
 
+	void createMeshAABBs();
+
+	void updateMeshAABBs();
+
+	// AABBS position stored in local space
+	std::vector<Collision::AABB> MeshAABBs;
 	std::vector<Mesh> meshes;
-	std::vector<transformation>localTransformation;
+	std::vector<RenderClass::transformation>localTransformation;
 	std::vector <glm::mat4> lModelMatrix;
 
 private:

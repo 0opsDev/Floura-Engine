@@ -24,7 +24,7 @@
     <ProjectGuid>{29C223FE-CA70-4ABA-A48A-6CFFF2881636}</ProjectGuid>
     <RootNamespace>CppOpenGL</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>FlouraParser</ProjectName>
+    <ProjectName>FlouraEngineGL</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -144,8 +144,15 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\ImGuiFileDialog\ImGuiFileDialog.cpp" />
     <ClCompile Include="src\camera\Camera.cpp" />
+    <ClCompile Include="src\Core\File\File.cpp" />
     <ClCompile Include="src\Core\glad.c" />
     <ClCompile Include="src\Core\Main.cpp" />
+    <ClCompile Include="src\Core\Render.cpp" />
+    <ClCompile Include="src\Editor\UI\ImGui\FE_ImGui.cpp" />
+    <ClCompile Include="src\Editor\UI\ImGui\ImGuiInclude\EcsInspector.cpp" />
+    <ClCompile Include="src\Editor\UI\ImGui\ImGuiWindow.cpp" />
+    <ClCompile Include="src\Editor\UI\ImGui\OpenSceneWindow.cpp" />
+    <ClCompile Include="src\Gameplay\Player.cpp" />
     <ClCompile Include="src\Libraries\include\ImGuizmo\GraphEditor.cpp" />
     <ClCompile Include="src\Libraries\include\ImGuizmo\ImCurveEdit.cpp" />
     <ClCompile Include="src\Libraries\include\ImGuizmo\ImGradient.cpp" />
@@ -161,13 +168,41 @@
     <ClCompile Include="src\Render\Buffer\EBO.cpp" />
     <ClCompile Include="src\Render\Buffer\VAO.cpp" />
     <ClCompile Include="src\Render\Buffer\VBO.cpp" />
+    <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp" />
+    <ClCompile Include="src\Render\Object\Billboard.cpp" />
+    <ClCompile Include="src\Render\Object\Cubemap.cpp" />
+    <ClCompile Include="src\Render\Object\line.cpp" />
     <ClCompile Include="src\Render\Object\Mesh.cpp" />
     <ClCompile Include="src\Render\Object\ModelAssimp.cpp" />
+    <ClCompile Include="src\Render\Object\RenderQuad.cpp" />
+    <ClCompile Include="src\Render\Object\SkyBox.cpp" />
     <ClCompile Include="src\Render\Object\stb.cpp" />
     <ClCompile Include="src\Render\Object\Texture.cpp" />
+    <ClCompile Include="src\Render\passes\geometry\geometryPass.cpp" />
+    <ClCompile Include="src\Render\passes\lighting\raytracer.cpp" />
+    <ClCompile Include="src\Render\passes\post\denoise.cpp" />
+    <ClCompile Include="src\Render\Shader\Framebuffer.cpp" />
+    <ClCompile Include="src\Render\Shader\FramebufferObject.cpp" />
+    <ClCompile Include="src\Render\Shader\Material.cpp" />
     <ClCompile Include="src\Render\shader\ShaderClass.cpp" />
     <ClCompile Include="src\Render\window\WindowHandler.cpp" />
+    <ClCompile Include="src\Scene\LightingHandler.cpp" />
+    <ClCompile Include="src\Scene\ObjectManager.cpp" />
+    <ClCompile Include="src\Scene\Object\Entity.cpp" />
+    <ClCompile Include="src\Scene\scene.cpp" />
+    <ClCompile Include="src\Scene\tempscene.cpp" />
+    <ClCompile Include="src\Scripting\Functions\Player\LuaCamera.cpp" />
+    <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp" />
+    <ClCompile Include="src\Scripting\ScriptEngine.cpp" />
+    <ClCompile Include="src\Scripting\ScriptObject.cpp" />
+    <ClCompile Include="src\Scripting\ScriptRunner.cpp" />
+    <ClCompile Include="src\Sound\SoundProgram.cpp" />
+    <ClCompile Include="src\Sound\SoundRunner.cpp" />
+    <ClCompile Include="src\Systems\Physics\Collision.cpp" />
+    <ClCompile Include="src\Systems\util\UUID.cpp" />
     <ClCompile Include="src\utils\FE_math.cpp" />
+    <ClCompile Include="src\utils\logConsole.cpp" />
+    <ClCompile Include="src\utils\noise.cpp" />
     <ClCompile Include="src\utils\ScreenUtils.cpp" />
     <ClCompile Include="src\utils\timeUtil.cpp" />
   </ItemGroup>
@@ -175,7 +210,15 @@
     <ClInclude Include="..\..\..\ImGuiFileDialog\ImGuiFileDialog.h" />
     <ClInclude Include="..\..\..\ImGuiFileDialog\ImGuiFileDialogConfig.h" />
     <ClInclude Include="src\camera\Camera.h" />
+    <ClInclude Include="src\Core\File\File.h" />
     <ClInclude Include="src\Core\Main.h" />
+    <ClInclude Include="src\Core\Render.h" />
+    <ClInclude Include="src\Editor\UI\ImGui\FE_ImGui.h" />
+    <ClInclude Include="src\Editor\UI\ImGui\ImGuiInclude.h" />
+    <ClInclude Include="src\Editor\UI\ImGui\ImGuiInclude\EcsInspector.h" />
+    <ClInclude Include="src\Editor\UI\ImGui\ImGuiWindow.h" />
+    <ClInclude Include="src\Editor\UI\ImGui\OpenSceneWindow.h" />
+    <ClInclude Include="src\Gameplay\Player.h" />
     <ClInclude Include="src\Libraries\include\ImGuizmo\GraphEditor.h" />
     <ClInclude Include="src\Libraries\include\ImGuizmo\ImApp.h" />
     <ClInclude Include="src\Libraries\include\ImGuizmo\ImCurveEdit.h" />
@@ -195,12 +238,41 @@
     <ClInclude Include="src\Render\Buffer\EBO.h" />
     <ClInclude Include="src\Render\Buffer\VAO.h" />
     <ClInclude Include="src\Render\Buffer\VBO.h" />
+    <ClInclude Include="src\Render\Cube\CubeVisualizer.h" />
+    <ClInclude Include="src\Render\Object\Billboard.h" />
+    <ClInclude Include="src\Render\Object\Cubemap.h" />
+    <ClInclude Include="src\Render\Object\line.h" />
     <ClInclude Include="src\Render\Object\Mesh.h" />
     <ClInclude Include="src\Render\Object\ModelAssimp.h" />
+    <ClInclude Include="src\Render\Object\RenderQuad.h" />
+    <ClInclude Include="src\Render\Object\SkyBox.h" />
     <ClInclude Include="src\Render\Object\Texture.h" />
+    <ClInclude Include="src\Render\passes\geometry\geometryPass.h" />
+    <ClInclude Include="src\Render\passes\lighting\raytracer.h" />
+    <ClInclude Include="src\Render\passes\post\denoise.h" />
+    <ClInclude Include="src\Render\Shader\Framebuffer.h" />
+    <ClInclude Include="src\Render\Shader\FramebufferObject.h" />
+    <ClInclude Include="src\Render\Shader\Material.h" />
     <ClInclude Include="src\Render\shader\shaderClass.h" />
     <ClInclude Include="src\Render\window\WindowHandler.h" />
+    <ClInclude Include="src\Scene\LightingHandler.h" />
+    <ClInclude Include="src\Scene\ObjectManager.h" />
+    <ClInclude Include="src\Scene\Object\Entity.h" />
+    <ClInclude Include="src\Scene\scene.h" />
+    <ClInclude Include="src\Scene\tempscene.h" />
+    <ClInclude Include="src\Scripting\Functions\Player\LuaCamera.h" />
+    <ClInclude Include="src\Scripting\Functions\Screen\LuaScreen.h" />
+    <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h" />
+    <ClInclude Include="src\Scripting\ScriptEngine.h" />
+    <ClInclude Include="src\Scripting\ScriptObject.h" />
+    <ClInclude Include="src\Scripting\ScriptRunner.h" />
+    <ClInclude Include="src\Sound\SoundProgram.h" />
+    <ClInclude Include="src\Sound\SoundRunner.h" />
+    <ClInclude Include="src\Systems\Physics\Collision.h" />
+    <ClInclude Include="src\Systems\util\UUID.h" />
     <ClInclude Include="src\utils\FE_math.h" />
+    <ClInclude Include="src\utils\logConsole.h" />
+    <ClInclude Include="src\utils\noise.h" />
     <ClInclude Include="src\utils\ScreenUtils.h" />
     <ClInclude Include="src\utils\timeUtil.h" />
   </ItemGroup>

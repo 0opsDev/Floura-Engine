@@ -1,4 +1,5 @@
 #include "shaderClass.h"
+#include <utils/logConsole.h>
 
 
 std::string get_file_contents(const char* filename)

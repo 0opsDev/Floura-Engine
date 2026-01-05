@@ -1,0 +1,37 @@
+#ifndef FILE_H
+#define FILE_H
+#include <json/json.hpp>
+#include <utility>
+#include <string>
+#include <stdexcept>
+#include<fstream>
+#include<sstream>
+#include<iostream>
+#include<cerrno>
+#include <glm/fwd.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <Render/Shader/shaderClass.h>
+
+using json = nlohmann::json;
+
+class FileClass
+{
+public:
+
+	// Text editor
+	static std::string currentPath; // Current working directory path
+	static std::string Contents;
+
+	static void saveContents();
+	static void loadContents();
+
+	// General
+	static std::pair<std::string, std::string> getShaderPaths(int vertIndex, int fragIndex);
+
+	static void loadShaderProgram(int VertNum, int FragNum, Shader& shaderProgram); //shader program switcher
+
+	static void loadSettings();
+	static void saveSettings();
+};
+
+#endif // FILE_H

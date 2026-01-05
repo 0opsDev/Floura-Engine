@@ -1,0 +1,490 @@
+#version 460 core
+
+#extension GL_ARB_gpu_shader_int64 : enable
+
+layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
+
+layout(rgba32f, binding = 0) uniform image2D screen;
+layout(rgba32f, binding = 2) uniform image2D NoiseMask;
+
+uniform sampler2D depthMap;
+
+struct triangle // need 16 byte allignment
+{
+    // position
+    vec4 a, b, c;
+    // colour
+    vec4 aColour,  bColour, cColour;
+    // texUV
+    vec4 aTex; // 16 bytes
+    vec4 bTex; // 16 bytes
+    vec4 cTex; // 16 bytes
+    // normal
+    vec4 aNormal, bNormal, cNormal;
+    // tangents
+    vec4 aTangent, bTangent, cTangent;
+    // bitangants
+    vec4 aBiTangent, bBiTangent,  cBiTangent;
+};
+
+struct rayMesh
+{
+	vec4 AABBpos; // 16
+	vec4 AABBscale; // 16
+
+	int triangleCount; // 4
+	int meshIndex; // 4
+    int modelIndex;
+    int materialIndex;
+
+    uint64_t modelUUID;
+    uint64_t meshUUID;
+};
+
+struct modelQuickData
+{
+    uint64_t modelUUID;
+    uint64_t padding;
+    mat4 ModelMatrix;
+};
+
+struct rootnodeAABB
+{
+    vec4 position;
+    vec4 scale;
+
+    uint64_t modelUUID;
+	uint64_t padding;
+};
+
+layout(std430, binding = 3) buffer TriangleBuffer {
+    triangle triangles[];
+};
+layout(std430, binding = 4) buffer MeshBuffer {
+    rayMesh meshes[];
+};
+layout(std430, binding = 5) buffer QuickBuffer {
+    modelQuickData quickModels[];
+};
+layout(std430, binding = 6) buffer RootAABBBuffer {
+    rootnodeAABB rootAABBs[];
+};
+// uniforms
+
+#define INF 3.40282347e+38f
+
+uniform mat4 u_ViewMatrix;
+uniform mat4 u_ProjectionMatrix;
+uniform vec3 cameraPosition;
+uniform float time;
+uniform float deltatime;
+uniform bool cameraMoved;
+
+uniform float maxDistance;
+uniform float noiseThreshold;
+uniform float reflectionDistance;
+uniform int reflectionBounces;
+uniform vec3 skycolour;
+uniform bool doAccumulate;
+uniform sampler2D BlueNoiseTex;
+
+//vec3 skycolour = vec3(0.0f);
+
+// aabb
+
+// hit result struct
+
+struct hitResult
+{
+    bool hit;
+    vec3 normal;
+    vec3 lasthit;
+    float hitDistance;
+    vec4 colour;
+    vec2 uv;
+    vec3 lightNormal;
+};
+
+float linearizeDepth(float depth, float NearPlane, float FarPlane)
+{
+	return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
+}
+
+
+vec3 transformPoint(vec3 p, mat4 matrix)
+{
+    vec4 transformed = matrix * glm::vec4(p, 1.0f);
+    return vec3(transformed);
+};
+
+hitResult AabbVsRay(vec3 rayOrigin, vec3 rayDir, vec3 position, vec3 scale)
+{
+    hitResult hr; hr.hit = false; hr.hitDistance = INF;
+	vec3 Min = position - scale;
+	vec3 Max = position + scale;
+
+	// inverted direction
+	vec3 invDir = 1.0f / rayDir;
+
+	// calc intersection distances for each axis
+	vec3 t0 = (Min - rayOrigin) * invDir;
+	vec3 t1 = (Max - rayOrigin) * invDir;
+
+	// mae sure tmin is the entry point, tmax is the exit point for each axis
+	vec3 tMin = min(t0, t1);
+	vec3 tMax = max(t0, t1);
+
+	// find entry and exit tvalues for the ray
+	float tNear = max( max(tMin.x, tMin.y), tMin.z );
+	float tFar = min( min(tMax.x, tMax.y), tMax.z );
+
+	// near > far = misses the box
+	// far < 0 = behind the box
+    // far > max_distance = out of distance
+
+	if (tNear > tFar || tFar < 0) {return hr;}
+    hr.hit = true;
+    hr.hitDistance = tNear;
+    return hr;
+}
+
+// barycentric
+
+float areaOfTriangle(vec3 a, vec3 b, vec3 c)
+{
+    // 2 vectors from points
+    vec3 u = b - a;
+    vec3 v = c - a;
+
+    // cross product of u and v
+    vec3 cp = cross(u, v);
+
+    // return half of magnitue of the vector "cp"
+    return length(cp) * 0.5;
+
+}
+
+
+// trianglevsray
+hitResult triangleVsRay(vec3 rayOrigin, vec3 rayDir, triangle vertice, float maxDist)
+{
+    hitResult data;
+    data.hit = false;
+    data.lasthit = vec3(0.0f);
+    data.hitDistance = 0.0f;
+
+    vec3 normal = normalize(cross(vertice.b.xyz - vertice.a.xyz, vertice.c.xyz - vertice.a.xyz));
+
+    if (dot(normal, rayDir) > 0.0f) {
+    normal = -normal;}
+
+    data.normal = normal;
+
+
+    // check if ray is parallel to triangle
+	float dotProduct = dot(normal, rayDir);
+	if (abs(dotProduct) < 0.0001f) return data;
+
+    	// Find the distance 't' to the plane
+	float t = dot(vertice.a.xyz - rayOrigin, normal) / dotProduct;
+
+	// if t is negative, the triangle is behind the ray, also if past max distance disgard
+	if (t < 0 || t > maxDist) return data;
+
+	// Find the intersection point
+	vec3 p = rayOrigin + (t * rayDir);
+
+    // triangle in point collision
+
+    float totalarea = areaOfTriangle(vertice.a.xyz,vertice.b.xyz,vertice.c.xyz);
+	// calculate area of sub-triangles
+	float areaPAB = areaOfTriangle(p, vertice.a.xyz, vertice.b.xyz);
+	float areaPBC = areaOfTriangle(p, vertice.b.xyz, vertice.c.xyz);
+	float areaPCA = areaOfTriangle(p, vertice.c.xyz, vertice.a.xyz);
+
+    //  
+    float weightA = areaPBC / totalarea;
+    float weightB = areaPCA / totalarea;
+    float weightC = areaPAB / totalarea;
+
+    float areasum = areaPAB + areaPBC + areaPCA;
+    float relativeEpsilon = 0.0001f * totalarea;
+
+	// Check if the intersection point is inside the triangle
+	if (abs(totalarea - areasum) < relativeEpsilon)
+	{
+		data.hit = true;
+		data.lasthit = p;
+		data.hitDistance = t;
+        data.uv = (weightA  * vertice.aTex.xy) + (weightB *  vertice.bTex.xy) + (weightC * vertice.cTex.xy); 
+
+        vec3 interpolated = (weightA * vertice.aNormal.xyz) + 
+                    (weightB * vertice.bNormal.xyz) + 
+                    (weightC * vertice.cNormal.xyz);
+
+        data.lightNormal = normalize(interpolated);
+
+        if (dot(data.normal, data.lightNormal) < 0.0f) {
+        data.lightNormal = -data.lightNormal;
+        }
+	}
+
+    return data;
+}
+
+vec3 rayDirfromCam(mat4 projection, mat4 view, ivec2 pixelCoords, ivec2 size)
+{
+    // uv
+    vec2 uv = (vec2(pixelCoords) + 0.5) / vec2(size) * 2.0 - 1.0;
+    vec4 target = projection * vec4(uv.x, uv.y, -1.0, 1.0);
+    vec3 rayDirView = normalize(target.xyz / target.w);
+    vec3 rayDirWorld = normalize(mat3(view) * rayDirView);
+
+    return normalize(rayDirWorld);
+}
+
+
+hitResult simpleTrace(vec3 rayOrigin, vec3 rayDir, float maxDist)
+{
+    hitResult finalhit; finalhit.hit = false; finalhit.hitDistance = INF; finalhit.lasthit;
+
+    for (int i = 0; i < triangles.length(); i++)
+    {
+            hitResult HR = triangleVsRay(rayOrigin, rayDir, triangles[i], maxDist); //max_distance
+            
+            if (HR.hit)
+            {
+                if (HR.hitDistance < finalhit.hitDistance)
+                {
+                finalhit = HR;
+                finalhit.colour = vec4(triangles[i].a.w, triangles[i].b.w, triangles[i].c.w, 1.0f);
+                } // close dis
+            }
+    }
+
+    return finalhit;
+}
+
+hitResult BreadPhaseSceneTrace(vec3 rayOrigin, vec3 rayDir, float maxDist)
+{
+    hitResult finalhit; 
+    finalhit.hit = false; 
+    finalhit.hitDistance = maxDist; 
+
+    mat4 currentMatrix = 
+    mat4(1.0f, 0.0f, 0.0f, 0.0f,
+         0.0f, 1.0f, 0.0f, 0.0f,
+         0.0f, 0.0f, 1.0f, 0.0f,
+         0.0f, 0.0f, 0.0f, 1.0f ); // defualt value
+
+         vec3 rootPos = vec3(0.0f);
+         vec3 rootScale = vec3(0.0f);
+
+    // quickModels;
+    int triOffset = 0; 
+    // for each mesh
+    for (int i = 0; i < meshes.length(); i++)
+    {
+
+            // UUID match and matrix
+            for (int m = 0; m < quickModels.length(); m++)
+            {
+                if (meshes[i].modelUUID == quickModels[m].modelUUID)
+                {
+                   //rootAABBs
+                    currentMatrix = quickModels[m].ModelMatrix;
+                    rootPos = rootAABBs[m].position.xyz;
+                    rootScale = rootAABBs[m].scale.xyz;
+                    break;
+                }
+            }
+
+        // run aabbvsray
+        hitResult boxHR = AabbVsRay(rayOrigin, rayDir, rootPos, rootScale);
+       
+        // box hit, and make sure closest ontop
+        if (boxHR.hit && boxHR.hitDistance < finalhit.hitDistance)
+        {
+            int start = triOffset;
+            int end = triOffset + meshes[i].triangleCount; // the start and end for segmant trace
+
+            // segmant trace
+            for (int t = start; t < end; t++)
+            {
+                triangle newtri = triangles[t];
+                newtri.a.xyz = transformPoint(triangles[t].a.xyz, currentMatrix);
+                newtri.b.xyz = transformPoint(triangles[t].b.xyz, currentMatrix);
+                newtri.c.xyz = transformPoint(triangles[t].c.xyz, currentMatrix);
+
+                //currentMatrix transformPoint
+                // run triangle hit result
+                hitResult triHit = triangleVsRay(rayOrigin, rayDir, newtri, maxDist);
+                //  tri hit, cloest on top
+                if (triHit.hit && triHit.hitDistance < finalhit.hitDistance)
+                {
+                    finalhit = triHit;
+                    finalhit.colour = vec4(triangles[t].a.w, triangles[t].b.w, triangles[t].c.w, 1.0f);
+                }
+            }
+        }
+        
+        // increment tri count
+        triOffset += meshes[i].triangleCount;
+    }
+
+    return finalhit;
+}
+
+vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, int bounces, float maxDist)
+{
+    vec3 reflectionColour = vec3(0.0f);
+    vec3 currentOrigin = hit.lasthit;
+    vec3 currentDir = incidentDir;
+    vec3 currentLightNormal = hit.lightNormal;
+    vec3 currentCollisionNormal = hit.normal; 
+    
+    float dim = 1.0f;
+
+    for (int i = 0; i < bounces; i++)
+    {
+        if (dim <= 0.0f) break;
+
+        // calculate bounceDir off lightnormal
+        vec3 bounceDir = reflect(currentDir, normalize(currentLightNormal));
+
+        //if bounce dir points towards triangle, fallback to currentCollisionNormal
+        if (dot(bounceDir, currentCollisionNormal) < 0.0f) {
+            bounceDir = reflect(currentDir, currentCollisionNormal);
+        }
+
+        // offset collision normal
+        vec3 offsetOrigin = currentOrigin + (currentCollisionNormal * 0.001f);
+
+        hitResult res = BreadPhaseSceneTrace(offsetOrigin, bounceDir, maxDist);
+
+        if (res.hit)
+        {
+            reflectionColour += res.colour.xyz * 0.5f * dim;
+            currentOrigin = res.lasthit;
+            currentDir = bounceDir;
+            currentLightNormal = res.lightNormal;
+            currentCollisionNormal = res.normal;
+            dim *= 0.5f;
+        }
+        else {
+            reflectionColour += skycolour * dim;
+            break;
+        }
+    }
+
+    return reflectionColour;
+};
+
+vec3 reflectionPass(hitResult hit, vec3 incidentDir, int bounces, float maxDist)
+{
+    vec3 reflectionColour = vec3(0.0f);
+    vec3 currentOrigin = hit.lasthit;
+    vec3 currentDir = incidentDir;
+    
+    // 
+    vec3 currentLightNormal = hit.lightNormal;
+    vec3 currentCollisionNormal = hit.normal; 
+    
+    float dim = 1.0f;
+
+    for (int i = 0; i < bounces; i++)
+    {
+        if (dim <= 0.0f) break;
+
+        // calculate bounceDir off lightnormal
+        vec3 bounceDir = reflect(currentDir, normalize(currentLightNormal));
+
+        //if bounce dir points towards triangle, fallback to currentCollisionNormal
+        if (dot(bounceDir, currentCollisionNormal) < 0.0f) {
+            bounceDir = reflect(currentDir, currentCollisionNormal);
+        }
+
+        // offset collision normal
+        vec3 offsetOrigin = currentOrigin + (currentCollisionNormal * 0.001f);
+
+        hitResult res = simpleTrace(offsetOrigin, bounceDir, maxDist);
+
+        if (res.hit)
+        {
+            reflectionColour += res.colour.xyz * 0.5f * dim;
+            currentOrigin = res.lasthit;
+            currentDir = bounceDir;
+            currentLightNormal = res.lightNormal;
+            currentCollisionNormal = res.normal;
+            dim *= 0.5f;
+        }
+        else {
+            reflectionColour += skycolour * dim;
+            break;
+        }
+    }
+    return reflectionColour;
+};
+
+void main() {
+    // Intentionally does nothing
+    const ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
+
+    const ivec2 size = imageSize(screen); // size of screen
+    // return if off screen
+    if (pixelCoords.x >= size.x || pixelCoords.y >= size.y) return;
+
+    vec4 finalcolour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    vec4 noiseStatus = vec4(1.0, 1.0, 1.0, 1.0);
+
+    // clear image with bluish colour
+    if (!doAccumulate) {
+        imageStore(screen, pixelCoords, finalcolour);
+        imageStore(NoiseMask, pixelCoords, noiseStatus);
+    }
+
+    const ivec2 depthsize = textureSize(depthMap, 0);
+
+    vec2 depthUV = vec2(pixelCoords) / vec2(size);
+
+    float gDepth = texture(depthMap, depthUV).r;
+
+    float depthDist = linearizeDepth(gDepth, 0.1f, maxDistance);
+
+    if (depthDist >= maxDistance)
+    {
+        imageStore(screen, pixelCoords, vec4(skycolour, 0.0f));
+        return;
+    }
+
+    // if pixel already exisits skip
+    vec4 existingColor = imageLoad(NoiseMask, pixelCoords);
+    if (existingColor.r < 1.0f) {return;}
+
+    imageStore(NoiseMask, pixelCoords, noiseStatus);
+
+    vec2 noiseUV = vec2(gl_GlobalInvocationID.xy) / vec2(textureSize(BlueNoiseTex, 0));
+    float noiseVal = texture(BlueNoiseTex, noiseUV).r;
+    float finalNoise = fract(noiseVal * time);
+    //noise
+    if (finalNoise > noiseThreshold) {imageStore(NoiseMask, pixelCoords, noiseStatus); return;}
+    else {noiseStatus = vec4(0.0, 0.0, 0.0, 1.0);}
+    
+    // camera matrix
+    mat4 invProj = inverse(u_ProjectionMatrix); mat4 invView = inverse(u_ViewMatrix);
+
+    vec3 rayDir = rayDirfromCam(invProj, invView, pixelCoords, size);
+
+    hitResult firstHit = BreadPhaseSceneTrace(cameraPosition, rayDir, maxDistance);
+    if (firstHit.hit)
+    {
+    finalcolour = firstHit.colour;
+    finalcolour.a = 1.0f;
+    if (reflectionBounces > 0) finalcolour.xyz = mix(finalcolour.xyz, reflectionPassBroad(firstHit, rayDir, reflectionBounces, reflectionDistance), 0.7f); // value at the end is smoothness
+    //if (reflectionBounces > 0)finalcolour.xyz = reflectionPass(firstHit, rayDir, reflectionBounces, reflectionDistance);
+
+    }
+    // imageStore(screen, pixelCoords, vec4(vec3(gDepth), 1.0f));
+    imageStore(screen, pixelCoords, finalcolour);
+    imageStore(NoiseMask, pixelCoords, noiseStatus);
+} // closer

@@ -1,18 +1,60 @@
 #include "Mesh.h"
+#include <utils/logConsole.h>
 #include <camera/Camera.h>
 #include <limits>
 #include <utils/FE_math.h>
+#include <Render/Object/SkyBox.h>
+#include "Scene/scene.h"
+#include "Systems/util/UUID.h"
 
 void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
 {
+    UUID = UUID::returnHandle();
+
+    // err checking
+    if (vertices.empty()) {
+         LogConsole::print("mesh.cpp Vertices are empty");
+    }
+    if (indices.empty()) {
+        LogConsole::print("mesh.cpp indices are empty");
+    }
+    if (textures.empty()) {
+        LogConsole::print("mesh.cpp textures are empty");
+    }
+
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
+    /*
+        for (size_t i = 0; i < textures.size(); i++)
+    {
+        std::cout << textures[i].unit << " unit" << std::endl;
+        std::cout << textures[i].type << " type" << std::endl;
+        std::cout << textures[i].path << " path" << std::endl;
+    }
+    */
+
 
     setupMesh();
 }
 
-void Mesh::draw(Shader& shader, Camera camera, glm::mat4 meshMatrix)
+void Mesh::createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
+{
+    // err checking
+    if (vertices.empty()) {
+        LogConsole::print("mesh.cpp Vertices are empty");
+    }
+    if (indices.empty()) {
+        LogConsole::print("mesh.cpp indices are empty");
+    }
+
+    this->vertices = vertices;
+    this->indices = indices;
+
+    setupMesh();
+}
+
+void Mesh::draw(Shader& shader)
 {
     shader.Activate();
     VAO.Bind();
@@ -42,8 +84,8 @@ void Mesh::draw(Shader& shader, Camera camera, glm::mat4 meshMatrix)
         textures[i].Bind();
     }
     // Camera Matrix
-    glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-    camera.Matrix(shader, "camMatrix");
+    glUniform3f(glGetUniformLocation(shader.ID, "camPos"), Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z);
+    Scene::maincamera.Matrix(shader, "camMatrix");
 
     // Push model matrix to the vertex shader
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(meshMatrix));
@@ -51,7 +93,20 @@ void Mesh::draw(Shader& shader, Camera camera, glm::mat4 meshMatrix)
     glm::mat3 normalMatrix = glm::transpose(glm::inverse(model3x3));
     glUniformMatrix3fv(glGetUniformLocation(shader.ID, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Draw the mesh
+    if (drawType == 0)
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    else if (drawType == 1)
+        glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
+	else if (drawType == 2)
+    glDrawElements(GL_POINTS, indices.size(), GL_UNSIGNED_INT, 0);
+
+    //glDisable(GL_BLEND);
+
+    //glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Mesh::setupMesh()
@@ -88,4 +143,83 @@ void Mesh::Delete()
 
     vertices.clear();
     indices.clear();
+}
+
+void Mesh::updatePosition(glm::vec3 position)
+{
+    Mesh::position = position;
+}
+void Mesh::updateGlobalPosition(glm::vec3 position)
+{
+    Mesh::globalPosition = position;
+}
+void Mesh::updateRotation(glm::vec3 rotation)
+{
+    glm::vec3 RotRaidans = glm::radians(rotation);
+    Mesh::rotation = glm::quat(RotRaidans);
+}
+void Mesh::updateScale(glm::vec3 scale)
+{
+    Mesh::scale = scale;
+}
+void Mesh::updateMatrix(glm::mat4 matrix)
+{
+	Mesh::meshMatrix = matrix;
+}
+
+// instead of always scanning thru all the verticies grab the 8 furthest points on each axis and make a box from that
+// store these 8 points, then just make a update function that just updates the aabb local transforms, including rotation
+Collision::AABB Mesh::createAABBfromMesh() // local and global transfoms needto be applied
+{
+    // optimise later btw
+    Collision::AABB AABB;
+
+    glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
+    glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
+
+    for (size_t i = 0; i < vertices.size(); i++)
+    {
+        min = glm::min(min, vertices[i].position);
+        max = glm::max(max, vertices[i].position);
+    }
+    AABB.position = (min + max) * 0.5f;
+    AABB.size = (max - min) * 0.5f;
+    //AABB.size = (max - min);
+    
+    
+    return AABB;
+}
+
+// placeholders
+void Mesh::createAABB()
+{
+    aabbPoints = Collision::fetchFurthestVertices(this->vertices);
+
+    // create aabb from those points
+	boxCollider = Collision::createAABBfromRubiksCubePoints(aabbPoints);
+    boxCollider.size = FE_Math::pad(boxCollider.position);
+    
+}
+
+void Mesh::updateAABB() // no args for now
+{
+    Collision::rubiksCubePoints newpoints = aabbPoints;
+
+	glm::quat finalRot = rotation; // for now
+    glm::vec3 finalGlobalPos = globalPosition;
+    glm::vec3 finalpos = position; // for now
+    glm::vec3 finalscale = scale; // for now
+	// up
+    FE_Math::transformPoint(newpoints.ULF, meshMatrix);
+    FE_Math::transformPoint(newpoints.URF, meshMatrix);
+    FE_Math::transformPoint(newpoints.URB, meshMatrix);
+    FE_Math::transformPoint(newpoints.ULB, meshMatrix);
+	// down
+    FE_Math::transformPoint(newpoints.DLF, meshMatrix);
+    FE_Math::transformPoint(newpoints.DRF, meshMatrix);
+    FE_Math::transformPoint(newpoints.DRB, meshMatrix);
+    FE_Math::transformPoint(newpoints.DLB, meshMatrix);
+
+    boxCollider = Collision::createAABBfromRubiksCubePoints(newpoints);
+    boxCollider.size = FE_Math::pad(boxCollider.size);
 }

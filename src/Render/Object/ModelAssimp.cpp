@@ -1,7 +1,45 @@
 #include "ModelAssimp.h"
 
+#include "Systems/util/UUID.h"
+#include  <utils/FE_math.h>
+void Model::updatePosition(glm::vec3 Position)
+{
+    globalTransformation.position = Position;
+}
+
+void Model::updateRotation(glm::vec3 Rotation)
+{
+    globalTransformation.rotation = Rotation;
+}
+
+void Model::updateScale(glm::vec3 Scale)
+{
+    globalTransformation.scale = Scale;
+}
+
+void Model::updateTranformation()
+{
+
+    gModelMatrix = FE_Math::composeMatrixWDegrees(globalTransformation.position, globalTransformation.scale, globalTransformation.rotation);
+
+    for (unsigned int i = 0; i < meshes.size(); i++)
+    {
+        glm::mat4 finalMatrix = gModelMatrix * lModelMatrix[i]; // * by local transform
+		glm::vec3 finalRot = globalTransformation.rotation + localTransformation[i].rotation;
+		glm::vec3 finalScale = globalTransformation.scale * localTransformation[i].scale;
+
+        meshes[i].updateMatrix(finalMatrix);
+		meshes[i].updatePosition(localTransformation[i].position);
+		meshes[i].updateGlobalPosition(globalTransformation.position);
+		meshes[i].updateRotation(finalRot);
+		meshes[i].updateScale(finalScale);
+	}
+
+}
+
 Model::Model(const char* file)
 {
+    UUID = UUID::returnHandle();
 	loadModel(file);
 }
 
@@ -29,14 +67,36 @@ Model::~Model() {
 
 }
 
-void Model::draw(Shader& shader, Camera camera)
+void Model::draw(Shader& shader)
 {
 	// draw all meshes and parse in data
     for (unsigned int i = 0; i < meshes.size(); i++)
     {
-        glm::mat4 finalMatrix = gModelMatrix * lModelMatrix[i];
-        meshes[i].draw(shader, camera, finalMatrix);
+        meshes[i].draw(shader);
     }  
+}
+
+void Model::createMeshAABBs()
+{
+    for (size_t i = 0; i < meshes.size(); i++)
+    {
+		meshes[i].createAABB();
+	}
+}
+
+void Model::updateMeshAABBs()
+{
+    MeshAABBs.clear();
+    for (size_t i = 0; i < meshes.size(); i++)
+    {
+        meshes[i].updateAABB();
+		
+		Collision::AABB updatedAABB = meshes[i].returnAABB();
+		//updatedAABB.position += localTransformation[i].position;
+		//updatedAABB.size *= localTransformation[i].scale;
+        MeshAABBs.push_back(updatedAABB);
+    }
+    //MeshAABBs = FetchMeshAABBs();
 }
 
 void Model::loadModel(std::string path)
@@ -87,7 +147,7 @@ void Model::processPositions(aiNode* node)
     model = glm::scale(model, glm::vec3(scale.x, scale.y, scale.z));
     
     //localTransformation
-    transformation newTransformation;
+    RenderClass::transformation newTransformation;
     newTransformation.position = glm::vec3(position.x, position.y, position.z);
     newTransformation.scale = glm::vec3(scale.x, scale.y, scale.z);
     newTransformation.qRotation = glm::quat(rotation.w, rotation.x, rotation.y, rotation.z);
@@ -122,8 +182,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         vector.y = mesh->mNormals[i].y;
         vector.z = mesh->mNormals[i].z;
         vertex.normal = vector;
-
-		// if you want to remove the tangent and bitangents
 
         vector.x = mesh->mTangents[i].x;
         vector.y = mesh->mTangents[i].y;
@@ -183,7 +241,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
     }
+    aiString name = mesh->mName;
     Mesh nMesh;
+	nMesh.name = name.C_Str();
     nMesh.create(vertices, indices, textures);
     return Mesh(nMesh);
 }

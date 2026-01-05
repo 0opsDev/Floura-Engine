@@ -1,0 +1,18 @@
+[
+	{
+		"type": "Standard",
+		"name": "PS1",
+		
+		"FragShader": "Assets/Shaders/Lighting/combined.frag",
+		"VertexShader": "Assets/Shaders/Lighting/PS1.vert",
+		"GPassFragShader": "Assets/Shaders/gBuffer/geometryPass.frag",
+		"GPassVertShader": "Assets/Shaders/gBuffer/geometryPassWobble.vert",
+
+		"variables": {
+			"type": ["bool", "time", "deltatime"],
+			"name": ["doReflect", "time", "deltatime"],
+			"Value":[true, 0.0, 0.0]
+		}
+	}
+
+]

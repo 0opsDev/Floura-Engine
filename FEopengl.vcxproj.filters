@@ -53,6 +53,78 @@
     <Filter Include="src\Render\Object">
       <UniqueIdentifier>{b99da5f8-89b6-4062-be62-907fb66e4d80}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Editor">
+      <UniqueIdentifier>{01e7f393-db18-4f2d-a419-7d539e17b6c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Gameplay">
+      <UniqueIdentifier>{82a4a4fe-29b3-4563-bf12-a34aeed40114}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scene">
+      <UniqueIdentifier>{75f12dba-b33f-490b-a604-91789730a455}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scripting">
+      <UniqueIdentifier>{a1725715-fe60-4b6f-86ec-33c9614696e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Sound">
+      <UniqueIdentifier>{70328509-e4eb-4a1b-8ed7-6745e3a5a520}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Systems">
+      <UniqueIdentifier>{68e022e2-8a12-4dba-91a4-a91325c0d3f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\UI">
+      <UniqueIdentifier>{51265d92-11f6-4c9e-ac71-da19bf342ee5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core\File">
+      <UniqueIdentifier>{645472c5-b5b1-4bc8-87ce-66b5e8bba3ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Editor\UI">
+      <UniqueIdentifier>{4fa1c4c4-23a6-4112-adcd-9006a71e54d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Editor\util">
+      <UniqueIdentifier>{27d2e236-7e05-481c-9526-cd472c30ced7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Editor\UI\ImGui">
+      <UniqueIdentifier>{c6fff881-c620-4ba2-b302-21a5222edbc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Editor\UI\ImGui\ImGuiInclude">
+      <UniqueIdentifier>{53afeb94-f6aa-4ec3-a4e1-a0f6853bf31a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\Cube">
+      <UniqueIdentifier>{5bbae67a-1797-4edb-9180-3914ab09c95a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\passes">
+      <UniqueIdentifier>{2cdb6102-233f-4bf0-8212-772fe6907472}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\passes\dbg">
+      <UniqueIdentifier>{c2b1747f-3dd5-49b1-a9fd-658c46407af1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\passes\geometry">
+      <UniqueIdentifier>{3dcc775f-2ba3-48dc-9d52-4332f606903e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\passes\lighting">
+      <UniqueIdentifier>{a5694e7a-e806-4afa-9552-f13899d033ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\passes\post">
+      <UniqueIdentifier>{0db5f33b-3ccb-4089-a129-8cc94ca24e02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scene\Object">
+      <UniqueIdentifier>{023de2f3-8c7b-412c-ace3-77c79177974c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scripting\Functions">
+      <UniqueIdentifier>{274736a7-9b6f-49cd-8aa7-3bc2f2c5a8f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scripting\Functions\Player">
+      <UniqueIdentifier>{1d882010-44c9-49e6-80fe-d94eddf1aec1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Scripting\Functions\Screen">
+      <UniqueIdentifier>{747f273e-1119-475c-b299-8b09db7da33e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Systems\util">
+      <UniqueIdentifier>{a30b8c43-b8fb-4a52-a8e9-cd033a7a7203}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Systems\Physics">
+      <UniqueIdentifier>{4cb131e6-3089-4ee0-abc2-dc6959282256}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Render\shader\ShaderClass.cpp">
@@ -137,6 +209,111 @@
       <Filter>src\Render\Object</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\FE_math.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\File\File.cpp">
+      <Filter>src\core\File</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\Render.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\UI\ImGui\FE_ImGui.cpp">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\UI\ImGui\ImGuiWindow.cpp">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\UI\ImGui\OpenSceneWindow.cpp">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\UI\ImGui\ImGuiInclude\EcsInspector.cpp">
+      <Filter>src\Editor\UI\ImGui\ImGuiInclude</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Gameplay\Player.cpp">
+      <Filter>src\Gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Shader\FramebufferObject.cpp">
+      <Filter>src\Render\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Shader\Material.cpp">
+      <Filter>src\Render\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Shader\Framebuffer.cpp">
+      <Filter>src\Render\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\Cubemap.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\line.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\Billboard.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\SkyBox.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Object\RenderQuad.cpp">
+      <Filter>src\Render\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\passes\post\denoise.cpp">
+      <Filter>src\Render\passes\post</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\passes\lighting\raytracer.cpp">
+      <Filter>src\Render\passes\lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\passes\geometry\geometryPass.cpp">
+      <Filter>src\Render\passes\geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp">
+      <Filter>src\Render\Cube</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\Object\Entity.cpp">
+      <Filter>src\Scene\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\LightingHandler.cpp">
+      <Filter>src\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\ObjectManager.cpp">
+      <Filter>src\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\scene.cpp">
+      <Filter>src\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\tempscene.cpp">
+      <Filter>src\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\ScriptEngine.cpp">
+      <Filter>src\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\ScriptObject.cpp">
+      <Filter>src\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\ScriptRunner.cpp">
+      <Filter>src\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp">
+      <Filter>src\Scripting\Functions\Screen</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Functions\Player\LuaCamera.cpp">
+      <Filter>src\Scripting\Functions\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sound\SoundRunner.cpp">
+      <Filter>src\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sound\SoundProgram.cpp">
+      <Filter>src\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\util\UUID.cpp">
+      <Filter>src\Systems\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\Physics\Collision.cpp">
+      <Filter>src\Systems\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\logConsole.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\noise.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -232,6 +409,117 @@
       <Filter>src\Render\Object</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\FE_math.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\File\File.h">
+      <Filter>src\core\File</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\Render.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\UI\ImGui\FE_ImGui.h">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\UI\ImGui\ImGuiInclude.h">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\UI\ImGui\ImGuiWindow.h">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\UI\ImGui\OpenSceneWindow.h">
+      <Filter>src\Editor\UI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Editor\UI\ImGui\ImGuiInclude\EcsInspector.h">
+      <Filter>src\Editor\UI\ImGui\ImGuiInclude</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Gameplay\Player.h">
+      <Filter>src\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Shader\FramebufferObject.h">
+      <Filter>src\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Shader\Material.h">
+      <Filter>src\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Shader\Framebuffer.h">
+      <Filter>src\Render\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\Cubemap.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\line.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\Billboard.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\RenderQuad.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Object\SkyBox.h">
+      <Filter>src\Render\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\passes\post\denoise.h">
+      <Filter>src\Render\passes\post</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\passes\lighting\raytracer.h">
+      <Filter>src\Render\passes\lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\passes\geometry\geometryPass.h">
+      <Filter>src\Render\passes\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Cube\CubeVisualizer.h">
+      <Filter>src\Render\Cube</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\Object\Entity.h">
+      <Filter>src\Scene\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\LightingHandler.h">
+      <Filter>src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\ObjectManager.h">
+      <Filter>src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\scene.h">
+      <Filter>src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\tempscene.h">
+      <Filter>src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\ScriptEngine.h">
+      <Filter>src\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\ScriptObject.h">
+      <Filter>src\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\ScriptRunner.h">
+      <Filter>src\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h">
+      <Filter>src\Scripting\Functions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Functions\Screen\LuaScreen.h">
+      <Filter>src\Scripting\Functions\Screen</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Functions\Player\LuaCamera.h">
+      <Filter>src\Scripting\Functions\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sound\SoundProgram.h">
+      <Filter>src\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sound\SoundRunner.h">
+      <Filter>src\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\util\UUID.h">
+      <Filter>src\Systems\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\Physics\Collision.h">
+      <Filter>src\Systems\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\logConsole.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\noise.h">
       <Filter>src\utils</Filter>
     </ClInclude>
   </ItemGroup>
