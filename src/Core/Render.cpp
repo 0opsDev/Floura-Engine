@@ -70,7 +70,13 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	//glfwWindowHint(GLFW_ALPHA_BITS, 2);
 
 	windowHandler::InitMainWidnow();
-	gladLoadGL(); // load open gl config
+	if (!gladLoadGL(glfwGetProcAddress)) {
+		// Log that GLAD failed to initialize
+		std::cerr << "Failed to initialize GLAD" << std::endl;
+		return;
+	}
+
+
 
 	windowHandler::setVSync(windowHandler::doVsync); // Set Vsync to value of doVsync (bool)
 

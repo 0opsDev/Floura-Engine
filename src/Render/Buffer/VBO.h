@@ -2,7 +2,7 @@
 #define VBO_CLASS_H
 
 #include<glm/glm.hpp>
-#include<glad/glad.h>
+#include <glad/gl.h>
 #include<vector>
 
 struct Vertex

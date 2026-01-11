@@ -1,7 +1,7 @@
 #ifndef TEXTURE_CLASS_H
 #define TEXTURE_CLASS_H
 
-#include<glad/glad.h>
+#include <glad/gl.h>
 #include<stb/stb_image.h>
 
 #include "Render/Shader/shaderClass.h"

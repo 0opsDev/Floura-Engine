@@ -1,6 +1,6 @@
 #ifndef NOISE_H
 #define NOISE_H
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <vector>
 
 class NoiseH

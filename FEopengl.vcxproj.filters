@@ -160,9 +160,6 @@
     <ClCompile Include="src\Core\Main.cpp">
       <Filter>src\Editor\core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\glad.c">
-      <Filter>src\Editor\core</Filter>
-    </ClCompile>
     <ClCompile Include="src\Render\Buffer\VBO.cpp">
       <Filter>src\Render\Buffer</Filter>
     </ClCompile>
@@ -330,6 +327,9 @@
     </ClCompile>
     <ClCompile Include="src\Systems\Physics\BVH.cpp">
       <Filter>src\Systems\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\gl.c">
+      <Filter>src\Editor\core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -2,7 +2,7 @@
 #define CUBEVISUALIZER_CLASS_H
 
 #include<iostream>
-#include<glad/glad.h>
+#include <glad/gl.h>
 #include<string>
 #include<array>
 #include <stb/stb_image.h>

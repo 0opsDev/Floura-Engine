@@ -9,6 +9,7 @@
 #include "Render/Cube/CubeVisualizer.h"
 #include <Render/Object/line.h>
 #include "Render/Object/Texture.h"
+#include <glad/gl.h>
 
 class RenderClass
 {

@@ -145,7 +145,7 @@
     <ClCompile Include="..\..\..\ImGuiFileDialog\ImGuiFileDialog.cpp" />
     <ClCompile Include="src\camera\Camera.cpp" />
     <ClCompile Include="src\Core\File\File.cpp" />
-    <ClCompile Include="src\Core\glad.c" />
+    <ClCompile Include="src\Core\gl.c" />
     <ClCompile Include="src\Core\Main.cpp" />
     <ClCompile Include="src\Core\Render.cpp" />
     <ClCompile Include="src\Editor\UI\ImGui\FE_ImGui.cpp" />

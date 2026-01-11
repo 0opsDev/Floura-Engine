@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include "Camera/Camera.h"
-#include <glad/glad.h>
+//#include <glad/glad.h>
 #include "Editor/UI/ImGui/ImGuiInclude.h"
 
 // nope

@@ -2,7 +2,7 @@
 #define FRAMEBUFFER_CLASS_H
 
 #include<iostream>
-#include<glad/glad.h>
+#include <glad/gl.h>
 #include<render/Shader/shaderClass.h>
 #include <GLFW/glfw3.h>
 #include <Editor/UI/ImGui/ImGuiWindow.h>
