@@ -3,23 +3,33 @@ Floura Engine is a Open Source C++ Game Engine created for the purpose of learni
 Features:
 ---
 ~~~
+-Graphics:
+. Diffuse, Specular and Normals
+. Gbuffer
+. Point, Spot and Directional Lights
+. Cubemap Reflections (WIP)
+. Shadow Mapping (WIP)
+. RayTracer (WIP)
+. Denoiser (WIP)
+-Systems:
+. Scenes
+. ECS
+. Collision Detection (WIP)
+. Physics Dynamics
+. UUIDs
+. Lua Scripting via sol2 (not really implemented atm)
+. 3D Directional Sound via openAL Soft (WIP)
+-General Features:
 . Assimp Model Loader
 . Billboarding
-. Gbuffer
-. Scenes
+-UI:
 . ImGui Implementation
-. OpenGL API
-. Diffuse, Specular and Normals
-. Entity Component System
 . Scene Hierarchy Window
 . Scene Folder Window
 . Inspector Tab
-. WireFrame View
-. Point, Spot and Directional Lights
-. Lua Scripting via sol2 (not really implemented atm)
-. 3D Directional Sound via openAL Soft (broken atm)
-. Cubemap Reflections
-. Shadow Mapping
+-Misc:
+. Math Class
+
 ~~~
 
 Controls:
