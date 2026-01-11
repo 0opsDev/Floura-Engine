@@ -162,15 +162,15 @@ void FE_Math::transformPoint(glm::vec3& point, glm::mat4 matrix)
 }
 
 
-glm::vec3 FE_Math::pad(glm::vec3 value)
+glm::vec3 FE_Math::pad(glm::vec3 value, float padding)
 {
     glm::vec3 newPad = value;
-    if (value.x < 0.1f)
-        newPad.x = 0.1f;
-    if (value.y < 0.1f)
-        newPad.y = 0.1f;
-    if (value.z < 0.1f)
-        newPad.z = 0.1f;
+    if (value.x < padding)
+        newPad.x = padding;
+    if (value.y < padding)
+        newPad.y = padding;
+    if (value.z < padding)
+        newPad.z = padding;
 
     return newPad;
 }
@@ -200,4 +200,12 @@ glm::mat4 FE_Math::composeMatrixWDegrees(glm::vec3 p, glm::vec3 s, glm::vec3 r)
     glm::mat4 ns = glm::scale(glm::mat4(1.0f), s);
 
     return np * nr * ns;
+}
+
+glm::mat4 FE_Math::composeMatrixwQuaternion(glm::vec3 p, glm::vec3 s, glm::quat r)
+{
+    glm::mat4 np = glm::translate(glm::mat4(1.0f), p);
+    glm::mat4 nr = glm::mat4_cast(glm::normalize(r));
+    glm::mat4 ns = glm::scale(glm::mat4(1.0f), s);
+	return np * nr * ns;
 }

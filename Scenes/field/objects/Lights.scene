@@ -1,6 +1,5 @@
 [
     {
-        "IDuniqueIdentifier": 126,
         "colour": [
             1.0,
             1.0,
@@ -21,7 +20,6 @@
         "type": "pointlight"
     },
     {
-        "IDuniqueIdentifier": 8468,
         "colour": [
             1.0,
             1.0,

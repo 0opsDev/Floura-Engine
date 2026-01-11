@@ -25,11 +25,14 @@ public:
 
     void Delete();
 
+    void updateMatrix(glm::mat4 matrix);
     void updatePosition(glm::vec3 position);
-	void updateGlobalPosition(glm::vec3 position);
 	void updateRotation(glm::vec3 rotation);
 	void updateScale(glm::vec3 scale);
-	void updateMatrix(glm::mat4 matrix);
+	void updateGlobalMatrix(glm::mat4 matrix);
+    void updateGlobalPosition(glm::vec3 position);
+    void updateGlobalScale(glm::vec3 scale);
+    void updateGlobalRotation(glm::vec3 rotation);
 
     
 
@@ -53,9 +56,12 @@ private:
     
     glm::mat4 meshMatrix = glm::mat4(1.0f);
     glm::vec3 position = glm::vec3(0.0f);
-    glm::vec3 globalPosition = glm::vec3(0.0f);
-    glm::quat rotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
+    glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
+    glm::mat4 globalMeshMatrix = glm::mat4(1.0f);
+    glm::vec3 globalPosition = glm::vec3(0.0f);
+    glm::vec3 globalScale = glm::vec3(1.0f);
+    glm::vec3 globalRotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
     VAO VAO;
     void setupMesh();

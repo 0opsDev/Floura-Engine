@@ -22,12 +22,17 @@
 		{
 			"doubleSided":true,
 			"name":"Material.001",
+			"normalTexture":{
+				"index":0
+			},
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
-					"index":0
+					"index":1
 				},
 				"metallicFactor":0,
-				"roughnessFactor":0.5
+				"metallicRoughnessTexture":{
+					"index":2
+				}
 			}
 		}
 	],
@@ -53,13 +58,31 @@
 		{
 			"sampler":0,
 			"source":0
+		},
+		{
+			"sampler":0,
+			"source":1
+		},
+		{
+			"sampler":0,
+			"source":2
 		}
 	],
 	"images":[
 		{
 			"mimeType":"image/png",
+			"name":"tilenormal1024",
+			"uri":"tilenormal1024.png"
+		},
+		{
+			"mimeType":"image/png",
 			"name":"tile1024",
 			"uri":"tile1024.png"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"black",
+			"uri":"black.png"
 		}
 	],
 	"accessors":[
@@ -93,10 +116,9 @@
 		},
 		{
 			"bufferView":3,
-			"componentType":5121,
+			"componentType":5126,
 			"count":4,
-			"normalized":true,
-			"type":"VEC4"
+			"type":"VEC3"
 		},
 		{
 			"bufferView":4,
@@ -133,20 +155,20 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":16,
+			"byteLength":48,
 			"byteOffset":128,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":32,
-			"byteOffset":144,
+			"byteOffset":176,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":12,
-			"byteOffset":176,
+			"byteOffset":208,
 			"target":34963
 		}
 	],
@@ -158,7 +180,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":188,
+			"byteLength":220,
 			"uri":"plane.bin"
 		}
 	]

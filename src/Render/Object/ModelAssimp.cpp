@@ -24,15 +24,15 @@ void Model::updateTranformation()
 
     for (unsigned int i = 0; i < meshes.size(); i++)
     {
-        glm::mat4 finalMatrix = gModelMatrix * lModelMatrix[i]; // * by local transform
-		glm::vec3 finalRot = globalTransformation.rotation + localTransformation[i].rotation;
-		glm::vec3 finalScale = globalTransformation.scale * localTransformation[i].scale;
+        meshes[i].updateMatrix(lModelMatrix[i]);
+        meshes[i].updatePosition(localTransformation[i].position);
+		meshes[i].updateRotation(localTransformation[i].rotation);
+		meshes[i].updateScale(localTransformation[i].scale);
 
-        meshes[i].updateMatrix(finalMatrix);
-		meshes[i].updatePosition(localTransformation[i].position);
-		meshes[i].updateGlobalPosition(globalTransformation.position);
-		meshes[i].updateRotation(finalRot);
-		meshes[i].updateScale(finalScale);
+		meshes[i].updateGlobalMatrix(gModelMatrix);
+        meshes[i].updateGlobalPosition(globalTransformation.position);
+        meshes[i].updateGlobalScale(globalTransformation.scale);
+        meshes[i].updateGlobalRotation(globalTransformation.rotation);
 	}
 
 }

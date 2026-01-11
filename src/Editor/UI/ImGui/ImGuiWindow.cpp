@@ -549,10 +549,28 @@ void FEImGuiWindow::RenderWindow() {
 		ImGui::DragFloat("downscaleFactor", &raytracer::downscaleFactor);
 		ImGui::Checkbox("doAccumulate", &raytracer::doAccumulate);
 		ImGui::Checkbox("reset Accumulation On Dirty", &raytracer::resetAccumulationOnDirty);
+		ImGui::Text("primary hit");
 		ImGui::DragFloat("Noise Threshold", &raytracer::noiseThreshold);
 		ImGui::DragFloat("Max Distance", &raytracer::maxDistance);
+		ImGui::Text("Reflections");
 		ImGui::DragFloat("Reflection Distance", &raytracer::reflectionDistance);
 		ImGui::DragInt("Reflection Bounces", &raytracer::reflectionBounces);
+		ImGui::Text("Indirect");
+		ImGui::DragInt("Indirect Samples", &raytracer::indirectSamples);
+		ImGui::DragInt("Indirect Bounces", &raytracer::indirectBounces);
+
+		if (ImGui::SmallButton("Clear Accumulation")) {
+			raytracer::RTGlobalTransformFlag = true;
+		}
+		if (ImGui::SmallButton("Reload Raytracer Shader")) {
+			raytracer::reloadSceneToRaytracer();
+		}
+		if (ImGui::SmallButton("Upload Scene To Raytracer")) {
+			raytracer::uploadSceneToRaytracer();
+		}
+		if (ImGui::SmallButton("Clear Raytraced Data")) {
+			raytracer::clearRaytracerData();
+		}
 
 		ImGui::End();
 }

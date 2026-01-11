@@ -1,11 +1,15 @@
 #version 460 core
 
 #extension GL_ARB_gpu_shader_int64 : enable
+//#extension GL_EXT_ray_query : enable
 
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 
-layout(rgba32f, binding = 0) uniform image2D screen;
-layout(rgba32f, binding = 2) uniform image2D NoiseMask;
+layout(rgba32f, binding = 0) uniform image2D directSignal;
+layout(rgba32f, binding = 1) uniform image2D indirectSignal;
+layout(rgba32f, binding = 2) uniform image2D specularSignal;
+layout(rgba32f, binding = 3) uniform image2D emissionSignal;
+layout(rgba32f, binding = 5) uniform image2D NoiseMask;
 
 uniform sampler2D depthMap;
 
@@ -29,9 +33,6 @@ struct triangle // need 16 byte allignment
 
 struct rayMesh
 {
-	vec4 AABBpos; // 16
-	vec4 AABBscale; // 16
-
 	int triangleCount; // 4
 	int meshIndex; // 4
     int modelIndex;
@@ -57,16 +58,16 @@ struct rootnodeAABB
 	uint64_t padding;
 };
 
-layout(std430, binding = 3) buffer TriangleBuffer {
+layout(std430, binding = 6) buffer TriangleBuffer {
     triangle triangles[];
 };
-layout(std430, binding = 4) buffer MeshBuffer {
+layout(std430, binding = 7) buffer MeshBuffer {
     rayMesh meshes[];
 };
-layout(std430, binding = 5) buffer QuickBuffer {
+layout(std430, binding = 8) buffer QuickBuffer {
     modelQuickData quickModels[];
 };
-layout(std430, binding = 6) buffer RootAABBBuffer {
+layout(std430, binding = 9) buffer RootAABBBuffer {
     rootnodeAABB rootAABBs[];
 };
 // uniforms
@@ -87,6 +88,15 @@ uniform int reflectionBounces;
 uniform vec3 skycolour;
 uniform bool doAccumulate;
 uniform sampler2D BlueNoiseTex;
+uniform samplerCube skybox; 
+uniform int frameCount;
+
+uniform vec3 directLightPos;
+uniform vec3 directLightCol;
+
+uniform int indirectBounces;
+uniform int indirectSamples;
+
 
 //vec3 skycolour = vec3(0.0f);
 
@@ -105,15 +115,31 @@ struct hitResult
     vec3 lightNormal;
 };
 
+struct Light
+{
+	vec3 position;
+	vec3 rotation;
+	vec3 colour;
+	float radius;
+	int type;
+};
+
+uniform Light Lights[64];
+
+uniform int lightCount;
+
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 float linearizeDepth(float depth, float NearPlane, float FarPlane)
 {
 	return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
 }
 
-
 vec3 transformPoint(vec3 p, mat4 matrix)
 {
-    vec4 transformed = matrix * glm::vec4(p, 1.0f);
+    vec4 transformed = matrix * vec4(p, 1.0f);
     return vec3(transformed);
 };
 
@@ -271,44 +297,36 @@ hitResult BreadPhaseSceneTrace(vec3 rayOrigin, vec3 rayDir, float maxDist)
     finalhit.hit = false; 
     finalhit.hitDistance = maxDist; 
 
-    mat4 currentMatrix = 
-    mat4(1.0f, 0.0f, 0.0f, 0.0f,
-         0.0f, 1.0f, 0.0f, 0.0f,
-         0.0f, 0.0f, 1.0f, 0.0f,
-         0.0f, 0.0f, 0.0f, 1.0f ); // defualt value
+    mat4 currentMatrix = mat4(1.0f);
+    vec3 rootPos = vec3(0.0f);
+    vec3 rootScale = vec3(0.0f);
 
-         vec3 rootPos = vec3(0.0f);
-         vec3 rootScale = vec3(0.0f);
-
-    // quickModels;
     int triOffset = 0; 
-    // for each mesh
+    
     for (int i = 0; i < meshes.length(); i++)
     {
+        // root nodes
+        rootPos = rootAABBs[i].position.xyz;
+        rootScale = rootAABBs[i].scale.xyz;
 
-            // UUID match and matrix
-            for (int m = 0; m < quickModels.length(); m++)
+        // find model matrix from quick data
+        for (int m = 0; m < quickModels.length(); m++)
+        {
+        // id check 
+            if (meshes[i].modelUUID == quickModels[m].modelUUID)
             {
-                if (meshes[i].modelUUID == quickModels[m].modelUUID)
-                {
-                   //rootAABBs
-                    currentMatrix = quickModels[m].ModelMatrix;
-                    rootPos = rootAABBs[m].position.xyz;
-                    rootScale = rootAABBs[m].scale.xyz;
-                    break;
-                }
+                currentMatrix = quickModels[m].ModelMatrix;
+                break;
             }
-
-        // run aabbvsray
+        }
+        // aabb test
         hitResult boxHR = AabbVsRay(rayOrigin, rayDir, rootPos, rootScale);
-       
-        // box hit, and make sure closest ontop
+       // if hit test triangles
         if (boxHR.hit && boxHR.hitDistance < finalhit.hitDistance)
         {
             int start = triOffset;
-            int end = triOffset + meshes[i].triangleCount; // the start and end for segmant trace
+            int end = triOffset + meshes[i].triangleCount;
 
-            // segmant trace
             for (int t = start; t < end; t++)
             {
                 triangle newtri = triangles[t];
@@ -316,10 +334,8 @@ hitResult BreadPhaseSceneTrace(vec3 rayOrigin, vec3 rayDir, float maxDist)
                 newtri.b.xyz = transformPoint(triangles[t].b.xyz, currentMatrix);
                 newtri.c.xyz = transformPoint(triangles[t].c.xyz, currentMatrix);
 
-                //currentMatrix transformPoint
-                // run triangle hit result
                 hitResult triHit = triangleVsRay(rayOrigin, rayDir, newtri, maxDist);
-                //  tri hit, cloest on top
+                
                 if (triHit.hit && triHit.hitDistance < finalhit.hitDistance)
                 {
                     finalhit = triHit;
@@ -328,12 +344,158 @@ hitResult BreadPhaseSceneTrace(vec3 rayOrigin, vec3 rayDir, float maxDist)
             }
         }
         
-        // increment tri count
         triOffset += meshes[i].triangleCount;
     }
 
     return finalhit;
 }
+
+vec4 PointLight(vec3 hitpos, Light inputLight, float maxDist)
+{
+    hitResult finalhit; 
+    finalhit.hit = false; 
+    finalhit.hitDistance = maxDist; 
+
+    // first step i think is to fetch distance to light
+    float lightDistance = distance(hitpos, inputLight.position);
+    // check if light distance is within range of the inputlight range
+    if (lightDistance > inputLight.radius) {
+        return vec4(0.0f);
+    }
+    // next step is to shoot a ray from the hitpos to the light position
+    vec3 lightDir = normalize(inputLight.position - hitpos);
+    // shoot ray towards light
+    hitResult lightHit = BreadPhaseSceneTrace(hitpos + lightDir * 0.01f, lightDir, lightDistance - 0.02f);
+    // if we hit something before the light, return 0
+    // there will be hit distance, i think if we hit an object behind the lightdistance unblocked
+    // so if hit distance is less than lightdistance - small epsilon, its blocked
+
+    // if hit and distance of incident to hit is less than distance between hitpos and inputlight position
+    if (lightHit.hit && lightHit.hitDistance < lightDistance) {
+        return vec4(0.0f);
+    }
+
+    float attenuation = 1.0f - (lightDistance / inputLight.radius);
+    vec3 lightContribution = inputLight.colour * attenuation;
+    return vec4(lightContribution, 1.0f);
+}
+
+vec4 directLight(vec3 hitpos, vec3 direction, vec3 colour, float maxDist)
+{
+    vec3 rayDir = normalize(direction);
+    // shoot ray towards light
+    hitResult lightHit = BreadPhaseSceneTrace(hitpos + rayDir * 0.01f, rayDir, maxDist);
+    // if we hit something, return 0
+    if (lightHit.hit) {
+        return vec4(0.0f);
+    }
+    // else return light colour
+    return vec4(colour, 1.0f);
+}
+
+vec4 lightstrace(vec3 hitpos, float maxDist)
+{
+        float ambient = 0.0f;
+            
+        vec4 lightcolour = vec4(vec3(ambient),0.0f);
+
+        if (lightCount > 0)
+        {
+            for (int i = 0; i < lightCount; i++)
+            {
+                if (Lights[i].type == 0) // spotlight
+                {
+                    // TODO
+                }
+                else if (Lights[i].type == 1) // point light
+                {
+                    vec4 pl = PointLight(hitpos, Lights[i], maxDist);
+                    lightcolour.xyz += pl.xyz;
+                }
+            }
+
+        }
+        bool placeholder = true;
+
+        if (placeholder)
+        {
+            vec3 dirLightColour = vec3(1.0f, 1.0f, 1.0f) * 0.5f;
+            vec4 dl = directLight(hitpos, directLightPos, directLightCol, maxDist);
+            lightcolour.xyz += dl.xyz;
+        } 
+
+    return lightcolour;
+}
+
+vec3 sampleHemisphere(vec3 normal)
+{
+    float u = rand(vec2(gl_GlobalInvocationID.xy) + time); 
+    float v = rand(vec2(u, time));
+
+    float phi = 2.0 * 3.14159265 * u;
+    float cosTheta = sqrt(1.0 - v);
+    float sinTheta = sqrt(v);
+
+    vec3 localDir = vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+
+    vec3 helper = abs(normal.y) < 0.999 ? vec3(0, 1, 0) : vec3(1, 0, 0);
+    vec3 tangent = normalize(cross(helper, normal));
+    vec3 bitangent = cross(normal, tangent);
+
+    return tangent * localDir.x + bitangent * localDir.y + normal * localDir.z;
+}
+
+vec3 indirectTraceBroad(hitResult hit, vec3 incidentDir, vec3 hitColour, int bounces, int samples, float maxDist)
+{
+    vec3 iColour = hitColour;
+    vec3 currentOrigin = hit.lasthit;
+    vec3 currentDir = incidentDir;
+    vec3 currentLightNormal = hit.lightNormal;
+    vec3 currentCollisionNormal = hit.normal; 
+
+    float dim = 1.0f;
+
+    for (int i = 0; i < bounces; i++)
+    {
+        for (int i = 0; i < samples; i++)
+        {
+            if (dim <= 0.0f) break;
+            // calculate bounceDir off lightnormal
+
+            // so this needs to be randomized in a sphere, and the samples will be okay because this is random
+            vec3 bounceDir = sampleHemisphere(normalize(currentLightNormal));
+
+            //if bounce dir points towards triangle, fallback to currentCollisionNormal
+            if (dot(bounceDir, currentCollisionNormal) < 0.0f) {
+               bounceDir = reflect(currentDir, currentCollisionNormal);
+            }
+
+            // offset collision normal
+            vec3 offsetOrigin = currentOrigin + (currentCollisionNormal * 0.001f);
+
+            hitResult res = BreadPhaseSceneTrace(offsetOrigin, bounceDir, maxDist);
+
+            if (res.hit)
+            {
+                currentOrigin = res.lasthit;
+                currentDir = bounceDir;
+                currentLightNormal = res.lightNormal;
+                currentCollisionNormal = res.normal;
+                vec4 shadowcolour = lightstrace(currentOrigin, maxDist);
+                iColour += (shadowcolour.xyz * res.colour.xyz) * 0.5f * dim;
+                dim *= 0.5f;
+            }
+            else {
+        	    vec3 sky = texture(skybox, bounceDir).rgb;
+                iColour += sky * dim;
+                break;
+            }
+        }
+
+    }
+
+    return iColour;
+};
 
 vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, int bounces, float maxDist)
 {
@@ -364,65 +526,21 @@ vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, int bounces, float max
 
         if (res.hit)
         {
-            reflectionColour += res.colour.xyz * 0.5f * dim;
             currentOrigin = res.lasthit;
             currentDir = bounceDir;
             currentLightNormal = res.lightNormal;
             currentCollisionNormal = res.normal;
+            vec4 shadowcolour = lightstrace(currentOrigin, maxDist);
+            reflectionColour += (shadowcolour.xyz * res.colour.xyz) * 0.5f * dim;
             dim *= 0.5f;
         }
         else {
-            reflectionColour += skycolour * dim;
+        	vec3 sky = texture(skybox, bounceDir).rgb;
+            reflectionColour += sky * dim;
             break;
         }
     }
 
-    return reflectionColour;
-};
-
-vec3 reflectionPass(hitResult hit, vec3 incidentDir, int bounces, float maxDist)
-{
-    vec3 reflectionColour = vec3(0.0f);
-    vec3 currentOrigin = hit.lasthit;
-    vec3 currentDir = incidentDir;
-    
-    // 
-    vec3 currentLightNormal = hit.lightNormal;
-    vec3 currentCollisionNormal = hit.normal; 
-    
-    float dim = 1.0f;
-
-    for (int i = 0; i < bounces; i++)
-    {
-        if (dim <= 0.0f) break;
-
-        // calculate bounceDir off lightnormal
-        vec3 bounceDir = reflect(currentDir, normalize(currentLightNormal));
-
-        //if bounce dir points towards triangle, fallback to currentCollisionNormal
-        if (dot(bounceDir, currentCollisionNormal) < 0.0f) {
-            bounceDir = reflect(currentDir, currentCollisionNormal);
-        }
-
-        // offset collision normal
-        vec3 offsetOrigin = currentOrigin + (currentCollisionNormal * 0.001f);
-
-        hitResult res = simpleTrace(offsetOrigin, bounceDir, maxDist);
-
-        if (res.hit)
-        {
-            reflectionColour += res.colour.xyz * 0.5f * dim;
-            currentOrigin = res.lasthit;
-            currentDir = bounceDir;
-            currentLightNormal = res.lightNormal;
-            currentCollisionNormal = res.normal;
-            dim *= 0.5f;
-        }
-        else {
-            reflectionColour += skycolour * dim;
-            break;
-        }
-    }
     return reflectionColour;
 };
 
@@ -430,32 +548,25 @@ void main() {
     // Intentionally does nothing
     const ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
 
-    const ivec2 size = imageSize(screen); // size of screen
+    const ivec2 size = imageSize(directSignal); // size of screen
     // return if off screen
     if (pixelCoords.x >= size.x || pixelCoords.y >= size.y) return;
-
-    vec4 finalcolour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
     vec4 noiseStatus = vec4(1.0, 1.0, 1.0, 1.0);
 
     // clear image with bluish colour
     if (!doAccumulate) {
-        imageStore(screen, pixelCoords, finalcolour);
+        imageStore(directSignal, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        imageStore(indirectSignal, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        imageStore(specularSignal, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        imageStore(emissionSignal, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f));
         imageStore(NoiseMask, pixelCoords, noiseStatus);
     }
 
-    const ivec2 depthsize = textureSize(depthMap, 0);
-
-    vec2 depthUV = vec2(pixelCoords) / vec2(size);
-
-    float gDepth = texture(depthMap, depthUV).r;
-
-    float depthDist = linearizeDepth(gDepth, 0.1f, maxDistance);
-
-    if (depthDist >= maxDistance)
-    {
-        imageStore(screen, pixelCoords, vec4(skycolour, 0.0f));
-        return;
-    }
+    //if (depthDist >= maxDistance)
+    //{
+    //    imageStore(screen, pixelCoords, vec4(skycolour, 0.0f));
+    //    return;
+    //}
 
     // if pixel already exisits skip
     vec4 existingColor = imageLoad(NoiseMask, pixelCoords);
@@ -465,7 +576,8 @@ void main() {
 
     vec2 noiseUV = vec2(gl_GlobalInvocationID.xy) / vec2(textureSize(BlueNoiseTex, 0));
     float noiseVal = texture(BlueNoiseTex, noiseUV).r;
-    float finalNoise = fract(noiseVal * time);
+
+    float finalNoise = fract(noiseVal * frameCount);
     //noise
     if (finalNoise > noiseThreshold) {imageStore(NoiseMask, pixelCoords, noiseStatus); return;}
     else {noiseStatus = vec4(0.0, 0.0, 0.0, 1.0);}
@@ -475,16 +587,45 @@ void main() {
 
     vec3 rayDir = rayDirfromCam(invProj, invView, pixelCoords, size);
 
+    vec3 sky = texture(skybox, rayDir).rgb;
+    imageStore(directSignal, pixelCoords, vec4(sky, 1.0f)); // skycolour
+    imageStore(NoiseMask, pixelCoords, noiseStatus);
+
+    const ivec2 depthsize = textureSize(depthMap, 0);
+
+    vec2 depthUV = vec2(pixelCoords) / vec2(size);
+
+    float gDepth = texture(depthMap, depthUV).r;
+
+    float depthDist = linearizeDepth(gDepth, 0.1f, maxDistance);
+
+    if (depthDist >= maxDistance) return;
+
+    // create tex for 4 signals
+    vec3 directColour = vec3(0.0f);
+    vec3 indirectColour = vec3(0.0f);
+    vec3 specularColour = vec3(0.0f);
+    vec3 emissionColour = vec3(0.0f);
+
     hitResult firstHit = BreadPhaseSceneTrace(cameraPosition, rayDir, maxDistance);
     if (firstHit.hit)
     {
-    finalcolour = firstHit.colour;
-    finalcolour.a = 1.0f;
-    if (reflectionBounces > 0) finalcolour.xyz = mix(finalcolour.xyz, reflectionPassBroad(firstHit, rayDir, reflectionBounces, reflectionDistance), 0.7f); // value at the end is smoothness
-    //if (reflectionBounces > 0)finalcolour.xyz = reflectionPass(firstHit, rayDir, reflectionBounces, reflectionDistance);
+            float smoothness = 0.5f;
+        vec4 albedo = firstHit.colour;
+        albedo.a = 1.0f;
+
+        // add light normal ontop of lasthit
+        //vec3 direct = lightstrace(firstHit.lasthit + firstHit.lightNormal * 0.1f, maxDistance).xyz; // direct
+        directColour = lightstrace(firstHit.lasthit, maxDistance).xyz; // indirect
+        if (reflectionBounces > 0) specularColour = reflectionPassBroad(firstHit, rayDir, reflectionBounces, reflectionDistance);
+        if (indirectBounces > 0 && indirectSamples > 0) indirectColour = indirectTraceBroad(firstHit, rayDir, albedo.rgb * directColour, indirectBounces, indirectSamples, reflectionDistance); // bounces then samples
+        emissionColour = vec3(0.0f); // for now
 
     }
     // imageStore(screen, pixelCoords, vec4(vec3(gDepth), 1.0f));
-    imageStore(screen, pixelCoords, finalcolour);
+    imageStore(directSignal, pixelCoords, vec4(directColour, 1.0f));
+    imageStore(indirectSignal, pixelCoords, vec4(indirectColour, 1.0f));
+    imageStore(specularSignal, pixelCoords, vec4(specularColour, 1.0f));
+    imageStore(emissionSignal, pixelCoords, vec4(emissionColour, 1.0f));
     imageStore(NoiseMask, pixelCoords, noiseStatus);
 } // closer

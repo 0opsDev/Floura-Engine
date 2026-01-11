@@ -23,13 +23,13 @@ void denoiser::initcomputeShader(unsigned int width, unsigned int height) {
 
 	denoiserQuadShader.LoadShader("Assets/Shaders/Db/RenderQuad.vert", "Assets/Shaders/Db/ComputeRenderQuad.frag");
 
-	glCreateTextures(GL_TEXTURE_2D, 1, &denoiseTexture);
+	glCreateTextures(GL_TEXTURE_2D, 1, &denoiseTexture); // 4
 	glTextureParameteri(denoiseTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTextureParameteri(denoiseTexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTextureParameteri(denoiseTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(denoiseTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTextureStorage2D(denoiseTexture, 1, GL_RGBA32F, width, height);
-	glBindImageTexture(1, denoiseTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glBindImageTexture(4, denoiseTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
 	CurrentWidth = width;
 	CurrentHeight = height;
@@ -54,7 +54,7 @@ void denoiser::resizeTexture(unsigned int width, unsigned int height) {
 	glTextureParameteri(denoiseTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(denoiseTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTextureStorage2D(denoiseTexture, 1, GL_RGBA32F, width, height);
-	glBindImageTexture(1, denoiseTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glBindImageTexture(4, denoiseTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
 	CurrentWidth = width;
 	CurrentHeight = height;
@@ -80,6 +80,11 @@ void denoiser::render() {
 	denoiseCompute.Activate();
 	denoiseCompute.setBool("doDenoise", doDenoise);
 	denoiseCompute.setInt("minRadius", minRadius);
+
+	// albedo spec
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gAlbedoSpec);
+	denoiseCompute.setInt("gAlbedoSpec", 3);
 
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);

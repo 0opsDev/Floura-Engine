@@ -41,11 +41,13 @@ public:
 	static void transformPoint(glm::vec3& point, glm::mat4 matrix);
 
 	// pad vec3 from 0.0f
-	static glm::vec3 pad(glm::vec3 value);
+	static glm::vec3 pad(glm::vec3 value, float padding);
 
 	static glm::vec3 normalFrom2Points(glm::vec3 p1, glm::vec3 p2);
 
 	static glm::mat4 composeMatrixWDegrees(glm::vec3 p, glm::vec3 s, glm::vec3 r);
+
+	static glm::mat4 composeMatrixwQuaternion(glm::vec3 p, glm::vec3 s, glm::quat r);
 
 };
 

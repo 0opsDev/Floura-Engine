@@ -8,9 +8,6 @@
     <Filter Include="src">
       <UniqueIdentifier>{6068e48a-d111-4f34-8277-e62039207fc5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\core">
-      <UniqueIdentifier>{82b0a6da-ca65-40ad-b7b4-097700264782}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\Camera">
       <UniqueIdentifier>{5518a519-849a-42bf-a4b4-122bcedbdfd7}</UniqueIdentifier>
     </Filter>
@@ -74,9 +71,6 @@
     <Filter Include="src\UI">
       <UniqueIdentifier>{51265d92-11f6-4c9e-ac71-da19bf342ee5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\core\File">
-      <UniqueIdentifier>{645472c5-b5b1-4bc8-87ce-66b5e8bba3ee}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\Editor\UI">
       <UniqueIdentifier>{4fa1c4c4-23a6-4112-adcd-9006a71e54d5}</UniqueIdentifier>
     </Filter>
@@ -125,6 +119,24 @@
     <Filter Include="src\Systems\Physics">
       <UniqueIdentifier>{4cb131e6-3089-4ee0-abc2-dc6959282256}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Editor\core">
+      <UniqueIdentifier>{82b0a6da-ca65-40ad-b7b4-097700264782}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Editor\core\File">
+      <UniqueIdentifier>{645472c5-b5b1-4bc8-87ce-66b5e8bba3ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\compute">
+      <UniqueIdentifier>{263dd682-99af-4cbc-9ef1-a33c9f403d77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\post">
+      <UniqueIdentifier>{9bcccdd6-0266-446c-810d-e2693586f23b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\sybox">
+      <UniqueIdentifier>{b0980722-2815-40f1-9472-8e576559127c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\Gbuffer">
+      <UniqueIdentifier>{ca83d10f-ea02-4410-a40a-5987708c6303}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Render\shader\ShaderClass.cpp">
@@ -146,10 +158,10 @@
       <Filter>src\utils</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Main.cpp">
-      <Filter>src\core</Filter>
+      <Filter>src\Editor\core</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\glad.c">
-      <Filter>src\core</Filter>
+      <Filter>src\Editor\core</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\Buffer\VBO.cpp">
       <Filter>src\Render\Buffer</Filter>
@@ -212,10 +224,10 @@
       <Filter>src\utils</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\File\File.cpp">
-      <Filter>src\core\File</Filter>
+      <Filter>src\Editor\core\File</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\Render.cpp">
-      <Filter>src\core</Filter>
+      <Filter>src\Editor\core</Filter>
     </ClCompile>
     <ClCompile Include="src\Editor\UI\ImGui\FE_ImGui.cpp">
       <Filter>src\Editor\UI\ImGui</Filter>
@@ -316,6 +328,9 @@
     <ClCompile Include="src\utils\noise.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\Systems\Physics\BVH.cpp">
+      <Filter>src\Systems\Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera\Camera.h">
@@ -328,7 +343,7 @@
       <Filter>src\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Main.h">
-      <Filter>src\core</Filter>
+      <Filter>src\Editor\core</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\shader\shaderClass.h">
       <Filter>src\Render\Shader</Filter>
@@ -412,10 +427,10 @@
       <Filter>src\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\File\File.h">
-      <Filter>src\core\File</Filter>
+      <Filter>src\Editor\core\File</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\Render.h">
-      <Filter>src\core</Filter>
+      <Filter>src\Editor\core</Filter>
     </ClInclude>
     <ClInclude Include="src\Editor\UI\ImGui\FE_ImGui.h">
       <Filter>src\Editor\UI\ImGui</Filter>
@@ -522,6 +537,9 @@
     <ClInclude Include="src\utils\noise.h">
       <Filter>src\utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\Systems\Physics\BVH.h">
+      <Filter>src\Systems\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Settings.json">
@@ -541,6 +559,132 @@
     </None>
     <None Include="Assets\Shaders\Lighting\Default.vert">
       <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\compute\denoise.comp">
+      <Filter>Resource Files\Shaders\compute</Filter>
+    </None>
+    <None Include="Assets\Shaders\compute\emptycomputeShader.comp">
+      <Filter>Resource Files\Shaders\compute</Filter>
+    </None>
+    <None Include="Assets\Shaders\compute\Raytrace.comp">
+      <Filter>Resource Files\Shaders\compute</Filter>
+    </None>
+    <None Include="Assets\Shaders\compute\viewmatrix.comp">
+      <Filter>Resource Files\Shaders\compute</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\ComputeRenderQuad.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\line.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\line.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\OrangeHitbox.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\solidColour.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\VertexViewer.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\VertexViewer.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\VerticeViewer.geom">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\VerticeViewer.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\BillBoard.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\BillBoard.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\BillBoardSM.frag">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Db\BillBoardSM.vert">
+      <Filter>Resource Files\Shaders\Db</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\combined.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\combinedNoNormal.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\Default.geom">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\DefaultGeom.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\depth.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\geomfur.geom">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\NormalView.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\PS1.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\shadowMap.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\shadowMap.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\SpecularView.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\Wobble.vert">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\Lighting\albedoGeom.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
+    </None>
+    <None Include="Assets\Shaders\PostProcess\framebuffer.vert">
+      <Filter>Resource Files\Shaders\post</Filter>
+    </None>
+    <None Include="Assets\Shaders\PostProcess\framebuffer.frag">
+      <Filter>Resource Files\Shaders\post</Filter>
+    </None>
+    <None Include="Assets\Shaders\Skybox\skybox.frag">
+      <Filter>Resource Files\Shaders\sybox</Filter>
+    </None>
+    <None Include="Assets\Shaders\Skybox\skybox.vert">
+      <Filter>Resource Files\Shaders\sybox</Filter>
+    </None>
+    <None Include="Assets\Shaders\Empty.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPassBillBoard.frag">
+      <Filter>Resource Files\Shaders\Gbuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPassBillBoard.vert">
+      <Filter>Resource Files\Shaders\Gbuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPassGeom.vert">
+      <Filter>Resource Files\Shaders\Gbuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPassWobble.vert">
+      <Filter>Resource Files\Shaders\Gbuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPass.frag">
+      <Filter>Resource Files\Shaders\Gbuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\GeometryPass.geom">
+      <Filter>Resource Files\Shaders\Gbuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPass.vert">
+      <Filter>Resource Files\Shaders\Gbuffer</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,8 @@
 #include <Sound/SoundRunner.h>
 #include <Render/window/WindowHandler.h>
 #include "Scene/scene.h"
+
+#include "utils/FE_math.h"
 bool Player::CollideWithCamera = true;
 bool Player::isGrounded = false;
 bool Player::isColliding = false;
@@ -25,6 +27,7 @@ void Player::init() {
 }
 void Player::update() {
 
+	glm::vec3 colnorm = glm::vec3(0.0f);
 	float adjustedSpeed = 5.0f * TimeUtil::deltatime;
 	glm::vec3 flatOrientation = glm::normalize(glm::vec3(Scene::maincamera.Orientation.x, 0.0f, Scene::maincamera.Orientation.z));
 
@@ -43,6 +46,40 @@ void Player::update() {
 	if (glfwGetKey(windowHandler::window, GLFW_KEY_D) == GLFW_PRESS)
 	{
 		Scene::maincamera.Position += adjustedSpeed * glm::normalize(glm::cross(flatOrientation, Scene::maincamera.Up));
+	}
+
+	// very bad collisions with aabb
+	float collisiondepth = 0.0f;
+	if (Player::CollideWithCamera)
+	{
+		for (size_t i = 0; i < Scene::entityObjects.size(); i++)
+		{
+			for (size_t x = 0; x < Scene::entityObjects[i]->component.renderHeads.Model->meshes.size(); x++)
+			{
+				Collision::AABB meshAABB = Scene::entityObjects[i]->component.renderHeads.Model->MeshAABBs[x];
+				glm::vec3 globalPosition = meshAABB.position;
+				glm::vec3 globalSize = FE_Math::pad(meshAABB.size, 0.4f);
+				Collision::HitResult collisionData = Collision::AABBvsAABB(globalPosition, globalSize,
+					glm::vec3(Scene::maincamera.Position.x, (Scene::maincamera.Position.y - (Player::cameraColliderScale.y / 2.0f)), Scene::maincamera.Position.z),
+					Player::cameraColliderScale);
+
+				// Handle collision logic
+
+				if (collisionData.isColliding)
+				{
+					Scene::maincamera.Position = glm::vec3(collisionData.lastHit.x,
+						(collisionData.lastHit.y + (Player::cameraColliderScale.y / 2.0f)),
+						collisionData.lastHit.z);
+					Player::isColliding = true;
+					colnorm = collisionData.collisionNormal;
+					DoJump = true;
+				}
+
+			}
+		}
+	}
+	else {
+		Player::isColliding = false;
 	}
 
 	if (!s_DoGravity)
@@ -68,11 +105,13 @@ void Player::update() {
 
 		if (isColliding) {
 			velocity = glm::vec3(0.0f);
+
+
+			
+
 			if (glfwGetKey(windowHandler::window, GLFW_KEY_SPACE) == GLFW_PRESS && DoJump) //jump
 			{
-				velocity.y += 5.99f; // reset force at end
-				//force += glm::vec3(0.0f, 2800.0f, 0.0f) * mass;
-				//826.7
+				velocity += colnorm * 5.99f; // reset force at end
 			}
 
 			FootSound.SetSoundPosition(glm::vec3(Scene::maincamera.Position.x, (Scene::maincamera.Position.y - cameraColliderScale.y), Scene::maincamera.Position.z));
@@ -113,6 +152,7 @@ void Player::update() {
 			force = glm::vec3(0.0f); // reset force at end
 		}
 
+		Player::DoJump = false;
 		//Player::isGrounded = false;
 		Player::isColliding = false;
 		glm::vec3 lastpos = Scene::maincamera.Position;

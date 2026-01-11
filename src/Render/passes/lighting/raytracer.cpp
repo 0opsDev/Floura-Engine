@@ -6,8 +6,12 @@
 #include"Render/passes/post/denoise.h"
 #include "Core/Render.h"
 #include "Scene/scene.h"
+#include "Scene/LightingHandler.h"
 bool raytracer::RTGlobalTransformFlag = false;
-GLuint raytracer::computeTexture;
+GLuint raytracer::directSignal;
+GLuint raytracer::indirectSignal;
+GLuint raytracer::specularSignal;
+GLuint raytracer::emissionSignal;
 GLuint raytracer::NoiseMask;
 RenderQuad ComputeQuad;
 Shader ComputeQuadShader;
@@ -25,6 +29,8 @@ float raytracer::maxDistance = 100.0f;
 float raytracer::noiseThreshold = 0.3f;
 float raytracer::reflectionDistance = 50.0f;
 int raytracer::reflectionBounces = 2;
+int raytracer::indirectBounces = 1;
+int raytracer::indirectSamples = 1;
 bool raytracer::doAccumulate = true;
 bool raytracer::resetAccumulationOnDirty = true;
 Texture* raytracer::bluenoise;
@@ -35,7 +41,7 @@ void raytracer::init() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, triangleSSBOID);
 	// allocate 1024 bytes
 	glBufferData(GL_SHADER_STORAGE_BUFFER, 1024, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, triangleSSBOID);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, triangleSSBOID); // 6
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // Unbind
 	//meshSSBOID
 	
@@ -44,7 +50,7 @@ void raytracer::init() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, meshSSBOID);
 	// allocate 1024 bytes
 	glBufferData(GL_SHADER_STORAGE_BUFFER, 1024, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, meshSSBOID);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, meshSSBOID); // 7
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // Unbind
 
 	//quickSSBOID
@@ -52,7 +58,7 @@ void raytracer::init() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, quickSSBOID);
 	// allocate 1024 bytes
 	glBufferData(GL_SHADER_STORAGE_BUFFER, 1024, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, quickSSBOID);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, quickSSBOID); // 8
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // Unbind
 
 	//bvhSSBO
@@ -60,12 +66,41 @@ void raytracer::init() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, bvhSSBO);
 	// allocate 1024 bytes
 	glBufferData(GL_SHADER_STORAGE_BUFFER, 1024, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, bvhSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, bvhSSBO); // 9
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // Unbind
 
 	// load bluenoise texture
 	bluenoise = new Texture();
 	bluenoise->createTexture("Assets/Dependants/LDR_LLL1_0.png", "misc", 6);
+}
+
+void raytracer::reloadSceneToRaytracer()
+{
+	clearRaytracerData();
+	uploadSceneToRaytracer();
+}
+
+void raytracer::uploadSceneToRaytracer()
+{
+	raytracer::RTGlobalTransformFlag = true;
+	for (size_t i = 0; i < Scene::entityObjects.size(); i++)
+	{
+		for (size_t x = 0; x < modelArray.size(); x++)
+		{
+			if (modelArray[x].harddata.rayModel.modelUUID == Scene::entityObjects[i]->component.renderHeads.Model->UUID)
+				continue;
+		}
+		uploadToRaytracer(Scene::entityObjects[i]->component.renderHeads.Model);
+		UpdateModelBuffer();
+		updateQuickModelData();
+	}
+}
+
+void raytracer::clearRaytracerData()
+{
+	modelArray.clear();
+	UpdateModelBuffer();
+	updateQuickModelData();
 }
 
 void raytracer::uploadToRaytracer(Model* model)
@@ -108,9 +143,6 @@ void raytracer::uploadToRaytracer(Model* model)
 		// 	component.renderHeads.Model->createMeshAABBs();
 		rayMesh newMesh;
 		newMesh.triangleCount = (int)model->meshes[x].indices.size() / 3;
-
-		newMesh.AABBpos = glm::vec4(model->meshes[x].boxCollider.position, 1.0f);
-		newMesh.AABBscale = glm::vec4(model->meshes[x].boxCollider.size, 1.0f);
 
 		newMesh.meshIndex = x;
 		newMesh.modelUUID = model->UUID;
@@ -222,39 +254,37 @@ void raytracer::UpdateModelBuffer()
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, triangleSSBOID);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, newTriangleArray.size() * sizeof(triangle), newTriangleArray.data(), GL_STATIC_DRAW); // gl buffer data wipes whole array
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, triangleSSBOID);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, triangleSSBOID);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	// meshSSBOID
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, meshSSBOID);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, newMeshArray.size() * sizeof(rayMesh), newMeshArray.data(), GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, meshSSBOID);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, meshSSBOID);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 }
 
 void raytracer::updateboundingboxes(Model* model)
 {
-	//modelData
 	for (size_t i = 0; i < modelArray.size(); i++)
 	{
-		for (size_t x = 0; x < modelArray[i].harddata.meshes.size(); x++)
+		if (modelArray[i].harddata.rayModel.modelUUID == model->UUID)
 		{
-			// find matching model uuid
-			if (modelArray[i].harddata.meshes[x].modelUUID == model->UUID)
+			// update root node
+			if (modelArray[i].quickdata.meshAABBs.size() != model->meshes.size())
+				modelArray[i].quickdata.meshAABBs.resize(model->meshes.size());
+
+			for (size_t x = 0; x < model->meshes.size(); x++)
 			{
-				// update aabb
-				modelArray[i].harddata.meshes[x].AABBpos = glm::vec4(model->meshes[x].boxCollider.position, 1.0f);
-				modelArray[i].harddata.meshes[x].AABBscale = glm::vec4(model->meshes[x].boxCollider.size, 1.0f);
-
-				modelArray[i].quickdata.rootNode.rootPos = glm::vec4(model->meshes[x].boxCollider.position, 1.0f);
-				modelArray[i].quickdata.rootNode.rootscale = glm::vec4(model->meshes[x].boxCollider.size, 1.0f);
-
-				modelArray[i].quickdata.rootNode.modelUUID = model->UUID;
+				boxRootNode& node = modelArray[i].quickdata.meshAABBs[x];
+				node.rootPos = glm::vec4(model->meshes[x].boxCollider.position, 1.0f);
+				node.rootscale = glm::vec4(model->meshes[x].boxCollider.size, 1.0f);
+				node.modelUUID = model->UUID;
+				node.padding = 0;
 			}
+			break;
 		}
-
 	}
-
 }
 
 void raytracer::modelMatrixUpdate(uint64_t modelUUID, glm::mat4 newModelMatrix)
@@ -273,29 +303,31 @@ void raytracer::updateQuickModelData()
 {
 	std::vector<quickRayModel> newQuickDataArray;
 	std::vector<boxRootNode> newRootNodeArray;
+
 	for (size_t i = 0; i < modelArray.size(); i++)
 	{
-		quickRayModel newQuickData;
-		newQuickData.ModelMatrix = modelArray[i].quickdata.quickModel.ModelMatrix;
-		newQuickData.modelUUID = modelArray[i].quickdata.quickModel.modelUUID;
-		newQuickDataArray.push_back(newQuickData);
+		newQuickDataArray.push_back(modelArray[i].quickdata.quickModel);
+		for (size_t x = 0; x < modelArray[i].harddata.meshes.size(); x++)
+		{
+			boxRootNode meshBox;
+			meshBox.rootPos = modelArray[i].quickdata.meshAABBs[x].rootPos;
+			meshBox.rootscale = modelArray[i].quickdata.meshAABBs[x].rootscale;
+			meshBox.modelUUID = modelArray[i].harddata.rayModel.modelUUID;
+			meshBox.padding = 0;
 
-		boxRootNode newRootNode;
-		newRootNode.rootPos = modelArray[i].quickdata.rootNode.rootPos;
-		newRootNode.rootscale = modelArray[i].quickdata.rootNode.rootscale;
-		newRootNode.modelUUID = modelArray[i].quickdata.rootNode.modelUUID;
-		newRootNodeArray.push_back(newRootNode);
+			newRootNodeArray.push_back(meshBox);
+		}
 	}
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, quickSSBOID);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, newQuickDataArray.size() * sizeof(quickRayModel), newQuickDataArray.data(), GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, quickSSBOID);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, quickSSBOID);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	// bvhSSBO
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, bvhSSBO);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, newRootNodeArray.size() * sizeof(boxRootNode), newRootNodeArray.data(), GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, bvhSSBO);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, bvhSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 }
@@ -308,21 +340,49 @@ void raytracer::initcomputeShader(unsigned int width, unsigned int height) {
 
 	ComputeQuadShader.LoadShader("Assets/Shaders/Db/RenderQuad.vert", "Assets/Shaders/Db/ComputeRenderQuad.frag");
 
-	glCreateTextures(GL_TEXTURE_2D, 1, &computeTexture);
-	glTextureParameteri(computeTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTextureParameteri(computeTexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTextureParameteri(computeTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTextureParameteri(computeTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTextureStorage2D(computeTexture, 1, GL_RGBA32F, width, height);
-	glBindImageTexture(0, computeTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	// direct /0
+	glCreateTextures(GL_TEXTURE_2D, 1, &directSignal);
+	glTextureParameteri(directSignal, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(directSignal, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(directSignal, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(directSignal, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureStorage2D(directSignal, 1, GL_RGBA32F, width, height);
+	glBindImageTexture(0, directSignal, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
-	glCreateTextures(GL_TEXTURE_2D, 1, &NoiseMask);
+	// indirect /1
+	glCreateTextures(GL_TEXTURE_2D, 1, &indirectSignal);
+	glTextureParameteri(indirectSignal, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(indirectSignal, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(indirectSignal, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(indirectSignal, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureStorage2D(indirectSignal, 1, GL_RGBA32F, width, height);
+	glBindImageTexture(1, indirectSignal, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+	// specular /2 
+	glCreateTextures(GL_TEXTURE_2D, 1, &specularSignal);
+	glTextureParameteri(specularSignal, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(specularSignal, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(specularSignal, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(specularSignal, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureStorage2D(specularSignal, 1, GL_RGBA32F, width, height);
+	glBindImageTexture(2, specularSignal, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+	// emission /3
+	glCreateTextures(GL_TEXTURE_2D, 1, &emissionSignal);
+	glTextureParameteri(emissionSignal, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(emissionSignal, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(emissionSignal, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(emissionSignal, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureStorage2D(emissionSignal, 1, GL_RGBA32F, width, height);
+	glBindImageTexture(3, emissionSignal, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	// noise mask
+	glCreateTextures(GL_TEXTURE_2D, 1, &NoiseMask); //5
 	glTextureParameteri(NoiseMask, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTextureParameteri(NoiseMask, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTextureParameteri(NoiseMask, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(NoiseMask, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTextureStorage2D(NoiseMask, 1, GL_RGBA32F, width, height);
-	glBindImageTexture(2, NoiseMask, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glBindImageTexture(5, NoiseMask, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
 	CurrentWidth = width;
 	CurrentHeight = height;
@@ -347,15 +407,39 @@ bool resized = false;
 float downscaleFactor = 0.58f;
 
 void raytracer::resizeTexture(unsigned int width, unsigned int height) {
-    glDeleteTextures(1, &computeTexture); // Delete old texture 
+    glDeleteTextures(1, &directSignal); // Delete old texture 
 
-	glCreateTextures(GL_TEXTURE_2D, 1, &computeTexture);
-	glTextureParameteri(computeTexture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTextureParameteri(computeTexture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTextureParameteri(computeTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTextureParameteri(computeTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTextureStorage2D(computeTexture, 1, GL_RGBA32F, width * downscaleFactor, height * downscaleFactor);
-	glBindImageTexture(0, computeTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glCreateTextures(GL_TEXTURE_2D, 1, &directSignal);
+	glTextureParameteri(directSignal, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(directSignal, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(directSignal, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(directSignal, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureStorage2D(directSignal, 1, GL_RGBA32F, width * downscaleFactor, height * downscaleFactor);
+	glBindImageTexture(0, directSignal, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+	glCreateTextures(GL_TEXTURE_2D, 1, &indirectSignal);
+	glTextureParameteri(indirectSignal, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(indirectSignal, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(indirectSignal, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(indirectSignal, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureStorage2D(indirectSignal, 1, GL_RGBA32F, width * downscaleFactor, height * downscaleFactor);
+	glBindImageTexture(1, indirectSignal, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+	glCreateTextures(GL_TEXTURE_2D, 1, &specularSignal);
+	glTextureParameteri(specularSignal, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(specularSignal, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(specularSignal, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(specularSignal, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureStorage2D(specularSignal, 1, GL_RGBA32F, width * downscaleFactor, height * downscaleFactor);
+	glBindImageTexture(2, specularSignal, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+	glCreateTextures(GL_TEXTURE_2D, 1, &emissionSignal);
+	glTextureParameteri(emissionSignal, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTextureParameteri(emissionSignal, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(emissionSignal, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTextureParameteri(emissionSignal, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTextureStorage2D(emissionSignal, 1, GL_RGBA32F, width * downscaleFactor, height * downscaleFactor);
+	glBindImageTexture(3, emissionSignal, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
 	glCreateTextures(GL_TEXTURE_2D, 1, &NoiseMask);
 	glTextureParameteri(NoiseMask, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -363,7 +447,7 @@ void raytracer::resizeTexture(unsigned int width, unsigned int height) {
 	glTextureParameteri(NoiseMask, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTextureParameteri(NoiseMask, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTextureStorage2D(NoiseMask, 1, GL_RGBA32F, width * downscaleFactor, height * downscaleFactor);
-	glBindImageTexture(2, NoiseMask, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glBindImageTexture(5, NoiseMask, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
 	CurrentWidth = width;
 	CurrentHeight = height;
@@ -375,9 +459,10 @@ void raytracer::resizeTexture(unsigned int width, unsigned int height) {
 
 glm::vec3 oldCampos = glm::vec3(0.0f);
 glm::vec3 oldOrientation = glm::vec3(0.0f);
+int framecount = 0;
 
 void raytracer::render() {
-
+	framecount++;
 	testCompute.Activate();
 	testCompute.setFloat4("u_BaseColour", glm::vec4(glm::vec3(RenderClass::gammaCorrect3(RenderClass::skyRGBA)), 1.0f) ); // glm::vec3(RenderClass::gammaCorrect3(RenderClass::skyRGBA)), 1.0f)
 	testCompute.setMat4("u_ViewMatrix", Scene::maincamera.view);
@@ -394,7 +479,9 @@ void raytracer::render() {
 	testCompute.setFloat("reflectionDistance", raytracer::reflectionDistance);
 	testCompute.setInt("reflectionBounces", raytracer::reflectionBounces);
 	testCompute.setFloat3("skycolour", RenderClass::gammaCorrect3(RenderClass::skyRGBA));
-	
+	testCompute.setInt("frameCount", framecount);
+	testCompute.setInt("indirectBounces", raytracer::indirectBounces);
+	testCompute.setInt("indirectSamples", raytracer::indirectSamples);
 	
 	if (oldCampos != Scene::maincamera.Position && resetAccumulationOnDirty 
 		|| oldOrientation != Scene::maincamera.Orientation && resetAccumulationOnDirty 
@@ -409,12 +496,20 @@ void raytracer::render() {
 	}
 	testCompute.Activate();
 
+	LightingHandler::update(testCompute);
+
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
 	testCompute.setInt("depthMap", 5);
 
 	bluenoise->Bind();
 	testCompute.setInt("BlueNoiseTex", 6);
+
+	Skybox::bind(7);
+	Skybox::cubemapToShader(testCompute, 7);
 	testCompute.ActivateCompute((CurrentWidth + 7) / 8, (CurrentHeight + 3) / 4, 1);
 	bluenoise->Unbind();
+	Skybox::unbind();
+
+	denoiser::render();
 }

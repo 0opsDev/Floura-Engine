@@ -1,15 +1,75 @@
 #version 460 core
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 
-layout(rgba32f, binding = 0) uniform image2D raytracedTex;
-layout(rgba32f, binding = 1) uniform image2D denoiseTex;
-layout(rgba32f, binding = 2) uniform image2D NoiseMask;
+layout(rgba32f, binding = 0) uniform image2D directSignal;
+layout(rgba32f, binding = 1) uniform image2D indirectSignal;
+layout(rgba32f, binding = 2) uniform image2D specularSignal;
+layout(rgba32f, binding = 3) uniform image2D emissionSignal;
+layout(rgba32f, binding = 4) uniform image2D denoiseTex;
+layout(rgba32f, binding = 5) uniform image2D NoiseMask;
+
+// do combine pass in here for now
 
 // uniforms
+uniform sampler2D gAlbedoSpec;
 uniform sampler2D depthMap; // use this later for denoising, also take normal
 uniform bool doDenoise;
-float alphavalue = 0.3f;
+float alphavalue = 1.0f;
 uniform int minRadius;
+
+float linearizeDepth(float depth, float NearPlane, float FarPlane)
+{
+	return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
+}
+
+void DenoisePrimary(int radius, float depthLinearized , const ivec2 pixelCoords, const ivec2 size, out vec3 directOut, out vec3 indirectOut, out vec3 specularOut)
+{
+    vec3 directAccumulated = vec3(0.0f);
+    vec3 indirectAccumulated = vec3(0.0f);
+    vec3 specularAccumulated = vec3(0.0f);
+    float weight = 0.0f;
+
+    for (int x = -radius; x < radius; x++)
+    {
+            for (int y = -radius; y < radius; y++)
+            {
+                ivec2 neighbourCoords = pixelCoords + ivec2(x, y);
+                neighbourCoords = clamp(neighbourCoords, ivec2(0, 0), size - 1);
+
+                vec4 neighbourDirectColour = imageLoad(directSignal, neighbourCoords);
+                vec4 neigbbourIndirectColour = imageLoad(indirectSignal, neighbourCoords);
+                vec4 neighbourSpecularColour = imageLoad(specularSignal, neighbourCoords);
+                float neighbourNoise = imageLoad(NoiseMask, neighbourCoords).r;
+
+                // simular depth check 
+
+                    
+
+                vec2 neighbourDepthUV = vec2(neighbourCoords) / vec2(size);
+                float neighbourDepth = texture(depthMap, neighbourDepthUV).r;
+                float neighbourDepthLinearized = linearizeDepth(neighbourDepth, 0.1f, 100.0f);
+                // exclude if depth difference is too big
+                float depthDifference = abs(neighbourDepthLinearized - depthLinearized);
+                if (depthDifference > 0.5f)
+                    continue;
+
+                float w = 1.0f - neighbourNoise;
+                w = max(w * w, 0.0001f);
+
+                directAccumulated += neighbourDirectColour.rgb * w;
+                indirectAccumulated += neigbbourIndirectColour.rgb * w;
+                specularAccumulated += neighbourSpecularColour.rgb * w;
+                weight += w;
+            }
+    }
+    vec4 directColour = imageLoad(directSignal, pixelCoords);
+    directOut = (weight > 0.0001f) ? (directAccumulated / weight) : directColour.rgb;
+    vec4 indirectColour = imageLoad(indirectSignal, pixelCoords);
+    indirectOut = (weight > 0.0001f) ? (indirectAccumulated / weight) : indirectColour.rgb;
+
+    vec4 specularColour = imageLoad(specularSignal, pixelCoords);
+    specularOut = (weight > 0.0001f) ? (specularAccumulated / weight) : specularColour.rgb;
+}
 
 void main() {
     // Intentionally does nothing
@@ -20,28 +80,50 @@ void main() {
     // return if off screen
     if (pixelCoords.x >= size.x || pixelCoords.y >= size.y) return;
 
-    vec4 colour = imageLoad(raytracedTex, pixelCoords);
+    const ivec2 albedosize = textureSize(gAlbedoSpec, 0);
+    vec2 albedoUV = vec2(pixelCoords) / vec2(size);
+    vec3 albedoTex = texture(gAlbedoSpec, albedoUV).rgb;
+    float specTex = texture(gAlbedoSpec, albedoUV).a;
+
+    float reflectionSmoothness = 0.5f;
+    //    float depth = texture(depthMap, depthUV).r;
+
+    // combine all signals for early skip
+    vec3 directSignal = imageLoad(directSignal, pixelCoords).rgb;
+    vec3 indirectSignal = imageLoad(indirectSignal, pixelCoords).rgb;
+    vec3 specularSignal = imageLoad(specularSignal, pixelCoords).rgb;
+    vec3 emissionSignal = imageLoad(emissionSignal, pixelCoords).rgb;
+
+    //vec4 signalCombined = vec4( albedoTex * (directSignal) + (specularSignal * reflectionSmoothness) + emissionSignal, 1.0f);
+    vec4 signalCombined = vec4( albedoTex * (directSignal + indirectSignal) + (specularSignal * reflectionSmoothness) + emissionSignal, 1.0f);
+    //vec4 signalCombined = vec4(indirectSignal, 1.0f); // indirect
+    //vec4 signalCombined = vec4(indirectSignal + directSignal, 1.0f); // GI
     float isNoisy = imageLoad(NoiseMask, pixelCoords).r;
 
-    if (colour.a < 0.1f)
-    {
-        imageStore(denoiseTex, pixelCoords, vec4(0.0f));
-        return;
-    }
+    //if (colour.a < 0.1f)
+    //{
+    //    imageStore(denoiseTex, pixelCoords, vec4(0.0f));
+    //    return;
+    //}
 
     // if denosing is turned off
     //if (pixelCoords.x < size.x * 0.5f ){
     if (!doDenoise) {
-    imageStore(denoiseTex, pixelCoords, vec4(colour.xyz, alphavalue)); 
+    imageStore(denoiseTex, pixelCoords, vec4(signalCombined.xyz, alphavalue)); 
     //imageStore(denoiseTex, pixelCoords, vec4(vec3(isNoisy), alphavalue)); 
     return;
     }
 
     // if there is like no noise
     if (isNoisy == 0.0f ) {
-    imageStore(denoiseTex, pixelCoords, vec4(colour.xyz, alphavalue)); 
+    imageStore(denoiseTex, pixelCoords, vec4(signalCombined.xyz, alphavalue)); 
     return; 
     }
+
+    const ivec2 depthsize = textureSize(depthMap, 0);
+    vec2 depthUV = vec2(pixelCoords) / vec2(size);
+    float depth = texture(depthMap, depthUV).r;
+    float depthLinearized = linearizeDepth(depth, 0.1f, 100.0f);
 
     float dencity = 0.0f;
     // do a dencity check here
@@ -53,9 +135,13 @@ void main() {
                 neighbourCoords = clamp(neighbourCoords, ivec2(0, 0), size - 1);
                 float neighbourNoise = imageLoad(NoiseMask, neighbourCoords).r;
 
-                float neighbourColouralpha = imageLoad(raytracedTex, neighbourCoords).a;
-                if (neighbourColouralpha < 0.1f)
-                continue;
+                vec2 neighbourDepthUV = vec2(neighbourCoords) / vec2(size);
+                float neighbourDepth = texture(depthMap, neighbourDepthUV).r;
+                float neighbourDepthLinearized = linearizeDepth(neighbourDepth, 0.1f, 100.0f);
+                // exclude if depth difference is too big
+                float depthDifference = abs(neighbourDepthLinearized - depthLinearized);
+                if (depthDifference > 0.1f)
+                    continue;
 
                 dencity += neighbourNoise;
             }
@@ -71,29 +157,19 @@ void main() {
 
     float smoothRadius = newRadius;
 
-    for (int x = -int(smoothRadius); x < int(smoothRadius); x++)
-    {
-            for (int y = -int(smoothRadius); y < int(smoothRadius); y++)
-            {
-                ivec2 neighbourCoords = pixelCoords + ivec2(x, y);
-                neighbourCoords = clamp(neighbourCoords, ivec2(0, 0), size - 1);
+    // final equaision should be albedo * GI + specular + emissive
+    vec3 direct = vec3(0.0f);
+    vec3 specular = vec3(0.0f);
+    vec3 indirect = vec3(0.0f);
+    DenoisePrimary(int(smoothRadius), depthLinearized, pixelCoords, size, direct,indirect, specular);
+    specular *= reflectionSmoothness;
+    vec3 emission = vec3(0.0f);
 
-                vec4 neighbourColour = imageLoad(raytracedTex, neighbourCoords);
-                float neighbourNoise = imageLoad(NoiseMask, neighbourCoords).r;
-
-                //if (neighbourColour.a < 0.1f)
-                //continue;
-
-
-                float w = 1.0f - neighbourNoise;
-                w = max(w * w, 0.0001f);
-
-                accumulated += neighbourColour.rgb * w;
-                weight += w;
-            }
-    }
-    vec3 finalColour = (weight > 0.0001f) ? (accumulated / weight) : colour.rgb;
+    //vec3 final = direct; // * albedoTex;
+    vec3 final = albedoTex * (direct + indirect) + specular + emission;
+    //vec3 final = (indirect + direct); // gi
+    //vec3 final = (indirect);
 
     // equivalent to fragcolour 
-    imageStore(denoiseTex, pixelCoords, vec4(finalColour, alphavalue));
+    imageStore(denoiseTex, pixelCoords, vec4(final, alphavalue));
 }

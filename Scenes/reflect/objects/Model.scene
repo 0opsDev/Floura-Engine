@@ -1,1 +1,60 @@
-[]
+[
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/albedo.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            5.0,
+            5.0
+        ],
+        "UUID": "5dea6a8e2d6f3433",
+        "doRender": true,
+        "isBackFaceCulling": false,
+        "name": "cornel",
+        "path": "Assets/Models/cornel/cornel.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            50.96037292480469,
+            0.0,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "UUID": "8fda2607355c0680",
+        "doRender": true,
+        "isBackFaceCulling": false,
+        "name": "GItest",
+        "path": "Assets/Models/raytraced/GItest.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    }
+]

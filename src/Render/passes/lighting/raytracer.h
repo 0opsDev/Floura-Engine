@@ -31,9 +31,6 @@ public:
 
 	struct rayMesh // diffuse, specular, normal
 	{
-		glm::vec4 AABBpos; // 16
-		glm::vec4 AABBscale; // 16
-
 		int triangleCount; // 4
 		int meshIndex; // 4
 		int modelIndex;
@@ -81,7 +78,7 @@ public:
 	struct modelQuickData // for polling updates
 	{
 		quickRayModel quickModel; // quick model data
-		boxRootNode rootNode; // root aabb
+		std::vector<boxRootNode> meshAABBs;
 	};
 
 	struct modelData // upate variables
@@ -94,7 +91,10 @@ public:
 
 
 	static bool RTGlobalTransformFlag;
-	static GLuint computeTexture;
+	static GLuint directSignal;
+	static GLuint indirectSignal;
+	static GLuint specularSignal;
+	static GLuint emissionSignal;
 	static GLuint NoiseMask;
 
 	static float downscaleFactor;
@@ -102,11 +102,19 @@ public:
 	static float noiseThreshold;
 	static float reflectionDistance;
 	static int reflectionBounces;
+	static int indirectBounces;
+	static int indirectSamples;
 	static bool doAccumulate;
 	static bool resetAccumulationOnDirty;
 	static Texture* bluenoise;
 
 	static void init();
+
+	static void reloadSceneToRaytracer();
+
+	static void uploadSceneToRaytracer();
+
+	static void clearRaytracerData();
 
 	static void uploadToRaytracer(Model* model);
 

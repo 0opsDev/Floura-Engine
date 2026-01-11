@@ -96,9 +96,15 @@
         "Type": "NULL"
     },
     {
-        "Name": "san-miguel-low-poly",
+        "Name": "cornel",
         "ObjectType": "Model",
-        "Path": "Assets/Models/San_Miguel/san-miguel-low-poly.obj",
+        "Path": "Assets/Models/cornel/cornel.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "GItest",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/raytraced/GItest.gltf",
         "Type": "NULL"
     }
 ]

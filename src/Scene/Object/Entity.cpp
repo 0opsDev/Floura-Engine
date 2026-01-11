@@ -34,6 +34,7 @@ void entity::createwUUID(uint64_t nUUID, const char& type, const std::string& na
 		LogConsole::print("Entity Create: Unknown type '" + std::string(1, type) + "' for entity: " + name);
 		break;
 	}
+	//raytracer::RTGlobalTransformFlag = true;
 }
 
 
@@ -63,6 +64,7 @@ void entity::create(const char& type, const std::string& name, const std::string
 		LogConsole::print("Entity Create: Unknown type '" + std::string(1, type) + "' for entity: " + name);
 		break;
 	}
+	raytracer::RTGlobalTransformFlag = true;
 }
 
 void entity::LoadMaterial(std::string path)
@@ -130,6 +132,7 @@ void entity::Delete()
 		component.renderHeads.BillBoard = nullptr;
 		break;
 	}
+	raytracer::RTGlobalTransformFlag = true;
 }
 
 Collision::HitResult entity::RayVsTriangle(glm::vec3 rayPos, glm::vec3 rayDir)

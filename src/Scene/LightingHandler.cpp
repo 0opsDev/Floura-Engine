@@ -3,7 +3,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <utils/logConsole.h>
 #include "Scene/scene.h"
-
+#include "Render/passes/lighting/raytracer.h"
 int LightingHandler::amountPointShadowMaps = 4;
 int LightingHandler::amountPointNear;
 std::vector<LightingHandler::ShadowMaps> LightingHandler::PointShadowMap;
@@ -346,12 +346,15 @@ void LightingHandler::createLight()
 
 	Lights.push_back(tempLight);
 
+	raytracer::RTGlobalTransformFlag = true;
+
 	LogConsole::print("Created LightObject");
 }
 
 void LightingHandler::deleteLight(int index)
 {
 	Lights.erase(Lights.begin() + index);
+	raytracer::RTGlobalTransformFlag = true;
 	LogConsole::print("Deleted LightObject at index: " + std::to_string(index));
 
 	//IdManager::lowestLightIndexSync(); // sync up the index after deletion because the array has now changed

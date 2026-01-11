@@ -6,7 +6,7 @@
             1.3312498331069946,
             -3.702226161956787
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             -149.87701416015625,
             -15.277660369873047,
@@ -22,7 +22,7 @@
         "isBackFaceCulling": true,
         "name": "torus",
         "path": "Assets/Models/basic shapes/torus.gltf",
-        "smoothnessValue": 0.4000000059604645,
+        "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
             1.0
@@ -32,10 +32,10 @@
         "CastShadow": true,
         "Location": [
             0.0,
-            0.0,
+            -1.0,
             0.0
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -48,10 +48,10 @@
         ],
         "UUID": "b0d3bc07a7605e62",
         "doRender": true,
-        "isBackFaceCulling": true,
+        "isBackFaceCulling": false,
         "name": "plane",
         "path": "Assets/Models/basic shapes/plane.gltf",
-        "smoothnessValue": 0.4000000059604645,
+        "smoothnessValue": 0.0,
         "uvScale": [
             20.0,
             20.0
@@ -64,7 +64,7 @@
             2.0,
             0.0
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -80,7 +80,7 @@
         "isBackFaceCulling": true,
         "name": "slope",
         "path": "Assets/Models/basic shapes/slope.gltf",
-        "smoothnessValue": 0.4000000059604645,
+        "smoothnessValue": 0.0,
         "uvScale": [
             4.0,
             18.0
@@ -93,7 +93,7 @@
             2.0,
             -2.0
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -109,7 +109,7 @@
         "isBackFaceCulling": true,
         "name": "slope",
         "path": "Assets/Models/basic shapes/slope.gltf",
-        "smoothnessValue": 0.4000000059604645,
+        "smoothnessValue": 0.0,
         "uvScale": [
             4.0,
             18.0
@@ -122,7 +122,7 @@
             7.0,
             -19.0
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -138,7 +138,7 @@
         "isBackFaceCulling": true,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf",
-        "smoothnessValue": 0.4000000059604645,
+        "smoothnessValue": 0.0,
         "uvScale": [
             20.0,
             8.0
@@ -151,7 +151,7 @@
             2.0,
             17.0
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             180.0,
@@ -167,7 +167,7 @@
         "isBackFaceCulling": true,
         "name": "slope",
         "path": "Assets/Models/basic shapes/slope.gltf",
-        "smoothnessValue": 0.4000000059604645,
+        "smoothnessValue": 0.0,
         "uvScale": [
             3.0,
             3.0
@@ -180,7 +180,7 @@
             2.0,
             17.0
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -196,7 +196,7 @@
         "isBackFaceCulling": true,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf",
-        "smoothnessValue": 0.4000000059604645,
+        "smoothnessValue": 0.0,
         "uvScale": [
             7.0,
             7.0
@@ -209,7 +209,7 @@
             7.0,
             -10.0
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -225,7 +225,7 @@
         "isBackFaceCulling": true,
         "name": "cylinder",
         "path": "Assets/Models/basic shapes/cylinder.gltf",
-        "smoothnessValue": 0.4000000059604645,
+        "smoothnessValue": 0.0,
         "uvScale": [
             2.0,
             7.0
@@ -238,7 +238,7 @@
             16.0,
             -10.0
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -254,7 +254,7 @@
         "isBackFaceCulling": true,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf",
-        "smoothnessValue": 0.4000000059604645,
+        "smoothnessValue": 0.0,
         "uvScale": [
             18.0,
             10.0
@@ -263,11 +263,11 @@
     {
         "CastShadow": true,
         "Location": [
-            -10.1990966796875,
+            -10.0,
             0.0,
             10.441051483154297
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -283,7 +283,239 @@
         "isBackFaceCulling": true,
         "name": "cylinder",
         "path": "Assets/Models/basic shapes/cylinder.gltf",
-        "smoothnessValue": 0.4000000059604645,
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -9.544350624084473,
+            1.0,
+            13.542997360229492
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "UUID": "a67a98c92f672cbb",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "sphere",
+        "path": "Assets/Models/basic shapes/sphere.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -4.14402437210083,
+            1.1678721904754639,
+            14.700091361999512
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "UUID": "6ee0eca76f2cec79",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "barrel",
+        "path": "Assets/Models/barrel/barrel2.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            20.0,
+            7.0,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            10.0,
+            20.0
+        ],
+        "UUID": "fcbd244f51927d74",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "path": "Assets/Models/basic shapes/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            14.0,
+            10.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            5.166432857513428,
+            5.907500267028809,
+            -11.585980415344238
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            2.1599998474121094,
+            16.60500717163086,
+            9.422348976135254
+        ],
+        "UUID": "45bb5711c4d57bec",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "path": "Assets/Models/basic shapes/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            10.0,
+            10.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            12.193336486816406,
+            8.431395530700684,
+            -2.195497751235962
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            7.031459808349609,
+            8.442853927612305,
+            1.0
+        ],
+        "UUID": "9e7aa1d5f4613247",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "path": "Assets/Models/basic shapes/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            0.0,
+            62.69274139404297
+        ],
+        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.5,
+            0.5,
+            0.5
+        ],
+        "UUID": "1d44154ddec3771b",
+        "doRender": true,
+        "isBackFaceCulling": false,
+        "name": "GItest",
+        "path": "Assets/Models/raytraced/GItest.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            30.873319625854492,
+            21.816909790039063,
+            59.74165344238281
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            16.773895263671875,
+            1.0,
+            17.131481170654297
+        ],
+        "UUID": "ca06dd3d39093a5f",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "path": "Assets/Models/basic shapes/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -34.086185455322266,
+            0.0,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            45.0,
+            45.0,
+            45.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            5.0
+        ],
+        "UUID": "f48461719a8181b1",
+        "doRender": true,
+        "isBackFaceCulling": false,
+        "name": "plane",
+        "path": "Assets/Models/basic shapes/plane.gltf",
+        "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
             1.0

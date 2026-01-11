@@ -87,9 +87,16 @@ void Mesh::draw(Shader& shader)
     glUniform3f(glGetUniformLocation(shader.ID, "camPos"), Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z);
     Scene::maincamera.Matrix(shader, "camMatrix");
 
+    glm::mat4 finalMeshMat = globalMeshMatrix * meshMatrix;
+
+    //glm::mat4 newLMat = FE_Math::composeMatrixWDegrees(position, scale, rotation);
+    //glm::mat4 newGMat = FE_Math::composeMatrixWDegrees(globalPosition, globalScale, globalRotation);
+
+	//glm::mat4 newMat = newGMat * newLMat;
+
     // Push model matrix to the vertex shader
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(meshMatrix));
-    glm::mat3 model3x3 = glm::mat3(meshMatrix);
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(finalMeshMat));
+    glm::mat3 model3x3 = glm::mat3(finalMeshMat);
     glm::mat3 normalMatrix = glm::transpose(glm::inverse(model3x3));
     glUniformMatrix3fv(glGetUniformLocation(shader.ID, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
@@ -145,26 +152,39 @@ void Mesh::Delete()
     indices.clear();
 }
 
+
+
+void Mesh::updateMatrix(glm::mat4 matrix)
+{
+    Mesh::meshMatrix = matrix;
+}
 void Mesh::updatePosition(glm::vec3 position)
 {
     Mesh::position = position;
 }
-void Mesh::updateGlobalPosition(glm::vec3 position)
-{
-    Mesh::globalPosition = position;
-}
 void Mesh::updateRotation(glm::vec3 rotation)
 {
-    glm::vec3 RotRaidans = glm::radians(rotation);
-    Mesh::rotation = glm::quat(RotRaidans);
+    Mesh::rotation = rotation;
 }
 void Mesh::updateScale(glm::vec3 scale)
 {
     Mesh::scale = scale;
 }
-void Mesh::updateMatrix(glm::mat4 matrix)
+void Mesh::updateGlobalMatrix(glm::mat4 matrix)
 {
-	Mesh::meshMatrix = matrix;
+	Mesh::globalMeshMatrix = matrix;
+}
+void Mesh::updateGlobalPosition(glm::vec3 position)
+{
+    Mesh::globalPosition = position;
+}
+void Mesh::updateGlobalScale(glm::vec3 scale)
+{
+    Mesh::globalScale = scale;
+}
+void Mesh::updateGlobalRotation(glm::vec3 rotation)
+{
+    Mesh::globalRotation = rotation;
 }
 
 // instead of always scanning thru all the verticies grab the 8 furthest points on each axis and make a box from that
@@ -197,7 +217,7 @@ void Mesh::createAABB()
 
     // create aabb from those points
 	boxCollider = Collision::createAABBfromRubiksCubePoints(aabbPoints);
-    boxCollider.size = FE_Math::pad(boxCollider.position);
+    boxCollider.size = FE_Math::pad(boxCollider.position, 0.1f);
     
 }
 
@@ -205,21 +225,25 @@ void Mesh::updateAABB() // no args for now
 {
     Collision::rubiksCubePoints newpoints = aabbPoints;
 
-	glm::quat finalRot = rotation; // for now
-    glm::vec3 finalGlobalPos = globalPosition;
-    glm::vec3 finalpos = position; // for now
-    glm::vec3 finalscale = scale; // for now
+
+    //glm::mat4 newLMat = FE_Math::composeMatrixWDegrees(position, scale, rotation);
+    //glm::mat4 newGMat = FE_Math::composeMatrixWDegrees(globalPosition, globalScale, globalRotation);
+
+    //glm::mat4 newMat = newGMat * newLMat;
+
+	glm::mat4 finalMeshMat = globalMeshMatrix * meshMatrix;
 	// up
-    FE_Math::transformPoint(newpoints.ULF, meshMatrix);
-    FE_Math::transformPoint(newpoints.URF, meshMatrix);
-    FE_Math::transformPoint(newpoints.URB, meshMatrix);
-    FE_Math::transformPoint(newpoints.ULB, meshMatrix);
+    FE_Math::transformPoint(newpoints.ULF, finalMeshMat);
+    FE_Math::transformPoint(newpoints.URF, finalMeshMat);
+    FE_Math::transformPoint(newpoints.URB, finalMeshMat);
+    FE_Math::transformPoint(newpoints.ULB, finalMeshMat);
 	// down
-    FE_Math::transformPoint(newpoints.DLF, meshMatrix);
-    FE_Math::transformPoint(newpoints.DRF, meshMatrix);
-    FE_Math::transformPoint(newpoints.DRB, meshMatrix);
-    FE_Math::transformPoint(newpoints.DLB, meshMatrix);
+    FE_Math::transformPoint(newpoints.DLF, finalMeshMat);
+    FE_Math::transformPoint(newpoints.DRF, finalMeshMat);
+    FE_Math::transformPoint(newpoints.DRB, finalMeshMat);
+    FE_Math::transformPoint(newpoints.DLB, finalMeshMat);
 
     boxCollider = Collision::createAABBfromRubiksCubePoints(newpoints);
-    boxCollider.size = FE_Math::pad(boxCollider.size);
+	//boxCollider.position += finalGlobalPos + finalpos;
+    boxCollider.size = FE_Math::pad(boxCollider.size, 0.1f);
 }

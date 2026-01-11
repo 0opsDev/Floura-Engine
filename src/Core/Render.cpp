@@ -63,6 +63,12 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	glfwWindowHint(GLFW_DEPTH_BITS, 24); // DepthBuffer Bit
 	glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
 
+	//
+	//glfwWindowHint(GLFW_RED_BITS, 10);
+	//glfwWindowHint(GLFW_GREEN_BITS, 10);
+	//glfwWindowHint(GLFW_BLUE_BITS, 10);
+	//glfwWindowHint(GLFW_ALPHA_BITS, 2);
+
 	windowHandler::InitMainWidnow();
 	gladLoadGL(); // load open gl config
 
@@ -196,7 +202,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 		if (raytracer::RTGlobalTransformFlag) raytracer::updateQuickModelData();
 		raytracer::render(); // Run compute shader for lighting pass
 		raytracer::RTGlobalTransformFlag = false;
-		denoiser::render();
+
 	}
 
 	glActiveTexture(0);

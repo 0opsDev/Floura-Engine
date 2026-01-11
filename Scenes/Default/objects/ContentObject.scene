@@ -12,12 +12,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "redball",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/redball.gltf",
-        "Type": "NULL"
-    },
-    {
         "Name": "VertexViewer",
         "ObjectType": "Material",
         "Path": "Assets/Material/VertexViewer.Material",
@@ -63,18 +57,6 @@
         "Name": "torus",
         "ObjectType": "Model",
         "Path": "Assets/Models/basic shapes/torus.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "blackball",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/blackball.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "red",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/redcubes.gltf",
         "Type": "NULL"
     },
     {
@@ -141,6 +123,48 @@
         "Name": "lion_head_2k.",
         "ObjectType": "Model",
         "Path": "Assets/Models/lion_head_2k.gltf/lion_head_2k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "redcubes",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/raytraced/redcubes.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "QwantaniNight",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/QwantaniNight/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "charolettenbrunn_park",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/charolettenbrunn_park/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "OvercastSoilPuresky",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/OvercastSoilPuresky/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cornel",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/cornel/cornel.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "met",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/sphere/met.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "GItest",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/raytraced/GItest.gltf",
         "Type": "NULL"
     }
 ]
