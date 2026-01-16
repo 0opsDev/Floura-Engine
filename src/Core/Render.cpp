@@ -9,6 +9,7 @@
 #include <Scene/LightingHandler.h>
 #include <Scene/scene.h>
 #include "Render/passes/post/denoise.h"
+#include <Render/Handler/RenderHandler.h>
 
 Shader RenderClass::billBoardShader;
 Shader RenderClass::gPassShaderBillBoard;
@@ -25,6 +26,7 @@ glm::vec3 RenderClass::fogRGBA = glm::vec3( 1.0f, 1.0f, 1.0f);
 
 CubeVisualizer* RenderClass::WhiteCube;
 Line3D* RenderClass::line;
+Texture* RenderClass::bluenoise;
 
 Shader SolidColour;
 RenderQuad lightingRenderQuad;
@@ -91,6 +93,10 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	Framebuffer::setupFBO(width, height);
 	GeometryPass::setupGbuffers(width, height); // here
 	raytracer::init();
+
+	// load bluenoise texture
+	bluenoise = new Texture(); bluenoise->createTexture("Assets/Dependants/LDR_LLL1_0.png", "misc", 6);
+
 	raytracer::initcomputeShader(width, height); // Initialize compute shader for lighting pass
 	denoiser::initcomputeShader(width, height);
 
@@ -199,6 +205,8 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 
 	Scene::shadowmapDraw();
 	Scene::draw();
+
+	RenderHandler::render();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 	if (DoDeferredLightingPass)

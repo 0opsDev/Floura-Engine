@@ -1,0 +1,14 @@
+[
+    {
+        "Path": "Assets/Skybox/ferndale_studio_04",
+
+        "Faces": [
+            "px.png",
+            "nx.png",
+            "py.png",
+            "ny.png",
+            "pz.png",
+            "nz.png"
+        ]
+    }
+]

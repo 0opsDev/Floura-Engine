@@ -137,6 +137,9 @@
     <Filter Include="Resource Files\Shaders\Gbuffer">
       <UniqueIdentifier>{ca83d10f-ea02-4410-a40a-5987708c6303}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Render\Handler">
+      <UniqueIdentifier>{9f29c94a-f4d2-4a51-9c9b-921d55767559}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Render\shader\ShaderClass.cpp">
@@ -330,6 +333,18 @@
     </ClCompile>
     <ClCompile Include="src\Core\gl.c">
       <Filter>src\Editor\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\passes\post\ssao.cpp">
+      <Filter>src\Render\passes\post</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Handler\TextureMapManager.cpp">
+      <Filter>src\Render\Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Handler\RenderHandler.cpp">
+      <Filter>src\Render\Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Render\Handler\ShaderHandler.cpp">
+      <Filter>src\Render\Handler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -540,6 +555,18 @@
     <ClInclude Include="src\Systems\Physics\BVH.h">
       <Filter>src\Systems\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="src\Render\passes\post\ssao.h">
+      <Filter>src\Render\passes\post</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Handler\RenderHandler.h">
+      <Filter>src\Render\Handler</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Handler\TextureMapManager.h">
+      <Filter>src\Render\Handler</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Render\Handler\ShaderHandler.h">
+      <Filter>src\Render\Handler</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Settings.json">
@@ -614,9 +641,6 @@
     <None Include="Assets\Shaders\Lighting\combined.frag">
       <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
-    <None Include="Assets\Shaders\Lighting\combinedNoNormal.frag">
-      <Filter>Resource Files\Shaders\Lighting</Filter>
-    </None>
     <None Include="Assets\Shaders\Lighting\Default.geom">
       <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
@@ -684,6 +708,15 @@
       <Filter>Resource Files\Shaders\Gbuffer</Filter>
     </None>
     <None Include="Assets\Shaders\gBuffer\geometryPass.vert">
+      <Filter>Resource Files\Shaders\Gbuffer</Filter>
+    </None>
+    <None Include="Assets\Shaders\compute\ssao.comp">
+      <Filter>Resource Files\Shaders\compute</Filter>
+    </None>
+    <None Include="Assets\Shaders\compute\DenoiseRenderQuad.frag">
+      <Filter>Resource Files\Shaders\compute</Filter>
+    </None>
+    <None Include="Assets\Shaders\gBuffer\geometryPassNoNormal.frag">
       <Filter>Resource Files\Shaders\Gbuffer</Filter>
     </None>
   </ItemGroup>

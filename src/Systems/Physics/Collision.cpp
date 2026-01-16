@@ -156,6 +156,24 @@ Collision::AABB Collision::createAABBfromPoints(const std::vector<glm::vec3>& po
 	return AABB;
 }
 
+Collision::rubiksCubePoints Collision::transformRubiks(const rubiksCubePoints& points, glm::mat4 matrix)
+{
+	Collision::rubiksCubePoints newpoints = points;
+
+	// up
+	FE_Math::transformPoint(newpoints.ULF, matrix);
+	FE_Math::transformPoint(newpoints.URF, matrix);
+	FE_Math::transformPoint(newpoints.URB, matrix);
+	FE_Math::transformPoint(newpoints.ULB, matrix);
+	// down
+	FE_Math::transformPoint(newpoints.DLF, matrix);
+	FE_Math::transformPoint(newpoints.DRF, matrix);
+	FE_Math::transformPoint(newpoints.DRB, matrix);
+	FE_Math::transformPoint(newpoints.DLB, matrix);
+
+	return newpoints;
+}
+
 Collision::HitResult Collision::AABBvsAABB(
 	const glm::vec3& posA, const glm::vec3& sizeA,
 	const glm::vec3& posB, const glm::vec3& sizeB)

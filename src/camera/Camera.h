@@ -29,7 +29,8 @@ public:
     float speed = 0.1f;
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
-    float fov = 60;
+    float fov = 60.0f;
+    glm::vec2 nearFar = glm::vec2(0.1f, 100.0f);
     float gamma = 2.2f;
     
 
@@ -37,7 +38,7 @@ public:
     void InitCamera(int width, int height, glm::vec3 position);
     void SetViewportSize(int newWidth, int newHeight);
     // Updates and exports the camera matrix to the Vertex Shader
-    void updateMatrix(float FOVdeg, float nearPlane, float farPlane);
+    void updateMatrix();
     void Matrix(Shader& shader, const char* uniform);
 
     // Handles camera inputs

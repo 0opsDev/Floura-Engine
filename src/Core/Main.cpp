@@ -16,7 +16,6 @@
 #include "Sound/SoundRunner.h"
 // e
 bool Main::sleepState = true;
-float Main::cameraSettings[3] = { 60.0f, 0.1f, 1000.0f }; // FOV, near, far // move this to camera class or something
 
 void CloseConsoleWindow() { 
 	HWND hwnd = GetConsoleWindow();
@@ -26,7 +25,6 @@ void CloseConsoleWindow() {
 int main()
 {
 	//CloseConsoleWindow();
-
 	Main::sleepState = true;
 	FileClass::loadSettings();
 	ScriptRunner::init(Scene::sceneName + "/LuaStartup.json");
@@ -40,12 +38,17 @@ int main()
 	TempScene::init();
 	Player::init();
 
+	//GLint maxImageUnits;
+	//glGetIntegerv(GL_MAX_IMAGE_UNITS, &maxImageUnits);
+	//std::cout << "Max Image Units: " << maxImageUnits << std::endl;
+
+
 	while (!glfwWindowShouldClose(windowHandler::window)) // GAME LOOP
 	{
 		TimeUtil::update();
 		ScriptRunner::update();
 		Scene::maincamera.Inputs(windowHandler::window);
-		Scene::maincamera.updateMatrix(Main::cameraSettings[0], Main::cameraSettings[1], Main::cameraSettings[2]); // Update: fov, near and far plane
+		Scene::maincamera.updateMatrix(); // Update: fov, near and far plane
 		Scene::Update();
 		RenderClass::ClearFramebuffers(); // Clear Framebuffers
 		TempScene::Update();

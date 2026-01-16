@@ -18,7 +18,9 @@
 class Model {
 public:
 
-	uint64_t UUID;
+	uint64_t UUID;// modelID
+	uint64_t renderID;
+	std::vector<uint64_t>instanceUUIDs;
 
 	RenderClass::transformation globalTransformation;
 	glm::mat4 gModelMatrix = glm::mat4(1.0f);
@@ -41,8 +43,10 @@ public:
 	void updateMeshAABBs();
 
 	// AABBS position stored in local space
-	std::vector<Collision::AABB> MeshAABBs;
+	std::vector<Collision::AABB> rootnodes;
 	std::vector<Mesh> meshes;
+	std::vector<Collision::rubiksCubePoints> meshAabbPoints;
+
 	std::vector<RenderClass::transformation>localTransformation;
 	std::vector <glm::mat4> lModelMatrix;
 

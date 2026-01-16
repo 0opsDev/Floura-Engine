@@ -18,14 +18,28 @@ uniform mat4 model;
 uniform mat3 normalMatrix;
 uniform vec2 uvScale; 
 
+//TBN
+out vec3 Normal0;
+out vec3 Tangent0;
+out vec3 Bitangent0;
+
 void main()
 {
     crntPos = vec3(model * vec4(aPos, 1.0f));
     gNormals = normalMatrix * aNormal;
 
-    Normal = aNormal;
+    Normal0 = normalMatrix * aNormal;
+    Tangent0 = normalMatrix * aTangent;
+    Bitangent0 = normalMatrix * aBitangent;
+
+    vec3 Norm = normalize(normalMatrix * aNormal);
+    Normal = Norm;
+
     color = aColor;
     texCoord = vec2(aTex.x  * uvScale.x, aTex.y * uvScale.y);
+
+
+
 
     gl_Position = camMatrix * vec4(crntPos, 1.0f);
 }

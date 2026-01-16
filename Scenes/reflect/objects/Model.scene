@@ -2,26 +2,26 @@
     {
         "CastShadow": true,
         "Location": [
-            0.0,
-            0.0,
-            0.0
+            -302.1000061035156,
+            -8.5,
+            23.5
         ],
-        "MaterialPath": "Assets/Material/albedo.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
             0.0
         ],
         "Scale": [
-            5.0,
-            5.0,
-            5.0
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
         ],
-        "UUID": "5dea6a8e2d6f3433",
+        "UUID": "90ec97156b55c2d3",
         "doRender": true,
-        "isBackFaceCulling": false,
-        "name": "cornel",
-        "path": "Assets/Models/cornel/cornel.gltf",
+        "isBackFaceCulling": true,
+        "name": "nfs_shift_psp_-_london_short",
+        "path": "Assets/Models/nfs_shift_psp_-_london_short/scene.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
@@ -31,30 +31,30 @@
     {
         "CastShadow": true,
         "Location": [
-            50.96037292480469,
-            0.0,
+            23.369972229003906,
+            6.026905059814453,
             0.0
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
             0.0
         ],
         "Scale": [
+            10.0,
             1.0,
-            1.0,
-            1.0
+            10.0
         ],
-        "UUID": "8fda2607355c0680",
+        "UUID": "aaff06d414f14ab8",
         "doRender": true,
-        "isBackFaceCulling": false,
-        "name": "GItest",
-        "path": "Assets/Models/raytraced/GItest.gltf",
-        "smoothnessValue": 0.0,
+        "isBackFaceCulling": true,
+        "name": "rock_wall_16_4k",
+        "path": "Assets/Models/floors/rock_wall_16_4k.gltf",
+        "smoothnessValue": 1.0,
         "uvScale": [
-            1.0,
-            1.0
+            10.0,
+            10.0
         ]
     }
 ]

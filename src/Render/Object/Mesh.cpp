@@ -6,6 +6,7 @@
 #include <Render/Object/SkyBox.h>
 #include "Scene/scene.h"
 #include "Systems/util/UUID.h"
+#include <Systems/Physics/BVH.h>
 
 void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
 {
@@ -62,7 +63,6 @@ void Mesh::draw(Shader& shader)
     unsigned int numDiffuse = 0;
     unsigned int numSpecular = 0;
     unsigned int numNormal = 0;
-    unsigned int numDisplacement = 0;
 
     for (unsigned int i = 0; i < textures.size(); i++)
     {
@@ -76,9 +76,6 @@ void Mesh::draw(Shader& shader)
         }
         else if (type == "texture_normal") {
             num = std::to_string(numNormal++);
-        }
-        else if (type == "texture_displacement"){
-            num = std::to_string(numDisplacement++);
         }
         textures[i].texUnit(shader, (type + "0").c_str(), textures[i].unit);
         textures[i].Bind();
@@ -185,65 +182,4 @@ void Mesh::updateGlobalScale(glm::vec3 scale)
 void Mesh::updateGlobalRotation(glm::vec3 rotation)
 {
     Mesh::globalRotation = rotation;
-}
-
-// instead of always scanning thru all the verticies grab the 8 furthest points on each axis and make a box from that
-// store these 8 points, then just make a update function that just updates the aabb local transforms, including rotation
-Collision::AABB Mesh::createAABBfromMesh() // local and global transfoms needto be applied
-{
-    // optimise later btw
-    Collision::AABB AABB;
-
-    glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
-    glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
-
-    for (size_t i = 0; i < vertices.size(); i++)
-    {
-        min = glm::min(min, vertices[i].position);
-        max = glm::max(max, vertices[i].position);
-    }
-    AABB.position = (min + max) * 0.5f;
-    AABB.size = (max - min) * 0.5f;
-    //AABB.size = (max - min);
-    
-    
-    return AABB;
-}
-
-// placeholders
-void Mesh::createAABB()
-{
-    aabbPoints = Collision::fetchFurthestVertices(this->vertices);
-
-    // create aabb from those points
-	boxCollider = Collision::createAABBfromRubiksCubePoints(aabbPoints);
-    boxCollider.size = FE_Math::pad(boxCollider.position, 0.1f);
-    
-}
-
-void Mesh::updateAABB() // no args for now
-{
-    Collision::rubiksCubePoints newpoints = aabbPoints;
-
-
-    //glm::mat4 newLMat = FE_Math::composeMatrixWDegrees(position, scale, rotation);
-    //glm::mat4 newGMat = FE_Math::composeMatrixWDegrees(globalPosition, globalScale, globalRotation);
-
-    //glm::mat4 newMat = newGMat * newLMat;
-
-	glm::mat4 finalMeshMat = globalMeshMatrix * meshMatrix;
-	// up
-    FE_Math::transformPoint(newpoints.ULF, finalMeshMat);
-    FE_Math::transformPoint(newpoints.URF, finalMeshMat);
-    FE_Math::transformPoint(newpoints.URB, finalMeshMat);
-    FE_Math::transformPoint(newpoints.ULB, finalMeshMat);
-	// down
-    FE_Math::transformPoint(newpoints.DLF, finalMeshMat);
-    FE_Math::transformPoint(newpoints.DRF, finalMeshMat);
-    FE_Math::transformPoint(newpoints.DRB, finalMeshMat);
-    FE_Math::transformPoint(newpoints.DLB, finalMeshMat);
-
-    boxCollider = Collision::createAABBfromRubiksCubePoints(newpoints);
-	//boxCollider.position += finalGlobalPos + finalpos;
-    boxCollider.size = FE_Math::pad(boxCollider.size, 0.1f);
 }

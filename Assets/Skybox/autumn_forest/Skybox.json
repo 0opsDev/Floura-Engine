@@ -1,0 +1,14 @@
+[
+    {
+        "Path": "Assets/Skybox/autumn_forest",
+
+        "Faces": [
+            "px.png",
+            "nx.png",
+            "py.png",
+            "ny.png",
+            "pz.png",
+            "nz.png"
+        ]
+    }
+]

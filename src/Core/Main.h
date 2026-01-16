@@ -12,12 +12,7 @@
 class Main
 {
 public:
-
 	static bool sleepState;
-	static float cameraSettings[3]; // FOV, near, far
-
-	//void Main::updateModelLua(std::vector<std::string> path, std::vector<std::string> modelName, std::vector<float> x, std::vector<float> y, std::vector<float> z)
-
 private:
 };
 #endif

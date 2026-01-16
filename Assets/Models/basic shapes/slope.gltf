@@ -21,7 +21,7 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Material.001",
+			"name":"Material.005",
 			"normalTexture":{
 				"index":0
 			},
@@ -81,8 +81,8 @@
 		},
 		{
 			"mimeType":"image/png",
-			"name":"black",
-			"uri":"black.png"
+			"name":"Stile1024",
+			"uri":"Stile1024.png"
 		}
 	],
 	"accessors":[

@@ -199,7 +199,7 @@ void LightingHandler::deleteLightMap(char type, int index)
 	}
 }
 
-void LightingHandler::drawShadowMap(Model*& model, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale) {
+void LightingHandler::drawShadowMap(Model*& model) {
 	if (!doDirShadowMap)
 	{
 		return;
@@ -295,8 +295,13 @@ void LightingHandler::update(Shader Shader)
 
 	}
 
-	Shader.setFloat("NearPlane", RenderClass::DepthPlane[0]);
-	Shader.setFloat("FarPlane", RenderClass::DepthPlane[1]);
+	Shader.setFloat("DepthDistance", RenderClass::DepthDistance);
+	Shader.setFloat("FogNearPlane", RenderClass::DepthPlane[0]);
+	Shader.setFloat("FogFarPlane", RenderClass::DepthPlane[1]);
+	Shader.setBool("doFog", RenderClass::doFog);
+	Shader.setFloat3("fogColour", RenderClass::gammaCorrect3(RenderClass::fogRGBA));
+	Shader.setFloat("NearPlane", Scene::maincamera.nearFar.x);
+	Shader.setFloat("FarPlane", Scene::maincamera.nearFar.y);
 	Shader.setInt("lightCount", activeLightIndex);
 
 	// directional light

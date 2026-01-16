@@ -64,28 +64,28 @@ Texture FEImGuiWindow::SoundIcon; // Icon for Sound in ImGui
 static char pathBuffer[256]; // Ensure the size is appropriate
 
 void FEImGuiWindow::init() {
-	logoIcon.createTextureDetached("Assets/Icons/Icon.png");
-	FolderIcon.createTextureDetached("Assets/Icons/bindericon.png");
-	SaveIcon.createTextureDetached("Assets/Icons/saveicon.png");
-	ModelIcon.createTextureDetached("Assets/Icons/meshicon.png");
-	BillBoardIcon.createTextureDetached("Assets/Icons/pictureIcon.png");
-	colliderIcon.createTextureDetached("Assets/Icons/collideicon.png");
-	pointLightIcon.createTextureDetached("Assets/Icons/point.png");
-	spotLightIcon.createTextureDetached("Assets/Icons/spot.png");
-	arrowIcon.createTextureDetached("Assets/Icons/arrow.png");
-	crossIcon.createTextureDetached("Assets/Icons/cross.png");
-	plusIcon.createTextureDetached("Assets/Icons/plus.png");
-	cameraIcon.createTextureDetached("Assets/Icons/cameraIcon.png");
-	skyboxIcon.createTextureDetached("Assets/Icons/skyboxIcon.png");
-	directLight.createTextureDetached("Assets/Icons/directLight.png");
-	materialIcon.createTextureDetached("Assets/Icons/materialIcon.png");
-	environmentIcon.createTextureDetached("Assets/Icons/Environment.png");
-	moveIcon.createTextureDetached("Assets/Icons/move.png");
-	scaleIcon.createTextureDetached("Assets/Icons/scale.png");
-	rotateIcon.createTextureDetached("Assets/Icons/rotate.png");
-	wirefameIcon.createTextureDetached("Assets/Icons/wireframeIcon.png");
-	iIcon.createTextureDetached("Assets/Icons/iIcon.png");
-	SoundIcon.createTextureDetached("assets/Icons/soundIcon.png");
+	logoIcon.createTexture("Assets/Icons/Icon.png", "UI", 0);
+	FolderIcon.createTexture("Assets/Icons/bindericon.png", "UI", 0);
+	SaveIcon.createTexture("Assets/Icons/saveicon.png", "UI", 0);
+	ModelIcon.createTexture("Assets/Icons/meshicon.png", "UI", 0);
+	BillBoardIcon.createTexture("Assets/Icons/pictureIcon.png", "UI", 0);
+	colliderIcon.createTexture("Assets/Icons/collideicon.png", "UI", 0);
+	pointLightIcon.createTexture("Assets/Icons/point.png", "UI", 0);
+	spotLightIcon.createTexture("Assets/Icons/spot.png", "UI", 0);
+	arrowIcon.createTexture("Assets/Icons/arrow.png", "UI", 0);
+	crossIcon.createTexture("Assets/Icons/cross.png", "UI", 0);
+	plusIcon.createTexture("Assets/Icons/plus.png", "UI", 0);
+	cameraIcon.createTexture("Assets/Icons/cameraIcon.png", "UI", 0);
+	skyboxIcon.createTexture("Assets/Icons/skyboxIcon.png", "UI", 0);
+	directLight.createTexture("Assets/Icons/directLight.png", "UI", 0);
+	materialIcon.createTexture("Assets/Icons/materialIcon.png", "UI", 0);
+	environmentIcon.createTexture("Assets/Icons/Environment.png", "UI", 0);
+	moveIcon.createTexture("Assets/Icons/move.png", "UI", 0);
+	scaleIcon.createTexture("Assets/Icons/scale.png", "UI", 0);
+	rotateIcon.createTexture("Assets/Icons/rotate.png", "UI", 0);
+	wirefameIcon.createTexture("Assets/Icons/wireframeIcon.png", "UI", 0);
+	iIcon.createTexture("Assets/Icons/iIcon.png", "UI", 0);
+	SoundIcon.createTexture("assets/Icons/soundIcon.png", "UI", 0);
 }
 
 void FEImGuiWindow::initImGui(GLFWwindow* window) {
@@ -517,9 +517,9 @@ void FEImGuiWindow::RenderWindow() {
 	ImGui::Begin("Rendering"); // ImGUI window creation
 	if (ImGui::SmallButton("Reload Model Shaders?")) 
 	{
-		for (size_t i = 0; i < Scene::entityObjects.size(); i++)
+		for (size_t i = 0; i < ShaderHandler::shaderObjects.size(); i++)
 		{
-			Scene::entityObjects[i]->LoadMaterial(Scene::entityObjects[i]->component.systems.material.Material.materialPath);
+			ShaderHandler::reloadShader(i);
 		}
 	}
 	if (ImGui::SmallButton("Reload Global Shaders")) RenderClass::initGlobalShaders();
@@ -548,6 +548,7 @@ void FEImGuiWindow::RenderWindow() {
 		ImGui::Checkbox("DoRaytracedPass", &RenderClass::DoComputeLightingPass);
 		ImGui::DragFloat("downscaleFactor", &raytracer::downscaleFactor);
 		ImGui::Checkbox("doAccumulate", &raytracer::doAccumulate);
+		ImGui::DragInt("Max Accumulated Frames", &raytracer::maxAccumulatedFrames);
 		ImGui::Checkbox("reset Accumulation On Dirty", &raytracer::resetAccumulationOnDirty);
 		ImGui::Text("primary hit");
 		ImGui::DragFloat("Noise Threshold", &raytracer::noiseThreshold);

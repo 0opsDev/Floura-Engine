@@ -21,7 +21,7 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Material.001",
+			"name":"Material.005",
 			"normalTexture":{
 				"index":0
 			},
@@ -81,8 +81,8 @@
 		},
 		{
 			"mimeType":"image/png",
-			"name":"black",
-			"uri":"black.png"
+			"name":"Stile1024",
+			"uri":"Stile1024.png"
 		}
 	],
 	"accessors":[
@@ -116,10 +116,9 @@
 		},
 		{
 			"bufferView":3,
-			"componentType":5121,
+			"componentType":5126,
 			"count":130,
-			"normalized":true,
-			"type":"VEC4"
+			"type":"VEC3"
 		},
 		{
 			"bufferView":4,
@@ -156,20 +155,20 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":520,
+			"byteLength":1560,
 			"byteOffset":4160,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":1040,
-			"byteOffset":4680,
+			"byteOffset":5720,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":744,
-			"byteOffset":5720,
+			"byteOffset":6760,
 			"target":34963
 		}
 	],
@@ -181,7 +180,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":6464,
+			"byteLength":7504,
 			"uri":"cylinder.bin"
 		}
 	]

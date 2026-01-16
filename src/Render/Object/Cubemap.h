@@ -17,9 +17,11 @@ class Cubemap
 {
 public:
 
+	std::string path;
+	GLuint64 handle; /// for bindless textures
 	unsigned int ID;
 
-	Cubemap(std::string PathName);
+	Cubemap(std::string path);
 	~Cubemap();
 };
 

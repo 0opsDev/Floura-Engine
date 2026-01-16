@@ -75,6 +75,8 @@ public:
 	static AABB createAABBfromVertices(const std::vector<Vertex>& vertices);
 	static AABB createAABBfromPoints(const std::vector<glm::vec3>& points);
 
+	static rubiksCubePoints transformRubiks(const rubiksCubePoints& points, glm::mat4 matrix);
+
 	// AABB collision detection
 	// AABB vs AABB
 	static HitResult AABBvsAABB(

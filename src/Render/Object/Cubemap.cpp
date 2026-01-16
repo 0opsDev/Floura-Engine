@@ -3,23 +3,23 @@
 
 std::array<std::string, 6> facesCubemap;
 
-Cubemap::Cubemap(std::string PathName) {
-
+Cubemap::Cubemap(std::string path) {
+	Cubemap::path = path;
 	// loading
 
-	std::ifstream SkyboxJson(PathName);
+	std::ifstream SkyboxJson(path);
 	if (SkyboxJson.is_open()) {
 		json SkyboxJsonData;
 		SkyboxJson >> SkyboxJsonData;
 		SkyboxJson.close();
 
-		std::string Path = SkyboxJsonData[0]["Path"].get<std::string>() + "/";
+		std::string nPath = SkyboxJsonData[0]["Path"].get<std::string>() + "/";
 
-		LogConsole::print("Skybox Path: " + Path);
+		LogConsole::print("Skybox Path: " + nPath);
 
 		for (int i = 0; i < 6; i++)
 		{
-			facesCubemap[i] = Path + SkyboxJsonData[0]["Faces"][i].get<std::string>();
+			facesCubemap[i] = nPath + SkyboxJsonData[0]["Faces"][i].get<std::string>();
 			LogConsole::print("Skybox Face: " + facesCubemap[i]);
 		}
 	}
@@ -62,6 +62,11 @@ Cubemap::Cubemap(std::string PathName) {
 				data
 			);
 			stbi_image_free(data);
+
+			if (GLAD_GL_ARB_bindless_texture) {
+				handle = glGetTextureHandleARB(ID);
+				glMakeTextureHandleResidentARB(handle);
+			}
 		}
 		else
 		{
@@ -73,5 +78,9 @@ Cubemap::Cubemap(std::string PathName) {
 
 Cubemap::~Cubemap()
 {
+	// delete the handle first
+	if (GLAD_GL_ARB_bindless_texture) {
+		glMakeTextureHandleNonResidentARB(handle);
+	}
 	glDeleteTextures(1, &ID);	
 }

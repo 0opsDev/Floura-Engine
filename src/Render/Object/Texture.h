@@ -9,20 +9,23 @@
 class Texture
 {
 public:
-	GLuint ID;
+	GLuint ID; // texture ID
+	GLuint64 handle; /// for bindless textures
 	std::string type;
 	GLuint unit;
 	std::string path;
 	bool flipVertical = false;
+	void createColour(glm::vec3 colour, const char* texType, GLuint slot);
 	void createTexture(const char* image, const char* texType, GLuint slot);
-
-	// Texture detached from OpenGL pipeline
-	void createTextureDetached(const char* image);
 
 	void reload(GLuint slot);
 
 	// Assigns a texture unit to a texture
 	void texUnit(Shader& shader, const char* uniform, GLuint unit);
+
+	// send handle to shader
+	void handleToShader(Shader& shader, const char* uniform);
+
 	// Binds a texture
 	void Bind();
 	// Unbinds a texture

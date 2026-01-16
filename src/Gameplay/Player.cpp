@@ -3,7 +3,7 @@
 #include <Sound/SoundRunner.h>
 #include <Render/window/WindowHandler.h>
 #include "Scene/scene.h"
-
+#include <Render/Handler/RenderHandler.h>
 #include "utils/FE_math.h"
 bool Player::CollideWithCamera = true;
 bool Player::isGrounded = false;
@@ -47,34 +47,40 @@ void Player::update() {
 	{
 		Scene::maincamera.Position += adjustedSpeed * glm::normalize(glm::cross(flatOrientation, Scene::maincamera.Up));
 	}
-
 	// very bad collisions with aabb
 	float collisiondepth = 0.0f;
 	if (Player::CollideWithCamera)
 	{
 		for (size_t i = 0; i < Scene::entityObjects.size(); i++)
 		{
-			for (size_t x = 0; x < Scene::entityObjects[i]->component.renderHeads.Model->meshes.size(); x++)
+			int index = RenderHandler::fetchModelIndex(Scene::entityObjects[i]->component.renderHeads.renderID);
+			if (index != -1)
 			{
-				Collision::AABB meshAABB = Scene::entityObjects[i]->component.renderHeads.Model->MeshAABBs[x];
-				glm::vec3 globalPosition = meshAABB.position;
-				glm::vec3 globalSize = FE_Math::pad(meshAABB.size, 0.4f);
-				Collision::HitResult collisionData = Collision::AABBvsAABB(globalPosition, globalSize,
-					glm::vec3(Scene::maincamera.Position.x, (Scene::maincamera.Position.y - (Player::cameraColliderScale.y / 2.0f)), Scene::maincamera.Position.z),
-					Player::cameraColliderScale);
-
-				// Handle collision logic
-
-				if (collisionData.isColliding)
+				for (size_t x = 0; x < RenderHandler::models[index].model->meshes.size(); x++)
 				{
-					Scene::maincamera.Position = glm::vec3(collisionData.lastHit.x,
-						(collisionData.lastHit.y + (Player::cameraColliderScale.y / 2.0f)),
-						collisionData.lastHit.z);
-					Player::isColliding = true;
-					colnorm = collisionData.collisionNormal;
-					DoJump = true;
-				}
+					Collision::AABB meshAABB;
+					if (x < Scene::entityObjects[i]->component.collider.rootnodes.size())
+					meshAABB = Scene::entityObjects[i]->component.collider.rootnodes[x];
+					//Collision::AABB meshAABB = Scene::entityObjects[i]->component.collider.rootnodes[x];
+					glm::vec3 globalPosition = meshAABB.position;
+					glm::vec3 globalSize = FE_Math::pad(meshAABB.size, 0.4f);
+					Collision::HitResult collisionData = Collision::AABBvsAABB(globalPosition, globalSize,
+						glm::vec3(Scene::maincamera.Position.x, (Scene::maincamera.Position.y - (Player::cameraColliderScale.y / 2.0f)), Scene::maincamera.Position.z),
+						Player::cameraColliderScale);
 
+					// Handle collision logic
+
+					if (collisionData.isColliding)
+					{
+						Scene::maincamera.Position = glm::vec3(collisionData.lastHit.x,
+							(collisionData.lastHit.y + (Player::cameraColliderScale.y / 2.0f)),
+							collisionData.lastHit.z);
+						Player::isColliding = true;
+						colnorm = collisionData.collisionNormal;
+						DoJump = true;
+					}
+
+				}
 			}
 		}
 	}
@@ -103,7 +109,7 @@ void Player::update() {
 	}
 	else { Player::isMoving = false; }
 
-		if (isColliding) {
+		if (isColliding && Player::CollideWithCamera) {
 			velocity = glm::vec3(0.0f);
 
 

@@ -27,54 +27,70 @@ void Material::LoadMaterial(std::string path)
 	jsonLoad(path);
 	if (type == "Standard")
 	{
-		ModelShader.LoadShader((VertexShaderPath).c_str(), (FragmentShaderPath).c_str());
+		modelShaderUUID = ShaderHandler::createShader((VertexShaderPath).c_str(), (FragmentShaderPath).c_str());
+		modelGpassShaderUUID = ShaderHandler::createShader((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str());
+
+		//ModelShader.LoadShader((VertexShaderPath).c_str(), (FragmentShaderPath).c_str());
+		//ModelGpassShader.LoadShader((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str());
 	}
 	else if (type == "Geometry")
 	{
-		ModelShader.LoadShaderGeom((VertexShaderPath).c_str(), (FragmentShaderPath).c_str(), (GeometryShaderPath).c_str());
-		
-		// normal gpass for now
-		//ModelGpassShader.LoadShader((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str()); 
+		modelShaderUUID = ShaderHandler::createGeometry((VertexShaderPath).c_str(), (FragmentShaderPath).c_str(), (GeometryShaderPath).c_str());
+		modelGpassShaderUUID = ShaderHandler::createGeometry((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str(), (GeometryGPShaderPath).c_str());
+
+		//ModelShader.LoadShaderGeom((VertexShaderPath).c_str(), (FragmentShaderPath).c_str(), (GeometryShaderPath).c_str());
+		//ModelGpassShader.LoadShaderGeom((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str(), (GeometryGPShaderPath).c_str());
 	}
-	ModelGpassShader.LoadShader((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str());
+
 	// should prolly add back
 }
 
 void Material::ClearMaterial()
 {
-	ModelShader.Delete();
-	ModelGpassShader.Delete();
+	ShaderHandler::removeInstancewUUID(modelShaderUUID);
+	ShaderHandler::removeInstancewUUID(modelGpassShaderUUID);
+
+	//ModelShader.Delete();
+	//ModelGpassShader.Delete();
 }
 
 void Material::update()
 {
+	int modelShaderIndex = ShaderHandler::fetchShaderIndex(modelShaderUUID);
+	int modelGPShaderIndex = ShaderHandler::fetchShaderIndex(modelGpassShaderUUID);
+
+	//ModelShader.Activate();
+	//Scene::maincamera.Matrix(ModelShader, "camMatrix");
+	//ModelGpassShader.Activate();
+	//Scene::maincamera.Matrix(ModelGpassShader, "camMatrix");
 	// this is where we activate and send off all the uniforms to the shader
-	Scene::maincamera.Matrix(ModelShader, "camMatrix"); // Send Camera Matrix To Shader Prog
+	ShaderHandler::shaderObjects[modelShaderIndex].Shader.Activate();
+	Scene::maincamera.Matrix(ShaderHandler::shaderObjects[modelShaderIndex].Shader, "camMatrix"); // Send Camera Matrix To Shader Prog
+	ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.Activate();
+	Scene::maincamera.Matrix(ShaderHandler::shaderObjects[modelGPShaderIndex].Shader, "camMatrix");
 
-	ModelShader.Activate();
-	//uvScale
-	ModelGpassShader.Activate();
-	Scene::maincamera.Matrix(ModelGpassShader, "camMatrix"); // Send Camera Matrix To Shader Prog
+	//ModelShader.Activate();
+	//ModelShader.setFloat("deltatime", TimeUtil::deltatime);
+	//ModelShader.setFloat("time", glfwGetTime());
 
-	updateTime();
-}
+	//ModelGpassShader.Activate();
+	//ModelGpassShader.setFloat("deltatime", TimeUtil::deltatime);
+	//ModelGpassShader.setFloat("time", glfwGetTime());
 
-void Material::updateTime()
-{
+	ShaderHandler::shaderObjects[modelShaderIndex].Shader.Activate();
+	ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("deltatime", TimeUtil::deltatime);
+	ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("time", glfwGetTime());
 
-	ModelShader.Activate();
-	ModelShader.setFloat("deltatime", TimeUtil::deltatime);
-	ModelShader.setFloat("time", glfwGetTime());
-
-	ModelGpassShader.Activate();
-	ModelGpassShader.setFloat("deltatime", TimeUtil::deltatime);
-	ModelGpassShader.setFloat("time", glfwGetTime());
-
+	ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.Activate();
+	ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat("deltatime", TimeUtil::deltatime);
+	ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat("time", glfwGetTime());
 }
 
 void Material::updateForwardLights() {
-	LightingHandler::update(ModelShader);
-}	
+	int modelShaderIndex = ShaderHandler::fetchShaderIndex(modelShaderUUID);
+	LightingHandler::update(ShaderHandler::shaderObjects[modelShaderIndex].Shader);
+}
+
 
 void Material::jsonLoad(std::string path) 
 {
@@ -115,8 +131,9 @@ void Material::jsonLoad(std::string path)
 		if (item.contains("GeomShader")) {
 			GeometryShaderPath = item.at("GeomShader").get<std::string>();
 		}
-
-
+		if (item.contains("GeometryGPShaderPath")) {
+			GeometryGPShaderPath = item.at("GeometryGPShaderPath").get<std::string>();
+		}
 
 	}
 	std::cout << "Loaded Scene Models from: " << path << std::endl;

@@ -7,6 +7,7 @@
 #include <Gameplay/Player.h>
 #include "Systems/util/UUID.h"
 #include "Render/passes/lighting/raytracer.h"
+#include <Render/Handler/RenderHandler.h>
 
 void entity::createwUUID(uint64_t nUUID, const char& type, const std::string& name, const std::string& path, const std::string& materialPath)
 {
@@ -74,6 +75,7 @@ void entity::LoadMaterial(std::string path)
 
 void entity::update()
 {
+	entity::updateMeshAABBs();
 	if (component.physics.hasRigidbody) // change name to hasdynamics
 	{
 		if (component.physics.affectedByGravity)
@@ -93,15 +95,21 @@ void entity::update()
 	switch (type)
 	{
 	case 'm': // model
-		component.renderHeads.Model->updatePosition(component.systems.transformation.position);
-		component.renderHeads.Model->updateRotation(component.systems.transformation.rotation);
-		component.renderHeads.Model->updateScale(component.systems.transformation.scale);
-		component.renderHeads.Model->updateTranformation();
-		component.renderHeads.Model->updateMeshAABBs();
-		raytracer::updateboundingboxes(component.renderHeads.Model);
-		raytracer::modelMatrixUpdate(component.renderHeads.Model->UUID, component.renderHeads.Model->gModelMatrix);
+	{
+		int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+		if (index != -1)
+		{
+			RenderHandler::models[index].model->updatePosition(component.systems.transformation.position);
+			RenderHandler::models[index].model->updateRotation(component.systems.transformation.rotation);
+			RenderHandler::models[index].model->updateScale(component.systems.transformation.scale);
+			RenderHandler::models[index].model->updateTranformation();
+			RenderHandler::models[index].model->updateMeshAABBs();
+			raytracer::updateboundingboxes(component.renderHeads.instanceUUID, component.collider.rootnodes);
+			raytracer::modelMatrixUpdate(component.renderHeads.instanceUUID, RenderHandler::models[index].model->gModelMatrix);
+		}
 
 		break;
+	}
 	case 'b': // billboard
 		component.renderHeads.BillBoard->updatePosition(component.systems.transformation.position);
 		component.renderHeads.BillBoard->updateScale(component.systems.transformation.scale);
@@ -121,12 +129,20 @@ void entity::Delete()
 	switch (type)
 	{
 	case 'm': // model
+	{
 		// 
-		raytracer::removeFromRaytracer(component.renderHeads.Model->UUID);
-		delete component.renderHeads.Model;
+		RenderHandler::removeInstancewRenderID(component.renderHeads.renderID);
+
+		int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+		if (index != -1)
+		{
+			raytracer::removeFromRaytracer(component.renderHeads.instanceUUID);
+		}
+		//delete component.renderHeads.Model;
+		//component.renderHeads.Model = nullptr;
 		component.systems.material.Material.ClearMaterial();
-		component.renderHeads.Model = nullptr;
 		break;
+	}
 	case 'b': // billboard
 		delete component.renderHeads.BillBoard;
 		component.renderHeads.BillBoard = nullptr;
@@ -140,115 +156,103 @@ Collision::HitResult entity::RayVsTriangle(glm::vec3 rayPos, glm::vec3 rayDir)
 	Collision::HitResult finalResult;
 	finalResult.isColliding = false;
 	finalResult.distance = std::numeric_limits<float>::max();	
-
-	glm::mat4 gModelMatrix = FE_Math::composeMatrixWDegrees(component.renderHeads.Model->globalTransformation.position, 
-		component.renderHeads.Model->globalTransformation.scale, component.renderHeads.Model->globalTransformation.rotation);
-
-	// for each mesh
-	for (size_t x = 0; x < component.renderHeads.Model->meshes.size(); x++)
+	int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+	if (index != -1)
 	{
-		// final transformation
-		glm::mat4 finalMatrix = gModelMatrix * component.renderHeads.Model->lModelMatrix[x]; // * by local transform
 
-		// AABB to speed things up
-		Collision::HitResult AABB = Collision::AABBvsRay(component.renderHeads.Model->meshes[x].boxCollider.position, component.renderHeads.Model->meshes[x].boxCollider.size, rayPos, rayDir);
-		if (AABB.isColliding)
+		glm::mat4 gModelMatrix = FE_Math::composeMatrixWDegrees(RenderHandler::models[index].model->globalTransformation.position,
+			RenderHandler::models[index].model->globalTransformation.scale, RenderHandler::models[index].model->globalTransformation.rotation);
+
+		// for each mesh
+		for (size_t x = 0; x < RenderHandler::models[index].model->meshes.size(); x++)
 		{
-			for (size_t y = 0; y < component.renderHeads.Model->meshes[x].indices.size(); y += 3)
+			// final transformation
+			glm::mat4 finalMatrix = gModelMatrix * RenderHandler::models[index].model->lModelMatrix[x]; // * by local transform
+
+			// AABB to speed things up
+			Collision::HitResult AABB = Collision::AABBvsRay(component.collider.rootnodes[x].position, component.collider.rootnodes[x].size, rayPos, rayDir);
+			if (AABB.isColliding)
 			{
-				unsigned int i0 = component.renderHeads.Model->meshes[x].indices[y];
-				unsigned int i1 = component.renderHeads.Model->meshes[x].indices[y + 1];
-				unsigned int i2 = component.renderHeads.Model->meshes[x].indices[y + 2];
-
-				if (i0 >= component.renderHeads.Model->meshes[x].vertices.size() ||
-					i1 >= component.renderHeads.Model->meshes[x].vertices.size() ||
-					i2 >= component.renderHeads.Model->meshes[x].vertices.size()) {
-					continue;
-				}
-
-
-				glm::vec3 a = component.renderHeads.Model->meshes[x].vertices[i0].position;
-				glm::vec3 b = component.renderHeads.Model->meshes[x].vertices[i1].position;
-				glm::vec3 c = component.renderHeads.Model->meshes[x].vertices[i2].position;
-
-				FE_Math::transformPoint(a, finalMatrix);
-				FE_Math::transformPoint(b, finalMatrix);
-				FE_Math::transformPoint(c, finalMatrix);
-
-				// run hit test and return result
-				Collision::HitResult triHit = Collision::RayVsTriangle(rayPos, rayDir, a, b, c);
-
-				if (triHit.isColliding && triHit.distance < finalResult.distance)
+				for (size_t y = 0; y < RenderHandler::models[index].model->meshes[x].indices.size(); y += 3)
 				{
-					finalResult = triHit;
+					unsigned int i0 = RenderHandler::models[index].model->meshes[x].indices[y];
+					unsigned int i1 = RenderHandler::models[index].model->meshes[x].indices[y + 1];
+					unsigned int i2 = RenderHandler::models[index].model->meshes[x].indices[y + 2];
+
+					if (i0 >= RenderHandler::models[index].model->meshes[x].vertices.size() ||
+						i1 >= RenderHandler::models[index].model->meshes[x].vertices.size() ||
+						i2 >= RenderHandler::models[index].model->meshes[x].vertices.size()) {
+						continue;
+					}
+
+
+					glm::vec3 a = RenderHandler::models[index].model->meshes[x].vertices[i0].position;
+					glm::vec3 b = RenderHandler::models[index].model->meshes[x].vertices[i1].position;
+					glm::vec3 c = RenderHandler::models[index].model->meshes[x].vertices[i2].position;
+
+					FE_Math::transformPoint(a, finalMatrix);
+					FE_Math::transformPoint(b, finalMatrix);
+					FE_Math::transformPoint(c, finalMatrix);
+
+					// run hit test and return result
+					Collision::HitResult triHit = Collision::RayVsTriangle(rayPos, rayDir, a, b, c);
+
+					if (triHit.isColliding && triHit.distance < finalResult.distance)
+					{
+						finalResult = triHit;
+					}
 				}
 			}
 		}
 	}
-
 	return finalResult;
 }
 
 
 void entity::draw()
 {
-
 	if (!component.flags.render) return;
 
 	switch (type)
 	{
 	case 'm': // model
-		Skybox::bind(5);
-		Skybox::cubemapToShader(component.systems.material.Material.ModelShader, 5);
-		component.systems.material.Material.update();
+	{
+		RenderHandler::renderQueueData newRenderData;
+		newRenderData.RenderID = component.renderHeads.renderID;
+		newRenderData.shaderUUID = component.systems.material.Material.modelShaderUUID;
+		newRenderData.gpShaderUUID = component.systems.material.Material.modelGpassShaderUUID;
+		newRenderData.castsShadow = component.flags.castsShadow;
+		newRenderData.cullFrontFace = component.flags.cullFrontFace;
+		newRenderData.doCulling = component.flags.doCulling;
+		//newRenderData.isInstanced;
+		newRenderData.position = component.systems.transformation.position;
+		newRenderData.rotation = component.systems.transformation.rotation;
+		newRenderData.scale = component.systems.transformation.scale;
+		newRenderData.smoothnessValue = component.renderHeads.smoothnessValue;
+		newRenderData.uvScale = component.systems.material.uvScale;
+		RenderHandler::addToRenderQueue(newRenderData);
 
-		if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) return; // Skip rendering if not in regular or lighting pass
-		if (component.flags.doCulling == true && !FEImGuiWindow::isWireframe) glEnable(GL_CULL_FACE);
-		else glDisable(GL_CULL_FACE);
-		if (component.flags.cullFrontFace) glCullFace(GL_FRONT);
-		else glCullFace(GL_BACK);
-
-		if (FEImGuiWindow::isWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
-
-		component.systems.material.Material.ModelShader.Activate();
-		component.systems.material.Material.ModelShader.setFloat2("uvScale", component.systems.material.uvScale);
-		component.systems.material.Material.ModelShader.setFloat("smoothnessValue", component.renderHeads.smoothnessValue);
-		//smoothnessValue
-		component.systems.material.Material.ModelGpassShader.Activate();
-		component.systems.material.Material.ModelGpassShader.setFloat2("uvScale", component.systems.material.uvScale);
-
-		if (RenderClass::DoForwardLightingPass) {
-			glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
-			component.systems.material.Material.ModelShader.Activate();
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LESS);
-			component.renderHeads.Model->draw(component.systems.material.Material.ModelShader);
-			// Draw the mesh bounding box for visualization
-			for (size_t i = 0; i < component.renderHeads.Model->meshes.size(); i++)
-			{
-				if (Collision::showBoxCollider)
-					RenderClass::WhiteCube->draw(component.renderHeads.Model->meshes[i].boxCollider.position,
-						component.renderHeads.Model->meshes[i].boxCollider.size, glm::vec3(1.0f));
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			}
-
-
+		int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+		if (index != -1)
+		{
+			raytracer::uvScaleUpdate(component.renderHeads.instanceUUID, component.systems.material.uvScale);
 		}
-		component.systems.material.Material.ModelGpassShader.Activate();
-		GeometryPass::gPassDraw(component.renderHeads.Model, component.systems.material.Material.ModelGpassShader);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Enable wireframe mode
+		for (size_t i = 0; i < component.collider.rootnodes.size(); i++)
+		{
+			if (Collision::showBoxCollider)
+				RenderClass::WhiteCube->draw(component.collider.rootnodes[i].position,
+					component.collider.rootnodes[i].size, glm::vec3(1.0f));
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
 
-		//glFrontFace(GL_CCW);
-		glCullFace(GL_BACK); // Reset culling to default
-		glDisable(GL_CULL_FACE);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		Skybox::unbind();
 		break;
+	}
 	case 'b': // billboard
+	{
 		component.renderHeads.BillBoard->draw();
-		break;
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		break;
+	}
 	}
 }
 
@@ -258,7 +262,7 @@ void entity::drawShadowMap()
 	switch (type)
 	{
 	case 'm': // model
-		LightingHandler::drawShadowMap(component.renderHeads.Model, component.systems.transformation.position, component.systems.transformation.rotation, component.systems.transformation.scale);
+		//LightingHandler::drawShadowMap(component.renderHeads.Model, component.systems.transformation.position, component.systems.transformation.rotation, component.systems.transformation.scale);
 		break;
 	case 'b': // billboard
 		LightingHandler::drawShadowMapBillboard(component.renderHeads.BillBoard, component.systems.transformation.position, component.systems.transformation.scale);
@@ -275,44 +279,51 @@ void entity::updateCollision()
 	switch (type)
 	{
 	case 'm':
-		// just for now do camera vs aabb from meshes, in future there should
-	// be a collision handler, that does objects vs objects for aabbs
-		for (size_t i = 0; i < component.renderHeads.Model->MeshAABBs.size(); i++)
+	{
+		int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+		if (index != -1)
 		{
-			// Calculate global position and scale
 
-			// these two are bugged
-
-			glm::vec3 globalPosition = component.renderHeads.Model->MeshAABBs[i].position;
-			//glm::vec3 globalPosition = component.systems.transformation.position * component.renderHeads.Model->MeshAABBs[i].position;
-			//glm::vec3 globalPosition = component.renderHeads.Model->MeshAABBs[i].position;
-			//glm::vec3 globalPosition = component.systems.transformation.position;
-
-			glm::vec3 globalSize = component.renderHeads.Model->MeshAABBs[i].size;
-
-
-			//std::cout << "x" << component.renderHeads.Model->MeshAABBs[i].position.x << std::endl;
-
-			// Collision check using global position and scale
-			Collision::HitResult collisionData = Collision::AABBvsAABB(globalPosition, globalSize,
-				glm::vec3(Scene::maincamera.Position.x, (Scene::maincamera.Position.y - (Player::cameraColliderScale.y / 2.0f)), Scene::maincamera.Position.z),
-				Player::cameraColliderScale);
-
-			// Handle collision logic
-			if (collisionData.isColliding)
+			// just for now do camera vs aabb from meshes, in future there should
+		// be a collision handler, that does objects vs objects for aabbs
+			for (size_t i = 0; i < component.collider.rootnodes.size(); i++)
 			{
-				Scene::maincamera.Position = glm::vec3(collisionData.lastHit.x,
-					(collisionData.lastHit.y + (Player::cameraColliderScale.y / 2.0f)),
-					collisionData.lastHit.z);
+				// Calculate global position and scale
 
-				RenderClass::WhiteCube->draw(collisionData.lastHit, glm::vec3(0.1f), glm::vec3(1.0f, 0.0f, 0.0f));
+				// these two are bugged
 
-				if (collisionData.collisionNormal == glm::vec3(0.0f, 1.0f, 0.0f)) // up or down
-					Player::isColliding = true; // Set collision state
+				glm::vec3 globalPosition = component.collider.rootnodes[i].position;
+				//glm::vec3 globalPosition = component.systems.transformation.position * component.renderHeads.Model->MeshAABBs[i].position;
+				//glm::vec3 globalPosition = component.renderHeads.Model->MeshAABBs[i].position;
+				//glm::vec3 globalPosition = component.systems.transformation.position;
+
+				glm::vec3 globalSize = component.collider.rootnodes[i].size;
+
+
+				//std::cout << "x" << component.renderHeads.Model->MeshAABBs[i].position.x << std::endl;
+
+				// Collision check using global position and scale
+				Collision::HitResult collisionData = Collision::AABBvsAABB(globalPosition, globalSize,
+					glm::vec3(Scene::maincamera.Position.x, (Scene::maincamera.Position.y - (Player::cameraColliderScale.y / 2.0f)), Scene::maincamera.Position.z),
+					Player::cameraColliderScale);
+
+				// Handle collision logic
+				if (collisionData.isColliding)
+				{
+					Scene::maincamera.Position = glm::vec3(collisionData.lastHit.x,
+						(collisionData.lastHit.y + (Player::cameraColliderScale.y / 2.0f)),
+						collisionData.lastHit.z);
+
+					RenderClass::WhiteCube->draw(collisionData.lastHit, glm::vec3(0.1f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+					if (collisionData.collisionNormal == glm::vec3(0.0f, 1.0f, 0.0f)) // up or down
+						Player::isColliding = true; // Set collision state
+				}
 			}
 		}
 		//RenderClass::line->draw(glm::vec3(1.0f, 0.0f, 0.0f));
 		break;
+	}
 
 	default:
 		break;
@@ -328,25 +339,40 @@ void entity::updateMeshAABBs()
 		component.renderHeads.dirtyTransform = false;
 
 		if (type == 'm')
-			component.renderHeads.Model->updateMeshAABBs();
+		{
+			int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+			if (index != -1)
+			{
+
+				RenderHandler::models[index].model->updatePosition(component.systems.transformation.position);
+				RenderHandler::models[index].model->updateRotation(component.systems.transformation.rotation);
+				RenderHandler::models[index].model->updateScale(component.systems.transformation.scale);
+				RenderHandler::models[index].model->updateTranformation();
+				RenderHandler::models[index].model->updateMeshAABBs();
+				component.collider.rootnodes = RenderHandler::models[index].model->rootnodes;
+			}
+			//component.renderHeads.Model->updateMeshAABBs();
+		}
 	}
 
 }
 
 void entity::createModel(const std::string& path, const std::string& materialPath)
 {
+	RenderHandler::batchOfUUID newBatchOfUUID = RenderHandler::addModel(path);
+	component.renderHeads.renderID = newBatchOfUUID.RenderID;
+	component.renderHeads.instanceUUID = newBatchOfUUID.instanceUUID;
+	component.renderHeads.renderIDString = UUID::UUIDToString(newBatchOfUUID.RenderID);
+	component.renderHeads.instanceIDString = UUID::UUIDToString(newBatchOfUUID.instanceUUID);
+	component.renderHeads.dirtyTransform = true;
+	entity::updateMeshAABBs();
 	component.systems.material.Material.LoadMaterial(materialPath);
-	component.renderHeads.Model = new Model(path.c_str());
 
-	component.renderHeads.Model->createMeshAABBs();
-	//entity::updateMeshAABBs();
-
-	// update transformation for raytracer
-	component.renderHeads.Model->updatePosition(component.systems.transformation.position);
-	component.renderHeads.Model->updateRotation(component.systems.transformation.rotation);
-	component.renderHeads.Model->updateScale(component.systems.transformation.scale);
-	component.renderHeads.Model->updateTranformation();
-	raytracer::uploadToRaytracer(component.renderHeads.Model);
+	int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+	if (index != -1)
+	{
+		raytracer::uploadToRaytracer(newBatchOfUUID.instanceUUID);
+	}
 }
 
 void entity::createBillBoard(const std::string& path)

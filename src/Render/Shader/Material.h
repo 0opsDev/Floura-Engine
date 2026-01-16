@@ -6,6 +6,8 @@
 #include<array>
 #include "shaderClass.h"
 #include <json/json.hpp>
+#include "Render/Handler/ShaderHandler.h"
+#include "xhash"
 
 using json = nlohmann::json;
 
@@ -15,8 +17,11 @@ public:
 
 	int test = 0;
 
-	Shader ModelShader;
-	Shader ModelGpassShader;
+	uint64_t modelShaderUUID;
+	uint64_t modelGpassShaderUUID;
+
+	//Shader ModelShader;
+	//Shader ModelGpassShader;
 
 	std::string materialPath;
 
@@ -32,11 +37,10 @@ private:
 	std::string type;
 	std::string FragmentShaderPath;
 	std::string VertexShaderPath;
+	std::string GeometryShaderPath;
 	std::string FragmentGPShaderPath;
 	std::string VertexGPShaderPath;
-	std::string GeometryShaderPath;
-
-	void updateTime();
+	std::string GeometryGPShaderPath;
 
 	void jsonLoad(std::string path);
 };

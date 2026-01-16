@@ -6,6 +6,7 @@
 #include "Scene/scene.h"
 #include "utils/logConsole.h"
 #include "Gameplay/Player.h"
+#include <Render/Handler/RenderHandler.h>
 
 static const char* lightTypes[]{ "Spotlight","Pointlight" };
 static int SelectedLight = 0;
@@ -77,8 +78,9 @@ void EcsInspector::ModelWindow() {
 	ImGui::Text((Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name).c_str());
 	//ID
 	ImGui::Text(("UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->UUIDstring)).c_str());
-	// Index attached to ID
-	//ImGui::Text(("ID Attached Index: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.index)).c_str());
+	ImGui::Text(("render UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.renderIDString)).c_str());
+	ImGui::Text(("Instance UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.instanceIDString)).c_str());
+
 
 	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
 	ImGui::SameLine();
@@ -137,12 +139,6 @@ void EcsInspector::ModelWindow() {
 	}
 	ImGui::Spacing();
 	if (ImGui::TreeNode("Collider Component")) {
-
-		if (ImGui::Button("Update Mesh AABB"))
-		{
-			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->updateMeshAABBs();
-		}
-
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	ImGui::Spacing();
@@ -154,15 +150,19 @@ void EcsInspector::ModelWindow() {
 	}
 	ImGui::Spacing();
 	if (ImGui::TreeNode("General Infomation:")) {
-		ImGui::Text(("Material: " + Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.Material.materialPath).c_str());
-		std::string meshsize = "nummesh: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.Model->meshes.size());
-		ImGui::Text(meshsize.c_str());
-
-		ImGui::Text("mesh names:");
-		for (size_t i = 0; i < Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.Model->meshes.size(); i++)
+		int index = RenderHandler::fetchModelIndex(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.renderID);
+		if (index != -1)
 		{
-			std::string meshNames = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.Model->meshes[i].name;
-			ImGui::Text(meshNames.c_str());
+			ImGui::Text(("Material: " + Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.Material.materialPath).c_str());
+			std::string meshsize = "nummesh: " + std::to_string(RenderHandler::models[index].model->meshes.size());
+			ImGui::Text(meshsize.c_str());
+
+			ImGui::Text("mesh names:");
+			for (size_t i = 0; i < RenderHandler::models[index].model->meshes.size(); i++)
+			{
+				std::string meshNames = RenderHandler::models[index].model->meshes[i].name;
+				ImGui::Text(meshNames.c_str());
+			}
 		}
 		ImGui::TreePop();// Ends The ImGui Window
 	}
@@ -366,9 +366,9 @@ void EcsInspector::CameraWindow() {
 		//sensitivity
 		ImGui::DragFloat2("Camera Sensitivity", &Scene::maincamera.sensitivity.x);
 		ImGui::Spacing();
-		ImGui::DragFloat("FOV", &Main::cameraSettings[0], 0.1f, 160.0f); //FOV
+		ImGui::DragFloat("FOV", &Scene::maincamera.fov, 0.1f, 160.0f); //FOV
 		ImGui::DragFloat("Gamma", &Scene::maincamera.gamma);
-		ImGui::DragFloat2("Near and Far Plane", &Main::cameraSettings[1]); // Near and FarPlane
+		ImGui::DragFloat2("Near and Far Plane", &Scene::maincamera.nearFar.x); // Near and FarPlane
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}

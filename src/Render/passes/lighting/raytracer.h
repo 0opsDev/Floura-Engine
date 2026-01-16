@@ -15,8 +15,6 @@ public:
 	{
 		// vec4 for padding
 		glm::vec4 a, b, c;
-		// colour
-		glm::vec4 aColour, bColour, cColour;
 		// texUV
 		glm::vec4 aTex;
 		glm::vec4 bTex;
@@ -36,13 +34,17 @@ public:
 		int modelIndex;
 		int mateialIndex;
 
-		uint64_t modelUUID;
+		uint64_t instanceUUID;
 		uint64_t meshUUID;
+		// textures
+		uint64_t albedoHandle;
+		uint64_t specularHandle;
+		uint64_t normalHandle;
 	};
 
 	struct rayModel
 	{
-		uint64_t modelUUID;
+		uint64_t instanceUUID;
 		int ModelIndex;
 		int meshCount;
 	};
@@ -60,9 +62,11 @@ public:
 
 	struct quickRayModel
 	{
-		uint64_t modelUUID;
+		uint64_t instanceUUID;
 		uint64_t padding;
 		glm::mat4 ModelMatrix;
+		glm::mat4 NormalMatrix;
+		glm::vec4 uvScale;
 		// would be nice to have an active toggle for if do render is toggled
 	};
 
@@ -71,7 +75,7 @@ public:
 		glm::vec4 rootPos; // 16
 		glm::vec4 rootscale; // 16
 
-		uint64_t modelUUID;
+		uint64_t instanceUUID;
 		uint64_t padding;
 	};
 
@@ -91,9 +95,11 @@ public:
 
 
 	static bool RTGlobalTransformFlag;
+	static GLuint raytracedOutput;
 	static GLuint directSignal;
 	static GLuint indirectSignal;
 	static GLuint specularSignal;
+	static GLuint specularIndirectSignal;
 	static GLuint emissionSignal;
 	static GLuint NoiseMask;
 
@@ -104,9 +110,9 @@ public:
 	static int reflectionBounces;
 	static int indirectBounces;
 	static int indirectSamples;
+	static int maxAccumulatedFrames;
 	static bool doAccumulate;
 	static bool resetAccumulationOnDirty;
-	static Texture* bluenoise;
 
 	static void init();
 
@@ -116,15 +122,17 @@ public:
 
 	static void clearRaytracerData();
 
-	static void uploadToRaytracer(Model* model);
+	static void uploadToRaytracer(uint64_t instanceUUID);
 
-	static void removeFromRaytracer(uint64_t modelUUID);
+	static void removeFromRaytracer(uint64_t instanceUUID);
 
 	static void UpdateModelBuffer();
 
-	static void updateboundingboxes(Model* model); // for now root node, soon i will do bvh
+	static void updateboundingboxes(uint64_t instanceUUID, std::vector<Collision::AABB> rootnodes); // for now root node, soon i will do bvh
 
-	static void modelMatrixUpdate(uint64_t modelUUID, glm::mat4 newModelMatrix);
+	static void modelMatrixUpdate(uint64_t instanceUUID, glm::mat4 newModelMatrix);
+
+	static void uvScaleUpdate(uint64_t instanceUUID, glm::vec2 scale);
 
 	static void updateQuickModelData();
 
@@ -133,7 +141,6 @@ public:
 	static void resizeTexture(unsigned int width, unsigned int height);
 
 	static void render();
-
 
 private:
 	static GLuint triangleSSBOID;

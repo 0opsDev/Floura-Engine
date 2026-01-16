@@ -209,3 +209,13 @@ glm::mat4 FE_Math::composeMatrixwQuaternion(glm::vec3 p, glm::vec3 s, glm::quat 
     glm::mat4 ns = glm::scale(glm::mat4(1.0f), s);
 	return np * nr * ns;
 }
+
+int FE_Math::floatToByteRGB(float input)
+{
+    return (input) >= 1.0 ? 255 : (int)((input) * 256.0);
+}
+
+float FE_Math::ByteToFloatRGB(int input)
+{
+    return input / 255.0f;
+}

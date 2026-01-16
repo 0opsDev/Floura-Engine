@@ -34,20 +34,6 @@ public:
     void updateGlobalScale(glm::vec3 scale);
     void updateGlobalRotation(glm::vec3 rotation);
 
-    
-
-    void createAABB();
-	void updateAABB(); // no args for now
-
-	Collision::AABB boxCollider;
-	Collision::AABB returnAABB() { return boxCollider; }
-	Collision::rubiksCubePoints aabbPoints;
-
-    // find 8 futhest sides
-
-	// construct from those 8 points
-    // check if any other amount of points would give a better fit
-
 	int drawType = 0; // 0 = triangles, 1 = lines, 2 = points
 
     std::string name = "empty";
@@ -65,8 +51,6 @@ private:
 
     VAO VAO;
     void setupMesh();
-
-	Collision::AABB createAABBfromMesh(); // moved to private for now
 };
 
 #endif

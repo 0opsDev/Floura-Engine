@@ -29,6 +29,7 @@ public:
 	static glm::vec3 fogRGBA;
 	static CubeVisualizer* WhiteCube;
 	static Line3D* line;
+	static Texture* bluenoise;
 
 	struct transformation {
 		glm::vec3 position = glm::vec3(0.0f);

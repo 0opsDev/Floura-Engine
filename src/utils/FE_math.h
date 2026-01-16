@@ -49,6 +49,10 @@ public:
 
 	static glm::mat4 composeMatrixwQuaternion(glm::vec3 p, glm::vec3 s, glm::quat r);
 
+	static int floatToByteRGB(float input);
+
+	static float ByteToFloatRGB(int input);
+
 };
 
 #endif // FE_MATH_CLASS_H

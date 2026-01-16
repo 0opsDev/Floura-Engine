@@ -1,0 +1,77 @@
+#ifndef RENDER_HANDLER_CLASS_H
+#define RENDER_HANDLER_CLASS_H
+
+#include <iostream>
+#include <xhash>
+#include <map>
+#include<unordered_map>
+#include<Render/Object/ModelAssimp.h>
+#include<vector>
+
+class RenderHandler
+{
+public:
+
+	struct modelObject
+	{
+		uint64_t RenderID;
+		Model* model;
+		int instances;
+		std::string path;
+	};
+
+	struct renderQueueData
+	{
+		uint64_t RenderID;
+		uint64_t instanceUUID;
+		uint64_t shaderUUID;
+		uint64_t gpShaderUUID;
+		int isInstanced; // will come into play way later
+		glm::vec3 position;
+		glm::vec3 rotation;
+		glm::vec3 scale;
+		bool doCulling;
+		bool cullFrontFace;
+		glm::vec2 uvScale;
+		float smoothnessValue;
+		bool castsShadow;
+	};
+
+	struct batchOfUUID
+	{
+		uint64_t RenderID;
+		uint64_t instanceUUID;
+	};
+
+	static std::vector<modelObject> models;
+
+	static std::vector<renderQueueData> renderQueueDataVector;
+
+	static uint64_t fetchHandle(std::string path);
+
+	static int fetchModelIndex(uint64_t RenderID);
+
+	static batchOfUUID addModel(std::string path); // returns id for use
+
+	static void addToRenderQueue(renderQueueData data);
+
+	static void clearRenderQueue();
+
+	static void render();
+
+	static void removeInstancewRenderID(uint64_t RenderID);
+	
+	static void removeInstance(int index);
+
+	static uint64_t findRenderUUIDwIstanceUUID(uint64_t InstanceUUID);
+
+	static uint64_t findModelUUIDwRenderUUID(uint64_t RenderID);
+
+	static uint64_t findModelUUIDwInstanceUUID(uint64_t InstanceUUID);
+
+private:
+
+	static std::unordered_map<std::string, uint64_t> pKeyHandleMapRender; // takes path as key, returns handle
+
+};
+#endif // RENDER_HANDLER_CLASS_H

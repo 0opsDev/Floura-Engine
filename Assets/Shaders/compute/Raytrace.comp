@@ -1,15 +1,28 @@
 #version 460 core
 
 #extension GL_ARB_gpu_shader_int64 : enable
+#extension GL_ARB_bindless_texture : require
 //#extension GL_EXT_ray_query : enable
 
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 
-layout(rgba32f, binding = 0) uniform image2D directSignal;
-layout(rgba32f, binding = 1) uniform image2D indirectSignal;
-layout(rgba32f, binding = 2) uniform image2D specularSignal;
-layout(rgba32f, binding = 3) uniform image2D emissionSignal;
-layout(rgba32f, binding = 5) uniform image2D NoiseMask;
+layout(rgba32f, binding = 0) uniform image2DArray outSignals;
+
+void storeSignal(int layer, ivec2 fragpos, vec4 color) {
+    imageStore(outSignals, ivec3(fragpos.xy, layer), color);
+}
+
+vec4 loadSingal(int layer, ivec2 fragpos)
+{
+    return imageLoad(outSignals, ivec3(fragpos.xy, layer));
+}
+
+const int SIGNAL_DIRECT   = 0;
+const int SIGNAL_INDIRECT = 1;
+const int SIGNAL_SPECULAR = 2;
+const int SIGNAL_SPEC_IND = 3;
+const int SIGNAL_EMISSION = 4;
+const int SIGNAL_NOISE    = 5;
 
 uniform sampler2D depthMap;
 
@@ -17,8 +30,6 @@ struct triangle // need 16 byte allignment
 {
     // position
     vec4 a, b, c;
-    // colour
-    vec4 aColour,  bColour, cColour;
     // texUV
     vec4 aTex; // 16 bytes
     vec4 bTex; // 16 bytes
@@ -38,15 +49,23 @@ struct rayMesh
     int modelIndex;
     int materialIndex;
 
-    uint64_t modelUUID;
+    uint64_t instanceUUID;
     uint64_t meshUUID;
+
+    // add 3 handles for each texture 
+    uint64_t albedoHandle;
+    uint64_t specularHandle;
+    uint64_t normalHandle;
+
 };
 
 struct modelQuickData
 {
-    uint64_t modelUUID;
+    uint64_t instanceUUID;
     uint64_t padding;
     mat4 ModelMatrix;
+    mat4 NormalMatrix;
+    vec4 uvScale;
 };
 
 struct rootnodeAABB
@@ -54,20 +73,20 @@ struct rootnodeAABB
     vec4 position;
     vec4 scale;
 
-    uint64_t modelUUID;
+    uint64_t instanceUUID;
 	uint64_t padding;
 };
 
-layout(std430, binding = 6) buffer TriangleBuffer {
+layout(std430, binding = 7) buffer TriangleBuffer {
     triangle triangles[];
 };
-layout(std430, binding = 7) buffer MeshBuffer {
+layout(std430, binding = 8) buffer MeshBuffer {
     rayMesh meshes[];
 };
-layout(std430, binding = 8) buffer QuickBuffer {
+layout(std430, binding = 9) buffer QuickBuffer {
     modelQuickData quickModels[];
 };
-layout(std430, binding = 9) buffer RootAABBBuffer {
+layout(std430, binding = 10) buffer RootAABBBuffer {
     rootnodeAABB rootAABBs[];
 };
 // uniforms
@@ -87,12 +106,14 @@ uniform float reflectionDistance;
 uniform int reflectionBounces;
 uniform vec3 skycolour;
 uniform bool doAccumulate;
+uniform int MaxAccumulatedFrames;
 uniform sampler2D BlueNoiseTex;
 uniform samplerCube skybox; 
 uniform int frameCount;
 
 uniform vec3 directLightPos;
 uniform vec3 directLightCol;
+uniform bool doDirLight;
 
 uniform int indirectBounces;
 uniform int indirectSamples;
@@ -112,7 +133,14 @@ struct hitResult
     float hitDistance;
     vec4 colour;
     vec2 uv;
+    vec2 uvScale;
     vec3 lightNormal;
+    int meshIndex;
+    uint64_t hitInstanceUUID;
+
+    mat3 TBN;
+    vec3 T;
+    vec3 B;
 };
 
 struct Light
@@ -124,7 +152,7 @@ struct Light
 	int type;
 };
 
-uniform Light Lights[64];
+uniform Light Lights[64]; // should replace with ssbo later down the line 
 
 uniform int lightCount;
 
@@ -244,14 +272,28 @@ hitResult triangleVsRay(vec3 rayOrigin, vec3 rayDir, triangle vertice, float max
 		data.hitDistance = t;
         data.uv = (weightA  * vertice.aTex.xy) + (weightB *  vertice.bTex.xy) + (weightC * vertice.cTex.xy); 
 
-        vec3 interpolated = (weightA * vertice.aNormal.xyz) + 
+        vec3 interpN = (weightA * vertice.aNormal.xyz) + 
                     (weightB * vertice.bNormal.xyz) + 
                     (weightC * vertice.cNormal.xyz);
 
-        data.lightNormal = normalize(interpolated);
+        vec3 interpT = (weightA * vertice.aTangent.xyz) + 
+                   (weightB * vertice.bTangent.xyz) + 
+                   (weightC * vertice.cTangent.xyz);
+
+        vec3 interpB = (weightA * vertice.aBiTangent.xyz) + 
+                   (weightB * vertice.bBiTangent.xyz) + 
+                   (weightC * vertice.cBiTangent.xyz);
+
+        data.lightNormal = normalize(interpN);
+        data.T = normalize(interpT);
+        data.B = normalize(interpB);
 
         if (dot(data.normal, data.lightNormal) < 0.0f) {
         data.lightNormal = -data.lightNormal;
+        data.T = -data.T;
+        data.B = -data.B;
+        
+        //data.TBN = mat3(data.T, data.B, data.lightNormal);
         }
 	}
 
@@ -298,6 +340,8 @@ hitResult BreadPhaseSceneTrace(vec3 rayOrigin, vec3 rayDir, float maxDist)
     finalhit.hitDistance = maxDist; 
 
     mat4 currentMatrix = mat4(1.0f);
+    mat4 currentNormalMatrix = mat4(1.0f);
+    vec2 currentUvScale = vec2(0.0f);
     vec3 rootPos = vec3(0.0f);
     vec3 rootScale = vec3(0.0f);
 
@@ -313,9 +357,11 @@ hitResult BreadPhaseSceneTrace(vec3 rayOrigin, vec3 rayDir, float maxDist)
         for (int m = 0; m < quickModels.length(); m++)
         {
         // id check 
-            if (meshes[i].modelUUID == quickModels[m].modelUUID)
+            if (meshes[i].instanceUUID == quickModels[m].instanceUUID)
             {
                 currentMatrix = quickModels[m].ModelMatrix;
+                currentNormalMatrix = quickModels[m].NormalMatrix;
+                currentUvScale = quickModels[m].uvScale.xy;
                 break;
             }
         }
@@ -338,8 +384,27 @@ hitResult BreadPhaseSceneTrace(vec3 rayOrigin, vec3 rayDir, float maxDist)
                 
                 if (triHit.hit && triHit.hitDistance < finalhit.hitDistance)
                 {
-                    finalhit = triHit;
-                    finalhit.colour = vec4(triangles[t].a.w, triangles[t].b.w, triangles[t].c.w, 1.0f);
+                        float albedoAlpha = 1.0f;
+                        if (meshes[i].albedoHandle != 0)
+                        {
+                            sampler2D albedoSampler = sampler2D(meshes[i].albedoHandle); 
+                            albedoAlpha = texture(albedoSampler, triHit.uv * currentUvScale).a; // uvScale
+                        }
+
+                        if (albedoAlpha > 0.1f)
+                        {
+                            finalhit = triHit;
+                            finalhit.meshIndex = i;
+                            finalhit.uvScale = currentUvScale;
+                            finalhit.hitInstanceUUID = meshes[i].instanceUUID;
+                            finalhit.colour = vec4(triangles[t].a.w, triangles[t].b.w, triangles[t].c.w, 1.0f);
+                            mat3 nMat = mat3(currentNormalMatrix);
+                            vec3 worldT = normalize(nMat * finalhit.T);
+                            vec3 worldB = normalize(nMat * finalhit.B);
+                            vec3 worldN = normalize(nMat * finalhit.lightNormal);
+
+                            finalhit.TBN = mat3(worldT, worldB, worldN);
+                        }
                 }
             }
         }
@@ -380,20 +445,25 @@ vec4 PointLight(vec3 hitpos, Light inputLight, float maxDist)
     return vec4(lightContribution, 1.0f);
 }
 
-vec4 directLight(vec3 hitpos, vec3 direction, vec3 colour, float maxDist)
+vec4 directLight(vec3 hitpos, vec3 direction, vec3 colour, float maxDist, vec3 normal)
 {
     vec3 rayDir = normalize(direction);
+
+    float dotNL = max(dot(normal, rayDir), 0.0f);
+    if (dotNL <= 0.0f) return vec4(0.0f);
+
+
     // shoot ray towards light
-    hitResult lightHit = BreadPhaseSceneTrace(hitpos + rayDir * 0.01f, rayDir, maxDist);
+    hitResult lightHit = BreadPhaseSceneTrace(hitpos + normal * 0.001f, rayDir, maxDist);
     // if we hit something, return 0
     if (lightHit.hit) {
         return vec4(0.0f);
     }
     // else return light colour
-    return vec4(colour, 1.0f);
+    return vec4(colour * dotNL, 1.0f);
 }
 
-vec4 lightstrace(vec3 hitpos, float maxDist)
+vec4 lightstrace(vec3 hitpos,vec3 normal, float maxDist)
 {
         float ambient = 0.0f;
             
@@ -403,6 +473,8 @@ vec4 lightstrace(vec3 hitpos, float maxDist)
         {
             for (int i = 0; i < lightCount; i++)
             {
+                vec3 L = normalize(Lights[i].position - hitpos);
+                float dotNL = max(dot(normal, L), 0.0);
                 if (Lights[i].type == 0) // spotlight
                 {
                     // TODO
@@ -410,17 +482,16 @@ vec4 lightstrace(vec3 hitpos, float maxDist)
                 else if (Lights[i].type == 1) // point light
                 {
                     vec4 pl = PointLight(hitpos, Lights[i], maxDist);
-                    lightcolour.xyz += pl.xyz;
+                    lightcolour.xyz += pl.xyz * dotNL;
                 }
             }
 
         }
-        bool placeholder = true;
 
-        if (placeholder)
+        if (doDirLight)
         {
             vec3 dirLightColour = vec3(1.0f, 1.0f, 1.0f) * 0.5f;
-            vec4 dl = directLight(hitpos, directLightPos, directLightCol, maxDist);
+            vec4 dl = directLight(hitpos, directLightPos, directLightCol, maxDist, normal);
             lightcolour.xyz += dl.xyz;
         } 
 
@@ -445,12 +516,12 @@ vec3 sampleHemisphere(vec3 normal)
     return tangent * localDir.x + bitangent * localDir.y + normal * localDir.z;
 }
 
-vec3 indirectTraceBroad(hitResult hit, vec3 incidentDir, vec3 hitColour, int bounces, int samples, float maxDist)
+vec3 indirectTraceBroad(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 normal, int bounces, int samples, float maxDist)
 {
     vec3 iColour = hitColour;
     vec3 currentOrigin = hit.lasthit;
     vec3 currentDir = incidentDir;
-    vec3 currentLightNormal = hit.lightNormal;
+    vec3 currentLightNormal = normal;
     vec3 currentCollisionNormal = hit.normal; 
 
     float dim = 1.0f;
@@ -479,10 +550,34 @@ vec3 indirectTraceBroad(hitResult hit, vec3 incidentDir, vec3 hitColour, int bou
             {
                 currentOrigin = res.lasthit;
                 currentDir = bounceDir;
-                currentLightNormal = res.lightNormal;
                 currentCollisionNormal = res.normal;
-                vec4 shadowcolour = lightstrace(currentOrigin, maxDist);
-                iColour += (shadowcolour.xyz * res.colour.xyz) * 0.5f * dim;
+
+                vec2 adjustedUV = res.uv * res.uvScale.xy;
+
+                sampler2D albedoSampler = sampler2D(meshes[res.meshIndex].albedoHandle); 
+                vec4 albedoColour = texture(albedoSampler, adjustedUV);
+
+                vec3 specColour = vec3(0.0f, 0.0f, 0.0f);
+                if (meshes[res.meshIndex].specularHandle != 0)
+                {
+                    sampler2D specularSampler = sampler2D(meshes[res.meshIndex].specularHandle); 
+                    specColour = texture(specularSampler, adjustedUV).rgb;
+                }
+
+                vec3 normColour = vec3(0.0f, 0.0f, 0.0f);
+                vec3 NormalMap = res.lightNormal; // light normal fallback
+                if (meshes[res.meshIndex].normalHandle != 0)
+                {
+                    sampler2D normalSampler = sampler2D(meshes[res.meshIndex].normalHandle); 
+                    normColour = texture(normalSampler, adjustedUV).rgb;
+                    normColour = normColour * 2.0f - 1.0f;
+                    NormalMap = normalize(res.TBN * normColour.rgb);
+                }
+
+                currentLightNormal = NormalMap;
+                vec4 shadowcolour = lightstrace(currentOrigin,NormalMap, maxDist);
+
+                iColour += (shadowcolour.rgb * albedoColour.rgb) * 0.5f * specColour.g * dim;
                 dim *= 0.5f;
             }
             else {
@@ -497,12 +592,12 @@ vec3 indirectTraceBroad(hitResult hit, vec3 incidentDir, vec3 hitColour, int bou
     return iColour;
 };
 
-vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, int bounces, float maxDist)
+vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, float roughness, int bounces, float maxDist)
 {
     vec3 reflectionColour = vec3(0.0f);
     vec3 currentOrigin = hit.lasthit;
     vec3 currentDir = incidentDir;
-    vec3 currentLightNormal = hit.lightNormal;
+    vec3 currentLightNormal = normal;
     vec3 currentCollisionNormal = hit.normal; 
     
     float dim = 1.0f;
@@ -528,10 +623,36 @@ vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, int bounces, float max
         {
             currentOrigin = res.lasthit;
             currentDir = bounceDir;
-            currentLightNormal = res.lightNormal;
             currentCollisionNormal = res.normal;
-            vec4 shadowcolour = lightstrace(currentOrigin, maxDist);
-            reflectionColour += (shadowcolour.xyz * res.colour.xyz) * 0.5f * dim;
+
+            vec2 adjustedUV = res.uv * res.uvScale.xy;
+
+            vec4 albedoColour = vec4(0.0f);
+            if (meshes[res.meshIndex].albedoHandle != 0)
+            {
+                sampler2D albedoSampler = sampler2D(meshes[res.meshIndex].albedoHandle); 
+                albedoColour = texture(albedoSampler, adjustedUV);
+            }
+            vec3 specColour = vec3(0.0f, 0.0f, 0.0f);
+            if (meshes[res.meshIndex].specularHandle != 0)
+            {
+                sampler2D specularSampler = sampler2D(meshes[res.meshIndex].specularHandle); 
+                specColour = texture(specularSampler, adjustedUV).rgb;
+            }
+            vec3 normColour = vec3(0.0f, 0.0f, 0.0f);
+            vec3 NormalMap = res.lightNormal; // light normal fallback
+            if (meshes[res.meshIndex].normalHandle != 0)
+            {
+                sampler2D normalSampler = sampler2D(meshes[res.meshIndex].normalHandle); 
+                normColour = texture(normalSampler, adjustedUV).rgb;
+                normColour = normColour * 2.0f - 1.0f;
+                NormalMap = normalize(res.TBN * normColour.rgb);
+            }
+
+            currentLightNormal = NormalMap;
+            vec4 shadowcolour = lightstrace(currentOrigin,NormalMap, maxDist);
+
+            reflectionColour += (shadowcolour.rgb * albedoColour.rgb) * 0.5f * specColour.g * dim;
             dim *= 0.5f;
         }
         else {
@@ -541,25 +662,104 @@ vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, int bounces, float max
         }
     }
 
-    return reflectionColour;
+    return reflectionColour * roughness;
+};
+
+
+vec3 reflectionIndirectPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, float roughness, int bounces, float maxDist, int iBounces, int iSamples)
+{
+    vec3 iColour = vec3(0.0f);
+    vec3 currentOrigin = hit.lasthit;
+    vec3 currentDir = incidentDir;
+    vec3 currentLightNormal = normal;
+    vec3 currentCollisionNormal = hit.normal; 
+    
+    float dim = 1.0f;
+
+    for (int i = 0; i < bounces; i++)
+    {
+        if (dim <= 0.0f) break;
+
+        // calculate bounceDir off lightnormal
+        vec3 bounceDir = reflect(currentDir, normalize(currentLightNormal));
+
+        //if bounce dir points towards triangle, fallback to currentCollisionNormal
+        if (dot(bounceDir, currentCollisionNormal) < 0.0f) {
+            bounceDir = reflect(currentDir, currentCollisionNormal);
+        }
+
+        // offset collision normal
+        vec3 offsetOrigin = currentOrigin + (currentCollisionNormal * 0.001f);
+
+        hitResult res = BreadPhaseSceneTrace(offsetOrigin, bounceDir, maxDist);
+
+        if (res.hit)
+        {
+            currentOrigin = res.lasthit;
+            currentDir = bounceDir;
+            currentCollisionNormal = res.normal;
+
+            vec2 adjustedUV = res.uv * res.uvScale.xy;
+
+            vec4 albedoColour = vec4(0.0f);
+            if (meshes[res.meshIndex].albedoHandle != 0)
+            {
+                sampler2D albedoSampler = sampler2D(meshes[res.meshIndex].albedoHandle); 
+                albedoColour = texture(albedoSampler, adjustedUV);
+            }
+            vec3 specColour = vec3(0.0f, 0.0f, 0.0f);
+            if (meshes[res.meshIndex].specularHandle != 0)
+            {
+                sampler2D specularSampler = sampler2D(meshes[res.meshIndex].specularHandle); 
+                specColour = texture(specularSampler, adjustedUV).rgb;
+            }
+            vec3 normColour = vec3(0.0f, 0.0f, 0.0f);
+            vec3 NormalMap = res.lightNormal; // light normal fallback
+            if (meshes[res.meshIndex].normalHandle != 0)
+            {
+                sampler2D normalSampler = sampler2D(meshes[res.meshIndex].normalHandle); 
+                normColour = texture(normalSampler, adjustedUV).rgb;
+                normColour = normColour * 2.0f - 1.0f;
+                NormalMap = normalize(res.TBN * normColour.rgb);
+            }
+            currentLightNormal = NormalMap;
+            vec4 shadowcolour = lightstrace(currentOrigin,NormalMap, maxDist);
+            vec3 albedoDirect = shadowcolour.rgb * albedoColour.rgb;
+            //iColour += (shadowcolour.rgb * albedoColour.rgb) * 0.5f * dim;
+            vec3 indirectColour = indirectTraceBroad(res, bounceDir, albedoDirect, NormalMap, iBounces, iSamples, maxDist);
+            iColour += indirectColour * 0.5f * specColour.g * dim;
+            dim *= 0.5f;
+        }
+        else {
+        	vec3 sky = texture(skybox, bounceDir).rgb;
+            iColour += sky * dim;
+            break;
+        }
+    }
+
+    return iColour * roughness;
 };
 
 void main() {
     // Intentionally does nothing
     const ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
 
-    const ivec2 size = imageSize(directSignal); // size of screen
+    ivec2 size = imageSize(outSignals).xy;
     // return if off screen
     if (pixelCoords.x >= size.x || pixelCoords.y >= size.y) return;
     vec4 noiseStatus = vec4(1.0, 1.0, 1.0, 1.0);
 
+    int newFrameCount = frameCount;
+
     // clear image with bluish colour
     if (!doAccumulate) {
-        imageStore(directSignal, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f));
-        imageStore(indirectSignal, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f));
-        imageStore(specularSignal, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f));
-        imageStore(emissionSignal, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f));
-        imageStore(NoiseMask, pixelCoords, noiseStatus);
+        storeSignal(SIGNAL_DIRECT, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f)); // diffuse
+        storeSignal(SIGNAL_INDIRECT, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f)); // indirect
+        storeSignal(SIGNAL_SPECULAR, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f)); // spec
+        storeSignal(SIGNAL_SPEC_IND, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f)); // specind
+        storeSignal(SIGNAL_EMISSION, pixelCoords, vec4(0.0f, 0.0f, 0.0f, 1.0f)); // em
+        storeSignal(SIGNAL_NOISE, pixelCoords, noiseStatus); // noise
+        newFrameCount = 1;
     }
 
     //if (depthDist >= maxDistance)
@@ -568,18 +768,24 @@ void main() {
     //    return;
     //}
 
+    bool primaryskip = false;
+    bool indirectskip = false;
     // if pixel already exisits skip
-    vec4 existingColor = imageLoad(NoiseMask, pixelCoords);
-    if (existingColor.r < 1.0f) {return;}
+    vec4 existingColor = loadSingal(SIGNAL_NOISE, pixelCoords);
+    if (existingColor.r < 1.0f) {primaryskip = true;}
 
-    imageStore(NoiseMask, pixelCoords, noiseStatus);
+    if (newFrameCount > MaxAccumulatedFrames && MaxAccumulatedFrames != 0) indirectskip = true;
+
+    if (primaryskip && indirectskip) return;
+
+    if (!primaryskip) storeSignal(SIGNAL_NOISE, pixelCoords, noiseStatus);
 
     vec2 noiseUV = vec2(gl_GlobalInvocationID.xy) / vec2(textureSize(BlueNoiseTex, 0));
     float noiseVal = texture(BlueNoiseTex, noiseUV).r;
 
-    float finalNoise = fract(noiseVal * frameCount);
+    float finalNoise = fract(noiseVal * time);
     //noise
-    if (finalNoise > noiseThreshold) {imageStore(NoiseMask, pixelCoords, noiseStatus); return;}
+    if (finalNoise > noiseThreshold) {    if (!primaryskip){ storeSignal(SIGNAL_NOISE, pixelCoords, noiseStatus);} return;}
     else {noiseStatus = vec4(0.0, 0.0, 0.0, 1.0);}
     
     // camera matrix
@@ -587,9 +793,11 @@ void main() {
 
     vec3 rayDir = rayDirfromCam(invProj, invView, pixelCoords, size);
 
+    if (!primaryskip){
     vec3 sky = texture(skybox, rayDir).rgb;
-    imageStore(directSignal, pixelCoords, vec4(sky, 1.0f)); // skycolour
-    imageStore(NoiseMask, pixelCoords, noiseStatus);
+    storeSignal(SIGNAL_DIRECT, pixelCoords, vec4(sky, 1.0f)); // direct
+    storeSignal(SIGNAL_NOISE, pixelCoords, noiseStatus); // noise
+    }
 
     const ivec2 depthsize = textureSize(depthMap, 0);
 
@@ -605,27 +813,100 @@ void main() {
     vec3 directColour = vec3(0.0f);
     vec3 indirectColour = vec3(0.0f);
     vec3 specularColour = vec3(0.0f);
+    vec3 specularIndirectColour = vec3(0.0f);
     vec3 emissionColour = vec3(0.0f);
-
+    // reflectionIndirectPassBroad
     hitResult firstHit = BreadPhaseSceneTrace(cameraPosition, rayDir, maxDistance);
     if (firstHit.hit)
     {
-            float smoothness = 0.5f;
-        vec4 albedo = firstHit.colour;
+        vec2 adjustedUV = firstHit.uv * firstHit.uvScale.xy;
+        //firstHit.uv;
+        vec4 albedoColour = vec4(0.0f);
+        if (meshes[firstHit.meshIndex].albedoHandle != 0)
+        {
+            sampler2D albedoSampler = sampler2D(meshes[firstHit.meshIndex].albedoHandle); 
+            albedoColour = texture(albedoSampler, adjustedUV); // uvScale
+        }
+        vec4 albedo = albedoColour;
         albedo.a = 1.0f;
 
-        // add light normal ontop of lasthit
-        //vec3 direct = lightstrace(firstHit.lasthit + firstHit.lightNormal * 0.1f, maxDistance).xyz; // direct
-        directColour = lightstrace(firstHit.lasthit, maxDistance).xyz; // indirect
-        if (reflectionBounces > 0) specularColour = reflectionPassBroad(firstHit, rayDir, reflectionBounces, reflectionDistance);
-        if (indirectBounces > 0 && indirectSamples > 0) indirectColour = indirectTraceBroad(firstHit, rayDir, albedo.rgb * directColour, indirectBounces, indirectSamples, reflectionDistance); // bounces then samples
+        vec4 specColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        if (meshes[firstHit.meshIndex].specularHandle != 0)
+        {
+            sampler2D specularSampler = sampler2D(meshes[firstHit.meshIndex].specularHandle); 
+            specColour = texture(specularSampler, adjustedUV);
+        }
+        vec3 normColour = vec3(0.0f, 0.0f, 0.0f);
+        vec3 NormalMap = firstHit.lightNormal; // light normal fallback
+        if (meshes[firstHit.meshIndex].normalHandle != 0)
+        {
+            sampler2D normalSampler = sampler2D(meshes[firstHit.meshIndex].normalHandle); 
+            normColour = texture(normalSampler, adjustedUV).rgb;
+            normColour = normColour * 2.0f - 1.0f;
+            NormalMap = normalize(firstHit.TBN * normColour.rgb);
+        }
+
+        // r = roughness
+        // g = metalic
+
+        vec3 offsetPos = firstHit.lasthit + (firstHit.lightNormal * 0.001f);
+        if (!primaryskip || !indirectskip) directColour = lightstrace(offsetPos, NormalMap, maxDistance).xyz; // indirect
+        if (reflectionBounces > 0 && !primaryskip) 
+            specularColour = reflectionPassBroad(firstHit, rayDir, NormalMap, specColour.g, reflectionBounces, reflectionDistance);
+
+        if (indirectBounces > 0 && indirectSamples > 0 && !indirectskip)
+        {
+            indirectColour = indirectTraceBroad(firstHit, rayDir, albedo.rgb * directColour, NormalMap,
+            indirectBounces, indirectSamples, reflectionDistance); // bounces then samples
+        
+            if (reflectionBounces > 0){
+                specularIndirectColour = reflectionIndirectPassBroad(firstHit, rayDir, NormalMap, specColour.g, reflectionBounces,
+                reflectionDistance, indirectBounces, indirectSamples);
+            }
+
+
+        }
         emissionColour = vec3(0.0f); // for now
 
     }
-    // imageStore(screen, pixelCoords, vec4(vec3(gDepth), 1.0f));
-    imageStore(directSignal, pixelCoords, vec4(directColour, 1.0f));
-    imageStore(indirectSignal, pixelCoords, vec4(indirectColour, 1.0f));
-    imageStore(specularSignal, pixelCoords, vec4(specularColour, 1.0f));
-    imageStore(emissionSignal, pixelCoords, vec4(emissionColour, 1.0f));
-    imageStore(NoiseMask, pixelCoords, noiseStatus);
+
+    // noise
+    storeSignal(SIGNAL_NOISE, pixelCoords, noiseStatus);
+
+
+    if (!primaryskip)
+    {
+        // direct and specular
+        storeSignal(SIGNAL_DIRECT, pixelCoords, vec4(directColour, 1.0f));
+        storeSignal(SIGNAL_SPECULAR, pixelCoords, vec4(specularColour, 1.0f));
+    }
+
+    if (!indirectskip)
+    {
+        // indirect
+        vec4 oldIndirect = loadSingal(SIGNAL_INDIRECT, pixelCoords);
+        vec4 newIndirect = vec4(indirectColour, 1.0f); 
+        vec4 IDaccum = oldIndirect + (newIndirect - oldIndirect) / float(newFrameCount);
+
+        // specular indirect
+        vec4 oldSpecularIndirect = loadSingal(SIGNAL_SPEC_IND, pixelCoords);
+        vec4 newSpecularIndirect = vec4(specularIndirectColour, 1.0f); 
+        vec4 ISDaccum = oldSpecularIndirect + (newSpecularIndirect - oldSpecularIndirect) / float(newFrameCount);
+
+        // emission
+        vec4 oldEm = loadSingal(SIGNAL_EMISSION, pixelCoords);
+        vec4 newEm = vec4(emissionColour, 1.0f); 
+        vec4 Eaccum = oldEm + (newEm - oldEm) / float(newFrameCount);
+
+        storeSignal(SIGNAL_INDIRECT, pixelCoords, IDaccum);
+        storeSignal(SIGNAL_SPEC_IND, pixelCoords, ISDaccum);
+        storeSignal(SIGNAL_EMISSION, pixelCoords, Eaccum);
+    }
 } // closer
+
+    // direct /0
+    // indirect /1
+    // specular /2 
+    // specularIndirect /3
+    // emission /4
+    // noise mask /5

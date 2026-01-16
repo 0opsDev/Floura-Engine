@@ -72,24 +72,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "Television",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/Television_01_2k.gltf/Television_01_2k.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "mirror",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/ornate_mirror_01_2k.gltf/ornate_mirror_01_2k.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "vase",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/brass_vase_03_2k.gltf/brass_vase_03_2k.gltf",
-        "Type": "NULL"
-    },
-    {
         "Name": "pave",
         "ObjectType": "Model",
         "Path": "Assets/Models/planes/paveplane.gltf",
@@ -105,6 +87,30 @@
         "Name": "GItest",
         "ObjectType": "Model",
         "Path": "Assets/Models/raytraced/GItest.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "nfs_shift_psp_-_london_short",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/nfs_shift_psp_-_london_short/scene.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "autumn_forest",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/autumn_forest/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "ferndale_studio_04",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/ferndale_studio_04/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "rock_wall_16_4k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/floors/rock_wall_16_4k.gltf",
         "Type": "NULL"
     }
 ]

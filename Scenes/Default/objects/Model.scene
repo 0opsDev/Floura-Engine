@@ -2,35 +2,6 @@
     {
         "CastShadow": true,
         "Location": [
-            -8.253763198852539,
-            1.3312498331069946,
-            -3.702226161956787
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            -149.87701416015625,
-            -15.277660369873047,
-            134.02993774414063
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "UUID": "ecd3f538652aba91",
-        "doRender": true,
-        "isBackFaceCulling": true,
-        "name": "torus",
-        "path": "Assets/Models/basic shapes/torus.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
             0.0,
             -1.0,
             0.0
@@ -292,64 +263,6 @@
     {
         "CastShadow": true,
         "Location": [
-            -9.544350624084473,
-            1.0,
-            13.542997360229492
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "UUID": "a67a98c92f672cbb",
-        "doRender": true,
-        "isBackFaceCulling": true,
-        "name": "sphere",
-        "path": "Assets/Models/basic shapes/sphere.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -4.14402437210083,
-            1.1678721904754639,
-            14.700091361999512
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "UUID": "6ee0eca76f2cec79",
-        "doRender": true,
-        "isBackFaceCulling": true,
-        "name": "barrel",
-        "path": "Assets/Models/barrel/barrel2.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
             20.0,
             7.0,
             0.0
@@ -408,40 +321,11 @@
     {
         "CastShadow": true,
         "Location": [
-            12.193336486816406,
-            8.431395530700684,
-            -2.195497751235962
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
+            -55.29722595214844,
             0.0,
             0.0
         ],
-        "Scale": [
-            7.031459808349609,
-            8.442853927612305,
-            1.0
-        ],
-        "UUID": "9e7aa1d5f4613247",
-        "doRender": true,
-        "isBackFaceCulling": true,
-        "name": "cube",
-        "path": "Assets/Models/basic shapes/cube.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            0.0,
-            0.0,
-            62.69274139404297
-        ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -452,9 +336,9 @@
             0.5,
             0.5
         ],
-        "UUID": "1d44154ddec3771b",
+        "UUID": "0e7ceb77a8a61d41",
         "doRender": true,
-        "isBackFaceCulling": false,
+        "isBackFaceCulling": true,
         "name": "GItest",
         "path": "Assets/Models/raytraced/GItest.gltf",
         "smoothnessValue": 0.0,
@@ -466,9 +350,9 @@
     {
         "CastShadow": true,
         "Location": [
-            30.873319625854492,
-            21.816909790039063,
-            59.74165344238281
+            -36.72347640991211,
+            0.0,
+            0.0
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -477,15 +361,15 @@
             0.0
         ],
         "Scale": [
-            16.773895263671875,
-            1.0,
-            17.131481170654297
+            5.0,
+            5.0,
+            5.0
         ],
-        "UUID": "ca06dd3d39093a5f",
+        "UUID": "6770d07ef7e02469",
         "doRender": true,
-        "isBackFaceCulling": true,
-        "name": "cube",
-        "path": "Assets/Models/basic shapes/cube.gltf",
+        "isBackFaceCulling": false,
+        "name": "cornel",
+        "path": "Assets/Models/cornel/cornel.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
@@ -495,30 +379,233 @@
     {
         "CastShadow": true,
         "Location": [
-            -34.086185455322266,
+            30.0,
             0.0,
-            0.0
+            50.0
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
-            45.0,
-            45.0,
-            45.0
+            0.0,
+            0.0,
+            0.0
         ],
         "Scale": [
-            1.0,
-            1.0,
-            5.0
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
         ],
-        "UUID": "f48461719a8181b1",
+        "UUID": "75aabfd8cb346182",
         "doRender": true,
         "isBackFaceCulling": false,
-        "name": "plane",
-        "path": "Assets/Models/basic shapes/plane.gltf",
+        "name": "bathroom.gltf",
+        "path": "Assets/Models/raytraced/bathroom.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
             1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            0.0,
+            97.16596221923828
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "UUID": "695b1306bc04198e",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "breakfast_room",
+        "path": "Assets/Models/breakfast_room/room.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            0.0,
+            40.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            5.0,
+            5.0
+        ],
+        "UUID": "f03e7cab5b708e2c",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "coast_sand_rocks_02_4k",
+        "path": "Assets/Models/floors/coast_sand_rocks_02_4k.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            5.0,
+            5.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            10.0,
+            0.0,
+            40.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            5.0,
+            5.0
+        ],
+        "UUID": "86dffe362a3b9e43",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "blue_metal_plate_4k",
+        "path": "Assets/Models/floors/blue_metal_plate_4k.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            5.0,
+            5.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            0.0,
+            50.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            5.0,
+            5.0
+        ],
+        "UUID": "f11804453b081bf6",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "grey_cartago_03_4k",
+        "path": "Assets/Models/floors/grey_cartago_03_4k.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            5.0,
+            5.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            10.0,
+            0.0,
+            50.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            5.0,
+            5.0
+        ],
+        "UUID": "df19c7651c3b247b",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "plank_flooring_04_4k",
+        "path": "Assets/Models/floors/plank_flooring_04_4k.gltf",
+        "smoothnessValue": 1.0,
+        "uvScale": [
+            5.0,
+            5.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -10.0,
+            0.0,
+            40.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            5.0,
+            5.0
+        ],
+        "UUID": "dfe765d6ad967c56",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "rock_wall_16_4k",
+        "path": "Assets/Models/floors/rock_wall_16_4k.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            5.0,
+            5.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -10.0,
+            0.0,
+            50.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            5.0,
+            5.0
+        ],
+        "UUID": "e2f4b185cb70f5b0",
+        "doRender": true,
+        "isBackFaceCulling": true,
+        "name": "velour_velvet_4k",
+        "path": "Assets/Models/floors/velour_velvet_4k.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            5.0,
+            5.0
         ]
     }
 ]

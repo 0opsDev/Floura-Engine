@@ -49,6 +49,8 @@ public:
 	void setMat4(const char* uniform, glm::mat4 uniformMat4);
 	void setBool(const char* uniform, bool uniformBool);
 
+	void setHandleui64ARB(const char* uniform, GLuint64 handle);
+
 private:
 	void compileErrors(unsigned int shader, const char* type);
 };

@@ -169,6 +169,9 @@
     <ClCompile Include="src\Render\Buffer\VAO.cpp" />
     <ClCompile Include="src\Render\Buffer\VBO.cpp" />
     <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp" />
+    <ClCompile Include="src\Render\Handler\RenderHandler.cpp" />
+    <ClCompile Include="src\Render\Handler\ShaderHandler.cpp" />
+    <ClCompile Include="src\Render\Handler\TextureMapManager.cpp" />
     <ClCompile Include="src\Render\Object\Billboard.cpp" />
     <ClCompile Include="src\Render\Object\Cubemap.cpp" />
     <ClCompile Include="src\Render\Object\line.cpp" />
@@ -181,6 +184,7 @@
     <ClCompile Include="src\Render\passes\geometry\geometryPass.cpp" />
     <ClCompile Include="src\Render\passes\lighting\raytracer.cpp" />
     <ClCompile Include="src\Render\passes\post\denoise.cpp" />
+    <ClCompile Include="src\Render\passes\post\ssao.cpp" />
     <ClCompile Include="src\Render\Shader\Framebuffer.cpp" />
     <ClCompile Include="src\Render\Shader\FramebufferObject.cpp" />
     <ClCompile Include="src\Render\Shader\Material.cpp" />
@@ -240,6 +244,9 @@
     <ClInclude Include="src\Render\Buffer\VAO.h" />
     <ClInclude Include="src\Render\Buffer\VBO.h" />
     <ClInclude Include="src\Render\Cube\CubeVisualizer.h" />
+    <ClInclude Include="src\Render\Handler\RenderHandler.h" />
+    <ClInclude Include="src\Render\Handler\ShaderHandler.h" />
+    <ClInclude Include="src\Render\Handler\TextureMapManager.h" />
     <ClInclude Include="src\Render\Object\Billboard.h" />
     <ClInclude Include="src\Render\Object\Cubemap.h" />
     <ClInclude Include="src\Render\Object\line.h" />
@@ -251,6 +258,7 @@
     <ClInclude Include="src\Render\passes\geometry\geometryPass.h" />
     <ClInclude Include="src\Render\passes\lighting\raytracer.h" />
     <ClInclude Include="src\Render\passes\post\denoise.h" />
+    <ClInclude Include="src\Render\passes\post\ssao.h" />
     <ClInclude Include="src\Render\Shader\Framebuffer.h" />
     <ClInclude Include="src\Render\Shader\FramebufferObject.h" />
     <ClInclude Include="src\Render\Shader\Material.h" />
@@ -280,8 +288,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\compute\denoise.comp" />
+    <None Include="Assets\Shaders\compute\DenoiseRenderQuad.frag" />
     <None Include="Assets\Shaders\compute\emptycomputeShader.comp" />
     <None Include="Assets\Shaders\compute\Raytrace.comp" />
+    <None Include="Assets\Shaders\compute\ssao.comp" />
     <None Include="Assets\Shaders\compute\viewmatrix.comp" />
     <None Include="Assets\Shaders\Db\BillBoard.frag" />
     <None Include="Assets\Shaders\Db\BillBoard.vert" />
@@ -305,11 +315,11 @@
     <None Include="Assets\Shaders\gBuffer\geometryPassBillBoard.frag" />
     <None Include="Assets\Shaders\gBuffer\geometryPassBillBoard.vert" />
     <None Include="Assets\Shaders\gBuffer\geometryPassGeom.vert" />
+    <None Include="Assets\Shaders\gBuffer\geometryPassNoNormal.frag" />
     <None Include="Assets\Shaders\gBuffer\geometryPassWobble.vert" />
     <None Include="Assets\Shaders\Lighting\albedo.frag" />
     <None Include="Assets\Shaders\Lighting\albedoGeom.frag" />
     <None Include="Assets\Shaders\Lighting\combined.frag" />
-    <None Include="Assets\Shaders\Lighting\combinedNoNormal.frag" />
     <None Include="Assets\Shaders\Lighting\Default.geom" />
     <None Include="Assets\Shaders\Lighting\Default.vert" />
     <None Include="Assets\Shaders\Lighting\DefaultGeom.vert" />

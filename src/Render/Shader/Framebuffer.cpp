@@ -138,6 +138,8 @@ void ResizeLogic(GLFWwindow* window) {
 
 void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 
+	glBindTexture(GL_TEXTURE0, 0);
+
 	if (!imGuiPanels) {
 		ResizeLogic(window);
 	}
@@ -149,11 +151,6 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	frameBufferProgram.setMat4("cameraMatrix", Scene::maincamera.cameraMatrix);
 	frameBufferProgram.setFloat("time", glfwGetTime());
 	frameBufferProgram.setFloat("deltaTime", TimeUtil::deltatime);
-	frameBufferProgram.setFloat("DepthDistance", RenderClass::DepthDistance);
-	frameBufferProgram.setFloat("NearPlane", RenderClass::DepthPlane[0]);
-	frameBufferProgram.setFloat("FarPlane", RenderClass::DepthPlane[1]);
-	frameBufferProgram.setBool("doFog", RenderClass::doFog);
-	frameBufferProgram.setFloat3("fogColor", RenderClass::gammaCorrect3(RenderClass::fogRGBA));
 
 	// draw the framebuffer
 	glActiveTexture(GL_TEXTURE0);

@@ -248,7 +248,7 @@ void Scene::initJsonModelLoad(std::string path) {
 
 
 	}
-	std::cout << "Loaded Scene Models from: " << path << std::endl;
+	//std::cout << "Loaded Scene Models from: " << path << std::endl;
 }
 
 void Scene::JsonModelSave(std::string path) {
@@ -401,9 +401,9 @@ void Scene::JsonCameraSettingsSave(std::string path) {
 
 		json JsonCamera;
 		JsonCamera["initialCameraPos"] = { Scene::initalCameraPos.x, Scene::initalCameraPos.y, Scene::initalCameraPos.z };
-		JsonCamera["FOV"] = Main::cameraSettings[0];
-		JsonCamera["nearPlane"] = Main::cameraSettings[1];
-		JsonCamera["farPlane"] = Main::cameraSettings[2];
+		JsonCamera["FOV"] = Scene::maincamera.fov;
+		JsonCamera["nearPlane"] = Scene::maincamera.nearFar.x;
+		JsonCamera["farPlane"] = Scene::maincamera.nearFar.y;
 		JsonCamera["cameraColliderScale"][0] = Player::cameraColliderScale.x;
 		JsonCamera["cameraColliderScale"][1] = Player::cameraColliderScale.y;
 		JsonCamera["cameraColliderScale"][2] = Player::cameraColliderScale.z;
@@ -632,9 +632,9 @@ void Scene::initCameraSettingsLoad(std::string path) {
 		//std::cout << fov << std::endl;
 		float nearPlane = CameraData[0]["nearPlane"].get<float>();
 		float farPlane = CameraData[0]["farPlane"].get<float>();
-		Main::cameraSettings[0] = fov;
-		Main::cameraSettings[1] = nearPlane;
-		Main::cameraSettings[2] = farPlane;
+		Scene::maincamera.fov = fov;
+		Scene::maincamera.nearFar.x = nearPlane;
+		Scene::maincamera.nearFar.y = farPlane;
 		Player::cameraColliderScale.x = CameraData[0]["cameraColliderScale"][0];
 		Player::cameraColliderScale.y = CameraData[0]["cameraColliderScale"][1];
 		Player::cameraColliderScale.z = CameraData[0]["cameraColliderScale"][2];
@@ -698,6 +698,8 @@ void Scene::Update() {
 
 	for (size_t i = 0; i < entityObjects.size(); i++)
 	{
+		//entityObjects[i]->updateCollision();
+
 		entityObjects[i]->update();
 	}
 

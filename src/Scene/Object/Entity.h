@@ -5,6 +5,7 @@
 #include "Systems/Physics/Collision.h"
 #include "Render/passes/lighting/raytracer.h"
 #include <xhash>
+#include <vector>
 
 #ifndef FE_OBJECT_H
 #define FE_OBJECT_H
@@ -58,10 +59,16 @@ public:
 		char type; // b = box, s = sphere, m = mesh, c = capsule etc
 		glm::vec3 colliderPosition = glm::vec3(0.0f);
 		glm::vec3 colliderScale = glm::vec3(1.0f);
+
+		std::vector<Collision::AABB> rootnodes;
 	};
 
 	struct render {
-		Model* Model;
+		//Model* Model;
+		uint64_t renderID;
+		uint64_t instanceUUID;
+		std::string renderIDString;
+		std::string instanceIDString;
 		BillBoard* BillBoard;
 		float smoothnessValue = 0.0f;
 		bool dirtyTransform = false;

@@ -1,7 +1,8 @@
 #include "ModelAssimp.h"
-
 #include "Systems/util/UUID.h"
 #include  <utils/FE_math.h>
+#include <Systems/Physics/BVH.h>
+
 void Model::updatePosition(glm::vec3 Position)
 {
     globalTransformation.position = Position;
@@ -78,25 +79,31 @@ void Model::draw(Shader& shader)
 
 void Model::createMeshAABBs()
 {
+    meshAabbPoints.clear();
+    rootnodes.clear();
+
+    meshAabbPoints.reserve(meshes.size());
+    rootnodes.reserve(meshes.size());
+
     for (size_t i = 0; i < meshes.size(); i++)
     {
-		meshes[i].createAABB();
+        Collision::rubiksCubePoints newRubikzCube;
+        newRubikzCube = Collision::fetchFurthestVertices(meshes[i].vertices);
+        meshAabbPoints.push_back(newRubikzCube);
+
+        rootnodes.emplace_back();
 	}
 }
 
 void Model::updateMeshAABBs()
 {
-    MeshAABBs.clear();
     for (size_t i = 0; i < meshes.size(); i++)
     {
-        meshes[i].updateAABB();
-		
-		Collision::AABB updatedAABB = meshes[i].returnAABB();
-		//updatedAABB.position += localTransformation[i].position;
-		//updatedAABB.size *= localTransformation[i].scale;
-        MeshAABBs.push_back(updatedAABB);
+        Collision::AABB newRootNode;
+        glm::mat4 finalMeshMat = gModelMatrix * lModelMatrix[i];
+
+        rootnodes[i] = BVH::rootNodeFromRubixPoints(meshAabbPoints[i], finalMeshMat);
     }
-    //MeshAABBs = FetchMeshAABBs();
 }
 
 void Model::loadModel(std::string path)
@@ -252,6 +259,25 @@ std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType
     std::string typeName, int slot)
 {
     std::vector<Texture> textures;
+
+    if (mat->GetTextureCount(type) == 0)
+    {
+        glm::vec3 colourFloat = glm::vec3(0.0f);
+        if (type == aiTextureType_DIFFUSE) colourFloat = glm::vec3(1.0f, 1.0f, 1.0f);
+        if (type == aiTextureType_DIFFUSE_ROUGHNESS) colourFloat = glm::vec3(0.0f, 0.0f, 0.0f);
+        if (type == aiTextureType_NORMALS) colourFloat = glm::vec3(0.5f, 0.5f, 1.0f);
+
+        //std::cout << "typeName: " << typeName << std::endl;
+        //std::cout << "typenum: " << type << std::endl;
+        //std::cout << "colour: " << " r: " << colourFloat.x << " g: " << colourFloat.y << " b: " << colourFloat.z << std::endl;
+
+        Texture texture;
+        texture.createColour(colourFloat, (typeName).c_str(), slot);
+        textures.push_back(texture);
+        loadedTex.push_back(texture);
+        loadedTexPath.push_back("null");
+    }
+
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
     {
         aiString str; // str is path

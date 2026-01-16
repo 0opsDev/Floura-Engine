@@ -19,16 +19,15 @@ void Camera::SetViewportSize(int newWidth, int newHeight) {
     height = newHeight;
 }
 
-void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
+void Camera::updateMatrix()
 {
     //std::cout << "Internal camera instance address: " << this << std::endl;
     // Initializes matrices
 
     // Makes camera look in the right direction from the right position
     view = glm::lookAt(Position, Position + Orientation, Up);
-    fov = FOVdeg;
     // Adds perspective to the scene
-    projection = glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
+    projection = glm::perspective(glm::radians(fov), (float)width / height, nearFar.x, nearFar.y);
 
     //std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
     cameraMatrix = projection * view;

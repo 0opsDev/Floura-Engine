@@ -285,3 +285,8 @@ void Shader::setBool(const char* uniform, bool uniformBool)
 {
     glUniform1i(glGetUniformLocation(ID, uniform), uniformBool ? 1 : 0);
 }
+
+void Shader::setHandleui64ARB(const char* uniform, GLuint64 handle)
+{
+	glUniformHandleui64ARB(glGetUniformLocation(ID, uniform), handle);
+}
