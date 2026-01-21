@@ -38,6 +38,8 @@ public:
 
 	void draw(Shader &shader);
 
+	void drawInstance(Shader& shader, int instanceCount);
+
 	void createMeshAABBs();
 
 	void updateMeshAABBs();

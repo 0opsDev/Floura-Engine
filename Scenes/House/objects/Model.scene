@@ -1,0 +1,632 @@
+[
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            100.0,
+            100.0,
+            100.0
+        ],
+        "UUID": "f03e7cab5b708e2c",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "coast_sand_rocks_02_4k",
+        "path": "Assets/Models/floors/coast_sand_rocks_02_4k.gltf",
+        "smoothnessValue": 0.10000000149011612,
+        "uvScale": [
+            101.0,
+            100.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            1.5,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            20.0,
+            1.0,
+            10.0
+        ],
+        "UUID": "5063fa36fa9b9ad8",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "plank_flooring_04_4k",
+        "path": "Assets/Models/floors/plank_flooring_04_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            20.0,
+            10.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            0.5,
+            -10.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            -90.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            20.0,
+            0.5,
+            1.0
+        ],
+        "UUID": "595649f5d3aadaa8",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "rock_wall_16_4k",
+        "path": "Assets/Models/floors/rock_wall_16_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            20.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            0.5,
+            10.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            20.0,
+            0.5,
+            1.0
+        ],
+        "UUID": "805344481279ddab",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "rock_wall_16_4k",
+        "path": "Assets/Models/floors/rock_wall_16_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            20.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -20.0,
+            0.5,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            90.0,
+            0.0,
+            90.0
+        ],
+        "Scale": [
+            10.0,
+            0.5,
+            1.0
+        ],
+        "UUID": "6865e02e0420de63",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "rock_wall_16_4k",
+        "path": "Assets/Models/floors/rock_wall_16_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            10.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            20.0,
+            0.5,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            90.0,
+            0.0,
+            -90.0
+        ],
+        "Scale": [
+            10.0,
+            0.5,
+            1.0
+        ],
+        "UUID": "102a87c29dd69a99",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "rock_wall_16_4k",
+        "path": "Assets/Models/floors/rock_wall_16_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            10.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -5.0,
+            0.009999999776482582,
+            -13.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            2.0,
+            1.0,
+            3.0
+        ],
+        "UUID": "be3bc9535a276d0b",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "herringbone_concrete_tile_4k",
+        "path": "Assets/Models/floors/herringbone_concrete_tile_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            6.0,
+            7.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -16.0,
+            4.0,
+            -10.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            -90.0,
+            90.0,
+            0.0
+        ],
+        "Scale": [
+            2.5,
+            1.0,
+            4.0
+        ],
+        "UUID": "4b1283d39f66eb31",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "distressed_painted_planks_4k",
+        "path": "Assets/Models/floors/distressed_painted_planks_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            2.5,
+            4.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -7.0,
+            4.0,
+            -10.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            -90.0,
+            90.0,
+            0.0
+        ],
+        "Scale": [
+            2.5,
+            1.0,
+            2.5
+        ],
+        "UUID": "86d5cca271699990",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "distressed_painted_planks_4k",
+        "path": "Assets/Models/floors/distressed_painted_planks_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            2.5,
+            2.5
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -10.75,
+            5.599999904632568,
+            -10.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            -90.0,
+            90.0,
+            0.0
+        ],
+        "Scale": [
+            0.8999999761581421,
+            1.0,
+            1.25
+        ],
+        "UUID": "9c90bf12522d5661",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "distressed_painted_planks_4k",
+        "path": "Assets/Models/floors/distressed_painted_planks_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            0.8999999761581421,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -13.0,
+            1.5,
+            -13.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            7.0,
+            1.0,
+            3.0
+        ],
+        "UUID": "c8ed8db2a36327ce",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "plank_flooring_04_4k",
+        "path": "Assets/Models/floors/plank_flooring_04_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            7.0,
+            7.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -6.0,
+            0.5,
+            -13.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            -90.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            3.0
+        ],
+        "UUID": "b57caa17205661b2",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "plank_flooring_04_4k",
+        "path": "Assets/Models/floors/plank_flooring_04_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -13.0,
+            0.5,
+            -16.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            -90.0,
+            90.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            7.0
+        ],
+        "UUID": "250d7cf97a408c6c",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "plank_flooring_04_4k",
+        "path": "Assets/Models/floors/plank_flooring_04_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            1.0,
+            7.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -5.300000190734863,
+            1.0,
+            -13.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.30000001192092896,
+            1.0,
+            3.0
+        ],
+        "UUID": "da19f2f2ee931472",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "plank_flooring_04_4k",
+        "path": "Assets/Models/floors/plank_flooring_04_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            0.30000001192092896,
+            3.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -4.5,
+            0.5239270925521851,
+            -13.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.30000001192092896,
+            1.0,
+            3.0
+        ],
+        "UUID": "102b1c507720e7e0",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "plank_flooring_04_4k",
+        "path": "Assets/Models/floors/plank_flooring_04_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            0.30000001192092896,
+            3.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -16.0,
+            4.0,
+            -9.899999618530273
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            4.0,
+            1.0,
+            2.5
+        ],
+        "UUID": "ff2defafc9e75001",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "painted_plaster_wall_4k",
+        "path": "Assets/Models/floors/painted_plaster_wall_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            4.0,
+            2.5
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -7.0,
+            4.0,
+            -9.899999618530273
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            2.5,
+            1.0,
+            2.5
+        ],
+        "UUID": "56889e53fefb085e",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "painted_plaster_wall_4k",
+        "path": "Assets/Models/floors/painted_plaster_wall_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            2.5,
+            2.5
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -10.75,
+            5.599999904632568,
+            -9.899999618530273
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.25,
+            1.0,
+            0.8999999761581421
+        ],
+        "UUID": "17d3f453908a7ea5",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "painted_plaster_wall_4k",
+        "path": "Assets/Models/floors/painted_plaster_wall_4k.gltf",
+        "smoothnessValue": 0.30000001192092896,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": false,
+        "Location": [
+            -20.053730010986328,
+            11.601669311523438,
+            -44.31821060180664
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            5.0,
+            5.0
+        ],
+        "UUID": "da297c3844fa9521",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "earth",
+        "path": "Assets/Models/planet/earth.gltf",
+        "smoothnessValue": 1.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            6.0,
+            18.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            90.0,
+            0.0
+        ],
+        "Scale": [
+            0.5,
+            0.5,
+            0.5
+        ],
+        "UUID": "127828b79f930720",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": false,
+        "name": "WALL2",
+        "path": "Assets/Models/METALROUGHTEST/WALL2.gltf",
+        "smoothnessValue": 1.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            12.303886413574219,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "UUID": "fbb6891de0e9b6a3",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "living_room",
+        "path": "Assets/Models/living_room/living_room.obj",
+        "smoothnessValue": 1.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    }
+]

@@ -7,6 +7,7 @@
 #include<unordered_map>
 #include<Render/Object/ModelAssimp.h>
 #include<vector>
+#include<camera/Camera.h>
 
 class RenderHandler
 {
@@ -70,6 +71,11 @@ public:
 	static uint64_t findModelUUIDwInstanceUUID(uint64_t InstanceUUID);
 
 private:
+
+
+	static void regularDraw();
+
+	static void instancedDraw();
 
 	static std::unordered_map<std::string, uint64_t> pKeyHandleMapRender; // takes path as key, returns handle
 

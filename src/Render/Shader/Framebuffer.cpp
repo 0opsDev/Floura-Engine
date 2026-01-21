@@ -4,6 +4,7 @@
 #include <Render/window/WindowHandler.h>
 #include <utils/logConsole.h>
 #include "Scene/scene.h"
+#include <glm/gtx/compatibility.hpp>
 
 int Framebuffer::tempWidth;
 int Framebuffer::tempHeight;
@@ -43,7 +44,7 @@ void Framebuffer::setupFBO(unsigned int width, unsigned int height) {
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -155,6 +156,7 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	// draw the framebuffer
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
+	glGenerateMipmap(GL_TEXTURE_2D);
 	frameBufferProgram.setInt("screenTexture", 0);
 
 	glActiveTexture(GL_TEXTURE1);
@@ -183,7 +185,7 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 		glViewport(0, 0, ViewPortWidth, ViewPortHeight);
 
 		glDisable(GL_DEPTH_TEST);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(RenderClass::gammaCorrect(RenderClass::skyRGBA.r), RenderClass::gammaCorrect(RenderClass::skyRGBA.g), RenderClass::gammaCorrect(RenderClass::skyRGBA.b), 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		rq.draw();

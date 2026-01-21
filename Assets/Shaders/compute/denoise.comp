@@ -189,8 +189,11 @@ void denoiseIndirect(int radius, int secondaryRadius, float depthLinearized, vec
                 float luminance = dot(neighbourIndirectColour.rgb / 255.0, weights);
                 float sLuminance = dot(neighbourSpecularIndirectColour.rgb / 255.0, weights);
 
+                if (validSamples > 0)
+                {
                 totalLuminance += luminance;
                 totalSLuminance += sLuminance;
+                }
                 validSamples++;
             }
             float avgLuminance = (validSamples > 0) ? (totalLuminance / float(validSamples)) : 0.0f;

@@ -18,7 +18,7 @@ void BVH::uploadSceneRootsToTlas(std::vector<std::unique_ptr<entity>> entityObje
     // get root nodes
     for (size_t i = 0; i < entityObjects.size(); i++)
     {
-        int index = RenderHandler::fetchModelIndex(Scene::entityObjects[i]->component.renderHeads.renderID);
+        int index = RenderHandler::fetchModelIndex(Scene::entityObjects[i]->component.render.renderID);
         if (index != -1)
         {
             for (size_t x = 0; x < RenderHandler::models[index].model->meshes.size(); x++) // each mesh

@@ -35,7 +35,7 @@ Cubemap::Cubemap(std::string path) {
 	glGenTextures(1, &ID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	// These are very important to prevent seams
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -61,6 +61,8 @@ Cubemap::Cubemap(std::string path) {
 				GL_UNSIGNED_BYTE,
 				data
 			);
+			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
 			stbi_image_free(data);
 
 			if (GLAD_GL_ARB_bindless_texture) {

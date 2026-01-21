@@ -15,7 +15,7 @@ public:
 	GLuint unit;
 	std::string path;
 	bool flipVertical = false;
-	void createColour(glm::vec3 colour, const char* texType, GLuint slot);
+	void createColour(glm::vec4 colour, const char* texType, GLuint slot);
 	void createTexture(const char* image, const char* texType, GLuint slot);
 
 	void reload(GLuint slot);

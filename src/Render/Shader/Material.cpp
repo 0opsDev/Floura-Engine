@@ -136,5 +136,5 @@ void Material::jsonLoad(std::string path)
 		}
 
 	}
-	std::cout << "Loaded Scene Models from: " << path << std::endl;
+	//std::cout << "Loaded Scene Models from: " << path << std::endl;
 }

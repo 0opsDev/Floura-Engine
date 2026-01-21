@@ -20,7 +20,7 @@ void entityDuplicate(int index) {
 			Scene::entityObjects[index]->fetchPath(),
 			"Assets/Material/Default.Material");
 
-		newEntity->component.renderHeads.BillBoard->doPitch =Scene::entityObjects[index]->component.renderHeads.BillBoard->doPitch;
+		newEntity->component.render.BillBoard->doPitch =Scene::entityObjects[index]->component.render.BillBoard->doPitch;
 	}
 	newEntity->setPosition(Scene::entityObjects[index]->fetchPosition());
 	newEntity->setRotation(Scene::entityObjects[index]->fetchRotation());

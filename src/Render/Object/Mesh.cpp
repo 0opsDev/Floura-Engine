@@ -77,7 +77,8 @@ void Mesh::draw(Shader& shader)
         else if (type == "texture_normal") {
             num = std::to_string(numNormal++);
         }
-        textures[i].texUnit(shader, (type + "0").c_str(), textures[i].unit);
+        shader.setHandleui64ARB((type + "_Handle").c_str(), textures[i].handle);
+        textures[i].texUnit(shader, (type).c_str(), textures[i].unit);
         textures[i].Bind();
     }
     // Camera Matrix
@@ -111,6 +112,11 @@ void Mesh::draw(Shader& shader)
     //glDisable(GL_BLEND);
 
     //glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Mesh::drawInstanced(Shader& shader, int instanceCount)
+{
+    std::cout << "drawing instance" << instanceCount << std::endl;
 }
 
 void Mesh::setupMesh()

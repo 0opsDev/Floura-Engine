@@ -72,6 +72,7 @@ public:
 		BillBoard* BillBoard;
 		float smoothnessValue = 0.0f;
 		bool dirtyTransform = false;
+		bool drawInstanced = false;
 	};
 
 	struct components {
@@ -79,7 +80,7 @@ public:
 		physics physics;
 		collider collider;
 		systems systems;
-		render renderHeads;
+		render render;
 	};
 	std::string name;
 	char type;
@@ -137,19 +138,19 @@ public:
 		if (position == component.systems.transformation.position) return;
 		component.systems.transformation.position = position;
 		raytracer::RTGlobalTransformFlag = true;
-		component.renderHeads.dirtyTransform = true;
+		component.render.dirtyTransform = true;
 	}
 	void setRotation(const glm::vec3& rotation) {
 		if (rotation == component.systems.transformation.rotation) return;
 		component.systems.transformation.rotation = rotation;
 		raytracer::RTGlobalTransformFlag = true;
-		component.renderHeads.dirtyTransform = true;
+		component.render.dirtyTransform = true;
 	}
 	void setScale(const glm::vec3& scale) {
 		if (scale == component.systems.transformation.scale) return;
 		component.systems.transformation.scale = scale;
 		raytracer::RTGlobalTransformFlag = true;
-		component.renderHeads.dirtyTransform = true;
+		component.render.dirtyTransform = true;
 	}
 };
 

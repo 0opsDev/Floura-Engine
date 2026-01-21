@@ -57,19 +57,11 @@ void EcsInspector::InspectorWindow() {
 		ImGui::Text("DepthBuffer Settings (FOG)");
 		ImGui::DragFloat("Depth Distance (FOG)", &RenderClass::DepthDistance);
 		ImGui::DragFloat2("Near and Far Depth Plane", RenderClass::DepthPlane);
-		ImGui::Spacing();
-		ImGui::DragInt("amount of Point ShadowMaps", &LightingHandler::amountPointShadowMaps);
-		ImGui::DragInt("amount of Spot ShadowMaps", &LightingHandler::amountSpotShadowMaps);
-
-		if (ImGui::Button("update Amount Of Light Maps"))
-			LightingHandler::updateAmountOfLightMaps();
-
 	}
 	ImGui::End();
 }
 
 void EcsInspector::ModelWindow() {
-
 	glm::vec3 modelPos = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchPosition();
 	glm::vec3 modelScale = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchScale();
 	glm::vec3 modelRot = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchRotation();
@@ -78,8 +70,8 @@ void EcsInspector::ModelWindow() {
 	ImGui::Text((Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name).c_str());
 	//ID
 	ImGui::Text(("UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->UUIDstring)).c_str());
-	ImGui::Text(("render UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.renderIDString)).c_str());
-	ImGui::Text(("Instance UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.instanceIDString)).c_str());
+	ImGui::Text(("render UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.renderIDString)).c_str());
+	ImGui::Text(("Instance UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.instanceIDString)).c_str());
 
 
 	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
@@ -104,9 +96,10 @@ void EcsInspector::ModelWindow() {
 			LogConsole::print("Reloaded Material: " + Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.Material.materialPath);
 		}
 		ImGui::Checkbox("doRender", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.flags.render);
+		ImGui::Checkbox("Draw Instanced", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.drawInstanced);
 		ImGui::Checkbox("Cast Shadow", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.flags.castsShadow);
 		ImGui::DragFloat2("UV Scale", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.uvScale.x);
-		ImGui::DragFloat("reflective smoothness", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.smoothnessValue);
+		ImGui::DragFloat("reflective smoothness", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.smoothnessValue);
 
 		//smoothnessValue
 		ImGui::TreePop();// Ends The ImGui Window
@@ -150,7 +143,7 @@ void EcsInspector::ModelWindow() {
 	}
 	ImGui::Spacing();
 	if (ImGui::TreeNode("General Infomation:")) {
-		int index = RenderHandler::fetchModelIndex(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.renderID);
+		int index = RenderHandler::fetchModelIndex(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.renderID);
 		if (index != -1)
 		{
 			ImGui::Text(("Material: " + Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.Material.materialPath).c_str());
@@ -232,7 +225,7 @@ void EcsInspector::BillBoardWindow() {
 
 	ImGui::Spacing();
 
-	ImGui::Checkbox("doPitch", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.renderHeads.BillBoard->doPitch);
+	ImGui::Checkbox("doPitch", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.BillBoard->doPitch);
 
 
 	ImGui::Spacing();

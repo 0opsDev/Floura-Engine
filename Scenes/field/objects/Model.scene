@@ -6,7 +6,7 @@
             -1.4056074619293213,
             12.86197280883789
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -19,6 +19,7 @@
         ],
         "UUID": "7545234d02efff4f",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": false,
         "name": "white_oak",
         "path": "Assets/Models/white_oak/white_oak.obj",
@@ -35,7 +36,7 @@
             -0.05978834629058838,
             -7.310732841491699
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             1.5,
             47.70000076293945,
@@ -48,6 +49,7 @@
         ],
         "UUID": "622f4f870fa0d84b",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": false,
         "name": "white_oak",
         "path": "Assets/Models/white_oak/white_oak.obj",
@@ -64,7 +66,7 @@
             -1.7891664505004883,
             11.389543533325195
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             6.199999809265137,
             114.0999984741211,
@@ -77,6 +79,7 @@
         ],
         "UUID": "789cacf41ed4b2fb",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": false,
         "name": "white_oak",
         "path": "Assets/Models/white_oak/white_oak.obj",
@@ -106,6 +109,7 @@
         ],
         "UUID": "411e65273d05bab0",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "grass",
         "path": "Assets/Models/grasspane/grass.gltf",
@@ -122,7 +126,7 @@
             -0.9113112688064575,
             -20.890005111694336
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -135,6 +139,7 @@
         ],
         "UUID": "2f2afe41529fd27d",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": false,
         "name": "white_oak",
         "path": "Assets/Models/white_oak/white_oak.obj",
@@ -151,7 +156,7 @@
             -1.7764348983764648,
             22.58510398864746
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             -5.5,
             20.100000381469727,
@@ -164,6 +169,7 @@
         ],
         "UUID": "20471e7c43d0c24f",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": false,
         "name": "white_oak",
         "path": "Assets/Models/white_oak/white_oak.obj",
@@ -180,7 +186,7 @@
             -1.9075074195861816,
             -4.994030952453613
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             -0.30000001192092896,
             18.5,
@@ -193,6 +199,7 @@
         ],
         "UUID": "513a4bc218909cb3",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": false,
         "name": "white_oak",
         "path": "Assets/Models/white_oak/white_oak.obj",
@@ -209,7 +216,7 @@
             -0.14426979422569275,
             -5.038552761077881
         ],
-        "MaterialPath": "Assets/Material/DefaultNoNormals.Material",
+        "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
             0.0,
@@ -222,6 +229,7 @@
         ],
         "UUID": "e3b23ebaf2bc848f",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "lpshead",
         "path": "Assets/Models/lpshead/head.OBJ",

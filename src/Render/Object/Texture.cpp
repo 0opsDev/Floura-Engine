@@ -2,7 +2,7 @@
 #include <utils/logConsole.h>
 #include "utils/FE_math.h"
 
-void Texture::createColour(glm::vec3 colour, const char* texType, GLuint slot)
+void Texture::createColour(glm::vec4 colour, const char* texType, GLuint slot)
 {
     path = "null";
     LogConsole::print("Texture loading started");
@@ -15,7 +15,7 @@ void Texture::createColour(glm::vec3 colour, const char* texType, GLuint slot)
     // Reads the image from a file and stores it in bytes
     unsigned char* bytes = 0;
 
-    unsigned char fallbackPixel[] = { FE_Math::floatToByteRGB(colour.x) , FE_Math::floatToByteRGB(colour.y),  FE_Math::floatToByteRGB(colour.z)};
+    unsigned char fallbackPixel[] = { FE_Math::floatToByteRGB(colour.x) , FE_Math::floatToByteRGB(colour.y),  FE_Math::floatToByteRGB(colour.z), FE_Math::floatToByteRGB(colour.w)};
     bytes = fallbackPixel;
     skipstbi = true;
 
@@ -36,11 +36,11 @@ void Texture::createColour(glm::vec3 colour, const char* texType, GLuint slot)
     glTexImage2D(
         GL_TEXTURE_2D,
         0,
-        GL_RGB,
+        GL_RGBA,
         1,
         1,
         0,
-        GL_RGB,
+        GL_RGBA,
         GL_UNSIGNED_BYTE,
         bytes
     );

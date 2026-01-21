@@ -1,6 +1,6 @@
 [
     {
-        "DefaultSkyboxPath": "Assets/Skybox/ferndale_studio_04/Skybox.json",
+        "DefaultSkyboxPath": "Assets/Skybox/galaxy/Skybox.json",
         "DirAmbient": 0.0,
         "DirColour": [
             1.0,
@@ -9,11 +9,11 @@
         ],
         "DirEnabled": true,
         "DirRotation": [
-            121.5999984741211,
-            -47.900001525878906,
-            0.0
+            149.8000030517578,
+            46.20000076293945,
+            -7.300000190734863
         ],
-        "DirSMMaxBias": 0.02500000037252903,
+        "DirSMMaxBias": 0.014999999664723873,
         "DirSpecEnabled": true,
         "DirSpecular": 1.0,
         "DoShadowMap": true,
@@ -26,12 +26,12 @@
         ],
         "dirNearFar": [
             0.10000000149011612,
-            130.0
+            99.0
         ],
-        "dirShadowMapHardness": 10,
-        "dirShadowMapSamples": 10,
-        "dirSmDistance": 100.0,
-        "dirSmHeight": 50.0,
+        "dirShadowMapHardness": 4,
+        "dirShadowMapSamples": 2,
+        "dirSmDistance": 80.0,
+        "dirSmHeight": 31.0,
         "skyRGBA": [
             1.0,
             1.0,

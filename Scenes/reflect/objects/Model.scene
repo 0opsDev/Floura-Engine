@@ -19,42 +19,14 @@
         ],
         "UUID": "90ec97156b55c2d3",
         "doRender": true,
-        "isBackFaceCulling": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": false,
         "name": "nfs_shift_psp_-_london_short",
         "path": "Assets/Models/nfs_shift_psp_-_london_short/scene.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
             1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            23.369972229003906,
-            6.026905059814453,
-            0.0
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            10.0,
-            1.0,
-            10.0
-        ],
-        "UUID": "aaff06d414f14ab8",
-        "doRender": true,
-        "isBackFaceCulling": true,
-        "name": "rock_wall_16_4k",
-        "path": "Assets/Models/floors/rock_wall_16_4k.gltf",
-        "smoothnessValue": 1.0,
-        "uvScale": [
-            10.0,
-            10.0
         ]
     }
 ]

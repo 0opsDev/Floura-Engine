@@ -76,7 +76,77 @@ void RenderHandler::clearRenderQueue()
 
 void RenderHandler::render()
 {
-	// temp
+	regularDraw();
+
+	instancedDraw();
+
+	// after render clear render queue
+	clearRenderQueue();
+}
+
+void RenderHandler::removeInstancewRenderID(uint64_t RenderID)
+{
+	int index = fetchModelIndex(RenderID);
+	removeInstance(index);
+}
+
+void RenderHandler::removeInstance(int index)
+{
+	// bounds check
+	if (index < 0 || index >= (int)models.size()) return;
+
+	models[index].instances -= 1;
+
+	if (models[index].instances <= 0)
+	{
+		// erase the item in map
+		auto handleIt = pKeyHandleMapRender.find(models[index].path);
+		if (handleIt != pKeyHandleMapRender.end()) {
+			pKeyHandleMapRender.erase(handleIt);
+		}
+		// erase model
+		delete models[index].model;
+		models[index].model = nullptr;
+		models.erase(models.begin() + index);
+	}
+}
+
+uint64_t RenderHandler::findRenderUUIDwIstanceUUID(uint64_t InstanceUUID)
+{
+
+	for (size_t i = 0; i < RenderHandler::models.size(); i++)
+	{
+		for (size_t x = 0; x < RenderHandler::models[i].model->instanceUUIDs.size(); x++)
+		{
+			if (RenderHandler::models[i].model->instanceUUIDs[x] == InstanceUUID)
+				return RenderHandler::models[i].RenderID;
+		}
+		
+	}
+
+	return uint64_t(0);
+}
+
+uint64_t RenderHandler::findModelUUIDwRenderUUID(uint64_t RenderID)
+{
+	int index = fetchModelIndex(RenderID);
+	if (index != -1)
+	{
+		return RenderHandler::models[index].model->UUID;
+	}
+
+	return uint64_t(0);
+}
+
+uint64_t RenderHandler::findModelUUIDwInstanceUUID(uint64_t InstanceUUID)
+{
+	uint64_t renderUUID = findRenderUUIDwIstanceUUID(InstanceUUID);
+	return findModelUUIDwRenderUUID(renderUUID);
+}
+
+void RenderHandler::regularDraw()
+{
+	// positions
 	for (size_t i = 0; i < renderQueueDataVector.size(); i++)
 	{
 		int index = fetchModelIndex(renderQueueDataVector[i].RenderID);
@@ -92,7 +162,7 @@ void RenderHandler::render()
 	// shadow pass
 	for (size_t i = 0; i < renderQueueDataVector.size(); i++)
 	{
-		if (renderQueueDataVector[i].castsShadow)
+		if (renderQueueDataVector[i].castsShadow && !renderQueueDataVector[i].isInstanced)
 		{
 			int index = fetchModelIndex(renderQueueDataVector[i].RenderID);
 			if (index != -1)
@@ -106,12 +176,13 @@ void RenderHandler::render()
 			}
 		}
 	}
-	// regular
+	// regular non instanced
 	for (size_t i = 0; i < renderQueueDataVector.size(); i++)
 	{
 		int index = fetchModelIndex(renderQueueDataVector[i].RenderID);
-		if (index != -1)
+		if (index != -1 && !renderQueueDataVector[i].isInstanced)
 		{
+
 			int modelShaderIndex = ShaderHandler::fetchShaderIndex(renderQueueDataVector[i].shaderUUID);
 			int modelGPShaderIndex = ShaderHandler::fetchShaderIndex(renderQueueDataVector[i].gpShaderUUID);
 
@@ -189,67 +260,17 @@ void RenderHandler::render()
 			Skybox::unbind();
 		}
 	}
-
-	// after render clear render queue
-	clearRenderQueue();
 }
 
-void RenderHandler::removeInstancewRenderID(uint64_t RenderID)
+void RenderHandler::instancedDraw()
 {
-	int index = fetchModelIndex(RenderID);
-	removeInstance(index);
-}
-
-void RenderHandler::removeInstance(int index)
-{
-	// bounds check
-	if (index < 0 || index >= (int)models.size()) return;
-
-	models[index].instances -= 1;
-
-	if (models[index].instances <= 0)
+	// needs to make batches of instanced data, do sep for both shadow and regular, shadow doesnt include shaders or uv
+	for (size_t i = 0; i < renderQueueDataVector.size(); i++)
 	{
-		// erase the item in map
-		auto handleIt = pKeyHandleMapRender.find(models[index].path);
-		if (handleIt != pKeyHandleMapRender.end()) {
-			pKeyHandleMapRender.erase(handleIt);
-		}
-		// erase model
-		delete models[index].model;
-		models[index].model = nullptr;
-		models.erase(models.begin() + index);
-	}
-}
-
-uint64_t RenderHandler::findRenderUUIDwIstanceUUID(uint64_t InstanceUUID)
-{
-
-	for (size_t i = 0; i < RenderHandler::models.size(); i++)
-	{
-		for (size_t x = 0; x < RenderHandler::models[i].model->instanceUUIDs.size(); x++)
+		if (renderQueueDataVector[i].isInstanced)
 		{
-			if (RenderHandler::models[i].model->instanceUUIDs[x] == InstanceUUID)
-				return RenderHandler::models[i].RenderID;
+
 		}
-		
 	}
-
-	return uint64_t(0);
-}
-
-uint64_t RenderHandler::findModelUUIDwRenderUUID(uint64_t RenderID)
-{
-	int index = fetchModelIndex(RenderID);
-	if (index != -1)
-	{
-		return RenderHandler::models[index].model->UUID;
-	}
-
-	return uint64_t(0);
-}
-
-uint64_t RenderHandler::findModelUUIDwInstanceUUID(uint64_t InstanceUUID)
-{
-	uint64_t renderUUID = findRenderUUIDwIstanceUUID(InstanceUUID);
-	return findModelUUIDwRenderUUID(renderUUID);
+	// then needs to draw it
 }

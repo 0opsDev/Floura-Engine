@@ -41,24 +41,6 @@ public:
 	static int dirShadowMapHardness;
 	static int dirShadowMapSamples;
 
-	struct ShadowMaps
-	{
-		unsigned int shadowMapFBO;
-		unsigned int shadowMapHeight;
-		unsigned int shadowMapWidth;
-		unsigned int ShadowMap;
-		unsigned int indexOfLight;
-	};
-
-	static int amountPointShadowMaps;
-	static int amountPointNear;
-	static std::vector<ShadowMaps> PointShadowMap;
-
-	static int amountSpotShadowMaps;
-	static int amountSpotNear;
-	static std::vector<ShadowMaps> SpotShadowMap;
-
-
 	struct Light {
 		glm::vec3 position;
 		glm::vec3 rotation;
@@ -66,19 +48,12 @@ public:
 		float radius;
 		int type;
 		bool enabled;
-		ShadowMaps ShadowMap = {0,0,0,0,0}; // render/bake shadow map for STATIC lights
 	};
 	static std::vector<Light> Lights;
 
 	static void setupShadowMapBuffer();
 
-	static void nearestLightMapIndexSync(char type, int closeIndex, LightingHandler::ShadowMaps shadowMap);
-
-	static void updateAmountOfLightMaps();
-
-	static void createLightMap(char type);
-
-	static void deleteLightMap(char type, int index);
+	//static void 
 
 	static void drawShadowMap(Model*& model);
 

@@ -53,7 +53,7 @@ void Player::update() {
 	{
 		for (size_t i = 0; i < Scene::entityObjects.size(); i++)
 		{
-			int index = RenderHandler::fetchModelIndex(Scene::entityObjects[i]->component.renderHeads.renderID);
+			int index = RenderHandler::fetchModelIndex(Scene::entityObjects[i]->component.render.renderID);
 			if (index != -1)
 			{
 				for (size_t x = 0; x < RenderHandler::models[index].model->meshes.size(); x++)

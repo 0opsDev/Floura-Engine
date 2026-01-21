@@ -244,5 +244,23 @@
         "ObjectType": "Skybox",
         "Path": "Assets/Skybox/ferndale_studio_04/Skybox.json",
         "Type": "NULL"
+    },
+    {
+        "Name": "brass_vase_03_2k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/brass_vase_03_2k.gltf/brass_vase_03_2k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "galaxy",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/galaxy/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "galaxy2",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/galaxy2/Skybox.json",
+        "Type": "NULL"
     }
 ]

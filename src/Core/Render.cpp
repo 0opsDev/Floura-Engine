@@ -51,6 +51,7 @@ void initGLenable(bool frontFaceSide) {
 	case false: { glFrontFace(GL_CCW); break; } // outside facing
 	}
 
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glEnable(GL_FRAMEBUFFER_SRGB);
 	//glEnable(GL_MULTISAMPLE);
 }

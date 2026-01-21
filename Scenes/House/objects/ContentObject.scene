@@ -1,0 +1,320 @@
+[
+    {
+        "Name": "clearsky",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/clearsky/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "barrel",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/barrel/barrel2.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "VertexViewer",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/VertexViewer.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "VerticeViewer",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/VerticeViewer.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Default",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/Default.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sponzaSM",
+        "ObjectType": "Model",
+        "Path": "temp/sponza/assets/Sponza/sponzaSM.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sponza",
+        "ObjectType": "Model",
+        "Path": "temp/sponza/assets/Sponza/sponza.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "albedo",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/albedo.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "torus",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/torus.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sunset",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/sunset/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "room",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/breakfast_room/room.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "blue noise",
+        "ObjectType": "BillBoard",
+        "Path": "Assets/Dependants/LDR_LLL1_0.png",
+        "Type": "NULL"
+    },
+    {
+        "Name": "grass",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grasspane/grass.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "head",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/lpshead/head.OBJ",
+        "Type": "NULL"
+    },
+    {
+        "Name": "plane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/plane.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cube",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/cube.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cylinder",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/cylinder.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "slope",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/slope.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sphere",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/sphere.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "lion_head_2k.",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/lion_head_2k.gltf/lion_head_2k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "redcubes",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/raytraced/redcubes.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "QwantaniNight",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/QwantaniNight/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "charolettenbrunn_park",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/charolettenbrunn_park/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "OvercastSoilPuresky",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/OvercastSoilPuresky/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cornel",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/cornel/cornel.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "met",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/sphere/met.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "GItest",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/raytraced/GItest.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "NormalView",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/NormalView.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cubez",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/raytraced/cubez.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "bathroom.gltf",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/raytraced/bathroom.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "breakfast_room",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/breakfast_room/room.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "autumn_forest",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/autumn_forest/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "FlightHelmet",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/raytraced/FlightHelmet/glTF/FlightHelmet.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "coast_sand_rocks_02_4k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/floors/coast_sand_rocks_02_4k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "blue_metal_plate_4k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/floors/blue_metal_plate_4k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "grey_cartago_03_4k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/floors/grey_cartago_03_4k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "plank_flooring_04_4k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/floors/plank_flooring_04_4k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "rock_wall_16_4k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/floors/rock_wall_16_4k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "velour_velvet_4k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/floors/velour_velvet_4k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "ferndale_studio_04",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/ferndale_studio_04/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "brass_vase_03_2k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/brass_vase_03_2k.gltf/brass_vase_03_2k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "herringbone_concrete_tile_4k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/floors/herringbone_concrete_tile_4k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "distressed_painted_planks_4k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/floors/distressed_painted_planks_4k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "painted_plaster_wall_4k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/floors/painted_plaster_wall_4k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "galaxy",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/galaxy/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "galaxy2",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/galaxy2/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "earth",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/planet/earth.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "dae_diorama_-_grandmas_house",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/dae_diorama_-_grandmas_house/scene.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "WALL2",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/METALROUGHTEST/WALL2.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "breakfast_room",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/breakfast_room/room.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "living_room",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/living_room/living_room.obj",
+        "Type": "NULL"
+    },
+    {
+        "Name": "brown_photostudio_01_4k",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/brown_photostudio_01_4k/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "glass2",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/glass/glass2.gltf",
+        "Type": "NULL"
+    }
+]

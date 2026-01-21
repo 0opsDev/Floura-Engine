@@ -84,10 +84,10 @@ void raytracer::uploadSceneToRaytracer()
 	raytracer::RTGlobalTransformFlag = true;
 	for (size_t i = 0; i < Scene::entityObjects.size(); i++)
 	{
-		int index = RenderHandler::fetchModelIndex(Scene::entityObjects[i]->component.renderHeads.renderID);
+		int index = RenderHandler::fetchModelIndex(Scene::entityObjects[i]->component.render.renderID);
 		if (index != -1)
 		{
-			uint64_t instanceUUID = Scene::entityObjects[i]->component.renderHeads.instanceUUID;
+			uint64_t instanceUUID = Scene::entityObjects[i]->component.render.instanceUUID;
 			for (size_t x = 0; x < modelArray.size(); x++)
 			{
 				if (modelArray[x].harddata.rayModel.instanceUUID == instanceUUID)

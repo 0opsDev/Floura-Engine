@@ -78,6 +78,8 @@ void entity::update()
 	entity::updateMeshAABBs();
 	if (component.physics.hasRigidbody) // change name to hasdynamics
 	{
+		//component.render.dirtyTransform = true;
+
 		if (component.physics.affectedByGravity)
 		{
 			glm::vec3 gravity = glm::vec3(0.0f, -9.81f, 0.0f);
@@ -86,7 +88,8 @@ void entity::update()
 		}
 
 		component.physics.velocity += component.physics.force / component.physics.mass * TimeUtil::deltatime;
-		component.systems.transformation.position += component.physics.velocity * TimeUtil::deltatime;
+		glm::vec3 newPos = component.systems.transformation.position + component.physics.velocity * TimeUtil::deltatime;
+		setPosition(newPos);
 
 		component.physics.force = glm::vec3(0.0f); // reset force at end
 	}
@@ -96,7 +99,7 @@ void entity::update()
 	{
 	case 'm': // model
 	{
-		int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+		int index = RenderHandler::fetchModelIndex(component.render.renderID);
 		if (index != -1)
 		{
 			RenderHandler::models[index].model->updatePosition(component.systems.transformation.position);
@@ -104,15 +107,15 @@ void entity::update()
 			RenderHandler::models[index].model->updateScale(component.systems.transformation.scale);
 			RenderHandler::models[index].model->updateTranformation();
 			RenderHandler::models[index].model->updateMeshAABBs();
-			raytracer::updateboundingboxes(component.renderHeads.instanceUUID, component.collider.rootnodes);
-			raytracer::modelMatrixUpdate(component.renderHeads.instanceUUID, RenderHandler::models[index].model->gModelMatrix);
+			raytracer::updateboundingboxes(component.render.instanceUUID, component.collider.rootnodes);
+			raytracer::modelMatrixUpdate(component.render.instanceUUID, RenderHandler::models[index].model->gModelMatrix);
 		}
 
 		break;
 	}
 	case 'b': // billboard
-		component.renderHeads.BillBoard->updatePosition(component.systems.transformation.position);
-		component.renderHeads.BillBoard->updateScale(component.systems.transformation.scale);
+		component.render.BillBoard->updatePosition(component.systems.transformation.position);
+		component.render.BillBoard->updateScale(component.systems.transformation.scale);
 		break;
 	default:
 		break;
@@ -130,22 +133,21 @@ void entity::Delete()
 	{
 	case 'm': // model
 	{
-		// 
-		RenderHandler::removeInstancewRenderID(component.renderHeads.renderID);
 
-		int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+		int index = RenderHandler::fetchModelIndex(component.render.renderID);
 		if (index != -1)
 		{
-			raytracer::removeFromRaytracer(component.renderHeads.instanceUUID);
+			raytracer::removeFromRaytracer(component.render.instanceUUID);
 		}
+		RenderHandler::removeInstancewRenderID(component.render.renderID);
 		//delete component.renderHeads.Model;
 		//component.renderHeads.Model = nullptr;
 		component.systems.material.Material.ClearMaterial();
 		break;
 	}
 	case 'b': // billboard
-		delete component.renderHeads.BillBoard;
-		component.renderHeads.BillBoard = nullptr;
+		delete component.render.BillBoard;
+		component.render.BillBoard = nullptr;
 		break;
 	}
 	raytracer::RTGlobalTransformFlag = true;
@@ -156,7 +158,7 @@ Collision::HitResult entity::RayVsTriangle(glm::vec3 rayPos, glm::vec3 rayDir)
 	Collision::HitResult finalResult;
 	finalResult.isColliding = false;
 	finalResult.distance = std::numeric_limits<float>::max();	
-	int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+	int index = RenderHandler::fetchModelIndex(component.render.renderID);
 	if (index != -1)
 	{
 
@@ -218,24 +220,24 @@ void entity::draw()
 	case 'm': // model
 	{
 		RenderHandler::renderQueueData newRenderData;
-		newRenderData.RenderID = component.renderHeads.renderID;
+		newRenderData.RenderID = component.render.renderID;
 		newRenderData.shaderUUID = component.systems.material.Material.modelShaderUUID;
 		newRenderData.gpShaderUUID = component.systems.material.Material.modelGpassShaderUUID;
 		newRenderData.castsShadow = component.flags.castsShadow;
 		newRenderData.cullFrontFace = component.flags.cullFrontFace;
 		newRenderData.doCulling = component.flags.doCulling;
-		//newRenderData.isInstanced;
+		newRenderData.isInstanced = component.render.drawInstanced;
 		newRenderData.position = component.systems.transformation.position;
 		newRenderData.rotation = component.systems.transformation.rotation;
 		newRenderData.scale = component.systems.transformation.scale;
-		newRenderData.smoothnessValue = component.renderHeads.smoothnessValue;
+		newRenderData.smoothnessValue = component.render.smoothnessValue;
 		newRenderData.uvScale = component.systems.material.uvScale;
 		RenderHandler::addToRenderQueue(newRenderData);
 
-		int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+		int index = RenderHandler::fetchModelIndex(component.render.renderID);
 		if (index != -1)
 		{
-			raytracer::uvScaleUpdate(component.renderHeads.instanceUUID, component.systems.material.uvScale);
+			raytracer::uvScaleUpdate(component.render.instanceUUID, component.systems.material.uvScale);
 		}
 		for (size_t i = 0; i < component.collider.rootnodes.size(); i++)
 		{
@@ -249,7 +251,7 @@ void entity::draw()
 	}
 	case 'b': // billboard
 	{
-		component.renderHeads.BillBoard->draw();
+		component.render.BillBoard->draw();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		break;
 	}
@@ -265,7 +267,7 @@ void entity::drawShadowMap()
 		//LightingHandler::drawShadowMap(component.renderHeads.Model, component.systems.transformation.position, component.systems.transformation.rotation, component.systems.transformation.scale);
 		break;
 	case 'b': // billboard
-		LightingHandler::drawShadowMapBillboard(component.renderHeads.BillBoard, component.systems.transformation.position, component.systems.transformation.scale);
+		LightingHandler::drawShadowMapBillboard(component.render.BillBoard, component.systems.transformation.position, component.systems.transformation.scale);
 		break;
 	}
 }
@@ -280,7 +282,7 @@ void entity::updateCollision()
 	{
 	case 'm':
 	{
-		int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+		int index = RenderHandler::fetchModelIndex(component.render.renderID);
 		if (index != -1)
 		{
 
@@ -334,13 +336,13 @@ void entity::updateCollision()
 
 void entity::updateMeshAABBs()
 {
-	if (component.renderHeads.dirtyTransform)
+	if (component.render.dirtyTransform)
 	{
-		component.renderHeads.dirtyTransform = false;
+		component.render.dirtyTransform = false;
 
 		if (type == 'm')
 		{
-			int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+			int index = RenderHandler::fetchModelIndex(component.render.renderID);
 			if (index != -1)
 			{
 
@@ -360,15 +362,15 @@ void entity::updateMeshAABBs()
 void entity::createModel(const std::string& path, const std::string& materialPath)
 {
 	RenderHandler::batchOfUUID newBatchOfUUID = RenderHandler::addModel(path);
-	component.renderHeads.renderID = newBatchOfUUID.RenderID;
-	component.renderHeads.instanceUUID = newBatchOfUUID.instanceUUID;
-	component.renderHeads.renderIDString = UUID::UUIDToString(newBatchOfUUID.RenderID);
-	component.renderHeads.instanceIDString = UUID::UUIDToString(newBatchOfUUID.instanceUUID);
-	component.renderHeads.dirtyTransform = true;
+	component.render.renderID = newBatchOfUUID.RenderID;
+	component.render.instanceUUID = newBatchOfUUID.instanceUUID;
+	component.render.renderIDString = UUID::UUIDToString(newBatchOfUUID.RenderID);
+	component.render.instanceIDString = UUID::UUIDToString(newBatchOfUUID.instanceUUID);
+	component.render.dirtyTransform = true;
 	entity::updateMeshAABBs();
 	component.systems.material.Material.LoadMaterial(materialPath);
 
-	int index = RenderHandler::fetchModelIndex(component.renderHeads.renderID);
+	int index = RenderHandler::fetchModelIndex(component.render.renderID);
 	if (index != -1)
 	{
 		raytracer::uploadToRaytracer(newBatchOfUUID.instanceUUID);
@@ -377,5 +379,5 @@ void entity::createModel(const std::string& path, const std::string& materialPat
 
 void entity::createBillBoard(const std::string& path)
 {
-	component.renderHeads.BillBoard = new BillBoard(path);
+	component.render.BillBoard = new BillBoard(path);
 }

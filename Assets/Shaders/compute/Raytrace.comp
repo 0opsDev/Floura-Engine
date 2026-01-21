@@ -592,7 +592,7 @@ vec3 indirectTraceBroad(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 no
     return iColour;
 };
 
-vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, float roughness, int bounces, float maxDist)
+vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, vec3 initSpec, int bounces, float maxDist)
 {
     vec3 reflectionColour = vec3(0.0f);
     vec3 currentOrigin = hit.lasthit;
@@ -639,6 +639,8 @@ vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, float rou
                 sampler2D specularSampler = sampler2D(meshes[res.meshIndex].specularHandle); 
                 specColour = texture(specularSampler, adjustedUV).rgb;
             }
+            if (specColour.g == 0.0f) break; 
+
             vec3 normColour = vec3(0.0f, 0.0f, 0.0f);
             vec3 NormalMap = res.lightNormal; // light normal fallback
             if (meshes[res.meshIndex].normalHandle != 0)
@@ -652,7 +654,7 @@ vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, float rou
             currentLightNormal = NormalMap;
             vec4 shadowcolour = lightstrace(currentOrigin,NormalMap, maxDist);
 
-            reflectionColour += (shadowcolour.rgb * albedoColour.rgb) * 0.5f * specColour.g * dim;
+            reflectionColour += (shadowcolour.rgb * albedoColour.rgb) * 0.5f * specColour.b * dim;
             dim *= 0.5f;
         }
         else {
@@ -662,11 +664,11 @@ vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, float rou
         }
     }
 
-    return reflectionColour * roughness;
+    return reflectionColour * initSpec.b;
 };
 
 
-vec3 reflectionIndirectPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, float roughness, int bounces, float maxDist, int iBounces, int iSamples)
+vec3 reflectionIndirectPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, vec3 initSpec, int bounces, float maxDist, int iBounces, int iSamples)
 {
     vec3 iColour = vec3(0.0f);
     vec3 currentOrigin = hit.lasthit;
@@ -727,7 +729,7 @@ vec3 reflectionIndirectPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, f
             vec3 albedoDirect = shadowcolour.rgb * albedoColour.rgb;
             //iColour += (shadowcolour.rgb * albedoColour.rgb) * 0.5f * dim;
             vec3 indirectColour = indirectTraceBroad(res, bounceDir, albedoDirect, NormalMap, iBounces, iSamples, maxDist);
-            iColour += indirectColour * 0.5f * specColour.g * dim;
+            iColour += indirectColour * 0.5f * specColour.b * dim;
             dim *= 0.5f;
         }
         else {
@@ -737,7 +739,7 @@ vec3 reflectionIndirectPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, f
         }
     }
 
-    return iColour * roughness;
+    return iColour * initSpec.b;
 };
 
 void main() {
@@ -846,13 +848,13 @@ void main() {
             NormalMap = normalize(firstHit.TBN * normColour.rgb);
         }
 
-        // r = roughness
-        // g = metalic
+        // g = roughness
+        // b = metalic
 
         vec3 offsetPos = firstHit.lasthit + (firstHit.lightNormal * 0.001f);
         if (!primaryskip || !indirectskip) directColour = lightstrace(offsetPos, NormalMap, maxDistance).xyz; // indirect
         if (reflectionBounces > 0 && !primaryskip) 
-            specularColour = reflectionPassBroad(firstHit, rayDir, NormalMap, specColour.g, reflectionBounces, reflectionDistance);
+            specularColour = reflectionPassBroad(firstHit, rayDir, NormalMap, specColour.rgb, reflectionBounces, reflectionDistance);
 
         if (indirectBounces > 0 && indirectSamples > 0 && !indirectskip)
         {
@@ -860,7 +862,7 @@ void main() {
             indirectBounces, indirectSamples, reflectionDistance); // bounces then samples
         
             if (reflectionBounces > 0){
-                specularIndirectColour = reflectionIndirectPassBroad(firstHit, rayDir, NormalMap, specColour.g, reflectionBounces,
+                specularIndirectColour = reflectionIndirectPassBroad(firstHit, rayDir, NormalMap, specColour.rgb, reflectionBounces,
                 reflectionDistance, indirectBounces, indirectSamples);
             }
 

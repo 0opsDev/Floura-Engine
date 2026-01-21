@@ -230,8 +230,9 @@ void Scene::initJsonModelLoad(std::string path) {
 		newObject->component.systems.material.uvScale = glm::vec2(item.at("uvScale")[0],
 			item.at("uvScale")[1]);
 
-		//newObject->ID.UniqueNumber = item.at("IDuniqueIdentifier").get<unsigned int>();
-		newObject->component.renderHeads.smoothnessValue = item.at("smoothnessValue").get<float>();
+		newObject->component.render.drawInstanced = item.at("drawInstanced").get<bool>();
+
+		newObject->component.render.smoothnessValue = item.at("smoothnessValue").get<float>();
 
 		//newObject->create('m', name, path, MaterialPath); // Load into this unique MaterialObject // this needs to run and somehow join up when complete?
 		// what about the idea of creating them in a state without a actual model, then doing the create function on a thread and push back when joinable;
@@ -248,7 +249,7 @@ void Scene::initJsonModelLoad(std::string path) {
 
 
 	}
-	//std::cout << "Loaded Scene Models from: " << path << std::endl;
+	std::cout << "Loaded Scene Models from: " << path << std::endl;
 }
 
 void Scene::JsonModelSave(std::string path) {
@@ -275,11 +276,11 @@ void Scene::JsonModelSave(std::string path) {
 				modelJson["CastShadow"] = entityObjects[i]->component.flags.castsShadow;
 				glm::vec2 uvScale = Scene::entityObjects[i]->component.systems.material.uvScale;
 				modelJson["uvScale"] = { uvScale.x, uvScale.y };
-				// ID
-				//modelJson["IDuniqueIdentifier"] = entityObjects[i]->ID.UniqueNumber;
-				//doRender
+
+				modelJson["drawInstanced"] = Scene::entityObjects[i]->component.render.drawInstanced;
+
 				modelJson["doRender"] = entityObjects[i]->component.flags.render;
-				modelJson["smoothnessValue"] = entityObjects[i]->component.renderHeads.smoothnessValue;
+				modelJson["smoothnessValue"] = entityObjects[i]->component.render.smoothnessValue;
 				modelJson["UUID"] = entityObjects[i]->UUIDstring;
 
 				settingsData.push_back(modelJson);
@@ -320,7 +321,7 @@ void Scene::JsonBillBoardSave(std::string path) {
 				BillBoardJson["name"] = entityObjects[i]->name;
 				BillBoardJson["path"] = entityObjects[i]->fetchPath();
 
-				BillBoardJson["doPitch"] = entityObjects[i]->component.renderHeads.BillBoard->doPitch;
+				BillBoardJson["doPitch"] = entityObjects[i]->component.render.BillBoard->doPitch;
 
 				glm::vec3 objPos = entityObjects[i]->fetchPosition();
 				glm::vec3 objScale = entityObjects[i]->fetchScale();
@@ -490,7 +491,7 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 
 		newEntity->createwUUID(tempUUID, 'b', name, nPath, ""); // type, name, path, materialpath // add material path for bb later
 		
-		newEntity->component.renderHeads.BillBoard->doPitch = item.at("doPitch");
+		newEntity->component.render.BillBoard->doPitch = item.at("doPitch");
 		entityObjects.push_back(std::move(newEntity)); // Add the configured object to the vector
 	}
 	std::cout << "Loaded Scene BillBoards from: " << path << std::endl;

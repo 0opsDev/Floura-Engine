@@ -2,6 +2,7 @@
 #include "Systems/util/UUID.h"
 #include  <utils/FE_math.h>
 #include <Systems/Physics/BVH.h>
+#include <assimp/pbrmaterial.h>
 
 void Model::updatePosition(glm::vec3 Position)
 {
@@ -75,6 +76,14 @@ void Model::draw(Shader& shader)
     {
         meshes[i].draw(shader);
     }  
+}
+
+void Model::drawInstance(Shader& shader, int instanceCount)
+{
+    for (unsigned int i = 0; i < meshes.size(); i++)
+    {
+        meshes[i].drawInstanced(shader, instanceCount);
+    }
 }
 
 void Model::createMeshAABBs()
@@ -262,11 +271,30 @@ std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType
 
     if (mat->GetTextureCount(type) == 0)
     {
-        glm::vec3 colourFloat = glm::vec3(0.0f);
-        if (type == aiTextureType_DIFFUSE) colourFloat = glm::vec3(1.0f, 1.0f, 1.0f);
-        if (type == aiTextureType_DIFFUSE_ROUGHNESS) colourFloat = glm::vec3(0.0f, 0.0f, 0.0f);
-        if (type == aiTextureType_NORMALS) colourFloat = glm::vec3(0.5f, 0.5f, 1.0f);
+        glm::vec4 colourFloat = glm::vec4(0.0f);
+        if (type == aiTextureType_DIFFUSE)
+        {
+            aiColor4D albedoFactor(1.0f, 1.0f, 1.0f, 1.0f);
 
+            mat->Get(AI_MATKEY_COLOR_DIFFUSE, albedoFactor);
+
+            colourFloat = glm::vec4(albedoFactor[0], albedoFactor[1], albedoFactor[2], albedoFactor[3]);
+        }
+        if (type == aiTextureType_DIFFUSE_ROUGHNESS)
+        {
+            ai_real metallic = 1.0f;
+            ai_real roughness = 1.0f;
+
+            mat->Get(AI_MATKEY_METALLIC_FACTOR, metallic);
+            mat->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness);
+
+
+            colourFloat = glm::vec4(0.0f, roughness, metallic, 1.0f);
+        }
+        if (type == aiTextureType_NORMALS)
+        {
+            colourFloat = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
+        }
         //std::cout << "typeName: " << typeName << std::endl;
         //std::cout << "typenum: " << type << std::endl;
         //std::cout << "colour: " << " r: " << colourFloat.x << " g: " << colourFloat.y << " b: " << colourFloat.z << std::endl;

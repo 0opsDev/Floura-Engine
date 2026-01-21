@@ -23,6 +23,8 @@ public:
     void createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
     void draw(Shader &shader);
 
+    void drawInstanced(Shader& shader, int instanceCount);
+
     void Delete();
 
     void updateMatrix(glm::mat4 matrix);

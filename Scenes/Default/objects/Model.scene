@@ -19,6 +19,7 @@
         ],
         "UUID": "b0d3bc07a7605e62",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": false,
         "name": "plane",
         "path": "Assets/Models/basic shapes/plane.gltf",
@@ -48,6 +49,7 @@
         ],
         "UUID": "7f4489aece4ba236",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "slope",
         "path": "Assets/Models/basic shapes/slope.gltf",
@@ -77,6 +79,7 @@
         ],
         "UUID": "b942ec821a3105fa",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "slope",
         "path": "Assets/Models/basic shapes/slope.gltf",
@@ -106,6 +109,7 @@
         ],
         "UUID": "0063baf993db4236",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf",
@@ -135,6 +139,7 @@
         ],
         "UUID": "ca16e11f4a6d8a72",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "slope",
         "path": "Assets/Models/basic shapes/slope.gltf",
@@ -164,6 +169,7 @@
         ],
         "UUID": "a9ec7b6ddecce157",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf",
@@ -193,6 +199,7 @@
         ],
         "UUID": "6aae4d12b499d598",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "cylinder",
         "path": "Assets/Models/basic shapes/cylinder.gltf",
@@ -222,6 +229,7 @@
         ],
         "UUID": "57bd65514904a0d4",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf",
@@ -251,6 +259,7 @@
         ],
         "UUID": "f77ea12028b3cb77",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "cylinder",
         "path": "Assets/Models/basic shapes/cylinder.gltf",
@@ -280,6 +289,7 @@
         ],
         "UUID": "fcbd244f51927d74",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf",
@@ -309,6 +319,7 @@
         ],
         "UUID": "45bb5711c4d57bec",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "cube",
         "path": "Assets/Models/basic shapes/cube.gltf",
@@ -338,6 +349,7 @@
         ],
         "UUID": "0e7ceb77a8a61d41",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "GItest",
         "path": "Assets/Models/raytraced/GItest.gltf",
@@ -367,6 +379,7 @@
         ],
         "UUID": "6770d07ef7e02469",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": false,
         "name": "cornel",
         "path": "Assets/Models/cornel/cornel.gltf",
@@ -396,6 +409,7 @@
         ],
         "UUID": "75aabfd8cb346182",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": false,
         "name": "bathroom.gltf",
         "path": "Assets/Models/raytraced/bathroom.gltf",
@@ -408,9 +422,9 @@
     {
         "CastShadow": true,
         "Location": [
+            75.07622528076172,
             0.0,
-            0.0,
-            97.16596221923828
+            65.03814697265625
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -425,6 +439,7 @@
         ],
         "UUID": "695b1306bc04198e",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "breakfast_room",
         "path": "Assets/Models/breakfast_room/room.gltf",
@@ -454,6 +469,7 @@
         ],
         "UUID": "f03e7cab5b708e2c",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "coast_sand_rocks_02_4k",
         "path": "Assets/Models/floors/coast_sand_rocks_02_4k.gltf",
@@ -483,6 +499,7 @@
         ],
         "UUID": "86dffe362a3b9e43",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "blue_metal_plate_4k",
         "path": "Assets/Models/floors/blue_metal_plate_4k.gltf",
@@ -512,6 +529,7 @@
         ],
         "UUID": "f11804453b081bf6",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "grey_cartago_03_4k",
         "path": "Assets/Models/floors/grey_cartago_03_4k.gltf",
@@ -541,6 +559,7 @@
         ],
         "UUID": "df19c7651c3b247b",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "plank_flooring_04_4k",
         "path": "Assets/Models/floors/plank_flooring_04_4k.gltf",
@@ -570,6 +589,7 @@
         ],
         "UUID": "dfe765d6ad967c56",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "rock_wall_16_4k",
         "path": "Assets/Models/floors/rock_wall_16_4k.gltf",
@@ -599,6 +619,7 @@
         ],
         "UUID": "e2f4b185cb70f5b0",
         "doRender": true,
+        "drawInstanced": false,
         "isBackFaceCulling": true,
         "name": "velour_velvet_4k",
         "path": "Assets/Models/floors/velour_velvet_4k.gltf",
@@ -606,6 +627,66 @@
         "uvScale": [
             5.0,
             5.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.1593632698059082,
+            -0.013200372457504272,
+            42.28797149658203
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            8.0,
+            8.0,
+            8.0
+        ],
+        "UUID": "ee19456a81c31a6f",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": false,
+        "name": "brass_vase_03_2k",
+        "path": "Assets/Models/brass_vase_03_2k.gltf/brass_vase_03_2k.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -0.5147420763969421,
+            0.5928761959075928,
+            45.149078369140625
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.30000001192092896,
+            0.30000001192092896,
+            0.30000001192092896
+        ],
+        "UUID": "e67d23dd2d79e651",
+        "doRender": true,
+        "drawInstanced": false,
+        "isBackFaceCulling": true,
+        "name": "barrel",
+        "path": "Assets/Models/barrel/barrel2.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
         ]
     }
 ]

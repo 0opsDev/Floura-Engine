@@ -31,7 +31,6 @@ out vec3 reflectedVector;
 out vec3 camPositon;
 out vec3 NviewVector;
 
-
 void main()
 {
     crntPos = vec3(model * vec4(aPos, 1.0f));
@@ -40,6 +39,7 @@ void main()
     Tangent0 = normalMatrix * aTangent;
     Bitangent0 = normalMatrix * aBitangent;
 
+    //int iID = gl_InstanceID;
 
     vec3 Norm = normalize(normalMatrix * aNormal);
     Normal = Norm;
