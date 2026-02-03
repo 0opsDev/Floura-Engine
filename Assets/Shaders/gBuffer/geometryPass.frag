@@ -1,8 +1,12 @@
 #version 460 core
 
+#extension GL_ARB_gpu_shader_int64 : enable
+#extension GL_ARB_bindless_texture : require
+
 layout(location = 0) out vec3 gPosition;
-layout(location = 1) out vec3 gNormal;
+layout(location = 1) out vec4 gNormal;
 layout(location = 2) out vec4 gAlbedoSpec;
+layout(location = 4) out vec4 gSpecular;
 
 in vec3 crntPos;
 in vec3 Normal;
@@ -13,9 +17,12 @@ in vec3 Normal0;
 in vec3 Tangent0;
 in vec3 Bitangent0;
 
-uniform sampler2D texture_diffuse0;
-uniform sampler2D texture_roughness0;
-uniform sampler2D texture_normal0;
+
+//uint64_t
+// these need to move to bindless
+uniform uint64_t texture_diffuse_Handle;
+uniform uint64_t texture_roughness_Handle;
+uniform uint64_t texture_normal_Handle;
 //uniform sampler2D noiseMapTexture;
 
 vec3 CalcNewNormal()
@@ -24,7 +31,9 @@ vec3 CalcNewNormal()
 	// texture
 	//vec3 normalTex = texture(texture_normal0, texCoord).xyz;
 
-	vec3 normalTex = normalize(texture(texture_normal0, texCoord).xyz * 2.0f - 1.0f);
+	sampler2D nSamp = sampler2D(texture_normal_Handle);
+
+	vec3 normalTex = normalize(texture(nSamp, texCoord).xyz * 2.0f - 1.0f);
 
 	// transform from 0,1 to -1, 1
 	//normalTex = 2.0 * normalTex - vec3(1.0);
@@ -45,21 +54,27 @@ vec3 CalcNewNormal()
 
 void main()
 {
-    vec4 albedoTex = texture(texture_diffuse0, texCoord);
+
+	sampler2D aSamp = sampler2D(texture_diffuse_Handle);
+	sampler2D nSamp = sampler2D(texture_normal_Handle);
+	sampler2D sSamp = sampler2D(texture_roughness_Handle);
+
+    vec4 albedoTex = texture(aSamp, texCoord);
     // Discard fragment if alpha is too low
     if (albedoTex.a < 0.1) // Adjust threshold if needed
     discard;
 
     gPosition = crntPos; // Output position as-is
-    vec3 gNormalTex = texture(texture_normal0, texCoord).rgb; // Fetch normal from texture
+    float displacement = texture(nSamp, texCoord).a; // Fetch normal from texture
 
-	gNormal = CalcNewNormal();
+	gNormal.rgb = CalcNewNormal();
     
+	gNormal.a = displacement;
 
     // Assign Albedo RGB from texture
     //gAlbedoSpec.rgb = texture(diffuse0, texCoord).rgb * (texture(noiseMapTexture, texCoord) * 5).rgb;
-    gAlbedoSpec.rgb = albedoTex.rgb;
+    gAlbedoSpec = albedoTex;
 
-    // Ensure alpha is correctly fetched
-    gAlbedoSpec.a = texture(texture_roughness0, texCoord).r;
+	//gSpecular.rgb = vec3(1.0f, 0.0f, 0.0f);
+	gSpecular = texture(sSamp, texCoord);
 }

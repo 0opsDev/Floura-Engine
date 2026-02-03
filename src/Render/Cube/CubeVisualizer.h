@@ -22,7 +22,7 @@ public:
 	void skyboxBuffer();
 
 	void draw(glm::vec3 position,
-		glm::vec3 scale, glm::vec3 colour);
+		glm::vec3 scale, glm::vec3 colour, bool hasWireframe);
 };
 
 #endif // CUBEVISUALIZER_CLASS_H

@@ -7,6 +7,9 @@
 #include "utils/logConsole.h"
 #include "Gameplay/Player.h"
 #include <Render/Handler/RenderHandler.h>
+#include <Systems/util/UUID.h>
+#include <Core/File/File.h>
+#include <Systems/util/relationshipManager.h>
 
 static const char* lightTypes[]{ "Spotlight","Pointlight" };
 static int SelectedLight = 0;
@@ -60,6 +63,10 @@ void EcsInspector::InspectorWindow() {
 	}
 	ImGui::End();
 }
+std::string scriptName = "New Script";
+std::string scriptPath = "Assets/Scripts/helloWorld.Lua";
+
+std::string UUIDinput = "";
 
 void EcsInspector::ModelWindow() {
 	glm::vec3 modelPos = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchPosition();
@@ -70,6 +77,9 @@ void EcsInspector::ModelWindow() {
 	ImGui::Text((Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name).c_str());
 	//ID
 	ImGui::Text(("UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->UUIDstring)).c_str());
+	ImGui::SameLine();
+	if (ImGui::Button("copy")) ImGui::SetClipboardText(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->UUIDstring.c_str());
+
 	ImGui::Text(("render UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.renderIDString)).c_str());
 	ImGui::Text(("Instance UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.instanceIDString)).c_str());
 
@@ -131,6 +141,66 @@ void EcsInspector::ModelWindow() {
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	ImGui::Spacing();
+	if (ImGui::TreeNode("Scripting Components")) {
+
+
+		std::vector<char> nameBuffer(scriptName.size() + 256);
+		strncpy(nameBuffer.data(), scriptName.c_str(), nameBuffer.size());
+		nameBuffer[nameBuffer.size() - 1] = '\0';
+		if (ImGui::InputText("Name", nameBuffer.data(), nameBuffer.size()))
+		{
+			scriptName = std::string(nameBuffer.data());
+		}
+
+		std::vector<char> pathBuffer(scriptPath.size() + 256);
+		strncpy(pathBuffer.data(), scriptPath.c_str(), pathBuffer.size());
+		pathBuffer[pathBuffer.size() - 1] = '\0';
+		if (ImGui::InputText("Path", pathBuffer.data(), pathBuffer.size()))
+		{
+			scriptPath = std::string(pathBuffer.data());
+		}
+
+		if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(10, 10))) 
+		{
+			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->addScript(scriptPath, scriptName);
+		}
+
+		for (size_t i = 0; i < Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects.size(); i++)
+		{
+
+			if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10)))
+			{
+				Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->removeScript(i);
+				break;
+			}
+			ImGui::SameLine();
+			// entity::reloadScript
+			
+			if (ImGui::TreeNode((Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects[i]->name + " #" + std::to_string(i)).c_str()))
+			{
+				std::string id = UUID::UUIDToString(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects[i]->UUID);
+				ImGui::Text(("UUID: " + id).c_str());
+				ImGui::Text(("path: " + Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects[i]->path).c_str());
+
+				if (ImGui::Button("reload script"))
+				{
+					Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->reloadScript(i);
+				}
+				if (ImGui::Button("Open in text editor"))
+				{
+					FileClass::currentPath = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects[i]->path;
+					FileClass::loadContents();
+				}
+
+				ImGui::TreePop();
+			}
+
+
+		}
+
+		ImGui::TreePop();
+	}
+	ImGui::Spacing();
 	if (ImGui::TreeNode("Collider Component")) {
 		ImGui::TreePop();// Ends The ImGui Window
 	}
@@ -140,6 +210,39 @@ void EcsInspector::ModelWindow() {
 		ImGui::Checkbox("isBackFaceCulling", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.flags.doCulling);
 
 		ImGui::TreePop();// Ends The ImGui Window
+	}
+	ImGui::Spacing();
+	if (ImGui::TreeNode("Relationship Component")) {
+
+			std::vector<char> idBuffer(UUIDinput.size() + 256);
+			strncpy(idBuffer.data(), UUIDinput.c_str(), idBuffer.size());
+			idBuffer[idBuffer.size() - 1] = '\0';
+			if (ImGui::InputText("Name", idBuffer.data(), idBuffer.size()))
+			{
+				UUIDinput = std::string(idBuffer.data());
+			}
+
+			if (ImGui::Button("Add Parent"))
+			{
+				if (!UUIDinput.empty()) RelationshipManager::addParent(FEImGuiWindow::SelectedObjectIndex, UUID::StringToUUID(UUIDinput));
+			}
+
+			if (ImGui::Button("Remove Parent"))
+			{
+				RelationshipManager::removeParent(FEImGuiWindow::SelectedObjectIndex);
+			}
+			ImGui::Spacing();
+			ImGui::Text(("HasParent: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.hasParent)).c_str());
+			ImGui::Text(("Parent UUID: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.parentUUID)).c_str());
+			ImGui::Spacing();
+			ImGui::Text(("NumChildren: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID.size())).c_str());
+			ImGui::Text("Child UUIDs:");
+			for (size_t i = 0; i < Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID.size(); i++)
+			{
+				ImGui::Text((std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID[i]) + " num: " + std::to_string(i)).c_str());
+			}
+
+		ImGui::TreePop();
 	}
 	ImGui::Spacing();
 	if (ImGui::TreeNode("General Infomation:")) {
@@ -190,6 +293,8 @@ void EcsInspector::BillBoardWindow() {
 
 
 	ImGui::Text(("UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->UUIDstring)).c_str());
+	ImGui::SameLine();
+	if (ImGui::Button("copy")) ImGui::SetClipboardText(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->UUIDstring.c_str());
 
 	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
 	ImGui::SameLine();
@@ -222,7 +327,38 @@ void EcsInspector::BillBoardWindow() {
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
+	ImGui::Spacing();
+	if (ImGui::TreeNode("Relationship Component")) {
+			std::vector<char> idBuffer(UUIDinput.size() + 256);
+			strncpy(idBuffer.data(), UUIDinput.c_str(), idBuffer.size());
+			idBuffer[idBuffer.size() - 1] = '\0';
+			if (ImGui::InputText("Name", idBuffer.data(), idBuffer.size()))
+			{
+				UUIDinput = std::string(idBuffer.data());
+			}
 
+			if (ImGui::Button("Add Parent"))
+			{
+				if (!UUIDinput.empty()) RelationshipManager::addParent(FEImGuiWindow::SelectedObjectIndex, UUID::StringToUUID(UUIDinput));
+			}
+
+			if (ImGui::Button("Remove Parent"))
+			{
+				RelationshipManager::removeParent(FEImGuiWindow::SelectedObjectIndex);
+			}
+			ImGui::Spacing();
+			ImGui::Text(("HasParent: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.hasParent)).c_str());
+			ImGui::Text(("Parent UUID: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.parentUUID)).c_str());
+			ImGui::Spacing();
+			ImGui::Text(("NumChildren: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID.size())).c_str());
+			ImGui::Text("Child UUIDs:");
+			for (size_t i = 0; i < Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID.size(); i++)
+			{
+				ImGui::Text((std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID[i]) + " num: " + std::to_string(i)).c_str());
+			}
+
+		ImGui::TreePop();
+	}
 	ImGui::Spacing();
 
 	ImGui::Checkbox("doPitch", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.BillBoard->doPitch);

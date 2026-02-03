@@ -11,6 +11,7 @@
 
 #include "ImGuiInclude.h"
 #include "Render/Object/Mesh.h"
+#include "xhash"
 //#include <Core/scene.h>
 
 
@@ -58,6 +59,9 @@ public:
 	static Texture wirefameIcon; // Icon for wireframe in ImGui
 	static Texture iIcon; // Icon for Icon in ImGui
 	static Texture SoundIcon; // Icon for Sound in ImGui
+	static Texture stopIcon; // Icon for stop in ImGui
+	static Texture playIcon; // Icon for play in ImGui
+	static Texture pauseIcon; // Icon for pause in ImGui
 
 	static void init();
 
@@ -68,35 +72,38 @@ public:
 
 	static void Update();
 
-	private:
+private:
 
-		static void menuwindow();
+	static void menuwindow();
 
-		static void SystemInfomation();
+	static void SystemInfomation();
 
-		static void RenderWindow();
+	static void RenderWindow();
 
-		static void create();
+	static void create();
 
-		static void PanelsWindow();
+	static void PanelsWindow();
 
-		static void PreformanceProfiler();
+	static void PreformanceProfiler();
 
-		static void TextEditor();
+	static void TextEditor();
 
-		static void viewport();
+	static void viewport();
 
-		static void HierarchyList();
+	static void HierarchyElement(int parentIndex);
 
-		static void addWindow(std::string typeString, bool& isOpen);
+	static void HierarchyList();
 
-		static void MaterialIndexUpdate();
+	static void addWindow(std::string typeString, bool& isOpen);
 
-		static void SceneFolderWindow();
+	static void MaterialIndexUpdate();
 
-		static void ConsoleWindow();
+	static void SceneFolderWindow();
 
-		static void FrameSequencerWindow();
+	static void ConsoleWindow();
+
+	static void FrameSequencerWindow();
+
 };
 
 #endif

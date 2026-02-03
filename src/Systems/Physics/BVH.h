@@ -4,18 +4,13 @@
 #include <xhash>
 #include <vector>
 #include <Scene/scene.h>
+#include <Systems/Physics/Collision.h>
 
 class BVH
 {
 public:
 
 	// move bvh and broadphase type functions here later
-
-	struct minmax
-	{
-		glm::vec3 min;
-		glm::vec3 max;
-	};
 
 	struct AABB
 	{
@@ -51,9 +46,6 @@ public:
 	};
 
 	static tlas nTlas;
-
-	// takes AABB return MinMax
-	static minmax returnMinMax(glm::vec3 p, glm::vec3 s);
 
 	static void uploadSceneRootsToTlas(std::vector <std::unique_ptr<entity>> entityObjects);
 

@@ -70,7 +70,7 @@ void CubeVisualizer::skyboxBuffer() {
 }
 
 void CubeVisualizer::draw(glm::vec3 position,
-	glm::vec3 scale, glm::vec3 colour) {
+	glm::vec3 scale, glm::vec3 colour, bool hasWireframe) {
 
 	if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
 		return; // Skip rendering if not in regular or lighting pass
@@ -81,7 +81,7 @@ void CubeVisualizer::draw(glm::vec3 position,
 		glEnable(GL_DEPTH_TEST);
 		glBindVertexArray(0);
 		glLineWidth(1.0f); // Adjust the width as needed
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
+		if (hasWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
 		//std::cout << "height" << height << std::endl;
 		RenderClass::boxShader.Activate();
 
@@ -98,12 +98,12 @@ void CubeVisualizer::draw(glm::vec3 position,
 
 		glUniform3f(glGetUniformLocation(RenderClass::boxShader.ID, "colour"), colour.x, colour.y, colour.z);
 		glBindVertexArray(cubeVAO);
-		glDepthFunc(GL_ALWAYS);
+		//glDepthFunc(GL_ALWAYS);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glLineWidth(1.0f); // Adjust the width as needed
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
-		glDepthFunc(GL_LESS);
+		if (hasWireframe)  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
+		//glDepthFunc(GL_LESS);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);

@@ -8,6 +8,7 @@
 #include "Systems/util/UUID.h"
 #include "Render/passes/lighting/raytracer.h"
 #include <Render/Handler/RenderHandler.h>
+#include "Systems/util/relationshipManager.h"
 
 void entity::createwUUID(uint64_t nUUID, const char& type, const std::string& name, const std::string& path, const std::string& materialPath)
 {
@@ -35,7 +36,7 @@ void entity::createwUUID(uint64_t nUUID, const char& type, const std::string& na
 		LogConsole::print("Entity Create: Unknown type '" + std::string(1, type) + "' for entity: " + name);
 		break;
 	}
-	//raytracer::RTGlobalTransformFlag = true;
+	raytracer::RTGlobalTransformFlag = true;
 }
 
 
@@ -65,16 +66,61 @@ void entity::create(const char& type, const std::string& name, const std::string
 		LogConsole::print("Entity Create: Unknown type '" + std::string(1, type) + "' for entity: " + name);
 		break;
 	}
-	raytracer::RTGlobalTransformFlag = true;
-}
+	raytracer::RTGlobalTransformFlag = true;}
 
 void entity::LoadMaterial(std::string path)
 {
 	component.systems.material.Material.LoadMaterial(path);
 }
 
+void entity::addScript(std::string path, std::string name)
+{
+	ScriptObject* newScript = new ScriptObject(name);
+	newScript->loadScript(path);
+	ScriptObjects.push_back(newScript);
+	initEntityTables(ScriptObjects.back());
+}
+
+void entity::reloadScript(int index)
+{
+	ScriptObjects[index]->loadScript(ScriptObjects[index]->path);
+}
+
+void entity::removeScript(int index)
+{
+	if (index < ScriptObjects.size()) {
+		delete ScriptObjects[index];
+		ScriptObjects.erase(ScriptObjects.begin() + index);
+	}
+}
+
+void entity::updateScripts()
+{
+	// update function
+	for (size_t i = 0; i < ScriptObjects.size(); i++)
+	{
+		if (Player::playstate == 1)
+		{
+			sendEntityUniformsToScripts(ScriptObjects[i]);
+			ScriptObjects[i]->scriptUpdate();
+			// any other functions go here
+			getEntityUniformsToScripts(ScriptObjects[i]);
+		}
+	}
+}
+
+void entity::initScript(int index)
+{
+	if (Player::playstate == 1)
+	{
+		ScriptObjects[index]->didInit = false;
+	}
+}
+
 void entity::update()
 {
+	
+
 	entity::updateMeshAABBs();
 	if (component.physics.hasRigidbody) // change name to hasdynamics
 	{
@@ -120,6 +166,8 @@ void entity::update()
 	default:
 		break;
 	}
+
+	entity::updateScripts();
 }
 
 void entity::updateLights()
@@ -150,6 +198,30 @@ void entity::Delete()
 		component.render.BillBoard = nullptr;
 		break;
 	}
+
+	for (size_t i = 0; i < ScriptObjects.size(); i++)
+	{
+		removeScript(i);
+	}
+
+	// decouple children
+	int thisIndex = RelationshipManager::indexFromUUIDEntity(entity::UUID);
+	if (thisIndex != -1)
+	{
+		for (size_t i = 0; i < component.relationship.childUUID.size(); i++)
+		{
+
+			int childIndex = RelationshipManager::indexFromUUIDEntity(component.relationship.childUUID[i]);
+			if (childIndex != -1) RelationshipManager::removeParent(childIndex);
+		}
+	// erase paremt i should do too
+		if (component.relationship.hasParent)
+		{
+			RelationshipManager::removeParent(thisIndex);
+		}
+	
+	}
+
 	raytracer::RTGlobalTransformFlag = true;
 }
 
@@ -243,7 +315,7 @@ void entity::draw()
 		{
 			if (Collision::showBoxCollider)
 				RenderClass::WhiteCube->draw(component.collider.rootnodes[i].position,
-					component.collider.rootnodes[i].size, glm::vec3(1.0f));
+					component.collider.rootnodes[i].size, glm::vec3(1.0f), true);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
@@ -316,7 +388,7 @@ void entity::updateCollision()
 						(collisionData.lastHit.y + (Player::cameraColliderScale.y / 2.0f)),
 						collisionData.lastHit.z);
 
-					RenderClass::WhiteCube->draw(collisionData.lastHit, glm::vec3(0.1f), glm::vec3(1.0f, 0.0f, 0.0f));
+					RenderClass::WhiteCube->draw(collisionData.lastHit, glm::vec3(0.1f), glm::vec3(1.0f, 0.0f, 0.0f), true);
 
 					if (collisionData.collisionNormal == glm::vec3(0.0f, 1.0f, 0.0f)) // up or down
 						Player::isColliding = true; // Set collision state
@@ -380,4 +452,31 @@ void entity::createModel(const std::string& path, const std::string& materialPat
 void entity::createBillBoard(const std::string& path)
 {
 	component.render.BillBoard = new BillBoard(path);
+}
+
+void entity::sendEntityUniformsToScripts(ScriptObject* obj)
+{
+	sol::table transform = obj->getOrCreateTable("transform");
+	obj->setUniform("positionX", transform, sol::make_object(obj->luaState, component.systems.transformation.position.x));
+	obj->setUniform("positionY", transform, sol::make_object(obj->luaState, component.systems.transformation.position.y));
+	obj->setUniform("positionZ", transform, sol::make_object(obj->luaState, component.systems.transformation.position.z));
+	obj->setUniform("scaleX", transform, sol::make_object(obj->luaState, component.systems.transformation.scale.x));
+	obj->setUniform("scaleY", transform, sol::make_object(obj->luaState, component.systems.transformation.scale.y));
+	obj->setUniform("scaleZ", transform, sol::make_object(obj->luaState, component.systems.transformation.scale.z));
+	obj->setUniform("rotationX", transform, sol::make_object(obj->luaState, component.systems.transformation.rotation.x));
+	obj->setUniform("rotationY", transform, sol::make_object(obj->luaState, component.systems.transformation.rotation.y));
+	obj->setUniform("rotationZ", transform, sol::make_object(obj->luaState, component.systems.transformation.rotation.z));
+}
+
+void entity::getEntityUniformsToScripts(ScriptObject* obj)
+{
+	sol::table transform = obj->getOrCreateTable("transform");
+	setPosition(glm::vec3(transform["positionX"].get<float>(), transform["positionY"].get<float>(), transform["positionZ"].get<float>()));
+	setScale(glm::vec3(transform["scaleX"].get<float>(), transform["scaleY"].get<float>(), transform["scaleZ"].get<float>()));
+	setRotation(glm::vec3(transform["rotationX"].get<float>(), transform["rotationY"].get<float>(), transform["rotationZ"].get<float>()));
+}
+
+void entity::initEntityTables(ScriptObject* obj)
+{
+	obj->createTable("transform");
 }

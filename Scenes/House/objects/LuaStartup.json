@@ -1,8 +1,0 @@
-[
-    {
-        "name": "Main",
-        "Path": "Main/Main.Lua",
-        "init": [ "init" ],
-        "loop": [ "update", "UpdateDelta" ]
-    }
-]

@@ -481,6 +481,8 @@ void raytracer::render() {
 		testCompute.setBool("doAccumulate", doAccumulate);
 	}
 	testCompute.Activate();
+	testCompute.setFloat3("sceneBoundPos", Scene::SceneBounds.position);
+	testCompute.setFloat3("sceneBoundScale", Scene::SceneBounds.size);
 
 	LightingHandler::update(testCompute);
 
@@ -491,11 +493,9 @@ void raytracer::render() {
 	RenderClass::bluenoise->Bind();
 	testCompute.setInt("BlueNoiseTex", 6);
 
-	Skybox::bind(7);
-	Skybox::cubemapToShader(testCompute, 7);
+	Skybox::SkyboxCubemap->cubemapToUUIDShader("skyboxHandle", testCompute);
 	testCompute.ActivateCompute((CurrentWidth + 7) / 8, (CurrentHeight + 3) / 4, 1);
 	RenderClass::bluenoise->Unbind();
-	Skybox::unbind();
 
 	denoiser::render();
 }

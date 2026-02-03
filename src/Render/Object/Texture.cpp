@@ -5,7 +5,7 @@
 void Texture::createColour(glm::vec4 colour, const char* texType, GLuint slot)
 {
     path = "null";
-    LogConsole::print("Texture loading started");
+    //LogConsole::print("Texture loading started");
     // Assigns the type of the texture to the texture object
     type = texType;
     //std::cout << type << " U " << slot << std::endl;
@@ -52,14 +52,14 @@ void Texture::createColour(glm::vec4 colour, const char* texType, GLuint slot)
 
     // Unbinds the OpenGL Texture object so that it can't accidentally be modified
     glBindTexture(GL_TEXTURE_2D, 0);
-    LogConsole::print("Texture loading finished");
+    //LogConsole::print("Texture loading finished");
 
 }
 
 void Texture::createTexture(const char* image, const char* texType, GLuint slot)
 {
     path = image;
-    LogConsole::print("Texture loading started");
+    //LogConsole::print("Texture loading started");
     // Assigns the type of the texture to the texture object
     type = texType;
     //std::cout << type << " U " << slot << std::endl;
@@ -145,7 +145,7 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
 
     // Unbinds the OpenGL Texture object so that it can't accidentally be modified
     glBindTexture(GL_TEXTURE_2D, 0);
-    LogConsole::print("Texture loading finished");
+    //LogConsole::print("Texture loading finished");
 }
 
 void Texture::reload(GLuint slot)

@@ -9,6 +9,7 @@
 #include "Render/Buffer/EBO.h"
 #include "Render/Object/Texture.h"
 #include <xhash>
+#include <camera/Camera.h>
 
 class Mesh {
 public:
@@ -21,9 +22,9 @@ public:
 
     void create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures);
     void createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
-    void draw(Shader &shader);
+    void draw(Shader &shader, Camera Camera);
 
-    void drawInstanced(Shader& shader, int instanceCount);
+    void drawInstanced(Shader& shader, Camera Camera, int instanceCount);
 
     void Delete();
 

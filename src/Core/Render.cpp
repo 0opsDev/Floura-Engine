@@ -27,6 +27,7 @@ glm::vec3 RenderClass::fogRGBA = glm::vec3( 1.0f, 1.0f, 1.0f);
 CubeVisualizer* RenderClass::WhiteCube;
 Line3D* RenderClass::line;
 Texture* RenderClass::bluenoise;
+Texture* RenderClass::bayermatrix;
 
 Shader SolidColour;
 RenderQuad lightingRenderQuad;
@@ -97,6 +98,7 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 
 	// load bluenoise texture
 	bluenoise = new Texture(); bluenoise->createTexture("Assets/Dependants/LDR_LLL1_0.png", "misc", 6);
+	bayermatrix = new Texture(); bayermatrix->createTexture("Assets/Dependants/bayer_matrix.png", "misc", 7);
 
 	raytracer::initcomputeShader(width, height); // Initialize compute shader for lighting pass
 	denoiser::initcomputeShader(width, height);
@@ -164,6 +166,11 @@ void RenderClass::initGlobalShaders() {
 
 
 	Framebuffer::frameBufferProgram.LoadShader("Assets/Shaders/PostProcess/framebuffer.vert", "Assets/Shaders/PostProcess/framebuffer.frag");
+
+	Framebuffer::smInit(glm::vec2(128));
+
+	RenderHandler::init();
+
 }
 
 void RenderClass::ClearFramebuffers() {
@@ -202,7 +209,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	}
 
 	if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox) // should add skybox.scene
-		Skybox::draw();
+		Skybox::draw(Scene::maincamera);
 
 	Scene::shadowmapDraw();
 	Scene::draw();

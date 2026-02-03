@@ -30,6 +30,7 @@ public:
 	static CubeVisualizer* WhiteCube;
 	static Line3D* line;
 	static Texture* bluenoise;
+	static Texture* bayermatrix;
 
 	struct transformation {
 		glm::vec3 position = glm::vec3(0.0f);

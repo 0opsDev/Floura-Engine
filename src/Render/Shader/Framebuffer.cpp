@@ -21,6 +21,11 @@ unsigned int Framebuffer::FFBO;
 unsigned int Framebuffer::FRBO;
 unsigned int Framebuffer::Ftexture;
 
+unsigned int Framebuffer::cmFBO;
+unsigned int Framebuffer::cmRBO;
+unsigned int Framebuffer::cmtexture;
+
+
 RenderQuad Framebuffer::rq;
 
 float s_ViewportVerticies[24] = {
@@ -33,6 +38,55 @@ float s_ViewportVerticies[24] = {
 	 1.0f, -1.0f,  1.0f, 0.0f,
 	-1.0f,  1.0f,  0.0f, 1.0f
 };
+
+
+void Framebuffer::smInit(glm::vec2 res)
+{
+	// GEN FBO
+	glGenFramebuffers(1, &Framebuffer::cmFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::cmFBO);
+	// GEN TEX and bind tex to fbo
+	glGenTextures(1, &Framebuffer::cmtexture);
+	glBindTexture(GL_TEXTURE_2D, Framebuffer::cmtexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, res.x, res.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, Framebuffer::cmtexture, 0);
+
+	glGenRenderbuffers(1, &Framebuffer::cmRBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, Framebuffer::cmRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, res.x, res.y);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, Framebuffer::cmRBO);
+
+
+	// Error checking
+	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "Framebuffer error: " << fboStatus << std::endl;
+	}
+}
+
+void Framebuffer::smUpdateResolution(glm::vec2 res)
+{
+	glBindTexture(GL_TEXTURE_2D, Framebuffer::cmtexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, res.x, res.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	// update renderbuffer texture
+	glBindRenderbuffer(GL_RENDERBUFFER, Framebuffer::cmRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, res.x, res.y);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+}
+
+
+void Framebuffer::clearsmbuffer()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::cmFBO);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 
 void Framebuffer::setupFBO(unsigned int width, unsigned int height) {
 	// Initialize viewport rectangle object drawn to viewport with framebuffer texture attached
@@ -179,6 +233,10 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
 	frameBufferProgram.setInt("depthMap", 6);
+
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gSpecular);
+	frameBufferProgram.setInt("gSpecular", 7);
 
 	if (!imGuiPanels) {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

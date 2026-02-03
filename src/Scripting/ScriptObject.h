@@ -1,25 +1,44 @@
 #ifndef SCRIPT_OBJECT_H
 #define SCRIPT_OBJECT_H
+
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
+#include<string>;
+#include <xhash>
 #pragma comment(lib, "lua54.lib")
 
 class ScriptObject
 {
 public:
+	uint64_t UUID;
+	std::string name = "NULL";
+	std::string path = "NULL";
 	sol::state luaState;
 
-	float TimeAccumulator;
+	bool didInit = false;
 
-	float tickrate = 30;
+	ScriptObject(std::string name);
 
-	void LoadLua(sol::state& LuaState, std::string Path);
+	void loadScript(std::string path);
 
-	void UpdateDelta();
+	void scriptUpdate();
 
-	void runFunction(const std::string& name);
+	void scriptInit();
 
-	void luaFunctions(); // object ID or Index
+	void createTable(const char* tableName);
+
+	sol::table ScriptObject::getOrCreateTable(const char* tableName) {
+		return luaState[tableName].get_or_create<sol::table>();
+	}
+
+	void setUniform(const char* uniform, sol::table table, sol::object value);
+
+	sol::object getUniform(const char* uniform, sol::table table);
+
+	private:
+		sol::table timeTable;
+		void initEngineSpecificTables();
+		void updateEngineSpecficTables();
 };
 
 #endif // SCRIPT_OBJECT_H

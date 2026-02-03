@@ -1,5 +1,4 @@
 #include "ImGuiWindow.h"
-#include <Scripting/ScriptRunner.h>
 #include <Core/File/File.h>
 #include <Sound/SoundRunner.h>
 #include <Render/passes/lighting/raytracer.h>
@@ -15,6 +14,7 @@
 #include <utils/FE_math.h>
 #include "ImGuiInclude/EcsInspector.h"
 #include "Render/passes/post/denoise.h"
+#include <Systems/util/relationshipManager.h>
 //#include <Instance.h>
 
 
@@ -58,6 +58,9 @@ Texture FEImGuiWindow::rotateIcon; // Icon for rotate in ImGui
 Texture FEImGuiWindow::wirefameIcon; // Icon for wireframe in ImGui
 Texture FEImGuiWindow::iIcon; // Icon for Icon in ImGui
 Texture FEImGuiWindow::SoundIcon; // Icon for Sound in ImGui
+Texture FEImGuiWindow::stopIcon; // Icon for stop in ImGui
+Texture FEImGuiWindow::playIcon; // Icon for play in ImGui
+Texture FEImGuiWindow::pauseIcon; // Icon for pause in ImGui
 // collideicon.png
 
 // Temporary buffer for path editing
@@ -86,6 +89,9 @@ void FEImGuiWindow::init() {
 	wirefameIcon.createTexture("Assets/Icons/wireframeIcon.png", "UI", 0);
 	iIcon.createTexture("Assets/Icons/iIcon.png", "UI", 0);
 	SoundIcon.createTexture("assets/Icons/soundIcon.png", "UI", 0);
+	stopIcon.createTexture("assets/Icons/stop.png", "UI", 0);
+	playIcon.createTexture("assets/Icons/play.png", "UI", 0);
+	pauseIcon.createTexture("assets/Icons/pause.png", "UI", 0);
 }
 
 void FEImGuiWindow::initImGui(GLFWwindow* window) {
@@ -424,8 +430,8 @@ void FEImGuiWindow::menuwindow()
 			}
 
 			ImGui::MenuItem("Save Scene As");
-			if (ImGui::MenuItem("Save Scene")) Scene::SaveScene(Scene::sceneName);
-			if (ImGui::MenuItem("Reload Scene")) Scene::LoadScene(Scene::sceneName);
+			if (ImGui::MenuItem("Save Scene")) Scene::saveScene(Scene::sceneName);
+			if (ImGui::MenuItem("Reload Scene")) Scene::loadScene(Scene::sceneName);
 
 			ImGui::EndMenu();
 		}
@@ -434,6 +440,7 @@ void FEImGuiWindow::menuwindow()
 		{
 			ImGui::Checkbox("Wireframe", &FEImGuiWindow::isWireframe);
 			ImGui::Checkbox("showBoxCollider", &Collision::showBoxCollider);
+			ImGui::Checkbox("viewProbes", &ProbeHandler::viewProbes);
 			ImGui::Checkbox("showViewportIcons", &FEImGuiWindow::showViewportIcons);
 
 			ImGui::EndMenu();
@@ -443,9 +450,9 @@ void FEImGuiWindow::menuwindow()
 		{
 			if (ImGui::MenuItem("Reload Shaders?")) RenderClass::initGlobalShaders();
 			ImGui::Text("Scripts:");
-			if (ImGui::SmallButton("Stop")) { ScriptRunner::clearScripts(); } // save settings button
-			if (ImGui::SmallButton("Start")) { ScriptRunner::init(Scene::sceneName + "/LuaStartup.json"); } // save settings button
-			if (ImGui::SmallButton("Restart")) { ScriptRunner::clearScripts(); ScriptRunner::init(Scene::sceneName + "/LuaStartup.json"); } // save settings button
+			//if (ImGui::SmallButton("Stop")) { ScriptRunner::clearScripts(); } // save settings button
+			//if (ImGui::SmallButton("Start")) { ScriptRunner::init(Scene::sceneName + "/LuaStartup.json"); } // save settings button
+			//if (ImGui::SmallButton("Restart")) { ScriptRunner::clearScripts(); ScriptRunner::init(Scene::sceneName + "/LuaStartup.json"); } // save settings button
 			ImGui::Spacing();
 			ImGui::Text("Volume");
 			ImGui::SliderFloat("Global Volume", &SoundRunner::GlobalVolume, 0, 1);
@@ -470,10 +477,10 @@ void FEImGuiWindow::menuwindow()
 		}
 		ImGui::SameLine(ImGui::GetWindowWidth() - 100.0f);
 		if (ImGui::ImageButton("##SaveIcon", (ImTextureID)FEImGuiWindow::SaveIcon.ID, ImVec2(10, 10))) {
-			Scene::SaveScene(Scene::sceneName);
+			Scene::saveScene(Scene::sceneName);
 		}
 		if (ImGui::ImageButton("##arrowIcon", (ImTextureID)FEImGuiWindow::arrowIcon.ID, ImVec2(10, 10))) {
-			Scene::LoadScene(Scene::sceneName);
+			Scene::loadScene(Scene::sceneName);
 		}
 		if (ImGui::ImageButton("##crossIcon", (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
 			Scene::Delete();
@@ -489,7 +496,7 @@ void FEImGuiWindow::menuwindow()
 			std::replace(filePath.begin(), filePath.end(), '\\', '/');
 			Scene::sceneName = filePath;
 			std::cout << filePath << std::endl;
-			Scene::LoadScene(filePath);
+			Scene::loadScene(filePath);
 		}
 		ImGuiFileDialog::Instance()->Close();
 	}
@@ -512,6 +519,9 @@ void FEImGuiWindow::SystemInfomation() {
 	}
 
 }
+// SceneToProbeSpace aabbsSceneToProbeSpace  aabbsToProbeSpace
+
+static const char* probeItems[]{ "SceneToProbeSpace","aabbsSceneToProbeSpace", "aabbsToProbeSpace"};
 
 void FEImGuiWindow::RenderWindow() {
 	ImGui::Begin("Rendering"); // ImGUI window creation
@@ -524,7 +534,9 @@ void FEImGuiWindow::RenderWindow() {
 	}
 	if (ImGui::SmallButton("Reload Global Shaders")) RenderClass::initGlobalShaders();
 
-	ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
+	if (ImGui::TreeNode("window")) {
+
+		ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
 		ImGui::Text("Framerate Limiters");
 		ImGui::Checkbox("Vsync", &windowHandler::doVsync); // Set the value of doVsync (bool)
 		// Screen
@@ -541,36 +553,59 @@ void FEImGuiWindow::RenderWindow() {
 		{
 			ScreenUtils::toggleFullscreen(windowHandler::window, windowHandler::width, windowHandler::height); //needs to be fixed //GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight
 		} //Toggle Fullscreen
-		ImGui::Text("denoiser");
-		ImGui::Checkbox("Do Denoise", &denoiser::doDenoise);
-		ImGui::DragInt("minRadius", &denoiser::minRadius);
-		ImGui::Text("raytracer");
-		ImGui::Checkbox("DoRaytracedPass", &RenderClass::DoComputeLightingPass);
-		ImGui::DragFloat("downscaleFactor", &raytracer::downscaleFactor);
-		ImGui::Checkbox("doAccumulate", &raytracer::doAccumulate);
-		ImGui::DragInt("Max Accumulated Frames", &raytracer::maxAccumulatedFrames);
-		ImGui::Checkbox("reset Accumulation On Dirty", &raytracer::resetAccumulationOnDirty);
-		ImGui::Text("primary hit");
-		ImGui::DragFloat("Noise Threshold", &raytracer::noiseThreshold);
-		ImGui::DragFloat("Max Distance", &raytracer::maxDistance);
-		ImGui::Text("Reflections");
-		ImGui::DragFloat("Reflection Distance", &raytracer::reflectionDistance);
-		ImGui::DragInt("Reflection Bounces", &raytracer::reflectionBounces);
-		ImGui::Text("Indirect");
-		ImGui::DragInt("Indirect Samples", &raytracer::indirectSamples);
-		ImGui::DragInt("Indirect Bounces", &raytracer::indirectBounces);
 
-		if (ImGui::SmallButton("Clear Accumulation")) {
-			raytracer::RTGlobalTransformFlag = true;
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+
+		if (ImGui::TreeNode("probes")) {
+
+			ImGui::Checkbox("ViewProbes", &ProbeHandler::viewProbes);
+			ImGui::DragInt("indirectSamples", &ProbeHandler::indirectSamples);
+			ImGui::DragInt("scene Prove Area", &ProbeHandler::sceneProveArea);
+			if (ImGui::Combo("ObjectType", &ProbeHandler::probeCalculationMethod, probeItems, IM_ARRAYSIZE(probeItems))) { ProbeHandler::dirtyScene = true;}
+
+			if (ImGui::SmallButton("Recalculate Probes")) {
+				ProbeHandler::dirtyScene = true;
+			}
+
+			ImGui::TreePop();// Ends The ImGui Window
 		}
-		if (ImGui::SmallButton("Reload Raytracer Shader")) {
-			raytracer::reloadSceneToRaytracer();
-		}
-		if (ImGui::SmallButton("Upload Scene To Raytracer")) {
-			raytracer::uploadSceneToRaytracer();
-		}
-		if (ImGui::SmallButton("Clear Raytraced Data")) {
-			raytracer::clearRaytracerData();
+		
+		if (ImGui::TreeNode("Raytracer")) {
+
+			ImGui::Text("denoiser");
+			ImGui::Checkbox("Do Denoise", &denoiser::doDenoise);
+			ImGui::DragInt("minRadius", &denoiser::minRadius);
+			ImGui::Text("raytracer");
+			ImGui::Checkbox("DoRaytracedPass", &RenderClass::DoComputeLightingPass);
+			ImGui::DragFloat("downscaleFactor", &raytracer::downscaleFactor);
+			ImGui::Checkbox("doAccumulate", &raytracer::doAccumulate);
+			ImGui::DragInt("Max Accumulated Frames", &raytracer::maxAccumulatedFrames);
+			ImGui::Checkbox("reset Accumulation On Dirty", &raytracer::resetAccumulationOnDirty);
+			ImGui::Text("primary hit");
+			ImGui::DragFloat("Noise Threshold", &raytracer::noiseThreshold);
+			ImGui::DragFloat("Max Distance", &raytracer::maxDistance);
+			ImGui::Text("Reflections");
+			ImGui::DragFloat("Reflection Distance", &raytracer::reflectionDistance);
+			ImGui::DragInt("Reflection Bounces", &raytracer::reflectionBounces);
+			ImGui::Text("Indirect");
+			ImGui::DragInt("Indirect Samples", &raytracer::indirectSamples);
+			ImGui::DragInt("Indirect Bounces", &raytracer::indirectBounces);
+
+			if (ImGui::SmallButton("Clear Accumulation")) {
+				raytracer::RTGlobalTransformFlag = true;
+			}
+			if (ImGui::SmallButton("Reload Raytracer Shader")) {
+				raytracer::reloadSceneToRaytracer();
+			}
+			if (ImGui::SmallButton("Upload Scene To Raytracer")) {
+				raytracer::uploadSceneToRaytracer();
+			}
+			if (ImGui::SmallButton("Clear Raytraced Data")) {
+				raytracer::clearRaytracerData();
+			}
+
+			ImGui::TreePop();// Ends The ImGui Window
 		}
 
 		ImGui::End();
@@ -744,6 +779,17 @@ void FEImGuiWindow::viewport() {
 	}
 	ImGui::EndGroup();
 
+	// stopIcon
+
+	if (Player::playstate != 0) ImGui::SameLine((ImGui::GetWindowWidth() * 0.5) - 40);
+	else ImGui::SameLine((ImGui::GetWindowWidth() * 0.5) - 20);
+
+	ImGui::BeginGroup();
+	if (Player::playstate != 0) { if (ImGui::ImageButton("##stopIcon", (ImTextureID)FEImGuiWindow::stopIcon.ID, ImVec2(20, 20))) { Player::stopState(); } ImGui::SameLine(); }
+	if (Player::playstate != 1) { if (ImGui::ImageButton("##playIcon", (ImTextureID)FEImGuiWindow::playIcon.ID, ImVec2(20, 20))) { Player::playState(); } }
+	if (Player::playstate == 1) { if (ImGui::ImageButton("##pauseIcon", (ImTextureID)FEImGuiWindow::pauseIcon.ID, ImVec2(20, 20))) { Player::pauseState(); } }
+	ImGui::EndGroup();
+
 	ImGui::SameLine(ImGui::GetWindowWidth() - (60.0f)); // ImGui::GetWindowWidth() - 
 	if (ImGui::ImageButton("##wireframeIcon", (ImTextureID)FEImGuiWindow::wirefameIcon.ID, ImVec2(30, 30))) {
 		FEImGuiWindow::isWireframe = !FEImGuiWindow::isWireframe;
@@ -767,6 +813,110 @@ void FEImGuiWindow::viewport() {
 	ImGui::End();
 }
 
+float icon_size = 30.0f;
+
+float header_height = 30.0f;
+
+void FEImGuiWindow::HierarchyElement(int parentIndex)
+{
+	if (Scene::entityObjects[parentIndex]->fetchType() == 'm') // check if model entity
+	{
+		ImGui::BeginGroup();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+		ImGui::ImageButton(
+			("##openButton" + std::to_string(parentIndex)).c_str(),
+			(ImTextureID)(intptr_t)FEImGuiWindow::ModelIcon.ID,
+			ImVec2(icon_size, icon_size)
+		);
+		if (ImGui::IsItemClicked()) {
+			FEImGuiWindow::SelectedObjectType = "Model";
+			FEImGuiWindow::SelectedObjectIndex = static_cast<int>(parentIndex);
+		}
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		//if ()
+		// here as a alternative drop down 
+		if (!Scene::entityObjects[parentIndex]->component.relationship.childUUID.size() > 0)
+		{
+			if (ImGui::MenuItem((Scene::entityObjects[parentIndex]->name + "##" + std::to_string(parentIndex)).c_str())) {
+				FEImGuiWindow::SelectedObjectType = "Model";
+				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(parentIndex);
+			}
+		}
+		else
+		{
+			if (ImGui::TreeNode((Scene::entityObjects[parentIndex]->name + "##DD" + std::to_string(parentIndex)).c_str())) {
+
+				for (size_t i = 0; i < Scene::entityObjects[parentIndex]->component.relationship.childUUID.size(); i++)
+				{
+					int entityIndex = RelationshipManager::indexFromUUIDEntity(Scene::entityObjects[parentIndex]->component.relationship.childUUID[i]);
+					HierarchyElement(entityIndex);
+				}
+
+				ImGui::TreePop();
+			}
+		}
+		//ImGui::SameLine();
+		//if (ImGui::TreeNode((Scene::entityObjects[i]->name + "##DD" + std::to_string(i)).c_str())) {
+		//	ImGui::TreePop();
+		//}
+
+		ImGui::EndGroup();
+		//ImGui::SetNextItemOpen(open_state);
+		//if (ImGui::TreeNode(("expand##" + std::to_string(i)).c_str()))
+		//{
+		//	ImGui::Text("Node contents...");
+		//	ImGui::TreePop();
+		//}
+	}
+	// billboard
+	else if (Scene::entityObjects[parentIndex]->fetchType() == 'b') // check if billboard entity
+	{
+		ImGui::BeginGroup();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+		ImGui::ImageButton(
+			("##openButton" + std::to_string(parentIndex)).c_str(),
+			(ImTextureID)(intptr_t)FEImGuiWindow::BillBoardIcon.ID,
+			ImVec2(icon_size, icon_size)
+		);
+		if (ImGui::IsItemClicked()) {
+			FEImGuiWindow::SelectedObjectType = "Billboard";
+			FEImGuiWindow::SelectedObjectIndex = static_cast<int>(parentIndex);
+		}
+		ImGui::PopStyleColor(3);
+
+
+		ImGui::SameLine();
+		if (!Scene::entityObjects[parentIndex]->component.relationship.childUUID.size() > 0)
+		{
+			if (ImGui::MenuItem((Scene::entityObjects[parentIndex]->name + "##" + std::to_string(parentIndex)).c_str())) {
+				FEImGuiWindow::SelectedObjectType = "Billboard";
+				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(parentIndex);
+			}
+		}
+		else
+		{
+			if (ImGui::TreeNode((Scene::entityObjects[parentIndex]->name + "##DD" + std::to_string(parentIndex)).c_str())) {
+				for (size_t i = 0; i < Scene::entityObjects[parentIndex]->component.relationship.childUUID.size(); i++)
+				{
+					int entityIndex = RelationshipManager::indexFromUUIDEntity(Scene::entityObjects[parentIndex]->component.relationship.childUUID[i]);
+					HierarchyElement(entityIndex);
+				}
+				ImGui::TreePop();
+			}
+		}
+
+		ImGui::EndGroup();
+	}
+}
+
 bool addWindowBool = false;
 
 void FEImGuiWindow::create() {
@@ -784,10 +934,6 @@ static bool open_state = false;
 
 void FEImGuiWindow::HierarchyList() { // have size of icons increase with window size 
 	ImGui::Begin("Scene hierarchy"); // ImGUI window creation
-
-	float icon_size = 30.0f;
-
-	float header_height = 30.0f;
 	ImGui::BeginChild("AddBar", ImVec2(0, header_height), false, ImGuiWindowFlags_NoScrollbar);
 
 	FEImGuiWindow::create();
@@ -843,70 +989,12 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 		FEImGuiWindow::SelectedObjectIndex = 0;
 	}
 	ImGui::NewLine();
+
 	ImGui::Text("Objects:");
 
 	for (size_t i = 0; i < Scene::entityObjects.size(); i++)
 	{
-		// model
-		if (Scene::entityObjects[i]->fetchType() == 'm') // check if model entity
-		{
-			ImGui::BeginGroup();
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
-			ImGui::ImageButton(
-				("##openButton" + std::to_string(i)).c_str(),
-				(ImTextureID)(intptr_t)FEImGuiWindow::ModelIcon.ID,
-				ImVec2(icon_size, icon_size)
-			);
-			if (ImGui::IsItemClicked()) {
-				FEImGuiWindow::SelectedObjectType = "Model";
-				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
-			}
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			if (ImGui::MenuItem((Scene::entityObjects[i]->name + "##" + std::to_string(i)).c_str())) {
-				FEImGuiWindow::SelectedObjectType = "Model";
-				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
-			}
-			ImGui::EndGroup();
-			//ImGui::SetNextItemOpen(open_state);
-			//if (ImGui::TreeNode(("expand##" + std::to_string(i)).c_str()))
-			//{
-			//	ImGui::Text("Node contents...");
-			//	ImGui::TreePop();
-			//}
-		}
-		// billboard
-		else if (Scene::entityObjects[i]->fetchType() == 'b') // check if billboard entity
-		{
-			ImGui::BeginGroup();
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
-			ImGui::ImageButton(
-				("##openButton" + std::to_string(i)).c_str(),
-				(ImTextureID)(intptr_t)FEImGuiWindow::BillBoardIcon.ID,
-				ImVec2(icon_size, icon_size)
-			);
-			if (ImGui::IsItemClicked()) {
-				FEImGuiWindow::SelectedObjectType = "Billboard";
-				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
-			}
-			ImGui::PopStyleColor(3);
-
-
-			ImGui::SameLine();
-			if (ImGui::MenuItem((Scene::entityObjects[i]->name + "##" + std::to_string(i)).c_str())) {
-				FEImGuiWindow::SelectedObjectType = "Billboard";
-				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
-			}
-			ImGui::EndGroup();
-		}
-
+		if (!Scene::entityObjects[i]->component.relationship.hasParent) HierarchyElement(i);
 	}
 		for (size_t i = 0; i < Scene::SoundObjects.size(); i++) {
 			ImGui::BeginGroup();

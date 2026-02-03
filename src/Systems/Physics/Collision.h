@@ -15,6 +15,12 @@ class Collision
 {
 public:
 
+	struct minmax
+	{
+		glm::vec3 min;
+		glm::vec3 max;
+	};
+
 	struct HitResult {
 		bool isColliding = false;
 		float distance = 0.0f;
@@ -70,12 +76,16 @@ public:
 
 	static rubiksCubePoints fetchFurthestPoints(const std::vector<glm::vec3>& points);
 	static rubiksCubePoints fetchFurthestVertices(const std::vector<Vertex>& vertices);
+	static rubiksCubePoints aabbToRubixCubePoints(const glm::vec3 p, glm::vec3 s);
 
 	static AABB createAABBfromRubiksCubePoints(const rubiksCubePoints& points);
 	static AABB createAABBfromVertices(const std::vector<Vertex>& vertices);
 	static AABB createAABBfromPoints(const std::vector<glm::vec3>& points);
 
 	static rubiksCubePoints transformRubiks(const rubiksCubePoints& points, glm::mat4 matrix);
+
+	// takes AABB return MinMax
+	static Collision::minmax returnMinMax(glm::vec3 p, glm::vec3 s);
 
 	// AABB collision detection
 	// AABB vs AABB
@@ -107,6 +117,9 @@ public:
 	static HitResult TrianglevsTriangle(
 		const glm::vec3& v0A, const glm::vec3& v1A, const glm::vec3& v2A,
 		const glm::vec3& v0B, const glm::vec3& v1B, const glm::vec3& v2B);
+
+	static HitResult TraingleVSAABB(const glm::vec3& v0A, const glm::vec3& v1A, const glm::vec3& v2A,
+		const glm::vec3& posA, const glm::vec3& sizeA);
 
 private:
 

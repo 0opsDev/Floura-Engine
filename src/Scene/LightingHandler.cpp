@@ -89,7 +89,14 @@ void LightingHandler::drawShadowMap(Model*& model) {
 
 	//glCullFace(GL_FRONT);
 	//model->setCurrentCullCam(LightingHandler::lightProjection); // set culling for shadow map
-	model->draw(LightingHandler::dirShadowMapProgram);
+
+	RenderClass::bluenoise->Bind();
+	LightingHandler::dirShadowMapProgram.setInt("BlueNoiseTex", 6);
+
+	LightingHandler::dirShadowMapProgram.setHandleui64ARB("bayerMatrixHandle", RenderClass::bayermatrix->handle);
+
+	model->draw(LightingHandler::dirShadowMapProgram, Scene::maincamera);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	//glCullFace(GL_BACK);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -7,6 +7,7 @@ unsigned int GeometryPass::depthTexture;
 unsigned int GeometryPass::gBuffer;
 unsigned int GeometryPass::gAlbedoSpec;
 unsigned int GeometryPass::gNormal;
+unsigned int GeometryPass::gSpecular;
 unsigned int GeometryPass::gPosition;
 unsigned int GeometryPass::DBO;
 unsigned int GeometryPass::gNoise;
@@ -56,8 +57,16 @@ void GeometryPass::setupGbuffers(unsigned int width, unsigned int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
 
-	unsigned int attachments[4] = { GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
-	glDrawBuffers(4, attachments);
+	glGenTextures(1, &gSpecular);
+	glBindTexture(GL_TEXTURE_2D, gSpecular);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, gSpecular, 0);
+
+
+	unsigned int attachments[5] = { GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5};
+	glDrawBuffers(5, attachments);
 
 	// finally check if framebuffer is complete
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -88,13 +97,18 @@ void GeometryPass::updateGbufferResolution(unsigned int width, unsigned int heig
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	// gSpecular
+	glBindTexture(GL_TEXTURE_2D, gSpecular);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	// DBO
 	glBindRenderbuffer(GL_RENDERBUFFER, DBO);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-void GeometryPass::gPassDraw(Model*& model, Shader& GPass) {
+void GeometryPass::gPassDraw(Model*& model, Shader& GPass, Camera camera) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	GPass.Activate();
 	GPass.setFloat("gamma", Scene::maincamera.gamma);
@@ -104,7 +118,7 @@ void GeometryPass::gPassDraw(Model*& model, Shader& GPass) {
 
 	Scene::maincamera.Matrix(GPass, "camMatrix"); // Send Camera Matrix To Shader Prog
 
-	model->draw(GPass);
+	model->draw(GPass, camera);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer

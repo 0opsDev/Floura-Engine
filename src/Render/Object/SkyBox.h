@@ -20,18 +20,13 @@ public:
 
 	static void LoadSkyBoxTexture(std::string PathName);
 
-	static void draw();
+	static void draw(Camera& camera);
 
 	static Cubemap* SkyboxCubemap;
-
-	static void bind(int unit);
-
-	static void cubemapToShader(Shader& shader, int unit);
 
 	static void unbind();
 
 	static void Delete();
-
 
 	static void cleanup();
 

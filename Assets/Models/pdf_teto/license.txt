@@ -1,0 +1,11 @@
+Model Information:
+* title:	PDF Teto
+* source:	https://sketchfab.com/3d-models/pdf-teto-e91b13bff72e42fca88179ba7eac5743
+* author:	雨宮レン (https://sketchfab.com/oscar3dmodel)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "PDF Teto" (https://sketchfab.com/3d-models/pdf-teto-e91b13bff72e42fca88179ba7eac5743) by 雨宮レン (https://sketchfab.com/oscar3dmodel) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

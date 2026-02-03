@@ -25,6 +25,33 @@ void Player::init() {
 	FootSound.CreateSound("Assets/Sounds/Footsteps.wav", "FootSound");
 	FootSound.Set3D(true);
 }
+
+
+int Player::playstate = 0;
+
+void Player::stopState()
+{
+	if (playstate == 0) return;
+	Player::playstate = 0;
+	Scene::reloadScene("Cache/Scene/Current");
+	Scene::resetAllScripts();
+}
+
+void Player::playState()
+{
+	if (playstate == 1) return;
+	
+	if (playstate == 0) Scene::maincamera.Position = Scene::initalCameraPos;
+	Scene::saveSceneStateless("Cache/Scene/Current");
+	Player::playstate = 1;
+}
+
+void Player::pauseState()
+{
+	if (playstate == 2) return;
+	Player::playstate = 2;
+}
+
 void Player::update() {
 
 	glm::vec3 colnorm = glm::vec3(0.0f);

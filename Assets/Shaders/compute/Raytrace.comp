@@ -108,7 +108,7 @@ uniform vec3 skycolour;
 uniform bool doAccumulate;
 uniform int MaxAccumulatedFrames;
 uniform sampler2D BlueNoiseTex;
-uniform samplerCube skybox; 
+//uniform samplerCube skybox; 
 uniform int frameCount;
 
 uniform vec3 directLightPos;
@@ -118,6 +118,10 @@ uniform bool doDirLight;
 uniform int indirectBounces;
 uniform int indirectSamples;
 
+uniform vec3 sceneBoundPos;
+uniform vec3 sceneBoundScale;
+
+uniform uint64_t skyboxHandle;
 
 //vec3 skycolour = vec3(0.0f);
 
@@ -346,7 +350,12 @@ hitResult BreadPhaseSceneTrace(vec3 rayOrigin, vec3 rayDir, float maxDist)
     vec3 rootScale = vec3(0.0f);
 
     int triOffset = 0; 
-    
+    	// sceneBoundPos sceneBoundScale
+
+    // inital scene bounds
+    hitResult sceneHR = AabbVsRay(rayOrigin, rayDir, sceneBoundPos, sceneBoundScale);
+    if (sceneHR.hit){
+
     for (int i = 0; i < meshes.length(); i++)
     {
         // root nodes
@@ -410,6 +419,7 @@ hitResult BreadPhaseSceneTrace(vec3 rayOrigin, vec3 rayDir, float maxDist)
         }
         
         triOffset += meshes[i].triangleCount;
+    }
     }
 
     return finalhit;
@@ -516,7 +526,7 @@ vec3 sampleHemisphere(vec3 normal)
     return tangent * localDir.x + bitangent * localDir.y + normal * localDir.z;
 }
 
-vec3 indirectTraceBroad(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 normal, int bounces, int samples, float maxDist)
+vec3 indirectTrace(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 normal, int bounces, int samples, float maxDist)
 {
     vec3 iColour = hitColour;
     vec3 currentOrigin = hit.lasthit;
@@ -581,7 +591,9 @@ vec3 indirectTraceBroad(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 no
                 dim *= 0.5f;
             }
             else {
-        	    vec3 sky = texture(skybox, bounceDir).rgb;
+                samplerCube sbSamp = samplerCube(skyboxHandle);
+
+        	    vec3 sky = texture(sbSamp, bounceDir).rgb;
                 iColour += sky * dim;
                 break;
             }
@@ -592,7 +604,7 @@ vec3 indirectTraceBroad(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 no
     return iColour;
 };
 
-vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, vec3 initSpec, int bounces, float maxDist)
+vec3 reflectionPass(hitResult hit, vec3 incidentDir, vec3 normal, vec3 initSpec, int bounces, float maxDist)
 {
     vec3 reflectionColour = vec3(0.0f);
     vec3 currentOrigin = hit.lasthit;
@@ -658,7 +670,9 @@ vec3 reflectionPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, vec3 init
             dim *= 0.5f;
         }
         else {
-        	vec3 sky = texture(skybox, bounceDir).rgb;
+            samplerCube sbSamp = samplerCube(skyboxHandle);
+
+        	vec3 sky = texture(sbSamp, bounceDir).rgb;
             reflectionColour += sky * dim;
             break;
         }
@@ -728,12 +742,14 @@ vec3 reflectionIndirectPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, v
             vec4 shadowcolour = lightstrace(currentOrigin,NormalMap, maxDist);
             vec3 albedoDirect = shadowcolour.rgb * albedoColour.rgb;
             //iColour += (shadowcolour.rgb * albedoColour.rgb) * 0.5f * dim;
-            vec3 indirectColour = indirectTraceBroad(res, bounceDir, albedoDirect, NormalMap, iBounces, iSamples, maxDist);
+            vec3 indirectColour = indirectTrace(res, bounceDir, albedoDirect, NormalMap, iBounces, iSamples, maxDist);
             iColour += indirectColour * 0.5f * specColour.b * dim;
             dim *= 0.5f;
         }
         else {
-        	vec3 sky = texture(skybox, bounceDir).rgb;
+
+            samplerCube sbSamp = samplerCube(skyboxHandle);
+        	vec3 sky = texture(sbSamp, bounceDir).rgb;
             iColour += sky * dim;
             break;
         }
@@ -796,7 +812,11 @@ void main() {
     vec3 rayDir = rayDirfromCam(invProj, invView, pixelCoords, size);
 
     if (!primaryskip){
-    vec3 sky = texture(skybox, rayDir).rgb;
+
+    samplerCube sbSamp = samplerCube(skyboxHandle);
+
+    vec3 sky = texture(sbSamp, rayDir).rgb;
+
     storeSignal(SIGNAL_DIRECT, pixelCoords, vec4(sky, 1.0f)); // direct
     storeSignal(SIGNAL_NOISE, pixelCoords, noiseStatus); // noise
     }
@@ -854,11 +874,11 @@ void main() {
         vec3 offsetPos = firstHit.lasthit + (firstHit.lightNormal * 0.001f);
         if (!primaryskip || !indirectskip) directColour = lightstrace(offsetPos, NormalMap, maxDistance).xyz; // indirect
         if (reflectionBounces > 0 && !primaryskip) 
-            specularColour = reflectionPassBroad(firstHit, rayDir, NormalMap, specColour.rgb, reflectionBounces, reflectionDistance);
+            specularColour = reflectionPass(firstHit, rayDir, NormalMap, specColour.rgb, reflectionBounces, reflectionDistance);
 
         if (indirectBounces > 0 && indirectSamples > 0 && !indirectskip)
         {
-            indirectColour = indirectTraceBroad(firstHit, rayDir, albedo.rgb * directColour, NormalMap,
+            indirectColour = indirectTrace(firstHit, rayDir, albedo.rgb * directColour, NormalMap,
             indirectBounces, indirectSamples, reflectionDistance); // bounces then samples
         
             if (reflectionBounces > 0){

@@ -8,6 +8,7 @@ public:
     static float frameRate;
     static float frameRate1hz;
     static float TimeAccumulator;
+    static float time;
     static void update();
 };
 

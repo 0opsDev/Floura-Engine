@@ -5,6 +5,9 @@
 #include <utils/logConsole.h>
 #include "Systems/util/UUID.h"
 #include <xhash>
+#include <Scripting/ScriptObject.h>
+#include <utils/FE_math.h>
+#include "Systems/util/relationshipManager.h"
 
 std::string Scene::sceneName = ""; // Map loading
 std::vector <SoundProgram> Scene::SoundObjects;
@@ -12,10 +15,48 @@ std::vector <std::unique_ptr<entity>> Scene::entityObjects;
 Camera Scene::maincamera;
 
 glm::vec3 Scene::initalCameraPos = glm::vec3(0, 0, 0);
+std::vector <ProbeHandler::probe> Scene::probes;
+
+Collision::AABB Scene::SceneBounds;
+std::vector <Collision::AABB> Scene::rootnodes;
 
 BillBoard* PointLightIcon;
 BillBoard* SpotLightIcon;
 BillBoard* SoundIcon;
+
+void Scene::calculateSceneBounds()
+{
+	std::vector<glm::vec3> points;
+	std::vector<Collision::AABB> AABBs;
+
+	for (size_t i = 0; i < entityObjects.size(); i++)
+	{
+		for (size_t x = 0; x < entityObjects[i]->component.collider.rootnodes.size(); x++)
+		{
+			// position, scale
+			glm::vec3 p = entityObjects[i]->component.collider.rootnodes[x].position;
+			glm::vec3 s = entityObjects[i]->component.collider.rootnodes[x].size;
+
+			// rootnodes
+			Collision::AABB newAABB;
+			newAABB.position = p;
+			newAABB.size = s;
+			AABBs.push_back(newAABB);
+			
+			// points
+
+			// retreive min max
+			Collision::minmax newMinMax = Collision::returnMinMax(p, s);
+
+			// push points into array
+			points.push_back(newMinMax.max);
+			points.push_back(newMinMax.min);
+		}	
+	}
+
+	rootnodes = AABBs;
+	SceneBounds = Collision::createAABBfromPoints(points);
+}
 
 void Scene::init() {
 	PointLightIcon = new BillBoard("Assets/Icons/point.png");
@@ -24,8 +65,8 @@ void Scene::init() {
 
 }
 
-void Scene::LoadScene(std::string path) {
-
+void Scene::loadSceneStateless(std::string path)
+{
 	// Attemp to delete previous scene
 	Delete();
 
@@ -33,38 +74,120 @@ void Scene::LoadScene(std::string path) {
 		FEImGuiWindow::loadContentObjects(path + "/ContentObject.scene");
 	}
 
-	initJsonSettingsLoad(path + "/Settings.scene");
+	settingsLoad(path + "/Settings.scene");
 	LightingHandler::loadScene(path + "/Lights.scene");
-	JsonEnviromentLoad(path + "/Enviroment.scene"); // gives DefaultSkyboxPath
+	enviromentLoad(path + "/Enviroment.scene"); // gives DefaultSkyboxPath
 	Skybox::LoadSkyBoxTexture(Skybox::DefaultSkyboxPath); // cleanup this class, could add a load cubemap texture function to the texture class
-	initJsonBillBoardLoad(path + "/BillBoard.scene"); // here
-	initJsonModelLoad(path + "/Model.scene");
-	initJsonSoundObjectLoad(path + "/Sound.scene");
-	initCameraSettingsLoad(path + "/Camera.scene");
+	billBoardLoad(path + "/BillBoard.scene"); // here
+	modelLoad(path + "/Model.scene");
+	soundObjectLoad(path + "/Sound.scene");
+	cameraSettingsLoad(path + "/Camera.scene");
+}
+
+void Scene::loadScene(std::string path) {
+	Player::stopState();
+	// Attemp to delete previous scene
+	Delete();
+
+	if (FEImGuiWindow::imGuiEnabled) {
+		FEImGuiWindow::loadContentObjects(path + "/ContentObject.scene");
+	}
+
+	settingsLoad(path + "/Settings.scene");
+	LightingHandler::loadScene(path + "/Lights.scene");
+	enviromentLoad(path + "/Enviroment.scene"); // gives DefaultSkyboxPath
+	Skybox::LoadSkyBoxTexture(Skybox::DefaultSkyboxPath); // cleanup this class, could add a load cubemap texture function to the texture class
+	billBoardLoad(path + "/BillBoard.scene"); // here
+	modelLoad(path + "/Model.scene");
+	soundObjectLoad(path + "/Sound.scene");
+	cameraSettingsLoad(path + "/Camera.scene");
 
 	LogConsole::print("Loaded scene from: " + path);
 }
 
+void Scene::reloadScene(std::string path)
+{
+	if (FEImGuiWindow::imGuiEnabled) {
 
-void Scene::SaveScene(std::string path) {
+		if (FEImGuiWindow::imGuiEnabled) {
+			FEImGuiWindow::ContentObjects.clear();
+			FEImGuiWindow::ContentObjectNames.clear();
+			FEImGuiWindow::ContentObjectPaths.clear();
+			FEImGuiWindow::ContentObjectTypes.clear();
 
+		}
+
+		FEImGuiWindow::loadContentObjects(path + "/ContentObject.scene");
+	}
+	settingsLoad(path + "/Settings.scene");
+	LightingHandler::deleteScene();
+	LightingHandler::loadScene(path + "/Lights.scene");
+	enviromentLoad(path + "/Enviroment.scene"); // gives DefaultSkyboxPath
+	Skybox::LoadSkyBoxTexture(Skybox::DefaultSkyboxPath); // cleanup this class, could add a load cubemap texture function to the texture class
+
+//	for (size_t i = 0; i < entityObjects.size(); i++)
+//	{
+//		if (entityObjects[i]->type == 'b') entityObjects[i]->Delete();
+//	}
+//	billBoardLoad(path + "/BillBoard.scene"); // here
+
+	std::cout << "reminder to self: add billboard reload" << std::endl;
+	// entity reloated stuff goes here
+	modelReload(path + "/Model.scene");
+
+
+	for (size_t i = 0; i < SoundObjects.size(); i++) {
+		if (SoundObjects[i].isPlay) {
+			SoundObjects[i].StopSound();
+		}
+	}
+
+	SoundObjects.clear();
+
+
+	soundObjectLoad(path + "/Sound.scene");
+	cameraSettingsLoad(path + "/Camera.scene");
+
+
+
+	LogConsole::print("Reloaded scene from: " + path);
+}
+
+void Scene::saveSceneStateless(std::string path)
+{
 	if (FEImGuiWindow::imGuiEnabled) {
 		FEImGuiWindow::saveContentObjects(path + "/ContentObject.scene");
 	}
 
-	JsonSettingsSave(path + "/Settings.scene");
+	settingsSave(path + "/Settings.scene");
 	LightingHandler::saveScene(path + "/Lights.scene");
-	JsonEnviromentSave(path + "/Enviroment.scene");
-	JsonBillBoardSave(path + "/BillBoard.scene");
-	JsonModelSave(path + "/Model.scene");
-	JsonSoundObjectSave(path + "/Sound.scene");
-	JsonCameraSettingsSave(path + "/Camera.scene");
+	enviromentSave(path + "/Enviroment.scene");
+	billBoardSave(path + "/BillBoard.scene");
+	modelSave(path + "/Model.scene");
+	soundObjectSave(path + "/Sound.scene");
+	cameraSettingsSave(path + "/Camera.scene");
+}
+
+
+void Scene::saveScene(std::string path) {
+	Player::stopState();
+	if (FEImGuiWindow::imGuiEnabled) {
+		FEImGuiWindow::saveContentObjects(path + "/ContentObject.scene");
+	}
+
+	settingsSave(path + "/Settings.scene");
+	LightingHandler::saveScene(path + "/Lights.scene");
+	enviromentSave(path + "/Enviroment.scene");
+	billBoardSave(path + "/BillBoard.scene");
+	modelSave(path + "/Model.scene");
+	soundObjectSave(path + "/Sound.scene");
+	cameraSettingsSave(path + "/Camera.scene");
 
 	LogConsole::print("Saved scene to: " + path);
 }
 
 
-void Scene::JsonEnviromentSave(std::string path)
+void Scene::enviromentSave(std::string path)
 {
 	try {
 		json EnviromentData = json::array();  // New JSON array to hold model data
@@ -101,25 +224,9 @@ void Scene::JsonEnviromentSave(std::string path)
 		JsonEnviroment["dirShadowMapHardness"] = LightingHandler::dirShadowMapHardness;
 		JsonEnviroment["dirShadowMapSamples"] = LightingHandler::dirShadowMapSamples;
 		JsonEnviroment["DirSMMaxBias"] = LightingHandler::DirSMMaxBias;
-		/*
-		DirEnabled
-		DirSpecEnabled
-		DirRotation
-		DirAmbient
-		DirSpecular
-		DirColour
-		*/
+		JsonEnviroment["indirectSamples"] = ProbeHandler::indirectSamples;
 
-		/*
-		JsonEnviroment["fogRGBA"][0] = RenderClass::fogRGBA[0];
-		JsonEnviroment["fogRGBA"][1] = RenderClass::fogRGBA[1];
-		JsonEnviroment["fogRGBA"][2] = RenderClass::fogRGBA[2];
-		*/
 
-		/*
-			JsonEnviroment["doReflections"] = RenderClass::doReflections;
-			JsonEnviroment["doFog"] = RenderClass::doFog; 
-		 */
 
 		EnviromentData.push_back(JsonEnviroment);
 
@@ -142,7 +249,7 @@ void Scene::JsonEnviromentSave(std::string path)
 	}
 }
 
-void Scene::JsonEnviromentLoad(std::string path)
+void Scene::enviromentLoad(std::string path)
 {
 	std::ifstream EnviromentDefaultFile(path);
 	if (EnviromentDefaultFile.is_open()) {
@@ -181,13 +288,136 @@ void Scene::JsonEnviromentLoad(std::string path)
 		LightingHandler::dirShadowMapHardness = EnviromentDefaultData[0]["dirShadowMapHardness"];
 		LightingHandler::dirShadowMapSamples = EnviromentDefaultData[0]["dirShadowMapSamples"];
 		LightingHandler::DirSMMaxBias = EnviromentDefaultData[0]["DirSMMaxBias"];
+
+		if (EnviromentDefaultData[0].contains("indirectSamples")) ProbeHandler::indirectSamples = EnviromentDefaultData[0]["indirectSamples"];
 	}
 	else {
 		std::cerr << "Enviroment Failed to open " << path << std::endl;
 	}
 }
 
-void Scene::initJsonModelLoad(std::string path) {
+void Scene::modelReload(std::string path)
+{
+	std::ifstream file(path);
+	if (!file.is_open()) {
+		std::cout << "Model Failed to open file: " << path << std::endl;
+		return;
+	}
+	json modelFileData;
+	try {
+		file >> modelFileData;
+	}
+	catch (const nlohmann::json::parse_error& e) {
+		// This catch block specifically handles JSON parsing errors,
+		// which gives more precise error information from the library.
+		std::cout << "JSON Parse Error loading model data: " << e.what() << std::endl;
+		std::cout << "Error byte position: " << e.byte << std::endl; // Specific to nlohmann::json
+	}
+	catch (const std::ios_base::failure& e) {
+		// This catch block handles file I/O errors (e.g., file not found, permission issues).
+		std::cout << "File I/O Error loading model data: " << e.what() << std::endl;
+	}
+	catch (const std::exception& e) {
+		// A general catch-all for any other std::exception derived errors.
+		std::cout << "An unexpected error occurred loading model data: " << e.what() << std::endl;
+	}
+	file.close();
+	int index = 1;
+	for (const auto& item : modelFileData) {
+		
+		uint64_t tempUUID = UUID::StringToUUID(item.at("UUID").get<std::string>());
+		
+		//std::cout << "pre"<< entityObjects[index]->UUID << std::endl;
+		//std::cout << "new"<< tempUUID << std::endl;
+		if (entityObjects[index]->UUID != tempUUID) { index++; continue; } // index++;
+
+		//std::cout << "ee" << std::endl;
+
+		entityObjects[index]->name = item.at("name").get<std::string>();
+		entityObjects[index]->path = item.at("path").get<std::string>();
+		entityObjects[index]->component.systems.material.Material.materialPath;
+		std::string MaterialPath = item.at("MaterialPath").get<std::string>();
+
+		// transform
+		entityObjects[index]->setPosition(glm::vec3(item.at("Location")[0], item.at("Location")[1], item.at("Location")[2]));
+		entityObjects[index]->setRotation(glm::vec3(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2]));
+		entityObjects[index]->setScale(glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]));
+
+		entityObjects[index]->component.flags.doCulling = item.at("isBackFaceCulling").get<bool>();
+		entityObjects[index]->component.flags.castsShadow = item.at("CastShadow").get<bool>();
+		entityObjects[index]->component.systems.material.uvScale = glm::vec2(item.at("uvScale")[0],
+			item.at("uvScale")[1]);
+
+		entityObjects[index]->component.render.drawInstanced = item.at("drawInstanced").get<bool>();
+
+		entityObjects[index]->component.render.smoothnessValue = item.at("smoothnessValue").get<float>();
+
+		//newObject->create('m', name, path, MaterialPath); // Load into this unique MaterialObject // this needs to run and somehow join up when complete?
+		// what about the idea of creating them in a state without a actual model, then doing the create function on a thread and push back when joinable;
+
+		// doRender
+		entityObjects[index]->component.flags.render = item.at("doRender").get<bool>();
+
+		for (auto* script : entityObjects[index]->ScriptObjects) {
+
+			delete script;
+		}
+		entityObjects[index]->ScriptObjects.clear();
+
+		if (item.contains("Scripts") && item["Scripts"].is_array()) {
+			for (const auto& scriptItem : item["Scripts"]) {
+				std::string name = scriptItem.at("name").get<std::string>();
+				std::string path = scriptItem.at("path").get<std::string>();
+
+				entityObjects[index]->addScript(path, name);
+
+				std::string scriptUUIDStr = scriptItem.at("UUID").get<std::string>();
+				uint64_t UUID = UUID::StringToUUID(scriptUUIDStr);
+
+				entityObjects[index]->ScriptObjects.back()->UUID = UUID;
+			}
+
+		}
+
+		if (item.contains("hasParent")) entityObjects[index]->component.relationship.hasParent = item.at("hasParent").get<bool>();
+
+		uint64_t tempParentUUID = 0;
+		if (item.contains("parentUUID")) tempParentUUID = UUID::StringToUUID(item.at("parentUUID").get<std::string>());
+		
+
+		int entityIndex = RelationshipManager::indexFromUUIDEntity(tempUUID);
+
+		RelationshipManager::addParent(entityIndex, tempParentUUID);
+
+		entityObjects[index]->component.relationship.childUUID.clear();
+
+		if (item.contains("children") && item["children"].is_array()) {
+			for (const auto& childItem : item["children"]) {
+
+				std::string childUUIDStr = childItem.at("childUUID").get<std::string>();
+				uint64_t childUUID = UUID::StringToUUID(childUUIDStr);
+				//std::cout << childUUIDStr <<" E" << std::endl;
+				
+				entityObjects[index]->component.relationship.childUUID.push_back(childUUID);
+			
+				int cIndex = RelationshipManager::indexFromUUIDEntity(childUUID);
+
+				if (cIndex != -1) {
+					RelationshipManager::addParent(cIndex, entityObjects[index]->UUID);
+				}
+			}
+
+		}
+
+
+
+
+		index++;
+	}
+	std::cout << "Reloaded Scene Models from: " << path << std::endl;
+}
+
+void Scene::modelLoad(std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
 		std::cout << "Model Failed to open file: " << path << std::endl;
@@ -225,22 +455,50 @@ void Scene::initJsonModelLoad(std::string path) {
 		newObject->setRotation(glm::vec3(item.at("Rotation")[0], item.at("Rotation")[1], item.at("Rotation")[2]));
 		newObject->setScale(glm::vec3(item.at("Scale")[0], item.at("Scale")[1], item.at("Scale")[2]));
 
-		newObject->component.flags.doCulling = item.at("isBackFaceCulling").get<bool>();
-		newObject->component.flags.castsShadow = item.at("CastShadow").get<bool>();
-		newObject->component.systems.material.uvScale = glm::vec2(item.at("uvScale")[0],
-			item.at("uvScale")[1]);
+		if (item.contains("isBackFaceCulling"))newObject->component.flags.doCulling = item.at("isBackFaceCulling").get<bool>();
+		if (item.contains("CastShadow"))newObject->component.flags.castsShadow = item.at("CastShadow").get<bool>();
+		if (item.contains("uvScale"))
+			newObject->component.systems.material.uvScale = glm::vec2(item.at("uvScale")[0],
+				item.at("uvScale")[1]);
+		if (item.contains("drawInstanced"))newObject->component.render.drawInstanced = item.at("drawInstanced").get<bool>();
+		if (item.contains("smoothnessValue"))newObject->component.render.smoothnessValue = item.at("smoothnessValue").get<float>();
+		if (item.contains("doRender"))newObject->component.flags.render = item.at("doRender").get<bool>();
 
-		newObject->component.render.drawInstanced = item.at("drawInstanced").get<bool>();
 
-		newObject->component.render.smoothnessValue = item.at("smoothnessValue").get<float>();
+		uint64_t tempUUID = 0;
+		if (item.contains("UUID"))tempUUID = UUID::StringToUUID(item.at("UUID").get<std::string>());
 
-		//newObject->create('m', name, path, MaterialPath); // Load into this unique MaterialObject // this needs to run and somehow join up when complete?
-		// what about the idea of creating them in a state without a actual model, then doing the create function on a thread and push back when joinable;
+		if (item.contains("Scripts") && item["Scripts"].is_array()) {
+			for (const auto& scriptItem : item["Scripts"]) {
+				std::string name = scriptItem.at("name").get<std::string>();
+				std::string path = scriptItem.at("path").get<std::string>();
+
+				newObject->addScript(path, name);
+
+				std::string scriptUUIDStr = scriptItem.at("UUID").get<std::string>();
+				uint64_t UUID = UUID::StringToUUID(scriptUUIDStr);
+
+				newObject->ScriptObjects.back()->UUID = UUID;
+			}
+
+		}
+
+		if (item.contains("children") && item["children"].is_array()) {
+			for (const auto& childItem : item["children"]) {
+
+				std::string childUUIDStr = childItem.at("childUUID").get<std::string>();
+				uint64_t childUUID = UUID::StringToUUID(childUUIDStr);
+
+				newObject->component.relationship.childUUID.push_back(childUUID);
+			}
+
+		}
+
+		if (item.contains("hasParent")) newObject->component.relationship.hasParent = item.at("hasParent").get<bool>();
 		
-		// doRender
-		newObject->component.flags.render = item.at("doRender").get<bool>();
-
-		uint64_t tempUUID = UUID::StringToUUID(item.at("UUID").get<std::string>());
+		uint64_t tempParentUUID = 0;
+		if (item.contains("parentUUID")) tempParentUUID = UUID::StringToUUID(item.at("parentUUID").get<std::string>());
+		newObject->component.relationship.parentUUID = tempParentUUID;
 
 		entityObjects.push_back(std::move(newObject));
 		
@@ -252,7 +510,7 @@ void Scene::initJsonModelLoad(std::string path) {
 	std::cout << "Loaded Scene Models from: " << path << std::endl;
 }
 
-void Scene::JsonModelSave(std::string path) {
+void Scene::modelSave(std::string path) {
 	try {
 		json settingsData = json::array();  // New JSON array to hold model data
 		for (size_t i = 0; i < entityObjects.size(); i++)
@@ -283,6 +541,29 @@ void Scene::JsonModelSave(std::string path) {
 				modelJson["smoothnessValue"] = entityObjects[i]->component.render.smoothnessValue;
 				modelJson["UUID"] = entityObjects[i]->UUIDstring;
 
+
+				json scriptsArray = json::array();
+				for (size_t x = 0; x < entityObjects[i]->ScriptObjects.size(); x++)
+				{
+					json scriptEntry;
+					scriptEntry["name"] = entityObjects[i]->ScriptObjects[x]->name;
+					scriptEntry["path"] = entityObjects[i]->ScriptObjects[x]->path;
+					scriptEntry["UUID"] = UUID::UUIDToString(entityObjects[i]->ScriptObjects[x]->UUID);
+					scriptsArray.push_back(scriptEntry);
+				}
+				modelJson["Scripts"] = scriptsArray;
+
+				json relationshipArray = json::array();
+				for (size_t x = 0; x < entityObjects[i]->component.relationship.childUUID.size(); x++)
+				{
+					json retaltionEntry;
+					retaltionEntry["childUUID"] = UUID::UUIDToString(entityObjects[i]->component.relationship.childUUID[x]);
+					relationshipArray.push_back(retaltionEntry);
+				}
+				modelJson["children"] = relationshipArray;
+				modelJson["hasParent"] = entityObjects[i]->component.relationship.hasParent;
+				modelJson["parentUUID"] = UUID::UUIDToString(entityObjects[i]->component.relationship.parentUUID);
+
 				settingsData.push_back(modelJson);
 			}
 
@@ -308,7 +589,7 @@ void Scene::JsonModelSave(std::string path) {
 	}
 }
 
-void Scene::JsonBillBoardSave(std::string path) {
+void Scene::billBoardSave(std::string path) {
 	try {
 		json settingsData = json::array();  // New JSON array to hold model data
 
@@ -329,6 +610,17 @@ void Scene::JsonBillBoardSave(std::string path) {
 				BillBoardJson["position"] = { objPos.x, objPos.y, objPos.z };
 				BillBoardJson["scale"] = { objScale.x, objScale.y, objScale.z };
 				BillBoardJson["UUID"] = entityObjects[i]->UUIDstring;
+
+				json relationshipArray = json::array();
+				for (size_t x = 0; x < entityObjects[i]->component.relationship.childUUID.size(); x++)
+				{
+					json retaltionEntry;
+					retaltionEntry["childUUID"] = UUID::UUIDToString(entityObjects[i]->component.relationship.childUUID[x]);
+					relationshipArray.push_back(retaltionEntry);
+				}
+				BillBoardJson["children"] = relationshipArray;
+				BillBoardJson["hasParent"] = entityObjects[i]->component.relationship.hasParent;
+				BillBoardJson["parentUUID"] = UUID::UUIDToString(entityObjects[i]->component.relationship.parentUUID);
 
 				settingsData.push_back(BillBoardJson);
 			}
@@ -352,7 +644,7 @@ void Scene::JsonBillBoardSave(std::string path) {
 
 }
 
-void Scene::JsonSettingsSave(std::string path) {
+void Scene::settingsSave(std::string path) {
 	try {
 		json SettingsData = json::array();  // New JSON array to hold model data
 
@@ -396,7 +688,7 @@ void Scene::JsonSettingsSave(std::string path) {
 	}
 }
 
-void Scene::JsonCameraSettingsSave(std::string path) {
+void Scene::cameraSettingsSave(std::string path) {
 	try {
 		json CameraData = json::array();  // New JSON array to hold model data
 
@@ -447,7 +739,7 @@ void Scene::AddEntityObject(char type, std::string name, std::string path)
 	LogConsole::print("Created Entity: " + name);
 }
 
-void Scene::initJsonBillBoardLoad(std::string path) {
+void Scene::billBoardLoad(std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
 		std::cout << "billboard Failed to open file: " << path << std::endl;
@@ -485,7 +777,22 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 		std::string name = item.at("name").get<std::string>();
 		std::string nPath = item.at("path").get<std::string>();
 
+		if (item.contains("children") && item["children"].is_array()) {
+			for (const auto& childItem : item["children"]) {
 
+				std::string childUUIDStr = childItem.at("childUUID").get<std::string>();
+				uint64_t childUUID = UUID::StringToUUID(childUUIDStr);
+
+				newEntity->component.relationship.childUUID.push_back(childUUID);
+			}
+
+		}
+
+		if (item.contains("hasParent")) newEntity->component.relationship.hasParent = item.at("hasParent").get<bool>();
+
+		uint64_t tempParentUUID = 0;
+		if (item.contains("parentUUID")) tempParentUUID = UUID::StringToUUID(item.at("parentUUID").get<std::string>());
+		newEntity->component.relationship.parentUUID = tempParentUUID;
 
 		uint64_t tempUUID = UUID::StringToUUID(item.at("UUID").get<std::string>());
 
@@ -497,7 +804,7 @@ void Scene::initJsonBillBoardLoad(std::string path) {
 	std::cout << "Loaded Scene BillBoards from: " << path << std::endl;
 }
 
-void Scene::initJsonSoundObjectLoad(std::string path) {
+void Scene::soundObjectLoad(std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
 		std::cout << "Failed to open file: " << path << std::endl;
@@ -545,7 +852,7 @@ void Scene::initJsonSoundObjectLoad(std::string path) {
 	std::cout << "Loaded Scene SoundObject from: " << path << std::endl;
 }
 
-void Scene::JsonSoundObjectSave(std::string path)
+void Scene::soundObjectSave(std::string path)
 {
 	try {
 		json SoundData = json::array();  // New JSON array to hold model data
@@ -582,7 +889,7 @@ void Scene::JsonSoundObjectSave(std::string path)
 	}
 }
 
-void Scene::initJsonSettingsLoad(std::string path) {
+void Scene::settingsLoad(std::string path) {
 	std::ifstream engineDefaultFile(path);
 	if (engineDefaultFile.is_open()) {
 		json engineDefaultData;
@@ -617,7 +924,7 @@ void Scene::initJsonSettingsLoad(std::string path) {
 	}
 }
 
-void Scene::initCameraSettingsLoad(std::string path) {
+void Scene::cameraSettingsLoad(std::string path) {
 	std::ifstream CameraFile(path);
 	if (CameraFile.is_open()) {
 		json CameraData;
@@ -656,8 +963,53 @@ void Scene::shadowmapDraw()
 	}
 }
 
+void Scene::callAllScriptInit()
+{
+	for (size_t i = 0; i < entityObjects.size(); i++)
+	{
+		for (size_t x = 0; x < entityObjects[i]->ScriptObjects.size(); x++)
+		{
+			entityObjects[i]->initScript(x);
+		}
+	}
+}
+
+void Scene::resetAllScripts()
+{
+	for (size_t i = 0; i < entityObjects.size(); i++)
+	{
+		for (size_t x = 0; x < entityObjects[i]->ScriptObjects.size(); x++)
+		{
+			entityObjects[i]->reloadScript(x);
+		}
+	}
+}
+
 void Scene::draw() 
 {
+	if (Collision::showBoxCollider)
+	{
+		RenderClass::WhiteCube->draw(SceneBounds.position,
+			SceneBounds.size, glm::vec3(1.0f, 0.0f, 0.0f), true);
+	}
+
+	if (ProbeHandler::viewProbes)
+	{
+		float distance = 20.0f;
+
+		for (size_t i = 0; i < probes.size(); i++)
+		{
+			glm::vec3 pCol = glm::vec3(0.0f, 0.0f, 1.0f);
+			if (FE_Math::isInRange(probes[i].position, Scene::maincamera.Position, distance)) pCol = glm::vec3(1.0f, 0.0f, 0.0f);
+
+			//RenderClass::WhiteCube->draw(probes[i].position,
+			//	glm::vec3(probes[i].size), glm::vec3(1.0f), true);
+
+			RenderClass::WhiteCube->draw(probes[i].position,
+				glm::vec3(0.5f), pCol, false);
+		}
+	}
+
 	// entities shadow map should go above here
 	for (size_t i = 0; i < entityObjects.size(); i++)
 	{
@@ -695,7 +1047,19 @@ void Scene::draw()
 }
 
 
-void Scene::Update() {
+void Scene::Update() 
+{
+
+	if (ProbeHandler::dirtyScene)
+	{
+		calculateSceneBounds();
+
+		probes = ProbeHandler::calculateProbesWithMethod(ProbeHandler::probeCalculationMethod, SceneBounds, rootnodes, ProbeHandler::sceneProveArea);
+		//probes = ProbeHandler::aabbsSceneToProbeSpace(SceneBounds, rootnodes, ProbeHandler::sceneProveArea); // faster in rendering cubemaps, because it only places near objects (more rootnodes slows down)
+		//probes = ProbeHandler::SceneToProbeSpace(SceneBounds, ProbeHandler::sceneProveArea); // faster with less rootnodes (places nodes in empty spaces)
+		//probes = ProbeHandler::aabbsToProbeSpace(SceneBounds, rootnodes, ProbeHandler::sceneProveArea); // faster for extremely open scenes, falso aster in rendering cubemaps,because it only places near objects, but the quality is the worst out of the 3
+		// 4th method should be per object and only if that object becomes dirty
+	}
 
 	for (size_t i = 0; i < entityObjects.size(); i++)
 	{
@@ -717,7 +1081,7 @@ void Scene::Update() {
 		}
 	}
 
-
+	ProbeHandler::dirtyScene = false;
 }
 
 void Scene::Delete() {
@@ -754,3 +1118,12 @@ void Scene::Delete() {
 
 	}
 }
+
+void Scene::saveEntityState()
+{
+}
+
+void Scene::restoreEntitiesToState()
+{
+}
+

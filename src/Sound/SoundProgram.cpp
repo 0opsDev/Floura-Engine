@@ -13,7 +13,7 @@ void SoundProgram::PlaySound() {
     isPlay = true;
     std::thread([this]() {
         alSourcePlay(source);
-        LogConsole::print("Sound played: " + name);
+        //LogConsole::print("Sound played: " + name);
         do {
             alSourcef(source, AL_GAIN, currentvolume * SoundRunner::GlobalVolume); // set volume
             alSource3f(source, AL_POSITION, position.x, position.y, position.z);
@@ -23,7 +23,7 @@ void SoundProgram::PlaySound() {
             alGetSourcei(source, AL_SOURCE_STATE, &state);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));  // Sleep to avoid busy-waiting
         } while (state == AL_PLAYING && Main::sleepState);
-        LogConsole::print("Sound stopped: " + name);
+        //LogConsole::print("Sound stopped: " + name);
         isPlay = false;
 		queuedPlay = false;
         }).detach();  // Detach the thread so it runs independently

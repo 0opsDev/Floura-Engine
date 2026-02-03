@@ -1,6 +1,5 @@
 #include "Mesh.h"
 #include <utils/logConsole.h>
-#include <camera/Camera.h>
 #include <limits>
 #include <utils/FE_math.h>
 #include <Render/Object/SkyBox.h>
@@ -55,7 +54,7 @@ void Mesh::createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuin
     setupMesh();
 }
 
-void Mesh::draw(Shader& shader)
+void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
 {
     shader.Activate();
     VAO.Bind();
@@ -63,27 +62,25 @@ void Mesh::draw(Shader& shader)
     unsigned int numDiffuse = 0;
     unsigned int numSpecular = 0;
     unsigned int numNormal = 0;
+    unsigned int numDisp = 0;
 
     for (unsigned int i = 0; i < textures.size(); i++)
     {
         std::string num;
         std::string type = textures[i].type;
-        if (type == "texture_diffuse") {
-            num = std::to_string(numDiffuse++);
-        }
-        else if (type == "texture_roughness") {
-            num = std::to_string(numSpecular++);
-        }
-        else if (type == "texture_normal") {
-            num = std::to_string(numNormal++);
-        }
+        if (type == "texture_diffuse") {num = std::to_string(numDiffuse++);}
+        else if (type == "texture_roughness") {num = std::to_string(numSpecular++);}
+        else if (type == "texture_normal") {num = std::to_string(numNormal++);}
+        //else if (type == "texture_displacement"){num = std::to_string(numDisp++);}
+        shader.Activate();
         shader.setHandleui64ARB((type + "_Handle").c_str(), textures[i].handle);
         textures[i].texUnit(shader, (type).c_str(), textures[i].unit);
         textures[i].Bind();
     }
     // Camera Matrix
-    glUniform3f(glGetUniformLocation(shader.ID, "camPos"), Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z);
-    Scene::maincamera.Matrix(shader, "camMatrix");
+    shader.Activate();
+    glUniform3f(glGetUniformLocation(shader.ID, "camPos"), Camera.Position.x, Camera.Position.y, Camera.Position.z);
+    Camera.Matrix(shader, "camMatrix");
 
     glm::mat4 finalMeshMat = globalMeshMatrix * meshMatrix;
 
@@ -114,7 +111,7 @@ void Mesh::draw(Shader& shader)
     //glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Mesh::drawInstanced(Shader& shader, int instanceCount)
+void Mesh::drawInstanced(Shader& shader, Camera Camera, int instanceCount)
 {
     std::cout << "drawing instance" << instanceCount << std::endl;
 }

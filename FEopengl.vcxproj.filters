@@ -295,15 +295,6 @@
     <ClCompile Include="src\Scene\tempscene.cpp">
       <Filter>src\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scripting\ScriptEngine.cpp">
-      <Filter>src\Scripting</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scripting\ScriptObject.cpp">
-      <Filter>src\Scripting</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scripting\ScriptRunner.cpp">
-      <Filter>src\Scripting</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp">
       <Filter>src\Scripting\Functions\Screen</Filter>
     </ClCompile>
@@ -345,6 +336,15 @@
     </ClCompile>
     <ClCompile Include="src\Render\Handler\ShaderHandler.cpp">
       <Filter>src\Render\Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\ScriptObject.cpp">
+      <Filter>src\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\ProbeHandler.cpp">
+      <Filter>src\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Systems\util\relationshipManager.cpp">
+      <Filter>src\Systems\util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -516,15 +516,6 @@
     <ClInclude Include="src\Scene\tempscene.h">
       <Filter>src\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scripting\ScriptEngine.h">
-      <Filter>src\Scripting</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scripting\ScriptObject.h">
-      <Filter>src\Scripting</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scripting\ScriptRunner.h">
-      <Filter>src\Scripting</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h">
       <Filter>src\Scripting\Functions</Filter>
     </ClInclude>
@@ -566,6 +557,15 @@
     </ClInclude>
     <ClInclude Include="src\Render\Handler\ShaderHandler.h">
       <Filter>src\Render\Handler</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\ScriptObject.h">
+      <Filter>src\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\ProbeHandler.h">
+      <Filter>src\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Systems\util\relationshipManager.h">
+      <Filter>src\Systems\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -716,8 +716,8 @@
     <None Include="Assets\Shaders\compute\DenoiseRenderQuad.frag">
       <Filter>Resource Files\Shaders\compute</Filter>
     </None>
-    <None Include="Assets\Shaders\gBuffer\geometryPassNoNormal.frag">
-      <Filter>Resource Files\Shaders\Gbuffer</Filter>
+    <None Include="Assets\Shaders\Lighting\reflection.frag">
+      <Filter>Resource Files\Shaders\Lighting</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -6,6 +6,12 @@
 #include "Render/passes/lighting/raytracer.h"
 #include <xhash>
 #include <vector>
+#include <Scripting/ScriptObject.h>
+#include <Scene/ProbeHandler.h>
+//#include <Scene/scene.h>
+
+#define SOL_ALL_SAFETIES_ON 1
+#include <sol/sol.hpp>
 
 #ifndef FE_OBJECT_H
 #define FE_OBJECT_H
@@ -65,14 +71,23 @@ public:
 
 	struct render {
 		//Model* Model;
-		uint64_t renderID;
-		uint64_t instanceUUID;
 		std::string renderIDString;
 		std::string instanceIDString;
+		uint64_t renderID;
+		uint64_t instanceUUID;
 		BillBoard* BillBoard;
 		float smoothnessValue = 0.0f;
 		bool dirtyTransform = false;
 		bool drawInstanced = false;
+
+
+	};
+
+	struct relationship
+	{
+		bool hasParent = false;
+		uint64_t parentUUID;
+		std::vector<uint64_t> childUUID;
 	};
 
 	struct components {
@@ -81,10 +96,14 @@ public:
 		collider collider;
 		systems systems;
 		render render;
+		relationship relationship;
 	};
 	std::string name;
+
+	// replace type with int and enum
 	char type;
 	std::string path;
+	std::vector<ScriptObject*> ScriptObjects;
 
 	//
 
@@ -93,6 +112,16 @@ public:
 	void create(const char& type, const std::string& name, const std::string& path, const std::string& materialPath);
 
 	void LoadMaterial(std::string path);
+
+	void addScript(std::string path, std::string name);
+
+	void reloadScript(int index);
+
+	void removeScript(int index);
+
+	void updateScripts();
+
+	void initScript(int index);
 
 	void update();
 
@@ -103,6 +132,8 @@ public:
 	void updateLights();
 
 	void Delete();
+
+	//void addParent();
 
 	Collision::HitResult RayVsTriangle(glm::vec3 rayPos, glm::vec3 rayDir);
 	char fetchType() {return type;}
@@ -139,19 +170,30 @@ public:
 		component.systems.transformation.position = position;
 		raytracer::RTGlobalTransformFlag = true;
 		component.render.dirtyTransform = true;
+		ProbeHandler::dirtyScene = true;
 	}
 	void setRotation(const glm::vec3& rotation) {
 		if (rotation == component.systems.transformation.rotation) return;
-		component.systems.transformation.rotation = rotation;
+		glm::vec3 nr = rotation;
+		if (nr.x > 360) nr.x = 0.0f;
+		if (nr.y > 360) nr.y = 0.0f;
+		if (nr.z > 360) nr.z = 0.0f;
+		component.systems.transformation.rotation = nr;
 		raytracer::RTGlobalTransformFlag = true;
 		component.render.dirtyTransform = true;
+		ProbeHandler::dirtyScene = true;
 	}
 	void setScale(const glm::vec3& scale) {
 		if (scale == component.systems.transformation.scale) return;
 		component.systems.transformation.scale = scale;
 		raytracer::RTGlobalTransformFlag = true;
 		component.render.dirtyTransform = true;
+		ProbeHandler::dirtyScene = true;
 	}
+	private:
+		void sendEntityUniformsToScripts(ScriptObject* obj);
+		void getEntityUniformsToScripts(ScriptObject* obj);
+		void initEntityTables(ScriptObject* obj);
 };
 
 #endif

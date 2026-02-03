@@ -9,11 +9,11 @@
         ],
         "DirEnabled": true,
         "DirRotation": [
-            108.4000015258789,
-            150.3000030517578,
+            864.5,
+            1905.9000244140625,
             0.0
         ],
-        "DirSMMaxBias": 0.004999999888241291,
+        "DirSMMaxBias": 0.00800000037997961,
         "DirSpecEnabled": true,
         "DirSpecular": 1.0,
         "DoShadowMap": true,
@@ -26,16 +26,17 @@
         ],
         "dirNearFar": [
             0.10000000149011612,
-            360.0
+            120.0
         ],
         "dirShadowMapHardness": 4,
-        "dirShadowMapSamples": 4,
-        "dirSmDistance": 90.0,
-        "dirSmHeight": 250.0,
+        "dirShadowMapSamples": 1,
+        "dirSmDistance": 50.0,
+        "dirSmHeight": 70.0,
+        "indirectSamples": 8,
         "skyRGBA": [
-            1.0,
-            1.0,
-            1.0
+            0.13725489377975464,
+            0.13725489377975464,
+            0.13725489377975464
         ]
     }
 ]

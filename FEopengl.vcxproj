@@ -124,7 +124,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;OpenAL32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;OpenAL32.lib;assimp-vc145-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -138,7 +138,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;OpenAL32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;OpenAL32.lib;assimp-vc145-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -193,17 +193,17 @@
     <ClCompile Include="src\Scene\LightingHandler.cpp" />
     <ClCompile Include="src\Scene\ObjectManager.cpp" />
     <ClCompile Include="src\Scene\Object\Entity.cpp" />
+    <ClCompile Include="src\Scene\ProbeHandler.cpp" />
     <ClCompile Include="src\Scene\scene.cpp" />
     <ClCompile Include="src\Scene\tempscene.cpp" />
     <ClCompile Include="src\Scripting\Functions\Player\LuaCamera.cpp" />
     <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp" />
-    <ClCompile Include="src\Scripting\ScriptEngine.cpp" />
     <ClCompile Include="src\Scripting\ScriptObject.cpp" />
-    <ClCompile Include="src\Scripting\ScriptRunner.cpp" />
     <ClCompile Include="src\Sound\SoundProgram.cpp" />
     <ClCompile Include="src\Sound\SoundRunner.cpp" />
     <ClCompile Include="src\Systems\Physics\BVH.cpp" />
     <ClCompile Include="src\Systems\Physics\Collision.cpp" />
+    <ClCompile Include="src\Systems\util\relationshipManager.cpp" />
     <ClCompile Include="src\Systems\util\UUID.cpp" />
     <ClCompile Include="src\utils\FE_math.cpp" />
     <ClCompile Include="src\utils\logConsole.cpp" />
@@ -267,18 +267,18 @@
     <ClInclude Include="src\Scene\LightingHandler.h" />
     <ClInclude Include="src\Scene\ObjectManager.h" />
     <ClInclude Include="src\Scene\Object\Entity.h" />
+    <ClInclude Include="src\Scene\ProbeHandler.h" />
     <ClInclude Include="src\Scene\scene.h" />
     <ClInclude Include="src\Scene\tempscene.h" />
     <ClInclude Include="src\Scripting\Functions\Player\LuaCamera.h" />
     <ClInclude Include="src\Scripting\Functions\Screen\LuaScreen.h" />
     <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h" />
-    <ClInclude Include="src\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Scripting\ScriptObject.h" />
-    <ClInclude Include="src\Scripting\ScriptRunner.h" />
     <ClInclude Include="src\Sound\SoundProgram.h" />
     <ClInclude Include="src\Sound\SoundRunner.h" />
     <ClInclude Include="src\Systems\Physics\BVH.h" />
     <ClInclude Include="src\Systems\Physics\Collision.h" />
+    <ClInclude Include="src\Systems\util\relationshipManager.h" />
     <ClInclude Include="src\Systems\util\UUID.h" />
     <ClInclude Include="src\utils\FE_math.h" />
     <ClInclude Include="src\utils\logConsole.h" />
@@ -315,7 +315,6 @@
     <None Include="Assets\Shaders\gBuffer\geometryPassBillBoard.frag" />
     <None Include="Assets\Shaders\gBuffer\geometryPassBillBoard.vert" />
     <None Include="Assets\Shaders\gBuffer\geometryPassGeom.vert" />
-    <None Include="Assets\Shaders\gBuffer\geometryPassNoNormal.frag" />
     <None Include="Assets\Shaders\gBuffer\geometryPassWobble.vert" />
     <None Include="Assets\Shaders\Lighting\albedo.frag" />
     <None Include="Assets\Shaders\Lighting\albedoGeom.frag" />
@@ -327,6 +326,7 @@
     <None Include="Assets\Shaders\Lighting\geomfur.geom" />
     <None Include="Assets\Shaders\Lighting\NormalView.frag" />
     <None Include="Assets\Shaders\Lighting\PS1.vert" />
+    <None Include="Assets\Shaders\Lighting\reflection.frag" />
     <None Include="Assets\Shaders\Lighting\shadowMap.frag" />
     <None Include="Assets\Shaders\Lighting\shadowMap.vert" />
     <None Include="Assets\Shaders\Lighting\SpecularView.frag" />

@@ -26,11 +26,18 @@ uniform bool doReflect;
 float specularLight = 0.50f; // 0.50f
 
 // Gets the Texture Units from the main function
-uniform sampler2D texture_diffuse;
-uniform sampler2D texture_roughness;
-uniform sampler2D texture_normal;
+//uniform sampler2D texture_diffuse; // _Handle
+//uniform sampler2D texture_roughness;
+//uniform sampler2D texture_normal;
+
+uniform uint64_t texture_diffuse_Handle;
+uniform uint64_t texture_roughness_Handle;
+uniform uint64_t texture_normal_Handle;
+//uniform uint64_t texture_displacement_Handle;
+
 uniform sampler2D shadowMap;
 uniform sampler2D BlueNoiseTex;
+uniform uint64_t bayerMatrixHandle;
 
 // Gets the position of the light from the main function
 //const vec3 lightPos = vec3(0.0, 5.0, 1.0);
@@ -46,6 +53,7 @@ uniform int NumberOfSamples;
 uniform float DirSMMaxBias;
 uniform float deltatime;
 uniform float time;
+uniform int indirectSamples;
 
 struct Light
 {
@@ -73,7 +81,8 @@ uniform vec3 camPositon;
 // reflections
 in vec3 reflectedVector;
 in vec3 NviewVector;
-uniform samplerCube skybox; 
+//uniform samplerCube skybox; 
+uniform uint64_t cmMainHandle;
 uniform float smoothnessValue;
 
 float linearizeDepth(float depth, float NP, float FP)
@@ -81,13 +90,14 @@ float linearizeDepth(float depth, float NP, float FP)
 	return (2.0 * NP * FP) / (FP + NP - (depth * 2.0 - 1.0) * (FP - NP));
 }
 
-vec3 CalcNewNormal()
+vec3 CalcNewNormal(vec2 UV)
 {
 	//	return normalize(Normal); 
 	// texture
 	//vec3 normalTex = texture(texture_normal0, texCoord).xyz;
 
-	vec3 normalTex = normalize(texture(texture_normal, texCoord).xyz * 2.0f - 1.0f);
+	sampler2D normsamp = sampler2D(texture_normal_Handle);
+	vec3 normalTex = normalize(texture(normsamp, UV).xyz * 2.0f - 1.0f);
 
 	// transform from 0,1 to -1, 1
 	//normalTex = 2.0 * normalTex - vec3(1.0);
@@ -155,16 +165,19 @@ float CalcShadowFactorDIR(vec4 LightSpacePos, vec3 lightDirection, vec3 normal)
 return shadow;
 }
 
-vec4 direcLight()
+vec4 direcLight(sampler2D specSamp)
 { // normals need to be recalculated based on rotation
 
-	vec3 normal = CalcNewNormal();
 
-	vec3 lightDirection = normalize(directLightPos); //vec3(1.0f, 1.0f, 0.0f)
-	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
 	// shadow map 
 	float shadow = 0.0f;
+
+
+	vec3 normal = CalcNewNormal(texCoord);
+
+	vec3 lightDirection = normalize(directLightPos); //vec3(1.0f, 1.0f, 0.0f)
+	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
 	if (doDirShadowMap)
 	shadow = CalcShadowFactorDIR(fragPosLight, lightDirection, normal);
@@ -172,19 +185,20 @@ vec4 direcLight()
 
 		float specular = 0.0f;
 	if (doReflect && doDirSpecularLight && diffuse != 0.0f){
-	vec3 viewDirection = normalize(camPositon - crntPos);
+
 	vec3 reflectionDirection = reflect(-lightDirection, normal);
+	vec3 viewDirection = normalize(camPositon - crntPos);
+	vec3 halfwayVec = normalize(viewDirection + lightDirection);
 
-	vec3 halfwayVec = normalize(lightDirection + viewDirection);
-
-	float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 32);
+	float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 16);
+	//float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	specular = specAmount * dirSpecularLight;
 
-	return ((diffuse * (1.0f - shadow) + directAmbient) + texture(texture_roughness, texCoord).r * specular * (1.0f - shadow)) * vec4(directLightCol, 1.0f); }
+	return ((diffuse * (1.0f - shadow) + directAmbient) + texture(specSamp, texCoord).g * specular * (1.0f - shadow)) * vec4(directLightCol, 1.0f); }
 	else{ return ((diffuse * (1.0f - shadow) + directAmbient)) * vec4(directLightCol, 1.0f); }
 }
 
-vec4 pointLight(int iteration)
+vec4 pointLight(int iteration, sampler2D specSamp)
 {	
 	vec4 finalColour = vec4(0.0f);
 
@@ -200,7 +214,7 @@ vec4 pointLight(int iteration)
 
 	// ambient lighting
 	//float ambient = 0.0f;
-	vec3 normal = CalcNewNormal();
+	vec3 normal = CalcNewNormal(texCoord);
 	//vec3 normal = normalize(Normal); 
 
 	vec3 lightDirection = normalize(lightVec);
@@ -218,7 +232,7 @@ vec4 pointLight(int iteration)
 		float specAmount = pow(max(dot(normal, halfwayVec), 0.1f), 16);
 		specular = specAmount * specularLight;
 
-		finalColour = finalColour + ((diffuse * inten + 0.0f) + texture(texture_roughness, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0 ) * inten;
+		finalColour = finalColour + ((diffuse * inten + 0.0f) + texture(specSamp, texCoord).g * specular * inten) * vec4(Lights[iteration].colour, 1.0 ) * inten;
 	}
 	else{
 		finalColour = finalColour + ( (diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
@@ -228,7 +242,7 @@ vec4 pointLight(int iteration)
 	return finalColour;
 }
 
-vec4 spotLight(int iteration)
+vec4 spotLight(int iteration, sampler2D specSamp)
 {
 	// controls how big the area that is lit up is
 	float outerCone = 0.90f;
@@ -240,7 +254,7 @@ vec4 spotLight(int iteration)
 	vec4 finalColour = vec4(0.0f);
 
 		// diffuse lighting
-	vec3 normal = CalcNewNormal();
+	vec3 normal = CalcNewNormal(texCoord);
 
 	vec3 lightDirection = normalize(Lights[iteration].position - crntPos);
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
@@ -262,7 +276,7 @@ vec4 spotLight(int iteration)
 	float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 16);
 	specular = specAmount * specularLight;
 
-	finalColour = finalColour + ((diffuse * inten + 0.0f) + texture(texture_roughness, texCoord).r * specular * inten) * vec4(Lights[iteration].colour, 1.0) * inten;
+	finalColour = finalColour + ((diffuse * inten + 0.0f) + texture(specSamp, texCoord).g * specular * inten) * vec4(Lights[iteration].colour, 1.0) * inten;
 
 	}
 	else{
@@ -276,7 +290,7 @@ vec4 spotLight(int iteration)
 	return finalColour; 
 }
 
-vec4 lights(){
+vec4 lights(sampler2D specSamp){
 	//vec4 diffuseTex = texture(texture_diffuse0, texCoord);
 	vec4 finalColour = vec4(0.0);
     //return (diffuseTex * skyColor);
@@ -284,11 +298,11 @@ vec4 lights(){
 	for (int i = 0; i < min(lightCount, maxLights); i++)
 		{
 			if (Lights[i].type == 0){
-			finalColour += spotLight(i);
+			finalColour += spotLight(i, specSamp);
 			}
 
 			if (Lights[i].type == 1){
-			finalColour += pointLight(i);
+			finalColour += pointLight(i, specSamp);
 		}
 
 	}
@@ -297,7 +311,7 @@ vec4 lights(){
 
 	if (doDirLight) // if direct light is enabled, add it to the final color
 	{
-		finalColour += direcLight();
+		finalColour += direcLight(specSamp);
 	}
 
 		///return vec4(finalColour.xyz, diffuseTex.a);
@@ -328,55 +342,128 @@ vec3 sampleHemisphere(vec3 normal, float random)
     return tangent * localDir.x + bitangent * localDir.y + normal * localDir.z;
 }
 
-vec3 reflections()
+	// (thanks learnopengl)
+float GeometrySchlickGGX(float NdotV, float roughness)
 {
-	vec4 final;
+    float a = roughness;
+    float k = (a * a) / 2.0;
 
-	vec3 metallicRoughness = texture(texture_roughness, texCoord).rgb; // metalic
+    float nom   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
 
-	float rough = metallicRoughness.g;
-	float inverseRoughness = (1.0 - rough);
-	float met =  metallicRoughness.b;
-	float inversMetallic = (1.0 - met);
-
-	vec3 NreflectedVector = reflect(NviewVector, CalcNewNormal());
-	//vec3 NreflectedVector = reflect(NviewVector, normalize(Normal));
-
-	int lastLOD = textureQueryLevels(skybox) - 1;
-
-	float maxLod = lastLOD;
-
-	float lod =  rough * maxLod; 
-
-	lod = min(lod, 10.0); 
-
-	vec3 skyboxColour = textureLod(skybox, NreflectedVector, lod).rgb;
-
-	//float specularIntensity = mix(0.04, 1.0, met);
-
-	//return texture(skybox, NreflectedVector).rgb * met;
-	//return skyboxColour;
-	//float specularIntensity = inversMetallic;
-	//float specularIntensity = mix(0.04, 1.0, smoothnessValue);
-    
-    return (skyboxColour * met) * smoothnessValue;
+	return nom / max(denom, 0.0001);
 }
 
-vec3 indirectIBL(int samples)
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+
+    return ggx1 * ggx2;
+}  
+
+vec3 metRough(vec3 albedo, out vec3 nFer, out float nMet, out vec3 irradiance, sampler2D specSamp)
+{
+	// textures
+	vec3 metallicRoughness = texture(specSamp, texCoord).rgb; // metalic
+	float rough = metallicRoughness.g;
+	float met =  metallicRoughness.b;
+	nMet = met;
+
+	// vectors
+	vec3 normal = normalize(CalcNewNormal(texCoord));
+	//vec3 normal = normalize(Normal);
+	vec3 v = normalize(NviewVector);
+	vec3 r = reflect(v, normal);
+	float nDotV = max(dot(normal, -v), 0.0001);
+
+	samplerCube cmSamp = samplerCube(cmMainHandle);
+
+	// LOD based Roughness (irradiance probes);
+	float maxLod = float(textureQueryLevels(cmSamp) - 1);
+	float lod = rough * maxLod; 
+	lod = min(lod, 10.0); 
+
+	vec3 reflectionColour = textureLod(cmSamp, r, lod).rgb;
+	irradiance = textureLod(cmSamp, normal, maxLod).rgb;
+
+	// fresnel
+	float reflectivity = 0.04f;
+	vec3 nF = mix(vec3(reflectivity), albedo, met);
+	nFer = nF;
+	vec3 F = nF + (max(vec3(1.0 - rough), nF) - nF) * pow(clamp(1.0 - nDotV, 0.0, 1.0), 5.0);
+
+	// visibility factor 
+	float G = GeometrySmith(normal, -v, r, rough);
+
+	//return reflectionColour * F;
+	return reflectionColour * F * G;
+}
+
+void Reflect(vec3 albedo, out vec3 diffuse, out vec3 specular, sampler2D specSamp)
+{
+	if (doReflect)
+	{
+		float met = 0;
+		vec3 nF = vec3(0.0f);
+		vec3 irradiance = vec3(0.0f);
+		specular = metRough(albedo, nF, met, irradiance, specSamp);
+
+		vec3 nDiffuse = vec3(0.0f);
+		nDiffuse = albedo * (1.0f - nF);
+		nDiffuse *= (1.0f - met);
+
+		diffuse = irradiance * nDiffuse;
+	}
+}
+
+
+vec3 rough(sampler2D specSamp)
+{
+	if (doReflect)
+	{
+	// textures
+	vec3 metallicRoughness = texture(specSamp, texCoord).rgb; // metalic
+	float rough = metallicRoughness.g;
+
+	// vectors
+	vec3 normal = normalize(CalcNewNormal(texCoord));
+	//vec3 normal = normalize(Normal);
+	vec3 v = normalize(NviewVector);
+	vec3 r = reflect(v, normal);
+	float nDotV = max(dot(normal, -v), 0.0001);
+
+	samplerCube cmSamp = samplerCube(cmMainHandle);
+
+	// LOD based Roughness (irradiance probes);
+	float maxLod = float(textureQueryLevels(cmSamp) - 1);
+	float lod = rough * maxLod; 
+	lod = min(lod, 10.0); 
+
+	vec3 reflectionColour = textureLod(cmSamp, r, lod).rgb;
+	return reflectionColour;
+	}
+	return vec3(0.0f);
+}
+
+
+vec3 indirectIBL(int samples, sampler2D specSamp)
 {
 
-	vec3 metallicRoughness = texture(texture_roughness, texCoord).rgb; // metalic
+	vec3 metallicRoughness = texture(specSamp, texCoord).rgb; // metalic
 
 	float rough = metallicRoughness.g;
-	float inverseRoughness = (1.0 - rough);
 	float met =  metallicRoughness.b;
-	float inversMetallic = (1.0 - met);
 
-	vec3 normal = CalcNewNormal();
+	vec3 normal = CalcNewNormal(texCoord);
 
 	vec3 NreflectedVector = reflect(NviewVector, normal);
 
-	int lastLOD = textureQueryLevels(skybox) - 1;
+	samplerCube cmSamp = samplerCube(cmMainHandle);
+
+	int lastLOD = textureQueryLevels(cmSamp) - 1;
 
 	float maxLod = lastLOD;
 
@@ -388,14 +475,16 @@ vec3 indirectIBL(int samples)
 
 	vec3 indirectColour = vec3(0.0f);
 
+	if (samples <= 0) return indirectColour;
+
 	for (int i = 0; i < samples; i++)
 	{
 	//gl_FragCoord
-		vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + gl_FragCoord.z);
+		vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + (gl_FragCoord.z * time));
 		//vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + time); // i thought it would be better to add time for a film grain look, it would also solve with taa
 
 			//int skyLOD = textureQueryLevels(skybox) - 4; // use mipmap for more preformance
-			vec3 skyboxColour = textureLod(skybox, randomDir, lod).rgb; 
+			vec3 skyboxColour = textureLod(cmSamp, randomDir, lod).rgb; 
 			//vec3 skyboxColour = texture(skybox, randomDir).rgb; 
 
 		indirectColour += skyboxColour;
@@ -405,6 +494,7 @@ vec3 indirectIBL(int samples)
 	//return (indirectColour / samples) * met;
 }
 
+// looks best on decals and foliage
 void blueNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could fade out near farplane or nearplane)
 {
 	vec2 noiseUV = vec2(gl_FragCoord.xy) / vec2(textureSize(BlueNoiseTex, 0)); // new uvec2
@@ -412,6 +502,19 @@ void blueNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could
 
 	// normal ranges should be 0.0f-1.0f;
 	if (noise > Threshold) discard;
+}
+
+// looks best on glass and solids
+void BayerNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could fade out near farplane or nearplane)
+{
+	sampler2D baySamp = sampler2D(bayerMatrixHandle);
+	vec2 bayUV = vec2(gl_FragCoord.xy) / vec2(textureSize(baySamp, 0)); // new uvec2
+	float bayer = texture(baySamp, bayUV).r;
+
+	float clampedThreshold = clamp(Threshold, 0.2, 1.0);
+
+	// normal ranges should be 0.0f-1.0f;
+	if (bayer > Threshold || Threshold <= 0) discard;
 }
 
 float logisticDepth(float depth, float steepness, float offset, float NearPlane, float FarPlane)
@@ -435,41 +538,68 @@ void main()
 	if (linearizedDepth > FarPlane)
 	discard;
 
-
 	float fadeDistance = 10.0;
 	float distToFar = FarPlane - linearizedDepth;
 	float farOpacity = distToFar / fadeDistance;
 	farOpacity = clamp(farOpacity, 0.0, 1.0);
 
-
-	blueNoiseOpacity(farOpacity);
-
-	vec4 diffuseTex = texture(texture_diffuse, texCoord);
-	if (diffuseTex.a < 0.1)
+	BayerNoiseOpacity(farOpacity);
+		
+	sampler2D difusesamp = sampler2D(texture_diffuse_Handle);
+	vec4 albedo = texture(difusesamp, texCoord);
+	if (albedo.a <= 0.0)
 	discard;
 
-	blueNoiseOpacity(diffuseTex.a);
+
+	BayerNoiseOpacity(albedo.a);
 
 	vec3 specular = vec3(0.0f);
-	if (doReflect)
-	{
-		specular = reflections();
-	}
-	vec3 direct = lights().rgb;
+	vec3 diffuse  = vec3(0.0f);
 
-	vec3 indirect = indirectIBL(4);
+	sampler2D specSamp = sampler2D(texture_roughness_Handle);
+
+	Reflect(albedo.rgb, diffuse, specular, specSamp);
+
+	vec3 direct = lights(specSamp).rgb;
+
+	vec3 indirect = indirectIBL(indirectSamples, specSamp);
 
 	vec3 gi = (direct + indirect);
 
+	vec3 reflections = diffuse + specular;
+
+	float met = texture(specSamp, texCoord).b;
+
+	vec3 F0 = mix(vec3(0.04), albedo.rgb, met);
+	vec3 kD = (vec3(1.0) - F0) * (1.0 - met);
+
+	vec3 totalDiffuse = (gi * albedo.rgb * kD);
+
+	vec3 finalRGB = totalDiffuse + specular;
+
+	//vec4 final = vec4(finalRGB, 1.0f);
+
 	// albedo * gi + spec + em
-	vec4 final = diffuseTex * vec4(gi, 1.0f) + vec4(specular, 1.0f);
+	vec4 final = albedo * vec4(gi, 1.0f) + vec4(reflections, 1.0f);
 
 	if (doFog) final = calculateFog(FogNearPlane, FogFarPlane, DepthDistance, fogColour, final); // fog
 
+	//final = vec4(reflections,1.0f);
+
 	FragColor = final;
-	//FragColor = vec4(specular , 1.0f);
+	//FragColor = vec4(rough(specSamp), 1.0f);
+	//FragColor = vec4(finalRGB , 1.0f);
 	//FragColor = diffuseTex * vec4(1.0f) + vec4(specular , 1.0f);
 
+	//sampler2D dispSamp = sampler2D(texture_displacement_Handle);
+	//FragColor = vec4(vec3(texture(dispSamp, texCoord).rgb ),1.0f );
+
+
+	//sampler2D norSamp = sampler2D(texture_normal_Handle);
+	//FragColor = vec4(vec3(texture(norSamp, texCoord).a ),1.0f );
+	//FragColor = vec4(vec3(texture(norSamp, texCoord).rgb ),1.0f );
+
+	//FragColor = vec4(vec3(texture(specSamp, texCoord).a ),1.0f );
 	//FragColor = vec4( vec3(texture(texture_roughness0, texCoord).r ),1.0f );
 	//FragColor = vec4( vec3(texture(texture_roughness0, texCoord).g ),1.0f ); // roughness
 	//FragColor = vec4( vec3(texture(texture_roughness0, texCoord).b ),1.0f ); // metal

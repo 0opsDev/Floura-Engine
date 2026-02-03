@@ -8,6 +8,7 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
 uniform sampler2D screenTexture;
+uniform sampler2D gSpecular;
 uniform mat4 cameraMatrix;
 
 uniform float gamma;
@@ -39,6 +40,8 @@ void main() {
 
     FragColor.rgb = pow(tonemappedColour, vec3(gamma));
     //FragColor.rgb = pow(colour, vec3(gamma));
+
+    //FragColor.rgb = texture(gNormal, texCoords).rgb;
 
     //FragColor.rgb = texture(gNormal, texCoords).rgb;
 }

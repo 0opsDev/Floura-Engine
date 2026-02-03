@@ -16,6 +16,16 @@ public:
 	static bool isColliding;
 
 	static void init();
+	// this is not meant for a player controller, im only placing it here for now
+
+	// 0 stop
+	// 1 play
+	// 2 pause
+	static int playstate;
+
+	static void stopState();
+	static void playState();
+	static void pauseState();
 
 	static void update();
 

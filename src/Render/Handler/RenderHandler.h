@@ -8,6 +8,7 @@
 #include<Render/Object/ModelAssimp.h>
 #include<vector>
 #include<camera/Camera.h>
+#include<Render/Object/Cubemap.h>
 
 class RenderHandler
 {
@@ -27,14 +28,14 @@ public:
 		uint64_t instanceUUID;
 		uint64_t shaderUUID;
 		uint64_t gpShaderUUID;
+		float smoothnessValue;
 		int isInstanced; // will come into play way later
 		glm::vec3 position;
 		glm::vec3 rotation;
 		glm::vec3 scale;
+		glm::vec2 uvScale;
 		bool doCulling;
 		bool cullFrontFace;
-		glm::vec2 uvScale;
-		float smoothnessValue;
 		bool castsShadow;
 	};
 
@@ -70,8 +71,15 @@ public:
 
 	static uint64_t findModelUUIDwInstanceUUID(uint64_t InstanceUUID);
 
+	static void init();
+
 private:
 
+	static Shader cmShader;
+	
+	static Cubemap* tempCM;
+
+	static void cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm, Shader& shader, glm::vec2 resolution, glm::vec3 pos);
 
 	static void regularDraw();
 

@@ -22,7 +22,14 @@ public:
 	uint64_t renderID;
 	std::vector<uint64_t>instanceUUIDs;
 
-	RenderClass::transformation globalTransformation;
+	struct transformation {
+		glm::vec3 position = glm::vec3(0.0f);
+		glm::vec3 rotation = glm::vec3(0.0f);
+		glm::quat qRotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
+		glm::vec3 scale = glm::vec3(1.0f);
+	};
+
+	transformation globalTransformation;
 	glm::mat4 gModelMatrix = glm::mat4(1.0f);
 
 	void updatePosition(glm::vec3 Position);
@@ -36,9 +43,9 @@ public:
 	Model(const char* file);
 	~Model();
 
-	void draw(Shader &shader);
+	void draw(Shader &shader, Camera Camera);
 
-	void drawInstance(Shader& shader, int instanceCount);
+	void drawInstance(Shader& shader, Camera Camera, int instanceCount);
 
 	void createMeshAABBs();
 
@@ -49,7 +56,7 @@ public:
 	std::vector<Mesh> meshes;
 	std::vector<Collision::rubiksCubePoints> meshAabbPoints;
 
-	std::vector<RenderClass::transformation>localTransformation;
+	std::vector<transformation> localTransformation;
 	std::vector <glm::mat4> lModelMatrix;
 
 private:

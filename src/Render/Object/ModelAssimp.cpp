@@ -3,6 +3,7 @@
 #include  <utils/FE_math.h>
 #include <Systems/Physics/BVH.h>
 #include <assimp/pbrmaterial.h>
+#include <assimp/material.h>
 
 void Model::updatePosition(glm::vec3 Position)
 {
@@ -69,20 +70,20 @@ Model::~Model() {
 
 }
 
-void Model::draw(Shader& shader)
+void Model::draw(Shader& shader, Camera Camera)
 {
 	// draw all meshes and parse in data
     for (unsigned int i = 0; i < meshes.size(); i++)
     {
-        meshes[i].draw(shader);
+        meshes[i].draw(shader, Camera);
     }  
 }
 
-void Model::drawInstance(Shader& shader, int instanceCount)
+void Model::drawInstance(Shader& shader, Camera Camera, int instanceCount)
 {
     for (unsigned int i = 0; i < meshes.size(); i++)
     {
-        meshes[i].drawInstanced(shader, instanceCount);
+        meshes[i].drawInstanced(shader, Camera, instanceCount);
     }
 }
 
@@ -163,7 +164,7 @@ void Model::processPositions(aiNode* node)
     model = glm::scale(model, glm::vec3(scale.x, scale.y, scale.z));
     
     //localTransformation
-    RenderClass::transformation newTransformation;
+    transformation newTransformation;
     newTransformation.position = glm::vec3(position.x, position.y, position.z);
     newTransformation.scale = glm::vec3(scale.x, scale.y, scale.z);
     newTransformation.qRotation = glm::quat(rotation.w, rotation.x, rotation.y, rotation.z);
@@ -209,13 +210,13 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         vector.z = mesh->mBitangents[i].z;
         vertex.biTangent = vector;
 
-        if (mesh->GetNumColorChannels() > 0)
-        {
-            vertex.color.x = mesh->mColors[1][i].r;
-            vertex.color.y = mesh->mColors[1][i].g;
-            vertex.color.z = mesh->mColors[1][i].b;
-        }
-        else
+        //if (mesh->GetNumColorChannels() > 0)
+        //{
+            //vertex.color.x = mesh->mColors[1][i].r;
+            //vertex.color.y = mesh->mColors[1][i].g;
+            //vertex.color.z = mesh->mColors[1][i].b;
+        //}
+        //else
             vertex.color = glm::vec3(1.0f, 1.0f, 1.0f);
 
         if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates? // determine colour here
@@ -251,10 +252,14 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness", 1); // Note: Could also be aiTextureType_SHININESS
         std::vector<Texture> normalMaps = aloadMaterialTextures(material,
             aiTextureType_NORMALS, "texture_normal", 2);
+        //std::vector<Texture> displacementMaps = aloadMaterialTextures(material,
+        //    aiTextureType_DISPLACEMENT, "texture_displacement", 3);
+        // just gonna go for a alpha on normal (you'll need to manually add that)
 
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
         textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+        //textures.insert(textures.end(), displacementMaps.begin(), displacementMaps.end());
 
     }
     aiString name = mesh->mName;
@@ -263,13 +268,24 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     nMesh.create(vertices, indices, textures);
     return Mesh(nMesh);
 }
+/*
+} else if (material->GetTexture(aiTextureType_HEIGHT, 0, &path) == AI_SUCCESS) {
+    // Fallback heightmap found
+}
 
+*/
 std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType type,
     std::string typeName, int slot)
 {
     std::vector<Texture> textures;
 
-    if (mat->GetTextureCount(type) == 0)
+    aiTextureType targetType = type;
+    //if (type == aiTextureType_DISPLACEMENT && mat->GetTextureCount(type) == 0) {
+     //   targetType = aiTextureType_HEIGHT;
+    //}
+
+
+    if (mat->GetTextureCount(targetType) == 0)
     {
         glm::vec4 colourFloat = glm::vec4(0.0f);
         if (type == aiTextureType_DIFFUSE)
@@ -295,6 +311,16 @@ std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType
         {
             colourFloat = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
         }
+        /*
+        if (type == aiTextureType_DISPLACEMENT)
+        {
+            colourFloat = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        }
+        if (type == aiTextureType_HEIGHT)
+        {
+            colourFloat = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        }
+        */
         //std::cout << "typeName: " << typeName << std::endl;
         //std::cout << "typenum: " << type << std::endl;
         //std::cout << "colour: " << " r: " << colourFloat.x << " g: " << colourFloat.y << " b: " << colourFloat.z << std::endl;
@@ -306,10 +332,10 @@ std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType
         loadedTexPath.push_back("null");
     }
 
-    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+    for (unsigned int i = 0; i < mat->GetTextureCount(targetType); i++)
     {
         aiString str; // str is path
-        mat->GetTexture(type, i, &str);
+        mat->GetTexture(targetType, i, &str);
         bool skip = false;
         for (unsigned int j = 0; j < loadedTex.size(); j++)
         {
@@ -325,12 +351,13 @@ std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType
         {
             Texture texture;
             std::string path = directory + "/" + str.C_Str();
+
             texture.createTexture(path.c_str(), (typeName).c_str(), slot);
             //std::cout << path << std::endl;
             textures.push_back(texture);
             loadedTex.push_back(texture);
             loadedTexPath.push_back(str.C_Str());
-        }
+        }   
     }
     return textures;
 }

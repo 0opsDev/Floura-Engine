@@ -3,14 +3,6 @@
 #include <Render/Handler/RenderHandler.h>
 BVH::tlas BVH::nTlas;
 
-BVH::minmax BVH::returnMinMax(glm::vec3 p, glm::vec3 s)
-{
-    minmax newMinMax;
-    newMinMax.min = p - (s * glm::vec3(0.5f)),
-    newMinMax.max = p + (s * glm::vec3(0.5f));
-    return newMinMax;
-}
-
 void BVH::uploadSceneRootsToTlas(std::vector<std::unique_ptr<entity>> entityObjects)
 {
     nTlas.rootnodes.clear(); // clear prior nodes

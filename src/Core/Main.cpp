@@ -2,7 +2,6 @@
 #include "utils/timeUtil.h" 
 #include <thread>
 #include <chrono>
-#include "Scripting/ScriptRunner.h"
 #include "File/File.h"
 #include <Editor/UI/ImGui/ImGuiWindow.h>
 #include "Render.h"
@@ -14,7 +13,7 @@
 #include "Editor/UI/ImGui/OpenSceneWindow.h"
 #include <windows.h>
 #include "Sound/SoundRunner.h"
-// e
+
 bool Main::sleepState = true;
 
 void CloseConsoleWindow() { 
@@ -27,26 +26,19 @@ int main()
 	//CloseConsoleWindow();
 	Main::sleepState = true;
 	FileClass::loadSettings();
-	ScriptRunner::init(Scene::sceneName + "/LuaStartup.json");
 	SoundRunner::init();
 	RenderClass::init(windowHandler::width, windowHandler::height);
 	Scene::maincamera.InitCamera(windowHandler::width, windowHandler::height, Scene::initalCameraPos); 	// camera ratio pos
 	Scene::init();
-	Scene::LoadScene(Scene::sceneName);
+	Scene::loadScene(Scene::sceneName);
 
 	//two classes to test stuff
 	TempScene::init();
 	Player::init();
 
-	//GLint maxImageUnits;
-	//glGetIntegerv(GL_MAX_IMAGE_UNITS, &maxImageUnits);
-	//std::cout << "Max Image Units: " << maxImageUnits << std::endl;
-
-
 	while (!glfwWindowShouldClose(windowHandler::window)) // GAME LOOP
 	{
 		TimeUtil::update();
-		ScriptRunner::update();
 		Scene::maincamera.Inputs(windowHandler::window);
 		Scene::maincamera.updateMatrix(); // Update: fov, near and far plane
 		Scene::Update();
@@ -60,6 +52,7 @@ int main()
 
 	if (FEImGuiWindow::imGuiEnabled)
 		ImGui_ImplOpenGL3_Shutdown(), ImGui_ImplGlfw_Shutdown(), ImGui::DestroyContext(); // Kill ImGui
+
 	RenderClass::Cleanup();
 	Skybox::Delete();
 	Skybox::cleanup();

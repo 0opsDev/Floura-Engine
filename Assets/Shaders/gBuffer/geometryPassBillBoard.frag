@@ -1,8 +1,12 @@
 #version 460 core
 
+#extension GL_ARB_gpu_shader_int64 : enable
+#extension GL_ARB_bindless_texture : require
+
 layout(location = 0) out vec3 gPosition;
 layout(location = 1) out vec3 gNormal;
 layout(location = 2) out vec4 gAlbedoSpec;
+layout(location = 4) out vec4 gSpecular;
 
 in vec3 crntPos;
 in vec2 texCoord;
@@ -26,4 +30,6 @@ void main()
 
    //Ensure alpha is correctly fetched
    gAlbedoSpec.a = 0.0f;
+
+   gSpecular = vec4(1.0f,1.0f,0.0f,1.0f);
 }

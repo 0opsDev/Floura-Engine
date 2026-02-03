@@ -1,49 +1,80 @@
 #include "ScriptObject.h"
-#include <utils/logConsole.h>
+#include "Systems/util/UUID.h"
 #include <utils/timeUtil.h>
+#include <glm/glm.hpp>
 
-void ScriptObject::LoadLua(sol::state& LuaState, std::string Path) {
-	LuaState.open_libraries(sol::lib::base, sol::lib::io, sol::lib::math, sol::lib::table);
-	// Step 1) Load & Parse File
+ScriptObject::ScriptObject(std::string name)
+{
+	ScriptObject::UUID = UUID::returnHandle();
+	ScriptObject::name = name;
+}
+
+void ScriptObject::loadScript(std::string path)
+{
+	ScriptObject::path = path;
+	didInit = false;
+	luaState.open_libraries(sol::lib::base, sol::lib::io, sol::lib::math, sol::lib::table);
+
 	try
 	{
-		LuaState.safe_script_file(Path); // parse in scripts
-		LogConsole::print("[CPP LoadLua] Lua File read OK! at: " + Path);
+		//std::cout << "loading: " << path << std::endl;
+		luaState.safe_script_file(path);
 	}
 	catch (const sol::error& e)
 	{
-		// Something went wrong with loading this script
-		LogConsole::print("[CPP LoadLua] Lua File read ERROR! at: " + Path);
-		LogConsole::print(std::string(e.what()));
+		//std::cout << "failed: " << path << std::endl;
+		std::cout << std::string(e.what()) << "\n";
+	}
+
+	initEngineSpecificTables();
+}
+
+void ScriptObject::scriptInit()
+{
+	if (luaState["init"].valid()) {
+		luaState["init"]();
+		didInit = true;
 	}
 }
 
-void ScriptObject::UpdateDelta() {
-	TimeAccumulator += TimeUtil::deltatime;
-	if (TimeAccumulator >= 1 / tickrate) {
-
-		luaFunctions();
-
-		tickrate = luaState["UpdateDelta"]();
-		//std::cout << tickrate << std::endl;
-		TimeAccumulator = 0;
-	}
+void ScriptObject::createTable(const char* tableName)
+{
+	luaState.create_named_table(tableName);
 }
 
-void ScriptObject::runFunction(const std::string& name) {
-	if (name == "UpdateDelta") {
-		UpdateDelta();
-	}
-	else {
-		if (luaState[name].valid()) {
-			luaFunctions();
-			luaState[name](); // Call the Lua function
-		}
-		else {
-			std::cerr << "Lua function '" << name << "' not found or invalid." << std::endl;
-		}
-	}
+void ScriptObject::setUniform(const char* uniform, sol::table table, sol::object value)
+{
+	table[uniform] = value;
 }
 
-void ScriptObject::luaFunctions() {
+sol::object ScriptObject::getUniform(const char* uniform, sol::table table)
+{
+	return table[uniform];
+}
+
+void ScriptObject::initEngineSpecificTables()
+{
+	timeTable = getOrCreateTable("time");
+}
+
+void ScriptObject::updateEngineSpecficTables()
+{
+	setUniform("deltaTime", timeTable, sol::make_object(luaState, TimeUtil::deltatime));
+	setUniform("lastFrameTime", timeTable, sol::make_object(luaState, TimeUtil::lastFrameTime));
+	setUniform("frameRate", timeTable, sol::make_object(luaState, TimeUtil::frameRate));
+	setUniform("time", timeTable, sol::make_object(luaState, TimeUtil::time));
+}
+
+void ScriptObject::scriptUpdate()
+{
+	updateEngineSpecficTables();
+
+	if (!didInit)
+	{
+		ScriptObject::scriptInit();
+	}
+
+	if (luaState["update"].valid()) {
+		luaState["update"]();
+	}
 }

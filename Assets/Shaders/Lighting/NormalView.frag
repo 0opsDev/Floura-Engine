@@ -1,4 +1,6 @@
 #version 460 core
+#extension GL_ARB_gpu_shader_int64 : enable
+#extension GL_ARB_bindless_texture : require
 
 // Outputs colors in RGBA
 out vec4 FragColor;
@@ -16,15 +18,15 @@ in vec3 Normal0;
 in vec3 Tangent0;
 in vec3 Bitangent0;
 
-uniform sampler2D texture_normal0;
+uniform uint64_t texture_normal_Handle;
 
 vec3 CalcNewNormal()
 {
 	//	return normalize(Normal); 
 	// texture
 	//vec3 normalTex = texture(texture_normal0, texCoord).xyz;
-
-	vec3 normalTex = normalize(texture(texture_normal0, texCoord).xyz * 2.0f - 1.0f);
+	sampler2D Sampler = sampler2D(texture_normal_Handle);
+	vec3 normalTex = normalize(texture(Sampler, texCoord).xyz * 2.0f - 1.0f);
 
 	// transform from 0,1 to -1, 1
 	//normalTex = 2.0 * normalTex - vec3(1.0);

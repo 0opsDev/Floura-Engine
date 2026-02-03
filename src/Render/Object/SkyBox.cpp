@@ -74,20 +74,21 @@ void Skybox::LoadSkyBoxTexture(std::string PathName) {
 	if (SkyboxCubemap != nullptr) {
 		SkyboxCubemap->~Cubemap();
 	}
-	SkyboxCubemap = new Cubemap(PathName); // update it to parse in string which is a path,
+	SkyboxCubemap = new Cubemap(); // update it to parse in string which is a path,
+	SkyboxCubemap->loadCubeMap(PathName);
 }
 
-void Skybox::draw() {
+void Skybox::draw(Camera& camera) {
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 
 	glDisable(GL_CULL_FACE);
 	glm::mat4 view = glm::mat4(1.0f);
 	// We make the mat4 into a mat3 and then a mat4 again in order to get rid of the last row and column
 	// The last row and column affect the translation of the skybox (which we don't want to affect)
-	view = glm::mat4(glm::mat3(Scene::maincamera.view));
+	view = glm::mat4(glm::mat3(camera.view));
 	//std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
 
 
@@ -105,35 +106,25 @@ void Skybox::draw() {
 		//std::cout << "height" << height << std::endl;
 		skyboxShader.Activate();
 		skyboxShader.setMat4("view", view);
-		skyboxShader.setMat4("projection", Scene::maincamera.projection);
-		skyboxShader.setInt("skybox", 0);
+		skyboxShader.setMat4("projection", camera.projection);
+		//skyboxShader.setInt("skybox", 0);
 		skyboxShader.setFloat3("skyRGBA", RenderClass::gammaCorrect3(RenderClass::skyRGBA));
 		skyboxShader.setBool("DoSbRGBA", DoSbRGBA);
 		skyboxShader.setMat4("rotation", rot);
+		SkyboxCubemap->cubemapToUUIDShader("skyboxHandle", skyboxShader);
 
 		// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
 		// where an object is present (a depth of 1.0f will always fail against any object's depth value)
+				//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxCubemap->ID);
+
 
 		glBindVertexArray(VAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxCubemap->ID);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 
-}
-
-void Skybox::bind(int unit)
-{
-	glActiveTexture(GL_TEXTURE0 + unit);// + textureUnit
-	glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxCubemap->ID);
-}
-
-void Skybox::cubemapToShader(Shader& shader, int unit)
-{
-	shader.Activate();
-	shader.setInt("skybox", unit);
 }
 
 void Skybox::unbind()

@@ -7,6 +7,9 @@
 #include <Scene/Object/Entity.h>
 #include <thread>
 #include "Camera/Camera.h"
+#include <Systems/Physics/Collision.h>
+#include "ProbeHandler.h"
+
 using json = nlohmann::json;
 
 //testclass
@@ -19,48 +22,70 @@ public:
 	static std::vector <std::unique_ptr<entity>> entityObjects;
 	static Camera maincamera;
 	static glm::vec3 initalCameraPos;
+	static std::vector <ProbeHandler::probe> probes;
+
+	static Collision::AABB SceneBounds;
+	static std::vector <Collision::AABB> rootnodes;
+
+	static void calculateSceneBounds();
 
 	static void init();
 
-	static void LoadScene(std::string path);
+	static void loadSceneStateless(std::string path);
 
-	static void SaveScene(std::string path);
+	static void loadScene(std::string path);
 
-	static void JsonEnviromentSave(std::string path);
+	static void reloadScene(std::string path);
 
-	static void JsonEnviromentLoad(std::string path);
+	static void saveSceneStateless(std::string path);
 
-	static void initJsonModelLoad(std::string path);
+	static void saveScene(std::string path);
 
-	static void JsonModelSave(std::string path);
+	static void enviromentSave(std::string path);
+
+	static void enviromentLoad(std::string path);
+
+	static void modelReload(std::string path);
+
+	static void modelLoad(std::string path);
+
+	static void modelSave(std::string path);
 	
-	static void JsonBillBoardSave(std::string path);
+	static void billBoardSave(std::string path);
 
-	static void JsonSettingsSave(std::string path);
+	static void settingsSave(std::string path);
 
-	static void JsonCameraSettingsSave(std::string path);
+	static void cameraSettingsSave(std::string path);
 
 	static void AddSceneSoundObject(std::string name, std::string path);
 
 	static void AddEntityObject(char type, std::string name, std::string path);
 
-	static void initJsonBillBoardLoad(std::string path);
+	static void billBoardLoad(std::string path);
 
-	static void initJsonSoundObjectLoad(std::string path); 
+	static void soundObjectLoad(std::string path); 
 
-	static void JsonSoundObjectSave(std::string path);
+	static void soundObjectSave(std::string path);
 
-	static void initJsonSettingsLoad(std::string path);
+	static void settingsLoad(std::string path);
 
-	static void initCameraSettingsLoad(std::string path);
+	static void cameraSettingsLoad(std::string path);
 
 	static void shadowmapDraw();
+	
+	static void callAllScriptInit();
 
-	static void draw();
+	static void resetAllScripts();
 
-	static void Update();
+	static void draw();// put void calculateSceneBounds();
+
+	static void Update(); 
 
 	static void Delete();
+
+	static void saveEntityState();
+
+	static void restoreEntitiesToState();
 
 private:
 };

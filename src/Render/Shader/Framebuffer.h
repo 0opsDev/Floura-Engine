@@ -23,6 +23,13 @@ public:
 	static Shader frameBufferProgram;
 	static unsigned int FBO, RBO, texture;
 	static unsigned int FFBO, FRBO, Ftexture;
+	static unsigned int cmFBO, cmRBO, cmtexture;
+
+	static void smInit(glm::vec2 res);
+
+	static void smUpdateResolution(glm::vec2 res);
+
+	static void clearsmbuffer();
 
 	static void setupFBO(unsigned int width, unsigned int height);
 

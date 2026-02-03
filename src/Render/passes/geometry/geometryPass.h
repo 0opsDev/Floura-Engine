@@ -3,11 +3,11 @@
 
 #include<iostream>
 #include <Render/Object/ModelAssimp.h>
-
+#include <camera/Camera.h>
 class GeometryPass
 {
 public:
-	static unsigned int depthTexture, gBuffer, gAlbedoSpec, gNormal, gPosition, DBO, gNoise;
+	static unsigned int depthTexture, gBuffer, gAlbedoSpec, gNormal, gSpecular, gPosition, DBO, gNoise;
 
 
 	static void init();
@@ -16,7 +16,7 @@ public:
 
 	static void setupGbuffers(unsigned int width, unsigned int height);
 
-	static void gPassDraw(Model*& model, Shader& GPass);
+	static void gPassDraw(Model*& model, Shader& GPass, Camera camera);
 };
 
 #endif // GEOMETRYPASS_CLASS_H

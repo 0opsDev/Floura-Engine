@@ -88,6 +88,38 @@ Collision::rubiksCubePoints Collision::fetchFurthestVertices(const std::vector<V
 	return fp;
 }
 
+Collision::rubiksCubePoints Collision::aabbToRubixCubePoints(const glm::vec3 p, glm::vec3 s)
+{
+	rubiksCubePoints nPoints;
+
+	
+	//glm::vec3 hs = s * 0.5f; // half scale
+	glm::vec3 hs = s; // half scale
+
+	glm::vec3 pos = glm::vec3(p.x + hs.x, p.y + hs.y, p.z + hs.z);
+	glm::vec3 neg = glm::vec3(p.x - hs.x, p.y - hs.y, p.z - hs.z);
+
+	//float px = p.x + hs.x; // right
+	//float py = p.y + hs.y; //up
+	//float pz = p.z + hs.z; // front
+
+	//float nx = p.x - hs.x; // left
+	//float ny = p.y - hs.y; // down
+	//float nz = p.z - hs.z; // back
+
+	// up
+	nPoints.ULF = glm::vec3(neg.x, pos.y, pos.z); // up left front
+	nPoints.URF = glm::vec3(pos.x, pos.y, pos.z); // up right front
+	nPoints.URB = glm::vec3(pos.x, pos.y, neg.z); // up right back
+	nPoints.ULB = glm::vec3(neg.x, pos.y, neg.z); // up left back
+	// down
+	nPoints.DLF = glm::vec3(neg.x, neg.y, pos.z); // down left front
+	nPoints.DRF = glm::vec3(pos.x, neg.y, pos.z); // down right front
+	nPoints.DRB = glm::vec3(pos.x, neg.y, neg.z); // down right back
+	nPoints.DLB = glm::vec3(neg.x, neg.y, neg.z); // down left back
+	return nPoints;
+}
+
 
 static std::array<glm::vec3, 8> getPointsArrayFromRubiksCubePoints(const Collision::rubiksCubePoints& points)
 {
@@ -141,6 +173,7 @@ Collision::AABB Collision::createAABBfromPoints(const std::vector<glm::vec3>& po
 {
 	// optimise later btw
 	Collision::AABB AABB;
+	if (points.empty()) return Collision::AABB();
 
 	glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
 	glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
@@ -172,6 +205,14 @@ Collision::rubiksCubePoints Collision::transformRubiks(const rubiksCubePoints& p
 	FE_Math::transformPoint(newpoints.DLB, matrix);
 
 	return newpoints;
+}
+
+Collision::minmax Collision::returnMinMax(glm::vec3 p, glm::vec3 s)
+{
+	minmax newMinMax;
+	newMinMax.min = p - s,
+	newMinMax.max = p + s;
+	return newMinMax;
 }
 
 Collision::HitResult Collision::AABBvsAABB(
@@ -507,6 +548,13 @@ Collision::HitResult Collision::TrianglevsTriangle(
 	}
 
 	return data;
+}
+
+Collision::HitResult Collision::TraingleVSAABB(const glm::vec3& v0A, const glm::vec3& v1A, const glm::vec3& v2A, const glm::vec3& posA, const glm::vec3& sizeA)
+{
+
+
+	return HitResult();
 }
 
 // SAT
