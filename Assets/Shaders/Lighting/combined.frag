@@ -228,7 +228,7 @@ vec4 pointLight(int iteration, sampler2D specSamp)
 		vec3 reflectionDirection = reflect(-lightDirection, normal);
 
 		vec3 halfwayVec = normalize(lightDirection + viewDirection);
-qwe
+		
 		float specAmount = pow(max(dot(normal, halfwayVec), 0.1f), 16);
 		specular = specAmount * specularLight;
 
