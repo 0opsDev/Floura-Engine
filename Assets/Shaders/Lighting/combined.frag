@@ -228,7 +228,7 @@ vec4 pointLight(int iteration, sampler2D specSamp)
 		vec3 reflectionDirection = reflect(-lightDirection, normal);
 
 		vec3 halfwayVec = normalize(lightDirection + viewDirection);
-
+qwe
 		float specAmount = pow(max(dot(normal, halfwayVec), 0.1f), 16);
 		specular = specAmount * specularLight;
 
@@ -238,7 +238,7 @@ vec4 pointLight(int iteration, sampler2D specSamp)
 		finalColour = finalColour + ( (diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
 		//finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
 	}
-
+	
 	return finalColour;
 }
 

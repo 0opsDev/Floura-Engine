@@ -27,7 +27,7 @@ public:
 
 	void createTable(const char* tableName);
 
-	sol::table ScriptObject::getOrCreateTable(const char* tableName) {
+	sol::table getOrCreateTable(const char* tableName) {
 		return luaState[tableName].get_or_create<sol::table>();
 	}
 
