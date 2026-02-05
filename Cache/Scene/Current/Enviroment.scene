@@ -32,7 +32,7 @@
         "dirShadowMapSamples": 1,
         "dirSmDistance": 50.0,
         "dirSmHeight": 70.0,
-        "indirectSamples": 0,
+        "indirectSamples": 8,
         "skyRGBA": [
             0.13725489377975464,
             0.13725489377975464,

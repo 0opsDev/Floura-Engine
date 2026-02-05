@@ -9,7 +9,7 @@
         ],
         "DirEnabled": true,
         "DirRotation": [
-            864.5,
+            779.7000122070313,
             1905.9000244140625,
             0.0
         ],
@@ -32,7 +32,7 @@
         "dirShadowMapSamples": 1,
         "dirSmDistance": 50.0,
         "dirSmHeight": 70.0,
-        "indirectSamples": 8,
+        "indirectSamples": 0,
         "skyRGBA": [
             0.13725489377975464,
             0.13725489377975464,

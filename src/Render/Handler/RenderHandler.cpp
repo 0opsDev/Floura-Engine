@@ -148,6 +148,7 @@ uint64_t RenderHandler::findModelUUIDwInstanceUUID(uint64_t InstanceUUID)
 void RenderHandler::init()
 {
 	tempCM = new Cubemap();
+	//tempCM->loadCubeMap("Assets/Skybox/clearsky/Skybox.json"); // temp issue stems from this itself??
 	cmShader.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Lighting/reflection.frag");
 }
 
@@ -169,11 +170,15 @@ Cubemap* RenderHandler::tempCM;
 
 void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm, Shader& shader, glm::vec2 resolution, glm::vec3 pos)
 {
-	tempCM->resizeCubeMap(resolution);
 
+	tempCM->resizeCubeMap(resolution); // seems to remove the texture, keep an eye on this later
+	
 	// creation
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	if (GLAD_GL_ARB_bindless_texture && cm->handle != 0) {
+		glMakeTextureHandleNonResidentARB(cm->handle);
+	}
 
 	if (cm->ID == 0) {
 
@@ -181,14 +186,20 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 		// Creates the cubemap texture object
 		glGenTextures(1, &cm->ID);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cm->ID);
+
+		glTexStorage2D(GL_TEXTURE_CUBE_MAP, 5, GL_RGBA8, (int)resolution.x, (int)resolution.y);
+
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		// These are very important to prevent seams
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_CUBE_MAP_SEAMLESS, GL_TRUE);
 
 	}
+
+
 
 	GLint viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
@@ -306,7 +317,7 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 		glTexImage2D(
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X + x,
 			0,
-			GL_RGB16F,
+			GL_RGBA,
 			width,
 			height,
 			0,
@@ -318,13 +329,15 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 		delete[] data;
 	}
 
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cm->ID);
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
 	if (GLAD_GL_ARB_bindless_texture) {
 		cm->handle = glGetTextureHandleARB(cm->ID);
 		glMakeTextureHandleResidentARB(cm->handle);
 	}
 
-	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	glViewport(0, 0, viewport[2], viewport[3]);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -354,8 +367,8 @@ void RenderHandler::regularDraw()
 	if (RenderClass::doReflections || ProbeHandler::indirectSamples > 0)
 	{
 		//glm::vec3(Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z)
-		cmDraw(renderQueueDataVector, tempCM, cmShader, glm::vec2(256), glm::vec3(Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z));
-		//cmDraw(renderQueueDataVector, tempCM, cmShader, glm::vec2(256), glm::vec3(0.0f, 5.0f, 0.0f));
+		cmDraw(renderQueueDataVector, tempCM, cmShader, glm::vec2(512), glm::vec3(Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z));
+		// cmDraw(renderQueueDataVector, tempCM, cmShader, glm::vec2(256), glm::vec3(0.0f, 5.0f, 0.0f));
 		Skybox::unbind();
 	}
 

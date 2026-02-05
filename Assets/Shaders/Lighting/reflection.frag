@@ -238,7 +238,7 @@ void BayerNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (coul
 	if (bayer > Threshold) discard;
 }
 
-int lodcount = 1;
+int lodcount = 0;
 
 void main()
 {
@@ -256,15 +256,15 @@ void main()
 		
 	sampler2D difusesamp = sampler2D(texture_diffuse_Handle);
 
-	int lastLOD = textureQueryLevels(difusesamp) - 1;
+	//int lastLOD = textureQueryLevels(difusesamp) - 1;
 
-	float maxLod = lastLOD;
+	//float maxLod = lastLOD;
 
-	float lod = mipmapfactor * maxLod; 
+	//float lod = mipmapfactor * maxLod; 
 
-	lod = min(lod, maxLod); 
+	//lod = min(lod, maxLod); 
 
-	vec4 albedo = textureLod(difusesamp, texCoord, lod);
+	vec4 albedo = texture(difusesamp, texCoord);
 	if (albedo.a <= 0.0)
 	discard;
 

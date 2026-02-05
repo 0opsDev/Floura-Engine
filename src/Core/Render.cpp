@@ -37,7 +37,7 @@ bool RenderClass::DoDeferredLightingPass = false; // Toggle for lighting pass
 bool RenderClass::DoForwardLightingPass = true; // Toggle for regular pass
 bool RenderClass::DoComputeLightingPass = false;
 
-void initGLenable(bool frontFaceSide) {
+void initGLenable() {
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	glEnable(GL_DEPTH_TEST); // Depth buffer
@@ -47,11 +47,12 @@ void initGLenable(bool frontFaceSide) {
 	glEnable(GL_CULL_FACE); // Culling
 	glCullFace(GL_BACK);
 
-	switch (frontFaceSide) { //currently set to false
-	case true: { glFrontFace(GL_CW); break; } // inside facing
-	case false: { glFrontFace(GL_CCW); break; } // outside facing
-	}
+	//switch (frontFaceSide) { //currently set to false
+	//case true: { glFrontFace(GL_CW); break; } // inside facing
+	//case false: { glFrontFace(GL_CCW); break; } // outside facing
+	//}
 
+	glFrontFace(GL_CCW);
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glEnable(GL_FRAMEBUFFER_SRGB);
 	//glEnable(GL_MULTISAMPLE);
@@ -86,7 +87,7 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
-	initGLenable(false); //bool for direction of polys
+	initGLenable(); //bool for direction of polys
 
 	GeometryPass::init(); // Initialize geometry pass settings
 
@@ -107,6 +108,10 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	LightingHandler::setupShadowMapBuffer();
 	// need to add debug buffers at some point
 	//Framebuffer::setupNoiseMap();
+
+
+	Framebuffer::smInit(glm::vec2(128));
+	RenderHandler::init();
 
 	if (FEImGuiWindow::imGuiEnabled) {
 		FEImGuiWindow::init();
@@ -166,10 +171,6 @@ void RenderClass::initGlobalShaders() {
 
 
 	Framebuffer::frameBufferProgram.LoadShader("Assets/Shaders/PostProcess/framebuffer.vert", "Assets/Shaders/PostProcess/framebuffer.frag");
-
-	Framebuffer::smInit(glm::vec2(128));
-
-	RenderHandler::init();
 
 }
 

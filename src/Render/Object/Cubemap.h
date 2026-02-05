@@ -11,10 +11,6 @@
 #include<cerrno>
 #include <json/json.hpp>
 #include <Render/Shader/shaderClass.h>
-//#include <Render/Object/ModelAssimp.h>
-
-
-class Model;
 
 using json = nlohmann::json;
 
@@ -35,10 +31,12 @@ public:
 
 	void cubemapToShader(Shader& shader, int unit);
 	void cubemapToUUIDShader(const char* uniform, Shader& shader);
-
-	void drawCubeMap(Shader shader, std::vector<Model*>& Models, glm::vec2 resolution);
 	void resizeCubeMap(glm::vec2 resolution);
 	~Cubemap();
+
+private:
+
+	std::array<std::string, 6> facesCubemap;
 };
 
 #endif

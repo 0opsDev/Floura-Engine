@@ -1,28 +1,14 @@
 #include "Cubemap.h"
 #include <utils/logConsole.h>
 #include <Render/Shader/Framebuffer.h>
-#include <Render/Object/ModelAssimp.h>
-
-std::array<std::string, 6> facesCubemap;
-
-glm::vec3 targets[] = {
-glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(-1.0f,  0.0f,  0.0f),
-glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f),
-glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f,  0.0f, -1.0f)
-};
-
-glm::vec3 ups[] = {
-	glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f),
-	glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f,  0.0f, -1.0f),
-	glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)
-};
-
 
 Cubemap::Cubemap() {
 }
 
 void Cubemap::loadCubeMap(std::string path)
 {
+	//glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 	Cubemap::path = path;
 	// loading
 
@@ -59,7 +45,7 @@ void Cubemap::loadCubeMap(std::string path)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_CUBE_MAP_SEAMLESS, GL_TRUE);
 
 	//res
 	 
@@ -84,7 +70,9 @@ void Cubemap::loadCubeMap(std::string path)
 				GL_UNSIGNED_BYTE,
 				data
 			);
+
 			stbi_image_free(data);
+
 
 
 		}
@@ -93,15 +81,19 @@ void Cubemap::loadCubeMap(std::string path)
 			LogConsole::print("Failed to load texture: " + facesCubemap[i]);
 			stbi_image_free(data);
 		}
+
+
 	}
 
-	res = glm::vec2(width, height);
-
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
 	if (GLAD_GL_ARB_bindless_texture) {
 		handle = glGetTextureHandleARB(ID);
 		glMakeTextureHandleResidentARB(handle);
 	}
+
+	res = glm::vec2(width, height);
+
 
 }
 
@@ -128,91 +120,6 @@ void Cubemap::cubemapToUUIDShader(const char* uniform, Shader & shader)
 	shader.setHandleui64ARB(uniform, handle); // guess im keeping this weird capital underscore naming convension
 }
 
-void Cubemap::drawCubeMap(Shader shader, std::vector<Model*>& Models, glm::vec2 resolution)
-{
-	// creation
-
-	glDeleteTextures(1, &ID);
-
-	// Creates the cubemap texture object
-	glGenTextures(1, &ID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	// These are very important to prevent seams
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	GLint viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::cmFBO);
-
-	int width = (int)resolution.x;
-	int height = (int)resolution.y;
-	glViewport(0, 0, width, height);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-
-	Framebuffer::smUpdateResolution(resolution);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	Framebuffer::clearsmbuffer();
-	// Cycles through all the textures and attaches them to the cubemap object
-	for (unsigned int i = 0; i < 6; i++)
-	{
-		Camera nCamera;
-		nCamera.InitCamera(resolution.x, resolution.y, glm::vec3(0, 5, 0)); // Matching your Position
-		nCamera.fov = 90.0f;
-		nCamera.Orientation = targets[i];
-		nCamera.Up = ups[i];
-		nCamera.updateMatrix();
-
-		
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::cmFBO);
-
-		for (size_t x = 0; x < Models.size(); x++)
-		{
-			shader.Activate();
-			Models[x]->draw(shader, nCamera);
-		}
-
-
-		unsigned char* data = new unsigned char[width * height * 4];
-
-		glBindFramebuffer(GL_READ_BUFFER, Framebuffer::cmFBO);
-		//glReadBuffer(GL_COLOR_ATTACHMENT0);
-		glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-		glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
-		glTexImage2D(
-			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-			0,
-			GL_RGB16F,
-			width,
-			height,
-			0,
-			GL_RGBA,
-			GL_UNSIGNED_BYTE,
-			data
-		);
-
-		delete[] data;
-	}
-
-
-	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
-	if (GLAD_GL_ARB_bindless_texture) {
-		handle = glGetTextureHandleARB(ID);
-		glMakeTextureHandleResidentARB(handle);
-	}
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
-	width = viewport[2];
-	height = viewport[3];
-	glViewport(0, 0, width, height);
-}
-
 void Cubemap::resizeCubeMap(glm::vec2 resolution)
 {
 	// skip if new res is same as old
@@ -227,18 +134,14 @@ void Cubemap::resizeCubeMap(glm::vec2 resolution)
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
 
-	int width = (int)resolution.x;
-	int height = (int)resolution.y;
-	res = glm::vec2(width, height);
-
 	for (unsigned int i = 0; i < 6; i++)
 	{
 		glTexImage2D(
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
 			0,
-			GL_RGB16F,
-			width,
-			height,
+			GL_RGBA,
+			(int)resolution.x,
+			(int)resolution.y,
 			0,
 			GL_RGBA,
 			GL_UNSIGNED_BYTE,
@@ -251,11 +154,16 @@ void Cubemap::resizeCubeMap(glm::vec2 resolution)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_CUBE_MAP_SEAMLESS, GL_TRUE);
+
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
 	if (GLAD_GL_ARB_bindless_texture) {
 		handle = glGetTextureHandleARB(ID);
 		glMakeTextureHandleResidentARB(handle);
 	}
+
+	res = resolution;
 }
 
 
