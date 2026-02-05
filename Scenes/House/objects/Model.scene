@@ -81,7 +81,7 @@
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
             0.0,
-            0.0,
+            120.0,
             0.0
         ],
         "Scale": [
@@ -284,9 +284,9 @@
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
-            0.0,
-            0.0,
-            0.0
+            0.0003338791138958186,
+            -4.710843086242676,
+            -8.656325371703133e-05
         ],
         "Scale": [
             20.0,
@@ -312,31 +312,31 @@
     {
         "CastShadow": true,
         "Location": [
-            0.0,
-            53.783748626708984,
-            -51.07725143432617
+            -2.688742160797119,
+            4.935616970062256,
+            0.0
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
-            33.890567779541016,
-            -0.0,
+            0.0,
+            0.0,
             0.0
         ],
         "Scale": [
-            14.860313415527344,
-            17.41366958618164,
-            7.621697425842285
+            1.0,
+            1.0,
+            1.0
         ],
         "Scripts": [],
-        "UUID": "f0ae85196f2b030e",
+        "UUID": "d77e624e22126ec6",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
         "hasParent": false,
         "isBackFaceCulling": true,
-        "name": "reflectivecube",
+        "name": "lpshead",
         "parentUUID": "0000000000000000",
-        "path": "Assets/Models/reflectivecube.glb",
+        "path": "temp/lpshead/head.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,

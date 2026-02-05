@@ -7,16 +7,16 @@
             1.0,
             1.0
         ],
-        "DirEnabled": true,
+        "DirEnabled": false,
         "DirRotation": [
             779.7000122070313,
             1905.9000244140625,
             0.0
         ],
         "DirSMMaxBias": 0.00800000037997961,
-        "DirSpecEnabled": true,
+        "DirSpecEnabled": false,
         "DirSpecular": 1.0,
-        "DoShadowMap": true,
+        "DoShadowMap": false,
         "DoSkyColour": false,
         "RenderSkybox": true,
         "SkyRotation": [

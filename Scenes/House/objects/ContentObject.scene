@@ -394,5 +394,11 @@
         "ObjectType": "BillBoard",
         "Path": "Assets/Sprites/n_grass_diff_0_35.png",
         "Type": "NULL"
+    },
+    {
+        "Name": "lpshead",
+        "ObjectType": "Model",
+        "Path": "temp/lpshead/head.gltf",
+        "Type": "NULL"
     }
 ]

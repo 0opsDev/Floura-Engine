@@ -341,6 +341,10 @@
   <ItemGroup>
     <Text Include="src\Libraries\include\imgui\LICENSE.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\Shaders\Deferred\DFR_Phon.frag" />
+    <Content Include="Assets\Shaders\Deferred\DFR_Phon.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

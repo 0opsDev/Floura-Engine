@@ -135,7 +135,12 @@ void RenderClass::initGlobalShaders() {
 	gPassShaderBillBoard.LoadShader("Assets/Shaders/gBuffer/geometryPassBillboard.vert", "Assets/Shaders/gBuffer/geometryPassBillboard.frag");
 	boxShader.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Db/OrangeHitbox.frag");
 	SolidColour.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Db/solidColour.frag");
-	GBLpass.LoadShader("Assets/Shaders/Db/RenderQuad.vert", "Assets/Shaders/Db/RenderQuad.frag");
+	
+	
+	// keep an eye on these in a moment or later
+	
+	//GBLpass.LoadShader("Assets/Shaders/Db/RenderQuad.vert", "Assets/Shaders/Db/RenderQuad.frag");
+	GBLpass.LoadShader("Assets/Shaders/Deferred/DFR_Phon.vert", "Assets/Shaders/Deferred/DFR_Phon.frag");
 
 
 	LineShader.takePath = false;
@@ -291,6 +296,12 @@ void RenderClass::DeferredLightingPass() {
 	//std::cout << Camera::width << " " << Camera::height << std::endl;
 	GBLpass.setFloat2("screenSize", glm::vec2(Scene::maincamera.width, Scene::maincamera.height));
 	GBLpass.setFloat("time", glfwGetTime());
+	
+	GBLpass.setFloat3("camPos", Scene::maincamera.Position);
+	
+	
+	LightingHandler::update(GBLpass);
+	
 	//shader.
 	lightingRenderQuad.draw();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

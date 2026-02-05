@@ -993,7 +993,7 @@ void Scene::draw()
 			SceneBounds.size, glm::vec3(1.0f, 0.0f, 0.0f), true);
 	}
 
-	if (ProbeHandler::viewProbes)
+	if (ProbeHandler::viewProbes && false)
 	{
 		float distance = 20.0f;
 
@@ -1054,7 +1054,12 @@ void Scene::Update()
 	{
 		calculateSceneBounds();
 
-		probes = ProbeHandler::calculateProbesWithMethod(ProbeHandler::probeCalculationMethod, SceneBounds, rootnodes, ProbeHandler::sceneProveArea);
+		// enable this for the probes (im disabling them)
+		
+		//probes = ProbeHandler::calculateProbesWithMethod(ProbeHandler::probeCalculationMethod, SceneBounds, rootnodes, ProbeHandler::sceneProveArea);
+		
+		// ^^
+		
 		//probes = ProbeHandler::aabbsSceneToProbeSpace(SceneBounds, rootnodes, ProbeHandler::sceneProveArea); // faster in rendering cubemaps, because it only places near objects (more rootnodes slows down)
 		//probes = ProbeHandler::SceneToProbeSpace(SceneBounds, ProbeHandler::sceneProveArea); // faster with less rootnodes (places nodes in empty spaces)
 		//probes = ProbeHandler::aabbsToProbeSpace(SceneBounds, rootnodes, ProbeHandler::sceneProveArea); // faster for extremely open scenes, falso aster in rendering cubemaps,because it only places near objects, but the quality is the worst out of the 3

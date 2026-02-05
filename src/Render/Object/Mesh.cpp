@@ -79,7 +79,8 @@ void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
     }
     // Camera Matrix
     shader.Activate();
-    glUniform3f(glGetUniformLocation(shader.ID, "camPos"), Camera.Position.x, Camera.Position.y, Camera.Position.z);
+    //glUniform3f(glGetUniformLocation(shader.ID, "camPos"), Camera.Position.x, Camera.Position.y, Camera.Position.z);
+    shader.setFloat3("camPos", Camera.Position);
     Camera.Matrix(shader, "camMatrix");
 
     glm::mat4 finalMeshMat = globalMeshMatrix * meshMatrix;
