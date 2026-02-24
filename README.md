@@ -4,13 +4,18 @@
 ---
 #### Graphics:
 ~~~
-. Diffuse, Specular and Normals
-. Gbuffer
-. Point, Spot and Directional Lights
-. Cubemap Reflections (WIP)
-. Shadow Mapping (WIP)
+. Forward Renderer (WIP)
+. Deferred Renderer (WIP)
 . RayTracer (WIP)
 . Denoiser (WIP)
+. TAA
+. Gbuffer
+. HBuffer
+. Diffuse, Specular and Normals
+. Point, Spot and Directional Lights (WIP)
+. Cubemap Reflections (WIP)
+. Shadow Mapping (WIP)
+
 ~~~
 ---
 ### Systems:
@@ -20,7 +25,7 @@
 . Collision Detection (WIP)
 . Physics Dynamics
 . UUIDs
-. Lua Scripting via sol2 (not really implemented atm)
+. Lua Scripting via sol2
 . 3D Directional Sound via openAL Soft (WIP)
 ~~~
 ---
