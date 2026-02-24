@@ -18,6 +18,8 @@ bool Main::sleepState = true;
 
 int main()
 {
+	// test 
+	// test
 	//CloseConsoleWindow();
 	Main::sleepState = true;
 	FileClass::loadSettings();
