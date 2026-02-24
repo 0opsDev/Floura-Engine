@@ -359,6 +359,7 @@
     <Content Include="Assets\Shaders\Lighting\water.vert" />
     <Content Include="Assets\Shaders\PostProcess\TAA.frag" />
     <Content Include="Assets\Shaders\PostProcess\TAA.vert" />
+    <Content Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
