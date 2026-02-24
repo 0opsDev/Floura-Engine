@@ -5,6 +5,8 @@
 #include <utils/logConsole.h>
 #include "Scene/scene.h"
 #include <glm/gtx/compatibility.hpp>
+#include <Render/passes/post/historyPass.h>
+#include "Render/passes/dbg/dbgPass.h"
 
 int Framebuffer::tempWidth;
 int Framebuffer::tempHeight;
@@ -15,7 +17,7 @@ Shader Framebuffer::frameBufferProgram;
 
 unsigned int Framebuffer::FBO;
 unsigned int Framebuffer::RBO;
-unsigned int Framebuffer::texture;
+unsigned int Framebuffer::screentexture;
 
 unsigned int Framebuffer::FFBO;
 unsigned int Framebuffer::FRBO;
@@ -95,14 +97,14 @@ void Framebuffer::setupFBO(unsigned int width, unsigned int height) {
 	glGenFramebuffers(1, &FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 	// GEN TEX and bind tex to fbo
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glGenTextures(1, &screentexture); // GL_LINEAR
+	glBindTexture(GL_TEXTURE_2D, screentexture); // GL_UNSIGNED_BYTE
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // GL_LINEAR_MIPMAP_LINEAR
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screentexture, 0);
 
 	glGenRenderbuffers(1, &RBO);
 	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
@@ -138,11 +140,22 @@ void Framebuffer::setupFBO(unsigned int width, unsigned int height) {
 
 }
 void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int height) {
+	
+	//	static unsigned int ViewPortWidth, ViewPortHeight;
+	if (width == ViewPortWidth && height == ViewPortHeight ) return;
+	
+	//std::cout << "e" <<std::endl;
+	
 	Framebuffer::ViewPortWidth = width;
 	Framebuffer::ViewPortHeight = height;
+	
+	glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
 
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	Scene::maincamera.SetViewportSize(static_cast<int>(width), static_cast<int>(height));
+
+
+	glBindTexture(GL_TEXTURE_2D, screentexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	// update renderbuffer texture
 	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
@@ -153,7 +166,9 @@ void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int h
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	dbgPass::updateDBGResolution(width, height);
 	GeometryPass::updateGbufferResolution(width, height);
+	HistoryPass::updateHbufferResolution(width, height);
 
 	raytracer::resizeTexture(width, height);
 }
@@ -163,7 +178,7 @@ void Framebuffer::FBO2Draw() {
 	glBindFramebuffer(GL_FRAMEBUFFER, FFBO);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, screentexture);
 	rq.draw();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -176,19 +191,13 @@ void Framebuffer::FBO2Draw() {
 }
 
 void ResizeLogic(GLFWwindow* window) {
-
-		ScreenUtils::UpdateWindowResize(window);
 		int newWidth, newHeight;
 		glfwGetWindowSize(window, &newWidth, &newHeight);
 
 	// we need a way to make isResizing == true when opengl window is resized
-	if (ScreenUtils::isResizing == true) 
-	{
 		Framebuffer::updateFrameBufferResolution(newWidth, newHeight); // Update frame buffer resolution
-		glViewport(0, 0, newWidth, newHeight);
-		Scene::maincamera.SetViewportSize(newWidth, newHeight);
-		ScreenUtils::isResizing = false;
-	}
+		//glViewport(0, 0, newWidth, newHeight);
+		//Scene::maincamera.SetViewportSize(newWidth, newHeight);
 }
 
 void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
@@ -206,10 +215,11 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	frameBufferProgram.setMat4("cameraMatrix", Scene::maincamera.cameraMatrix);
 	frameBufferProgram.setFloat("time", glfwGetTime());
 	frameBufferProgram.setFloat("deltaTime", TimeUtil::deltatime);
+	frameBufferProgram.setBool("overlayDebug", dbgPass::overlayDebug);
 
 	// draw the framebuffer
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, screentexture);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	frameBufferProgram.setInt("screenTexture", 0);
 
@@ -237,13 +247,26 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::gSpecular);
 	frameBufferProgram.setInt("gSpecular", 7);
+	
+	glActiveTexture(GL_TEXTURE9);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gVelocity);
+	frameBufferProgram.setInt("gVelocity", 9);
+	
+	glActiveTexture(GL_TEXTURE10);
+	glBindTexture(GL_TEXTURE_2D, dbgPass::dbgColour);
+	frameBufferProgram.setInt("dbgColour", 10);
+	//dbgPass
 
 	if (!imGuiPanels) {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, ViewPortWidth, ViewPortHeight);
 
 		glDisable(GL_DEPTH_TEST);
+		
 		glClearColor(RenderClass::gammaCorrect(RenderClass::skyRGBA.r), RenderClass::gammaCorrect(RenderClass::skyRGBA.g), RenderClass::gammaCorrect(RenderClass::skyRGBA.b), 1.0f);
+		if (FEImGuiWindow::isWireframe)
+			glClearColor(pow(0.0f, Scene::maincamera.gamma), pow(0.0f, Scene::maincamera.gamma), pow(0.0f, Scene::maincamera.gamma), 1.0f);
+		
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		rq.draw();
@@ -260,7 +283,7 @@ void Framebuffer::Delete()
 {
 	glDeleteFramebuffers(1, &FBO);
 	glDeleteRenderbuffers(1, &RBO);
-	glDeleteTextures(1, &texture);
+	glDeleteTextures(1, &screentexture);
 	glDeleteFramebuffers(1, &FFBO);
 	glDeleteRenderbuffers(1, &FRBO);
 	glDeleteTextures(1, &Ftexture);

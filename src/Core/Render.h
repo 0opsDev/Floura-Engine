@@ -16,6 +16,8 @@ class RenderClass
 public:
 
 	// billboard
+	static Shader GBLpass;
+	static Shader taaShader;
 	static Shader billBoardShader;
 	static Shader gPassShaderBillBoard;
 	static Shader boxShader;
@@ -31,7 +33,8 @@ public:
 	static Line3D* line;
 	static Texture* bluenoise;
 	static Texture* bayermatrix;
-
+	static bool doTAA;
+	
 	struct transformation {
 		glm::vec3 position = glm::vec3(0.0f);
 		glm::vec3 rotation = glm::vec3(0.0f);
@@ -52,6 +55,8 @@ public:
 	static void Render(GLFWwindow* window, unsigned int width, unsigned int height);
 
 	static void DeferredLightingPass();
+	
+	static void taaPass();
 
 	static void Cleanup();
 

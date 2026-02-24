@@ -114,20 +114,24 @@ public:
 
 	static HitResult RayVsTriangle(glm::vec3 rayOrigin, glm::vec3 rayDir, glm::vec3 A, glm::vec3 B, glm::vec3 C);
 
-	static HitResult TrianglevsTriangle(
+	
+	// label as SAT
+	static HitResult SATTrianglevsTriangle(
 		const glm::vec3& v0A, const glm::vec3& v1A, const glm::vec3& v2A,
 		const glm::vec3& v0B, const glm::vec3& v1B, const glm::vec3& v2B);
 
-	static HitResult TraingleVSAABB(const glm::vec3& v0A, const glm::vec3& v1A, const glm::vec3& v2A,
-		const glm::vec3& posA, const glm::vec3& sizeA);
+	static HitResult SATTriangleVSAABB(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2,
+																		const glm::vec3& AABBpos, const glm::vec3& AABBsize);
 
 private:
 
+	static void projectAABB(const glm::vec3& positon, const glm::vec3& scale,
+		const glm::vec3& normal, float& min, float& max);
+	
 	static void projectVertex(
 		const glm::vec3& A, const glm::vec3& B, const glm::vec3& C,
 		const glm::vec3& normal,
-		float& min, float& max
-	);
+		float& min, float& max);
 
 	static bool doesVertexOverlap(const glm::vec3& v0A, const glm::vec3& v1A, const glm::vec3& v2A,
 		const glm::vec3& v0B, const glm::vec3& v1B, const glm::vec3& v2B, const glm::vec3& normal);

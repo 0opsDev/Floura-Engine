@@ -9,6 +9,8 @@ public:
     static float frameRate1hz;
     static float TimeAccumulator;
     static float time;
+    static float priorTime; // for time based effects with motion vectors
+    static int frame; // just counts on forever
     static void update();
 };
 

@@ -20,6 +20,7 @@ public:
     float s_scrollSpeed = 5.0f;
     glm::vec2 sensitivity;
     glm::mat4 cameraMatrix = glm::mat4(1.0f);
+    glm::mat4 lastCameraMatrix = glm::mat4(1.0f); // cam mat of the previous frame
     glm::vec3 Position = glm::vec3(0, 0, 0);
     glm::vec3 Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -33,6 +34,13 @@ public:
     glm::vec2 nearFar = glm::vec2(0.1f, 100.0f);
     float gamma = 2.2f;
     
+    // jitter
+    int jitterIndex = 0;  // jitter frame 0-7 (8)
+    glm::vec2 currentJitter = glm::vec2(0.0);
+    glm::vec2 previousJitter = glm::vec2(0.0);
+    glm::vec2 scaledCurrentJitter = glm::vec2(0.0);
+    glm::vec2 scaledPreviousJitter = glm::vec2(0.0);
+    bool applyJitter = false;
 
     // Camera constructor
     void InitCamera(int width, int height, glm::vec3 position);
@@ -40,7 +48,11 @@ public:
     // Updates and exports the camera matrix to the Vertex Shader
     void updateMatrix();
     void Matrix(Shader& shader, const char* uniform);
+    
+    void saveLastMaticies();
 
+    void updateHaltonJitter();
+    
     // Handles camera inputs
     void Inputs(GLFWwindow* window);
 

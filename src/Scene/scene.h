@@ -9,6 +9,7 @@
 #include "Camera/Camera.h"
 #include <Systems/Physics/Collision.h>
 #include "ProbeHandler.h"
+#include "scene/Object/volume.h"
 
 using json = nlohmann::json;
 
@@ -23,10 +24,13 @@ public:
 	static Camera maincamera;
 	static glm::vec3 initalCameraPos;
 	static std::vector <ProbeHandler::probe> probes;
-
+	static std::vector <FE_Volume*> volumes ;
+	
 	static Collision::AABB SceneBounds;
 	static std::vector <Collision::AABB> rootnodes;
 
+	static bool spawnNearCamera;
+	
 	static void calculateSceneBounds();
 
 	static void init();
@@ -59,7 +63,9 @@ public:
 
 	static void AddSceneSoundObject(std::string name, std::string path);
 
-	static void AddEntityObject(char type, std::string name, std::string path);
+	static uint64_t AddEntityObject(entity::ENT_TYPE_ENUM type, std::string name, std::string path, glm::vec3 spawnPosition,  glm::vec3 spawnScale, glm::vec3 spawnRotation);
+	
+	static uint64_t AddVolumeObject(FE_Volume::VOL_TYPE type, std::string name, glm::vec3 spawnPosition, glm::vec3 spawnScale);
 
 	static void billBoardLoad(std::string path);
 
@@ -77,6 +83,8 @@ public:
 
 	static void resetAllScripts();
 
+	static void onBeginningOfFrame();
+	
 	static void draw();// put void calculateSceneBounds();
 
 	static void Update(); 

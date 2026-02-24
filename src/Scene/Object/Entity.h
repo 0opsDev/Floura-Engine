@@ -4,7 +4,6 @@
 #include <Render/Shader/Material.h>
 #include "Systems/Physics/Collision.h"
 #include "Render/passes/lighting/raytracer.h"
-#include <xhash>
 #include <vector>
 #include <Scripting/ScriptObject.h>
 #include <Scene/ProbeHandler.h>
@@ -44,10 +43,12 @@ public:
 	};
 
 	struct systems {
+		transformation previousTransformation;
 		transformation transformation;
 		material material;
 	};
 
+	
 	struct physics { // should have physics handler
 
 		float mass = 1.0f;
@@ -100,16 +101,25 @@ public:
 	};
 	std::string name;
 
+	enum ENT_TYPE_ENUM // i thought this casing style would match the other enums ive seen with the libs i use  
+	{
+		ENT_MODEL_TYPE	    =  0,
+		ENT_BILLBOARD_TYPE  = 1,
+		ENT_EMPTY_TYPE			=  2
+	};
+	
+	ENT_TYPE_ENUM type;
+	
 	// replace type with int and enum
-	char type;
+	//char type;
 	std::string path;
 	std::vector<ScriptObject*> ScriptObjects;
 
 	//
 
-	void createwUUID(uint64_t nUUID, const char& type, const std::string& name, const std::string& path, const std::string& materialPath);
+	void createwUUID(uint64_t nUUID, ENT_TYPE_ENUM type, const std::string& name, const std::string& path, const std::string& materialPath);
 
-	void create(const char& type, const std::string& name, const std::string& path, const std::string& materialPath);
+	void create(ENT_TYPE_ENUM type, const std::string& name, const std::string& path, const std::string& materialPath);
 
 	void LoadMaterial(std::string path);
 
@@ -135,9 +145,9 @@ public:
 
 	//void addParent();
 
-	Collision::HitResult RayVsTriangle(glm::vec3 rayPos, glm::vec3 rayDir);
-	char fetchType() {return type;}
-	std::string fetchPath() {return path;}
+	// aabb vs entity here
+	Collision::HitResult AABBVsEntity(glm::vec3 pos, glm::vec3 scale);
+	Collision::HitResult RayVsEntity(glm::vec3 rayPos, glm::vec3 rayDir);
 	public:
 		void updateCollision();
 		void updateMeshAABBs();

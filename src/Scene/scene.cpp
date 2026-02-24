@@ -3,11 +3,12 @@
 #include <Gameplay/Player.h>
 #include <Scene/LightingHandler.h>
 #include <utils/logConsole.h>
-#include "Systems/util/UUID.h"
 #include <xhash>
 #include <Scripting/ScriptObject.h>
 #include <utils/FE_math.h>
 #include "Systems/util/relationshipManager.h"
+#include "Systems/util/UUID.h"
+#include  "Render/passes/dbg/dbgPass.h"
 
 std::string Scene::sceneName = ""; // Map loading
 std::vector <SoundProgram> Scene::SoundObjects;
@@ -16,9 +17,12 @@ Camera Scene::maincamera;
 
 glm::vec3 Scene::initalCameraPos = glm::vec3(0, 0, 0);
 std::vector <ProbeHandler::probe> Scene::probes;
+std::vector <FE_Volume*> Scene::volumes;
 
 Collision::AABB Scene::SceneBounds;
 std::vector <Collision::AABB> Scene::rootnodes;
+
+bool Scene::spawnNearCamera = true;
 
 BillBoard* PointLightIcon;
 BillBoard* SpotLightIcon;
@@ -502,7 +506,7 @@ void Scene::modelLoad(std::string path) {
 
 		entityObjects.push_back(std::move(newObject));
 		
-		entityObjects.back()->createwUUID(tempUUID, 'm', name, path, MaterialPath);
+		entityObjects.back()->createwUUID(tempUUID, entity::ENT_MODEL_TYPE, name, path, MaterialPath);
 
 
 
@@ -515,12 +519,12 @@ void Scene::modelSave(std::string path) {
 		json settingsData = json::array();  // New JSON array to hold model data
 		for (size_t i = 0; i < entityObjects.size(); i++)
 		{
-			if (entityObjects[i]->fetchType() == 'm') // model
+			if (entityObjects[i]->type == entity::ENT_MODEL_TYPE) // model
 			{
 				json modelJson;
 				modelJson["name"] = entityObjects[i]->name;
 
-				modelJson["path"] = entityObjects[i]->fetchPath();
+				modelJson["path"] = entityObjects[i]->path;
 				glm::vec3 objPos = entityObjects[i]->fetchPosition();
 				glm::vec3 objScale = entityObjects[i]->fetchScale();
 				glm::vec3 objRot = entityObjects[i]->fetchRotation();
@@ -596,11 +600,11 @@ void Scene::billBoardSave(std::string path) {
 		// Serialize each modelObject into JSON
 		for (size_t i = 0; i < entityObjects.size(); i++)
 		{
-			if (entityObjects[i]->fetchType() == 'b')
+			if (entityObjects[i]->type == entity::ENT_BILLBOARD_TYPE)
 			{
 				json BillBoardJson;
 				BillBoardJson["name"] = entityObjects[i]->name;
-				BillBoardJson["path"] = entityObjects[i]->fetchPath();
+				BillBoardJson["path"] = entityObjects[i]->path;
 
 				BillBoardJson["doPitch"] = entityObjects[i]->component.render.BillBoard->doPitch;
 
@@ -731,12 +735,35 @@ void Scene::AddSceneSoundObject(std::string name, std::string path) {
 	SoundObjects.push_back(nSoundProjram);
 }
 
-void Scene::AddEntityObject(char type, std::string name, std::string path)
+uint64_t Scene::AddEntityObject(entity::ENT_TYPE_ENUM type, std::string name, std::string path, glm::vec3 spawnPosition, glm::vec3 spawnScale, glm::vec3 spawnRotation)
 {
 	std::unique_ptr<entity> newEntity = std::make_unique<entity>(); // Use std::make_unique
 	newEntity->create(type, name, path, "Assets/Material/Default.Material");
+	
+	//if (spawnNearCamera) newEntity->setPosition(maincamera.Position - ( FE_Math::getForwardFromViewMatrix(maincamera.cameraMatrix) * 5.0f ));
+	newEntity->setPosition(spawnPosition);
+	newEntity->setScale(spawnScale);
+	newEntity->setRotation(spawnRotation);
+	uint64_t UUID = newEntity->UUID;
+	
 	entityObjects.emplace_back(std::move(newEntity));
 	LogConsole::print("Created Entity: " + name);
+	
+	return UUID;
+}
+
+uint64_t Scene::AddVolumeObject(FE_Volume::VOL_TYPE type, std::string name, glm::vec3 spawnPosition, glm::vec3 spawnScale)
+{
+	FE_Volume* nVolume = new FE_Volume(type);
+	nVolume->position = spawnPosition;
+	nVolume->scale = spawnScale;
+	nVolume->name = name;
+	
+	uint64_t UUID = nVolume->ID;
+	
+	volumes.emplace_back(nVolume);
+	LogConsole::print("Created Volume: " + name);
+	return UUID;
 }
 
 void Scene::billBoardLoad(std::string path) {
@@ -796,7 +823,7 @@ void Scene::billBoardLoad(std::string path) {
 
 		uint64_t tempUUID = UUID::StringToUUID(item.at("UUID").get<std::string>());
 
-		newEntity->createwUUID(tempUUID, 'b', name, nPath, ""); // type, name, path, materialpath // add material path for bb later
+		newEntity->createwUUID(tempUUID, entity::ENT_BILLBOARD_TYPE, name, nPath, ""); // type, name, path, materialpath // add material path for bb later
 		
 		newEntity->component.render.BillBoard->doPitch = item.at("doPitch");
 		entityObjects.push_back(std::move(newEntity)); // Add the configured object to the vector
@@ -985,31 +1012,48 @@ void Scene::resetAllScripts()
 	}
 }
 
+void Scene::onBeginningOfFrame()
+{
+	// update prior transform
+	for (size_t i = 0; i < entityObjects.size(); i++)
+	{
+		entityObjects[i]->component.systems.previousTransformation = entityObjects[i]->component.systems.transformation;
+	}
+}
+
 void Scene::draw() 
 {
-	if (Collision::showBoxCollider)
+	if (dbgPass::overlayDebug)
 	{
-		RenderClass::WhiteCube->draw(SceneBounds.position,
-			SceneBounds.size, glm::vec3(1.0f, 0.0f, 0.0f), true);
-	}
-
-	if (ProbeHandler::viewProbes && false)
-	{
-		float distance = 20.0f;
-
-		for (size_t i = 0; i < probes.size(); i++)
+		if (Collision::showBoxCollider)
 		{
-			glm::vec3 pCol = glm::vec3(0.0f, 0.0f, 1.0f);
-			if (FE_Math::isInRange(probes[i].position, Scene::maincamera.Position, distance)) pCol = glm::vec3(1.0f, 0.0f, 0.0f);
+			RenderClass::WhiteCube->draw(SceneBounds.position,
+				SceneBounds.size, glm::vec3(1.0f, 0.0f, 0.0f),5.0, true, false);
+		}
 
-			//RenderClass::WhiteCube->draw(probes[i].position,
-			//	glm::vec3(probes[i].size), glm::vec3(1.0f), true);
+		if (ProbeHandler::viewProbes)
+		{
+			float distance = 20.0f;
 
-			RenderClass::WhiteCube->draw(probes[i].position,
-				glm::vec3(0.5f), pCol, false);
+			for (size_t i = 0; i < probes.size(); i++)
+			{
+				glm::vec3 pCol = glm::vec3(0.0f, 0.0f, 1.0f);
+				if (FE_Math::isInRange(probes[i].position, Scene::maincamera.Position, distance)) pCol = glm::vec3(1.0f, 0.0f, 0.0f);
+
+				//RenderClass::WhiteCube->draw(probes[i].position,
+				//	glm::vec3(probes[i].size), glm::vec3(1.0f), true);
+
+				RenderClass::WhiteCube->draw(probes[i].position,
+					glm::vec3(0.5f), pCol, 2.0, false, false);
+			}
+		}
+
+		for (int i = 0; i < volumes.size(); ++i)
+		{
+			volumes[i]->debugDraw();
 		}
 	}
-
+	
 	// entities shadow map should go above here
 	for (size_t i = 0; i < entityObjects.size(); i++)
 	{

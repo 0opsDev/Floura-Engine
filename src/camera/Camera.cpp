@@ -2,6 +2,7 @@
 #include "Core/Main.h"
 #include <glm/gtx/string_cast.hpp>
 #include "Gameplay/Player.h"
+#include "utils/FE_math.h"
 
 // Global Variables
 bool MouseState = true, toggleESC = true;
@@ -28,6 +29,7 @@ void Camera::updateMatrix()
     view = glm::lookAt(Position, Position + Orientation, Up);
     // Adds perspective to the scene
     projection = glm::perspective(glm::radians(fov), (float)width / height, nearFar.x, nearFar.y);
+    if (applyJitter) projection = FE_Math::createHaltonJitterProjectionMatrix(projection, currentJitter, width, height);
 
     //std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
     cameraMatrix = projection * view;
@@ -38,6 +40,41 @@ void Camera::Matrix(Shader& shader, const char* uniform)
     // Exports the camera matrix to the Vertex Shader
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
+
+void Camera::saveLastMaticies()
+{
+    previousJitter = currentJitter; 
+    scaledPreviousJitter = scaledCurrentJitter;
+    lastCameraMatrix = cameraMatrix; // set the previous
+}
+
+const glm::vec2 HaltonJitters[8] = {
+    glm::vec2( 0.0000f, -0.1666f),
+    glm::vec2(-0.2500f,  0.1666f),
+    glm::vec2( 0.2500f, -0.3888f),
+    glm::vec2(-0.3750f, -0.0555f),
+    glm::vec2( 0.1250f,  0.2777f),
+    glm::vec2(-0.1250f, -0.2777f),
+    glm::vec2( 0.3750f,  0.0555f),
+    glm::vec2(-0.4375f,  0.3888f)
+};
+
+void Camera::updateHaltonJitter()
+{
+    // increase 
+    jitterIndex +=1;
+    if (jitterIndex > 7) jitterIndex = 0;// index starts at 0
+    
+    // fetch jitter
+
+   currentJitter = HaltonJitters[jitterIndex];
+    
+    scaledCurrentJitter = glm::vec2(
+    (currentJitter.x * 2.0f) / (float)width,
+    (currentJitter.y * 2.0f) / (float)height
+    );
+}
+
 void Camera::Inputs(GLFWwindow* window)
 {
     float adjustedSpeed = speed * TimeUtil::deltatime;

@@ -6,12 +6,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "barrel",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/barrel/barrel2.gltf",
-        "Type": "NULL"
-    },
-    {
         "Name": "VertexViewer",
         "ObjectType": "Material",
         "Path": "Assets/Material/VertexViewer.Material",
@@ -24,12 +18,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "Default",
-        "ObjectType": "Material",
-        "Path": "Assets/Material/Default.Material",
-        "Type": "NULL"
-    },
-    {
         "Name": "sponzaSM",
         "ObjectType": "Model",
         "Path": "temp/sponza/assets/Sponza/sponzaSM.gltf",
@@ -39,24 +27,6 @@
         "Name": "sponza",
         "ObjectType": "Model",
         "Path": "temp/sponza/assets/Sponza/sponza.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "albedo",
-        "ObjectType": "Material",
-        "Path": "Assets/Material/albedo.Material",
-        "Type": "NULL"
-    },
-    {
-        "Name": "torus",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/basic shapes/torus.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "sunset",
-        "ObjectType": "Skybox",
-        "Path": "Assets/Skybox/sunset/Skybox.json",
         "Type": "NULL"
     },
     {
@@ -111,12 +81,6 @@
         "Name": "sphere",
         "ObjectType": "Model",
         "Path": "Assets/Models/basic shapes/sphere.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "lion_head_2k.",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/lion_head_2k.gltf/lion_head_2k.gltf",
         "Type": "NULL"
     },
     {
@@ -264,27 +228,9 @@
         "Type": "NULL"
     },
     {
-        "Name": "galaxy",
-        "ObjectType": "Skybox",
-        "Path": "Assets/Skybox/galaxy/Skybox.json",
-        "Type": "NULL"
-    },
-    {
-        "Name": "galaxy2",
-        "ObjectType": "Skybox",
-        "Path": "Assets/Skybox/galaxy2/Skybox.json",
-        "Type": "NULL"
-    },
-    {
         "Name": "earth",
         "ObjectType": "Model",
         "Path": "Assets/Models/planet/earth.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "dae_diorama_-_grandmas_house",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/dae_diorama_-_grandmas_house/scene.gltf",
         "Type": "NULL"
     },
     {
@@ -303,12 +249,6 @@
         "Name": "living_room",
         "ObjectType": "Model",
         "Path": "Assets/Models/living_room/living_room.obj",
-        "Type": "NULL"
-    },
-    {
-        "Name": "brown_photostudio_01_4k",
-        "ObjectType": "Skybox",
-        "Path": "Assets/Skybox/brown_photostudio_01_4k/Skybox.json",
         "Type": "NULL"
     },
     {
@@ -399,6 +339,138 @@
         "Name": "lpshead",
         "ObjectType": "Model",
         "Path": "temp/lpshead/head.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Qterrain",
+        "ObjectType": "Model",
+        "Path": "temp/Qterrain/Qterrain.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Qtree",
+        "ObjectType": "Model",
+        "Path": "temp/Qterrain/tree.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cloudlayer",
+        "ObjectType": "Model",
+        "Path": "temp/Qterrain/cloudlayer.glb",
+        "Type": "NULL"
+    },
+    {
+        "Name": "terlayer",
+        "ObjectType": "Model",
+        "Path": "temp/qt2/terlayer.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "waterlayer",
+        "ObjectType": "Model",
+        "Path": "temp/qt2/waterlayer.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "grasslayer",
+        "ObjectType": "Model",
+        "Path": "temp/qt2/grasslayer.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "san-miguel-low-poly",
+        "ObjectType": "Model",
+        "Path": "temp/San_Miguel/san-miguel-low-poly.obj",
+        "Type": "NULL"
+    },
+    {
+        "Name": "castle",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/distantKingdom/castlef.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Wobble",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/Wobble.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Default",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/Default.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "water",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/water.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "testwindow",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/testwindow/window.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "plane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes 2/plane.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cube",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes 2/cube.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "concrete",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/concrete.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "SunTemple",
+        "ObjectType": "Model",
+        "Path": "temp/SunTemple/SunTemple.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "EmeraldSquare",
+        "ObjectType": "Model",
+        "Path": "temp/EmeraldSquare/EmeraldSquare.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "archway",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes 2/archway.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "stair",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes 2/stair.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sunset",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/sunset/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "vokselia_spawn",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/vokselia_spawn/vokselia_spawn.obj",
+        "Type": "NULL"
+    },
+    {
+        "Name": "rungholt",
+        "ObjectType": "Model",
+        "Path": "temp/rungholt/rungholt.obj",
         "Type": "NULL"
     }
 ]

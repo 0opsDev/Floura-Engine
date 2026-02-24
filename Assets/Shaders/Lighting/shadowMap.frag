@@ -39,6 +39,6 @@ void main()
 	discard;
 
 
-	//blueNoiseOpacity(diffuseTex);
-	BayerNoiseOpacity(diffuseTex);
+	blueNoiseOpacity(diffuseTex);
+	//BayerNoiseOpacity(diffuseTex);
 }

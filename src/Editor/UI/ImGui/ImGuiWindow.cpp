@@ -15,6 +15,7 @@
 #include "ImGuiInclude/EcsInspector.h"
 #include "Render/passes/post/denoise.h"
 #include <Systems/util/relationshipManager.h>
+#include <Render/passes/dbg/dbgPass.h>
 //#include <Instance.h>
 
 
@@ -61,6 +62,10 @@ Texture FEImGuiWindow::SoundIcon; // Icon for Sound in ImGui
 Texture FEImGuiWindow::stopIcon; // Icon for stop in ImGui
 Texture FEImGuiWindow::playIcon; // Icon for play in ImGui
 Texture FEImGuiWindow::pauseIcon; // Icon for pause in ImGui
+Texture FEImGuiWindow::gizmoIcon; // Icon for pause in ImGui
+Texture FEImGuiWindow::emptyIcon;
+Texture FEImGuiWindow::volumeAREAIcon;
+
 // collideicon.png
 
 // Temporary buffer for path editing
@@ -92,6 +97,9 @@ void FEImGuiWindow::init() {
 	stopIcon.createTexture("assets/Icons/stop.png", "UI", 0);
 	playIcon.createTexture("assets/Icons/play.png", "UI", 0);
 	pauseIcon.createTexture("assets/Icons/pause.png", "UI", 0);
+	gizmoIcon.createTexture("assets/Icons/gizmo.png", "UI", 0);
+	emptyIcon.createTexture("assets/Icons/empty.png", "UI", 0);
+	volumeAREAIcon.createTexture("assets/Icons/volumeLogo.png", "UI", 0);
 }
 
 void FEImGuiWindow::initImGui(GLFWwindow* window) {
@@ -353,7 +361,7 @@ void FEImGuiWindow::Update() {
 	// Rendering panel
 	if (FEImGuiWindow::imGuiPanels[1]) RenderWindow();
 	if (FEImGuiWindow::imGuiPanels[3]) viewport();
-	if (FEImGuiWindow::imGuiPanels[6]) PreformanceProfiler();
+	if (FEImGuiWindow::imGuiPanels[6]) PerformanceProfiler();
 	if (FEImGuiWindow::imGuiPanels[7]) TextEditor();
 	if (FEImGuiWindow::imGuiPanels[4]) HierarchyList();
 	if (FEImGuiWindow::imGuiPanels[9]) EcsInspector::InspectorWindow();
@@ -365,7 +373,7 @@ void FEImGuiWindow::Update() {
 	//
 	if (FEImGuiWindow::SelectedObjectType != "") // needs guizmo enabled var // passes if object is selected
 	{
-		if (FEImGuiWindow::SelectedObjectType == "Model" || FEImGuiWindow::SelectedObjectType == "Billboard") {
+		if (FEImGuiWindow::SelectedObjectType == "Model" || FEImGuiWindow::SelectedObjectType == "Billboard" || FEImGuiWindow::SelectedObjectType == "Empty") { // this needs to change to enum at some point
 
 			glm::mat4 mat = useGuizmo(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchPosition(), Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchRotation(), Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchScale(), SelectedTransform);
 
@@ -449,10 +457,6 @@ void FEImGuiWindow::menuwindow()
 		if (ImGui::BeginMenu("Edit"))
 		{
 			if (ImGui::MenuItem("Reload Shaders?")) RenderClass::initGlobalShaders();
-			ImGui::Text("Scripts:");
-			//if (ImGui::SmallButton("Stop")) { ScriptRunner::clearScripts(); } // save settings button
-			//if (ImGui::SmallButton("Start")) { ScriptRunner::init(Scene::sceneName + "/LuaStartup.json"); } // save settings button
-			//if (ImGui::SmallButton("Restart")) { ScriptRunner::clearScripts(); ScriptRunner::init(Scene::sceneName + "/LuaStartup.json"); } // save settings button
 			ImGui::Spacing();
 			ImGui::Text("Volume");
 			ImGui::SliderFloat("Global Volume", &SoundRunner::GlobalVolume, 0, 1);
@@ -469,6 +473,7 @@ void FEImGuiWindow::menuwindow()
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Debug")) {
+			ImGui::Checkbox("overlayDebug", &dbgPass::overlayDebug);
 			ImGui::Checkbox("DoDeferredLightingPass", &RenderClass::DoDeferredLightingPass);
 			ImGui::Checkbox("DoForwardLightingPass", &RenderClass::DoForwardLightingPass);
 			ImGui::Checkbox("DoRaytracedPass", &RenderClass::DoComputeLightingPass);
@@ -556,6 +561,21 @@ void FEImGuiWindow::RenderWindow() {
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
+	
+	if (ImGui::TreeNode("Scene Desc"))
+	{
+		if (ImGui::SmallButton("Reload Raytracer Shader")) {
+			raytracer::reloadSceneToRaytracer();
+		}
+		if (ImGui::SmallButton("Upload Scene To Raytracer")) {
+			raytracer::uploadSceneToRaytracer();
+		}
+		if (ImGui::SmallButton("Clear Raytraced Data")) {
+			raytracer::clearRaytracerData();
+		}
+
+		ImGui::TreePop();// Ends The ImGui Window
+	}
 
 		if (ImGui::TreeNode("probes")) {
 
@@ -570,7 +590,13 @@ void FEImGuiWindow::RenderWindow() {
 
 			ImGui::TreePop();// Ends The ImGui Window
 		}
+	//RenderClass::doTAA
+	if (ImGui::TreeNode("TAA")) {
+		ImGui::Checkbox("doTAA", &RenderClass::doTAA);
 		
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+	
 		if (ImGui::TreeNode("Raytracer")) {
 
 			ImGui::Text("denoiser");
@@ -595,16 +621,6 @@ void FEImGuiWindow::RenderWindow() {
 			if (ImGui::SmallButton("Clear Accumulation")) {
 				raytracer::RTGlobalTransformFlag = true;
 			}
-			if (ImGui::SmallButton("Reload Raytracer Shader")) {
-				raytracer::reloadSceneToRaytracer();
-			}
-			if (ImGui::SmallButton("Upload Scene To Raytracer")) {
-				raytracer::uploadSceneToRaytracer();
-			}
-			if (ImGui::SmallButton("Clear Raytraced Data")) {
-				raytracer::clearRaytracerData();
-			}
-
 			ImGui::TreePop();// Ends The ImGui Window
 		}
 
@@ -618,15 +634,15 @@ void FEImGuiWindow::PanelsWindow() {
 	ImGui::Checkbox("Rendering", &FEImGuiWindow::imGuiPanels[1]);
 	ImGui::Checkbox("ViewPort", &FEImGuiWindow::imGuiPanels[3]);
 	ImGui::Checkbox("Scene Hierarchy", &FEImGuiWindow::imGuiPanels[4]);
-	ImGui::Checkbox("Preformance Profiler", &FEImGuiWindow::imGuiPanels[6]);
+	ImGui::Checkbox("Performance Profiler", &FEImGuiWindow::imGuiPanels[6]);
 	ImGui::Checkbox("Text Editor", &FEImGuiWindow::imGuiPanels[7]);
 	ImGui::Checkbox("Inspector", &FEImGuiWindow::imGuiPanels[9]);
 	ImGui::Checkbox("Scene Folder", &FEImGuiWindow::imGuiPanels[10]);
 	ImGui::Checkbox("Console", &FEImGuiWindow::imGuiPanels[11]);
 }
 
-void FEImGuiWindow::PreformanceProfiler() {
-	ImGui::Begin("Preformance Profiler"); // ImGUI window creation
+void FEImGuiWindow::PerformanceProfiler() {
+	ImGui::Begin("Performance Profiler"); // ImGUI window creation
 
 	SystemInfomation();
 
@@ -747,13 +763,8 @@ void FEImGuiWindow::viewport() {
 	ImGui::Image((ImTextureID)(uintptr_t)Framebuffer::Ftexture, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
 
 	//prevEnableLinearScaling
-	ScreenUtils::UpdateViewportResize();
-	if (ScreenUtils::isResizing == true) {
-		Framebuffer::updateFrameBufferResolution(static_cast<unsigned int>(window_width), static_cast<unsigned int>(window_height)); // Update frame buffer resolution
-		glViewport(0, 0, static_cast<GLsizei>(window_width), static_cast<GLsizei>(window_height));
-
-		Scene::maincamera.SetViewportSize(static_cast<int>(window_width), static_cast<int>(window_height));
-	}
+	//ScreenUtils::UpdateViewportResize();
+	Framebuffer::updateFrameBufferResolution(static_cast<unsigned int>(window_width), static_cast<unsigned int>(window_height)); // Update frame buffer resolution
 
 	ImVec2 viewportPos = ImGui::GetItemRectMin();    // top-left corner relative to window
 	ImVec2 viewportSize = ImGui::GetItemRectSize(); // size of the image
@@ -803,7 +814,7 @@ void FEImGuiWindow::viewport() {
 	ImGui::SameLine(ImGui::GetWindowWidth() - (ImGui::GetWindowWidth() - 10.0f));
 	ImGui::BeginGroup();
 	ImGui::Dummy(ImVec2(0, ImGui::GetWindowHeight() - 135.0f));
-	ImGui::TextColored(ImVec4(1, 0, 0, 1), "OpenGL Version: %s", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+	//ImGui::TextColored(ImVec4(1, 0, 0, 1), "OpenGL Version: %s", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), "GPU: %s", reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), (std::string("RES: ") + std::to_string(static_cast<int>(Framebuffer::ViewPortWidth)) + "*" + std::to_string(static_cast<int>(Framebuffer::ViewPortHeight))).c_str());
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), ("FPS: " + std::to_string(static_cast<int>(TimeUtil::frameRate1hz))).c_str());
@@ -819,7 +830,8 @@ float header_height = 30.0f;
 
 void FEImGuiWindow::HierarchyElement(int parentIndex)
 {
-	if (Scene::entityObjects[parentIndex]->fetchType() == 'm') // check if model entity
+	
+	if (Scene::entityObjects[parentIndex]->type == entity::ENT_MODEL_TYPE) // check if model entity
 	{
 		ImGui::BeginGroup();
 
@@ -840,7 +852,7 @@ void FEImGuiWindow::HierarchyElement(int parentIndex)
 		ImGui::SameLine();
 		//if ()
 		// here as a alternative drop down 
-		if (!Scene::entityObjects[parentIndex]->component.relationship.childUUID.size() > 0)
+		if (Scene::entityObjects[parentIndex]->component.relationship.childUUID.empty())
 		{
 			if (ImGui::MenuItem((Scene::entityObjects[parentIndex]->name + "##" + std::to_string(parentIndex)).c_str())) {
 				FEImGuiWindow::SelectedObjectType = "Model";
@@ -860,21 +872,10 @@ void FEImGuiWindow::HierarchyElement(int parentIndex)
 				ImGui::TreePop();
 			}
 		}
-		//ImGui::SameLine();
-		//if (ImGui::TreeNode((Scene::entityObjects[i]->name + "##DD" + std::to_string(i)).c_str())) {
-		//	ImGui::TreePop();
-		//}
-
 		ImGui::EndGroup();
-		//ImGui::SetNextItemOpen(open_state);
-		//if (ImGui::TreeNode(("expand##" + std::to_string(i)).c_str()))
-		//{
-		//	ImGui::Text("Node contents...");
-		//	ImGui::TreePop();
-		//}
 	}
 	// billboard
-	else if (Scene::entityObjects[parentIndex]->fetchType() == 'b') // check if billboard entity
+	else if (Scene::entityObjects[parentIndex]->type == entity::ENT_BILLBOARD_TYPE) // check if billboard entity
 	{
 		ImGui::BeginGroup();
 
@@ -894,7 +895,7 @@ void FEImGuiWindow::HierarchyElement(int parentIndex)
 
 
 		ImGui::SameLine();
-		if (!Scene::entityObjects[parentIndex]->component.relationship.childUUID.size() > 0)
+		if (Scene::entityObjects[parentIndex]->component.relationship.childUUID.empty())
 		{
 			if (ImGui::MenuItem((Scene::entityObjects[parentIndex]->name + "##" + std::to_string(parentIndex)).c_str())) {
 				FEImGuiWindow::SelectedObjectType = "Billboard";
@@ -915,6 +916,51 @@ void FEImGuiWindow::HierarchyElement(int parentIndex)
 
 		ImGui::EndGroup();
 	}
+	
+	
+	else if (Scene::entityObjects[parentIndex]->type == entity::ENT_EMPTY_TYPE) // check if billboard entity
+	{
+		ImGui::BeginGroup();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+		ImGui::ImageButton(
+			("##openButton" + std::to_string(parentIndex)).c_str(),
+			(ImTextureID)(intptr_t)FEImGuiWindow::emptyIcon.ID,
+			ImVec2(icon_size, icon_size)
+		);
+		if (ImGui::IsItemClicked()) {
+			FEImGuiWindow::SelectedObjectType = "Empty";
+			FEImGuiWindow::SelectedObjectIndex = static_cast<int>(parentIndex);
+		}
+		ImGui::PopStyleColor(3);
+
+
+		ImGui::SameLine();
+		if (Scene::entityObjects[parentIndex]->component.relationship.childUUID.empty())
+		{
+			if (ImGui::MenuItem((Scene::entityObjects[parentIndex]->name + "##" + std::to_string(parentIndex)).c_str())) {
+				FEImGuiWindow::SelectedObjectType = "Empty";
+				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(parentIndex);
+			}
+		}
+		else
+		{
+			if (ImGui::TreeNode((Scene::entityObjects[parentIndex]->name + "##DD" + std::to_string(parentIndex)).c_str())) {
+				for (size_t i = 0; i < Scene::entityObjects[parentIndex]->component.relationship.childUUID.size(); i++)
+				{
+					int entityIndex = RelationshipManager::indexFromUUIDEntity(Scene::entityObjects[parentIndex]->component.relationship.childUUID[i]);
+					HierarchyElement(entityIndex);
+				}
+				ImGui::TreePop();
+			}
+		}
+
+		ImGui::EndGroup();
+	}
+	
+	
 }
 
 bool addWindowBool = false;
@@ -937,6 +983,11 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 	ImGui::BeginChild("AddBar", ImVec2(0, header_height), false, ImGuiWindowFlags_NoScrollbar);
 
 	FEImGuiWindow::create();
+	
+	ImGui::SameLine();
+	
+	ImGui::Checkbox("spawn Near Camera", &Scene::spawnNearCamera);
+	
 	ImGui::EndChild();
 	ImGui::Separator();
 	ImGui::BeginChild("Objects", ImVec2(0, 0), false);
@@ -992,10 +1043,39 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 
 	ImGui::Text("Objects:");
 
+	// entity model, bb, empty
 	for (size_t i = 0; i < Scene::entityObjects.size(); i++)
 	{
 		if (!Scene::entityObjects[i]->component.relationship.hasParent) HierarchyElement(i);
 	}
+	
+	for (size_t i = 0; i < Scene::volumes.size(); i++)
+	{
+		ImGui::BeginGroup();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+		ImGui::ImageButton(
+			("##openButtonV" + std::to_string(i)).c_str(),
+			(ImTextureID)(intptr_t)FEImGuiWindow::volumeAREAIcon.ID,
+			ImVec2(icon_size, icon_size)
+		);
+		if (ImGui::IsItemClicked()) {
+			FEImGuiWindow::SelectedObjectType = "Volume";
+			FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
+		}
+		ImGui::PopStyleColor(3);
+
+
+		ImGui::SameLine();
+		if (ImGui::MenuItem((Scene::volumes[i]->name + "##V" + std::to_string(i)).c_str())) {
+			FEImGuiWindow::SelectedObjectType = "Volume";
+			FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
+		}
+		ImGui::EndGroup();
+	}
+	
 		for (size_t i = 0; i < Scene::SoundObjects.size(); i++) {
 			ImGui::BeginGroup();
 
@@ -1021,31 +1101,6 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 			}
 			ImGui::EndGroup();
 		}
-		/*
-		for (size_t i = 0; i < Scene::CubeColliderObject.size(); i++) {
-			ImGui::BeginGroup();
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
-			ImGui::ImageButton(
-				("##openButtonC" + std::to_string(i)).c_str(),
-				(ImTextureID)(intptr_t)FEImGuiWindow::colliderIcon.ID,
-				ImVec2(icon_size, icon_size)
-			);
-			if (ImGui::IsItemClicked()) {
-				FEImGuiWindow::SelectedObjectType = "Collider";
-				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
-			}
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			if (ImGui::MenuItem((Scene::CubeColliderObject[i].name + "##" + std::to_string(i)).c_str())) {
-				FEImGuiWindow::SelectedObjectType = "Collider";
-				FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
-			}
-			ImGui::EndGroup();
-		}
-		*/
 		for (size_t i = 0; i < LightingHandler::Lights.size(); i++) {
 			ImGui::BeginGroup();
 			if (LightingHandler::Lights[i].type == 0) { // spot light
@@ -1105,7 +1160,7 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 }
 
 
-static const char* hierarchyItems[]{ "Models","BillBoards","Sound", "Light" };
+static const char* hierarchyItems[]{ "Models","BillBoards","Sound", "Light", "Empty", "Volume" };
 static int hierarchySelectedItem = 0; // Index of the selected item in the hierarchy combo box
 
 static const char* contentItems[]{ "Models","BillBoards", "Sound", "Material", "Skybox"};
@@ -1181,7 +1236,12 @@ void FEImGuiWindow::addWindow(std::string typeString, bool &isOpen) {
 			nameInput();
 
 			if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
-				Scene::AddEntityObject('m', name, Path);
+				
+					//if (spawnNearCamera) newEntity->setPosition(maincamera.Position - ( FE_Math::getForwardFromViewMatrix(maincamera.cameraMatrix) * 5.0f ));
+					//Scene::maincamera.Position - ( FE_Math::getForwardFromViewMatrix(Scene::maincamera.cameraMatrix) * 5.0f 
+				if (Scene::spawnNearCamera) Scene::AddEntityObject(entity::ENT_MODEL_TYPE, name, Path, 
+					Scene::maincamera.Position - ( FE_Math::getForwardFromViewMatrix(Scene::maincamera.cameraMatrix * 5.0f) ) , glm::vec3(1.0f), glm::vec3(0.0f) );
+				else Scene::AddEntityObject(entity::ENT_MODEL_TYPE, name, Path, glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
 			}
 
 		}
@@ -1190,7 +1250,9 @@ void FEImGuiWindow::addWindow(std::string typeString, bool &isOpen) {
 			pathInput();
 			nameInput();
 			if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
-				Scene::AddEntityObject('b', name, Path);
+				if (Scene::spawnNearCamera) Scene::AddEntityObject(entity::ENT_BILLBOARD_TYPE, name, Path, 
+					Scene::maincamera.Position - ( FE_Math::getForwardFromViewMatrix(Scene::maincamera.cameraMatrix * 5.0f) ) , glm::vec3(1.0f), glm::vec3(0.0f) );
+				else Scene::AddEntityObject(entity::ENT_BILLBOARD_TYPE, name, Path, glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
 			}
 		}
 		else if (hierarchySelectedItem == 2) {
@@ -1201,11 +1263,32 @@ void FEImGuiWindow::addWindow(std::string typeString, bool &isOpen) {
 			}
 		}
 		else if (hierarchySelectedItem == 3) {
-			//ImGui::Text("Light");
 			if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
 				LightingHandler::createLight();
 			}
 		}
+		else if (hierarchySelectedItem == 4) {
+			
+			nameInput();
+			
+			if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
+				if (Scene::spawnNearCamera) Scene::AddEntityObject(entity::ENT_EMPTY_TYPE, name, "", 
+		Scene::maincamera.Position - ( FE_Math::getForwardFromViewMatrix(Scene::maincamera.cameraMatrix * 5.0f) ) , glm::vec3(1.0f), glm::vec3(0.0f) );
+				else Scene::AddEntityObject(entity::ENT_EMPTY_TYPE, name, "", glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
+			}
+		}
+		else if (hierarchySelectedItem == 5)
+		{
+			ImGui::Text("just voxel type for now");
+			nameInput();
+			
+			if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
+				if (Scene::spawnNearCamera) Scene::AddVolumeObject(FE_Volume::VOXEL, name, 
+		Scene::maincamera.Position - ( FE_Math::getForwardFromViewMatrix(Scene::maincamera.cameraMatrix * 5.0f) ) , glm::vec3(1.0f));
+				else Scene::AddVolumeObject(FE_Volume::VOXEL, name, glm::vec3(0.0f), glm::vec3(1.0f));
+			}
+		}
+		
 		}
 	if (typeString == "content") {
 		ImGui::Combo("ObjectType", &contentSelecteditem, contentItems, IM_ARRAYSIZE(contentItems));
@@ -1299,51 +1382,6 @@ void FEImGuiWindow::MaterialIndexUpdate()
 	}
 }
 
-/*
-void FEImGuiWindow::ColliderWindow() {
-
-	ImGui::Text((Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].name).c_str());
-
-	// ID
-	ImGui::Text(("ID: " + std::to_string(Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.ObjType) + "*" + std::to_string(Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber)).c_str());
-	// Index attached to ID
-	ImGui::Text(("ID Attached Index: " + std::to_string(Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.index)).c_str());
-
-	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
-	ImGui::SameLine();
-	if (ImGui::SmallButton("Apply Name"))
-	{
-		//ObjectManager::renameObject('c', Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber, ObjectManager::NameBuffer);
-		ObjectManager::renameObjectwIndex('c', FEImGuiWindow::SelectedObjectIndex, ObjectManager::NameBuffer);
-	}
-
-	if (ImGui::TreeNode("Transform Component")) {
-		ImGui::Text("Transformations: ");
-		// position
-		ImGui::DragFloat3("Position", &Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].colliderXYZ.x);
-		// scale
-		ImGui::DragFloat3("Scale", &Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].colliderScale.x);
-		
-		ImGui::TreePop();// Ends The ImGui Window
-	}
-	ImGui::Checkbox("Enabled", &Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].enabled);
-
-	if (ImGui::SmallButton("Delete")) {
-		ObjectManager::deleteObjectwIndex('c', FEImGuiWindow::SelectedObjectIndex);
-		FEImGuiWindow::SelectedObjectType = "";
-	}
-	ImGui::SameLine();
-	if (ImGui::SmallButton("Duplicate")) {
-		ObjectManager::duplicateObject('c', Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber);
-	}
-	ImGui::SameLine();
-	if (ImGui::SmallButton("Focus Camera")) {
-		Camera::Position = Scene::CubeColliderObject[FEImGuiWindow::SelectedObjectIndex].colliderXYZ;
-	}
-
-}
-	*/
-
 bool addContentBool = false;
 
 void FEImGuiWindow::SceneFolderWindow()
@@ -1386,7 +1424,11 @@ void FEImGuiWindow::SceneFolderWindow()
 				ImGui::BeginGroup();
 				if (FEImGuiWindow::ContentObjects[i] == "Model") { // ShadowMap
 					if (ImGui::ImageButton(("##ObjectIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::ModelIcon.ID, ImVec2(100, 100))) {
-						Scene::AddEntityObject('m', FEImGuiWindow::ContentObjectNames[i], FEImGuiWindow::ContentObjectPaths[i]);
+						
+						if (Scene::spawnNearCamera) Scene::AddEntityObject(entity::ENT_MODEL_TYPE, FEImGuiWindow::ContentObjectNames[i], FEImGuiWindow::ContentObjectPaths[i], 
+	Scene::maincamera.Position - ( FE_Math::getForwardFromViewMatrix(Scene::maincamera.cameraMatrix * 5.0f) ) , glm::vec3(1.0f), glm::vec3(0.0f) );
+						else Scene::AddEntityObject(entity::ENT_MODEL_TYPE, FEImGuiWindow::ContentObjectNames[i], FEImGuiWindow::ContentObjectPaths[i], glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
+						
 					}
 					if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
 						FEImGuiWindow::ContentObjects.erase(FEImGuiWindow::ContentObjects.begin() + i);
@@ -1399,7 +1441,11 @@ void FEImGuiWindow::SceneFolderWindow()
 				}
 				if (FEImGuiWindow::ContentObjects[i] == "BillBoard") {
 					if (ImGui::ImageButton(("##BillBoardIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::BillBoardIcon.ID, ImVec2(100, 100))) {
-						Scene::AddEntityObject('b', FEImGuiWindow::ContentObjectNames[i], FEImGuiWindow::ContentObjectPaths[i]);
+						
+						if (Scene::spawnNearCamera) Scene::AddEntityObject(entity::ENT_BILLBOARD_TYPE, FEImGuiWindow::ContentObjectNames[i], FEImGuiWindow::ContentObjectPaths[i], 
+							Scene::maincamera.Position - ( FE_Math::getForwardFromViewMatrix(Scene::maincamera.cameraMatrix * 5.0f) ) , glm::vec3(1.0f), glm::vec3(0.0f) );
+						else Scene::AddEntityObject(entity::ENT_BILLBOARD_TYPE, FEImGuiWindow::ContentObjectNames[i], FEImGuiWindow::ContentObjectPaths[i], glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
+						
 					}
 					if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10))) {
 						FEImGuiWindow::ContentObjects.erase(FEImGuiWindow::ContentObjects.begin() + i);

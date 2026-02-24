@@ -81,5 +81,24 @@ void windowHandler::InitMainWidnow() {
 	// window logo creation and assignment
 	SetWindowIcon(window, "assets/Icons/Icon.png");
 	glfwMakeContextCurrent(windowHandler::window);	//make window current context
+	
+	addWindowDropCallback(window);
 
+}
+
+void windowHandler::addWindowDropCallback(GLFWwindow* window)
+{
+	glfwSetDropCallback(window, windowHandler::dropCallback);
+}
+
+void windowHandler::dropCallback(GLFWwindow* window, int count, const char** paths)
+{
+	std::string completeChar;
+	// load into string
+	for (int i = 0; i < count; i++)
+	{
+		completeChar.append(paths[i]);
+	}
+	// some kind of handler would be nice
+	std::cout <<completeChar << std::endl;
 }

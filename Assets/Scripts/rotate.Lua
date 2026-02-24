@@ -11,10 +11,36 @@ function update() -- called once per frame
 
     local dt = time.deltaTime
 
+    local speed = 5.0
+
+    local elipson = 3.0
+
+    if transform.positionX > camera.positionX + elipson then
+    transform.positionX = transform.positionX - speed * dt;
+    elseif transform.positionX < camera.positionX - elipson then
+     transform.positionX = transform.positionX + speed * dt;
+    end
+
+    --if transform.positionY > camera.positionY - 2.2 then
+    --transform.positionY = transform.positionY - speed * dt;
+    --elseif transform.positionY < camera.positionY - 2.2 then
+    -- transform.positionY = transform.positionY + speed * dt;
+    --end
+
+    if transform.positionZ > camera.positionZ + elipson then
+    transform.positionZ = transform.positionZ - speed * dt;
+    elseif transform.positionZ < camera.positionZ - elipson then
+     transform.positionZ = transform.positionZ + speed * dt;
+    end
+
+
+
+
+
     --transform.positionX = transform.positionX + 40.0 * dt
 
-    transform.rotationX = transform.rotationX - 30.0 * dt
-    transform.rotationY = transform.rotationY - 15.0 * dt
+    --transform.rotationX = transform.rotationX - 30.0 * dt
+    transform.rotationY = transform.rotationY - 120 * dt
     --transform.rotationZ = transform.rotationZ - 30.0 * dt
 
     --io.write(transform.position.x .. " positionX \n")

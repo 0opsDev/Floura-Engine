@@ -28,11 +28,18 @@ public:
 		uint64_t instanceUUID;
 		uint64_t shaderUUID;
 		uint64_t gpShaderUUID;
+		uint64_t entityUUID;
 		float smoothnessValue;
 		int isInstanced; // will come into play way later
 		glm::vec3 position;
 		glm::vec3 rotation;
 		glm::vec3 scale;
+		
+		// previous
+		glm::vec3 pPosition;
+		glm::vec3 pRotation;
+		glm::vec3 pScale;
+		
 		glm::vec2 uvScale;
 		bool doCulling;
 		bool cullFrontFace;
@@ -79,9 +86,11 @@ private:
 	
 	static Cubemap* tempCM;
 
-	static void cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm, Shader& shader, glm::vec2 resolution, glm::vec3 pos);
+	static void cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm, Shader& shader, glm::vec2 resolution, glm::vec3 pos, float range);
 
 	static void regularDraw();
+	
+	static void shadowDraw();
 
 	static void instancedDraw();
 

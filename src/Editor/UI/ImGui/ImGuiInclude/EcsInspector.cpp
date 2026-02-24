@@ -21,12 +21,15 @@ void EcsInspector::InspectorWindow() {
 	ImGui::Text(("Selected Object Type : " + FEImGuiWindow::SelectedObjectType).c_str());
 	ImGui::Text(("Index: " + std::to_string(FEImGuiWindow::SelectedObjectIndex)).c_str());
 
+	// remove this trash, replace with enum switch
+	
 	if (FEImGuiWindow::SelectedObjectType == "Camera") CameraWindow();
 	else if (FEImGuiWindow::SelectedObjectType == "Model") ModelWindow();
 	else if (FEImGuiWindow::SelectedObjectType == "Billboard") BillBoardWindow();
 	else if (FEImGuiWindow::SelectedObjectType == "Sound") SoundWindow();
 	else if (FEImGuiWindow::SelectedObjectType == "Light") LightWindow();
 	else if (FEImGuiWindow::SelectedObjectType == "DirectLight") {
+		
 
 		ImGui::Checkbox("Enabled", &LightingHandler::doDirLight);
 		ImGui::Checkbox("Enabled Specular Light", &LightingHandler::doDirSpecularLight);
@@ -61,6 +64,10 @@ void EcsInspector::InspectorWindow() {
 		ImGui::DragFloat("Depth Distance (FOG)", &RenderClass::DepthDistance);
 		ImGui::DragFloat2("Near and Far Depth Plane", RenderClass::DepthPlane);
 	}
+	else if (FEImGuiWindow::SelectedObjectType == "Empty") EmptyWindow();
+	else if (FEImGuiWindow::SelectedObjectType == "Volume") VolumeWindow();
+	
+	
 	ImGui::End();
 }
 std::string scriptName = "New Script";
@@ -69,9 +76,6 @@ std::string scriptPath = "Assets/Scripts/helloWorld.Lua";
 std::string UUIDinput = "";
 
 void EcsInspector::ModelWindow() {
-	glm::vec3 modelPos = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchPosition();
-	glm::vec3 modelScale = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchScale();
-	glm::vec3 modelRot = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchRotation();
 
 	ImGui::Spacing();
 	ImGui::Text((Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name).c_str());
@@ -86,11 +90,7 @@ void EcsInspector::ModelWindow() {
 
 	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
 	ImGui::SameLine();
-	if (ImGui::SmallButton("Apply Name"))
-	{
-		//ObjectManager::renameObject('m', Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber, ObjectManager::NameBuffer);
-		ObjectManager::renameObjectwIndex('m', FEImGuiWindow::SelectedObjectIndex, ObjectManager::NameBuffer);
-	}
+	if (ImGui::SmallButton("Apply Name"))Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name = ObjectManager::NameBuffer;
 
 	if (ImGui::TreeNode("Rendering Component")) {
 
@@ -115,91 +115,11 @@ void EcsInspector::ModelWindow() {
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	ImGui::Spacing();
-
-	if (ImGui::TreeNode("Transform Component")) {
-		ImGui::Text("Transformations: ");
-		// position
-		FEImGui::DragVec3("Position", modelPos, glm::vec3(0.0f), 100.0f);
-		FEImGui::DragVec3("Scale", modelScale, glm::vec3(1.0f), 100.0f); // should i call? i don't wanna ring everybody's phones while they are asleep
-		FEImGui::DragVec3("Rotation", modelRot, glm::vec3(0.0f), 100.0f);
-
-		ImGui::TreePop();// Ends The ImGui Window
-	}
-
+	entityTransformPane();
 	ImGui::Spacing();
-	if (ImGui::TreeNode("Physics Component")) {
-
-		ImGui::Checkbox("has Dynamics ", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.hasRigidbody);
-
-		ImGui::Checkbox("affected By Gravity", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.affectedByGravity);
-
-		if (ImGui::SmallButton("Clear Motion"))
-		{
-			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.velocity = glm::vec3(0.0f);
-		}
-
-		ImGui::TreePop();// Ends The ImGui Window
-	}
+	entityPhysicsPane();
 	ImGui::Spacing();
-	if (ImGui::TreeNode("Scripting Components")) {
-
-
-		std::vector<char> nameBuffer(scriptName.size() + 256);
-		strncpy(nameBuffer.data(), scriptName.c_str(), nameBuffer.size());
-		nameBuffer[nameBuffer.size() - 1] = '\0';
-		if (ImGui::InputText("Name", nameBuffer.data(), nameBuffer.size()))
-		{
-			scriptName = std::string(nameBuffer.data());
-		}
-
-		std::vector<char> pathBuffer(scriptPath.size() + 256);
-		strncpy(pathBuffer.data(), scriptPath.c_str(), pathBuffer.size());
-		pathBuffer[pathBuffer.size() - 1] = '\0';
-		if (ImGui::InputText("Path", pathBuffer.data(), pathBuffer.size()))
-		{
-			scriptPath = std::string(pathBuffer.data());
-		}
-
-		if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(10, 10))) 
-		{
-			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->addScript(scriptPath, scriptName);
-		}
-
-		for (size_t i = 0; i < Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects.size(); i++)
-		{
-
-			if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10)))
-			{
-				Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->removeScript(i);
-				break;
-			}
-			ImGui::SameLine();
-			// entity::reloadScript
-			
-			if (ImGui::TreeNode((Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects[i]->name + " #" + std::to_string(i)).c_str()))
-			{
-				std::string id = UUID::UUIDToString(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects[i]->UUID);
-				ImGui::Text(("UUID: " + id).c_str());
-				ImGui::Text(("path: " + Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects[i]->path).c_str());
-
-				if (ImGui::Button("reload script"))
-				{
-					Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->reloadScript(i);
-				}
-				if (ImGui::Button("Open in text editor"))
-				{
-					FileClass::currentPath = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects[i]->path;
-					FileClass::loadContents();
-				}
-
-				ImGui::TreePop();
-			}
-
-
-		}
-
-		ImGui::TreePop();
-	}
+	entityScriptPane();
 	ImGui::Spacing();
 	if (ImGui::TreeNode("Collider Component")) {
 		ImGui::TreePop();// Ends The ImGui Window
@@ -212,38 +132,7 @@ void EcsInspector::ModelWindow() {
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	ImGui::Spacing();
-	if (ImGui::TreeNode("Relationship Component")) {
-
-			std::vector<char> idBuffer(UUIDinput.size() + 256);
-			strncpy(idBuffer.data(), UUIDinput.c_str(), idBuffer.size());
-			idBuffer[idBuffer.size() - 1] = '\0';
-			if (ImGui::InputText("Name", idBuffer.data(), idBuffer.size()))
-			{
-				UUIDinput = std::string(idBuffer.data());
-			}
-
-			if (ImGui::Button("Add Parent"))
-			{
-				if (!UUIDinput.empty()) RelationshipManager::addParent(FEImGuiWindow::SelectedObjectIndex, UUID::StringToUUID(UUIDinput));
-			}
-
-			if (ImGui::Button("Remove Parent"))
-			{
-				RelationshipManager::removeParent(FEImGuiWindow::SelectedObjectIndex);
-			}
-			ImGui::Spacing();
-			ImGui::Text(("HasParent: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.hasParent)).c_str());
-			ImGui::Text(("Parent UUID: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.parentUUID)).c_str());
-			ImGui::Spacing();
-			ImGui::Text(("NumChildren: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID.size())).c_str());
-			ImGui::Text("Child UUIDs:");
-			for (size_t i = 0; i < Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID.size(); i++)
-			{
-				ImGui::Text((std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID[i]) + " num: " + std::to_string(i)).c_str());
-			}
-
-		ImGui::TreePop();
-	}
+	entityRelationsPane();
 	ImGui::Spacing();
 	if (ImGui::TreeNode("General Infomation:")) {
 		int index = RenderHandler::fetchModelIndex(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.renderID);
@@ -277,12 +166,8 @@ void EcsInspector::ModelWindow() {
 	}
 	ImGui::SameLine();
 	if (ImGui::SmallButton("Focus Camera")) {
-		Scene::maincamera.Position = modelPos;
+		Scene::maincamera.Position = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchPosition();
 	}
-
-	Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setPosition(modelPos);
-	Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setScale(modelScale);
-	Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setRotation(modelRot);
 }
 void EcsInspector::BillBoardWindow() {
 
@@ -298,11 +183,7 @@ void EcsInspector::BillBoardWindow() {
 
 	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
 	ImGui::SameLine();
-	if (ImGui::SmallButton("Apply Name"))
-	{
-		//ObjectManager::renameObject('o', Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber, ObjectManager::NameBuffer);
-		ObjectManager::renameObjectwIndex('o', FEImGuiWindow::SelectedObjectIndex, ObjectManager::NameBuffer); // needs to use object index
-	}
+	if (ImGui::SmallButton("Apply Name"))Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name = ObjectManager::NameBuffer;
 
 	if (ImGui::TreeNode("Transform Component")) {
 		ImGui::Text("Transformations: ");
@@ -313,52 +194,11 @@ void EcsInspector::BillBoardWindow() {
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	ImGui::Spacing();
-
-	if (ImGui::TreeNode("Physics Component")) {
-
-		ImGui::Checkbox("has Dynamics ", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.hasRigidbody);
-
-		ImGui::Checkbox("affected By Gravity", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.affectedByGravity);
-
-		if (ImGui::SmallButton("Clear Motion"))
-		{
-			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.velocity = glm::vec3(0.0f);
-		}
-
-		ImGui::TreePop();// Ends The ImGui Window
-	}
+	entityTransformPane();
 	ImGui::Spacing();
-	if (ImGui::TreeNode("Relationship Component")) {
-			std::vector<char> idBuffer(UUIDinput.size() + 256);
-			strncpy(idBuffer.data(), UUIDinput.c_str(), idBuffer.size());
-			idBuffer[idBuffer.size() - 1] = '\0';
-			if (ImGui::InputText("Name", idBuffer.data(), idBuffer.size()))
-			{
-				UUIDinput = std::string(idBuffer.data());
-			}
-
-			if (ImGui::Button("Add Parent"))
-			{
-				if (!UUIDinput.empty()) RelationshipManager::addParent(FEImGuiWindow::SelectedObjectIndex, UUID::StringToUUID(UUIDinput));
-			}
-
-			if (ImGui::Button("Remove Parent"))
-			{
-				RelationshipManager::removeParent(FEImGuiWindow::SelectedObjectIndex);
-			}
-			ImGui::Spacing();
-			ImGui::Text(("HasParent: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.hasParent)).c_str());
-			ImGui::Text(("Parent UUID: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.parentUUID)).c_str());
-			ImGui::Spacing();
-			ImGui::Text(("NumChildren: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID.size())).c_str());
-			ImGui::Text("Child UUIDs:");
-			for (size_t i = 0; i < Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID.size(); i++)
-			{
-				ImGui::Text((std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID[i]) + " num: " + std::to_string(i)).c_str());
-			}
-
-		ImGui::TreePop();
-	}
+	entityPhysicsPane();
+	ImGui::Spacing();
+	entityScriptPane();
 	ImGui::Spacing();
 
 	ImGui::Checkbox("doPitch", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.BillBoard->doPitch);
@@ -392,11 +232,7 @@ void EcsInspector::SoundWindow()
 	ImGui::Text((Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].name).c_str());
 	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
 	ImGui::SameLine();
-	if (ImGui::SmallButton("Apply Name"))
-	{
-		//ObjectManager::renameObject('s', Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].ID.UniqueNumber, ObjectManager::NameBuffer);
-		ObjectManager::renameObjectwIndex('s', FEImGuiWindow::SelectedObjectIndex, ObjectManager::NameBuffer);
-	}
+	if (ImGui::SmallButton("Apply Name")) Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].name = ObjectManager::NameBuffer;
 
 	ImGui::DragFloat3("Position", &Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].position.x);
 	ImGui::DragFloat("Volume", &Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].currentvolume, 0.01f, 0.0f, 1.0f);
@@ -459,10 +295,10 @@ void EcsInspector::LightWindow() {
 char SkyBoxPath[128] = "Assets/Skybox/";
 void EcsInspector::SkyBoxWindow() {
 	ImGui::ColorEdit3("Sky Colour", &RenderClass::skyRGBA.r);
+	FEImGui::DragVec3("Skybox Rotation", Skybox::rotation, Scene::initalCameraPos, 100.0f);
 	ImGui::Checkbox("Do Sky Colour", &Skybox::DoSbRGBA);
 	ImGui::Checkbox("Render Skybox", &RenderClass::renderSkybox);
 	ImGui::InputText("Skybox Path", SkyBoxPath, IM_ARRAYSIZE(SkyBoxPath));
-	ImGui::DragFloat3("Skybox Rotation", &Skybox::rotation.x);
 	if (ImGui::Button("Load Skybox")) {
 		Skybox::DefaultSkyboxPath = SkyBoxPath;
 		Skybox::LoadSkyBoxTexture(SkyBoxPath);
@@ -477,7 +313,7 @@ void EcsInspector::CameraWindow() {
 
 		FEImGui::DragVec3("Camera Position", Scene::maincamera.Position, Scene::initalCameraPos, 100.0f);
 
-		FEImGui::DragVec3("Inital Camera Position", Scene::initalCameraPos, glm::vec3(0.0f), 100.0f);
+		FEImGui::DragVec3("Initial Camera Position", Scene::initalCameraPos, glm::vec3(0.0f), 100.0f);
 
 		//ImGui::DragFloat3("inital Camera Position", &Scene::initalCameraPos.x); // set inital cam pos
 		if (ImGui::SmallButton("Reset Camera Position")) {
@@ -510,4 +346,171 @@ void EcsInspector::CameraWindow() {
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
+}
+
+void EcsInspector::EmptyWindow()
+{
+
+	
+	ImGui::Spacing();
+	ImGui::Text((Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name).c_str());
+	//ID
+	ImGui::Text(("UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->UUIDstring)).c_str());
+	ImGui::SameLine();
+	if (ImGui::Button("copy")) ImGui::SetClipboardText(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->UUIDstring.c_str());
+	
+	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
+	ImGui::SameLine();
+	if (ImGui::SmallButton("Apply Name"))Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name = ObjectManager::NameBuffer;
+	
+	ImGui::Spacing();
+	entityTransformPane();
+	ImGui::Spacing();
+	entityPhysicsPane();
+	ImGui::Spacing();
+	entityScriptPane();
+	ImGui::Spacing();
+}
+
+void EcsInspector::VolumeWindow()
+{
+	ImGui::Checkbox("doDebugDraw", &Scene::volumes[FEImGuiWindow::SelectedObjectIndex]->doDebugDraw);
+	FEImGui::DragVec3("Position", Scene::volumes[FEImGuiWindow::SelectedObjectIndex]->position, glm::vec3(0.0f), 100.0f);
+	FEImGui::DragVec3("Scale", Scene::volumes[FEImGuiWindow::SelectedObjectIndex]->scale, glm::vec3(0.0f), 100.0f);
+}
+
+void EcsInspector::entityScriptPane()
+{
+		if (ImGui::TreeNode("Scripting Components")) {
+
+
+		std::vector<char> nameBuffer(scriptName.size() + 256);
+		strncpy(nameBuffer.data(), scriptName.c_str(), nameBuffer.size());
+		nameBuffer[nameBuffer.size() - 1] = '\0';
+		if (ImGui::InputText("Name", nameBuffer.data(), nameBuffer.size()))
+		{
+			scriptName = std::string(nameBuffer.data());
+		}
+
+		std::vector<char> pathBuffer(scriptPath.size() + 256);
+		strncpy(pathBuffer.data(), scriptPath.c_str(), pathBuffer.size());
+		pathBuffer[pathBuffer.size() - 1] = '\0';
+		if (ImGui::InputText("Path", pathBuffer.data(), pathBuffer.size()))
+		{
+			scriptPath = std::string(pathBuffer.data());
+		}
+
+		if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(10, 10))) 
+		{
+			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->addScript(scriptPath, scriptName);
+		}
+
+		for (size_t i = 0; i < Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects.size(); i++)
+		{
+
+			if (ImGui::ImageButton(("##crossIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::crossIcon.ID, ImVec2(10, 10)))
+			{
+				Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->removeScript(i);
+				break;
+			}
+			ImGui::SameLine();
+			// entity::reloadScript
+			
+			if (ImGui::TreeNode((Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects[i]->name + " #" + std::to_string(i)).c_str()))
+			{
+				std::string id = UUID::UUIDToString(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects[i]->UUID);
+				ImGui::Text(("UUID: " + id).c_str());
+				ImGui::Text(("path: " + Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects[i]->path).c_str());
+
+				if (ImGui::Button("reload script"))
+				{
+					Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->reloadScript(i);
+				}
+				if (ImGui::Button("Open in text editor"))
+				{
+					FileClass::currentPath = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->ScriptObjects[i]->path;
+					FileClass::loadContents();
+				}
+
+				ImGui::TreePop();
+			}
+
+
+		}
+
+		ImGui::TreePop();
+	}
+}
+
+void EcsInspector::entityPhysicsPane()
+{
+	if (ImGui::TreeNode("Physics Component")) {
+
+		ImGui::Checkbox("has Dynamics ", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.hasRigidbody);
+
+		ImGui::Checkbox("affected By Gravity", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.affectedByGravity);
+
+		if (ImGui::SmallButton("Clear Motion"))
+		{
+			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.velocity = glm::vec3(0.0f);
+		}
+
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+}
+
+void EcsInspector::entityTransformPane()
+{
+	if (ImGui::TreeNode("Transform Component")) {
+		ImGui::Text("Transformations: ");
+		glm::vec3 modelPos = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchPosition();
+		glm::vec3 modelScale = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchScale();
+		glm::vec3 modelRot = Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->fetchRotation();
+		
+		// position
+		FEImGui::DragVec3("Position", modelPos, glm::vec3(0.0f), 100.0f);
+		FEImGui::DragVec3("Scale", modelScale, glm::vec3(1.0f), 100.0f); 
+		FEImGui::DragVec3("Rotation", modelRot, glm::vec3(0.0f), 100.0f);
+		
+		Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setPosition(modelPos);
+		Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setScale(modelScale);
+		Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->setRotation(modelRot);
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+}
+
+void EcsInspector::entityRelationsPane()
+{
+	if (ImGui::TreeNode("Relationship Component")) {
+
+		std::vector<char> idBuffer(UUIDinput.size() + 256);
+		strncpy(idBuffer.data(), UUIDinput.c_str(), idBuffer.size());
+		idBuffer[idBuffer.size() - 1] = '\0';
+		if (ImGui::InputText("Name", idBuffer.data(), idBuffer.size()))
+		{
+			UUIDinput = std::string(idBuffer.data());
+		}
+
+		if (ImGui::Button("Add Parent"))
+		{
+			if (!UUIDinput.empty()) RelationshipManager::addParent(FEImGuiWindow::SelectedObjectIndex, UUID::StringToUUID(UUIDinput));
+		}
+
+		if (ImGui::Button("Remove Parent"))
+		{
+			RelationshipManager::removeParent(FEImGuiWindow::SelectedObjectIndex);
+		}
+		ImGui::Spacing();
+		ImGui::Text(("HasParent: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.hasParent)).c_str());
+		ImGui::Text(("Parent UUID: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.parentUUID)).c_str());
+		ImGui::Spacing();
+		ImGui::Text(("NumChildren: " + std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID.size())).c_str());
+		ImGui::Text("Child UUIDs:");
+		for (size_t i = 0; i < Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID.size(); i++)
+		{
+			ImGui::Text((std::to_string(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.relationship.childUUID[i]) + " num: " + std::to_string(i)).c_str());
+		}
+
+		ImGui::TreePop();
+	}	
 }

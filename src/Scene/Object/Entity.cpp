@@ -10,7 +10,7 @@
 #include <Render/Handler/RenderHandler.h>
 #include "Systems/util/relationshipManager.h"
 
-void entity::createwUUID(uint64_t nUUID, const char& type, const std::string& name, const std::string& path, const std::string& materialPath)
+void entity::createwUUID(uint64_t nUUID, ENT_TYPE_ENUM type, const std::string& name, const std::string& path, const std::string& materialPath)
 {
 	entity::UUID = nUUID;
 	UUIDstring = UUID::UUIDToString(UUID);
@@ -25,11 +25,11 @@ void entity::createwUUID(uint64_t nUUID, const char& type, const std::string& na
 
 	switch (type)
 	{
-	case 'm': // model
+	case ENT_MODEL_TYPE: // model
 		createModel(path, materialPath);
 		break;
 
-	case 'b': // billboard
+	case ENT_BILLBOARD_TYPE: // billboard
 		createBillBoard(path);
 		break;
 	default:
@@ -40,7 +40,7 @@ void entity::createwUUID(uint64_t nUUID, const char& type, const std::string& na
 }
 
 
-void entity::create(const char& type, const std::string& name, const std::string& path, const std::string& materialPath)
+void entity::create(ENT_TYPE_ENUM type, const std::string& name, const std::string& path, const std::string& materialPath)
 {
 	UUID = UUID::returnHandle();
 	UUIDstring = UUID::UUIDToString(UUID);
@@ -55,11 +55,11 @@ void entity::create(const char& type, const std::string& name, const std::string
 	
 	switch (type)
 	{
-	case 'm': // model
+	case ENT_MODEL_TYPE: // model
 		createModel(path, materialPath);
 		break;
 
-	case 'b': // billboard
+	case ENT_BILLBOARD_TYPE: // billboard
 		createBillBoard(path);
 		break;
 	default:
@@ -121,7 +121,7 @@ void entity::update()
 {
 	
 
-	entity::updateMeshAABBs();
+	updateMeshAABBs();
 	if (component.physics.hasRigidbody) // change name to hasdynamics
 	{
 		//component.render.dirtyTransform = true;
@@ -143,7 +143,7 @@ void entity::update()
 	// update mesh positions here vv
 	switch (type)
 	{
-	case 'm': // model
+	case ENT_MODEL_TYPE: // model
 	{
 		int index = RenderHandler::fetchModelIndex(component.render.renderID);
 		if (index != -1)
@@ -159,7 +159,7 @@ void entity::update()
 
 		break;
 	}
-	case 'b': // billboard
+	case ENT_BILLBOARD_TYPE: // billboard
 		component.render.BillBoard->updatePosition(component.systems.transformation.position);
 		component.render.BillBoard->updateScale(component.systems.transformation.scale);
 		break;
@@ -167,7 +167,7 @@ void entity::update()
 		break;
 	}
 
-	entity::updateScripts();
+	updateScripts();
 }
 
 void entity::updateLights()
@@ -179,7 +179,7 @@ void entity::Delete()
 {
 	switch (type)
 	{
-	case 'm': // model
+	case ENT_MODEL_TYPE: // model
 	{
 
 		int index = RenderHandler::fetchModelIndex(component.render.renderID);
@@ -193,7 +193,7 @@ void entity::Delete()
 		component.systems.material.Material.ClearMaterial();
 		break;
 	}
-	case 'b': // billboard
+	case ENT_BILLBOARD_TYPE: // billboard
 		delete component.render.BillBoard;
 		component.render.BillBoard = nullptr;
 		break;
@@ -225,7 +225,65 @@ void entity::Delete()
 	raytracer::RTGlobalTransformFlag = true;
 }
 
-Collision::HitResult entity::RayVsTriangle(glm::vec3 rayPos, glm::vec3 rayDir)
+Collision::HitResult entity::AABBVsEntity(glm::vec3 pos, glm::vec3 scale)
+{
+		Collision::HitResult finalResult;
+	finalResult.isColliding = false;
+	finalResult.distance = std::numeric_limits<float>::max();	
+	int index = RenderHandler::fetchModelIndex(component.render.renderID);
+	if (index != -1)
+	{
+
+		glm::mat4 gModelMatrix = FE_Math::composeMatrixWDegrees(RenderHandler::models[index].model->globalTransformation.position,
+			RenderHandler::models[index].model->globalTransformation.scale, RenderHandler::models[index].model->globalTransformation.rotation);
+
+		// for each mesh
+		for (size_t x = 0; x < RenderHandler::models[index].model->meshes.size(); x++)
+		{
+			// final transformation
+			glm::mat4 finalMatrix = gModelMatrix * RenderHandler::models[index].model->lModelMatrix[x]; // * by local transform
+
+			// AABB to speed things up
+			Collision::HitResult AABB = Collision::AABBvsAABB(component.collider.rootnodes[x].position, component.collider.rootnodes[x].size, pos, scale);
+			if (AABB.isColliding)
+			{
+				for (size_t y = 0; y < RenderHandler::models[index].model->meshes[x].indices.size(); y += 3)
+				{
+					unsigned int i0 = RenderHandler::models[index].model->meshes[x].indices[y];
+					unsigned int i1 = RenderHandler::models[index].model->meshes[x].indices[y + 1];
+					unsigned int i2 = RenderHandler::models[index].model->meshes[x].indices[y + 2];
+
+					if (i0 >= RenderHandler::models[index].model->meshes[x].vertices.size() ||
+						i1 >= RenderHandler::models[index].model->meshes[x].vertices.size() ||
+						i2 >= RenderHandler::models[index].model->meshes[x].vertices.size()) {
+						continue;
+					}
+
+
+					glm::vec3 a = RenderHandler::models[index].model->meshes[x].vertices[i0].position;
+					glm::vec3 b = RenderHandler::models[index].model->meshes[x].vertices[i1].position;
+					glm::vec3 c = RenderHandler::models[index].model->meshes[x].vertices[i2].position;
+
+					FE_Math::transformPoint(a, finalMatrix);
+					FE_Math::transformPoint(b, finalMatrix);
+					FE_Math::transformPoint(c, finalMatrix);
+
+					// run hit test and return result
+					Collision::HitResult trihit = Collision::SATTriangleVSAABB(a, b, c, pos, scale);
+
+					if (trihit.isColliding && trihit.distance < finalResult.distance)
+					{
+						finalResult = trihit;
+					}
+				}
+			}
+		}
+	}
+	return finalResult;
+}
+
+
+Collision::HitResult entity::RayVsEntity(glm::vec3 rayPos, glm::vec3 rayDir)
 {
 	Collision::HitResult finalResult;
 	finalResult.isColliding = false;
@@ -289,12 +347,13 @@ void entity::draw()
 
 	switch (type)
 	{
-	case 'm': // model
+	case ENT_MODEL_TYPE: // model
 	{
 		RenderHandler::renderQueueData newRenderData;
 		newRenderData.RenderID = component.render.renderID;
 		newRenderData.shaderUUID = component.systems.material.Material.modelShaderUUID;
 		newRenderData.gpShaderUUID = component.systems.material.Material.modelGpassShaderUUID;
+			newRenderData.entityUUID = UUID;
 		newRenderData.castsShadow = component.flags.castsShadow;
 		newRenderData.cullFrontFace = component.flags.cullFrontFace;
 		newRenderData.doCulling = component.flags.doCulling;
@@ -302,6 +361,11 @@ void entity::draw()
 		newRenderData.position = component.systems.transformation.position;
 		newRenderData.rotation = component.systems.transformation.rotation;
 		newRenderData.scale = component.systems.transformation.scale;
+			
+			newRenderData.pPosition = component.systems.previousTransformation.position;
+			newRenderData.pRotation = component.systems.previousTransformation.rotation;
+			newRenderData.pScale = component.systems.previousTransformation.scale;
+			
 		newRenderData.smoothnessValue = component.render.smoothnessValue;
 		newRenderData.uvScale = component.systems.material.uvScale;
 		RenderHandler::addToRenderQueue(newRenderData);
@@ -315,13 +379,13 @@ void entity::draw()
 		{
 			if (Collision::showBoxCollider)
 				RenderClass::WhiteCube->draw(component.collider.rootnodes[i].position,
-					component.collider.rootnodes[i].size, glm::vec3(1.0f), true);
+					component.collider.rootnodes[i].size, glm::vec3(0.0f, 0.0f, 1.0f), 2.0, true, false);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
 		break;
 	}
-	case 'b': // billboard
+	case ENT_BILLBOARD_TYPE:// billboard
 	{
 		component.render.BillBoard->draw();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -335,10 +399,10 @@ void entity::drawShadowMap()
 	if (!component.flags.castsShadow) return;
 	switch (type)
 	{
-	case 'm': // model
+	case ENT_MODEL_TYPE: // model
 		//LightingHandler::drawShadowMap(component.renderHeads.Model, component.systems.transformation.position, component.systems.transformation.rotation, component.systems.transformation.scale);
 		break;
-	case 'b': // billboard
+	case ENT_BILLBOARD_TYPE: // billboard
 		LightingHandler::drawShadowMapBillboard(component.render.BillBoard, component.systems.transformation.position, component.systems.transformation.scale);
 		break;
 	}
@@ -352,7 +416,7 @@ void entity::updateCollision()
 	entity::updateMeshAABBs();
 	switch (type)
 	{
-	case 'm':
+	case ENT_MODEL_TYPE:
 	{
 		int index = RenderHandler::fetchModelIndex(component.render.renderID);
 		if (index != -1)
@@ -388,7 +452,7 @@ void entity::updateCollision()
 						(collisionData.lastHit.y + (Player::cameraColliderScale.y / 2.0f)),
 						collisionData.lastHit.z);
 
-					RenderClass::WhiteCube->draw(collisionData.lastHit, glm::vec3(0.1f), glm::vec3(1.0f, 0.0f, 0.0f), true);
+					RenderClass::WhiteCube->draw(collisionData.lastHit, glm::vec3(0.1f), glm::vec3(1.0f, 0.0f, 0.0f),2.0, true, false);
 
 					if (collisionData.collisionNormal == glm::vec3(0.0f, 1.0f, 0.0f)) // up or down
 						Player::isColliding = true; // Set collision state
@@ -412,7 +476,7 @@ void entity::updateMeshAABBs()
 	{
 		component.render.dirtyTransform = false;
 
-		if (type == 'm')
+		if (type == ENT_MODEL_TYPE)
 		{
 			int index = RenderHandler::fetchModelIndex(component.render.renderID);
 			if (index != -1)
@@ -466,6 +530,11 @@ void entity::sendEntityUniformsToScripts(ScriptObject* obj)
 	obj->setUniform("rotationX", transform, sol::make_object(obj->luaState, component.systems.transformation.rotation.x));
 	obj->setUniform("rotationY", transform, sol::make_object(obj->luaState, component.systems.transformation.rotation.y));
 	obj->setUniform("rotationZ", transform, sol::make_object(obj->luaState, component.systems.transformation.rotation.z));
+	
+	sol::table camera = obj->getOrCreateTable("camera");
+	obj->setUniform("positionX", camera, sol::make_object(obj->luaState, Scene::maincamera.Position.x));
+	obj->setUniform("positionY", camera, sol::make_object(obj->luaState, Scene::maincamera.Position.y));
+	obj->setUniform("positionZ", camera, sol::make_object(obj->luaState, Scene::maincamera.Position.z));
 }
 
 void entity::getEntityUniformsToScripts(ScriptObject* obj)

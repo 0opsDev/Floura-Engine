@@ -488,7 +488,7 @@ Collision::HitResult Collision::RayVsTriangle(glm::vec3 rayOrigin, glm::vec3 ray
 	return data;
 }
 
-Collision::HitResult Collision::TrianglevsTriangle(
+Collision::HitResult Collision::SATTrianglevsTriangle(
 	const glm::vec3& v0A, const glm::vec3& v1A, const glm::vec3& v2A,
 	const glm::vec3& v0B, const glm::vec3& v1B, const glm::vec3& v2B)
 {
@@ -550,14 +550,89 @@ Collision::HitResult Collision::TrianglevsTriangle(
 	return data;
 }
 
-Collision::HitResult Collision::TraingleVSAABB(const glm::vec3& v0A, const glm::vec3& v1A, const glm::vec3& v2A, const glm::vec3& posA, const glm::vec3& sizeA)
+Collision::HitResult Collision::SATTriangleVSAABB(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& AABBpos, const glm::vec3& AABBsize)
 {
+	HitResult data;
+	data.isColliding = false;
+	float minOverlap = std::numeric_limits<float>::max();
+	
+	// edges, normal for triangles
+	glm::vec3 vEdges[] = { v1 - v0, v2 - v1, v0 - v2 };
+	glm::vec3 vNormal = glm::normalize(glm::cross(vEdges[0], vEdges[1]));
+	
+	//
+	std::vector<glm::vec3> testAxes;
+	
+	// AABB normals
+	testAxes.push_back({1, 0, 0});
+	testAxes.push_back({0, 1, 0});
+	testAxes.push_back({0, 0, 1});
+	
+	// push AABB normals into array
+	testAxes.push_back(vNormal);
+	
+	
+	glm::vec3 aabbEdges[] = { {1,0,0}, {0,1,0}, {0,0,1} };
+	
+	for (int i = 0; i < 3; ++i) {
+		for (int j = 0; j < 3; ++j) {
+			glm::vec3 axis = glm::cross(vEdges[i], aabbEdges[j]);
+			if (glm::length2(axis) > 0.0001f)
+				testAxes.push_back(glm::normalize(axis));
+		}
+	}
+	
+	// rest axes
+	for (const auto& axis : testAxes) {
+		float minT, maxT, minB, maxB;
 
+		// project points onto axis
+		projectVertex(v0, v1, v2, axis, minT, maxT);
+		projectAABB(AABBpos, AABBsize, axis, minB, maxB);
 
-	return HitResult();
+		// is there a gap
+		if (minT >= maxB || minB >= maxT) {
+			return data; // no collision
+		}
+
+		// overlap
+		float overlap = glm::min(maxT, maxB) - glm::max(minT, minB);
+		if (overlap < minOverlap) {
+			minOverlap = overlap;
+			data.collisionNormal = axis;
+		}
+	}
+	
+	// collision
+	data.isColliding = true;
+	data.depth = minOverlap;
+	data.lastHit = AABBpos;
+
+	// normal
+	glm::vec3 triCenter = (v0 + v1 + v2) / 3.0f;
+	if (glm::dot(data.collisionNormal, triCenter - AABBpos) < 0) {
+		data.collisionNormal = -data.collisionNormal;
+	}
+	
+	return data;
 }
 
 // SAT
+
+void Collision::projectAABB(const glm::vec3& positon, const glm::vec3& scale, const glm::vec3& normal, float& min, float& max) {
+	
+	// project centre
+	float posProj = glm::dot(positon, normal);
+    
+	// radius
+	float r = scale.x * std::abs(normal.x) + 
+			  scale.y * std::abs(normal.y) + 
+			  scale.z * std::abs(normal.z);
+
+	// min max
+	min = posProj - r;
+	max = posProj + r;
+}
 
 void Collision::projectVertex(
 	const glm::vec3& A, const glm::vec3& B, const glm::vec3& C,

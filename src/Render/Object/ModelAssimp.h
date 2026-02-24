@@ -30,15 +30,18 @@ public:
 	};
 
 	transformation globalTransformation;
+	transformation previousGlobalTransformation;
 	glm::mat4 gModelMatrix = glm::mat4(1.0f);
 
 	void updatePosition(glm::vec3 Position);
-
 	void updateRotation(glm::vec3 Rotation);
-
 	void updateScale(glm::vec3 Scale);
-
 	void updateTranformation();
+	
+	void updatePrevPosition(glm::vec3 Position);
+	void updatePrevRotation(glm::vec3 Rotation);
+	void updatePrevScale(glm::vec3 Scale);
+	void updatePrevTranformation();
 
 	Model(const char* file);
 	~Model();

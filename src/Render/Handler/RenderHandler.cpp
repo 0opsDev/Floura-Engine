@@ -9,6 +9,9 @@
 #include <Editor/UI/ImGui/ImGuiWindow.h>
 #include <Render/Shader/Framebuffer.h>
 #include <Gameplay/Player.h>
+#include <Render/passes/post/historyPass.h>
+
+#include "utils/FE_math.h"
 std::unordered_map<std::string, uint64_t> RenderHandler::pKeyHandleMapRender;
 std::vector<RenderHandler::modelObject> RenderHandler::models;
 std::vector<RenderHandler::renderQueueData> RenderHandler::renderQueueDataVector;
@@ -75,12 +78,52 @@ void RenderHandler::clearRenderQueue()
 	renderQueueDataVector.clear();
 }
 
+float dAccum = 0.0;
+
 void RenderHandler::render()
 {
+	
+	shadowDraw();
+	
+	// shadows should probably update first
+	dAccum += TimeUtil::deltatime;
+	// reflection draw
+	if (RenderClass::doReflections &&  dAccum > 1.0 || ProbeHandler::indirectSamples > 0  &&  dAccum > 1.0)
+	{
+		float range = 100.0f;
+		
+		//glm::vec3(Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z)
+		cmDraw(renderQueueDataVector, tempCM, cmShader, glm::vec2(512), glm::vec3(Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z), range);
+		// cmDraw(renderQueueDataVector, tempCM, cmShader, glm::vec2(256), glm::vec3(0.0f, 5.0f, 0.0f));
+		Skybox::unbind();
+		dAccum = 0.0;
+	}
+
+	
 	regularDraw();
 
 	instancedDraw();
-
+	
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
+	
+	// def draw
+	if (RenderClass::DoDeferredLightingPass)
+	{
+		tempCM->cubemapToUUIDShader("cmMainHandle", RenderClass::GBLpass);
+		RenderClass::DeferredLightingPass(); // Forward Lighting Pass
+	}
+	
+	if (RenderClass::DoComputeLightingPass)
+	{
+		if (raytracer::RTGlobalTransformFlag) SceneDescription::updateQuickModelData();
+		raytracer::render(); // Run compute shader for lighting pass
+		raytracer::RTGlobalTransformFlag = false;
+	}
+	
+	if (RenderClass::doTAA) RenderClass::taaPass();
+	
+	HistoryPass::hPassDraw();
+	
 	// after render clear render queue
 	clearRenderQueue();
 }
@@ -168,7 +211,7 @@ glm::vec3 rqups[] = {
 Shader RenderHandler::cmShader;
 Cubemap* RenderHandler::tempCM;
 
-void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm, Shader& shader, glm::vec2 resolution, glm::vec3 pos)
+void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm, Shader& shader, glm::vec2 resolution, glm::vec3 pos, float range)
 {
 
 	tempCM->resizeCubeMap(resolution); // seems to remove the texture, keep an eye on this later
@@ -214,8 +257,8 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 	// Cycles through all the textures and attaches them to the cubemap object
 	for (unsigned int x = 0; x < 6; x++)
 	{
-		Camera nCamera;
-		nCamera.InitCamera(resolution.x, resolution.y, pos); // Matching your Position
+		Camera nCamera; // should get rid of this btw
+		nCamera.InitCamera(int(resolution.x), int(resolution.y), pos); // Matching your Position
 		nCamera.fov = 90.0f;
 		nCamera.Orientation = rqtargets[x];
 		nCamera.Up = rqups[x];
@@ -228,8 +271,8 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::cmFBO);
 
 		if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox) // should add skybox.scene
-			Skybox::draw(nCamera);
-
+			Skybox::draw(nCamera,  Framebuffer::cmFBO, false);
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::cmFBO);	
 
 
 		for (size_t i = 0; i < renderQueueDataVector.size(); i++)
@@ -246,11 +289,14 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 				models[index].model->updateScale(renderQueueDataVector[i].scale);
 				models[index].model->updateTranformation();
 
+				if (!FE_Math::isInRange(renderQueueDataVector[i].position, pos, range)) continue; // range check/cull
+				
 				LightingHandler::update(shader);
 
-				RenderClass::bluenoise->Bind();
-				shader.setInt("BlueNoiseTex", 6);
+				//RenderClass::bluenoise->Bind();
+				//shader.setInt("BlueNoiseTex", 6);
 
+				shader.setHandleui64ARB("BlueNoiseHandle", RenderClass::bluenoise->handle);
 				shader.setHandleui64ARB("bayerMatrixHandle", RenderClass::bayermatrix->handle);
 
 				Skybox::SkyboxCubemap->cubemapToUUIDShader("cmMainHandle", shader);
@@ -262,10 +308,10 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 
 				shader.Activate();
 				shader.setFloat("deltatime", TimeUtil::deltatime);
-				shader.setFloat("time", glfwGetTime());
+				shader.setFloat("time",TimeUtil::time);
+				shader.setFloat("priorTime", TimeUtil::priorTime);
 				// this would normally be in material
-
-				if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) continue; // Skip rendering if not in regular or lighting pass
+				
 				if (renderQueueDataVector[i].doCulling == true && !FEImGuiWindow::isWireframe) glEnable(GL_CULL_FACE);
 				else glDisable(GL_CULL_FACE);
 				if (renderQueueDataVector[i].cullFrontFace) glCullFace(GL_FRONT);
@@ -279,18 +325,13 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 				shader.setFloat("smoothnessValue", renderQueueDataVector[i].smoothnessValue);
 				shader.setInt("indirectSamples", 0);
 				shader.setBool("doReflect", false);
-				//raytracer::uvScaleUpdate(component.renderHeads.Model->UUID, component.systems.material.uvScale);
 
-				if (RenderClass::DoForwardLightingPass) {
+				shader.Activate();
+				glEnable(GL_DEPTH_TEST);
+				glDepthFunc(GL_LESS);
 
-
-					shader.Activate();
-					glEnable(GL_DEPTH_TEST);
-					glDepthFunc(GL_LESS);
-
-					// temp
-					models[index].model->draw(shader, nCamera);
-				}
+				// temp
+				models[index].model->draw(shader, nCamera);
 				
 
 				//glFrontFace(GL_CCW);
@@ -301,8 +342,7 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 			}
 		}
 
-
-
+		
 
 
 
@@ -346,34 +386,7 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 void RenderHandler::regularDraw()
 {
 
-	// shadow pass
-	for (size_t i = 0; i < renderQueueDataVector.size(); i++)
-	{
-		if (renderQueueDataVector[i].castsShadow && !renderQueueDataVector[i].isInstanced)
-		{
-			int index = fetchModelIndex(renderQueueDataVector[i].RenderID);
-			if (index != -1)
-			{
-				// these are temp
-				models[index].model->updatePosition(renderQueueDataVector[i].position);
-				models[index].model->updateRotation(renderQueueDataVector[i].rotation);
-				models[index].model->updateScale(renderQueueDataVector[i].scale);
-				models[index].model->updateTranformation();
-				LightingHandler::drawShadowMap(models[index].model);
-			}
-		}
-	}
-
-	if (RenderClass::doReflections || ProbeHandler::indirectSamples > 0)
-	{
-		//glm::vec3(Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z)
-		cmDraw(renderQueueDataVector, tempCM, cmShader, glm::vec2(512), glm::vec3(Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z));
-		// cmDraw(renderQueueDataVector, tempCM, cmShader, glm::vec2(256), glm::vec3(0.0f, 5.0f, 0.0f));
-		Skybox::unbind();
-	}
-
-	// do gpass draw here
-
+	// gpass
 	for (size_t i = 0; i < renderQueueDataVector.size(); i++)
 	{
 		int index = fetchModelIndex(renderQueueDataVector[i].RenderID);
@@ -386,16 +399,26 @@ void RenderHandler::regularDraw()
 			models[index].model->updateRotation(renderQueueDataVector[i].rotation);
 			models[index].model->updateScale(renderQueueDataVector[i].scale);
 			models[index].model->updateTranformation();
+			
+			// only needed here (previous for velocity)
+			models[index].model->updatePrevPosition(renderQueueDataVector[i].pPosition);
+			models[index].model->updatePrevRotation(renderQueueDataVector[i].pRotation);
+			models[index].model->updatePrevScale(renderQueueDataVector[i].pScale);
+			models[index].model->updatePrevTranformation();
 
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.Activate();
 			Scene::maincamera.Matrix(ShaderHandler::shaderObjects[modelGPShaderIndex].Shader, "camMatrix");
 
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.Activate();
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat("deltatime", TimeUtil::deltatime);
-			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat("time", glfwGetTime());
+			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat("time",TimeUtil::time);
+			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat("priorTime", TimeUtil::priorTime);
+			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setInt("frame", TimeUtil::frame);
 			// this would normally be in material
-
-			if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) continue; // Skip rendering if not in regular or lighting pass
+			
+			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setHandleui64ARB("BlueNoiseHandle", RenderClass::bluenoise->handle);
+			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setHandleui64ARB("bayerMatrixHandle", RenderClass::bayermatrix->handle);
+			
 			if (renderQueueDataVector[i].doCulling == true && !FEImGuiWindow::isWireframe) glEnable(GL_CULL_FACE);
 			else glDisable(GL_CULL_FACE);
 			if (renderQueueDataVector[i].cullFrontFace) glCullFace(GL_FRONT);
@@ -408,7 +431,7 @@ void RenderHandler::regularDraw()
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat2("uvScale", renderQueueDataVector[i].uvScale);
 
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.Activate();
-			GeometryPass::gPassDraw(models[index].model, ShaderHandler::shaderObjects[modelGPShaderIndex].Shader, Scene::maincamera);
+			GeometryPass::hPassDraw(models[index].model, ShaderHandler::shaderObjects[modelGPShaderIndex].Shader, Scene::maincamera);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Enable wireframe mode
 
 			//glFrontFace(GL_CCW);
@@ -435,8 +458,10 @@ void RenderHandler::regularDraw()
 
 				LightingHandler::update(ShaderHandler::shaderObjects[modelShaderIndex].Shader);
 
-				RenderClass::bluenoise->Bind();
-				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setInt("BlueNoiseTex", 6);
+				//RenderClass::bluenoise->Bind();
+				//ShaderHandler::shaderObjects[modelShaderIndex].Shader.setInt("BlueNoiseTex", 6);
+				
+				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setHandleui64ARB("BlueNoiseHandle", RenderClass::bluenoise->handle);
 
 				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setHandleui64ARB("bayerMatrixHandle", RenderClass::bayermatrix->handle);
 
@@ -448,9 +473,6 @@ void RenderHandler::regularDraw()
 
 				tempCM->cubemapToUUIDShader("cmMainHandle", ShaderHandler::shaderObjects[modelShaderIndex].Shader);
 
-				ShaderHandler::shaderObjects[modelShaderIndex].Shader.Activate();
-				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setInt("skybox", 5);
-
 				//tempCM
 
 				// this would normally be in material
@@ -459,7 +481,10 @@ void RenderHandler::regularDraw()
 
 				ShaderHandler::shaderObjects[modelShaderIndex].Shader.Activate();
 				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("deltatime", TimeUtil::deltatime);
-				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("time", glfwGetTime());
+				//ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("time", glfwGetTime() );
+				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("time",TimeUtil::time);
+				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("priorTime", TimeUtil::priorTime);
+				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setInt("frame", TimeUtil::frame);
 				// this would normally be in material
 
 				if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) continue; // Skip rendering if not in regular or lighting pass
@@ -509,6 +534,33 @@ void RenderHandler::regularDraw()
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 				glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+			}
+		}
+	}
+}
+
+void RenderHandler::shadowDraw()
+{
+	// shadow pass add infomation like culling, facedir
+	for (size_t i = 0; i < renderQueueDataVector.size(); i++)
+	{
+		if (renderQueueDataVector[i].castsShadow && !renderQueueDataVector[i].isInstanced)
+		{
+			int index = fetchModelIndex(renderQueueDataVector[i].RenderID);
+			if (index != -1)
+			{
+				// these are temp
+				models[index].model->updatePosition(renderQueueDataVector[i].position);
+				models[index].model->updateRotation(renderQueueDataVector[i].rotation);
+				models[index].model->updateScale(renderQueueDataVector[i].scale);
+				models[index].model->updateTranformation();
+				
+				if (renderQueueDataVector[i].doCulling == true && !FEImGuiWindow::isWireframe) glEnable(GL_CULL_FACE);
+				else glDisable(GL_CULL_FACE);
+				if (renderQueueDataVector[i].cullFrontFace) glCullFace(GL_FRONT);
+				else glCullFace(GL_BACK);
+				
+				LightingHandler::drawShadowMap(models[index].model);
 			}
 		}
 	}

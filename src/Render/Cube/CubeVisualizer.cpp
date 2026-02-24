@@ -3,6 +3,8 @@
 #include <glm/gtx/string_cast.hpp>
 #include <Core/Render.h>
 #include "Scene/scene.h"
+#include "Render/passes/dbg/dbgPass.h"
+
 
 const float s_Cube_Vertices[24] =
 {
@@ -70,18 +72,17 @@ void CubeVisualizer::skyboxBuffer() {
 }
 
 void CubeVisualizer::draw(glm::vec3 position,
-	glm::vec3 scale, glm::vec3 colour, bool hasWireframe) {
-
-	if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
-		return; // Skip rendering if not in regular or lighting pass
-	}
-	if (RenderClass::DoForwardLightingPass) {
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glm::vec3 scale, glm::vec3 colour, float thickness, bool hasWireframe, bool fboveride) {
+	
+	if (dbgPass::overlayDebug)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, dbgPass::dbgBuffer);
+		//glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 		glEnable(GL_DEPTH_TEST);
 		glBindVertexArray(0);
-		glLineWidth(1.0f); // Adjust the width as needed
-		if (hasWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
+		
+		if (hasWireframe) {glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); glLineWidth(thickness);  glDisable(GL_CULL_FACE);} // Enable wireframe mode
 		//std::cout << "height" << height << std::endl;
 		RenderClass::boxShader.Activate();
 
@@ -101,14 +102,15 @@ void CubeVisualizer::draw(glm::vec3 position,
 		//glDepthFunc(GL_ALWAYS);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
-		glLineWidth(1.0f); // Adjust the width as needed
-		if (hasWireframe)  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
+		// Adjust the width as needed
+		if (hasWireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);glLineWidth(1.0f);} // Restore normal rendering < wireframe
 		//glDepthFunc(GL_LESS);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
-		return;
-
-	// debug buffer would be cool, actually 3 debug buffers one for wireframe, another for hitboxes and the other for a polygon view simular to unreals
+		
+		glEnable(GL_CULL_FACE);
 	}
+	// debug buffer would be cool, actually 3 debug buffers one for wireframe, another for hitboxes and the other for a polygon view simular to unreals
+	//}
 }

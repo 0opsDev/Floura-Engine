@@ -11,6 +11,9 @@ uniform sampler2D screenTexture;
 uniform sampler2D gSpecular;
 uniform mat4 cameraMatrix;
 
+uniform sampler2D dbgColour;
+uniform bool overlayDebug;
+
 uniform float gamma;
 
 float calculateExposure(vec3 avgColor)
@@ -33,14 +36,26 @@ void main() {
 
     int lastLOD = textureQueryLevels(screenTexture) - 1;
 	vec3 avgColor = textureLod(screenTexture, vec2(0.5, 0.5), lastLOD).rgb;
+    //vec3 avgColor = textureLod(screenTexture, texCoords, lastLOD).rgb;
 
-	float autoExposure = calculateExposure(avgColor);
+    float autoExposure = calculateExposure(avgColor);
 
     vec3 tonemappedColour = vec3(1.0f) - exp(-colour  * autoExposure);
 
+    //vec3 tonemappedColour = vec3(1.0f) - exp(-colour  * 5.0);
+    
     FragColor.rgb = pow(tonemappedColour, vec3(gamma));
+
+    if (overlayDebug){
+        vec4 dbg = texture(dbgColour, texCoords);
+        FragColor.rgb *= dbg.rgb;
+    }
+
+    
     //FragColor.rgb = pow(colour, vec3(gamma));
 
+    //FragColor.rgb = avgColor;
+    
     //FragColor.rgb = texture(gNormal, texCoords).rgb;
 
     //FragColor.rgb = texture(gNormal, texCoords).rgb;

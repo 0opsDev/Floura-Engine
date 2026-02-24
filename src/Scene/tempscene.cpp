@@ -7,14 +7,23 @@
 #include "Scene/scene.h"
 #include "Render/Cube/CubeVisualizer.h"
 
-CubeVisualizer* cube;
+//CubeVisualizer* cube;
+//entity* tempEntity;
+//uint64_t gunID = 0;
 
 void TempScene::init(){
-	cube = new CubeVisualizer();
+	//cube = new CubeVisualizer();
+	//tempEntity = new entity();
+	//tempEntity->create(entity::ENT_MODEL_TYPE, "gun", "temp/Cerberus_by_Andrew_Maximov/Cerberus_LP.FBX", "Assets/Material/Default.Material");
+	
+	//gunID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"gun_loaded_from_cpp", "temp/Cerberus_by_Andrew_Maximov/Cerberus_LP.FBX", glm::vec3(0.0f),glm::vec3(0.01), glm::vec3(0.0f) );
+	
 }
 
-glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
+//glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
 void TempScene::Update() {
+	
+	
 	/*
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
 
@@ -57,6 +66,6 @@ void TempScene::Update() {
 
 void TempScene::Delete()
 {
-	delete cube;
-	cube = nullptr;
+	//delete cube;
+	//cube = nullptr;
 }

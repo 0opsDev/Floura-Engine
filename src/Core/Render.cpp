@@ -9,8 +9,13 @@
 #include <Scene/LightingHandler.h>
 #include <Scene/scene.h>
 #include "Render/passes/post/denoise.h"
+#include  "Render/passes/post/historyPass.h"
 #include <Render/Handler/RenderHandler.h>
+#include  "Render/Handler/sceneDescription.h"
+#include "Render/passes/dbg/dbgPass.h"
 
+Shader RenderClass::GBLpass;
+Shader RenderClass::taaShader;
 Shader RenderClass::billBoardShader;
 Shader RenderClass::gPassShaderBillBoard;
 Shader RenderClass::boxShader;
@@ -28,13 +33,13 @@ CubeVisualizer* RenderClass::WhiteCube;
 Line3D* RenderClass::line;
 Texture* RenderClass::bluenoise;
 Texture* RenderClass::bayermatrix;
+bool RenderClass::doTAA = true;
 
 Shader SolidColour;
 RenderQuad lightingRenderQuad;
-Shader GBLpass;
 
-bool RenderClass::DoDeferredLightingPass = false; // Toggle for lighting pass
-bool RenderClass::DoForwardLightingPass = true; // Toggle for regular pass
+bool RenderClass::DoDeferredLightingPass = true; // Toggle for lighting pass
+bool RenderClass::DoForwardLightingPass = false; // Toggle for regular pass
 bool RenderClass::DoComputeLightingPass = false;
 
 void initGLenable() {
@@ -88,14 +93,14 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	initGLenable(); //bool for direction of polys
-
-	GeometryPass::init(); // Initialize geometry pass settings
-
+	HistoryPass::init(); // init the RQ of the HP
 	lightingRenderQuad.init();
 	// put in one function
 	Framebuffer::setupFBO(width, height);
+	dbgPass::setupDBGbuffers(width, height);
 	GeometryPass::setupGbuffers(width, height); // here
-	raytracer::init();
+	HistoryPass::setupHbuffers(width, height);
+	SceneDescription::generateSceneBuffers();
 
 	// load bluenoise texture
 	bluenoise = new Texture(); bluenoise->createTexture("Assets/Dependants/LDR_LLL1_0.png", "misc", 6);
@@ -136,12 +141,15 @@ void RenderClass::initGlobalShaders() {
 	boxShader.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Db/OrangeHitbox.frag");
 	SolidColour.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Db/solidColour.frag");
 	
+	// Assets/Shaders/gBuffer/historybuffer
+	// history pass
+	HistoryPass::hPassShader.LoadShader("Assets/Shaders/gBuffer/historybuffer.vert", "Assets/Shaders/gBuffer/historybuffer.frag");
 	
 	// keep an eye on these in a moment or later
 	
 	//GBLpass.LoadShader("Assets/Shaders/Db/RenderQuad.vert", "Assets/Shaders/Db/RenderQuad.frag");
 	GBLpass.LoadShader("Assets/Shaders/Deferred/DFR_Phon.vert", "Assets/Shaders/Deferred/DFR_Phon.frag");
-
+	taaShader.LoadShader("Assets/Shaders/PostProcess/TAA.vert", "Assets/Shaders/PostProcess/TAA.frag");
 
 	LineShader.takePath = false;
 
@@ -195,7 +203,11 @@ void RenderClass::ClearFramebuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, GeometryPass::gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear with colour
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+	
+	glBindFramebuffer(GL_FRAMEBUFFER,  dbgPass::dbgBuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear with colour
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, LightingHandler::shadowMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -204,6 +216,7 @@ void RenderClass::ClearFramebuffers() {
 float Counter;
 void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int height) 
 {
+	RenderClass::ClearFramebuffers(); // Clear Framebuffers
 	// set clear colour
 	glClearColor(RenderClass::gammaCorrect(skyRGBA.r), RenderClass::gammaCorrect(skyRGBA.g), RenderClass::gammaCorrect(skyRGBA.b), 1.0f);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
@@ -215,23 +228,20 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	}
 
 	if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox) // should add skybox.scene
-		Skybox::draw(Scene::maincamera);
+	{
+		Skybox::draw(Scene::maincamera, Framebuffer::FBO, true);
+		Skybox::setPreviousMats(Scene::maincamera);
+		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	}
 
 	Scene::shadowmapDraw();
+	
 	Scene::draw();
-
+	
 	RenderHandler::render();
-
+	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
-	if (DoDeferredLightingPass)
-		DeferredLightingPass(); // Forward Lighting Pass
-	if (DoComputeLightingPass)
-	{
-		if (raytracer::RTGlobalTransformFlag) raytracer::updateQuickModelData();
-		raytracer::render(); // Run compute shader for lighting pass
-		raytracer::RTGlobalTransformFlag = false;
-
-	}
+	
 
 	glActiveTexture(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -272,10 +282,37 @@ void RenderClass::DeferredLightingPass() {
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
 	GBLpass.setInt("depthMap", 5);
+	
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gSpecular);
+	GBLpass.setInt("gSpecular", 6);
+	
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gVelocity);
+	GBLpass.setInt("gVelocity", 7);
+	
+	// skip 8 because of shadow map (i really need to use bindless on these)
+	glActiveTexture(GL_TEXTURE9);
+	glBindTexture(GL_TEXTURE_2D, HistoryPass::hColour);
+	GBLpass.setInt("hColour", 9);
+	
+	// reserve 10 for depth
+	glActiveTexture(GL_TEXTURE10);
+	glBindTexture(GL_TEXTURE_2D, HistoryPass::hDepthTexture);
+	GBLpass.setInt("hDepthTexture", 10);
+	
+	// prior normals
+	glActiveTexture(GL_TEXTURE11);
+	glBindTexture(GL_TEXTURE_2D, HistoryPass::hNormal);
+	GBLpass.setInt("hNormal", 11);
+	
+	
+	GBLpass.setFloat("NearPlane", Scene::maincamera.nearFar.x);
+	GBLpass.setFloat("FarPlane", Scene::maincamera.nearFar.y);
 
-	GBLpass.setFloat("DepthDistance", DepthDistance);
-	GBLpass.setFloat("NearPlane", DepthPlane[0]);
-	GBLpass.setFloat("FarPlane", DepthPlane[1]);
+	GBLpass.setFloat("fogDepthDistance", DepthDistance);
+	GBLpass.setFloat("fogNearPlane", DepthPlane[0]);
+	GBLpass.setFloat("fogFarPlane", DepthPlane[1]);
 	GBLpass.setBool("doFog", doFog);
 
 	GBLpass.setFloat3("fogColor", RenderClass::gammaCorrect3(fogRGBA));
@@ -295,12 +332,74 @@ void RenderClass::DeferredLightingPass() {
 	GBLpass.setFloat3("cameraDirection", Scene::maincamera.Orientation);
 	//std::cout << Camera::width << " " << Camera::height << std::endl;
 	GBLpass.setFloat2("screenSize", glm::vec2(Scene::maincamera.width, Scene::maincamera.height));
-	GBLpass.setFloat("time", glfwGetTime());
+	//GBLpass.setFloat("time", glfwGetTime());
+	GBLpass.setFloat("time",TimeUtil::time);
+	GBLpass.setFloat("priorTime", TimeUtil::priorTime);
 	
 	GBLpass.setFloat3("camPos", Scene::maincamera.Position);
+	GBLpass.setInt("indirectSamples", ProbeHandler::indirectSamples);
+
 	
+	GBLpass.setHandleui64ARB("BlueNoiseHandle", RenderClass::bluenoise->handle);
+	GBLpass.setHandleui64ARB("bayerMatrixHandle", RenderClass::bayermatrix->handle);
+	
+	GBLpass.setInt("frame", TimeUtil::frame);
 	
 	LightingHandler::update(GBLpass);
+	
+	//shader.
+	lightingRenderQuad.draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glActiveTexture(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void RenderClass::taaPass()
+{
+		glDisable(GL_CULL_FACE);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	taaShader.Activate();
+	// gPass textures bound to FB
+	// send gPass textures to shader
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Framebuffer::screentexture);
+	taaShader.setInt("screentexture", 0);
+	
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
+	taaShader.setInt("gNormal", 1);
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
+	taaShader.setInt("depthMap", 2);
+	
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gVelocity);
+	taaShader.setInt("gVelocity", 3);
+	
+	// skip 8 because of shadow map (i really need to use bindless on these)
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, HistoryPass::hColour);
+	taaShader.setInt("hColour", 4);
+	
+	// reserve 10 for depth
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, HistoryPass::hDepthTexture);
+	taaShader.setInt("hDepthTexture", 5);
+	
+	// prior normals
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, HistoryPass::hNormal);
+	taaShader.setInt("hNormal", 6);
+	
+	taaShader.setFloat("NearPlane", Scene::maincamera.nearFar.x);
+	taaShader.setFloat("FarPlane", Scene::maincamera.nearFar.y);
+	
+	taaShader.setFloat2("screenSize", glm::vec2(Scene::maincamera.width, Scene::maincamera.height));
+	taaShader.setFloat("time",TimeUtil::time);
+	taaShader.setFloat("priorTime", TimeUtil::priorTime);
+	
+	taaShader.setInt("frame", TimeUtil::frame);
 	
 	//shader.
 	lightingRenderQuad.draw();
@@ -314,6 +413,7 @@ void RenderClass::Cleanup() {
 	gPassShaderBillBoard.Delete();
 	boxShader.Delete();
 	GBLpass.Delete();
+	taaShader.Delete();
 	SolidColour.Delete();
 	billBoardShader.Delete();
 	LineShader.Delete();

@@ -11,15 +11,10 @@
 #include <Render/window/WindowHandler.h>
 #include <Scene/LightingHandler.h>
 #include "Editor/UI/ImGui/OpenSceneWindow.h"
-#include <windows.h>
 #include "Sound/SoundRunner.h"
 
 bool Main::sleepState = true;
 
-void CloseConsoleWindow() { 
-	HWND hwnd = GetConsoleWindow();
-	if (hwnd != nullptr) { FreeConsole(); PostMessage(hwnd, WM_CLOSE, 0, 0); } 
-}
 
 int main()
 {
@@ -29,6 +24,7 @@ int main()
 	SoundRunner::init();
 	RenderClass::init(windowHandler::width, windowHandler::height);
 	Scene::maincamera.InitCamera(windowHandler::width, windowHandler::height, Scene::initalCameraPos); 	// camera ratio pos
+
 	Scene::init();
 	Scene::loadScene(Scene::sceneName);
 
@@ -39,12 +35,22 @@ int main()
 	while (!glfwWindowShouldClose(windowHandler::window)) // GAME LOOP
 	{
 		TimeUtil::update();
+		
+		// cam
+		Scene::maincamera.saveLastMaticies();
+		Scene::maincamera.updateHaltonJitter(); // jitter
 		Scene::maincamera.Inputs(windowHandler::window);
 		Scene::maincamera.updateMatrix(); // Update: fov, near and far plane
+		Scene::maincamera.applyJitter = RenderClass::doTAA; // apply to projection matrix
+	
+		
+		// scene
+		Scene::onBeginningOfFrame(); // for velocity atm
 		Scene::Update();
-		RenderClass::ClearFramebuffers(); // Clear Framebuffers
+		// misc
 		TempScene::Update();
 		Player::update();
+		// render
 		RenderClass::Render(windowHandler::window, windowHandler::width, windowHandler::height);
 	}
 	// Cleanup: Delete all objects on close

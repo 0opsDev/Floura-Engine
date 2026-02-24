@@ -219,3 +219,14 @@ float FE_Math::ByteToFloatRGB(int input)
 {
     return input / 255.0f;
 }
+
+glm::mat4 FE_Math::createHaltonJitterProjectionMatrix(glm::mat4 matrix, glm::vec2 jitter, int height, int width)
+{
+    float nJitterX = (jitter.x * 2.0f) / static_cast<float>(width);
+    float nJitterY = (jitter.y * 2.0f) / static_cast<float>(height);
+    
+    matrix[2][0] += nJitterX;
+    matrix[2][1] += nJitterY;
+    
+    return matrix;
+}

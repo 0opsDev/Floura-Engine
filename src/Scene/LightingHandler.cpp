@@ -38,12 +38,12 @@ void LightingHandler::setupShadowMapBuffer() {
 	LightingHandler::dirShadowMapProgramBB.LoadShader("Assets/Shaders/Db/BillBoardSM.vert", "Assets/Shaders/Db/BillBoardSM.frag");
 
 
-	//shadowMapWidth = 4096;
-	//shadowMapHeight = 4096;
+	shadowMapWidth = 4096;
+	shadowMapHeight = 4096;
 	//shadowMapWidth = 2046;
 	//shadowMapHeight = 2046;
-	shadowMapWidth = 1024;
-	shadowMapHeight = 1024;
+	//shadowMapWidth = 1024;
+	//shadowMapHeight = 1024;
 	//shadowMapWidth = 128;
 	//shadowMapHeight = 128;
 	glGenFramebuffers(1, &shadowMapFBO);

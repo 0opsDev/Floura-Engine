@@ -62,6 +62,9 @@ public:
 	static Texture stopIcon; // Icon for stop in ImGui
 	static Texture playIcon; // Icon for play in ImGui
 	static Texture pauseIcon; // Icon for pause in ImGui
+	static Texture gizmoIcon;
+	static Texture emptyIcon;
+	static Texture volumeAREAIcon;
 
 	static void init();
 
@@ -84,7 +87,7 @@ private:
 
 	static void PanelsWindow();
 
-	static void PreformanceProfiler();
+	static void PerformanceProfiler();
 
 	static void TextEditor();
 
@@ -92,7 +95,7 @@ private:
 
 	static void HierarchyElement(int parentIndex);
 
-	static void HierarchyList();
+	static void HierarchyList(); 
 
 	static void addWindow(std::string typeString, bool& isOpen);
 

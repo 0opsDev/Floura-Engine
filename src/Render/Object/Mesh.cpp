@@ -25,15 +25,6 @@ void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, s
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;
-    /*
-        for (size_t i = 0; i < textures.size(); i++)
-    {
-        std::cout << textures[i].unit << " unit" << std::endl;
-        std::cout << textures[i].type << " type" << std::endl;
-        std::cout << textures[i].path << " path" << std::endl;
-    }
-    */
-
 
     setupMesh();
 }
@@ -84,6 +75,7 @@ void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
     Camera.Matrix(shader, "camMatrix");
 
     glm::mat4 finalMeshMat = globalMeshMatrix * meshMatrix;
+    glm::mat4 finishedPrevMeshMat = globalPrevMeshMatrix * meshMatrix;
 
     //glm::mat4 newLMat = FE_Math::composeMatrixWDegrees(position, scale, rotation);
     //glm::mat4 newGMat = FE_Math::composeMatrixWDegrees(globalPosition, globalScale, globalRotation);
@@ -92,6 +84,7 @@ void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
 
     // Push model matrix to the vertex shader
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(finalMeshMat));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "previousModel"), 1, GL_FALSE, glm::value_ptr(finishedPrevMeshMat));
     glm::mat3 model3x3 = glm::mat3(finalMeshMat);
     glm::mat3 normalMatrix = glm::transpose(glm::inverse(model3x3));
     glUniformMatrix3fv(glGetUniformLocation(shader.ID, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
@@ -159,6 +152,7 @@ void Mesh::updateMatrix(glm::mat4 matrix)
 {
     Mesh::meshMatrix = matrix;
 }
+
 void Mesh::updatePosition(glm::vec3 position)
 {
     Mesh::position = position;
@@ -175,6 +169,12 @@ void Mesh::updateGlobalMatrix(glm::mat4 matrix)
 {
 	Mesh::globalMeshMatrix = matrix;
 }
+
+void Mesh::updatePrevGlobalMatrix(glm::mat4 matrix)
+{
+    Mesh::globalPrevMeshMatrix = matrix;
+}
+
 void Mesh::updateGlobalPosition(glm::vec3 position)
 {
     Mesh::globalPosition = position;

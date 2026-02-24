@@ -3,7 +3,12 @@
 #include <Core/Render.h>
 #include <Render/passes/geometry/geometryPass.h>
 #include "Scene/scene.h"
+#include <Render/Shader/Framebuffer.h>
 
+glm::mat4 Skybox::currentview = glm::mat4(1.0);
+
+glm::mat4 Skybox::previousview = glm::mat4(1.0);
+glm::mat4 Skybox::previousprojection = glm::mat4(1.0);
 
 unsigned int Skybox::VAO;
 unsigned int Skybox::VBO;
@@ -11,6 +16,7 @@ unsigned int Skybox::EBO;
 
 bool Skybox::DoSbRGBA = true;
 Shader skyboxShader;
+Shader gSkyboxShader;
 std::string Skybox::DefaultSkyboxPath;
 Cubemap* Skybox::SkyboxCubemap;
 glm::vec3 Skybox::rotation = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -52,7 +58,7 @@ const unsigned int s_skyboxIndices[36] =
 
 void Skybox::init() {
 	skyboxShader.LoadShader("Assets/Shaders/Skybox/skybox.vert", "Assets/Shaders/Skybox/skybox.frag");
-	skyboxShader.Activate();
+	gSkyboxShader.LoadShader("Assets/Shaders/Skybox/skybox.vert", "Assets/Shaders/gBuffer/gSkybox.frag");
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -78,17 +84,20 @@ void Skybox::LoadSkyBoxTexture(std::string PathName) {
 	SkyboxCubemap->loadCubeMap(PathName);
 }
 
-void Skybox::draw(Camera& camera) {
+void Skybox::setPreviousMats(Camera& camera)
+{
+	previousview = currentview;
+	previousprojection = camera.projection;
+}
+
+void Skybox::draw(Camera& camera, const unsigned int framebuffer, bool gPassEnabled) {
 
 	//glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	//glBindTexture(GL_TEXTURE_2D, 0);
-
-	glDisable(GL_CULL_FACE);
-	glm::mat4 view = glm::mat4(1.0f);
 	// We make the mat4 into a mat3 and then a mat4 again in order to get rid of the last row and column
 	// The last row and column affect the translation of the skybox (which we don't want to affect)
-	view = glm::mat4(glm::mat3(camera.view));
+	currentview = glm::mat4(glm::mat3(camera.view));
 	//std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
 
 
@@ -97,34 +106,84 @@ void Skybox::draw(Camera& camera) {
 	rot = glm::rotate(rot, glm::radians(rotation.x), glm::vec3(1, 0, 0));
 	rot = glm::rotate(rot, glm::radians(rotation.y), glm::vec3(0, 1, 0));
 	rot = glm::rotate(rot, glm::radians(rotation.z), glm::vec3(0, 0, 1));
-
-
-	if (RenderClass::DoForwardLightingPass) {
-
+	
+	glDisable(GL_CULL_FACE);
+	glDepthFunc(GL_LEQUAL);
+	
+	// should allow take shader in, not make these two seperated shaders inside the skybox class with the arguments
+	if (gPassEnabled)
+	{
+		
+		glBindFramebuffer(GL_FRAMEBUFFER, GeometryPass::gBuffer);
+		
+		// gpass
+		gSkyboxShader.Activate();
+		
+		//     scaledPreviousJitter = scaledCurrentJitter;
+		// current and previous jitter matrix
+		if (Scene::maincamera.applyJitter){
+			gSkyboxShader.setFloat2("currentJitter",  Scene::maincamera.currentJitter);
+			gSkyboxShader.setFloat2("previousJitter",  Scene::maincamera.previousJitter);
+			gSkyboxShader.setFloat2("scaledCurrentJitter",  Scene::maincamera.scaledCurrentJitter);
+			gSkyboxShader.setFloat2("scaledPreviousJitter",  Scene::maincamera.scaledPreviousJitter);
+		}
+		else{
+			gSkyboxShader.setFloat2("currentJitter",  glm::vec2(0.0));
+			gSkyboxShader.setFloat2("previousJitter",  glm::vec2(0.0));
+			gSkyboxShader.setFloat2("scaledCurrentJitter",  glm::vec2(0.0));
+			gSkyboxShader.setFloat2("scaledPreviousJitter",  glm::vec2(0.0));
+		}
+		
+		gSkyboxShader.setMat4("view", currentview);
+		gSkyboxShader.setMat4("projection", camera.projection);
+		
+		gSkyboxShader.setMat4("previousView", previousview);
+		gSkyboxShader.setMat4("previousProjection", previousprojection);
+		
+		//skyboxShader.setInt("skybox", 0);
+		gSkyboxShader.setFloat3("skyRGBA", RenderClass::gammaCorrect3(RenderClass::skyRGBA));
+		gSkyboxShader.setBool("DoSbRGBA", DoSbRGBA);
+		gSkyboxShader.setMat4("rotation", rot);
+		SkyboxCubemap->cubemapToUUIDShader("skyboxHandle", gSkyboxShader);
+		
+		gSkyboxShader.Activate();
+		
+		glDepthMask(GL_FALSE);
 		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
-		glDepthFunc(GL_LEQUAL);
-		//std::cout << "height" << height << std::endl;
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
+		
+	//if (RenderClass::DoForwardLightingPass) {
+
+	
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		glDepthMask(GL_TRUE);
+	
 		skyboxShader.Activate();
-		skyboxShader.setMat4("view", view);
+	
+		skyboxShader.setMat4("view", currentview);
 		skyboxShader.setMat4("projection", camera.projection);
+	    skyboxShader.setMat4("previousView", previousview);
+        skyboxShader.setMat4("previousProjection", previousprojection);
 		//skyboxShader.setInt("skybox", 0);
 		skyboxShader.setFloat3("skyRGBA", RenderClass::gammaCorrect3(RenderClass::skyRGBA));
 		skyboxShader.setBool("DoSbRGBA", DoSbRGBA);
 		skyboxShader.setMat4("rotation", rot);
 		SkyboxCubemap->cubemapToUUIDShader("skyboxHandle", skyboxShader);
-
-		// Draws the cubemap as the last object so we can save a bit of performance by discarding all fragments
-		// where an object is present (a depth of 1.0f will always fail against any object's depth value)
-				//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxCubemap->ID);
-
-
+		
+		
+	skyboxShader.Activate();
+		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
-		//glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-	}
-
+	//}
+	glDepthFunc(GL_LESS);
+	glEnable(GL_CULL_FACE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindVertexArray(0);
 }
 
 void Skybox::unbind()
@@ -139,4 +198,5 @@ void Skybox::Delete() {
 void Skybox::cleanup()
 {
 	skyboxShader.Delete();
+	gSkyboxShader.Delete();
 }

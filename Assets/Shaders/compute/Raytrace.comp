@@ -173,7 +173,7 @@ vec3 transformPoint(vec3 p, mat4 matrix)
 {
     vec4 transformed = matrix * vec4(p, 1.0f);
     return vec3(transformed);
-};
+}
 
 hitResult AabbVsRay(vec3 rayOrigin, vec3 rayDir, vec3 position, vec3 scale)
 {
@@ -602,7 +602,7 @@ vec3 indirectTrace(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 normal,
     }
 
     return iColour;
-};
+}
 
 vec3 reflectionPass(hitResult hit, vec3 incidentDir, vec3 normal, vec3 initSpec, int bounces, float maxDist)
 {
@@ -679,7 +679,7 @@ vec3 reflectionPass(hitResult hit, vec3 incidentDir, vec3 normal, vec3 initSpec,
     }
 
     return reflectionColour * initSpec.b;
-};
+}
 
 
 vec3 reflectionIndirectPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, vec3 initSpec, int bounces, float maxDist, int iBounces, int iSamples)
@@ -756,7 +756,7 @@ vec3 reflectionIndirectPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, v
     }
 
     return iColour * initSpec.b;
-};
+}
 
 void main() {
     // Intentionally does nothing
@@ -829,6 +829,8 @@ void main() {
 
     float depthDist = linearizeDepth(gDepth, 0.1f, maxDistance);
 
+    //return;
+    
     if (depthDist >= maxDistance) return;
 
     // create tex for 4 signals

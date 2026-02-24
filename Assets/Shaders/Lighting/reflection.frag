@@ -21,7 +21,7 @@ uniform bool doReflect;
 uniform uint64_t texture_diffuse_Handle;
 
 uniform sampler2D shadowMap;
-uniform sampler2D BlueNoiseTex;
+uniform uint64_t BlueNoiseHandle;
 uniform uint64_t bayerMatrixHandle;
 
 // Gets the position of the light from the main function
@@ -83,7 +83,6 @@ float CalcShadowFactorDIR(vec4 LightSpacePos, vec3 lightDirection, vec3 normal)
 	// shadow calculation
 	if (lightCoords.z <= 1.0f)
 	{
-
 		// transform to [0,1] range
 		lightCoords = (lightCoords + 1.0f) / 2.0f;
 		// get the current depth
@@ -91,15 +90,18 @@ float CalcShadowFactorDIR(vec4 LightSpacePos, vec3 lightDirection, vec3 normal)
 		// calculate shadow bias
 		float bias = max(DirSMMaxBias * (1.0f - dot(normal, lightDirection)), 0.0005f);
 		// PCF
+
+		sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
+		
 		int sampleRadius = FilterRadius; // FilterRadius // NumberOfSamples
 		//vec2 pixelSize = (float(NumberOfSamples) * 0.1) / textureSize(shadowMap, 0);
-		vec2 noiseUV = vec2(gl_FragCoord.xy) / vec2(textureSize(BlueNoiseTex, 0));
+		vec2 noiseUV = vec2(gl_FragCoord.xy) / vec2(textureSize(bluemap, 0));
 		vec2 pixelSize = 1.0 / textureSize(shadowMap, 0);
 		for(int y = -sampleRadius; y <= sampleRadius; y++)
 		{
 		    for(int x = -sampleRadius; x <= sampleRadius; x++)
 		    {
-					float angle = texture(BlueNoiseTex, noiseUV).r * NumberOfSamples;
+					float angle = texture(bluemap, noiseUV).r * NumberOfSamples;
 					vec2 offset = vec2(cos(angle), sin(angle));
 
 					float closestDepth = texture(shadowMap, lightCoords.xy + (vec2(x, y) * offset) * pixelSize).r;

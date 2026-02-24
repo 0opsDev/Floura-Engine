@@ -3,7 +3,7 @@
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
-#include<string>;
+#include<string>
 #include <xhash>
 #pragma comment(lib, "lua54.lib")
 

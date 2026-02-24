@@ -21,12 +21,7 @@ Shader ComputeQuadShader;
 Shader testCompute;
 unsigned int CurrentWidth;
 unsigned int CurrentHeight;
-std::vector<raytracer::modelData> raytracer::modelArray;
 
-GLuint raytracer::triangleSSBOID;
-GLuint raytracer::meshSSBOID;
-GLuint raytracer::quickSSBOID;
-GLuint raytracer::bvhSSBO;
 float raytracer::downscaleFactor = 0.77f;
 float raytracer::maxDistance = 100.0f;
 float raytracer::noiseThreshold = 0.3f;
@@ -37,41 +32,6 @@ int raytracer::indirectSamples = 1;
 int raytracer::maxAccumulatedFrames = 32;
 bool raytracer::doAccumulate = true;
 bool raytracer::resetAccumulationOnDirty = true;
-
-void raytracer::init() {
-	// generate triangle buffer
-	glGenBuffers(1, &triangleSSBOID);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, triangleSSBOID);
-	// allocate 1024 bytes
-	glBufferData(GL_SHADER_STORAGE_BUFFER, 1024, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, triangleSSBOID); // 6
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // Unbind
-	//meshSSBOID
-	
-	// generate triangle buffer
-	glGenBuffers(1, &meshSSBOID);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, meshSSBOID);
-	// allocate 1024 bytes
-	glBufferData(GL_SHADER_STORAGE_BUFFER, 1024, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, meshSSBOID); // 7
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // Unbind
-
-	//quickSSBOID
-	glGenBuffers(1, &quickSSBOID);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, quickSSBOID);
-	// allocate 1024 bytes
-	glBufferData(GL_SHADER_STORAGE_BUFFER, 1024, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, quickSSBOID); // 8
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // Unbind
-
-	//bvhSSBO
-	glGenBuffers(1, &bvhSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, bvhSSBO);
-	// allocate 1024 bytes
-	glBufferData(GL_SHADER_STORAGE_BUFFER, 1024, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 10, bvhSSBO); // 9
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // Unbind
-}
 
 void raytracer::reloadSceneToRaytracer()
 {
@@ -88,23 +48,23 @@ void raytracer::uploadSceneToRaytracer()
 		if (index != -1)
 		{
 			uint64_t instanceUUID = Scene::entityObjects[i]->component.render.instanceUUID;
-			for (size_t x = 0; x < modelArray.size(); x++)
+			for (size_t x = 0; x < SceneDescription::modelArray.size(); x++)
 			{
-				if (modelArray[x].harddata.rayModel.instanceUUID == instanceUUID)
+				if (SceneDescription::modelArray[x].harddata.rayModel.instanceUUID == instanceUUID)
 					continue;
 			}
 			uploadToRaytracer(instanceUUID);
 		}
-		UpdateModelBuffer();
-		updateQuickModelData();
+		SceneDescription::UpdateModelBuffer();
+		SceneDescription::updateQuickModelData();
 	}
 }
 
 void raytracer::clearRaytracerData()
 {
-	modelArray.clear();
-	UpdateModelBuffer();
-	updateQuickModelData();
+	SceneDescription::modelArray.clear();
+	SceneDescription::UpdateModelBuffer();
+	SceneDescription::updateQuickModelData();
 }
 
 void raytracer::uploadToRaytracer(uint64_t instanceUUID)
@@ -115,20 +75,20 @@ void raytracer::uploadToRaytracer(uint64_t instanceUUID)
 	if (index != -1)
 	{
 		// modelHarddata
-		modelData newCpuModel;
+		SceneDescription::modelData newCpuModel;
 
-		rayModel rModel;
+		SceneDescription::rayModel rModel;
 		// should checkk if alredy uuid already exisits in modelaray
 		rModel.instanceUUID = instanceUUID;
 		rModel.meshCount = RenderHandler::models[index].model->meshes.size();
 		newCpuModel.quickdata.quickModel.instanceUUID = rModel.instanceUUID;
 
 		// prevent duplicates
-		if (!modelArray.empty())
+		if (!SceneDescription::modelArray.empty())
 		{
-			for (size_t i = 0; i < modelArray.size(); i++)
+			for (size_t i = 0; i < SceneDescription::modelArray.size(); i++)
 			{
-				if (modelArray[i].harddata.rayModel.instanceUUID == rModel.instanceUUID)
+				if (SceneDescription::modelArray[i].harddata.rayModel.instanceUUID == rModel.instanceUUID)
 					return;
 			}
 		}
@@ -150,7 +110,7 @@ void raytracer::uploadToRaytracer(uint64_t instanceUUID)
 			glm::mat4 finalMatrix = RenderHandler::models[index].model->lModelMatrix[x]; // rModel.ModelMatrix *
 
 			// 	component.renderHeads.Model->createMeshAABBs();
-			rayMesh newMesh;
+			SceneDescription::rayMesh newMesh;
 			newMesh.triangleCount = (int)RenderHandler::models[index].model->meshes[x].indices.size() / 3;
 
 			newMesh.meshIndex = x;
@@ -181,7 +141,7 @@ void raytracer::uploadToRaytracer(uint64_t instanceUUID)
 			//std::cout << newMesh.modelUUID << std::endl;
 			for (size_t y = 0; y + 2 < RenderHandler::models[index].model->meshes[x].indices.size(); y += 3)
 			{
-				triangle newtriangle;
+				SceneDescription::triangle newtriangle;
 				unsigned int i0 = RenderHandler::models[index].model->meshes[x].indices[y];
 				unsigned int i1 = RenderHandler::models[index].model->meshes[x].indices[y + 1];
 				unsigned int i2 = RenderHandler::models[index].model->meshes[x].indices[y + 2];
@@ -235,9 +195,9 @@ void raytracer::uploadToRaytracer(uint64_t instanceUUID)
 			newCpuModel.harddata.meshes.push_back(newMesh);
 		}
 
-		modelArray.push_back(newCpuModel);
+		SceneDescription::modelArray.push_back(newCpuModel);
 
-		UpdateModelBuffer();
+		SceneDescription::UpdateModelBuffer();
 
 	}
 
@@ -245,49 +205,16 @@ void raytracer::uploadToRaytracer(uint64_t instanceUUID)
 
 void raytracer::removeFromRaytracer(uint64_t instanceUUID)
 {
-	for (size_t x = 0; x < modelArray.size(); x++)
+	for (size_t x = 0; x < SceneDescription::modelArray.size(); x++)
 	{
-		if (modelArray[x].harddata.rayModel.instanceUUID == instanceUUID)
+		if (SceneDescription::modelArray[x].harddata.rayModel.instanceUUID == instanceUUID)
 		{
 			//std::cout << "Removing model from raytracer with UUID: " << modelUUID << std::endl;
-			modelArray.erase(modelArray.begin() + x);
+			SceneDescription::modelArray.erase(SceneDescription::modelArray.begin() + x);
 			break;
 		}
 	}
-	UpdateModelBuffer();
-}
-
-void raytracer::UpdateModelBuffer()
-{
-	std::vector<triangle> newTriangleArray;
-	std::vector<rayMesh> newMeshArray;
-
-	for (size_t x = 0; x < modelArray.size(); x++)
-	{
-		for (size_t z = 0; z < modelArray[x].harddata.tris.size(); z++)
-		{
-			triangle newTriangle;
-			newTriangle = modelArray[x].harddata.tris[z];
-			newTriangleArray.push_back(newTriangle);
-		}
-		for (size_t z = 0; z < modelArray[x].harddata.meshes.size(); z++)
-		{
-			rayMesh newMesh;
-			newMesh = modelArray[x].harddata.meshes[z];
-			newMeshArray.push_back(newMesh);
-		}
-	}
-
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, triangleSSBOID);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, newTriangleArray.size() * sizeof(triangle), newTriangleArray.data(), GL_STATIC_DRAW); // gl buffer data wipes whole array
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, triangleSSBOID);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	// meshSSBOID
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, meshSSBOID);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, newMeshArray.size() * sizeof(rayMesh), newMeshArray.data(), GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, meshSSBOID);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
+	SceneDescription::UpdateModelBuffer();
 }
 
 void raytracer::updateboundingboxes(uint64_t instanceUUID, std::vector<Collision::AABB> rootnodes)
@@ -295,17 +222,17 @@ void raytracer::updateboundingboxes(uint64_t instanceUUID, std::vector<Collision
 	uint64_t RenderUUID = RenderHandler::findRenderUUIDwIstanceUUID(instanceUUID);
 	int index = RenderHandler::fetchModelIndex(RenderUUID);
 	{
-		for (size_t i = 0; i < modelArray.size(); i++)
+		for (size_t i = 0; i < SceneDescription::modelArray.size(); i++)
 		{
-			if (modelArray[i].harddata.rayModel.instanceUUID == instanceUUID)
+			if (SceneDescription::modelArray[i].harddata.rayModel.instanceUUID == instanceUUID)
 			{
 				// update root node
-				if (modelArray[i].quickdata.meshAABBs.size() != RenderHandler::models[index].model->meshes.size())
-					modelArray[i].quickdata.meshAABBs.resize(RenderHandler::models[index].model->meshes.size());
+				if (SceneDescription::modelArray[i].quickdata.meshAABBs.size() != RenderHandler::models[index].model->meshes.size())
+					SceneDescription::modelArray[i].quickdata.meshAABBs.resize(RenderHandler::models[index].model->meshes.size());
 
 				for (size_t x = 0; x < rootnodes.size(); x++)
 				{
-					boxRootNode& node = modelArray[i].quickdata.meshAABBs[x];
+					SceneDescription::boxRootNode& node = SceneDescription::modelArray[i].quickdata.meshAABBs[x];
 					node.rootPos = glm::vec4(rootnodes[x].position, 1.0f);
 					node.rootscale = glm::vec4(rootnodes[x].size, 1.0f);
 					node.instanceUUID = instanceUUID;
@@ -319,14 +246,14 @@ void raytracer::updateboundingboxes(uint64_t instanceUUID, std::vector<Collision
 
 void raytracer::modelMatrixUpdate(uint64_t instanceUUID, glm::mat4 newModelMatrix)
 {
-	for (size_t i = 0; i < modelArray.size(); i++)
+	for (size_t i = 0; i < SceneDescription::modelArray.size(); i++)
 	{
-		if (modelArray[i].quickdata.quickModel.instanceUUID == instanceUUID) // move aabb bounds here too
+		if (SceneDescription::modelArray[i].quickdata.quickModel.instanceUUID == instanceUUID) // move aabb bounds here too
 		{
-			modelArray[i].quickdata.quickModel.ModelMatrix = newModelMatrix;
+			SceneDescription::modelArray[i].quickdata.quickModel.ModelMatrix = newModelMatrix;
 			glm::mat3 model3x3 = glm::mat3(newModelMatrix);
 			glm::mat3 normalMat3 = glm::transpose(glm::inverse(model3x3));
-			modelArray[i].quickdata.quickModel.NormalMatrix = glm::mat4(normalMat3);
+			SceneDescription::modelArray[i].quickdata.quickModel.NormalMatrix = glm::mat4(normalMat3);
 			break;
 		}
 	}
@@ -334,47 +261,14 @@ void raytracer::modelMatrixUpdate(uint64_t instanceUUID, glm::mat4 newModelMatri
 
 void raytracer::uvScaleUpdate(uint64_t instanceUUID, glm::vec2 scale)
 {
-	for (size_t i = 0; i < modelArray.size(); i++)
+	for (size_t i = 0; i < SceneDescription::modelArray.size(); i++)
 	{
-		if (modelArray[i].quickdata.quickModel.instanceUUID == instanceUUID) // move aabb bounds here too
+		if (SceneDescription::modelArray[i].quickdata.quickModel.instanceUUID == instanceUUID) // move aabb bounds here too
 		{
-			modelArray[i].quickdata.quickModel.uvScale = glm::vec4(scale.x, scale.y, 0.0f, 0.0f);
+			SceneDescription::modelArray[i].quickdata.quickModel.uvScale = glm::vec4(scale.x, scale.y, 0.0f, 0.0f);
 			break;
 		}
 	}
-}
-
-void raytracer::updateQuickModelData()
-{
-	std::vector<quickRayModel> newQuickDataArray;
-	std::vector<boxRootNode> newRootNodeArray;
-
-	for (size_t i = 0; i < modelArray.size(); i++)
-	{
-		newQuickDataArray.push_back(modelArray[i].quickdata.quickModel);
-		for (size_t x = 0; x < modelArray[i].harddata.meshes.size(); x++)
-		{
-			boxRootNode meshBox;
-			meshBox.rootPos = modelArray[i].quickdata.meshAABBs[x].rootPos;
-			meshBox.rootscale = modelArray[i].quickdata.meshAABBs[x].rootscale;
-			meshBox.instanceUUID = modelArray[i].harddata.rayModel.instanceUUID;
-			meshBox.padding = 0;
-
-			newRootNodeArray.push_back(meshBox);
-		}
-	}
-
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, quickSSBOID);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, newQuickDataArray.size() * sizeof(quickRayModel), newQuickDataArray.data(), GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, quickSSBOID);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-	// bvhSSBO
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, bvhSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, newRootNodeArray.size() * sizeof(boxRootNode), newRootNodeArray.data(), GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 10, bvhSSBO);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
 }
 
 
@@ -451,7 +345,8 @@ void raytracer::render() {
 	testCompute.setFloat3("orientation", Scene::maincamera.Orientation);
 	testCompute.setFloat3("camUp", Scene::maincamera.Up);
 	testCompute.setFloat("fov", Scene::maincamera.fov);
-	testCompute.setFloat("time", glfwGetTime());
+	testCompute.setFloat("time",TimeUtil::time);
+	testCompute.setFloat("priorTime", TimeUtil::priorTime);
 	testCompute.setFloat("deltatime", TimeUtil::deltatime);
 
 	testCompute.setFloat("maxDistance", raytracer::maxDistance);
@@ -497,5 +392,8 @@ void raytracer::render() {
 	testCompute.ActivateCompute((CurrentWidth + 7) / 8, (CurrentHeight + 3) / 4, 1);
 	RenderClass::bluenoise->Unbind();
 
+	// accumulation pass should go here
+	
+	
 	denoiser::render();
 }

@@ -2,46 +2,8 @@
     {
         "CastShadow": true,
         "Location": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            100.0,
-            100.0,
-            100.0
-        ],
-        "Scripts": [],
-        "UUID": "f03e7cab5b708e2c",
-        "children": [
-            {
-                "childUUID": "7406e92c6264899a"
-            }
-        ],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": false,
-        "name": "coast_sand_rocks_02_4k",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/floors/coast_sand_rocks_02_4k.gltf",
-        "smoothnessValue": 0.10000000149011612,
-        "uvScale": [
-            200.0,
-            200.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            0.0,
-            1.6330124139785767,
+            1.0,
+            1.0,
             0.0
         ],
         "MaterialPath": "Assets/Material/Default.Material",
@@ -56,15 +18,15 @@
             1.0
         ],
         "Scripts": [],
-        "UUID": "e4413395b19c577b",
+        "UUID": "37ff56e8da6936f4",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
         "hasParent": false,
         "isBackFaceCulling": true,
-        "name": "metalball",
+        "name": "archway",
         "parentUUID": "0000000000000000",
-        "path": "Assets/Models/metalball.glb",
+        "path": "Assets/Models/basic shapes 2/archway.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
@@ -75,212 +37,8 @@
         "CastShadow": true,
         "Location": [
             0.0,
-            -0.024868905544281006,
-            4.611888885498047
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
             0.0,
             0.0
-        ],
-        "Scale": [
-            0.12999999523162842,
-            0.12999999523162842,
-            0.12999999523162842
-        ],
-        "Scripts": [],
-        "UUID": "32c8d6c5bd43a3c5",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "pdf_teto",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/pdf_teto/scene.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            18.337366104125977,
-            3.449275016784668,
-            0.0
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            3.5,
-            10.0
-        ],
-        "Scripts": [],
-        "UUID": "213a2180a88fd286",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "reflectivecube",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/reflectivecube.glb",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            0.0,
-            5.299537181854248,
-            7.940700054168701
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            5.997037410736084,
-            4.1431169509887695,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "e1bbf864c659abac",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": true,
-        "isBackFaceCulling": true,
-        "name": "reflectivecube",
-        "parentUUID": "5063fa36fa9b9ad8",
-        "path": "Assets/Models/reflectivecube.glb",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -1.5008509159088135,
-            3.2231504917144775,
-            0.0
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            0.30000001192092896,
-            0.30000001192092896,
-            0.30000001192092896
-        ],
-        "Scripts": [],
-        "UUID": "47d900f452111273",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "glasses",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/glasses/glass.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -46.442134857177734,
-            2.776928424835205,
-            0.0
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "2b9d4f560bce67e1",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "alphaballs",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/METALROUGHTEST/alphaballs.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -36.522499084472656,
-            12.957283020019531,
-            -32.50188446044922
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "0337fe4062ec71bf",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "WALL2",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/METALROUGHTEST/WALL2.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -40.0,
-            15.0,
-            -50.0
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -290,23 +48,777 @@
         ],
         "Scale": [
             20.0,
-            15.0,
-            1.0
+            20.0,
+            20.0
         ],
         "Scripts": [],
-        "UUID": "c900b3e51e222153",
+        "UUID": "73fab22398e7ce78",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
         "hasParent": false,
         "isBackFaceCulling": true,
-        "name": "reflectivecube",
+        "name": "plane",
         "parentUUID": "0000000000000000",
-        "path": "Assets/Models/reflectivecube.glb",
+        "path": "Assets/Models/basic shapes 2/plane.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            20.0,
+            20.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            5.0,
+            2.0,
+            -1.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.10000000149011612,
+            2.0,
+            6.0
+        ],
+        "Scripts": [],
+        "UUID": "d33c004f730b72e2",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            6.0,
+            2.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            1.0,
+            -6.099999904632568
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            1.0,
+            1.100000023841858
+        ],
+        "Scripts": [],
+        "UUID": "9856b283416d8267",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            5.0,
+            1.100000023841858
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            1.0,
+            1.0,
+            -3.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.20000000298023224,
+            1.0,
+            2.0
+        ],
+        "Scripts": [],
+        "UUID": "8dfdd6a053bd70f0",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            2.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            3.0,
+            1.0,
+            -2.5
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            2.0,
+            1.0,
+            1.0
+        ],
+        "Scripts": [],
+        "UUID": "32fbcd9828bf664a",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "stair",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/stair.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            2.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            3.0999999046325684,
+            1.0,
+            -4.5
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            2.0,
+            1.0,
+            1.0
+        ],
+        "Scripts": [],
+        "UUID": "64642318727c2c8b",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            2.0,
+            0.699999988079071
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            1.0,
+            3.0,
+            -1.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.20000000298023224,
+            1.0,
+            2.0
+        ],
+        "Scripts": [],
+        "UUID": "2ace670b62d9bc4a",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": -7.0,
+        "uvScale": [
+            2.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            1.0,
+            2.299999952316284,
+            -3.700000047683716
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.20000000298023224,
+            0.30000001192092896,
+            0.699999988079071
+        ],
+        "Scripts": [],
+        "UUID": "a234b440d235ed4f",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            0.699999988079071,
+            -0.30000001192092896
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            1.0,
+            3.5999999046325684,
+            -3.700000047683716
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.20000000298023224,
+            0.4000000059604645,
+            0.699999988079071
+        ],
+        "Scripts": [],
+        "UUID": "f7f0d770753f1ea7",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            0.699999988079071,
+            -0.30000001192092896
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            1.0,
+            2.0,
+            -4.699999809265137
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.30000001192092896,
+            2.0999999046325684,
+            0.30000001192092896
+        ],
+        "Scripts": [],
+        "UUID": "ad8c2310c4ca6773",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            0.30000001192092896,
+            2.0999999046325684
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            1.0,
+            2.0,
+            1.2999999523162842
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.30000001192092896,
+            2.0999999046325684,
+            0.30000001192092896
+        ],
+        "Scripts": [],
+        "UUID": "da6d7496e3cb2d62",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            0.30000001192092896,
+            2.0999999046325684
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            3.0,
+            4.0,
+            -2.700000047683716
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            2.0999999046325684,
+            0.10000000149011612,
+            4.300000190734863
+        ],
+        "Scripts": [],
+        "UUID": "1f55f7e9576afa8e",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            2.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -2.0,
+            2.0,
+            1.2999999523162842
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            3.0,
+            2.0,
+            0.30000001192092896
+        ],
+        "Scripts": [],
+        "UUID": "60f7c5ff600ccbf7",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            3.0,
+            2.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            4.0,
+            3.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            0.10000000149011612,
+            2.0
+        ],
+        "Scripts": [],
+        "UUID": "445021644939fa6f",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            3.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -4.0,
+            3.0,
+            -7.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            2.0
+        ],
+        "Scripts": [],
+        "UUID": "d4c416d7a9b1955b",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            2.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -1.0,
+            3.0,
+            -7.900000095367432
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            2.0,
+            1.0,
+            1.0
+        ],
+        "Scripts": [],
+        "UUID": "08e705bc79896508",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "stair",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/stair.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            2.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            2.9000000953674316,
+            3.0,
+            -8.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            2.200000047683716,
+            1.100000023841858,
+            1.0
+        ],
+        "Scripts": [],
+        "UUID": "012aa4763c54e3eb",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.100000023841858
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -1.0,
+            3.0,
+            -9.899999618530273
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            6.199999809265137,
+            1.0,
+            1.0
+        ],
+        "Scripts": [],
+        "UUID": "9a59aba4ddcec3ee",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            9.800000190734863,
+            1.100000023841858
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -6.0,
+            2.0999999046325684,
+            -5.800000190734863
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            2.0999999046325684,
+            3.200000047683716
+        ],
+        "Scripts": [],
+        "UUID": "74e257b909acf7df",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "stair",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/stair.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
             1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            6.900000095367432,
+            9.100000381469727,
+            -3.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            2.0,
+            5.099999904632568,
+            8.0
+        ],
+        "Scripts": [],
+        "UUID": "ad578dea5f3807a7",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            8.0,
+            5.099999904632568
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -1.0,
+            8.899999618530273,
+            -11.899999618530273
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            6.199999809265137,
+            5.199999809265137,
+            1.0
+        ],
+        "Scripts": [],
+        "UUID": "b669d3eb5ef0160a",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            6.199999809265137,
+            5.199999809265137
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -8.0,
+            7.199999809265137,
+            -7.5
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            6.900000095367432,
+            3.5999999046325684
+        ],
+        "Scripts": [],
+        "UUID": "c920de4d7cf1588d",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            3.5999999046325684,
+            6.900000095367432
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -2.0999999046325684,
+            13.100000381469727,
+            -2.9000000953674316
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            7.0,
+            1.0,
+            8.100000381469727
+        ],
+        "Scripts": [
+            {
+                "UUID": "307abc01c7520563",
+                "name": "New Script",
+                "path": "Assets/Scripts/rotate.Lua"
+            }
+        ],
+        "UUID": "26437606a5038abc",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            7.0,
+            8.100000381469727
         ]
     }
 ]

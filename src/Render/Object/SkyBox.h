@@ -19,8 +19,10 @@ public:
 	static void init();
 
 	static void LoadSkyBoxTexture(std::string PathName);
-
-	static void draw(Camera& camera);
+	
+	static void setPreviousMats(Camera& camera);
+	
+	static void draw(Camera& camera,  const unsigned int framebuffer, bool gPassEnabled);
 
 	static Cubemap* SkyboxCubemap;
 
@@ -34,6 +36,12 @@ public:
 
 
 private:
+	
+	static glm::mat4 currentview;
+	
+	static glm::mat4 previousview;
+	static glm::mat4 previousprojection;
+	
 	static unsigned int VAO, VBO, EBO;
 };
 

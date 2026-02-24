@@ -13,7 +13,6 @@ class CubeVisualizer
 {
 public:
 	unsigned int cubeVAO, cubeVBO, cubeEBO;
-	std::string DefaultSkyboxPath;
 
 	CubeVisualizer();
 
@@ -22,7 +21,7 @@ public:
 	void skyboxBuffer();
 
 	void draw(glm::vec3 position,
-		glm::vec3 scale, glm::vec3 colour, bool hasWireframe);
+		glm::vec3 scale, glm::vec3 colour, float thickness, bool hasWireframe, bool fboveride);
 };
 
 #endif // CUBEVISUALIZER_CLASS_H

@@ -18,9 +18,21 @@ public:
 	static void SkyBoxWindow();
 
 	static void CameraWindow();
-
+	
+	static void EmptyWindow();
+	
+	static void VolumeWindow();
+	
 private:
 
+	static void entityScriptPane();
+	
+	static void entityPhysicsPane();
+	
+	static void entityTransformPane();
+	
+	static void entityRelationsPane();
+	
 };
 
 #endif 

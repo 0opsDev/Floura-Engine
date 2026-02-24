@@ -90,6 +90,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,6 +106,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,8 +120,8 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,8 +133,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -170,6 +172,7 @@
     <ClCompile Include="src\Render\Buffer\VBO.cpp" />
     <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp" />
     <ClCompile Include="src\Render\Handler\RenderHandler.cpp" />
+    <ClCompile Include="src\Render\Handler\sceneDescription.cpp" />
     <ClCompile Include="src\Render\Handler\ShaderHandler.cpp" />
     <ClCompile Include="src\Render\Handler\TextureMapManager.cpp" />
     <ClCompile Include="src\Render\Object\Billboard.cpp" />
@@ -181,10 +184,11 @@
     <ClCompile Include="src\Render\Object\SkyBox.cpp" />
     <ClCompile Include="src\Render\Object\stb.cpp" />
     <ClCompile Include="src\Render\Object\Texture.cpp" />
+    <ClCompile Include="src\Render\passes\dbg\dbgPass.cpp" />
     <ClCompile Include="src\Render\passes\geometry\geometryPass.cpp" />
     <ClCompile Include="src\Render\passes\lighting\raytracer.cpp" />
     <ClCompile Include="src\Render\passes\post\denoise.cpp" />
-    <ClCompile Include="src\Render\passes\post\ssao.cpp" />
+    <ClCompile Include="src\Render\passes\post\historyPass.cpp" />
     <ClCompile Include="src\Render\Shader\Framebuffer.cpp" />
     <ClCompile Include="src\Render\Shader\FramebufferObject.cpp" />
     <ClCompile Include="src\Render\Shader\Material.cpp" />
@@ -193,6 +197,7 @@
     <ClCompile Include="src\Scene\LightingHandler.cpp" />
     <ClCompile Include="src\Scene\ObjectManager.cpp" />
     <ClCompile Include="src\Scene\Object\Entity.cpp" />
+    <ClCompile Include="src\Scene\Object\volume.cpp" />
     <ClCompile Include="src\Scene\ProbeHandler.cpp" />
     <ClCompile Include="src\Scene\scene.cpp" />
     <ClCompile Include="src\Scene\tempscene.cpp" />
@@ -214,6 +219,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\ImGuiFileDialog\ImGuiFileDialog.h" />
     <ClInclude Include="..\..\..\ImGuiFileDialog\ImGuiFileDialogConfig.h" />
+    <ClInclude Include="Assets\Shaders\gBuffer\historybuffer.vert" />
     <ClInclude Include="src\camera\Camera.h" />
     <ClInclude Include="src\Core\File\File.h" />
     <ClInclude Include="src\Core\Main.h" />
@@ -245,6 +251,7 @@
     <ClInclude Include="src\Render\Buffer\VBO.h" />
     <ClInclude Include="src\Render\Cube\CubeVisualizer.h" />
     <ClInclude Include="src\Render\Handler\RenderHandler.h" />
+    <ClInclude Include="src\Render\Handler\sceneDescription.h" />
     <ClInclude Include="src\Render\Handler\ShaderHandler.h" />
     <ClInclude Include="src\Render\Handler\TextureMapManager.h" />
     <ClInclude Include="src\Render\Object\Billboard.h" />
@@ -255,10 +262,11 @@
     <ClInclude Include="src\Render\Object\RenderQuad.h" />
     <ClInclude Include="src\Render\Object\SkyBox.h" />
     <ClInclude Include="src\Render\Object\Texture.h" />
+    <ClInclude Include="src\Render\passes\dbg\dbgPass.h" />
     <ClInclude Include="src\Render\passes\geometry\geometryPass.h" />
     <ClInclude Include="src\Render\passes\lighting\raytracer.h" />
     <ClInclude Include="src\Render\passes\post\denoise.h" />
-    <ClInclude Include="src\Render\passes\post\ssao.h" />
+    <ClInclude Include="src\Render\passes\post\historyPass.h" />
     <ClInclude Include="src\Render\Shader\Framebuffer.h" />
     <ClInclude Include="src\Render\Shader\FramebufferObject.h" />
     <ClInclude Include="src\Render\Shader\Material.h" />
@@ -267,6 +275,7 @@
     <ClInclude Include="src\Scene\LightingHandler.h" />
     <ClInclude Include="src\Scene\ObjectManager.h" />
     <ClInclude Include="src\Scene\Object\Entity.h" />
+    <ClInclude Include="src\Scene\Object\volume.h" />
     <ClInclude Include="src\Scene\ProbeHandler.h" />
     <ClInclude Include="src\Scene\scene.h" />
     <ClInclude Include="src\Scene\tempscene.h" />
@@ -344,6 +353,12 @@
   <ItemGroup>
     <Content Include="Assets\Shaders\Deferred\DFR_Phon.frag" />
     <Content Include="Assets\Shaders\Deferred\DFR_Phon.vert" />
+    <Content Include="Assets\Shaders\gBuffer\geometryPassWater.vert" />
+    <Content Include="Assets\Shaders\gBuffer\gSkybox.frag" />
+    <Content Include="Assets\Shaders\gBuffer\historybuffer.frag" />
+    <Content Include="Assets\Shaders\Lighting\water.vert" />
+    <Content Include="Assets\Shaders\PostProcess\TAA.frag" />
+    <Content Include="Assets\Shaders\PostProcess\TAA.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

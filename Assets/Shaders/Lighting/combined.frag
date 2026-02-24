@@ -17,6 +17,8 @@ in vec2 texCoord;
 
 in vec4 fragPosLight;
 
+in vec3 camPositon;
+
 //TBN
 in vec3 Normal0;
 in vec3 Tangent0;
@@ -36,8 +38,10 @@ uniform uint64_t texture_normal_Handle;
 //uniform uint64_t texture_displacement_Handle;
 
 uniform sampler2D shadowMap;
-uniform sampler2D BlueNoiseTex;
+//uniform sampler2D BlueNoiseTex;
+
 uniform uint64_t bayerMatrixHandle;
+uniform uint64_t BlueNoiseHandle;
 
 // Gets the position of the light from the main function
 //const vec3 lightPos = vec3(0.0, 5.0, 1.0);
@@ -53,6 +57,7 @@ uniform int NumberOfSamples;
 uniform float DirSMMaxBias;
 uniform float deltatime;
 uniform float time;
+uniform int frame;
 uniform int indirectSamples;
 
 struct Light
@@ -76,7 +81,7 @@ uniform bool doFog;
 
 uniform float NearPlane;
 uniform float FarPlane;
-uniform vec3 camPositon;
+//uniform vec3 camPositon;
 
 // reflections
 in vec3 reflectedVector;
@@ -131,6 +136,7 @@ float CalcShadowFactorDIR(vec4 LightSpacePos, vec3 lightDirection, vec3 normal)
 	// shadow calculation
 	if (lightCoords.z <= 1.0f)
 	{
+		sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
 
 		// transform to [0,1] range
 		lightCoords = (lightCoords + 1.0f) / 2.0f;
@@ -141,16 +147,19 @@ float CalcShadowFactorDIR(vec4 LightSpacePos, vec3 lightDirection, vec3 normal)
 		// PCF
 		int sampleRadius = FilterRadius; // FilterRadius // NumberOfSamples
 		//vec2 pixelSize = (float(NumberOfSamples) * 0.1) / textureSize(shadowMap, 0);
-		vec2 noiseUV = vec2(gl_FragCoord.xy) / vec2(textureSize(BlueNoiseTex, 0));
+		vec2 texSize = vec2(textureSize(bluemap, 0));
+
+		vec2 offset = vec2(fract(frame * 0.618), fract(frame * 0.133));
+		vec2 noiseUV = (gl_FragCoord.xy / texSize) + offset;
 		vec2 pixelSize = 1.0 / textureSize(shadowMap, 0);
 		for(int y = -sampleRadius; y <= sampleRadius; y++)
 		{
 		    for(int x = -sampleRadius; x <= sampleRadius; x++)
 		    {
-					float angle = texture(BlueNoiseTex, noiseUV).r * NumberOfSamples;
-					vec2 offset = vec2(cos(angle), sin(angle));
+					float angle = texture(bluemap, noiseUV).r * NumberOfSamples;
+					vec2 foffset = vec2(cos(angle), sin(angle));
 
-					float closestDepth = texture(shadowMap, lightCoords.xy + (vec2(x, y) * offset) * pixelSize).r;
+					float closestDepth = texture(shadowMap, lightCoords.xy + (vec2(x, y) * foffset) * pixelSize).r;
 					if (currentDepth > closestDepth + bias)
 						shadow += 1.0f;
      
@@ -402,8 +411,56 @@ vec3 metRough(vec3 albedo, out vec3 nFer, out float nMet, out vec3 irradiance, s
 	return reflectionColour * F * G;
 }
 
+// looks best on glass and solids
+bool BayerNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could fade out near farplane or nearplane)
+{
+	sampler2D baySamp = sampler2D(bayerMatrixHandle);
+	vec2 bayUV = vec2(gl_FragCoord.xy) / vec2(textureSize(baySamp, 0)); // new uvec2
+	float bayer = texture(baySamp, bayUV).r;
+
+	float clampedThreshold = clamp(Threshold, 0.2, 1.0);
+
+	// normal ranges should be 0.0f-1.0f;
+	if (bayer > Threshold || Threshold <= 0) return true;
+	
+	return false;
+}
+
+// looks best on decals and foliage
+bool blueNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could fade out near farplane or nearplane)
+{
+	sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
+	vec2 texSize = vec2(textureSize(bluemap, 0));
+
+	// uv
+	vec2 offset = vec2(fract(frame * 0.618), fract(frame * 0.133));
+	vec2 noiseUV = (gl_FragCoord.xy / texSize) + offset;
+
+	float noise = texture(bluemap, noiseUV).r;
+
+	// normal ranges should be 0.0f-1.0f;
+	if (noise > Threshold) return true;
+
+	return false;
+}
+
+// maxDist = 50.0;
+
+//void Reflect(vec3 albedo, out vec3 diffuse, out vec3 specular, sampler2D specSamp, float depth)
 void Reflect(vec3 albedo, out vec3 diffuse, out vec3 specular, sampler2D specSamp)
 {
+
+
+/*
+
+	float fadeDistance = 10.0;
+	float distToFar = maxDist - depth;
+	float farOpacity = distToFar / fadeDistance;
+	farOpacity = clamp(farOpacity, 0.0, 1.0);
+
+	if (blueNoiseOpacity(farOpacity)) return;
+*/
+	//	if (doReflect && depth < maxDist)
 	if (doReflect)
 	{
 		float met = 0;
@@ -494,29 +551,6 @@ vec3 indirectIBL(int samples, sampler2D specSamp)
 	//return (indirectColour / samples) * met;
 }
 
-// looks best on decals and foliage
-void blueNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could fade out near farplane or nearplane)
-{
-	vec2 noiseUV = vec2(gl_FragCoord.xy) / vec2(textureSize(BlueNoiseTex, 0)); // new uvec2
-	float noise = texture(BlueNoiseTex, noiseUV).r;
-
-	// normal ranges should be 0.0f-1.0f;
-	if (noise > Threshold) discard;
-}
-
-// looks best on glass and solids
-void BayerNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could fade out near farplane or nearplane)
-{
-	sampler2D baySamp = sampler2D(bayerMatrixHandle);
-	vec2 bayUV = vec2(gl_FragCoord.xy) / vec2(textureSize(baySamp, 0)); // new uvec2
-	float bayer = texture(baySamp, bayUV).r;
-
-	float clampedThreshold = clamp(Threshold, 0.2, 1.0);
-
-	// normal ranges should be 0.0f-1.0f;
-	if (bayer > Threshold || Threshold <= 0) discard;
-}
-
 float logisticDepth(float depth, float steepness, float offset, float NearPlane, float FarPlane)
 {
     float zVal = linearizeDepth(depth, NearPlane, FarPlane);
@@ -543,7 +577,7 @@ void main()
 	float farOpacity = distToFar / fadeDistance;
 	farOpacity = clamp(farOpacity, 0.0, 1.0);
 
-	BayerNoiseOpacity(farOpacity);
+	if (BayerNoiseOpacity(farOpacity)) discard;
 		
 	sampler2D difusesamp = sampler2D(texture_diffuse_Handle);
 	vec4 albedo = texture(difusesamp, texCoord);
@@ -551,8 +585,8 @@ void main()
 	discard;
 
 
-	BayerNoiseOpacity(albedo.a);
-
+	if (blueNoiseOpacity(albedo.a)) discard;
+	//if (BayerNoiseOpacity(albedo.a)) discard;
 	vec3 specular = vec3(0.0f);
 	vec3 diffuse  = vec3(0.0f);
 
@@ -580,7 +614,9 @@ void main()
 	//vec4 final = vec4(finalRGB, 1.0f);
 
 	// albedo * gi + spec + em
-	vec4 final = albedo * vec4(gi, 1.0f) + vec4(reflections, 1.0f);
+	vec4 final = albedo * vec4(gi, 1.0f) + vec4(finalRGB, 1.0f);
+
+	//vec4 final = vec4(totalDiffuse, 1.0) * vec4(gi, 1.0f) + vec4(specular, 1.0f);
 
 	if (doFog) final = calculateFog(FogNearPlane, FogFarPlane, DepthDistance, fogColour, final); // fog
 

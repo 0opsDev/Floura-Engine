@@ -1,6 +1,6 @@
 [
     {
-        "DefaultSkyboxPath": "Assets/Skybox/galaxy/Skybox.json",
+        "DefaultSkyboxPath": "Assets/Skybox/clearsky/Skybox.json",
         "DirAmbient": 0.0,
         "DirColour": [
             1.0,
@@ -32,6 +32,7 @@
         "dirShadowMapSamples": 2,
         "dirSmDistance": 80.0,
         "dirSmHeight": 31.0,
+        "indirectSamples": 0,
         "skyRGBA": [
             1.0,
             1.0,

@@ -34,10 +34,9 @@ out vec3 NviewVector;
 
 uniform float deltatime;
 uniform float time;
-float speed = 10.0f;
-float frequency = 1.0f; // Frequency of the wave
+float speed = 3f;
+float frequency = 2.0f; // Frequency of the wave
 float amplitude = 0.01f; // Amplitude of the wave
-
 
 
 void main()
@@ -46,10 +45,8 @@ void main()
 
     float wave_offset = sin(crntPos.x * frequency + time * speed) * amplitude;
 
-    crntPos.x += wave_offset;
-    crntPos.y += wave_offset;
-    crntPos.z += wave_offset;
-
+    crntPos += vec3(wave_offset, 0.0, -wave_offset);
+    
     Normal0 = normalMatrix * aNormal;
     Tangent0 = normalMatrix * aTangent;
     Bitangent0 = normalMatrix * aBitangent;

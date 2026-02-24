@@ -52,7 +52,8 @@ public:
 	static int floatToByteRGB(float input);
 
 	static float ByteToFloatRGB(int input);
-
+	
+	static glm::mat4 createHaltonJitterProjectionMatrix(glm::mat4 matrix, glm::vec2 jitter, int height, int width);
 };
 
 #endif // FE_MATH_CLASS_H

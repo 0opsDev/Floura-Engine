@@ -21,7 +21,7 @@ public:
 	static unsigned int ViewPortWidth, ViewPortHeight;
 	//static unsigned int frameBufferTexture, RBO, FBO, FBO2, frameBufferTexture2;
 	static Shader frameBufferProgram;
-	static unsigned int FBO, RBO, texture;
+	static unsigned int FBO, RBO, screentexture;
 	static unsigned int FFBO, FRBO, Ftexture;
 	static unsigned int cmFBO, cmRBO, cmtexture;
 

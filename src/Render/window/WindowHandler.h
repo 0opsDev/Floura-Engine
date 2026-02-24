@@ -29,5 +29,10 @@ public:
 	static void setVSync(bool enabled);
 
 	static void InitMainWidnow();
+	
+	static void addWindowDropCallback(GLFWwindow* window);
+	
+	static void dropCallback(GLFWwindow* window, int count, const char** paths);
+	
 };
 #endif

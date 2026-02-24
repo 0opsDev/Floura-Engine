@@ -4,6 +4,7 @@
 #include <Systems/Physics/BVH.h>
 #include <assimp/pbrmaterial.h>
 #include <assimp/material.h>
+#include <thread>
 
 void Model::updatePosition(glm::vec3 Position)
 {
@@ -40,10 +41,36 @@ void Model::updateTranformation()
 
 }
 
+void Model::updatePrevPosition(glm::vec3 Position)
+{
+    previousGlobalTransformation.position = Position;
+}
+
+void Model::updatePrevRotation(glm::vec3 Rotation)
+{
+    previousGlobalTransformation.rotation = Rotation;
+}
+
+void Model::updatePrevScale(glm::vec3 Scale)
+{
+    previousGlobalTransformation.scale = Scale;
+}
+
+void Model::updatePrevTranformation()
+{
+    gModelMatrix = FE_Math::composeMatrixWDegrees(previousGlobalTransformation.position, previousGlobalTransformation.scale, previousGlobalTransformation.rotation);
+
+    for (unsigned int i = 0; i < meshes.size(); i++)
+    {
+        meshes[i].updatePrevGlobalMatrix(gModelMatrix);
+    }
+}
+
+
 Model::Model(const char* file)
 {
     UUID = UUID::returnHandle();
-	loadModel(file);
+    loadModel(file);
 }
 
 Model::~Model() {
@@ -128,7 +155,7 @@ void Model::loadModel(std::string path)
         return;
     }
     directory = path.substr(0, path.find_last_of('/'));
-
+    
     processNode(scene->mRootNode, scene);
 }
 
@@ -334,6 +361,7 @@ std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType
 
     for (unsigned int i = 0; i < mat->GetTextureCount(targetType); i++)
     {
+        
         aiString str; // str is path
         mat->GetTexture(targetType, i, &str);
         bool skip = false;
@@ -351,7 +379,7 @@ std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType
         {
             Texture texture;
             std::string path = directory + "/" + str.C_Str();
-
+            texture.linearFilter = true;
             texture.createTexture(path.c_str(), (typeName).c_str(), slot);
             //std::cout << path << std::endl;
             textures.push_back(texture);

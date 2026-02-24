@@ -7,16 +7,13 @@
 class GeometryPass
 {
 public:
-	static unsigned int depthTexture, gBuffer, gAlbedoSpec, gNormal, gSpecular, gPosition, DBO, gNoise;
-
-
-	static void init();
-
+	static unsigned int depthTexture, gBuffer, gAlbedoSpec, gNormal, gSpecular, gPosition, DBO, gNoise, gVelocity;
+	
 	static void updateGbufferResolution(unsigned int width, unsigned int height);
 
 	static void setupGbuffers(unsigned int width, unsigned int height);
 
-	static void gPassDraw(Model*& model, Shader& GPass, Camera camera);
+	static void hPassDraw(Model*& model, Shader& GPass, Camera camera);
 };
 
 #endif // GEOMETRYPASS_CLASS_H
