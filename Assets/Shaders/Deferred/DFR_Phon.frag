@@ -501,7 +501,8 @@ vec3 indirectIBL(int samples, vec3 ARM, vec3 iNormal, vec3 viewVector)
     for (int i = 0; i < samples; i++)
     {
         //gl_FragCoord
-        vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + (gl_FragCoord.z * time));
+        vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), rand(vec2(i + (gl_FragCoord.z * time) ) * vec2(1, 2)) );
+        //vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + (gl_FragCoord.z * time) );
         //vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + time); // i thought it would be better to add time for a film grain look, it would also solve with taa
 
         //int skyLOD = textureQueryLevels(skybox) - 4; // use mipmap for more preformance

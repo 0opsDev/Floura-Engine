@@ -28,10 +28,12 @@ void Camera::updateMatrix()
     // Makes camera look in the right direction from the right position
     view = glm::lookAt(Position, Position + Orientation, Up);
     // Adds perspective to the scene
-    projection = glm::perspective(glm::radians(fov), (float)width / height, nearFar.x, nearFar.y);
+    projection = glm::perspective(glm::radians(fov), (float)width / (float)height, nearFar.x, nearFar.y);
+    
+    projectionAlwaysUnjittered = projection;
+    cameraMatrixAlwaysUnjittered = projection * view;
     if (applyJitter) projection = FE_Math::createHaltonJitterProjectionMatrix(projection, currentJitter, width, height);
-
-    //std::cout << "Projection matrix: " << glm::to_string(projection) << std::endl;
+    
     cameraMatrix = projection * view;
 }
 
@@ -230,9 +232,9 @@ bool Camera::isRadiusInFrustum(const glm::vec3& worldPos, const float radius)
 
     float ndcRadius = radius / clipPos.w;
 
-    float ndcRadiusX = (ndcRadius + 1 + (0.1));
-    float ndcRadiusY = (ndcRadius + 1 + (0.1));
-    float ndcRadiusZ = (ndcRadius + 1 + (0.1));
+    float ndcRadiusX = (ndcRadius + 1 + (0.1f));
+    float ndcRadiusY = (ndcRadius + 1 + (0.1f));
+    float ndcRadiusZ = (ndcRadius + 1 + (0.1f));
 
     glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
 

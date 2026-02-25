@@ -35,17 +35,17 @@ void main()
 {
     vec3 screen = texture(screentexture, texCoord).rgb;
 
-    float depth = texture(depthMap, texCoord).r;
+    //float depth = texture(depthMap, texCoord).r;
 
     //early z cutoff
-    if (depth >= 0.99999)
-    {
-        FragColor = vec4(screen, 1.0f);
-        return;
-    }
+   // if (depth >= 0.99999)
+   // {
+    //    FragColor = vec4(screen, 1.0f);
+     //   return;
+    //}
 
-    vec3 normal = texture(gNormal, texCoord).rgb;
-    float displacement = texture(gNormal, texCoord).a;
+    //vec3 normal = texture(gNormal, texCoord).rgb;
+    //float displacement = texture(gNormal, texCoord).a;
 
     highp vec2 velocity = texture(gVelocity, texCoord).rg;
 
@@ -60,10 +60,10 @@ void main()
 
     //vec4 previousColour = texture(hColour, texCoord);
     vec3 previousColour = texture(hColour, historyTexCoord).rgb;
-    float hDepth = texture(hDepthTexture, historyTexCoord).r;
-    vec4 previousNormals = texture(hNormal, historyTexCoord);
+    //float hDepth = texture(hDepthTexture, historyTexCoord).r;
+    //vec4 previousNormals = texture(hNormal, historyTexCoord);
     //float hDepthLinearized = linearizeDepth(hDepth, NearPlane, FarPlane);
-    float gDepthLinearized = linearizeDepth(depth, NearPlane, FarPlane); // depth
+    //float gDepthLinearized = linearizeDepth(depth, NearPlane, FarPlane); // depth
     
     vec3 minColour = vec3(9999.0);
     vec3 maxColour = vec3(-9999.0);

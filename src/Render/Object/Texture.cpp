@@ -15,7 +15,12 @@ void Texture::createColour(glm::vec4 colour, const char* texType, GLuint slot)
     // Reads the image from a file and stores it in bytes
     unsigned char* bytes = 0;
 
-    unsigned char fallbackPixel[] = { FE_Math::floatToByteRGB(colour.x) , FE_Math::floatToByteRGB(colour.y),  FE_Math::floatToByteRGB(colour.z), FE_Math::floatToByteRGB(colour.w)};
+    unsigned char r = FE_Math::floatToByteRGB(colour.x);
+    unsigned char g = FE_Math::floatToByteRGB(colour.y);
+    unsigned char b = FE_Math::floatToByteRGB(colour.z);
+    unsigned char a = FE_Math::floatToByteRGB(colour.w);
+    
+    unsigned char fallbackPixel[] = { r , g, b , a};
     bytes = fallbackPixel;
     skipstbi = true;
 

@@ -1,6 +1,7 @@
 #include "WindowHandler.h"
 #include <stb/stb_image.h>
-
+#include <Render/window/WindowHandler.h>
+#include "WindowImporter.h"
 
 GLFWmonitor* windowHandler::primaryMonitor;
 const GLFWvidmode* windowHandler::videoMode;
@@ -91,7 +92,7 @@ void windowHandler::addWindowDropCallback(GLFWwindow* window)
 	glfwSetDropCallback(window, windowHandler::dropCallback);
 }
 
-void windowHandler::dropCallback(GLFWwindow* window, int count, const char** paths)
+void windowHandler::dropCallback(GLFWwindow* window, int count, const char** paths) // ends_with()
 {
 	std::string completeChar;
 	// load into string
@@ -99,6 +100,10 @@ void windowHandler::dropCallback(GLFWwindow* window, int count, const char** pat
 	{
 		completeChar.append(paths[i]);
 	}
+	
+
 	// some kind of handler would be nice
-	std::cout <<completeChar << std::endl;
+	//std::cout <<completeChar << std::endl;
+	
+	windowImporter::importCall(completeChar);
 }

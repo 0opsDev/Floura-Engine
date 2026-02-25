@@ -21,6 +21,7 @@ public:
     glm::vec2 sensitivity;
     glm::mat4 cameraMatrix = glm::mat4(1.0f);
     glm::mat4 lastCameraMatrix = glm::mat4(1.0f); // cam mat of the previous frame
+    glm::mat4 cameraMatrixAlwaysUnjittered = glm::mat4(1.0f);
     glm::vec3 Position = glm::vec3(0, 0, 0);
     glm::vec3 Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -30,6 +31,7 @@ public:
     float speed = 0.1f;
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
+    glm::mat4 projectionAlwaysUnjittered = glm::mat4(1.0f);
     float fov = 60.0f;
     glm::vec2 nearFar = glm::vec2(0.1f, 100.0f);
     float gamma = 2.2f;

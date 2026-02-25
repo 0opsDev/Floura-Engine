@@ -162,42 +162,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "coast_sand_rocks_02_4k",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/floors/coast_sand_rocks_02_4k.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "blue_metal_plate_4k",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/floors/blue_metal_plate_4k.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "grey_cartago_03_4k",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/floors/grey_cartago_03_4k.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "plank_flooring_04_4k",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/floors/plank_flooring_04_4k.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "rock_wall_16_4k",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/floors/rock_wall_16_4k.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "velour_velvet_4k",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/floors/velour_velvet_4k.gltf",
-        "Type": "NULL"
-    },
-    {
         "Name": "ferndale_studio_04",
         "ObjectType": "Skybox",
         "Path": "Assets/Skybox/ferndale_studio_04/Skybox.json",
@@ -258,12 +222,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "Cerberus_by_Andrew_Maximov",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/Cerberus_by_Andrew_Maximov/Cerberus_LP.FBX",
-        "Type": "NULL"
-    },
-    {
         "Name": "grassplane",
         "ObjectType": "Model",
         "Path": "Assets/Models/grasspane/grass.gltf",
@@ -315,12 +273,6 @@
         "Name": "pdf_teto",
         "ObjectType": "Model",
         "Path": "Assets/Models/pdf_teto/scene.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "reflectivecube",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/reflectivecube.glb",
         "Type": "NULL"
     },
     {
@@ -462,15 +414,15 @@
         "Type": "NULL"
     },
     {
-        "Name": "vokselia_spawn",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/vokselia_spawn/vokselia_spawn.obj",
-        "Type": "NULL"
-    },
-    {
         "Name": "rungholt",
         "ObjectType": "Model",
         "Path": "temp/rungholt/rungholt.obj",
+        "Type": "NULL"
+    },
+    {
+        "Name": "barrel",
+        "ObjectType": "Model",
+        "Path": "temp/barrel/barrel2.gltf",
         "Type": "NULL"
     }
 ]

@@ -93,7 +93,7 @@ void CubeVisualizer::draw(glm::vec3 position,
 		model = glm::scale(model, scale);
 		RenderClass::boxShader.setMat4("model", model);
 		//feed model matrix known as inside the shader "model"
-		RenderClass::boxShader.setMat4("camMatrix", Scene::maincamera.cameraMatrix);
+		RenderClass::boxShader.setMat4("camMatrix", Scene::maincamera.cameraMatrixAlwaysUnjittered);
 		
 		glUniform3f(glGetUniformLocation(RenderClass::boxShader.ID, "camPos"), Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z);
 

@@ -326,19 +326,19 @@ glm::mat4 useGuizmo(glm::vec3 inputPosition, glm::vec3 inputRotation, glm::vec3 
 
 	if (SelectedTransform == 0)
 	{
-		ImGuizmo::Manipulate(glm::value_ptr(Scene::maincamera.view), glm::value_ptr(Scene::maincamera.projection),
+		ImGuizmo::Manipulate(glm::value_ptr(Scene::maincamera.view), glm::value_ptr(Scene::maincamera.projectionAlwaysUnjittered),
 			ImGuizmo::TRANSLATE, ImGuizmo::WORLD,
 			glm::value_ptr(mat));
 	}
 	else if (SelectedTransform == 1)
 	{
-		ImGuizmo::Manipulate(glm::value_ptr(Scene::maincamera.view), glm::value_ptr(Scene::maincamera.projection),
+		ImGuizmo::Manipulate(glm::value_ptr(Scene::maincamera.view), glm::value_ptr(Scene::maincamera.projectionAlwaysUnjittered),
 			ImGuizmo::SCALE, ImGuizmo::WORLD,
 			glm::value_ptr(mat));
 	}
 	else if (SelectedTransform == 2)
 	{
-		ImGuizmo::Manipulate(glm::value_ptr(Scene::maincamera.view), glm::value_ptr(Scene::maincamera.projection),
+		ImGuizmo::Manipulate(glm::value_ptr(Scene::maincamera.view), glm::value_ptr(Scene::maincamera.projectionAlwaysUnjittered),
 			ImGuizmo::ROTATE, ImGuizmo::WORLD,
 			glm::value_ptr(mat));
 	}

@@ -23,8 +23,8 @@ float LightingHandler::distance = 35.0f;
 glm::vec2 LightingHandler::dirNearFar = glm::vec2(0.1f, 75.0f); // 0.1f 75.0f
 float LightingHandler::dirShadowheight = 20.0f;
 bool LightingHandler::doDirShadowMap = true;
-int LightingHandler::dirShadowMapHardness = 2.0f;
-int LightingHandler::dirShadowMapSamples = 1.0f;
+int LightingHandler::dirShadowMapHardness = 2;
+int LightingHandler::dirShadowMapSamples = 1;
 
 glm::mat4 LightingHandler::lightProjection;
 Shader LightingHandler::dirShadowMapProgram;

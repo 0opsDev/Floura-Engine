@@ -3,8 +3,8 @@
 
 float TimeUtil::deltatime = 0.0f;
 float TimeUtil::lastFrameTime = 0.0f;
-float TimeUtil::frameRate = 0;
-float TimeUtil::frameRate1hz = 0;
+int TimeUtil::frameRate = 0;
+int TimeUtil::frameRate1hz = 0;
 float TimeUtil::TimeAccumulator= 0;
 float TimeUtil::time = 0;
 float TimeUtil::priorTime; // for time based effects with motion vectors
