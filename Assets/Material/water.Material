@@ -1,7 +1,7 @@
 ﻿[
 	{
 		"type": "Standard",
-		"name": "Wobble",
+		"name": "water",
 		
 		"FragShader": "Assets/Shaders/Lighting/combined.frag",
 		"VertexShader": "Assets/Shaders/Lighting/water.vert",

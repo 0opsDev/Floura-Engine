@@ -49,8 +49,6 @@ public:
 
 	static void uvScaleUpdate(uint64_t instanceUUID, glm::vec2 scale);
 
-	
-
 	static void initcomputeShader(unsigned int width, unsigned int height);
 
 	static void resizeTexture(unsigned int width, unsigned int height);

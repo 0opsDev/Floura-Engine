@@ -5,7 +5,7 @@
 #include "File/File.h"
 #include <Editor/UI/ImGui/ImGuiWindow.h>
 #include "Render.h"
-#include "scene/tempscene.h"
+#include "scene/FE_LAYER.h"
 #include "scene/scene.h"
 #include <Gameplay/Player.h>
 #include <Render/window/WindowHandler.h>
@@ -18,8 +18,7 @@ bool Main::sleepState = true;
 
 int main()
 {
-	// test 
-	// test
+
 	//CloseConsoleWindow();
 	Main::sleepState = true;
 	FileClass::loadSettings();
@@ -31,7 +30,7 @@ int main()
 	Scene::loadScene(Scene::sceneName);
 
 	//two classes to test stuff
-	TempScene::init();
+	FE_LAYER::init();
 	Player::init();
 
 	while (!glfwWindowShouldClose(windowHandler::window)) // GAME LOOP
@@ -48,9 +47,11 @@ int main()
 		
 		// scene
 		Scene::onBeginningOfFrame(); // for velocity atm
+		FE_LAYER::onBeginningOfFrame();
+		
 		Scene::Update();
 		// misc
-		TempScene::Update();
+		FE_LAYER::Update();
 		Player::update();
 		// render
 		RenderClass::Render(windowHandler::window, windowHandler::width, windowHandler::height);
@@ -64,7 +65,7 @@ int main()
 	RenderClass::Cleanup();
 	Skybox::Delete();
 	Skybox::cleanup();
-	TempScene::Delete(); // Delete scene
+	FE_LAYER::Delete(); // Delete scene
 	SoundRunner::Delete();
 	Scene::Delete();
 	LightingHandler::cleanup();

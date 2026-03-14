@@ -35,6 +35,7 @@ float specularLight = 0.50f; // 0.50f
 uniform uint64_t texture_diffuse_Handle;
 uniform uint64_t texture_roughness_Handle;
 uniform uint64_t texture_normal_Handle;
+uniform uint64_t texture_emission_Handle;
 //uniform uint64_t texture_displacement_Handle;
 
 uniform sampler2D shadowMap;
@@ -593,6 +594,10 @@ void main()
 	sampler2D specSamp = sampler2D(texture_roughness_Handle);
 
 	Reflect(albedo.rgb, diffuse, specular, specSamp);
+	
+	//texture_emission_Handle
+	sampler2D emissionSamp = sampler2D(texture_emission_Handle);
+	vec3 emission = texture(emissionSamp, texCoord).rgb;
 
 	vec3 direct = lights(specSamp).rgb;
 
@@ -600,21 +605,14 @@ void main()
 
 	vec3 gi = (direct + indirect);
 
-	vec3 reflections = diffuse + specular;
-
 	float met = texture(specSamp, texCoord).b;
 
-	vec3 F0 = mix(vec3(0.04), albedo.rgb, met);
-	vec3 kD = (vec3(1.0) - F0) * (1.0 - met);
-
-	vec3 totalDiffuse = (gi * albedo.rgb * kD);
-
-	vec3 finalRGB = totalDiffuse + specular;
+	vec3 reflections = diffuse + specular;
 
 	//vec4 final = vec4(finalRGB, 1.0f);
 
 	// albedo * gi + spec + em
-	vec4 final = albedo * vec4(gi, 1.0f) + vec4(finalRGB, 1.0f);
+	vec4 final = albedo * vec4(gi, 1.0f) + vec4(reflections, 1.0f) + vec4(emission,1.0f);
 
 	//vec4 final = vec4(totalDiffuse, 1.0) * vec4(gi, 1.0f) + vec4(specular, 1.0f);
 
@@ -623,6 +621,8 @@ void main()
 	//final = vec4(reflections,1.0f);
 
 	FragColor = final;
+	
+	//FragColor = vec4(emission,1.0f);
 	//FragColor = vec4(rough(specSamp), 1.0f);
 	//FragColor = vec4(finalRGB , 1.0f);
 	//FragColor = diffuseTex * vec4(1.0f) + vec4(specular , 1.0f);

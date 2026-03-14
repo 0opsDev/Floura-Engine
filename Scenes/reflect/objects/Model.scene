@@ -2,9 +2,9 @@
     {
         "CastShadow": true,
         "Location": [
-            -302.1000061035156,
-            -8.5,
-            23.5
+            0.0,
+            1.0,
+            0.0
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -13,20 +13,58 @@
             0.0
         ],
         "Scale": [
-            0.10000000149011612,
-            0.10000000149011612,
-            0.10000000149011612
+            1.0,
+            1.0,
+            1.0
         ],
-        "UUID": "90ec97156b55c2d3",
+        "Scripts": [],
+        "UUID": "b73b1884dda6ccfd",
+        "children": [],
         "doRender": true,
         "drawInstanced": false,
-        "isBackFaceCulling": false,
-        "name": "nfs_shift_psp_-_london_short",
-        "path": "Assets/Models/nfs_shift_psp_-_london_short/scene.gltf",
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "emissionCube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/emissionCube.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
             1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            10.0,
+            5.0,
+            20.0
+        ],
+        "Scripts": [],
+        "UUID": "329339b6b290adda",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "plane",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes 2/plane.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            10.0,
+            20.0
         ]
     }
 ]

@@ -10,4 +10,5 @@ in vec2 texCoord;
 void main()
 {
 	FragColor = vec4(Colour, 1.0f);
+	//FragColor = vec4(0.5f, 1.0, 0.5, 1.0f);
 }

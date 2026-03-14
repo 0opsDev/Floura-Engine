@@ -13,6 +13,7 @@
 #include <Render/Handler/RenderHandler.h>
 #include  "Render/Handler/sceneDescription.h"
 #include "Render/passes/dbg/dbgPass.h"
+#include "Scene/FE_LAYER.h"
 
 Shader RenderClass::GBLpass;
 Shader RenderClass::taaShader;
@@ -290,21 +291,28 @@ void RenderClass::DeferredLightingPass() {
 	glActiveTexture(GL_TEXTURE7);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::gVelocity);
 	GBLpass.setInt("gVelocity", 7);
-	
 	// skip 8 because of shadow map (i really need to use bindless on these)
+	
+	
 	glActiveTexture(GL_TEXTURE9);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gEmission);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	GBLpass.setInt("gEmission", 9);
+	
+
+	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, HistoryPass::hColour);
-	GBLpass.setInt("hColour", 9);
+	GBLpass.setInt("hColour", 10);
 	
 	// reserve 10 for depth
-	glActiveTexture(GL_TEXTURE10);
+	glActiveTexture(GL_TEXTURE11);
 	glBindTexture(GL_TEXTURE_2D, HistoryPass::hDepthTexture);
-	GBLpass.setInt("hDepthTexture", 10);
+	GBLpass.setInt("hDepthTexture", 11);
 	
 	// prior normals
-	glActiveTexture(GL_TEXTURE11);
+	glActiveTexture(GL_TEXTURE12);
 	glBindTexture(GL_TEXTURE_2D, HistoryPass::hNormal);
-	GBLpass.setInt("hNormal", 11);
+	GBLpass.setInt("hNormal", 12);
 	
 	
 	GBLpass.setFloat("NearPlane", Scene::maincamera.nearFar.x);
@@ -376,7 +384,7 @@ void RenderClass::taaPass()
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::gVelocity);
 	taaShader.setInt("gVelocity", 3);
-	
+
 	// skip 8 because of shadow map (i really need to use bindless on these)
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, HistoryPass::hColour);

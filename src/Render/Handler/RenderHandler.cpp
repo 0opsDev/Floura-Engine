@@ -10,6 +10,7 @@
 #include <Render/Shader/Framebuffer.h>
 #include <Gameplay/Player.h>
 #include <Render/passes/post/historyPass.h>
+#include "Scene/FE_LAYER.h"
 
 #include "utils/FE_math.h"
 std::unordered_map<std::string, uint64_t> RenderHandler::pKeyHandleMapRender;
@@ -79,6 +80,7 @@ void RenderHandler::clearRenderQueue()
 }
 
 float dAccum = 0.0;
+float dAccumthresh = 1.0f;
 
 void RenderHandler::render()
 {
@@ -87,8 +89,9 @@ void RenderHandler::render()
 	
 	// shadows should probably update first
 	dAccum += TimeUtil::deltatime;
+	
 	// reflection draw
-	if (RenderClass::doReflections &&  dAccum > 1.0 || ProbeHandler::indirectSamples > 0  &&  dAccum > 1.0)
+	if (RenderClass::doReflections &&  dAccum > dAccumthresh || ProbeHandler::indirectSamples > 0  &&  dAccum > dAccumthresh)
 	{
 		float range = 100.0f;
 		
@@ -103,6 +106,10 @@ void RenderHandler::render()
 	regularDraw();
 
 	instancedDraw();
+	
+	if (FEImGuiWindow::isWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
+	
+	FE_LAYER::draw();
 	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 	
@@ -431,7 +438,7 @@ void RenderHandler::regularDraw()
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat2("uvScale", renderQueueDataVector[i].uvScale);
 
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.Activate();
-			GeometryPass::hPassDraw(models[index].model, ShaderHandler::shaderObjects[modelGPShaderIndex].Shader, Scene::maincamera);
+			GeometryPass::gPassDraw(models[index].model, ShaderHandler::shaderObjects[modelGPShaderIndex].Shader, Scene::maincamera);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Enable wireframe mode
 
 			//glFrontFace(GL_CCW);
@@ -440,6 +447,8 @@ void RenderHandler::regularDraw()
 		}
 	}
 
+	
+	
 	if (RenderClass::DoForwardLightingPass) {
 		// regular non instanced
 		for (size_t i = 0; i < renderQueueDataVector.size(); i++)

@@ -12,15 +12,9 @@ void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, s
     UUID = UUID::returnHandle();
 
     // err checking
-    if (vertices.empty()) {
-         LogConsole::print("mesh.cpp Vertices are empty");
-    }
-    if (indices.empty()) {
-        LogConsole::print("mesh.cpp indices are empty");
-    }
-    if (textures.empty()) {
-        LogConsole::print("mesh.cpp textures are empty");
-    }
+    if (vertices.empty()) LogConsole::print("mesh.cpp Vertices are empty");
+    if (indices.empty()) LogConsole::print("mesh.cpp indices are empty");
+    if (textures.empty()) LogConsole::print("mesh.cpp textures are empty");
 
     this->vertices = vertices;
     this->indices = indices;
@@ -32,12 +26,8 @@ void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, s
 void Mesh::createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
 {
     // err checking
-    if (vertices.empty()) {
-        LogConsole::print("mesh.cpp Vertices are empty");
-    }
-    if (indices.empty()) {
-        LogConsole::print("mesh.cpp indices are empty");
-    }
+    if (vertices.empty()) LogConsole::print("mesh.cpp Vertices are empty");
+    if (indices.empty())LogConsole::print("mesh.cpp indices are empty");
 
     this->vertices = vertices;
     this->indices = indices;
@@ -53,7 +43,7 @@ void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
     unsigned int numDiffuse = 0;
     unsigned int numSpecular = 0;
     unsigned int numNormal = 0;
-    unsigned int numDisp = 0;
+    unsigned int numEmissive = 0;
 
     for (unsigned int i = 0; i < textures.size(); i++)
     {
@@ -62,8 +52,9 @@ void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
         if (type == "texture_diffuse") {num = std::to_string(numDiffuse++);}
         else if (type == "texture_roughness") {num = std::to_string(numSpecular++);}
         else if (type == "texture_normal") {num = std::to_string(numNormal++);}
+        else if (type == "texture_emission") {num = std::to_string(numEmissive++);}
         //else if (type == "texture_displacement"){num = std::to_string(numDisp++);}
-        shader.Activate();
+        shader.Activate(); 
         shader.setHandleui64ARB((type + "_Handle").c_str(), textures[i].handle);
         textures[i].texUnit(shader, (type).c_str(), textures[i].unit);
         textures[i].Bind();
@@ -121,12 +112,15 @@ void Mesh::setupMesh()
     const size_t stride = sizeof(Vertex);
 
     // first is slot then how many varables, these are all vec3 and 2
-    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, stride, (void*)offsetof(Vertex, position));
-    VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, stride, (void*)offsetof(Vertex, normal));
-    VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, stride, (void*)offsetof(Vertex, color));
-    VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, stride, (void*)offsetof(Vertex, texUV));
-    VAO.LinkAttrib(VBO, 4, 3, GL_FLOAT, stride, (void*)offsetof(Vertex, tangent));
-    VAO.LinkAttrib(VBO, 5, 3, GL_FLOAT, stride, (void*)offsetof(Vertex, biTangent));
+    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, position));
+    VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, normal));
+    VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, color));
+    VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, texUV));
+    VAO.LinkAttrib(VBO, 4, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, tangent));
+    VAO.LinkAttrib(VBO, 5, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, biTangent));
+    VAO.LinkAttribI(VBO, 6, 4, GL_INT, stride, (void*)offsetof(Vertex, m_BoneIDs));
+    VAO.LinkAttrib(VBO, 7, 4, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, m_Weights));
+    
     VAO.Unbind();
     VBO.Unbind();
     EBO.Unbind();

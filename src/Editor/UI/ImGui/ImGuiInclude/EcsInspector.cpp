@@ -141,6 +141,10 @@ void EcsInspector::ModelWindow() {
 			ImGui::Text(("Material: " + Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.Material.materialPath).c_str());
 			std::string meshsize = "nummesh: " + std::to_string(RenderHandler::models[index].model->meshes.size());
 			ImGui::Text(meshsize.c_str());
+			
+			ImGui::Text(("totalVertices: " + std::to_string(RenderHandler::models[index].model->totalVertices) ).c_str() );
+			ImGui::Text(("totalIndices: " + std::to_string(RenderHandler::models[index].model->totalIndices) ).c_str() );
+			ImGui::Text(("totalBones: " + std::to_string(RenderHandler::models[index].model->totalBones) ).c_str() );
 
 			ImGui::Text("mesh names:");
 			for (size_t i = 0; i < RenderHandler::models[index].model->meshes.size(); i++)

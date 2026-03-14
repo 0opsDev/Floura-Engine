@@ -63,10 +63,7 @@ public:
 	};
 
 	struct collider {
-		char type; // b = box, s = sphere, m = mesh, c = capsule etc
-		glm::vec3 colliderPosition = glm::vec3(0.0f);
-		glm::vec3 colliderScale = glm::vec3(1.0f);
-
+		std::vector<Collision::AABB> boxcolliders; // not used yet
 		std::vector<Collision::AABB> rootnodes;
 	};
 
@@ -74,8 +71,8 @@ public:
 		//Model* Model;
 		std::string renderIDString;
 		std::string instanceIDString;
-		uint64_t renderID;
-		uint64_t instanceUUID;
+			uint64_t renderID;
+			uint64_t instanceUUID;
 		BillBoard* BillBoard;
 		float smoothnessValue = 0.0f;
 		bool dirtyTransform = false;
@@ -158,24 +155,16 @@ public:
 
 	private:
 	void createModel(const std::string& path, const std::string& materialPath);
-
 	void createBillBoard(const std::string& path);
-
 
 	public:
 
 	// transformations
-	glm::vec3 fetchPosition() {
-		return component.systems.transformation.position;
-	}
-	glm::vec3 fetchRotation() {
-		return component.systems.transformation.rotation;
-	}
-	glm::vec3 fetchScale() {
-		return component.systems.transformation.scale;
-	}
+	glm::vec3 fetchPosition() {return component.systems.transformation.position;}
+	glm::vec3 fetchRotation() {return component.systems.transformation.rotation;}
+	glm::vec3 fetchScale() {return component.systems.transformation.scale;}
+	
 	void setPosition(const glm::vec3& position) {
-
 		if (position == component.systems.transformation.position) return;
 		component.systems.transformation.position = position;
 		raytracer::RTGlobalTransformFlag = true;

@@ -8,6 +8,7 @@ layout(location = 1) out vec3 gNormal;
 layout(location = 2) out vec4 gAlbedoSpec;
 layout(location = 3) out vec4 gSpecular;
 layout(location = 4) out vec4 gVelocity;
+layout(location = 5) out vec3 gEmission;
 
 in vec3 crntPos;
 in vec2 texCoord;
@@ -34,6 +35,7 @@ void main()
 
    gSpecular = vec4(1.0f,1.0f,0.0f,1.0f);
 
-    gVelocity = vec4(0.0);
-    
+    gVelocity = vec4(0.0, 0.0, 1.0, 0.0);
+
+    gEmission = vec3(0.0);
 }

@@ -13,7 +13,7 @@ Line3D::Line3D(glm::vec3 pos1, glm::vec3 pos2)
     EBO EBO(indices);
 
     const size_t stride = sizeof(Vertex);
-    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, stride, (void*)offsetof(Vertex, position));
+    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, position));
 
     VAO.Unbind();
     VBO.Unbind();
@@ -32,7 +32,7 @@ void Line3D::updateVBO(glm::vec3 pos1, glm::vec3 pos2)
     EBO EBO(indices);
 
     const size_t stride = sizeof(Vertex);
-    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, stride, (void*)offsetof(Vertex, position));
+    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, position));
 
     VAO.Unbind();
     VBO.Unbind();

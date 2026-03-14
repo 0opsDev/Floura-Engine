@@ -14,6 +14,12 @@
 #include "core/Render.h"
 #include "Systems/Physics/Collision.h"
 #include <xhash>
+#include <map>
+#include <iterator>
+#include "Render/Animated/animdata.h"
+#include  <thread>
+
+#define MAX_BONE_INFLUENCE 4
 
 class Model {
 public:
@@ -32,6 +38,7 @@ public:
 	transformation globalTransformation;
 	transformation previousGlobalTransformation;
 	glm::mat4 gModelMatrix = glm::mat4(1.0f);
+	glm::mat4 pgModelMatrix = glm::mat4(1.0f);
 
 	void updatePosition(glm::vec3 Position);
 	void updateRotation(glm::vec3 Rotation);
@@ -45,6 +52,9 @@ public:
 
 	Model(const char* file);
 	~Model();
+	
+	auto& GetBoneInfoMap() { return m_BoneInfoMap; }
+	int& GetBoneCount() { return m_BoneCounter; }
 
 	void draw(Shader &shader, Camera Camera);
 
@@ -61,19 +71,39 @@ public:
 
 	std::vector<transformation> localTransformation;
 	std::vector <glm::mat4> lModelMatrix;
+	
+	// informative
+	int totalVertices = 0;
+	int totalIndices = 0;
+	int totalBones = 0;
+	std::string directory;
 
 private:
-	std::string directory;
 	std::vector<std::string> loadedTexPath;
 	std::vector<Texture> loadedTex;
-
+	
+	// bones
+	std::map<std::string, BoneInfo> m_BoneInfoMap;
+	int m_BoneCounter = 0;
+	
 	void loadModel(std::string path);
 	void processNode(aiNode* node, const aiScene* scene);
 	void processPositions(aiNode* node);
+	
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 
+	void SetVertexBoneDataToDefault(Vertex& vertex);
+	void SetVertexBoneData(Vertex& vertex, int boneID, float weight);
+	void ExtractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene);
+	
+	std::vector<Vertex> assembleVertices(aiMesh* mesh);
+	std::vector<GLuint> assembleIndices(aiMesh* mesh);
+	std::vector<Texture> assembleMaterials(aiMesh* mesh, const aiScene* scene);
+	
+	
 	std::vector<Texture> aloadMaterialTextures(aiMaterial* mat, aiTextureType type,
 		std::string typeName, int slot);
+	
 };
 
 #endif

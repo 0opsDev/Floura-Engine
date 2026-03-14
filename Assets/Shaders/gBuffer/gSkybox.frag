@@ -9,6 +9,7 @@ layout(location = 1) out vec4 gNormal;
 layout(location = 2) out vec4 gAlbedoSpec;
 layout(location = 3) out vec4 gSpecular;
 layout(location = 4) out vec4 gVelocity;
+layout(location = 5) out vec3 gEmission;
 
 in highp vec3 texCoords;
 in highp vec4 currentPos;
@@ -50,6 +51,7 @@ void main()
     // elipson
     if (length(velocity) < 0.001) { velocity = vec2(0.0); }
 
-    gVelocity = vec4(velocity * 0.5, 0.0, 1.0);
+    gVelocity = vec4(velocity * 0.5, 1.0, 1.0);
+    gEmission = vec3(0.0);
     //FragColor = vec4(color, 1.0);
 }

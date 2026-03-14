@@ -19,6 +19,7 @@ in vec4 fragPosLight;
 
 uniform bool doReflect;
 uniform uint64_t texture_diffuse_Handle;
+uniform uint64_t texture_emission_Handle;
 
 uniform sampler2D shadowMap;
 uniform uint64_t BlueNoiseHandle;
@@ -227,19 +228,27 @@ vec4 lights(int lodcount, float linearizedDepth){
 		return vec4(finalColour); // was xyz
 		//return vec4((diffuseTex.xyz * skyColor.xyz) + finalColour.xyz, diffuseTex.a);
 		//return (diffuseTex.xyz * skyColor.xyz) + finalColour.xyz;
-} 
+}
 
 
+// looks best on glass and solids
 void BayerNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could fade out near farplane or nearplane)
 {
 	sampler2D baySamp = sampler2D(bayerMatrixHandle);
 	vec2 bayUV = vec2(gl_FragCoord.xy) / vec2(textureSize(baySamp, 0)); // new uvec2
+
+	float scrollSpeed = 0.5;
+
+	bayUV = fract(bayUV + (scrollSpeed * time));
+
 	float bayer = texture(baySamp, bayUV).r;
 
-	// normal ranges should be 0.0f-1.0f;
-	if (bayer > Threshold) discard;
-}
 
+	float clampedThreshold = clamp(Threshold, 0.2, 1.0);
+
+	// normal ranges should be 0.0f-1.0f;
+	if (bayer > Threshold || Threshold <= 0) discard;
+}
 int lodcount = 0;
 
 void main()
@@ -274,8 +283,12 @@ void main()
 
 	vec3 direct = lights(lodcount, linearizedDepth).rgb;
 
+	//texture_emission_Handle
+	sampler2D emissionSamp = sampler2D(texture_emission_Handle);
+	vec3 emission = texture(emissionSamp, texCoord).rgb;
+	
 	// albedo * gi + spec + em
-	vec4 final = albedo * vec4(direct, 1.0f);
+	vec4 final = albedo * vec4(direct, 1.0f) + vec4(emission, 1.0f);
 
 	FragColor = final;
 }

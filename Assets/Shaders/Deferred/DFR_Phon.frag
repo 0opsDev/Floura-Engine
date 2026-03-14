@@ -16,6 +16,7 @@ uniform sampler2D gAlbedoSpec;
 uniform sampler2D depthMap;
 uniform sampler2D gSpecular;
 uniform sampler2D gVelocity;
+uniform sampler2D gEmission;
 
 // history
 uniform sampler2D hColour;
@@ -392,8 +393,8 @@ vec3 metRough(vec3 albedo, vec3 iNormal, vec3 viewVector, out vec3 nFer, out flo
 {
     // textures
     vec3 metallicRoughness = ARM; // metalic
-    float rough = metallicRoughness.g;
-    float met =  metallicRoughness.b;
+    float rough = metallicRoughness.g; // g
+    float met =  metallicRoughness.b; // b
     nMet = met;
 
     // vectors
@@ -429,17 +430,6 @@ vec3 metRough(vec3 albedo, vec3 iNormal, vec3 viewVector, out vec3 nFer, out flo
 void Reflect(vec3 albedo,  vec3 iNormal, vec3 viewVector, out vec3 diffuse, out vec3 specular, vec3 ARM)
 {
 
-
-    /*
-    
-        float fadeDistance = 10.0;
-        float distToFar = maxDist - depth;
-        float farOpacity = distToFar / fadeDistance;
-        farOpacity = clamp(farOpacity, 0.0, 1.0);
-    
-        if (blueNoiseOpacity(farOpacity)) return;
-    */
-
     //if (doReflect && depth < maxDist)
     if (doReflect)
     {
@@ -453,6 +443,7 @@ void Reflect(vec3 albedo,  vec3 iNormal, vec3 viewVector, out vec3 diffuse, out 
         nDiffuse *= (1.0f - met);
 
         diffuse = irradiance * nDiffuse;
+        //diffuse = nDiffuse;
     }
 }
 
@@ -478,7 +469,6 @@ vec3 indirectIBL(int samples, vec3 ARM, vec3 iNormal, vec3 viewVector)
 {
 
     float rough = ARM.g;
-    float met =  ARM.b;
 
     vec3 NreflectedVector = reflect(viewVector, iNormal);
 
@@ -513,8 +503,24 @@ vec3 indirectIBL(int samples, vec3 ARM, vec3 iNormal, vec3 viewVector)
     }
 
     return (indirectColour / samples);
-    //return (indirectColour / samples) * met;
 }
+
+vec3 blur(sampler2D samp, vec2 coord)
+{
+    
+    int samples = 10;
+    vec3 colour = vec3(0.0);
+    
+    for (int i = 5; i < samples; i++)
+    {
+        vec3 mipmap = textureLod(samp, coord, i).rgb;
+
+        colour += mipmap;
+    }
+    
+    return colour / samples;
+}
+
 
 void main()
 {
@@ -552,32 +558,32 @@ void main()
     vec3 position = texture(gPosition, texCoord).rgb;
 
     vec3 viewVector = position - camPos;
+    
+    vec3 emission = texture(gEmission, texCoord).rgb;
+    vec3 nEmissionblur = blur(gEmission, texCoord) ;
 
-    vec3 roughness = rough(ARM, normal, viewVector);
+    
+    vec3 direct = lights(ARM, normal, position).rgb;
+    vec3 indirect = indirectIBL(indirectSamples, ARM, normal, viewVector);// [placeholder
+
+    vec3 gi = (direct + indirect);
 
     vec3 specular = vec3(0.0f);
     vec3 diffuse  = vec3(0.0f);
 
     Reflect(albedo.rgb, normal, viewVector, diffuse, specular, ARM);
 
-    vec3 direct = lights(ARM, normal, position).rgb;
-    vec3 indirect = indirectIBL(indirectSamples, ARM, normal, viewVector);// [placeholder
-
-    vec3 gi = (direct + indirect);
-
     vec3 reflections = diffuse + specular;
 
-    vec3 F0 = mix(vec3(0.04), albedo.rgb, ARM.b);
-    vec3 kD = (vec3(1.0) - F0) * (1.0 - ARM.b);
-
-    vec3 totalDiffuse = (gi * albedo.rgb * kD);
-
-    vec3 finalRGB = totalDiffuse + specular;
-
-    vec4 final = albedo * vec4(gi, 1.0f) + vec4(finalRGB, 1.0f);
+    vec3 final = albedo.rgb * gi + reflections + emission;
+    //vec3 final = 
     //vec3 final = albedo.rgb *  gi + roughness;
     
-    FragColor = final;
+    //final = vec4(totalDiffuse, 1.0);
+    
+    FragColor = vec4(final + nEmissionblur, 1.0f);
+    //FragColor = vec4(nEmissionblur, 1.0f);
+    //FragColor = final;
 
     //FragColor = vec4(vec3(hDepthLinearized) , 1.0);
     

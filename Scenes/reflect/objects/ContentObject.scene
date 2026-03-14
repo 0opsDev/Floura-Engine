@@ -54,48 +54,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "cube",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/basic shapes/cube.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "sphere",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/basic shapes/sphere.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "plane",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/basic shapes/plane.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "pave",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/planes/paveplane.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "cornel",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/cornel/cornel.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "GItest",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/raytraced/GItest.gltf",
-        "Type": "NULL"
-    },
-    {
-        "Name": "nfs_shift_psp_-_london_short",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/nfs_shift_psp_-_london_short/scene.gltf",
-        "Type": "NULL"
-    },
-    {
         "Name": "autumn_forest",
         "ObjectType": "Skybox",
         "Path": "Assets/Skybox/autumn_forest/Skybox.json",
@@ -108,9 +66,15 @@
         "Type": "NULL"
     },
     {
-        "Name": "rock_wall_16_4k",
+        "Name": "emissionCube",
         "ObjectType": "Model",
-        "Path": "Assets/Models/floors/rock_wall_16_4k.gltf",
+        "Path": "Assets/Models/emissionCube.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "plane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes 2/plane.gltf",
         "Type": "NULL"
     }
 ]

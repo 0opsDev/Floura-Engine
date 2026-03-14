@@ -8,6 +8,7 @@ layout(location = 1) out vec4 gNormal;
 layout(location = 2) out vec4 gAlbedo;
 layout(location = 3) out vec4 gSpecular;
 layout(location = 4) out vec4 gVelocity;
+layout(location = 5) out vec3 gEmission;
 
 in highp vec3 crntPos;
 in vec3 Normal;
@@ -26,6 +27,7 @@ in vec4 previousPos;
 uniform uint64_t texture_diffuse_Handle;
 uniform uint64_t texture_roughness_Handle;
 uniform uint64_t texture_normal_Handle;
+uniform uint64_t texture_emission_Handle;
 //uniform sampler2D noiseMapTexture;
 
 uniform uint64_t BlueNoiseHandle;
@@ -83,7 +85,8 @@ void blueNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could
 	vec2 noiseUV = (gl_FragCoord.xy / texSize) + offset;
 	
 	float noise = texture(bluemap, noiseUV).r;
-
+	
+	
 	// normal ranges should be 0.0f-1.0f;
 	if (noise > Threshold) discard;
 }
@@ -96,7 +99,7 @@ void BayerNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (coul
 	
 	float scrollSpeed = 0.5;
 	
-	bayUV = fract(bayUV + (scrollSpeed * time));
+	//bayUV = fract(bayUV + (scrollSpeed * time));
 	
 	float bayer = texture(baySamp, bayUV).r;
 	
@@ -104,38 +107,29 @@ void BayerNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (coul
 	float clampedThreshold = clamp(Threshold, 0.2, 1.0);
 
 	// normal ranges should be 0.0f-1.0f;
-	if (bayer > Threshold || Threshold <= 0) discard;
+	if (bayer > Threshold) discard;
 }
 
 void main()
 {
 	//return;
+
+	ivec2 texelCoord = ivec2(gl_FragCoord.xy);
 	
 	sampler2D aSamp = sampler2D(texture_diffuse_Handle);
 	sampler2D nSamp = sampler2D(texture_normal_Handle);
 	sampler2D sSamp = sampler2D(texture_roughness_Handle);
 
-	//highp vec2 currentNDC = currentPos.xy / (currentPos.w + 1e-7);
-	//highp vec2 previousNDC = previousPos.xy / (previousPos.w + 1e-7);
-	//highp vec2 currentNDC = currentPos.xy / (currentPos.w + 1e-6);
-	//highp vec2 previousNDC = previousPos.xy / (previousPos.w + 1e-6);
+	vec4 albedoTex = texture(aSamp, texCoord);
+	
 	highp vec2 currentNDC = currentPos.xy / (currentPos.w);
 	highp vec2 previousNDC = previousPos.xy / (previousPos.w);
-	//vec2 velocity = (currentNDC - previousNDC) * 0.5;
 	highp vec2 velocity = (currentNDC + scaledCurrentJitter) - (previousNDC + scaledPreviousJitter);
-	
-	// elipson
-	//	if (length(velocity) < 0.001)
+
 	if (length(velocity) < 0.001) { velocity = vec2(0.0); }
-
-	//scaledCurrentJitter
-	//scaledPreviousJitter
-	//CurrentJitter
-	//PreviousJitter
-
-	gVelocity = vec4(velocity * 0.5, 0.0, 1.0);
 	
-	vec4 albedoTex = texture(aSamp, texCoord);
+	gVelocity = vec4(velocity * 0.5, 1.0, 1.0); // velocity + alpha
+	
     // Discard fragment if alpha is too low
     if (albedoTex.a <= 0.0) // Adjust threshold if needed
     discard;
@@ -157,4 +151,9 @@ void main()
 	//gSpecular.rgb = vec3(1.0f, 0.0f, 0.0f);
 	gSpecular = texture(sSamp, texCoord);
 	//gVelocity = vec4(vec3(1.0, 0.0, 0.0), 1.0);
+
+	sampler2D emissionSamp = sampler2D(texture_emission_Handle);
+	vec3 emission = texture(emissionSamp, texCoord).rgb;
+	gEmission = emission;
+	//gEmission
 }

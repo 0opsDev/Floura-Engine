@@ -264,12 +264,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "metalball",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/metalball.glb",
-        "Type": "NULL"
-    },
-    {
         "Name": "pdf_teto",
         "ObjectType": "Model",
         "Path": "Assets/Models/pdf_teto/scene.gltf",
@@ -423,6 +417,72 @@
         "Name": "barrel",
         "ObjectType": "Model",
         "Path": "temp/barrel/barrel2.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "emissionCube",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/emissionCube.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "reflectivecube",
+        "ObjectType": "Model",
+        "Path": "temp/packasset/reflectivecube.glb",
+        "Type": "NULL"
+    },
+    {
+        "Name": "ForwardAnimationWeightDBG",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/ForwardAnimationWeightDBG.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "alphaballs",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/METALROUGHTEST/alphaballs.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "fence",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/fence/fence.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "coast_sand_rock",
+        "ObjectType": "Model",
+        "Path": "temp/planes/coast_sand_rock.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "brickcube",
+        "ObjectType": "Model",
+        "Path": "temp/planes/brickcube.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Cerberus_LP",
+        "ObjectType": "Model",
+        "Path": "temp/Cerberus_by_Andrew_Maximov/Cerberus_LP.FBX",
+        "Type": "NULL"
+    },
+    {
+        "Name": "white_oak",
+        "ObjectType": "Model",
+        "Path": "temp/white_oak/white_oak.obj",
+        "Type": "NULL"
+    },
+    {
+        "Name": "tower",
+        "ObjectType": "Model",
+        "Path": "temp/planes/tower.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "grassplane10b10",
+        "ObjectType": "Model",
+        "Path": "temp/planes/grassplane10b10.gltf",
         "Type": "NULL"
     }
 ]

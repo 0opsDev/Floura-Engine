@@ -9,8 +9,8 @@
         ],
         "DirEnabled": true,
         "DirRotation": [
-            64.9000015258789,
-            861.7999877929688,
+            156.0,
+            -120.5999984741211,
             0.0
         ],
         "DirSMMaxBias": 0.0020000000949949026,
@@ -28,15 +28,15 @@
             0.10000000149011612,
             200.0
         ],
-        "dirShadowMapHardness": 4,
+        "dirShadowMapHardness": 2,
         "dirShadowMapSamples": 1,
-        "dirSmDistance": 180.0,
-        "dirSmHeight": 139.0,
-        "indirectSamples": 12,
+        "dirSmDistance": 30.0,
+        "dirSmHeight": 100.0,
+        "indirectSamples": 8,
         "skyRGBA": [
-            0.039215683937072754,
-            0.038254514336586,
-            0.038254514336586
+            0.0,
+            0.0,
+            0.0
         ]
     }
 ]

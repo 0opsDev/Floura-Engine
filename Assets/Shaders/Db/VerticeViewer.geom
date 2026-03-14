@@ -15,13 +15,12 @@ in DATA
 } data_in[];
 
 float random(vec3 seed) {
-	vec4 seed4 = vec4(seed, 1.0);
-	float dot_product = dot(seed4, vec4(12.9898, 78.233, 45.164, 94.673));
-	return fract(sin(dot_product) * 43758.5453);
+    return fract(sin(dot(seed, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
 }
 
 void main()
 {
+    
     //vec3 vector0 = vec3(gl_in[0].gl_Position - gl_in[1].gl_Position); // 1
     //vec3 vector1 = vec3(gl_in[2].gl_Position - gl_in[1].gl_Position); // 1
     //vec4 surfaceNormal = vec4(normalize(cross(vector1, vector0)), 0.0); // 1
@@ -30,8 +29,8 @@ void main()
     {
     //gl_Position = data_in[i].projection * (gl_in[i].gl_Position + surfaceNormal); // 1
     gl_Position = data_in[i].projection * gl_in[i].gl_Position;
-    crntPos =  data_in[i].WorldPos; 
-    texCoord = data_in[i].texCoord;
+    crntPos =  data_in[i].WorldPos;
+        texCoord = data_in[i].texCoord;
     Colour = vec3( random(data_in[0].WorldPos), random(data_in[1].WorldPos) , random(data_in[2].WorldPos) );
 
     EmitVertex();
