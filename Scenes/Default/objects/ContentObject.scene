@@ -252,15 +252,33 @@
         "Type": "NULL"
     },
     {
-        "Name": "galaxy",
+        "Name": "gitest",
+        "ObjectType": "Model",
+        "Path": "temp/packasset/raytraced/GItest.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "skyLOGL",
         "ObjectType": "Skybox",
-        "Path": "Assets/Skybox/galaxy/Skybox.json",
+        "Path": "Assets/Skybox/skyLOGL/Skybox.json",
         "Type": "NULL"
     },
     {
         "Name": "galaxy2",
         "ObjectType": "Skybox",
-        "Path": "Assets/Skybox/galaxy2/Skybox.json",
+        "Path": "temp/sb/galaxy2/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "galaxy",
+        "ObjectType": "Skybox",
+        "Path": "temp/sb/galaxy/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "METALROUGHTEST",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/METALROUGHTEST/WALL2.gltf",
         "Type": "NULL"
     }
 ]

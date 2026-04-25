@@ -17,6 +17,8 @@ std::unordered_map<std::string, uint64_t> RenderHandler::pKeyHandleMapRender;
 std::vector<RenderHandler::modelObject> RenderHandler::models;
 std::vector<RenderHandler::renderQueueData> RenderHandler::renderQueueDataVector;
 
+bool RenderHandler::renderENV = false;
+
 uint64_t RenderHandler::fetchHandle(std::string path)
 {
 	auto it = pKeyHandleMapRender.find(path);
@@ -80,7 +82,7 @@ void RenderHandler::clearRenderQueue()
 }
 
 float dAccum = 0.0;
-float dAccumthresh = 1.0f;
+float dAccumthresh = 1.0 / 1.0f;
 
 void RenderHandler::render()
 {
@@ -91,7 +93,7 @@ void RenderHandler::render()
 	dAccum += TimeUtil::deltatime;
 	
 	// reflection draw
-	if (RenderClass::doReflections &&  dAccum > dAccumthresh || ProbeHandler::indirectSamples > 0  &&  dAccum > dAccumthresh)
+	if (RenderClass::doReflections && renderENV  &&  dAccum > dAccumthresh || ProbeHandler::indirectSamples > 0 && renderENV  &&  dAccum > dAccumthresh)
 	{
 		float range = 100.0f;
 		
@@ -116,7 +118,8 @@ void RenderHandler::render()
 	// def draw
 	if (RenderClass::DoDeferredLightingPass)
 	{
-		tempCM->cubemapToUUIDShader("cmMainHandle", RenderClass::GBLpass);
+		if (renderENV)  tempCM->cubemapToUUIDShader("cmMainHandle", RenderClass::GBLpass);
+		else Skybox::SkyboxCubemap->cubemapToUUIDShader("cmMainHandle", RenderClass::GBLpass);
 		RenderClass::DeferredLightingPass(); // Forward Lighting Pass
 	}
 	
@@ -261,12 +264,14 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 	glViewport(0, 0, width, height); glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	Framebuffer::smUpdateResolution(resolution); glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	Camera nCamera;
+	nCamera.InitCamera(int(resolution.x), int(resolution.y), pos); // Matching your Position
+	nCamera.fov = 90.0f;
+	
 	// Cycles through all the textures and attaches them to the cubemap object
 	for (unsigned int x = 0; x < 6; x++)
 	{
-		Camera nCamera; // should get rid of this btw
-		nCamera.InitCamera(int(resolution.x), int(resolution.y), pos); // Matching your Position
-		nCamera.fov = 90.0f;
+		 // should get rid of this btw
 		nCamera.Orientation = rqtargets[x];
 		nCamera.Up = rqups[x];
 		nCamera.updateMatrix();
@@ -317,6 +322,7 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 				shader.setFloat("deltatime", TimeUtil::deltatime);
 				shader.setFloat("time",TimeUtil::time);
 				shader.setFloat("priorTime", TimeUtil::priorTime);
+				shader.setFloat("doBinaryAlpha", RenderClass::doBinaryAlpha);
 				// this would normally be in material
 				
 				if (renderQueueDataVector[i].doCulling == true && !FEImGuiWindow::isWireframe) glEnable(GL_CULL_FACE);
@@ -421,6 +427,8 @@ void RenderHandler::regularDraw()
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat("time",TimeUtil::time);
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat("priorTime", TimeUtil::priorTime);
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setInt("frame", TimeUtil::frame);
+			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setBool("doBinaryAlpha", RenderClass::doBinaryAlpha);
+			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setBool("animateBinaryAlpha", RenderClass::animateBinaryAlpha);
 			// this would normally be in material
 			
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setHandleui64ARB("BlueNoiseHandle", RenderClass::bluenoise->handle);
@@ -480,7 +488,9 @@ void RenderHandler::regularDraw()
 				//glActiveTexture(GL_TEXTURE0 + 5);// + textureUnit
 				//glBindTexture(GL_TEXTURE_CUBE_MAP, tempCM->ID);
 
-				tempCM->cubemapToUUIDShader("cmMainHandle", ShaderHandler::shaderObjects[modelShaderIndex].Shader);
+				//
+				if (renderENV) tempCM->cubemapToUUIDShader("cmMainHandle", ShaderHandler::shaderObjects[modelShaderIndex].Shader);
+				else Skybox::SkyboxCubemap->cubemapToUUIDShader("cmMainHandle", ShaderHandler::shaderObjects[modelShaderIndex].Shader);
 
 				//tempCM
 
@@ -494,6 +504,8 @@ void RenderHandler::regularDraw()
 				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("time",TimeUtil::time);
 				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("priorTime", TimeUtil::priorTime);
 				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setInt("frame", TimeUtil::frame);
+				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setBool("doBinaryAlpha", RenderClass::doBinaryAlpha);
+				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setBool("animateBinaryAlpha", RenderClass::animateBinaryAlpha);
 				// this would normally be in material
 
 				if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) continue; // Skip rendering if not in regular or lighting pass

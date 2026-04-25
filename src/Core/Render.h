@@ -34,6 +34,8 @@ public:
 	static Texture* bluenoise;
 	static Texture* bayermatrix;
 	static bool doTAA;
+	static bool doBinaryAlpha;
+	static bool animateBinaryAlpha;
 	
 	struct transformation {
 		glm::vec3 position = glm::vec3(0.0f);

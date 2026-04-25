@@ -63,6 +63,7 @@ vec3 colourClamp(int radius, vec3 colour)
 }
 
 
+
 void main()
 {
     vec3 screen = texture(screentexture, texCoord).rgb;
@@ -104,8 +105,8 @@ void main()
     
     vec3 previousColourClamped = colourClamp(1, previousColour);
     
+    //float blendFactor = 0.9;
     float blendFactor = 0.9;
-    
    //vec3 accumulated = mix(screen, previousColourClamped, blendFactor);
     
     vec3 accumulated = mix(screen, previousColourClamped, blendFactor);

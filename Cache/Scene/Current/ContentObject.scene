@@ -216,12 +216,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "glass2",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/glass/glass2.gltf",
-        "Type": "NULL"
-    },
-    {
         "Name": "grassplane",
         "ObjectType": "Model",
         "Path": "Assets/Models/grasspane/grass.gltf",
@@ -444,12 +438,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "fence",
-        "ObjectType": "Model",
-        "Path": "Assets/Models/fence/fence.gltf",
-        "Type": "NULL"
-    },
-    {
         "Name": "coast_sand_rock",
         "ObjectType": "Model",
         "Path": "temp/planes/coast_sand_rock.gltf",
@@ -483,6 +471,48 @@
         "Name": "grassplane10b10",
         "ObjectType": "Model",
         "Path": "temp/planes/grassplane10b10.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "emissionCube",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/emissionCube.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "galaxy",
+        "ObjectType": "Skybox",
+        "Path": "temp/sb/galaxy/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "galaxy2",
+        "ObjectType": "Skybox",
+        "Path": "temp/sb/galaxy2/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "grassplane10b10",
+        "ObjectType": "Model",
+        "Path": "temp/planes/grassplane10b10.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "plane bs2",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes 2/plane.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "fence",
+        "ObjectType": "Model",
+        "Path": "temp/fence/fence.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "withgrass qt2",
+        "ObjectType": "Model",
+        "Path": "temp/qt2/withgrass.gltf",
         "Type": "NULL"
     }
 ]

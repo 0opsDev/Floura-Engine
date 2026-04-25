@@ -92,6 +92,9 @@ void LightingHandler::drawShadowMap(Model*& model) {
 
 	RenderClass::bluenoise->Bind();
 	LightingHandler::dirShadowMapProgram.setInt("BlueNoiseTex", 6);
+	
+	LightingHandler::dirShadowMapProgram.setBool("doBinaryAlpha", RenderClass::doBinaryAlpha);
+	LightingHandler::dirShadowMapProgram.setBool("animateBinaryAlpha", RenderClass::animateBinaryAlpha);
 
 	LightingHandler::dirShadowMapProgram.setHandleui64ARB("bayerMatrixHandle", RenderClass::bayermatrix->handle);
 

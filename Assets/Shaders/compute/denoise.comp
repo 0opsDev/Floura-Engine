@@ -130,12 +130,13 @@ const ivec2 size, out vec3 indirectOut, out vec3 specularIndirectOut, float dept
 }
 
 void denoiseIndirect(int radius, int secondaryRadius, float depthLinearized, vec3 currentNormal,
-                     const ivec2 pixelCoords, const ivec2 size, out vec3 indirectOut, out vec3 specularIndirectOut,
-                     float depthThershold, float normalThreshold)
+                     const ivec2 pixelCoords, const ivec2 size, out vec3 indirectOut, out vec3 specularIndirectOut, out vec3 emissionOut,
+float depthThershold, float normalThreshold)
 {
 
     vec3 nindirectColour = vec3(0.0f);
     vec3 nindirectSpecularColour = vec3(0.0f);
+    vec3 nemissionColour = vec3(0.0);
 
     float noise = loadSingal(SIGNAL_NOISE, pixelCoords).r;
     if (noise != 0.0f) // noise cant sample, skip
@@ -144,18 +145,22 @@ void denoiseIndirect(int radius, int secondaryRadius, float depthLinearized, vec
         PrimarySecondaryDenoise(radius, depthLinearized, currentNormal, pixelCoords, size, nindirectColour, nindirectSpecularColour, depthThershold, normalThreshold);
         indirectOut = nindirectColour;
         specularIndirectOut = nindirectSpecularColour;
+        emissionOut = nemissionColour;
         return;
     }
 
     nindirectColour = loadSingal(SIGNAL_INDIRECT, pixelCoords).rgb;
     nindirectSpecularColour = loadSingal(SIGNAL_SPEC_IND, pixelCoords).rgb;
+    nemissionColour = loadSingal(SIGNAL_EMISSION, pixelCoords).rgb;
 
     vec3 weights = vec3(0.2126, 0.7152, 0.0722);
     float currentLumanance = dot(nindirectColour / 255.0, weights);
     float currentSLumanance = dot(nindirectSpecularColour / 255.0, weights);
+    float currentELumanance = dot(nemissionColour / 255.0, weights);
 
     float totalLuminance = 0.0f;
     float totalSLuminance = 0.0f;
+    float totalEluminance = 0.0f;
     int validSamples = 0;
 
     for (int x = -secondaryRadius; x < secondaryRadius; x++)
@@ -168,6 +173,7 @@ void denoiseIndirect(int radius, int secondaryRadius, float depthLinearized, vec
                 // load raw indirect colours
                 vec4 neighbourIndirectColour = loadSingal(SIGNAL_INDIRECT, neighbourCoords);
                 vec4 neighbourSpecularIndirectColour = loadSingal(SIGNAL_SPEC_IND, neighbourCoords);
+                vec4 neighbourEmissionColour = loadSingal(SIGNAL_EMISSION, neighbourCoords);
                 float neighbourNoise = loadSingal(SIGNAL_NOISE, neighbourCoords).r;
 
                 vec2 neighbourDepthUV = vec2(neighbourCoords) / vec2(size);
@@ -188,19 +194,23 @@ void denoiseIndirect(int radius, int secondaryRadius, float depthLinearized, vec
                 vec3 weights = vec3(0.2126, 0.7152, 0.0722);
                 float luminance = dot(neighbourIndirectColour.rgb / 255.0, weights);
                 float sLuminance = dot(neighbourSpecularIndirectColour.rgb / 255.0, weights);
+                float eLuminance = dot(neighbourEmissionColour.rgb / 255.0, weights);
 
                 if (validSamples > 0)
                 {
                 totalLuminance += luminance;
                 totalSLuminance += sLuminance;
+                    totalEluminance += eLuminance;
                 }
                 validSamples++;
             }
             float avgLuminance = (validSamples > 0) ? (totalLuminance / float(validSamples)) : 0.0f;
             float avgsLuminance = (validSamples > 0) ? (totalSLuminance / float(validSamples)) : 0.0f;
+            float avgeLuminance = (validSamples > 0) ? (totalEluminance / float(validSamples)) : 0.0f;
 
             indirectOut = nindirectColour * (avgLuminance / max(currentLumanance, 0.0001f));
             specularIndirectOut = nindirectSpecularColour * (avgsLuminance / max(currentSLumanance, 0.0001f));
+        emissionOut = nemissionColour * (avgeLuminance / max(currentELumanance, 0.0001f));
     }
 }
 
@@ -229,6 +239,18 @@ void main() {
     vec3 emissionSignal = loadSingal(SIGNAL_EMISSION, pixelCoords).rgb;
 
     //vec4 signalCombined = vec4( albedoTex * (directSignal) + (specularSignal * reflectionSmoothness) + emissionSignal, 1.0f);
+
+    const ivec2 depthsize = textureSize(depthMap, 0);
+    vec2 depthUV = vec2(pixelCoords) / vec2(size);
+    float depth = texture(depthMap, depthUV).r;
+    float depthLinearized = linearizeDepth(depth, 0.1f, 100.0f);
+
+    if (depthLinearized > 100.0f) // make 100 actual distance value
+    {
+        vec3 final =  albedoTex;
+        imageStore(denoiseTex, pixelCoords, vec4(final, 1.0));
+        return;
+    }
     
     vec4 signalCombined = vec4( albedoTex * (directSignal + indirectSignal) + 
     ( (specularSignal + specularIndirectSignal) * reflectionSmoothness) + emissionSignal, 1.0f);
@@ -254,21 +276,19 @@ void main() {
     //imageStore(denoiseTex, pixelCoords, vec4(vec3(isNoisy), alphavalue)); 
     return;
     }
-
+    
     // if there is like no noise
     bool primaryskip = (isNoisy == 0.0f);
     //imageStore(denoiseTex, pixelCoords, vec4(signalCombined.xyz, alphavalue)); 
     //storeSignal(SIGNAL_DENOISE, pixelCoords, vec4(signalCombined.xyz, alphavalue));
-    //return; 
-
-    const ivec2 depthsize = textureSize(depthMap, 0);
-    vec2 depthUV = vec2(pixelCoords) / vec2(size);
-    float depth = texture(depthMap, depthUV).r;
-    float depthLinearized = linearizeDepth(depth, 0.1f, 100.0f);
+    //return;
+    
     vec3 currentNormal = texture(gNormal, depthUV).rgb;
 
     float depthThershold = 0.1f;
     float normalThreshold = 0.9f;
+    
+
 
     float dencity = 0.0f;
     if (!primaryskip)
@@ -308,6 +328,8 @@ void main() {
 
     float smoothRadius = newRadius;
 
+    //float smoothRadius = 1.0f;
+
     // final equaision should be albedo * GI + specular + emissive
     vec3 direct = vec3(0.0f);
     vec3 specular = vec3(0.0f);
@@ -316,12 +338,12 @@ void main() {
 
     vec3 indirect = vec3(0.0f);
     vec3 specularIndirect = vec3(0.0f);
-
+    vec3 emission = vec3(0.0f); //emissionSignal
 
     int lumaRadius = 5;
-    denoiseIndirect(int(smoothRadius), lumaRadius, depthLinearized, currentNormal, pixelCoords, size, indirect, specularIndirect, depthThershold, normalThreshold);
+    denoiseIndirect(int(smoothRadius), lumaRadius, depthLinearized, currentNormal, pixelCoords, size, indirect, specularIndirect, emission, depthThershold, normalThreshold);
 
-    vec3 emission = vec3(0.0f);
+    
     vec3 final = vec3(0.0f);
     //vec3 final = specularIndirect;
     //vec3 final = direct; // * albedoTex;

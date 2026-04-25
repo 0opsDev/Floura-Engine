@@ -35,6 +35,8 @@ Line3D* RenderClass::line;
 Texture* RenderClass::bluenoise;
 Texture* RenderClass::bayermatrix;
 bool RenderClass::doTAA = true;
+bool RenderClass::doBinaryAlpha = true;
+bool RenderClass::animateBinaryAlpha = true;
 
 Shader SolidColour;
 RenderQuad lightingRenderQuad;
@@ -294,25 +296,25 @@ void RenderClass::DeferredLightingPass() {
 	// skip 8 because of shadow map (i really need to use bindless on these)
 	
 	
-	glActiveTexture(GL_TEXTURE9);
+	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::gEmission);
 	glGenerateMipmap(GL_TEXTURE_2D);
-	GBLpass.setInt("gEmission", 9);
+	GBLpass.setInt("gEmission", 10);
 	
 
-	glActiveTexture(GL_TEXTURE10);
+	glActiveTexture(GL_TEXTURE11);
 	glBindTexture(GL_TEXTURE_2D, HistoryPass::hColour);
-	GBLpass.setInt("hColour", 10);
+	GBLpass.setInt("hColour", 11);
 	
 	// reserve 10 for depth
-	glActiveTexture(GL_TEXTURE11);
+	glActiveTexture(GL_TEXTURE12);
 	glBindTexture(GL_TEXTURE_2D, HistoryPass::hDepthTexture);
-	GBLpass.setInt("hDepthTexture", 11);
+	GBLpass.setInt("hDepthTexture", 12);
 	
 	// prior normals
-	glActiveTexture(GL_TEXTURE12);
+	glActiveTexture(GL_TEXTURE13);
 	glBindTexture(GL_TEXTURE_2D, HistoryPass::hNormal);
-	GBLpass.setInt("hNormal", 12);
+	GBLpass.setInt("hNormal", 13);
 	
 	
 	GBLpass.setFloat("NearPlane", Scene::maincamera.nearFar.x);

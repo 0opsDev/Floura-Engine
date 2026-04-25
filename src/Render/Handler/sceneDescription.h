@@ -38,6 +38,7 @@ public:
         uint64_t albedoHandle;
         uint64_t specularHandle;
         uint64_t normalHandle;
+        uint64_t emissionHandle;
     };
     
     struct rayModel

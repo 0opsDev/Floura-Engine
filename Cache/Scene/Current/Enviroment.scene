@@ -1,7 +1,7 @@
 [
     {
         "DefaultSkyboxPath": "Assets/Skybox/clearsky/Skybox.json",
-        "DirAmbient": 0.0,
+        "DirAmbient": 0.20000000298023224,
         "DirColour": [
             1.0,
             1.0,
@@ -9,34 +9,34 @@
         ],
         "DirEnabled": true,
         "DirRotation": [
-            150.39999389648438,
-            -121.0999984741211,
+            12.0,
+            156.6999969482422,
             0.0
         ],
         "DirSMMaxBias": 0.0020000000949949026,
         "DirSpecEnabled": true,
-        "DirSpecular": 1.0,
+        "DirSpecular": 5.0,
         "DoShadowMap": true,
         "DoSkyColour": false,
         "RenderSkybox": true,
         "SkyRotation": [
             0.0,
-            180.0,
+            0.0,
             0.0
         ],
         "dirNearFar": [
             0.10000000149011612,
-            146.0
+            238.0
         ],
-        "dirShadowMapHardness": 2,
+        "dirShadowMapHardness": 4,
         "dirShadowMapSamples": 1,
-        "dirSmDistance": 30.0,
-        "dirSmHeight": 66.0,
-        "indirectSamples": 8,
+        "dirSmDistance": 32.0,
+        "dirSmHeight": 85.0,
+        "indirectSamples": 12,
         "skyRGBA": [
-            0.0,
-            0.0,
-            0.0
+            0.03835063427686691,
+            0.03835063427686691,
+            0.09313726425170898
         ]
     }
 ]

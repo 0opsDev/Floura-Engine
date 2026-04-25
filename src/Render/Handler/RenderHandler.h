@@ -52,6 +52,8 @@ public:
 		uint64_t instanceUUID;
 	};
 
+	static bool renderENV;
+	
 	static std::vector<modelObject> models;
 
 	static std::vector<renderQueueData> renderQueueDataVector;

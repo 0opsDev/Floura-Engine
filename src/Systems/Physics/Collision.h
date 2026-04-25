@@ -86,6 +86,8 @@ public:
 
 	// takes AABB return MinMax
 	static Collision::minmax returnMinMax(glm::vec3 p, glm::vec3 s);
+	
+	static glm::vec3 constrainPoint(glm::vec3 vp, glm::vec3 c2, float cArea);
 
 	// AABB collision detection
 	// AABB vs AABB

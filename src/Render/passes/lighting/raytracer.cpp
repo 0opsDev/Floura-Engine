@@ -120,6 +120,7 @@ void raytracer::uploadToRaytracer(uint64_t instanceUUID)
 			newMesh.albedoHandle = 0;
 			newMesh.specularHandle = 0;
 			newMesh.normalHandle = 0;
+			newMesh.emissionHandle = 0;
 
 
 			// i should probably get rid of my nested loopsat some stages, im just lazy so i keep using them
@@ -133,6 +134,7 @@ void raytracer::uploadToRaytracer(uint64_t instanceUUID)
 				if (type == "texture_diffuse")      newMesh.albedoHandle = handle;
 				else if (type == "texture_normal")  newMesh.normalHandle = handle;
 				else if (type == "texture_roughness") newMesh.specularHandle = handle;
+				else if (type == "texture_emission") newMesh.emissionHandle = handle;
 			}
 
 			//newMesh.albedoHandle = model->loadedTex

@@ -56,6 +56,7 @@ struct rayMesh
     uint64_t albedoHandle;
     uint64_t specularHandle;
     uint64_t normalHandle;
+    uint64_t emissionHandle;
 
 };
 
@@ -508,6 +509,22 @@ vec4 lightstrace(vec3 hitpos,vec3 normal, float maxDist)
     return lightcolour;
 }
 
+vec3 sampleHemisphere2(vec3 normal, float u, float v)
+{
+
+    float phi = 2.0 * 3.14159265 * u;
+    float cosTheta = sqrt(1.0 - v);
+    float sinTheta = sqrt(v);
+
+    vec3 localDir = vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+
+    vec3 helper = abs(normal.y) < 0.999 ? vec3(0, 1, 0) : vec3(1, 0, 0);
+    vec3 tangent = normalize(cross(helper, normal));
+    vec3 bitangent = cross(normal, tangent);
+
+    return tangent * localDir.x + bitangent * localDir.y + normal * localDir.z;
+}
+
 vec3 sampleHemisphere(vec3 normal)
 {
     float u = rand(vec2(gl_GlobalInvocationID.xy) + time); 
@@ -526,7 +543,7 @@ vec3 sampleHemisphere(vec3 normal)
     return tangent * localDir.x + bitangent * localDir.y + normal * localDir.z;
 }
 
-vec3 indirectTrace(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 normal, int bounces, int samples, float maxDist)
+vec3 indirectTrace(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 normal, int samples, float maxDist)
 {
     vec3 iColour = hitColour;
     vec3 currentOrigin = hit.lasthit;
@@ -535,15 +552,24 @@ vec3 indirectTrace(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 normal,
     vec3 currentCollisionNormal = hit.normal; 
 
     float dim = 1.0f;
-
-    for (int i = 0; i < bounces; i++)
-    {
+    
         for (int i = 0; i < samples; i++)
         {
             if (dim <= 0.0f) break;
             // calculate bounceDir off lightnormal
 
             // so this needs to be randomized in a sphere, and the samples will be okay because this is random
+
+            //vec2 noiseUV = vec2(gl_GlobalInvocationID.xy) / vec2(textureSize(BlueNoiseTex, 0));
+            
+           // vec2 scrollingUV = noiseUV + fract(time * vec2(12.9898, 78.233));
+            //vec2 blueNoise = texture(BlueNoiseTex, scrollingUV).rg;
+
+            //float u = fract(blueNoise.r + float(i) * 0.61803398875);
+            //float v = fract(blueNoise.g + float(i) * 0.61803398875);
+
+            //vec3 bounceDir = sampleHemisphere2(normalize(currentLightNormal), u , v);
+            
             vec3 bounceDir = sampleHemisphere(normalize(currentLightNormal));
 
             //if bounce dir points towards triangle, fallback to currentCollisionNormal
@@ -599,6 +625,71 @@ vec3 indirectTrace(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 normal,
             }
         }
 
+    return iColour;
+}
+
+vec3 emissionTrace(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 normal, int samples, float maxDist)
+{
+    vec3 iColour = hitColour;
+    vec3 currentOrigin = hit.lasthit;
+    vec3 currentDir = incidentDir;
+    vec3 currentLightNormal = normal;
+    vec3 currentCollisionNormal = hit.normal;
+
+    float dim = 1.0f;
+
+    for (int i = 0; i < samples; i++)
+    {
+        if (dim <= 0.0f) break;
+        vec3 bounceDir = sampleHemisphere(normalize(currentLightNormal));
+        
+        if (dot(bounceDir, currentCollisionNormal) < 0.0f) {
+            bounceDir = reflect(currentDir, currentCollisionNormal);
+        }
+
+        // offset collision normal
+        vec3 offsetOrigin = currentOrigin + (currentCollisionNormal * 0.001f);
+
+        hitResult res = BreadPhaseSceneTrace(offsetOrigin, bounceDir, maxDist);
+
+        if (res.hit)
+        {
+            currentOrigin = res.lasthit;
+            currentDir = bounceDir;
+            currentCollisionNormal = res.normal;
+
+            vec2 adjustedUV = res.uv * res.uvScale.xy;
+
+            sampler2D emissionSampler = sampler2D(meshes[res.meshIndex].emissionHandle);
+            vec4 emissionColour = texture(emissionSampler, adjustedUV);
+            
+            //sampler2D albedoSampler = sampler2D(meshes[res.meshIndex].albedoHandle);
+            //vec4 albedoColour = texture(albedoSampler, adjustedUV);
+
+            //vec3 specColour = vec3(0.0f, 0.0f, 0.0f);
+            //if (meshes[res.meshIndex].specularHandle != 0)
+            //{
+              //  sampler2D specularSampler = sampler2D(meshes[res.meshIndex].specularHandle);
+             //   specColour = texture(specularSampler, adjustedUV).rgb;
+            //}
+
+           // vec3 normColour = vec3(0.0f, 0.0f, 0.0f);
+            //vec3 NormalMap = res.lightNormal; // light normal fallback
+            //if (meshes[res.meshIndex].normalHandle != 0)
+            //{
+               // sampler2D normalSampler = sampler2D(meshes[res.meshIndex].normalHandle);
+              //  normColour = texture(normalSampler, adjustedUV).rgb;
+              //  normColour = normColour * 2.0f - 1.0f;
+             //   NormalMap = normalize(res.TBN * normColour.rgb);
+            //}
+
+            //currentLightNormal = NormalMap;
+            //vec4 shadowcolour = lightstrace(currentOrigin,NormalMap, maxDist);
+
+            //iColour += (shadowcolour.rgb * albedoColour.rgb) * 0.5f * specColour.g * dim;
+            iColour += emissionColour.rgb;
+            dim *= 0.5f;
+        }
     }
 
     return iColour;
@@ -742,7 +833,7 @@ vec3 reflectionIndirectPassBroad(hitResult hit, vec3 incidentDir, vec3 normal, v
             vec4 shadowcolour = lightstrace(currentOrigin,NormalMap, maxDist);
             vec3 albedoDirect = shadowcolour.rgb * albedoColour.rgb;
             //iColour += (shadowcolour.rgb * albedoColour.rgb) * 0.5f * dim;
-            vec3 indirectColour = indirectTrace(res, bounceDir, albedoDirect, NormalMap, iBounces, iSamples, maxDist);
+            vec3 indirectColour = indirectTrace(res, bounceDir, albedoDirect, NormalMap, iSamples, maxDist);
             iColour += indirectColour * 0.5f * specColour.b * dim;
             dim *= 0.5f;
         }
@@ -870,6 +961,13 @@ void main() {
             NormalMap = normalize(firstHit.TBN * normColour.rgb);
         }
 
+        vec4 emmColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        if (meshes[firstHit.meshIndex].specularHandle != 0)
+        {
+            sampler2D emissionSampler = sampler2D(meshes[firstHit.meshIndex].emissionHandle);
+            emmColour = texture(emissionSampler, adjustedUV);
+        }
+
         // g = roughness
         // b = metalic
 
@@ -881,7 +979,7 @@ void main() {
         if (indirectBounces > 0 && indirectSamples > 0 && !indirectskip)
         {
             indirectColour = indirectTrace(firstHit, rayDir, albedo.rgb * directColour, NormalMap,
-            indirectBounces, indirectSamples, reflectionDistance); // bounces then samples
+            indirectSamples, reflectionDistance); // bounces then samples
         
             if (reflectionBounces > 0){
                 specularIndirectColour = reflectionIndirectPassBroad(firstHit, rayDir, NormalMap, specColour.rgb, reflectionBounces,
@@ -890,8 +988,8 @@ void main() {
 
 
         }
-        emissionColour = vec3(0.0f); // for now
-
+        emissionColour = emissionTrace(firstHit, rayDir, emmColour.rgb, NormalMap, indirectSamples, reflectionDistance); // for now
+        //emissionColour = vec3(1.0f);
     }
 
     // noise

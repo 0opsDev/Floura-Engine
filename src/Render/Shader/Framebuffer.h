@@ -24,6 +24,8 @@ public:
 	static unsigned int FBO, RBO, screentexture;
 	static unsigned int FFBO, FRBO, Ftexture;
 	static unsigned int cmFBO, cmRBO, cmtexture;
+	
+	static float sharpness;
 
 	static void smInit(glm::vec2 res);
 

@@ -15,12 +15,24 @@
 //uint64_t gunID = 0;
 //uint64_t renderID = 0;
 
+uint64_t pivotPointID = 0;
+uint64_t victimPointID = 0;
+
 ocean* t;
 Shader temporaryTerrainShader;
 int size = 50;
 
 void FE_LAYER::init(){
 
+	victimPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"VictimPoint (FE_LAYER.CPP)", "Assets/Models/pdf_teto/scene.gltf", glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.100), glm::vec3(0.0f) );
+	pivotPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"PivPoint (FE_LAYER.CPP)", "Assets/Models/basic shapes/sphere.gltf", glm::vec3(0.0f, 5.0f, 0.0f),glm::vec3(1.0), glm::vec3(0.0f) );
+	
+	for (int i = 0; i < Scene::entityObjects.size(); ++i) 
+		if (victimPointID == Scene::entityObjects[i]->UUID){
+			Scene::entityObjects[i]->component.physics.hasRigidbody = true;
+			Scene::entityObjects[i]->component.physics.affectedByGravity = true;
+		}
+	
 	return;
 	
 	t = new ocean(20,size);
@@ -61,6 +73,17 @@ static void temporaryUpdateFunction(ocean* inputT, glm::vec3 p, glm::vec3 S, glm
 
 //glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
 void FE_LAYER::Update() {
+	glm::vec3 pPos = glm::vec3(0.0f, 0.0f, 0.0f);
+	
+	for (int i = 0; i < Scene::entityObjects.size(); ++i)  if (pivotPointID == Scene::entityObjects[i]->UUID) pPos = Scene::entityObjects[i]->fetchPosition();
+	
+	for (int i = 0; i < Scene::entityObjects.size(); ++i) 
+		if (victimPointID == Scene::entityObjects[i]->UUID){
+			Scene::entityObjects[i]->setPosition(Collision::constrainPoint(Scene::entityObjects[i]->fetchPosition(),glm::vec3(pPos), 10.0f));
+		}
+	
+	
+	
 	return;
 	temporaryUpdateFunction(t, glm::vec3(0.0, 0.0, 0.0), glm::vec3(1.0), glm::vec3(0.0));
 	

@@ -16,6 +16,7 @@
 #include "Render/passes/post/denoise.h"
 #include <Systems/util/relationshipManager.h>
 #include <Render/passes/dbg/dbgPass.h>
+#include <Render/Shader/FramebufferObject.h>
 //#include <Instance.h>
 
 
@@ -530,13 +531,8 @@ static const char* probeItems[]{ "SceneToProbeSpace","aabbsSceneToProbeSpace", "
 
 void FEImGuiWindow::RenderWindow() {
 	ImGui::Begin("Rendering"); // ImGUI window creation
-	if (ImGui::SmallButton("Reload Model Shaders?")) 
-	{
-		for (size_t i = 0; i < ShaderHandler::shaderObjects.size(); i++)
-		{
-			ShaderHandler::reloadShader(i);
-		}
-	}
+	if (ImGui::SmallButton("Reload Model Shaders?")) for (size_t i = 0; i < ShaderHandler::shaderObjects.size(); i++)ShaderHandler::reloadShader(i);
+	
 	if (ImGui::SmallButton("Reload Global Shaders")) RenderClass::initGlobalShaders();
 
 	if (ImGui::TreeNode("window")) {
@@ -559,6 +555,14 @@ void FEImGuiWindow::RenderWindow() {
 			ScreenUtils::toggleFullscreen(windowHandler::window, windowHandler::width, windowHandler::height); //needs to be fixed //GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight
 		} //Toggle Fullscreen
 
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+	
+	if (ImGui::TreeNode("General")) {
+		
+		ImGui::Checkbox("doBinaryAlpha", &RenderClass::doBinaryAlpha);
+		ImGui::Checkbox("animateBinaryAlpha", &RenderClass::animateBinaryAlpha);
+		
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	
@@ -591,8 +595,9 @@ void FEImGuiWindow::RenderWindow() {
 			ImGui::TreePop();// Ends The ImGui Window
 		}
 	//RenderClass::doTAA
-	if (ImGui::TreeNode("TAA")) {
+	if (ImGui::TreeNode("Anti Aliasing & Post")) {
 		ImGui::Checkbox("doTAA", &RenderClass::doTAA);
+		ImGui::DragFloat("post sharpness", &Framebuffer::sharpness);
 		
 		ImGui::TreePop();// Ends The ImGui Window
 	}

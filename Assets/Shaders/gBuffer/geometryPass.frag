@@ -39,6 +39,9 @@ uniform vec2 previousJitter;
 uniform vec2 scaledCurrentJitter;
 uniform vec2 scaledPreviousJitter;
 
+uniform bool doBinaryAlpha;
+uniform bool animateBinaryAlpha;
+
 uniform float time;
 
 vec3 CalcNewNormal()
@@ -79,10 +82,12 @@ void blueNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could
 {
 	sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
 	vec2 texSize = vec2(textureSize(bluemap, 0));
-	
-	// uv
-	vec2 offset = vec2(fract(frame * 0.618), fract(frame * 0.133));
+
+	vec2 offset = vec2(0.0,0.0);
+	if (animateBinaryAlpha) offset = vec2(fract(frame * 0.618), fract(frame * 0.133));
+
 	vec2 noiseUV = (gl_FragCoord.xy / texSize) + offset;
+
 	
 	float noise = texture(bluemap, noiseUV).r;
 	
@@ -134,7 +139,7 @@ void main()
     if (albedoTex.a <= 0.0) // Adjust threshold if needed
     discard;
 
-	blueNoiseOpacity(albedoTex.a);
+	if (doBinaryAlpha) blueNoiseOpacity(albedoTex.a);
 	//BayerNoiseOpacity(albedoTex.a);
 
 	gPosition = crntPos; // Output position as-is
@@ -151,9 +156,8 @@ void main()
 	//gSpecular.rgb = vec3(1.0f, 0.0f, 0.0f);
 	gSpecular = texture(sSamp, texCoord);
 	//gVelocity = vec4(vec3(1.0, 0.0, 0.0), 1.0);
-
-	sampler2D emissionSamp = sampler2D(texture_emission_Handle);
-	vec3 emission = texture(emissionSamp, texCoord).rgb;
+	
+	vec3 emission = texture(sampler2D(texture_emission_Handle), texCoord).rgb;
 	gEmission = emission;
 	//gEmission
 }

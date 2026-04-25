@@ -21,11 +21,11 @@ function update() -- called once per frame
      transform.positionX = transform.positionX + speed * dt;
     end
 
-    --if transform.positionY > camera.positionY - 2.2 then
-    --transform.positionY = transform.positionY - speed * dt;
-    --elseif transform.positionY < camera.positionY - 2.2 then
-    -- transform.positionY = transform.positionY + speed * dt;
-    --end
+    if transform.positionY > camera.positionY - 2.2 then
+    transform.positionY = transform.positionY - speed * dt;
+    elseif transform.positionY < camera.positionY - 2.2 then
+     transform.positionY = transform.positionY + speed * dt;
+    end
 
     if transform.positionZ > camera.positionZ + elipson then
     transform.positionZ = transform.positionZ - speed * dt;

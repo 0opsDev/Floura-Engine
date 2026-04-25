@@ -1,6 +1,6 @@
 [
     {
-        "DefaultSkyboxPath": "Assets/Skybox/clearsky/Skybox.json",
+        "DefaultSkyboxPath": "temp/sb/galaxy/Skybox.json",
         "DirAmbient": 0.0,
         "DirColour": [
             1.0,
@@ -9,8 +9,8 @@
         ],
         "DirEnabled": true,
         "DirRotation": [
-            149.8000030517578,
-            46.20000076293945,
+            40.70000076293945,
+            -184.8000030517578,
             -7.300000190734863
         ],
         "DirSMMaxBias": 0.014999999664723873,
@@ -26,17 +26,17 @@
         ],
         "dirNearFar": [
             0.10000000149011612,
-            99.0
+            279.0
         ],
         "dirShadowMapHardness": 4,
         "dirShadowMapSamples": 2,
-        "dirSmDistance": 80.0,
-        "dirSmHeight": 31.0,
-        "indirectSamples": 12,
+        "dirSmDistance": 96.0,
+        "dirSmHeight": 94.0,
+        "indirectSamples": 8,
         "skyRGBA": [
-            1.0,
-            1.0,
-            1.0
+            0.034313738346099854,
+            0.034313738346099854,
+            0.034313738346099854
         ]
     }
 ]

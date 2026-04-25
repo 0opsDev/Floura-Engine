@@ -447,6 +447,22 @@ void Reflect(vec3 albedo,  vec3 iNormal, vec3 viewVector, out vec3 diffuse, out 
     }
 }
 
+vec3 sampleHemisphere2(vec3 normal, float u, float v)
+{
+
+    float phi = 2.0 * 3.14159265 * u;
+    float cosTheta = sqrt(1.0 - v);
+    float sinTheta = sqrt(v);
+
+    vec3 localDir = vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+
+    vec3 helper = abs(normal.y) < 0.999 ? vec3(0, 1, 0) : vec3(1, 0, 0);
+    vec3 tangent = normalize(cross(helper, normal));
+    vec3 bitangent = cross(normal, tangent);
+
+    return tangent * localDir.x + bitangent * localDir.y + normal * localDir.z;
+}
+
 vec3 sampleHemisphere(vec3 normal, float random)
 {
     float u = rand(vec2(gl_FragCoord.xy) + random);
@@ -491,7 +507,18 @@ vec3 indirectIBL(int samples, vec3 ARM, vec3 iNormal, vec3 viewVector)
     for (int i = 0; i < samples; i++)
     {
         //gl_FragCoord
-        vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), rand(vec2(i + (gl_FragCoord.z * time) ) * vec2(1, 2)) );
+        //vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), rand(vec2(i + (gl_FragCoord.z * time) ) * vec2(1, 2)) );
+
+        sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
+        vec2 noiseUV = vec2(gl_FragCoord.xy) / vec2(textureSize(bluemap, 0)); // new uvec2
+
+        vec2 scrollingUV = noiseUV + fract(time * vec2(12.9898, 78.233));
+        vec2 blueNoise = texture(bluemap, scrollingUV).rg;
+
+        float u = fract(blueNoise.r + float(i) * 0.61803398875);
+        float v = fract(blueNoise.g + float(i) * 0.61803398875);
+
+        vec3 randomDir = sampleHemisphere2(normalize(NreflectedVector), u , v);
         //vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + (gl_FragCoord.z * time) );
         //vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + time); // i thought it would be better to add time for a film grain look, it would also solve with taa
 
@@ -583,6 +610,7 @@ void main()
     
     FragColor = vec4(final + nEmissionblur, 1.0f);
     //FragColor = vec4(nEmissionblur, 1.0f);
+    //FragColor  = vec4(emission, 1.0f);
     //FragColor = final;
 
     //FragColor = vec4(vec3(hDepthLinearized) , 1.0);

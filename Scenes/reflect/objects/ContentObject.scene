@@ -76,5 +76,17 @@
         "ObjectType": "Model",
         "Path": "Assets/Models/basic shapes 2/plane.gltf",
         "Type": "NULL"
+    },
+    {
+        "Name": "Name",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/sphere/met.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "galaxy2",
+        "ObjectType": "Skybox",
+        "Path": "temp/sb/galaxy2/Skybox.json",
+        "Type": "NULL"
     }
 ]

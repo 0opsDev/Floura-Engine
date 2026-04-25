@@ -25,24 +25,16 @@ void Material::LoadMaterial(std::string path)
 	ClearMaterial();
 	materialPath = path;
 	jsonLoad(path);
-	if (type == "Standard")
-	{
+	if (type == "Standard"){
 		modelShaderUUID = ShaderHandler::createShader((VertexShaderPath).c_str(), (FragmentShaderPath).c_str());
 		modelGpassShaderUUID = ShaderHandler::createShader((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str());
-
-		//ModelShader.LoadShader((VertexShaderPath).c_str(), (FragmentShaderPath).c_str());
-		//ModelGpassShader.LoadShader((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str());
+		//modelMpassShaderUUID = ShaderHandler::createShader((VertexMPShaderPath).c_str(), (FragmentMPShaderPath).c_str());
 	}
-	else if (type == "Geometry")
-	{
+	else if (type == "Geometry"){
 		modelShaderUUID = ShaderHandler::createGeometry((VertexShaderPath).c_str(), (FragmentShaderPath).c_str(), (GeometryShaderPath).c_str());
 		modelGpassShaderUUID = ShaderHandler::createGeometry((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str(), (GeometryGPShaderPath).c_str());
-
-		//ModelShader.LoadShaderGeom((VertexShaderPath).c_str(), (FragmentShaderPath).c_str(), (GeometryShaderPath).c_str());
-		//ModelGpassShader.LoadShaderGeom((VertexGPShaderPath).c_str(), (FragmentGPShaderPath).c_str(), (GeometryGPShaderPath).c_str());
+		//modelMpassShaderUUID = ShaderHandler::createGeometry((VertexMPShaderPath).c_str(), (FragmentMPShaderPath).c_str(), (GeometryMPShaderPath).c_str());
 	}
-
-	// should prolly add back
 }
 
 void Material::ClearMaterial()
@@ -129,11 +121,20 @@ void Material::jsonLoad(std::string path)
 		VertexGPShaderPath = item.at("GPassVertShader").get<std::string>();
 		// if they exsist 
 		if (item.contains("GeomShader")) {
-			GeometryShaderPath = item.at("GeomShader").get<std::string>();
-		}
+			GeometryShaderPath = item.at("GeomShader").get<std::string>();}
 		if (item.contains("GeometryGPShaderPath")) {
-			GeometryGPShaderPath = item.at("GeometryGPShaderPath").get<std::string>();
-		}
+			GeometryGPShaderPath = item.at("GeometryGPShaderPath").get<std::string>();}
+		
+		// mpass
+		if (item.contains("GeomMPSShader")){
+			hasMaskPass = true;
+			GeometryMPShaderPath =  item.at("GeomMPSShader").get<std::string>();}
+		if (item.contains("MPassFragShader")){
+			hasMaskPass = true;
+			FragmentMPShaderPath =  item.at("MPassFragShader").get<std::string>();}
+		if (item.contains("MPassVertShader")){
+			hasMaskPass = true;
+			VertexMPShaderPath =  item.at("MPassVertShader").get<std::string>();}
 
 	}
 	//std::cout << "Loaded Scene Models from: " << path << std::endl;

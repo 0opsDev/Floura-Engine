@@ -215,6 +215,20 @@ Collision::minmax Collision::returnMinMax(glm::vec3 p, glm::vec3 s)
 	return newMinMax;
 }
 
+glm::vec3 Collision::constrainPoint(glm::vec3 vp, glm::vec3 c2, float cArea)
+{
+	// check if inside the radius, otherwise fail
+	if  (SphereVsPoint(c2, cArea, vp)) return vp;
+	
+	// get normal of two positons from point pointing to victim
+	glm::vec3 direction = c2 - vp;
+	glm::vec3 normal = glm::normalize(direction);
+	// clamp inside
+	glm::vec3 clampedPosition = c2 - normal * cArea;
+	
+	return clampedPosition;
+}
+
 Collision::HitResult Collision::AABBvsAABB(
 	const glm::vec3& posA, const glm::vec3& sizeA,
 	const glm::vec3& posB, const glm::vec3& sizeB)

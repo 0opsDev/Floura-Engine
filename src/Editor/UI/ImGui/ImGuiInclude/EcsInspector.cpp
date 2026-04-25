@@ -56,6 +56,7 @@ void EcsInspector::InspectorWindow() {
 	else if (FEImGuiWindow::SelectedObjectType == "Environment")
 	{
 		ImGui::Checkbox("doReflections", &RenderClass::doReflections);
+		ImGui::Checkbox("renderENV", &RenderHandler::renderENV);
 		ImGui::Spacing();
 		ImGui::Checkbox("doFog", &RenderClass::doFog); 		//Toggles
 		ImGui::ColorEdit3("fog RGBA", &RenderClass::fogRGBA.r);	// sky and light
@@ -111,6 +112,14 @@ void EcsInspector::ModelWindow() {
 		ImGui::DragFloat2("UV Scale", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.systems.material.uvScale.x);
 		ImGui::DragFloat("reflective smoothness", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.smoothnessValue);
 
+		
+		if (ImGui::TreeNode("Meshes")) {
+			
+			// should do materials here, they need an overvamp anyways, a manager and to be per mesh
+			
+			ImGui::TreePop();// Ends The ImGui Window
+		}
+		
 		//smoothnessValue
 		ImGui::TreePop();// Ends The ImGui Window
 	}

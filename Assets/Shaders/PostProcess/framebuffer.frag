@@ -15,6 +15,7 @@ uniform sampler2D dbgColour;
 uniform bool overlayDebug;
 
 uniform float gamma;
+uniform float sharpness;
 
 float calculateExposure(vec3 avgColor)
 {
@@ -45,8 +46,38 @@ vec3 ACESFilm(vec3 x) {
 }
 
 
+const float offset_x = 1.0f / 1605.0f;
+const float offset_y = 1.0f / 885.0f;
+
+vec2 offsets[9] = vec2[]
+(
+vec2(-offset_x,  offset_y), vec2( 0.0f,    offset_y), vec2( offset_x,  offset_y),
+vec2(-offset_x,  0.0f),     vec2( 0.0f,    0.0f),     vec2( offset_x,  0.0f),
+vec2(-offset_x, -offset_y), vec2( 0.0f,   -offset_y), vec2( offset_x, -offset_y)
+);
+
+float kernel[9] = float[](
+0.0, -1.0,  0.0,
+-1.0,  5.0, -1.0,
+0.0, -1.0,  0.0
+);
+
+
+
 void main() {
-    vec3 colour = texture(screenTexture, texCoords).rgb;
+    //vec3 colour = texture(screenTexture, texCoords).rgb;
+    
+    vec2 texelSize = 1.0 / textureSize(screenTexture, 0);
+    
+    float neighbor = sharpness * -1.0;
+    float center = sharpness * 4.0 + 1.0;
+    
+    vec3 colour =
+    texture(screenTexture, texCoords + vec2(0, texelSize.y)).rgb * neighbor +
+    texture(screenTexture, texCoords + vec2(-texelSize.x, 0)).rgb * neighbor +
+    texture(screenTexture, texCoords).rgb * center +
+    texture(screenTexture, texCoords + vec2(texelSize.x, 0)).rgb * neighbor +
+    texture(screenTexture, texCoords + vec2(0, -texelSize.y)).rgb * neighbor;
     
     int lastLOD = textureQueryLevels(screenTexture) - 1;
 	vec3 avgColor = textureLod(screenTexture, vec2(0.5, 0.5), lastLOD).rgb;

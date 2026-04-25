@@ -77,8 +77,6 @@ public:
 		float smoothnessValue = 0.0f;
 		bool dirtyTransform = false;
 		bool drawInstanced = false;
-
-
 	};
 
 	struct relationship

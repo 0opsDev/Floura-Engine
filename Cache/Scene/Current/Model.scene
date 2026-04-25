@@ -2,8 +2,76 @@
     {
         "CastShadow": true,
         "Location": [
+            3.758340835571289,
+            0.9842240214347839,
+            2.6915395259857178
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
             0.0,
-            -2.0,
+            52.29999923706055,
+            39.099998474121094
+        ],
+        "Scale": [
+            0.30000001192092896,
+            0.30000001192092896,
+            0.30000001192092896
+        ],
+        "Scripts": [],
+        "UUID": "57cf229b7d9ccdde",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "drop_imported",
+        "parentUUID": "0000000000000000",
+        "path": "C:/Users/anon/Pictures/knife/BayonetKnife.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            4.563844203948975,
+            0.9922035336494446,
+            1.698020100593567
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            60.5,
+            0.0
+        ],
+        "Scale": [
+            0.30000001192092896,
+            0.30000001192092896,
+            0.30000001192092896
+        ],
+        "Scripts": [],
+        "UUID": "ee6da12ffdcd7cc8",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "drop_imported",
+        "parentUUID": "0000000000000000",
+        "path": "C:/Users/anon/Pictures/shotgun/pump.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            0.0,
+            0.0,
             0.0
         ],
         "MaterialPath": "Assets/Material/Default.Material",
@@ -13,32 +81,32 @@
             0.0
         ],
         "Scale": [
-            500.0,
-            500.0,
-            500.0
+            50.0,
+            50.0,
+            50.0
         ],
         "Scripts": [],
-        "UUID": "8ee36d78d14766eb",
+        "UUID": "ac2ce3ccbbe63e5a",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
         "hasParent": false,
         "isBackFaceCulling": true,
-        "name": "plane",
+        "name": "plane bs2",
         "parentUUID": "0000000000000000",
         "path": "Assets/Models/basic shapes 2/plane.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
-            500.0,
-            500.0
+            50.0,
+            50.0
         ]
     },
     {
         "CastShadow": true,
         "Location": [
-            -2.0,
-            0.6499999761581421,
-            0.0
+            10.779677391052246,
+            1.657523512840271,
+            12.347537994384766
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -52,7 +120,7 @@
             1.0
         ],
         "Scripts": [],
-        "UUID": "bd164907aa961e18",
+        "UUID": "ea2d06b2f13d41fd",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
@@ -60,7 +128,7 @@
         "isBackFaceCulling": true,
         "name": "fence",
         "parentUUID": "0000000000000000",
-        "path": "Assets/Models/fence/fence.gltf",
+        "path": "temp/fence/fence.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
@@ -70,9 +138,9 @@
     {
         "CastShadow": true,
         "Location": [
-            -2.0,
-            0.6499999761581421,
-            -4.849999904632568
+            1.7969579696655273,
+            0.07819490134716034,
+            -0.3987152576446533
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -86,15 +154,15 @@
             1.0
         ],
         "Scripts": [],
-        "UUID": "d823a1d966fccf83",
+        "UUID": "805bec528976d9f9",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
         "hasParent": false,
         "isBackFaceCulling": true,
-        "name": "fence",
+        "name": "drop_imported",
         "parentUUID": "0000000000000000",
-        "path": "Assets/Models/fence/fence.gltf",
+        "path": "C:/Users/anon/Pictures/shotgun/bullet/bulletfinal.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
@@ -104,9 +172,111 @@
     {
         "CastShadow": true,
         "Location": [
+            1.82240891456604,
+            0.028860390186309814,
+            -0.31746339797973633
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            -90.0,
             0.0,
-            -1.0,
+            -35.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "Scripts": [],
+        "UUID": "f2c73ce5155bca7f",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "drop_imported",
+        "parentUUID": "0000000000000000",
+        "path": "C:/Users/anon/Pictures/shotgun/bullet/bulletfinal.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            1.6887831687927246,
+            0.028632983565330505,
+            -0.33590784668922424
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            -90.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "Scripts": [],
+        "UUID": "dfe866a327f102cf",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "drop_imported",
+        "parentUUID": "0000000000000000",
+        "path": "C:/Users/anon/Pictures/shotgun/bullet/bulletfinal.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            4.148109436035156,
+            -0.25748032331466675,
+            2.2355005741119385
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            -130.5,
             0.0
+        ],
+        "Scale": [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
+        ],
+        "Scripts": [],
+        "UUID": "b06bd473bd6c0d93",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "pdf_teto",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/pdf_teto/scene.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -3.5880448818206787,
+            31.10504913330078,
+            22.21644401550293
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -115,234 +285,64 @@
             0.0
         ],
         "Scale": [
-            20.0,
-            20.0,
-            20.0
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
+        ],
+        "Scripts": [],
+        "UUID": "1192f83dcbd1d88f",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "VictimPoint (FE_LAYER.CPP)",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/pdf_teto/scene.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -3.588045358657837,
+            41.10504913330078,
+            22.216440200805664
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            -4994.50341796875,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
         ],
         "Scripts": [
             {
-                "UUID": "a79fba8a910ed88e",
+                "UUID": "f8c89eb9d5d61d28",
                 "name": "New Script",
-                "path": "Assets/Scripts/helloWorld.Lua"
+                "path": "Assets/Scripts/rotate.Lua"
             }
         ],
-        "UUID": "e873d8d9c0bb6abb",
+        "UUID": "301cc33e58bb6df9",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
         "hasParent": false,
         "isBackFaceCulling": true,
-        "name": "coast_sand_rock",
+        "name": "PivPoint (FE_LAYER.CPP)",
         "parentUUID": "0000000000000000",
-        "path": "temp/planes/coast_sand_rock.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            20.0,
-            20.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            0.0,
-            0.30000001192092896,
-            3.5
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            12.0,
-            1.2999999523162842,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "f6edf54c963a6731",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "brickcube",
-        "parentUUID": "0000000000000000",
-        "path": "temp/planes/brickcube.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            12.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -8.710705757141113,
-            -1.194406509399414,
-            8.902807235717773
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            0.009999999776482582,
-            0.009999999776482582,
-            0.009999999776482582
-        ],
-        "Scripts": [],
-        "UUID": "ef863b87b74c103b",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "white_oak",
-        "parentUUID": "0000000000000000",
-        "path": "temp/white_oak/white_oak.obj",
+        "path": "Assets/Models/basic shapes/sphere.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
             1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            2.4841527938842773,
-            -1.0151900053024292,
-            10.62486457824707
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            2.49773907661438,
-            77.62091064453125,
-            4.6061015129089355
-        ],
-        "Scale": [
-            0.009999999776482582,
-            0.009999999776482582,
-            0.009999999776482582
-        ],
-        "Scripts": [],
-        "UUID": "409593d5ab4d0819",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "white_oak",
-        "parentUUID": "0000000000000000",
-        "path": "temp/white_oak/white_oak.obj",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -3.0,
-            -0.9789999723434448,
-            14.399999618530273
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            -2.5999999046325684,
-            58.0,
-            -2.799999952316284
-        ],
-        "Scale": [
-            0.009999999776482582,
-            0.009999999776482582,
-            0.009999999776482582
-        ],
-        "Scripts": [],
-        "UUID": "2cd97ead91e52cb3",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "white_oak",
-        "parentUUID": "0000000000000000",
-        "path": "temp/white_oak/white_oak.obj",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -13.301838874816895,
-            -1.1140668392181396,
-            -1.0735559463500977
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            -6.599999904632568,
-            68.69999694824219,
-            8.600000381469727
-        ],
-        "Scale": [
-            0.01080000028014183,
-            0.01080000028014183,
-            0.01080000028014183
-        ],
-        "Scripts": [],
-        "UUID": "cc1c15c0ef823279",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "white_oak",
-        "parentUUID": "0000000000000000",
-        "path": "temp/white_oak/white_oak.obj",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -12.110944747924805,
-            13.929012298583984,
-            42.75872802734375
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            -25.0,
-            0.0
-        ],
-        "Scale": [
-            2.0,
-            3.0,
-            2.0
-        ],
-        "Scripts": [],
-        "UUID": "898a710ff2f0f55f",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "tower",
-        "parentUUID": "0000000000000000",
-        "path": "temp/planes/tower.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            3.0,
-            2.0
         ]
     }
 ]

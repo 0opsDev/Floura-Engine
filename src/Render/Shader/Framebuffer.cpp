@@ -27,6 +27,7 @@ unsigned int Framebuffer::cmFBO;
 unsigned int Framebuffer::cmRBO;
 unsigned int Framebuffer::cmtexture;
 
+float Framebuffer::sharpness = 0.2f;
 
 RenderQuad Framebuffer::rq;
 
@@ -215,6 +216,7 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	frameBufferProgram.setMat4("cameraMatrix", Scene::maincamera.cameraMatrix);
 	frameBufferProgram.setFloat("time", glfwGetTime());
 	frameBufferProgram.setFloat("deltaTime", TimeUtil::deltatime);
+	frameBufferProgram.setFloat("sharpness", sharpness);
 	frameBufferProgram.setBool("overlayDebug", dbgPass::overlayDebug);
 
 	// draw the framebuffer

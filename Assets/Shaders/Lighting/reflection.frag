@@ -63,6 +63,8 @@ uniform float NearPlane;
 uniform float FarPlane;
 uniform vec3 camPositon;
 
+uniform bool doBinaryAlpha;
+
 float linearizeDepth(float depth, float NP, float FP)
 {
 	return (2.0 * NP * FP) / (FP + NP - (depth * 2.0 - 1.0) * (FP - NP));
@@ -239,7 +241,7 @@ void BayerNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (coul
 
 	float scrollSpeed = 0.5;
 
-	bayUV = fract(bayUV + (scrollSpeed * time));
+	//bayUV = fract(bayUV + (scrollSpeed * time));
 
 	float bayer = texture(baySamp, bayUV).r;
 
@@ -279,7 +281,7 @@ void main()
 	if (albedo.a <= 0.0)
 	discard;
 
-	BayerNoiseOpacity(albedo.a);
+	if (doBinaryAlpha) BayerNoiseOpacity(albedo.a);
 
 	vec3 direct = lights(lodcount, linearizedDepth).rgb;
 

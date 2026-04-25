@@ -91,6 +91,9 @@ in vec3 NviewVector;
 uniform uint64_t cmMainHandle;
 uniform float smoothnessValue;
 
+uniform bool doBinaryAlpha;
+uniform bool animateBinaryAlpha;
+
 float linearizeDepth(float depth, float NP, float FP)
 {
 	return (2.0 * NP * FP) / (FP + NP - (depth * 2.0 - 1.0) * (FP - NP));
@@ -334,6 +337,23 @@ float rand(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+
+vec3 sampleHemisphere2(vec3 normal, float u, float v)
+{
+
+	float phi = 2.0 * 3.14159265 * u;
+	float cosTheta = sqrt(1.0 - v);
+	float sinTheta = sqrt(v);
+
+	vec3 localDir = vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+
+	vec3 helper = abs(normal.y) < 0.999 ? vec3(0, 1, 0) : vec3(1, 0, 0);
+	vec3 tangent = normalize(cross(helper, normal));
+	vec3 bitangent = cross(normal, tangent);
+
+	return tangent * localDir.x + bitangent * localDir.y + normal * localDir.z;
+}
+
 vec3 sampleHemisphere(vec3 normal, float random)
 {
     float u = rand(vec2(gl_FragCoord.xy) + random); 
@@ -433,8 +453,9 @@ bool blueNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could
 	sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
 	vec2 texSize = vec2(textureSize(bluemap, 0));
 
-	// uv
-	vec2 offset = vec2(fract(frame * 0.618), fract(frame * 0.133));
+	vec2 offset = vec2(0.0,0.0);
+	if (animateBinaryAlpha) offset = vec2(fract(frame * 0.618), fract(frame * 0.133));
+	
 	vec2 noiseUV = (gl_FragCoord.xy / texSize) + offset;
 
 	float noise = texture(bluemap, noiseUV).r;
@@ -535,11 +556,29 @@ vec3 indirectIBL(int samples, sampler2D specSamp)
 
 	if (samples <= 0) return indirectColour;
 
+	sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
+	vec2 noiseUV = vec2(gl_FragCoord.xy) / vec2(textureSize(bluemap, 0));
+	vec2 scrollingUV = noiseUV + fract(time * vec2(12.9898, 78.233));
+	
 	for (int i = 0; i < samples; i++)
 	{
 	//gl_FragCoord
-		vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + (gl_FragCoord.z * time));
-		//vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + time); // i thought it would be better to add time for a film grain look, it would also solve with taa
+		//vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + (gl_FragCoord.z * time));
+		vec2 blueNoise = texture(bluemap, scrollingUV).rg;
+
+		float u = fract(blueNoise.r + float(i) * 0.61803398875);
+		float v = fract(blueNoise.g + float(i) * 0.61803398875);
+
+		//float u = texture(bluemap, scrollingUV).r;
+		//float v = texture(bluemap, scrollingUV + vec2(0.5)).g;
+
+		//float u = texture(bluemap, scrollingUV).r;
+		//float v = texture(bluemap, scrollingUV + vec2(0.5)).r;
+		//float v = fract(u + 0.61803398875);
+		
+		//vec3 randomDir = sampleHemisphere2(normalize(NreflectedVector), u , v);
+		
+		vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + time); // i thought it would be better to add time for a film grain look, it would also solve with taa
 
 			//int skyLOD = textureQueryLevels(skybox) - 4; // use mipmap for more preformance
 			vec3 skyboxColour = textureLod(cmSamp, randomDir, lod).rgb; 
@@ -585,8 +624,7 @@ void main()
 	if (albedo.a <= 0.0)
 	discard;
 
-
-	if (blueNoiseOpacity(albedo.a)) discard;
+	if (blueNoiseOpacity(albedo.a) && doBinaryAlpha) discard;
 	//if (BayerNoiseOpacity(albedo.a)) discard;
 	vec3 specular = vec3(0.0f);
 	vec3 diffuse  = vec3(0.0f);
