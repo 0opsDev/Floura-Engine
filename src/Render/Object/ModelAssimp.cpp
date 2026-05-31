@@ -55,11 +55,29 @@ void Model::updatePrevTranformation()
     }
 }
 
+void Model::childrenRangeCull(glm::vec3 position, float range)
+{
+    //return;
+    //rootnodes
+    
+    for (unsigned int i = 0; i < rootnodes.size(); i++)
+    {
+        if (!Collision::AABBtoSphereRangeCull(rootnodes[i].position, rootnodes[i].size, position, range) ) meshes[i].culled = true;
+    }  
+}
 
-Model::Model(const char* file)
+
+Model::Model(const char* file, bool disableConstructorLoading, bool disableInitialMeshUploadToVBO, bool disableInitialTextureUploadToGPU)
 {
     UUID = UUID::returnHandle();
-    loadModel(file);
+    path = file;
+    
+    disableConstructorLoadingModelFlag = disableConstructorLoading;
+    disableInitialMeshUploadToVBOFlag = disableInitialMeshUploadToVBO;
+    disableInitialTextureUploadToGPUFlag = disableInitialTextureUploadToGPU;
+    
+    // if not enabled then we can load
+    if (!disableConstructorLoadingModelFlag) loadModel(file);
 }
 
 Model::~Model() {
@@ -86,17 +104,28 @@ Model::~Model() {
 
 }
 
+void Model::loadModelPathless()
+{
+    loadModel(path);
+}
+
 void Model::draw(Shader& shader, Camera Camera)
 {
+    if (!loaded) return;
+    
 	// draw all meshes and parse in data
     for (unsigned int i = 0; i < meshes.size(); i++)
     {
+        //Collision::Sphere nSphere = Collision::AABBtoSphere(rootnodes[i].position, rootnodes[i].size);
+        
+      //  if (Camera.isRadiusInFrustum(nSphere.position, nSphere.radius))
         meshes[i].draw(shader, Camera);
     }  
 }
 
 void Model::drawInstance(Shader& shader, Camera Camera, int instanceCount)
 {
+    if (!loaded) return;
     for (unsigned int i = 0; i < meshes.size(); i++)
     {
         meshes[i].drawInstanced(shader, Camera, instanceCount);
@@ -105,6 +134,7 @@ void Model::drawInstance(Shader& shader, Camera Camera, int instanceCount)
 
 void Model::createMeshAABBs()
 {
+    if (!loaded) return;
     meshAabbPoints.clear();
     rootnodes.clear();
 
@@ -123,6 +153,7 @@ void Model::createMeshAABBs()
 
 void Model::updateMeshAABBs()
 {
+    if (!loaded) return;
     for (size_t i = 0; i < meshes.size(); i++)
     {
         Collision::AABB newRootNode;
@@ -134,6 +165,9 @@ void Model::updateMeshAABBs()
 
 void Model::loadModel(std::string path)
 {
+    if (loaded) return; // prevent loading loop
+    
+    loaded = true; // im putting this first to avoid any loading loops with the load function i wanna use
     Assimp::Importer import;
     const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices);
     //const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -197,6 +231,7 @@ void Model::processPositions(aiNode* node)
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
+    
     // primary mesh data extraction
     std::vector<Vertex> vertices = assembleVertices(mesh);
     std::vector<GLuint> indices = assembleIndices(mesh);
@@ -207,6 +242,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     aiString name = mesh->mName;
     Mesh nMesh;
 	nMesh.name = name.C_Str();
+    //std::cout << "disableInitialMeshUploadToVBOFlag: " << disableInitialMeshUploadToVBOFlag << std::endl;
+    if (disableInitialMeshUploadToVBOFlag) nMesh.suppressSetupMeshCall = true; // if flag is enabled, suppress uploading to the gpu
     nMesh.create(vertices, indices, textures);
     return Mesh(nMesh);
 }
@@ -364,13 +401,13 @@ std::vector<Texture> Model::assembleMaterials(aiMesh* mesh, const aiScene* scene
 
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-        std::vector<Texture> diffuseMaps = aloadMaterialTextures(material,
+        std::vector<Texture> diffuseMaps = loadMaterialTextures(material,
             aiTextureType_DIFFUSE, "texture_diffuse", 0);
-        std::vector<Texture> roughnessMaps = aloadMaterialTextures(material,
+        std::vector<Texture> roughnessMaps = loadMaterialTextures(material,
             aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness", 1); // Note: Could also be aiTextureType_SHININESS
-        std::vector<Texture> normalMaps = aloadMaterialTextures(material,
+        std::vector<Texture> normalMaps = loadMaterialTextures(material,
             aiTextureType_NORMALS, "texture_normal", 2);
-        std::vector<Texture> emissionMaps = aloadMaterialTextures(material,
+        std::vector<Texture> emissionMaps = loadMaterialTextures(material,
             aiTextureType_EMISSIVE, "texture_emission", 3);
 
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
@@ -383,7 +420,7 @@ std::vector<Texture> Model::assembleMaterials(aiMesh* mesh, const aiScene* scene
     return textures;
 }
 
-std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType type,
+std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
     std::string typeName, int slot)
 {
     std::vector<Texture> textures;
@@ -439,6 +476,7 @@ std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType
         //std::cout << "colour: " << " r: " << colourFloat.x << " g: " << colourFloat.y << " b: " << colourFloat.z << std::endl;
 
         Texture texture;
+        if (disableInitialTextureUploadToGPUFlag) texture.suppressCreation = true; // if the flag is enabled, suppress the entire texture from being loaded, and store the vars to be reused
         texture.createColour(colourFloat, (typeName).c_str(), slot);
         textures.push_back(texture);
         loadedTex.push_back(texture);
@@ -464,6 +502,7 @@ std::vector<Texture> Model::aloadMaterialTextures(aiMaterial* mat, aiTextureType
         if (!skip)
         {
             Texture texture;
+            if (disableInitialTextureUploadToGPUFlag) texture.suppressCreation = true; // if the flag is enabled, suppress the entire texture from being loaded, and store the vars to be reused
             std::string path = directory + "/" + str.C_Str();
             texture.linearFilter = true;
             texture.createTexture(path.c_str(), (typeName).c_str(), slot);

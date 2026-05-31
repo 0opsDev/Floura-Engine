@@ -34,6 +34,8 @@ public:
 	static Shader dirShadowMapProgramBB;
 
 	static unsigned int shadowMapFBO, shadowMapHeight, shadowMapWidth, dirShadowMap;
+	static unsigned int shadowMapFBO2, shadowMapHeight2, shadowMapWidth2, dirShadowMap2;
+	static unsigned int shadowMapFBO3, shadowMapHeight3, shadowMapWidth3, dirShadowMap3;
 	static float distance;
 	static glm::vec2 dirNearFar;
 	static float dirShadowheight;
@@ -41,6 +43,8 @@ public:
 	static int dirShadowMapHardness;
 	static int dirShadowMapSamples;
 
+	static bool framePause;
+	
 	struct Light {
 		glm::vec3 position;
 		glm::vec3 rotation;
@@ -51,16 +55,18 @@ public:
 	};
 	static std::vector<Light> Lights;
 
+	static void clearSMFBO();
+	
 	static void setupShadowMapBuffer();
-
-	//static void 
 
 	static void drawShadowMap(Model*& model);
 
 	static void drawShadowMapBillboard(BillBoard*& bilboard, glm::vec3 translation, glm::vec3 scale);
 
-	static void update(Shader ModelShader);
-
+	static void sendToShader(Shader ModelShader);
+	
+	static void update();
+	
 	static void createLight();
 
 	static void deleteLight(int index);

@@ -2,74 +2,6 @@
     {
         "CastShadow": true,
         "Location": [
-            3.758340835571289,
-            0.9842240214347839,
-            2.6915395259857178
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            52.29999923706055,
-            39.099998474121094
-        ],
-        "Scale": [
-            0.30000001192092896,
-            0.30000001192092896,
-            0.30000001192092896
-        ],
-        "Scripts": [],
-        "UUID": "57cf229b7d9ccdde",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "drop_imported",
-        "parentUUID": "0000000000000000",
-        "path": "C:/Users/anon/Pictures/knife/BayonetKnife.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            4.563844203948975,
-            0.9922035336494446,
-            1.698020100593567
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            60.5,
-            0.0
-        ],
-        "Scale": [
-            0.30000001192092896,
-            0.30000001192092896,
-            0.30000001192092896
-        ],
-        "Scripts": [],
-        "UUID": "ee6da12ffdcd7cc8",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "drop_imported",
-        "parentUUID": "0000000000000000",
-        "path": "C:/Users/anon/Pictures/shotgun/pump.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
             0.0,
             0.0,
             0.0
@@ -86,7 +18,7 @@
             50.0
         ],
         "Scripts": [],
-        "UUID": "ac2ce3ccbbe63e5a",
+        "UUID": "c466635e34e6af83",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
@@ -102,11 +34,79 @@
         ]
     },
     {
+        "CastShadow": false,
+        "Location": [
+            -4.098240852355957,
+            1.3311657905578613,
+            4.486484050750732
+        ],
+        "MaterialPath": "Assets/Material/DefaultPOM.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            5.0,
+            5.0,
+            5.0
+        ],
+        "Scripts": [],
+        "UUID": "93e4087189cca7dc",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": false,
+        "name": "drop_imported",
+        "parentUUID": "0000000000000000",
+        "path": "C:/Users/anon/Downloads/ganges_river_pebbles_1k/textures/pebble.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            5.0,
+            5.0
+        ]
+    },
+    {
         "CastShadow": true,
         "Location": [
-            10.779677391052246,
-            1.657523512840271,
-            12.347537994384766
+            -24.468944549560547,
+            -0.9726204872131348,
+            5.483700752258301
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            18.499431610107422,
+            1.0,
+            25.621356964111328
+        ],
+        "Scripts": [],
+        "UUID": "da87374ae6d88f86",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "reflectivecube",
+        "parentUUID": "0000000000000000",
+        "path": "temp/packasset/reflectivecube.glb",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -22.263988494873047,
+            2.967679023742676,
+            4.437623977661133
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -120,7 +120,143 @@
             1.0
         ],
         "Scripts": [],
-        "UUID": "ea2d06b2f13d41fd",
+        "UUID": "8a4e6a2320f37ccc",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "emissionCube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/emissionCube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -24.238773345947266,
+            2.3807857036590576,
+            7.766262054443359
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "Scripts": [],
+        "UUID": "7b310781f101a9fa",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -28.680814743041992,
+            2.575481414794922,
+            10.171456336975098
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "Scripts": [],
+        "UUID": "b24e66e55e4cbfa8",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -34.06943893432617,
+            2.0981876850128174,
+            12.513469696044922
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "Scripts": [],
+        "UUID": "e8ebef42860bddc0",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": true,
+        "name": "cube",
+        "parentUUID": "0000000000000000",
+        "path": "Assets/Models/basic shapes/cube.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            1.8832683563232422,
+            2.0703606605529785,
+            15.067334175109863
+        ],
+        "MaterialPath": "Assets/Material/Default.Material",
+        "Rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "Scripts": [],
+        "UUID": "066329e605c30d59",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
@@ -136,11 +272,11 @@
         ]
     },
     {
-        "CastShadow": true,
+        "CastShadow": false,
         "Location": [
-            1.7969579696655273,
-            0.07819490134716034,
-            -0.3987152576446533
+            4.751999855041504,
+            0.08815646171569824,
+            1.5925058126449585
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -149,270 +285,32 @@
             0.0
         ],
         "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "805bec528976d9f9",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "drop_imported",
-        "parentUUID": "0000000000000000",
-        "path": "C:/Users/anon/Pictures/shotgun/bullet/bulletfinal.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            1.82240891456604,
-            0.028860390186309814,
-            -0.31746339797973633
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            -90.0,
-            0.0,
-            -35.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "f2c73ce5155bca7f",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "drop_imported",
-        "parentUUID": "0000000000000000",
-        "path": "C:/Users/anon/Pictures/shotgun/bullet/bulletfinal.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            1.6887831687927246,
-            0.028632983565330505,
-            -0.33590784668922424
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            -90.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "dfe866a327f102cf",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "drop_imported",
-        "parentUUID": "0000000000000000",
-        "path": "C:/Users/anon/Pictures/shotgun/bullet/bulletfinal.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            4.148109436035156,
-            -0.25748032331466675,
-            2.2355005741119385
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            -130.5,
-            0.0
-        ],
-        "Scale": [
-            0.10000000149011612,
-            0.10000000149011612,
-            0.10000000149011612
-        ],
-        "Scripts": [],
-        "UUID": "b06bd473bd6c0d93",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "pdf_teto",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/pdf_teto/scene.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            0.0,
-            3.865467071533203,
-            19.075345993041992
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            0.10000000149011612,
-            0.10000000149011612,
-            0.10000000149011612
-        ],
-        "Scripts": [],
-        "UUID": "e889de72279f2f42",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "VictimPoint (FE_LAYER.CPP)",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/pdf_teto/scene.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            0.0,
-            13.865467071533203,
-            19.075345993041992
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "fc0b383d01d3a43f",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "PivPoint (FE_LAYER.CPP)",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/basic shapes/sphere.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -13.208905220031738,
-            4.148365020751953,
-            21.950048446655273
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "27081e82eaa6a71f",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "cylinder",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/basic shapes/cylinder.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            0.0,
-            -5.0,
-            0.0
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            0.10000000149011612,
-            0.10000000149011612,
-            0.10000000149011612
-        ],
-        "Scripts": [],
-        "UUID": "63967c6480ba1e63",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "VictimPoint (FE_LAYER.CPP)",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/pdf_teto/scene.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            0.0,
             5.0,
-            0.0
+            5.0,
+            5.0
+        ],
+        "Scripts": [],
+        "UUID": "99bb60e0a45b9534",
+        "children": [],
+        "doRender": true,
+        "drawInstanced": false,
+        "hasParent": false,
+        "isBackFaceCulling": false,
+        "name": "drop_imported",
+        "parentUUID": "0000000000000000",
+        "path": "C:/Users/anon/Pictures/funky disp test/decalpomtestthingy.gltf",
+        "smoothnessValue": 0.0,
+        "uvScale": [
+            1.0,
+            1.0
+        ]
+    },
+    {
+        "CastShadow": true,
+        "Location": [
+            -9.581092834472656,
+            7.608771324157715,
+            -2.5268959999084473
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -426,15 +324,15 @@
             1.0
         ],
         "Scripts": [],
-        "UUID": "840997b450ef14ac",
+        "UUID": "10258fb57c72a578",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
         "hasParent": false,
         "isBackFaceCulling": true,
-        "name": "PivPoint (FE_LAYER.CPP)",
+        "name": "FlightHelmet",
         "parentUUID": "0000000000000000",
-        "path": "Assets/Models/basic shapes/sphere.gltf",
+        "path": "temp/FlightHelmet/glTF/FlightHelmet.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,

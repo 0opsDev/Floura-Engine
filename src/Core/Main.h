@@ -12,7 +12,20 @@
 class Main
 {
 public:
+	// flags
 	static bool sleepState;
+	// thread lock
+	static bool lockGameThread; // big nono rn holds renderer
+	static bool lockPhysicsThread;
+	static bool lockWorkerThread;
+	
+	static void gameloop(GLFWwindow* window);
+	
+	static void physicsAttemptThreadUnlock();
+	
+	static void physicsLoop(GLFWwindow* window);
+	
+	static void workerLoop(GLFWwindow* window);
 private:
 };
 #endif

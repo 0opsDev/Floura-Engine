@@ -61,6 +61,8 @@ public:
 	static uint64_t fetchHandle(std::string path);
 
 	static int fetchModelIndex(uint64_t RenderID);
+	
+	static void updateLoadUnloadedModels(); // loads fresh models, that are not loaded yet
 
 	static batchOfUUID addModel(std::string path); // returns id for use
 

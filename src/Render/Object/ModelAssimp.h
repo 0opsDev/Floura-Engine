@@ -17,7 +17,6 @@
 #include <map>
 #include <iterator>
 #include "Render/Animated/animdata.h"
-#include  <thread>
 
 #define MAX_BONE_INFLUENCE 4
 
@@ -28,6 +27,11 @@ public:
 	uint64_t renderID;
 	std::vector<uint64_t>instanceUUIDs;
 
+	bool disableConstructorLoadingModelFlag = false; // for threadding, if true it'll stop the class constructor calling the load function 
+	bool disableInitialMeshUploadToVBOFlag = false; // for threading, stops the uploading to the gpu outside the opengl thread (very big nono, opengl doesnt like)
+	bool disableInitialTextureUploadToGPUFlag = false; // for threading again, stops the textures uploading to the gpu again
+	bool loaded = false; // blocks certain calls unless loaded
+	
 	struct transformation {
 		glm::vec3 position = glm::vec3(0.0f);
 		glm::vec3 rotation = glm::vec3(0.0f);
@@ -49,9 +53,14 @@ public:
 	void updatePrevRotation(glm::vec3 Rotation);
 	void updatePrevScale(glm::vec3 Scale);
 	void updatePrevTranformation();
+	
+	
+	void childrenRangeCull(glm::vec3 position, float range);
 
-	Model(const char* file);
+	Model(const char* file, bool disableConstructorLoading, bool disableInitialMeshUploadToVBO, bool disableInitialTextureUploadToGPU);
 	~Model();
+	
+	void loadModelPathless(); // takes from path string
 	
 	auto& GetBoneInfoMap() { return m_BoneInfoMap; }
 	int& GetBoneCount() { return m_BoneCounter; }
@@ -76,11 +85,14 @@ public:
 	int totalVertices = 0;
 	int totalIndices = 0;
 	int totalBones = 0;
-	std::string directory;
 
+	
+	std::string path; 
+	
 private:
 	std::vector<std::string> loadedTexPath;
 	std::vector<Texture> loadedTex;
+	std::string directory;
 	
 	// bones
 	std::map<std::string, BoneInfo> m_BoneInfoMap;
@@ -101,7 +113,7 @@ private:
 	std::vector<Texture> assembleMaterials(aiMesh* mesh, const aiScene* scene);
 	
 	
-	std::vector<Texture> aloadMaterialTextures(aiMaterial* mat, aiTextureType type,
+	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type,
 		std::string typeName, int slot);
 	
 };

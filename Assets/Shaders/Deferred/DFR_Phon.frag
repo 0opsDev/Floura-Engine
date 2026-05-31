@@ -24,6 +24,10 @@ uniform sampler2D hDepthTexture;
 uniform sampler2D hNormal;
 
 uniform mat4 cameraMatrix;
+uniform mat4 inverseViewMatrix;
+uniform mat4 inverseProjection;
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
 
 uniform vec3 lightColor;
 uniform vec3 fogColor;
@@ -83,6 +87,9 @@ uniform Light Lights[64];
 
 uniform int lightCount;
 
+uniform bool doSSR;
+uniform bool doContactShadows;
+
 float linearizeDepth(float depth, float NP, float FP)
 {
     return (2.0 * NP * FP) / (FP + NP - (depth * 2.0 - 1.0) * (FP - NP));
@@ -94,6 +101,54 @@ float random(vec3 seed) {
     float dot_product = dot(seed4, vec4(12.9898, 78.233, 45.164, 94.673));
     return fract(sin(dot_product) * 43758.5453);
 }
+
+
+vec4 RayCast(in vec3 dir, inout vec3 hitCoord, out float dDepth, int maxSteps, out float hit, in float step)
+{
+    hitCoord += dir * 0.1;
+
+    dir *= step;
+    float depth;
+    vec4 projectedCoord = vec4(0.0);
+
+    for (int i = 1; i < maxSteps; i++)
+    {
+        hitCoord += dir;
+
+        projectedCoord = projectionMatrix * vec4(hitCoord, 1.0);
+        projectedCoord.xy /= projectedCoord.w;
+        projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
+
+        if (projectedCoord.x < 0.0 || projectedCoord.x > 1.0 || projectedCoord.y < 0.0 || projectedCoord.y > 1.0) {
+            break;
+        }
+
+        vec3 sampledWorldPos = textureLod(gPosition, projectedCoord.xy, 2).xyz;
+
+        vec3 sampledViewPos = (viewMatrix * vec4(sampledWorldPos, 1.0)).xyz;
+
+        if (length(sampledWorldPos) < 0.001) {
+            continue;
+        }
+        dDepth = hitCoord.z - sampledViewPos.z;
+
+
+        if((dir.z - dDepth) < 0.3)
+        {
+            if(dDepth <= 0.0)
+            {
+                vec4 Result;
+                Result = vec4(projectedCoord.xy, dDepth, 1.0);
+                hit = 1.0;
+
+                return Result;
+            }
+        }
+    }
+    hit = 0.0;
+    return vec4(projectedCoord.xy, dDepth, 1.0);
+}
+
 
 float CalcShadowFactorDIR(vec4 LightSpacePos, vec3 lightDirection, vec3 normal, vec3 iPosition)
 {
@@ -128,7 +183,6 @@ float CalcShadowFactorDIR(vec4 LightSpacePos, vec3 lightDirection, vec3 normal, 
             {
                 float angle = texture(bluemap, noiseUV).r * NumberOfSamples;
                 vec2 foffset = vec2(cos(angle), sin(angle));
-
                 float closestDepth = texture(shadowMap, lightCoords.xy + (vec2(x, y) * foffset) * pixelSize).r;
                 if (currentDepth > closestDepth + bias)
                 shadow += 1.0f;
@@ -144,25 +198,82 @@ float CalcShadowFactorDIR(vec4 LightSpacePos, vec3 lightDirection, vec3 normal, 
     return shadow;
 }
 
+#define Scale vec3(.8, .8, .8)
+#define K 19.19
+
+vec3 hash(vec3 a)
+{
+    a = fract(a * Scale);
+    a += dot(a, a.yxz + K);
+    return fract((a.xxy + a.yxx)*a.zyx);
+}
+
+float hash2(vec2 p) {
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
+}
+
+float shadowTrace(vec3 lightDirection, vec3 normal, vec3 iPosition)
+{
+    if (!doContactShadows) return 0.0f;
+    vec3 viewPos    = (viewMatrix * vec4(iPosition, 1.0)).xyz;
+    vec3 viewNormal = normalize(mat3(viewMatrix) * normal);
+
+    vec3 viewLightDir = normalize(mat3(viewMatrix) * lightDirection);
+
+    vec3 rayOrigin = viewPos + viewNormal * 0.1;
+
+
+    vec2 uv = gl_FragCoord.xy;
+    float noiseX = hash2(uv + vec2(time));
+    float noiseY = hash2(uv + vec2(time + 1.5));
+    vec3 jitter = vec3(noiseX - 0.5, noiseY - 0.5, 0.0) * 0.03;
+
+    vec3 rayDir = normalize(viewLightDir + jitter);
+
+    float dDepth;
+    float hit = 0.0;
+    
+    float shadow = 0.0f;
+    
+    //vec3 wp = vec3(vec4(viewPos, 1.0) * inverseViewMatrix);
+    //vec3 t = vec3(time, time +2, time + 3);
+    //vec3 jitt = mix(vec3(0.0), vec3(hash(wp + t)), 0.1); // time
+    //jitt * time;
+    
+    //vec4 csCoords = RayCast((vec3(jitt)) + rayDir, rayOrigin, dDepth, 12, hit, 0.05);
+    vec4 csCoords = RayCast(rayDir, rayOrigin, dDepth, 256, hit, 0.05);
+    if (hit == 1.0f) shadow += 1.0f;
+    
+    return shadow;
+}
 
 vec4 direcLight(vec3 ARM, vec3 iNormal, vec3 iPosition)
 { // normals need to be recalculated based on rotation
-
-
-
+    
   // shadow map 
   float shadow = 0.0f;
 
-
   vec3 normal = normalize(iNormal);
-
+    
   vec3 lightDirection = normalize(directLightPos); //vec3(1.0f, 1.0f, 0.0f)
   float diffuse = max(dot(normal, lightDirection), 0.0f);
   
     vec4 fragPosLight = lightProjection * vec4(iPosition, 1.0f);
-    
+    float smShadow = 0.0;
+    float ssShadow = 0.0f;
   if (doDirShadowMap)
-  shadow = CalcShadowFactorDIR(fragPosLight, lightDirection, normal, iPosition);
+  {
+      smShadow = CalcShadowFactorDIR(fragPosLight, lightDirection, normal, iPosition);
+      
+  }
+    ssShadow = shadowTrace(lightDirection, normal, iPosition);
+    //return vec4(ssShadow  ,0.0 ,0.0, 1.0);
+
+    shadow = max(smShadow, ssShadow);
+    //shadow = smShadow;
+    //shadow = ssShadow;
   // shadow map end
     
   float specular = 0.0f;
@@ -177,7 +288,7 @@ vec4 direcLight(vec3 ARM, vec3 iNormal, vec3 iPosition)
       float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 16);
       //float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
       specular = specAmount * dirSpecularLight;
-
+      
       return ((diffuse * (1.0f - shadow) + directAmbient) + ARM.g* specular * (1.0f - shadow)) * vec4(directLightCol, 1.0f); }
   else{ return ((diffuse * (1.0f - shadow) + directAmbient)) * vec4(directLightCol, 1.0f); }
 }
@@ -203,6 +314,10 @@ vec4 pointLight(int iteration, vec3 ARM, vec3 iNormal, vec3 iPosition)
     vec3 lightDirection = normalize(lightVec);
     float diffuse = max(dot(normal, lightDirection), 0.0f);
 
+    float ssShadow = shadowTrace(lightDirection, normal, iPosition);
+    
+    float shadow = ssShadow;
+
     float specular = 0.0f;
     if (doReflect && diffuse != 0.0f){
         // specular lighting
@@ -215,10 +330,10 @@ vec4 pointLight(int iteration, vec3 ARM, vec3 iNormal, vec3 iPosition)
         float specAmount = pow(max(dot(normal, halfwayVec), 0.1f), 16);
         specular = specAmount * specularLight;
 
-        finalColour = finalColour + ((diffuse * inten + 0.0f) +ARM.b * specular * inten) * vec4(Lights[iteration].colour, 1.0 ) * inten;
+        finalColour = finalColour + ((diffuse * (1.0f - shadow)* inten + 0.0f) +ARM.b * specular * (1.0f - shadow)* inten) * vec4(Lights[iteration].colour, 1.0 ) * inten;
     }
     else{
-        finalColour = finalColour + ( (diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
+        finalColour = finalColour + ( (diffuse * (1.0f - shadow) * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
         //finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
     }
 
@@ -246,6 +361,10 @@ vec4 spotLight(int iteration, vec3 ARM, vec3 iNormal, vec3 iPosition)
     float angle = dot(Lights[iteration].rotation, -lightDirection); // direction
     float inten = clamp( (angle - outerCone) / (innerCone - outerCone), 0.0f, 1.0);
 
+    float ssShadow = shadowTrace(lightDirection, normal, iPosition);
+
+    float shadow = ssShadow;
+
     float specular = 0.0f;
     if (doReflect && diffuse != 0.0f){
 
@@ -259,12 +378,12 @@ vec4 spotLight(int iteration, vec3 ARM, vec3 iNormal, vec3 iPosition)
         float specAmount = pow(max(dot(normal, halfwayVec), 0.0f), 16);
         specular = specAmount * specularLight;
 
-        finalColour = finalColour + ((diffuse * inten + 0.0f) + ARM.b * specular * inten) * vec4(Lights[iteration].colour, 1.0) * inten;
+        finalColour = finalColour + ((diffuse * (1.0f - shadow) * inten + 0.0f) + ARM.b * specular * (1.0f - shadow) * inten) * vec4(Lights[iteration].colour, 1.0) * inten;
 
     }
     else{
 
-        finalColour = finalColour + ((diffuse * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
+        finalColour = finalColour + ((diffuse * (1.0f - shadow) * inten + 0.0f) * vec4(Lights[iteration].colour, 1.0) * inten);
         //	finalColour = finalColour + (texture(diffuse0, texCoord) * (diffuse * inten + ambient) * vec4(Lights[iteration].colour, 1.0) * inten);
     }
 
@@ -323,7 +442,10 @@ bool blueNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could
 {
     sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
     vec2 noiseUV = vec2(gl_FragCoord.xy) / vec2(textureSize(bluemap, 0)); // new uvec2
-    float noise = texture(bluemap, noiseUV).r;
+    
+    vec2 scrollingUV = noiseUV + fract(time * vec2(12.9898, 78.233));
+    float noise = texture(bluemap, scrollingUV).r;
+    //float noise = texture(bluemap, noiseUV).r;
 
     // normal ranges should be 0.0f-1.0f;
     if (noise > Threshold) return true;
@@ -433,6 +555,7 @@ void Reflect(vec3 albedo,  vec3 iNormal, vec3 viewVector, out vec3 diffuse, out 
     //if (doReflect && depth < maxDist)
     if (doReflect)
     {
+        
         float met = 0;
         vec3 nF = vec3(0.0f);
         vec3 irradiance = vec3(0.0f);
@@ -481,6 +604,65 @@ vec3 sampleHemisphere(vec3 normal, float random)
     return tangent * localDir.x + bitangent * localDir.y + normal * localDir.z;
 }
 
+vec4 ssgi(int samples, vec3 ARM)
+{
+    float Metallic = ARM.b;
+    float rough = ARM.g;
+
+    //bool fallback;
+
+    vec3 worldPos   = texture(gPosition, texCoord).xyz;
+    vec3 worldNormal = texture(gNormal, texCoord).xyz;
+
+    vec3 viewPos    = (viewMatrix * vec4(texture(gPosition, texCoord).xyz, 1.0)).xyz;
+    vec3 viewNormal = mat3(viewMatrix) * texture(gNormal, texCoord).xyz;
+
+    vec3 V = normalize(viewPos);
+    vec3 R = reflect(V, viewNormal);
+
+    vec3 hitPos = viewPos;
+    float dDepth;
+    float hit = 0.0;
+    
+    int lastLOD = textureQueryLevels(hColour) - 1;
+
+    float maxLod = lastLOD;
+
+    float lod =  rough * maxLod;
+
+    lod = min(lod, 10.0);
+
+    vec3 indirectColour = vec3(0.0f);
+
+    if (samples <= 0) return vec4(indirectColour, 0.0);
+
+    sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
+    vec2 noiseUV = vec2(gl_FragCoord.xy) / vec2(textureSize(bluemap, 0)); // new uvec2
+
+    vec2 scrollingUV = noiseUV + fract(time * vec2(12.9898, 78.233));
+    vec2 blueNoise = texture(bluemap, scrollingUV).rg;
+
+    for (int i = 0; i < samples; i++)
+    {
+
+        float u = fract(blueNoise.r + float(i) * 0.61803398875);
+        float v = fract(blueNoise.g + float(i) * 0.61803398875);
+
+        vec3 randomDir = sampleHemisphere(normalize(R), u + (time * gl_FragCoord.z ) );
+
+        float hit = 0.0;
+        vec4 csCoords = RayCast(randomDir, hitPos, dDepth, 32, hit, 0.4);
+
+        vec3 SSGI = textureLod(hColour, csCoords.xy, lod).rgb;
+        
+        indirectColour += SSGI;
+        
+    }
+
+
+    return vec4((indirectColour / samples), 1.0);
+}
+
 vec3 indirectIBL(int samples, vec3 ARM, vec3 iNormal, vec3 viewVector)
 {
 
@@ -504,22 +686,26 @@ vec3 indirectIBL(int samples, vec3 ARM, vec3 iNormal, vec3 viewVector)
 
     if (samples <= 0) return indirectColour;
 
+    sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
+    vec2 noiseUV = vec2(gl_FragCoord.xy) / vec2(textureSize(bluemap, 0)); // new uvec2
+
+    vec2 scrollingUV = noiseUV + fract(time * vec2(12.9898, 78.233));
+    vec2 blueNoise = texture(bluemap, scrollingUV).rg;
+    
     for (int i = 0; i < samples; i++)
     {
         //gl_FragCoord
         //vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), rand(vec2(i + (gl_FragCoord.z * time) ) * vec2(1, 2)) );
 
-        sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
-        vec2 noiseUV = vec2(gl_FragCoord.xy) / vec2(textureSize(bluemap, 0)); // new uvec2
-
-        vec2 scrollingUV = noiseUV + fract(time * vec2(12.9898, 78.233));
-        vec2 blueNoise = texture(bluemap, scrollingUV).rg;
+        //float u = fract(blueNoise.r + float(i) * 0.61803398875);
+        //float v = fract(blueNoise.g + float(i) * 0.61803398875);
 
         float u = fract(blueNoise.r + float(i) * 0.61803398875);
         float v = fract(blueNoise.g + float(i) * 0.61803398875);
 
-        vec3 randomDir = sampleHemisphere2(normalize(NreflectedVector), u , v);
-        //vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + (gl_FragCoord.z * time) );
+        //vec3 randomDir = sampleHemisphere2(normalize(NreflectedVector), u , v);
+        //vec3 randomDir = sampleHemisphere2(normalize(NreflectedVector), u + (gl_FragCoord.z ), v + (gl_FragCoord.z ));
+        vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), u + (time * gl_FragCoord.z ) );
         //vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + time); // i thought it would be better to add time for a film grain look, it would also solve with taa
 
         //int skyLOD = textureQueryLevels(skybox) - 4; // use mipmap for more preformance
@@ -575,6 +761,19 @@ void main()
 
     vec3 normal = texture(gNormal, texCoord).rgb;
 
+
+   // vec3 viewNormal = vec3(normal * vec3(vec4(inverseViewMatrix).xyz) );
+   // vec3 viewPos = textureLod(gPosition, texCoord, 2).xyz;
+
+ //   vec3 reflected = normalize(reflect(normalize(viewPos), normalize(viewNormal)));
+
+   // vec3 e = vec3(vec4(inverseViewMatrix).xyz);
+
+    //FragColor = vec4( e, 1.0);
+    
+    //return;
+
+
     //                      AO  Rough  MAT
     //vec3 ARM = vec3(0.0, 1.0, 1.0); // placeholder
     vec3 ARM = texture(gSpecular, texCoord).rgb;// placeholder
@@ -584,31 +783,72 @@ void main()
 
     vec3 position = texture(gPosition, texCoord).rgb;
 
+    //FragColor = vec4(position, 1.0); return;
+    
     vec3 viewVector = position - camPos;
     
     vec3 emission = texture(gEmission, texCoord).rgb;
     vec3 nEmissionblur = blur(gEmission, texCoord) ;
 
     
-    vec3 direct = lights(ARM, normal, position).rgb;
-    vec3 indirect = indirectIBL(indirectSamples, ARM, normal, viewVector);// [placeholder
+    //vec3 direct = ARM.r * lights(ARM, normal, position).rgb;
+    vec3 direct =  lights(ARM, normal, position).rgb;
+    //vec3 CMGI = indirectIBL(indirectSamples, ARM, normal, viewVector);// [placeholder
+    vec3 ssgi = ssgi(indirectSamples, ARM).rgb;
 
+    //vec3 indirect = ssgi * CMGI.rgb;
+    vec3 indirect = ssgi;
+    //vec3 indirect = CMGI.rgb;
+    
     vec3 gi = (direct + indirect);
 
     vec3 specular = vec3(0.0f);
     vec3 diffuse  = vec3(0.0f);
 
-    Reflect(albedo.rgb, normal, viewVector, diffuse, specular, ARM);
+    //Reflect(albedo.rgb, normal, viewVector, diffuse, specular, ARM);
+    //bool bClamp = false;
+    //vec4 nssr = vec4(0.0); //bClamp
+    
+    vec3 reflections = vec3(0.0);
+    
+    if (doReflect)
+    {
+        Reflect(albedo.rgb, normal, viewVector, diffuse, specular, ARM);
+        reflections = diffuse + specular;
+    }
+    
 
-    vec3 reflections = diffuse + specular;
+    //if (blueNoiseOpacity(0.0)) nssr = ssr(ARM);
+    
+    //FragColor = nssr; return;
+    //vec3 reflections = diffuse + specular;
+    
+    
+    //vec3 cubeMapPlusSSR = reflections;
+    //vec3 cubeMapPlusSSR = mix(reflections, nssr.rgb, nssr.a);
 
-    vec3 final = albedo.rgb * gi + reflections + emission;
+    //vec3 final = albedo.rgb * gi + reflections + emission;
+    vec3 final = albedo.rgb * gi + reflections;
+    //vec3 final = direct;
+    //vec3 final = albedo.rgb * gi + nssr.rgb + emission;
     //vec3 final = 
     //vec3 final = albedo.rgb *  gi + roughness;
     
     //final = vec4(totalDiffuse, 1.0);
     
-    FragColor = vec4(final + nEmissionblur, 1.0f);
+    FragColor = vec4(final, 1.0f);
+
+    //float ld = linearizeDepth(depth, 0.1, 10.0);
+
+    //FragColor.rgb = vec3(ld);
+    
+    //FragColor.rgb = direct;
+    
+    //FragColor.rgb = ssgi(indirectSamples, ARM).rgb;
+    
+    //FragColor = vec4(vec3(ARM.g, 0.0, 0.0), 1.0);
+
+    //FragColor = vec4(vec3(displacement),1.0);
     //FragColor = vec4(nEmissionblur, 1.0f);
     //FragColor  = vec4(emission, 1.0f);
     //FragColor = final;

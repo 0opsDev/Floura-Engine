@@ -16,6 +16,7 @@
 #include "Scene/FE_LAYER.h"
 
 Shader RenderClass::GBLpass;
+Shader RenderClass::ssPass;
 Shader RenderClass::taaShader;
 Shader RenderClass::billBoardShader;
 Shader RenderClass::gPassShaderBillBoard;
@@ -24,6 +25,8 @@ Shader RenderClass::LineShader;
 
 bool RenderClass::renderSkybox = true;
 bool RenderClass::doReflections = true;
+bool RenderClass::doSSR = true;
+bool RenderClass::doContactShadows = true;
 bool RenderClass::doFog = true;
 GLfloat RenderClass::DepthDistance = 100.0f;
 GLfloat RenderClass::DepthPlane[] = { 0.1f, 100.0f };
@@ -82,7 +85,7 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	//glfwWindowHint(GLFW_BLUE_BITS, 10);
 	//glfwWindowHint(GLFW_ALPHA_BITS, 2);
 
-	windowHandler::InitMainWidnow();
+	windowHandler::InitMainWindow();
 	if (!gladLoadGL(glfwGetProcAddress)) {
 		// Log that GLAD failed to initialize
 		std::cerr << "Failed to initialize GLAD" << std::endl;
@@ -152,6 +155,7 @@ void RenderClass::initGlobalShaders() {
 	
 	//GBLpass.LoadShader("Assets/Shaders/Db/RenderQuad.vert", "Assets/Shaders/Db/RenderQuad.frag");
 	GBLpass.LoadShader("Assets/Shaders/Deferred/DFR_Phon.vert", "Assets/Shaders/Deferred/DFR_Phon.frag");
+	ssPass.LoadShader("Assets/Shaders/Deferred/screenspaceReflections.vert", "Assets/Shaders/Deferred/screenspaceReflections.frag");
 	taaShader.LoadShader("Assets/Shaders/PostProcess/TAA.vert", "Assets/Shaders/PostProcess/TAA.frag");
 
 	LineShader.takePath = false;
@@ -211,15 +215,15 @@ void RenderClass::ClearFramebuffers() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear with colour
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
-	glBindFramebuffer(GL_FRAMEBUFFER, LightingHandler::shadowMapFBO);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	LightingHandler::clearSMFBO();
 }
 
 float Counter;
 void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int height) 
 {
+	LightingHandler::update();
 	RenderClass::ClearFramebuffers(); // Clear Framebuffers
+	
 	// set clear colour
 	glClearColor(RenderClass::gammaCorrect(skyRGBA.r), RenderClass::gammaCorrect(skyRGBA.g), RenderClass::gammaCorrect(skyRGBA.b), 1.0f);
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
@@ -243,11 +247,6 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	
 	RenderHandler::render();
 	
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
-	
-
-	glActiveTexture(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
 	// Framebuffer logic
 	Framebuffer::FBODraw(FEImGuiWindow::imGuiPanels[0], window);
 
@@ -258,7 +257,6 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	}
 
 	glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
-	glfwPollEvents(); // Tells open gl to proccess all events such as window resizing, inputs (KBM)
 }
 
 void RenderClass::DeferredLightingPass() {
@@ -304,6 +302,7 @@ void RenderClass::DeferredLightingPass() {
 
 	glActiveTexture(GL_TEXTURE11);
 	glBindTexture(GL_TEXTURE_2D, HistoryPass::hColour);
+	glGenerateMipmap(GL_TEXTURE_2D); // remove later
 	GBLpass.setInt("hColour", 11);
 	
 	// reserve 10 for depth
@@ -326,10 +325,13 @@ void RenderClass::DeferredLightingPass() {
 	GBLpass.setBool("doFog", doFog);
 
 	GBLpass.setFloat3("fogColor", RenderClass::gammaCorrect3(fogRGBA));
-
+	GBLpass.Activate();
 	//mat4
 	GBLpass.setMat4("cameraMatrix", Scene::maincamera.cameraMatrix);
 	GBLpass.setMat4("projectionMatrix", Scene::maincamera.projection);
+	GBLpass.setMat4("viewMatrix", Scene::maincamera.view);
+	glm::mat4 inverseView = glm::inverse(Scene::maincamera.view);
+	GBLpass.setMat4("inverseViewMatrix",inverseView);
 
 	glm::mat4 inverseProjection = glm::inverse(Scene::maincamera.projection);
 	GBLpass.setMat4("inverseProjection", inverseProjection);
@@ -342,9 +344,6 @@ void RenderClass::DeferredLightingPass() {
 	GBLpass.setFloat3("cameraDirection", Scene::maincamera.Orientation);
 	//std::cout << Camera::width << " " << Camera::height << std::endl;
 	GBLpass.setFloat2("screenSize", glm::vec2(Scene::maincamera.width, Scene::maincamera.height));
-	//GBLpass.setFloat("time", glfwGetTime());
-	GBLpass.setFloat("time",TimeUtil::time);
-	GBLpass.setFloat("priorTime", TimeUtil::priorTime);
 	
 	GBLpass.setFloat3("camPos", Scene::maincamera.Position);
 	GBLpass.setInt("indirectSamples", ProbeHandler::indirectSamples);
@@ -352,10 +351,125 @@ void RenderClass::DeferredLightingPass() {
 	
 	GBLpass.setHandleui64ARB("BlueNoiseHandle", RenderClass::bluenoise->handle);
 	GBLpass.setHandleui64ARB("bayerMatrixHandle", RenderClass::bayermatrix->handle);
+
+	GBLpass.setBool("doSSR", RenderClass::doSSR);
+	GBLpass.setBool("doContactShadows", RenderClass::doContactShadows);
+
+	GBLpass.setTimeVariables();
 	
-	GBLpass.setInt("frame", TimeUtil::frame);
+	LightingHandler::sendToShader(GBLpass);
 	
-	LightingHandler::update(GBLpass);
+	//shader.
+	lightingRenderQuad.draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glActiveTexture(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void RenderClass::ScreenSpaceLightingPass()
+{
+		glDisable(GL_CULL_FACE);
+	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	ssPass.Activate();
+	// gPass textures bound to FB
+	// send gPass textures to shader
+	glActiveTexture(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Framebuffer::screentexture);
+	taaShader.setInt("screentexture", 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gPosition);
+	ssPass.setInt("gPosition", 1);
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
+	ssPass.setInt("gNormal", 2);
+
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gAlbedoSpec);
+	ssPass.setInt("gAlbedoSpec", 3);
+
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
+	ssPass.setInt("depthMap", 5);
+	
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gSpecular);
+	ssPass.setInt("gSpecular", 6);
+	
+	glActiveTexture(GL_TEXTURE7);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gVelocity);
+	ssPass.setInt("gVelocity", 7);
+	// skip 8 because of shadow map (i really need to use bindless on these)
+	
+	
+	glActiveTexture(GL_TEXTURE10);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gEmission);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	ssPass.setInt("gEmission", 10);
+	
+
+	glActiveTexture(GL_TEXTURE11);
+	glBindTexture(GL_TEXTURE_2D, HistoryPass::hColour);
+	glGenerateMipmap(GL_TEXTURE_2D); // remove later
+	ssPass.setInt("hColour", 11);
+	
+	// reserve 10 for depth
+	glActiveTexture(GL_TEXTURE12);
+	glBindTexture(GL_TEXTURE_2D, HistoryPass::hDepthTexture);
+	ssPass.setInt("hDepthTexture", 12);
+	
+	// prior normals
+	glActiveTexture(GL_TEXTURE13);
+	glBindTexture(GL_TEXTURE_2D, HistoryPass::hNormal);
+	ssPass.setInt("hNormal", 13);
+	
+	
+	ssPass.setFloat("NearPlane", Scene::maincamera.nearFar.x);
+	ssPass.setFloat("FarPlane", Scene::maincamera.nearFar.y);
+
+	ssPass.setFloat("fogDepthDistance", DepthDistance);
+	ssPass.setFloat("fogNearPlane", DepthPlane[0]);
+	ssPass.setFloat("fogFarPlane", DepthPlane[1]);
+	ssPass.setBool("doFog", doFog);
+
+	ssPass.setFloat3("fogColor", RenderClass::gammaCorrect3(fogRGBA));
+	ssPass.Activate();
+	//mat4
+	ssPass.setMat4("cameraMatrix", Scene::maincamera.cameraMatrix);
+	ssPass.setMat4("projectionMatrix", Scene::maincamera.projection);
+	ssPass.setMat4("viewMatrix", Scene::maincamera.view);
+	glm::mat4 inverseView = glm::inverse(Scene::maincamera.view);
+	ssPass.setMat4("inverseViewMatrix",inverseView);
+
+	glm::mat4 inverseProjection = glm::inverse(Scene::maincamera.projection);
+	ssPass.setMat4("inverseProjection", inverseProjection);
+
+	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(Scene::maincamera.cameraMatrix)));
+	ssPass.setMat3("normalMatrix", normalMatrix);
+
+	ssPass.setFloat3("orientation", Scene::maincamera.Orientation);
+	ssPass.setFloat3("cameraPos", Scene::maincamera.Position);
+	ssPass.setFloat3("cameraDirection", Scene::maincamera.Orientation);
+	//std::cout << Camera::width << " " << Camera::height << std::endl;
+	ssPass.setFloat2("screenSize", glm::vec2(Scene::maincamera.width, Scene::maincamera.height));
+	
+	ssPass.setFloat3("camPos", Scene::maincamera.Position);
+	ssPass.setInt("indirectSamples", ProbeHandler::indirectSamples);
+
+	
+	ssPass.setHandleui64ARB("BlueNoiseHandle", RenderClass::bluenoise->handle);
+	ssPass.setHandleui64ARB("bayerMatrixHandle", RenderClass::bayermatrix->handle);
+
+	ssPass.setBool("doSSR", RenderClass::doSSR);
+	ssPass.setBool("doContactShadows", RenderClass::doContactShadows);
+
+	ssPass.setTimeVariables();
+	
+	LightingHandler::sendToShader(ssPass);
 	
 	//shader.
 	lightingRenderQuad.draw();
@@ -406,10 +520,8 @@ void RenderClass::taaPass()
 	taaShader.setFloat("FarPlane", Scene::maincamera.nearFar.y);
 	
 	taaShader.setFloat2("screenSize", glm::vec2(Scene::maincamera.width, Scene::maincamera.height));
-	taaShader.setFloat("time",TimeUtil::time);
-	taaShader.setFloat("priorTime", TimeUtil::priorTime);
+	taaShader.setTimeVariables();
 	
-	taaShader.setInt("frame", TimeUtil::frame);
 	
 	//shader.
 	lightingRenderQuad.draw();
@@ -439,4 +551,9 @@ float RenderClass::gammaCorrect(float input) {
 
 glm::vec3 RenderClass::gammaCorrect3(glm::vec3 input) {
 	return pow(input, glm::vec3(1.0f / Scene::maincamera.gamma) );
+}
+
+void RenderClass::compileShaders()
+{
+	for (int i = 0; i < Scene::entityObjects.size(); ++i) Scene::entityObjects[i]->component.systems.material.Material.compileUniforms();
 }

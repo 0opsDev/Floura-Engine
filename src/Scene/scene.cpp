@@ -23,6 +23,8 @@ Collision::AABB Scene::SceneBounds;
 std::vector <Collision::AABB> Scene::rootnodes;
 
 bool Scene::spawnNearCamera = true;
+bool Scene::entityDeletionUnderGoing = false; // for qeueing wheter something should be deleted
+
 
 BillBoard* PointLightIcon;
 BillBoard* SpotLightIcon;
@@ -738,12 +740,14 @@ void Scene::AddSceneSoundObject(std::string name, std::string path) {
 uint64_t Scene::AddEntityObject(entity::ENT_TYPE_ENUM type, std::string name, std::string path, glm::vec3 spawnPosition, glm::vec3 spawnScale, glm::vec3 spawnRotation)
 {
 	std::unique_ptr<entity> newEntity = std::make_unique<entity>(); // Use std::make_unique
-	newEntity->create(type, name, path, "Assets/Material/Default.Material");
 	
 	//if (spawnNearCamera) newEntity->setPosition(maincamera.Position - ( FE_Math::getForwardFromViewMatrix(maincamera.cameraMatrix) * 5.0f ));
 	newEntity->setPosition(spawnPosition);
 	newEntity->setScale(spawnScale);
 	newEntity->setRotation(spawnRotation);
+	
+	newEntity->create(type, name, path, "Assets/Material/Default.Material");
+	
 	uint64_t UUID = newEntity->UUID;
 	
 	entityObjects.emplace_back(std::move(newEntity));
@@ -1094,22 +1098,6 @@ void Scene::draw()
 void Scene::Update() 
 {
 
-	if (ProbeHandler::dirtyScene)
-	{
-		calculateSceneBounds();
-
-		// enable this for the probes (im disabling them)
-		
-		//probes = ProbeHandler::calculateProbesWithMethod(ProbeHandler::probeCalculationMethod, SceneBounds, rootnodes, ProbeHandler::sceneProveArea);
-		
-		// ^^
-		
-		//probes = ProbeHandler::aabbsSceneToProbeSpace(SceneBounds, rootnodes, ProbeHandler::sceneProveArea); // faster in rendering cubemaps, because it only places near objects (more rootnodes slows down)
-		//probes = ProbeHandler::SceneToProbeSpace(SceneBounds, ProbeHandler::sceneProveArea); // faster with less rootnodes (places nodes in empty spaces)
-		//probes = ProbeHandler::aabbsToProbeSpace(SceneBounds, rootnodes, ProbeHandler::sceneProveArea); // faster for extremely open scenes, falso aster in rendering cubemaps,because it only places near objects, but the quality is the worst out of the 3
-		// 4th method should be per object and only if that object becomes dirty
-	}
-
 	for (size_t i = 0; i < entityObjects.size(); i++)
 	{
 		//entityObjects[i]->updateCollision();
@@ -1131,6 +1119,26 @@ void Scene::Update()
 	}
 
 	ProbeHandler::dirtyScene = false;
+}
+
+// update but on the work thread (expensive tasks)
+void Scene::sceneUpdateWork()
+{
+	if (ProbeHandler::dirtyScene)
+	{
+		calculateSceneBounds();
+
+		// enable this for the probes (im disabling them)
+		
+		//probes = ProbeHandler::calculateProbesWithMethod(ProbeHandler::probeCalculationMethod, SceneBounds, rootnodes, ProbeHandler::sceneProveArea);
+		
+		// ^^
+		
+		//probes = ProbeHandler::aabbsSceneToProbeSpace(SceneBounds, rootnodes, ProbeHandler::sceneProveArea); // faster in rendering cubemaps, because it only places near objects (more rootnodes slows down)
+		//probes = ProbeHandler::SceneToProbeSpace(SceneBounds, ProbeHandler::sceneProveArea); // faster with less rootnodes (places nodes in empty spaces)
+		//probes = ProbeHandler::aabbsToProbeSpace(SceneBounds, rootnodes, ProbeHandler::sceneProveArea); // faster for extremely open scenes, falso aster in rendering cubemaps,because it only places near objects, but the quality is the worst out of the 3
+		// 4th method should be per object and only if that object becomes dirty
+	}
 }
 
 void Scene::Delete() {
@@ -1176,3 +1184,8 @@ void Scene::restoreEntitiesToState()
 {
 }
 
+void Scene::queuedDeletionLoop()
+{
+	for (int i = 0; i < Scene::entityObjects.size(); ++i){if (Scene::entityObjects[i]->queuedForDeletion) Scene::entityObjects[i]->queuedDeletion();}
+	Scene::entityDeletionUnderGoing = false;
+}

@@ -3,9 +3,10 @@
 #include <glm/gtx/string_cast.hpp>
 #include "Gameplay/Player.h"
 #include "utils/FE_math.h"
+#include "render/window/WindowHandler.h"
 
 // Global Variables
-bool MouseState = true, toggleESC = true;
+
 float timeAccumulator = 0;
 
 void Camera::InitCamera(int width, int height, glm::vec3 position)
@@ -18,6 +19,7 @@ void Camera::InitCamera(int width, int height, glm::vec3 position)
 void Camera::SetViewportSize(int newWidth, int newHeight) {
     width = newWidth;
     height = newHeight;
+    aspect = static_cast<float>(width) / static_cast<float>(height);
 }
 
 void Camera::updateMatrix()
@@ -27,8 +29,12 @@ void Camera::updateMatrix()
 
     // Makes camera look in the right direction from the right position
     view = glm::lookAt(Position, Position + Orientation, Up);
+    Right = glm::normalize(glm::cross(Orientation, Up));
+    
+    aspect = static_cast<float>(width) / static_cast<float>(height);
+    
     // Adds perspective to the scene
-    projection = glm::perspective(glm::radians(fov), (float)width / (float)height, nearFar.x, nearFar.y);
+    projection = glm::perspective(glm::radians(fov), aspect, nearFar.x, nearFar.y);
     
     projectionAlwaysUnjittered = projection;
     cameraMatrixAlwaysUnjittered = projection * view;
@@ -77,9 +83,9 @@ void Camera::updateHaltonJitter()
     );
 }
 
-void Camera::Inputs(GLFWwindow* window)
+void Camera::Inputs(GLFWwindow* window, float deltatime)
 {
-    float adjustedSpeed = speed * TimeUtil::deltatime;
+    float adjustedSpeed = speed * deltatime;
 	if (!Player::s_DoGravity)
 	{
         // Handles inputs
@@ -109,11 +115,11 @@ void Camera::Inputs(GLFWwindow* window)
         }
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
         {
-            s_scrollSpeed += 10.0f * TimeUtil::deltatime;
+            s_scrollSpeed += 10.0f * deltatime;
         }
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         {
-            s_scrollSpeed -= 10.0f * TimeUtil::deltatime;
+            s_scrollSpeed -= 10.0f * deltatime;
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         {
@@ -149,8 +155,11 @@ void Camera::Inputs(GLFWwindow* window)
 
         speed = s_scrollSpeed;
     }
+}
 
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+void Camera::inputsMouse(GLFWwindow* window)
+{
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         if (toggleESC) {
             MouseState = !MouseState;
@@ -175,7 +184,12 @@ void Camera::Inputs(GLFWwindow* window)
             firstClick = false;
         }
 
+       
         // Stores the coordinates of the cursor
+        //double mouseX =  windowHandler::mouseX;
+        //double mouseY =  windowHandler::mouseY;
+        // Fetches the coordinates of the cursor
+        
         double mouseX;
         double mouseY;
         // Fetches the coordinates of the cursor
@@ -185,12 +199,9 @@ void Camera::Inputs(GLFWwindow* window)
         // and then "transforms" them into degrees 
         float rotX = Camera::sensitivity.y * (float)(mouseY - (height / 2)) / height;
         float rotY = Camera::sensitivity.x * (float)(mouseX - (width / 2)) / width;
-        //float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
-        //float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
        
         // Calculates upcoming vertical change in the Orientation
         glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
-
 
         // Decides whether or not the next vertical Orientation is legal or not
         if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
@@ -213,49 +224,3 @@ void Camera::Inputs(GLFWwindow* window)
     }
 }
 
-bool Camera::isPointInFrustum(const glm::vec3& worldPos)
-{
-    glm::vec4 clipPos = Camera::cameraMatrix * glm::vec4(worldPos, 1.0f);
-    if (clipPos.w <= 0.0f) return false;
-
-    glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
-
-    return ndc.x >= -1.0f && ndc.x <= 1.0f &&
-        ndc.y >= -1.0f && ndc.y <= 1.0f &&
-        ndc.z >= -1.0f && ndc.z <= 1.0f;
-}
-
-bool Camera::isRadiusInFrustum(const glm::vec3& worldPos, const float radius)
-{
-    glm::vec4 clipPos = Camera::cameraMatrix * glm::vec4(worldPos, 1.0f);
-    if (clipPos.w <= 0.0f) return false;
-
-    float ndcRadius = radius / clipPos.w;
-
-    float ndcRadiusX = (ndcRadius + 1 + (0.1f));
-    float ndcRadiusY = (ndcRadius + 1 + (0.1f));
-    float ndcRadiusZ = (ndcRadius + 1 + (0.1f));
-
-    glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
-
-    return ndc.x + ndcRadiusX >= -1.0f && ndc.x - ndcRadiusX <= 1.0f &&
-        ndc.y + ndcRadiusY >= -1.0f && ndc.y - ndcRadiusY <= 1.0f &&
-        ndc.z + ndcRadiusZ >= -1.0f && ndc.z - ndcRadiusZ <= 1.0f;
-}
-
-bool Camera::isBoxInFrustum(const glm::vec3& worldPos, const glm::vec3& Scale)
-{
-    glm::vec4 clipPos = Camera::cameraMatrix * glm::vec4(worldPos, 1.0f);
-    if (clipPos.w <= 0.0f) return false;
-
-    glm::vec3 ndcRadius;
-    ndcRadius.x = (Scale.x + 1 + (0.1)) / clipPos.w;
-    ndcRadius.y = (Scale.y + 1 + (0.1)) / clipPos.w;
-    ndcRadius.z = (Scale.z + 1 + (0.1)) / clipPos.w;
-
-    glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
-
-    return ndc.x + ndcRadius.x >= -1.0f && ndc.x - ndcRadius.x <= 1.0f &&
-        ndc.y + ndcRadius.y >= -1.0f && ndc.y - ndcRadius.y <= 1.0f &&
-        ndc.z + ndcRadius.z >= -1.0f && ndc.z - ndcRadius.y <= 1.0f;
-}

@@ -16,6 +16,9 @@
 class Camera
 {
 public:
+    
+    bool MouseState = true, toggleESC = true;
+    
     // Stores camera transform
     float s_scrollSpeed = 5.0f;
     glm::vec2 sensitivity;
@@ -23,11 +26,15 @@ public:
     glm::mat4 lastCameraMatrix = glm::mat4(1.0f); // cam mat of the previous frame
     glm::mat4 cameraMatrixAlwaysUnjittered = glm::mat4(1.0f);
     glm::vec3 Position = glm::vec3(0, 0, 0);
-    glm::vec3 Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 Orientation = glm::vec3(0.0f, 0.0f, -1.0f); // forward vecotr
+    
     glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 Right = glm::vec3(0.0f, 0.0f, 0.0f);
+    
     bool firstClick = false;
     int width;
     int height;
+    float aspect = 0.0f;
     float speed = 0.1f;
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
@@ -56,13 +63,9 @@ public:
     void updateHaltonJitter();
     
     // Handles camera inputs
-    void Inputs(GLFWwindow* window);
-
-    bool isPointInFrustum(const glm::vec3& worldPos);
-
-    bool isRadiusInFrustum(const glm::vec3& worldPos, const float radius);
-
-    bool isBoxInFrustum(const glm::vec3& worldPos, const glm::vec3& Scale);
+    void Inputs(GLFWwindow* window, float deltatime);
+    
+    void inputsMouse(GLFWwindow* window);
 
 };
 

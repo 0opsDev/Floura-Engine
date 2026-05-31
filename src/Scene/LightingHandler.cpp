@@ -4,8 +4,22 @@
 #include <utils/logConsole.h>
 #include "Scene/scene.h"
 #include "Render/passes/lighting/raytracer.h"
+#include "utils/FE_math.h"
 
 std::vector<LightingHandler::Light> LightingHandler::Lights;
+
+void LightingHandler::clearSMFBO()
+{
+	if (framePause) return;
+	glBindFramebuffer(GL_FRAMEBUFFER, LightingHandler::shadowMapFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glBindFramebuffer(GL_FRAMEBUFFER, LightingHandler::shadowMapFBO2);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glBindFramebuffer(GL_FRAMEBUFFER, LightingHandler::shadowMapFBO3);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+}
 
 // DIR light
 glm::vec3 LightingHandler::dirLightRot = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -19,6 +33,9 @@ bool LightingHandler::doDirSpecularLight = true;
 
 
 unsigned int LightingHandler::shadowMapFBO, LightingHandler::shadowMapHeight, LightingHandler::shadowMapWidth, LightingHandler::dirShadowMap;
+unsigned int LightingHandler::shadowMapFBO2, LightingHandler::shadowMapHeight2, LightingHandler::shadowMapWidth2, LightingHandler::dirShadowMap2;
+unsigned int LightingHandler::shadowMapFBO3, LightingHandler::shadowMapHeight3, LightingHandler::shadowMapWidth3, LightingHandler::dirShadowMap3;
+
 float LightingHandler::distance = 35.0f;
 glm::vec2 LightingHandler::dirNearFar = glm::vec2(0.1f, 75.0f); // 0.1f 75.0f
 float LightingHandler::dirShadowheight = 20.0f;
@@ -26,9 +43,31 @@ bool LightingHandler::doDirShadowMap = true;
 int LightingHandler::dirShadowMapHardness = 2;
 int LightingHandler::dirShadowMapSamples = 1;
 
+bool LightingHandler::framePause = false;
 glm::mat4 LightingHandler::lightProjection;
 Shader LightingHandler::dirShadowMapProgram;
 Shader LightingHandler::dirShadowMapProgramBB;
+
+
+void createSM(unsigned int & FBO, unsigned int & smTEX, unsigned int w, unsigned int h)
+{
+	glGenFramebuffers(1, &FBO);
+	glGenTextures(1, &smTEX);
+	glBindTexture(GL_TEXTURE_2D, smTEX);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, w, h, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, smTEX, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
 
 void LightingHandler::setupShadowMapBuffer() {
@@ -37,39 +76,31 @@ void LightingHandler::setupShadowMapBuffer() {
 	// billboard
 	LightingHandler::dirShadowMapProgramBB.LoadShader("Assets/Shaders/Db/BillBoardSM.vert", "Assets/Shaders/Db/BillBoardSM.frag");
 
-
+//	shadowMapWidth = 2046;
+//	shadowMapHeight = 2046;
+	shadowMapHeight2 = 1024;
+	shadowMapWidth2 =  1024;
+	shadowMapHeight3 = 512;
+	shadowMapWidth3 = 512;
+	
 	shadowMapWidth = 4096;
 	shadowMapHeight = 4096;
-	//shadowMapWidth = 2046;
-	//shadowMapHeight = 2046;
-	//shadowMapWidth = 1024;
-	//shadowMapHeight = 1024;
-	//shadowMapWidth = 128;
-	//shadowMapHeight = 128;
-	glGenFramebuffers(1, &shadowMapFBO);
-	glGenTextures(1, &dirShadowMap);
-	glBindTexture(GL_TEXTURE_2D, dirShadowMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapWidth, shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
+	
+	createSM(shadowMapFBO, dirShadowMap, shadowMapWidth, shadowMapHeight);
+	//createSM(shadowMapFBO2, dirShadowMap2, shadowMapWidth2, shadowMapHeight2);
+	//createSM(shadowMapFBO3, dirShadowMap3, shadowMapWidth3, shadowMapHeight3);
+	
+	return;
 
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, dirShadowMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
+void drawSM(unsigned int & FBO, unsigned int w, unsigned int h)
+{
+	
 }
 
 void LightingHandler::drawShadowMap(Model*& model) {
-	if (!doDirShadowMap)
-	{
-		return;
-	}
+	if (!doDirShadowMap || framePause) {return;}
 
 	glm::mat4 orthgonalProjection = glm::ortho(-distance, distance, -distance, distance, dirNearFar.x, dirNearFar.y); // last two are near and far 
 
@@ -80,38 +111,38 @@ void LightingHandler::drawShadowMap(Model*& model) {
 	lightProjection = orthgonalProjection * lightView;
 
 
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	
 	glEnable(GL_DEPTH_TEST);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
 	glViewport(0, 0, shadowMapWidth, shadowMapHeight); // dont touch for now
-	//glClear(GL_DEPTH_BUFFER_BIT);
+	
 	LightingHandler::dirShadowMapProgram.Activate();
 	glUniformMatrix4fv(glGetUniformLocation(LightingHandler::dirShadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
-
-	//glCullFace(GL_FRONT);
-	//model->setCurrentCullCam(LightingHandler::lightProjection); // set culling for shadow map
-
+	
 	RenderClass::bluenoise->Bind();
 	LightingHandler::dirShadowMapProgram.setInt("BlueNoiseTex", 6);
-	
 	LightingHandler::dirShadowMapProgram.setBool("doBinaryAlpha", RenderClass::doBinaryAlpha);
 	LightingHandler::dirShadowMapProgram.setBool("animateBinaryAlpha", RenderClass::animateBinaryAlpha);
-
 	LightingHandler::dirShadowMapProgram.setHandleui64ARB("bayerMatrixHandle", RenderClass::bayermatrix->handle);
-
+	LightingHandler::dirShadowMapProgram.setHandleui64ARB("BlueNoiseHandle", RenderClass::bluenoise->handle);
+	
+	
+	dirShadowMapProgram.setTimeVariables();
+	
+	model->childrenRangeCull(CameraPos, dirNearFar.y);
+	
 	model->draw(LightingHandler::dirShadowMapProgram, Scene::maincamera);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	//glCullFace(GL_BACK);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, Scene::maincamera.width, Scene::maincamera.height); // dont touch for now
-
+	glViewport(0, 0, viewport[2], viewport[3]);
 }
 
 void LightingHandler::drawShadowMapBillboard(BillBoard*& bilboard, glm::vec3 translation, glm::vec3 scale) {
-	if (!doDirShadowMap)
-	{
-		return;
-	}
+	if (!doDirShadowMap || framePause) {return;}
+
+	
 	glm::mat4 orthgonalProjection = glm::ortho(-distance, distance, -distance, distance, dirNearFar.x, dirNearFar.y); // last two are near and far 
 
 	glm::vec3 CameraPos = Scene::maincamera.Position;
@@ -120,6 +151,8 @@ void LightingHandler::drawShadowMapBillboard(BillBoard*& bilboard, glm::vec3 tra
 	glm::mat4 lightView = glm::lookAt(lightEyePosition, CameraPos, glm::vec3(0.0f, 1.0f, 0.0f));
 	lightProjection = orthgonalProjection * lightView;
 
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
 
 	glEnable(GL_DEPTH_TEST);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
@@ -133,11 +166,12 @@ void LightingHandler::drawShadowMapBillboard(BillBoard*& bilboard, glm::vec3 tra
 	//glCullFace(GL_BACK);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, Scene::maincamera.width, Scene::maincamera.height); // dont touch for now
+	//Framebuffer::setViewportToViewPortResolution();
+	glViewport(0, 0, viewport[2], viewport[3]);
 
 }
 
-void LightingHandler::update(Shader Shader)
+void LightingHandler::sendToShader(Shader Shader)
 {
 	Shader.Activate();
 
@@ -212,6 +246,22 @@ void LightingHandler::update(Shader Shader)
 		glUniform1i(glGetUniformLocation(Shader.ID, "shadowMap"), 8);
 	}
 	
+}
+
+float smAccum = 0.0;
+float smAccumthresh = 1.0 / 10.0f;
+
+
+// different thresh for different ranges, + only update on dirty 
+void LightingHandler::update(){
+	smAccum += TimeUtil::deltatime;
+	if (smAccum > smAccumthresh){
+		
+		framePause = false;
+		smAccum = 0.0;
+	}
+	else{ framePause = true; }
+
 }
 
 void LightingHandler::createLight()

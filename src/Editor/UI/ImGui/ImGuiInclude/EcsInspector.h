@@ -23,6 +23,10 @@ public:
 	
 	static void VolumeWindow();
 	
+	static void MaterialOnHit();
+	
+	static void MaterialWindow();
+	
 private:
 
 	static void entityScriptPane();

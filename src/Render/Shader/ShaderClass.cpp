@@ -1,6 +1,6 @@
 #include "shaderClass.h"
 #include <utils/logConsole.h>
-
+#include <utils/timeUtil.h>
 
 std::string get_file_contents(const char* filename)
 {
@@ -19,7 +19,7 @@ std::string get_file_contents(const char* filename)
         if (contents.compare(0, BOM.size(), BOM) == 0) {
             contents.erase(0, BOM.size());
         }
-
+        
         return contents;
     }
     throw std::runtime_error("Failed to open file: " + std::string(filename));
@@ -289,4 +289,12 @@ void Shader::setBool(const char* uniform, bool uniformBool)
 void Shader::setHandleui64ARB(const char* uniform, GLuint64 handle)
 {
 	glUniformHandleui64ARB(glGetUniformLocation(ID, uniform), handle);
+}
+
+void Shader::setTimeVariables()
+{
+    setFloat("time", TimeUtil::time);
+    setFloat("priorTime", TimeUtil::priorTime);
+    setFloat("deltatime", TimeUtil::deltatime);
+    setInt("frame", TimeUtil::frame);
 }

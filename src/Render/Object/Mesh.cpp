@@ -20,7 +20,7 @@ void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, s
     this->indices = indices;
     this->textures = textures;
 
-    setupMesh();
+    if (!suppressSetupMeshCall) setupMesh();
 }
 
 void Mesh::createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
@@ -32,11 +32,15 @@ void Mesh::createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuin
     this->vertices = vertices;
     this->indices = indices;
 
-    setupMesh();
+    if (!suppressSetupMeshCall) setupMesh();
 }
 
 void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
 {
+    if (!created) return;
+    
+    if (culled){ culled = false; return;}
+    
     shader.Activate();
     VAO.Bind();
 
@@ -64,6 +68,8 @@ void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
     //glUniform3f(glGetUniformLocation(shader.ID, "camPos"), Camera.Position.x, Camera.Position.y, Camera.Position.z);
     shader.setFloat3("camPos", Camera.Position);
     Camera.Matrix(shader, "camMatrix");
+    shader.setMat4("u_ViewMatrix", Camera.view);
+    shader.setMat4("u_ProjectionMatrix", Camera.projection);
 
     glm::mat4 finalMeshMat = globalMeshMatrix * meshMatrix;
     glm::mat4 finishedPrevMeshMat = globalPrevMeshMatrix * meshMatrix;
@@ -98,6 +104,7 @@ void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
 
 void Mesh::drawInstanced(Shader& shader, Camera Camera, int instanceCount)
 {
+    if (!created) return;
     std::cout << "drawing instance" << instanceCount << std::endl;
 }
 
@@ -124,6 +131,8 @@ void Mesh::setupMesh()
     VAO.Unbind();
     VBO.Unbind();
     EBO.Unbind();
+    
+    created = true;
 }
 
 void Mesh::Delete()

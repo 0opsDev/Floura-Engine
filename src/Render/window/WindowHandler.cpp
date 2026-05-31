@@ -12,6 +12,7 @@ float windowHandler::window_width;
 float windowHandler::window_height;
 std::string windowHandler::s_WindowTitle = "OpenGL Window";\
 bool windowHandler::doVsync = false;
+double windowHandler::mouseX = 0.0, windowHandler::mouseY = 0.0;
 
 GLFWmonitor* windowHandler::fetchPrimaryWindow() {
 	GLFWmonitor* tempMonitor = glfwGetPrimaryMonitor();
@@ -63,7 +64,7 @@ void windowHandler::setVSync(bool enabled) {
 }
 
 
-void windowHandler::InitMainWidnow() {
+void windowHandler::InitMainWindow() {
 	// Get the primary monitor
 	primaryMonitor = fetchPrimaryWindow();
 	// Get the video mode of the primary monitor
@@ -85,6 +86,25 @@ void windowHandler::InitMainWidnow() {
 	
 	addWindowDropCallback(window);
 
+}
+
+void windowHandler::PollMousePositionsMainWindow()
+{
+	glfwGetCursorPos(window, &mouseX, &mouseY);
+}
+
+void windowHandler::updateMouseLock(bool enabled, int w, int h)
+{
+	if (enabled)
+	{
+		// hide cursor
+		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		// set mouse to middle of screen
+		glfwSetCursorPos(window, (w / 2), (h / 2));
+		return;
+	}
+	// Unhides cursor since camera is not looking around anymore
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 void windowHandler::addWindowDropCallback(GLFWwindow* window)

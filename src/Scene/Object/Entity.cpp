@@ -9,6 +9,7 @@
 #include "Render/passes/lighting/raytracer.h"
 #include <Render/Handler/RenderHandler.h>
 #include "Systems/util/relationshipManager.h"
+//#include "Systems/Physics/physworld.h"
 
 void entity::createwUUID(uint64_t nUUID, ENT_TYPE_ENUM type, const std::string& name, const std::string& path, const std::string& materialPath)
 {
@@ -36,7 +37,8 @@ void entity::createwUUID(uint64_t nUUID, ENT_TYPE_ENUM type, const std::string& 
 		LogConsole::print("Entity Create: Unknown type '" + std::string(1, type) + "' for entity: " + name);
 		break;
 	}
-	raytracer::RTGlobalTransformFlag = true;
+	
+	createGeneralLogic();
 }
 
 
@@ -66,7 +68,19 @@ void entity::create(ENT_TYPE_ENUM type, const std::string& name, const std::stri
 		LogConsole::print("Entity Create: Unknown type '" + std::string(1, type) + "' for entity: " + name);
 		break;
 	}
-	raytracer::RTGlobalTransformFlag = true;}
+
+	createGeneralLogic();
+}
+
+void entity::createGeneralLogic()
+{
+	raytracer::RTGlobalTransformFlag = true;
+	// within here attach phys object to handler
+	
+	component.physobject.UUID = UUID::returnHandle(); // atm internal doesnt need to save, just for syncing
+	
+	physworld::addPhysicsObjectToArray(&component.physobject, &component.systems.transformation.position, &raytracer::RTGlobalTransformFlag);
+}
 
 void entity::LoadMaterial(std::string path)
 {
@@ -119,26 +133,10 @@ void entity::initScript(int index)
 
 void entity::update()
 {
+	//pollPositionUpdates();
 	
-
+	
 	updateMeshAABBs();
-	if (component.physics.hasRigidbody) // change name to hasdynamics
-	{
-		//component.render.dirtyTransform = true;
-
-		if (component.physics.affectedByGravity)
-		{
-			glm::vec3 gravity = glm::vec3(0.0f, -9.81f, 0.0f);
-
-			component.physics.force += component.physics.mass * gravity; // applying foce
-		}
-
-		component.physics.velocity += component.physics.force / component.physics.mass * TimeUtil::deltatime;
-		glm::vec3 newPos = component.systems.transformation.position + component.physics.velocity * TimeUtil::deltatime;
-		setPosition(newPos);
-
-		component.physics.force = glm::vec3(0.0f); // reset force at end
-	}
 
 	// update mesh positions here vv
 	switch (type)
@@ -170,6 +168,29 @@ void entity::update()
 	updateScripts();
 }
 
+void entity::updatePhysicsDynamics(float deltatime)
+{
+	
+	//updateMeshAABBs();
+	if (component.physobject.hasRigidbody) // change name to hasdynamics
+	{
+		component.render.dirtyTransform = true;
+
+		if (component.physobject.affectedByGravity)
+		{
+			glm::vec3 gravity = glm::vec3(0.0f, -9.81f, 0.0f);
+
+			component.physobject.force += component.physobject.mass * gravity; // applying foce
+		}
+
+		component.physobject.velocity += component.physobject.force / component.physobject.mass * deltatime;
+		glm::vec3 newPos = component.systems.transformation.position + component.physobject.velocity * deltatime;
+		setPosition(newPos);
+
+		component.physobject.force = glm::vec3(0.0f); // reset force at end
+	}
+}
+
 void entity::updateLights()
 {
 	component.systems.material.Material.updateForwardLights();
@@ -177,22 +198,34 @@ void entity::updateLights()
 
 void entity::Delete()
 {
+	// right now logic (raise flags, queue for the deletion event (lock physics thread etc) )
+	queuedForDeletion = true;
+	Scene::entityDeletionUnderGoing = true;
+	Main::lockPhysicsThread = true;
+	
+	// instead of deleting should queue a delete (make new function since i dont wanna change existing architecture), this will prevent thread issues
+	//entity::queuedDeletion(); // sit here for now
+}
+
+void entity::queuedDeletion()
+{
+	physworld::bundleArrayDeleteWithUUID(component.physobject.UUID);
 	switch (type)
 	{
 	case ENT_MODEL_TYPE: // model
-	{
-
-		int index = RenderHandler::fetchModelIndex(component.render.renderID);
-		if (index != -1)
 		{
-			raytracer::removeFromRaytracer(component.render.instanceUUID);
+
+			int index = RenderHandler::fetchModelIndex(component.render.renderID);
+			if (index != -1)
+			{
+				raytracer::removeFromRaytracer(component.render.instanceUUID);
+			}
+			RenderHandler::removeInstancewRenderID(component.render.renderID);
+			//delete component.renderHeads.Model;
+			//component.renderHeads.Model = nullptr;
+			component.systems.material.Material.ClearMaterial();
+			break;
 		}
-		RenderHandler::removeInstancewRenderID(component.render.renderID);
-		//delete component.renderHeads.Model;
-		//component.renderHeads.Model = nullptr;
-		component.systems.material.Material.ClearMaterial();
-		break;
-	}
 	case ENT_BILLBOARD_TYPE: // billboard
 		delete component.render.BillBoard;
 		component.render.BillBoard = nullptr;
@@ -214,7 +247,7 @@ void entity::Delete()
 			int childIndex = RelationshipManager::indexFromUUIDEntity(component.relationship.childUUID[i]);
 			if (childIndex != -1) RelationshipManager::removeParent(childIndex);
 		}
-	// erase paremt i should do too
+		// erase paremt i should do too
 		if (component.relationship.hasParent)
 		{
 			RelationshipManager::removeParent(thisIndex);
@@ -399,9 +432,6 @@ void entity::drawShadowMap()
 	if (!component.flags.castsShadow) return;
 	switch (type)
 	{
-	case ENT_MODEL_TYPE: // model
-		//LightingHandler::drawShadowMap(component.renderHeads.Model, component.systems.transformation.position, component.systems.transformation.rotation, component.systems.transformation.scale);
-		break;
 	case ENT_BILLBOARD_TYPE: // billboard
 		LightingHandler::drawShadowMapBillboard(component.render.BillBoard, component.systems.transformation.position, component.systems.transformation.scale);
 		break;

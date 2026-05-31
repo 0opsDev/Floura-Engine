@@ -2,14 +2,37 @@
 #include <utils/logConsole.h>
 #include "utils/FE_math.h"
 
+void Texture::createFromCapture()
+{
+    if (!suppressCreation) return;
+    
+    suppressCreation = false;
+    
+    if (!nIsTexture)
+    {
+        createColour(sColour, type.c_str(), unit);
+        return;
+    }
+    createTexture(path.c_str(), type.c_str(), unit);
+}
+
 void Texture::createColour(glm::vec4 colour, const char* texType, GLuint slot)
 {
     path = "null";
     //LogConsole::print("Texture loading started");
     // Assigns the type of the texture to the texture object
     type = texType;
+    
+    unit = slot;
     //std::cout << type << " U " << slot << std::endl;
 
+    if (suppressCreation)
+    {
+        sColour = colour;
+        return;
+    }
+    
+    
     // Flips the image so it appears right side up
     //stbi_set_flip_vertically_on_load(true);
     // Reads the image from a file and stores it in bytes
@@ -28,7 +51,6 @@ void Texture::createColour(glm::vec4 colour, const char* texType, GLuint slot)
     glGenTextures(1, &ID);
     // Assigns the texture to a Texture Unit
     glActiveTexture(GL_TEXTURE0 + slot);
-    unit = slot;
     glBindTexture(GL_TEXTURE_2D, ID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -58,7 +80,7 @@ void Texture::createColour(glm::vec4 colour, const char* texType, GLuint slot)
     // Unbinds the OpenGL Texture object so that it can't accidentally be modified
     glBindTexture(GL_TEXTURE_2D, 0);
     //LogConsole::print("Texture loading finished");
-
+    created = true;
 }
 
 void Texture::createTexture(const char* image, const char* texType, GLuint slot)
@@ -68,7 +90,10 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
     // Assigns the type of the texture to the texture object
     type = texType;
     //std::cout << type << " U " << slot << std::endl;
-
+    unit = slot;
+    nIsTexture = true;
+    if (suppressCreation) return;
+    
     // Stores the width, height, and the number of color channels of the image
     int widthImg, heightImg, numColCh;
     // Flips the image so it appears right side up
@@ -91,7 +116,7 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
     glGenTextures(1, &ID);
     // Assigns the texture to a Texture Unit
     glActiveTexture(GL_TEXTURE0 + slot);
-    unit = slot;
+
     glBindTexture(GL_TEXTURE_2D, ID);
     
     if (linearFilter){
@@ -160,6 +185,7 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
     // Unbinds the OpenGL Texture object so that it can't accidentally be modified
     glBindTexture(GL_TEXTURE_2D, 0);
     //LogConsole::print("Texture loading finished");
+    created = true;
 }
 
 void Texture::reload(GLuint slot)
@@ -187,6 +213,7 @@ void Texture::reload(GLuint slot)
     }
     // Unbinds the OpenGL Texture object so that it can't accidentally be modified
 	glBindTexture(GL_TEXTURE_2D, 0);
+    created = true;
 }
 
 

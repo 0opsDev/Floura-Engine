@@ -17,6 +17,7 @@
 #include <Systems/util/relationshipManager.h>
 #include <Render/passes/dbg/dbgPass.h>
 #include <Render/Shader/FramebufferObject.h>
+#include "Render/Handler/UniformManager.h"
 //#include <Instance.h>
 
 
@@ -116,15 +117,15 @@ void FEImGuiWindow::initImGui(GLFWwindow* window) {
 	ImGui_ImplOpenGL3_Init("#version 460");
 	//pow(0.35f, 1.0f / 2.2f), pow(input, 1.0f / 2.2f), pow(input, 1.0f / 2.2f), pow(input, 1.0f / 2.2f);
 
-	glm::vec3 colourF = (glm::vec3(0.35f, 0.35f, 0.40f));
-	glm::vec3 backgoundF = (glm::vec3(0.06f, 0.06f, 0.08f));
+	glm::vec3 colourF        = glm::vec3(0.36f, 0.72f, 0.92f);
+	glm::vec3 backgoundF     = glm::vec3(0.25f, 0.20f, 0.25f);  
 
-	glm::vec3 colour_hoveredF = (glm::vec3(0.55f, 0.55f, 0.60f));
-	glm::vec3 colour_activeF = (glm::vec3(0.25f, 0.25f, 0.29f));
+	glm::vec3 colour_hoveredF = glm::vec3(0.56f, 0.82f, 0.98f);
+	glm::vec3 colour_activeF  = glm::vec3(0.26f, 0.62f, 0.82f);
 
-	glm::vec3 bg_frameF = (glm::vec3(0.08f, 0.08f, 0.11f));
-	glm::vec3 bg_popupF = (glm::vec3(0.09f, 0.09f, 0.12f));
-	glm::vec3 bg_borderF = (glm::vec3(0.12f, 0.12f, 0.16f));
+	glm::vec3 bg_frameF      = glm::vec3(0.12f, 0.08f, 0.11f); 
+	glm::vec3 bg_popupF      = glm::vec3(0.15f, 0.10f, 0.13f); 
+	glm::vec3 bg_borderF     = glm::vec3(0.96f, 0.96f, 1.00f) * glm::vec3(0.5f); 
 
 
 	ImGuiStyle& Style = ImGui::GetStyle();
@@ -514,7 +515,7 @@ void FEImGuiWindow::menuwindow()
 }
 
 void FEImGuiWindow::SystemInfomation() {
-	if (ImGui::TreeNode("System Infomation")) {
+	if (ImGui::TreeNode("System information")) {
 
 		ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION)); // Display OpenGL version
 		ImGui::Text("Renderer: %s", glGetString(GL_RENDERER));  // Display GPU renderer
@@ -532,8 +533,9 @@ static const char* probeItems[]{ "SceneToProbeSpace","aabbsSceneToProbeSpace", "
 void FEImGuiWindow::RenderWindow() {
 	ImGui::Begin("Rendering"); // ImGUI window creation
 	if (ImGui::SmallButton("Reload Model Shaders?")) for (size_t i = 0; i < ShaderHandler::shaderObjects.size(); i++)ShaderHandler::reloadShader(i);
-	
 	if (ImGui::SmallButton("Reload Global Shaders")) RenderClass::initGlobalShaders();
+	if (ImGui::SmallButton("Compile Shaders")) RenderClass::compileShaders();
+	ImGui::Checkbox("compileOnDirty", &UniformManager::compileOnDirty);
 
 	if (ImGui::TreeNode("window")) {
 
@@ -555,6 +557,14 @@ void FEImGuiWindow::RenderWindow() {
 			ScreenUtils::toggleFullscreen(windowHandler::window, windowHandler::width, windowHandler::height); //needs to be fixed //GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight
 		} //Toggle Fullscreen
 
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+	
+	if (ImGui::TreeNode("ScreenSpace")) {
+		
+		ImGui::Checkbox("doSSR", &RenderClass::doSSR);
+		ImGui::Checkbox("doContactShadows", &RenderClass::doContactShadows);
+		
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	
@@ -652,6 +662,17 @@ void FEImGuiWindow::PerformanceProfiler() {
 	SystemInfomation();
 
 	ImGui::Spacing();
+	
+	if (ImGui::TreeNode("Thread Latency")) {
+
+		ImGui::Text(("Main Thread: " + std::to_string(TimeUtil::mtDeltatime * 1000.0f) + " ms").c_str() ); 
+		ImGui::Text(("Physics Thread: " + std::to_string(TimeUtil::ptDeltatime * 1000.0f) + " ms").c_str() ); 
+		ImGui::Text(("Game Thread: " + std::to_string(TimeUtil::deltatime * 1000.0f) + " ms").c_str() ); 
+		ImGui::Text(("Worker Thread: " + std::to_string(TimeUtil::wtDeltatime * 1000.0f) + " ms").c_str() ); 
+		ImGui::TreePop();// Ends The ImGui Window
+	}
+	
+	ImGui::Spacing();
 
 	static float framerateValues[60] = { 0 };
 	static int frValues_offset = 0;
@@ -680,8 +701,8 @@ void FEImGuiWindow::PerformanceProfiler() {
 	ImGui::EndGroup();
 
 	ImGui::Spacing();
-
-	ImGui::TextColored(ImVec4(0,1,0,1), ("Render: " + std::to_string(TimeUtil::deltatime / 1000.0f) + " ms").c_str());
+	
+	ImGui::TextColored(ImVec4(0,1,0,1), ("Render: " + std::to_string(TimeUtil::deltatime * 1000.0f) + " ms").c_str());
 
 	ImGui::End();
 }
@@ -765,12 +786,14 @@ void FEImGuiWindow::viewport() {
 
 	float window_width = ImGui::GetContentRegionAvail().x;
 	float window_height = ImGui::GetContentRegionAvail().y;
+	
+	Framebuffer::attemptFrameBufferResize(static_cast<unsigned int>(window_width), static_cast<unsigned int>(window_height)); // Update frame buffer resolution
+	
 	ImGui::Image((ImTextureID)(uintptr_t)Framebuffer::Ftexture, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
 
 	//prevEnableLinearScaling
 	//ScreenUtils::UpdateViewportResize();
-	Framebuffer::updateFrameBufferResolution(static_cast<unsigned int>(window_width), static_cast<unsigned int>(window_height)); // Update frame buffer resolution
-
+	
 	ImVec2 viewportPos = ImGui::GetItemRectMin();    // top-left corner relative to window
 	ImVec2 viewportSize = ImGui::GetItemRectSize(); // size of the image
 
@@ -1463,6 +1486,9 @@ void FEImGuiWindow::SceneFolderWindow()
 				}
 				if (FEImGuiWindow::ContentObjects[i] == "Material") {
 					if (ImGui::ImageButton(("##materialIcon" + std::to_string(i)).c_str(), (ImTextureID)FEImGuiWindow::materialIcon.ID, ImVec2(100, 100))) {
+						
+						FEImGuiWindow::SelectedObjectType = "Material";
+						FEImGuiWindow::SelectedObjectIndex = i;
 						// when clicked on should summon material editor
 					}
 

@@ -68,6 +68,7 @@ void main()
 {
     vec3 screen = texture(screentexture, texCoord).rgb;
 
+    //FragColor.rgb = screen; return;
     
 
     //early z cutoff
@@ -105,7 +106,6 @@ void main()
     
     vec3 previousColourClamped = colourClamp(1, previousColour);
     
-    //float blendFactor = 0.9;
     float blendFactor = 0.9;
    //vec3 accumulated = mix(screen, previousColourClamped, blendFactor);
     

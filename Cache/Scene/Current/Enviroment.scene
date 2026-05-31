@@ -1,7 +1,7 @@
 [
     {
-        "DefaultSkyboxPath": "Assets/Skybox/clearsky/Skybox.json",
-        "DirAmbient": 0.20000000298023224,
+        "DefaultSkyboxPath": "Assets/Skybox/skyLOGL/Skybox.json",
+        "DirAmbient": 0.0,
         "DirColour": [
             1.0,
             1.0,
@@ -9,11 +9,11 @@
         ],
         "DirEnabled": true,
         "DirRotation": [
-            12.0,
-            156.6999969482422,
+            174.6999969482422,
+            1093.0999755859375,
             0.0
         ],
-        "DirSMMaxBias": 0.0020000000949949026,
+        "DirSMMaxBias": 0.0010000000474974513,
         "DirSpecEnabled": true,
         "DirSpecular": 5.0,
         "DoShadowMap": true,
@@ -26,17 +26,17 @@
         ],
         "dirNearFar": [
             0.10000000149011612,
-            238.0
+            244.0
         ],
         "dirShadowMapHardness": 4,
-        "dirShadowMapSamples": 1,
-        "dirSmDistance": 32.0,
-        "dirSmHeight": 85.0,
+        "dirShadowMapSamples": 4,
+        "dirSmDistance": 16.0,
+        "dirSmHeight": 75.0,
         "indirectSamples": 12,
         "skyRGBA": [
-            0.03835063427686691,
-            0.03835063427686691,
-            0.09313726425170898
+            0.0,
+            0.0,
+            0.0
         ]
     }
 ]

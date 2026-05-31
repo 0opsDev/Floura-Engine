@@ -12,6 +12,7 @@ int Framebuffer::tempWidth;
 int Framebuffer::tempHeight;
 
 unsigned int Framebuffer::ViewPortWidth = 800, Framebuffer::ViewPortHeight = 600;
+unsigned int Framebuffer::windowWidth = 800, Framebuffer::windowHeight = 600;
 
 Shader Framebuffer::frameBufferProgram;
 
@@ -119,7 +120,6 @@ void Framebuffer::setupFBO(unsigned int width, unsigned int height) {
 		std::cout << "Framebuffer error: " << fboStatus << std::endl;
 	}
 
-
 	// GEN FBO
 	glGenFramebuffers(1, &FFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, FFBO);
@@ -140,83 +140,95 @@ void Framebuffer::setupFBO(unsigned int width, unsigned int height) {
 	}
 
 }
-void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int height) {
-	
-	//	static unsigned int ViewPortWidth, ViewPortHeight;
+
+void Framebuffer::setViewportToViewPortResolution(){glViewport(0, 0, ViewPortWidth, ViewPortHeight);}
+
+void Framebuffer::attemptFrameBufferResize(unsigned int width, unsigned int height)
+{
 	if (width == ViewPortWidth && height == ViewPortHeight ) return;
-	
-	//std::cout << "e" <<std::endl;
-	
 	Framebuffer::ViewPortWidth = width;
 	Framebuffer::ViewPortHeight = height;
 	
+	updateFrameBufferResolution(width, height);
+	//updateFrameBufferResolution(480, 480);
+}
+
+void Framebuffer::updateFrameBufferResolution(unsigned int width, unsigned int height) {
+	//Framebuffer::ViewPortWidth = width;
+	//Framebuffer::ViewPortHeight = height;
+	
 	glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
-
 	Scene::maincamera.SetViewportSize(static_cast<int>(width), static_cast<int>(height));
-
-
+	
+	
+	// seperate res scaling from final buffer
 	glBindTexture(GL_TEXTURE_2D, screentexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	
 	// update renderbuffer texture
 	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
+	
+	
 	glBindTexture(GL_TEXTURE_2D, Ftexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
+	
 	dbgPass::updateDBGResolution(width, height);
 	GeometryPass::updateGbufferResolution(width, height);
 	HistoryPass::updateHbufferResolution(width, height);
-
 	raytracer::resizeTexture(width, height);
 }
 
 void Framebuffer::FBO2Draw() {
-	glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_DEPTH_TEST);
 	glBindFramebuffer(GL_FRAMEBUFFER, FFBO);
+	//glViewport(0, 0, windowWidth, windowHeight);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, screentexture);
 	rq.draw();
-
+	
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0); glEnable(GL_DEPTH_TEST); return;
+	//glViewport(0, 0, windowWidth, windowHeight);
+	// unbind fbo and present to screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Ftexture);
-	rq.draw();
+//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//	glActiveTexture(GL_TEXTURE0);
+//	glBindTexture(GL_TEXTURE_2D, Ftexture);
+//	rq.draw();
 
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 }
 
-void ResizeLogic(GLFWwindow* window) {
-		int newWidth, newHeight;
-		glfwGetWindowSize(window, &newWidth, &newHeight);
-
-	// we need a way to make isResizing == true when opengl window is resized
-		Framebuffer::updateFrameBufferResolution(newWidth, newHeight); // Update frame buffer resolution
-		//glViewport(0, 0, newWidth, newHeight);
-		//Scene::maincamera.SetViewportSize(newWidth, newHeight);
-}
+float fps24accumulator = 0;
+float accum24value = 0;
 
 void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 
-	glBindTexture(GL_TEXTURE0, 0);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
-	if (!imGuiPanels) {
-		ResizeLogic(window);
-	}
+	glActiveTexture(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	
+	fps24accumulator += TimeUtil::deltatime;
+	if (fps24accumulator >= 0.041f){accum24value++;fps24accumulator = 0.0f;}
 
+	
+	int newWidth, newHeight;
+	glfwGetWindowSize(window, &newWidth, &newHeight);
+	Framebuffer::windowWidth = newWidth;
+	Framebuffer::windowHeight = newHeight;
+	
+	
+	
 	frameBufferProgram.Activate();
-
-	frameBufferProgram.setMat4("view", Scene::maincamera.view);
-	frameBufferProgram.setMat4("projection", Scene::maincamera.projection);
-	frameBufferProgram.setMat4("cameraMatrix", Scene::maincamera.cameraMatrix);
 	frameBufferProgram.setFloat("time", glfwGetTime());
 	frameBufferProgram.setFloat("deltaTime", TimeUtil::deltatime);
 	frameBufferProgram.setFloat("sharpness", sharpness);
+	frameBufferProgram.setFloat("accum24value", accum24value);
 	frameBufferProgram.setBool("overlayDebug", dbgPass::overlayDebug);
 
 	// draw the framebuffer
@@ -225,60 +237,38 @@ void Framebuffer::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 	glGenerateMipmap(GL_TEXTURE_2D);
 	frameBufferProgram.setInt("screenTexture", 0);
 
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gPosition);
-	frameBufferProgram.setInt("gPosition", 1);
-
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
-	frameBufferProgram.setInt("gNormal", 2);
-
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gAlbedoSpec);
-	frameBufferProgram.setInt("gAlbedoSpec", 3);
-
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
-
 	frameBufferProgram.setFloat("gamma", Scene::maincamera.gamma);
-
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
-	frameBufferProgram.setInt("depthMap", 6);
-
-	glActiveTexture(GL_TEXTURE7);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gSpecular);
-	frameBufferProgram.setInt("gSpecular", 7);
-	
-	glActiveTexture(GL_TEXTURE9);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gVelocity);
-	frameBufferProgram.setInt("gVelocity", 9);
 	
 	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, dbgPass::dbgColour);
 	frameBufferProgram.setInt("dbgColour", 10);
 	//dbgPass
-
+	
+	RenderClass::bluenoise->Bind();
+	frameBufferProgram.setInt("BlueNoiseTex", 11);
+	
+	glDisable(GL_DEPTH_TEST);
+	
 	if (!imGuiPanels) {
+		//updateDisplayResolution(newWidth, newHeight);
+		Framebuffer::attemptFrameBufferResize(newWidth, newHeight); // Update frame buffer resolution 
+		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, ViewPortWidth, ViewPortHeight);
-
-		glDisable(GL_DEPTH_TEST);
+		
+		//glViewport(0, 0, ViewPortWidth, ViewPortHeight); // set viewport
 		
 		glClearColor(RenderClass::gammaCorrect(RenderClass::skyRGBA.r), RenderClass::gammaCorrect(RenderClass::skyRGBA.g), RenderClass::gammaCorrect(RenderClass::skyRGBA.b), 1.0f);
-		if (FEImGuiWindow::isWireframe)
-			glClearColor(pow(0.0f, Scene::maincamera.gamma), pow(0.0f, Scene::maincamera.gamma), pow(0.0f, Scene::maincamera.gamma), 1.0f);
+		if (FEImGuiWindow::isWireframe) glClearColor(pow(0.0f, Scene::maincamera.gamma), pow(0.0f, Scene::maincamera.gamma), pow(0.0f, Scene::maincamera.gamma), 1.0f);
 		
 		glClear(GL_COLOR_BUFFER_BIT);
-
-		rq.draw();
-		glEnable(GL_DEPTH_TEST);
+		rq.draw();	
+		
 	}
 	else
 	{
-		frameBufferProgram.Activate();
 		Framebuffer::FBO2Draw();
 	}
+	glEnable(GL_DEPTH_TEST);
 }
 
 void Framebuffer::Delete()

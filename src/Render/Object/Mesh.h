@@ -19,7 +19,7 @@ public:
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     std::vector<Texture> textures;
-
+	
     void create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures);
     void createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
     void draw(Shader &shader, Camera Camera);
@@ -42,6 +42,13 @@ public:
 	int drawType = 0; // 0 = triangles, 1 = lines, 2 = points
 
     std::string name = "empty";
+	bool culled = false; // reset on end of draw;
+	bool suppressSetupMeshCall = false;
+	bool created = false;
+	
+	
+	// exposed for threadding
+	void setupMesh();
     
 private:
     
@@ -55,9 +62,8 @@ private:
     glm::vec3 globalPosition = glm::vec3(0.0f);
     glm::vec3 globalScale = glm::vec3(1.0f);
     glm::vec3 globalRotation = glm::vec3(0.0f, 0.0f, 0.0f);
-
+	
     VAO VAO;
-    void setupMesh();
 };
 
 #endif

@@ -4,21 +4,6 @@
 #include <utils/logConsole.h>
 #include "Scene/scene.h"
 
-/*
-what should a material do in order
-
-0. clear any previous material variables
-1. unload from path (lets not have it in the form of constuctor for ease)
-2. init shaders
-3. send uniforms to shader
-4. ImGuiOverlay
-
-addionally, there should be a material content object for the content window function under the ImGuiWindow class.
-no need to save shader there will be a shader editor for that, i think for per model there should be a material savefile tho (it'll be figured out later)
-*/
-
-
-
 void Material::LoadMaterial(std::string path)
 {
 	// Clear previous material variables
@@ -80,7 +65,33 @@ void Material::update()
 
 void Material::updateForwardLights() {
 	int modelShaderIndex = ShaderHandler::fetchShaderIndex(modelShaderUUID);
-	LightingHandler::update(ShaderHandler::shaderObjects[modelShaderIndex].Shader);
+	LightingHandler::sendToShader(ShaderHandler::shaderObjects[modelShaderIndex].Shader);
+	
+}
+
+void Material::compileUniforms()
+{
+	for (int i = 0; i < uniformsPairs.size(); ++i) uniformsPairs[i].uniformIndexes = UniformManager::getIndexFromHandle(uniformsPairs[i].handle);
+}
+
+uint64_t Material::createUniform(UniformManager::uniformTypeEnum type, std::string name)
+{
+	uint64_t nHandle = UniformManager::createUniform(type, name);
+	uniformPair nPair;
+	nPair.uniformIndexes = UniformManager::getIndexFromHandle(nHandle);
+	nPair.handle = nHandle;
+	uniformsPairs.push_back(nPair);
+	
+	return nHandle;
+}
+
+void Material::createUniformW_ID(UniformManager::uniformTypeEnum type, std::string name, uint64_t UUID)
+{
+	UniformManager::createUniformW_UUID(type, name, UUID);
+	uniformPair nPair;
+	nPair.uniformIndexes = UniformManager::getIndexFromHandle(UUID);
+	nPair.handle = UUID;
+	uniformsPairs.push_back(nPair);
 }
 
 

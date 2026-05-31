@@ -11,8 +11,9 @@
 #include <Gameplay/Player.h>
 #include <Render/passes/post/historyPass.h>
 #include "Scene/FE_LAYER.h"
-
 #include "utils/FE_math.h"
+#include "LoadHandler.h"
+
 std::unordered_map<std::string, uint64_t> RenderHandler::pKeyHandleMapRender;
 std::vector<RenderHandler::modelObject> RenderHandler::models;
 std::vector<RenderHandler::renderQueueData> RenderHandler::renderQueueDataVector;
@@ -37,6 +38,15 @@ int RenderHandler::fetchModelIndex(uint64_t RenderID)
 	return -1;
 }
 
+void RenderHandler::updateLoadUnloadedModels()
+{
+	for (int i = 0; i < models.size(); ++i) // should have a int count for how many have gotten loaded, and - on it to skip the for loop
+	{
+		if (models[i].model->disableConstructorLoadingModelFlag && !models[i].model->loaded) // if the flag is active, and the model is not classed as loaded
+			models[i].model->loadModelPathless(); // load
+	}
+}
+
 RenderHandler::batchOfUUID RenderHandler::addModel(std::string path)
 {
 	uint64_t nUUID = fetchHandle(path);
@@ -50,7 +60,11 @@ RenderHandler::batchOfUUID RenderHandler::addModel(std::string path)
 		newModelObject.path = path;
 		newModelObject.RenderID = nUUID;
 		newModelObject.instances = 1;
-		newModelObject.model = new Model(path.c_str());
+		//newModelObject.model = new Model(path.c_str(), true, true, true); // to attempt the threaded worker load do here <<
+		newModelObject.model = new Model(path.c_str(), false, false, false); // to attempt the threaded worker load do here <<
+		//newModelObject.model = new Model(path.c_str(), false, true, true); // to attempt the threaded worker load do here <<
+		//LoadHandler::addToModelMeshCreateW_RenderIDQueue(nUUID); // << to run on opengl thread
+		//LoadHandler::addToModelTextureCreateW_RenderIDQueue(nUUID);
 		newModelObject.model->createMeshAABBs();
 		newModelObject.model->renderID = nUUID;
 		newModelObject.model->instanceUUIDs.push_back(nIUUID);  // set
@@ -129,6 +143,8 @@ void RenderHandler::render()
 		raytracer::render(); // Run compute shader for lighting pass
 		raytracer::RTGlobalTransformFlag = false;
 	}
+	
+	RenderClass::ScreenSpaceLightingPass();
 	
 	if (RenderClass::doTAA) RenderClass::taaPass();
 	
@@ -267,6 +283,7 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 	Camera nCamera;
 	nCamera.InitCamera(int(resolution.x), int(resolution.y), pos); // Matching your Position
 	nCamera.fov = 90.0f;
+	nCamera.nearFar = glm::vec2(0.1f, range);
 	
 	// Cycles through all the textures and attaches them to the cubemap object
 	for (unsigned int x = 0; x < 6; x++)
@@ -302,8 +319,8 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 				models[index].model->updateTranformation();
 
 				if (!FE_Math::isInRange(renderQueueDataVector[i].position, pos, range)) continue; // range check/cull
-				
-				LightingHandler::update(shader);
+				models[index].model->childrenRangeCull(pos, nCamera.nearFar.y);
+				LightingHandler::sendToShader(shader);
 
 				//RenderClass::bluenoise->Bind();
 				//shader.setInt("BlueNoiseTex", 6);
@@ -319,9 +336,7 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 				nCamera.Matrix(shader, "camMatrix");
 
 				shader.Activate();
-				shader.setFloat("deltatime", TimeUtil::deltatime);
-				shader.setFloat("time",TimeUtil::time);
-				shader.setFloat("priorTime", TimeUtil::priorTime);
+				shader.setTimeVariables();
 				shader.setFloat("doBinaryAlpha", RenderClass::doBinaryAlpha);
 				// this would normally be in material
 				
@@ -342,7 +357,6 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 				shader.Activate();
 				glEnable(GL_DEPTH_TEST);
 				glDepthFunc(GL_LESS);
-
 				// temp
 				models[index].model->draw(shader, nCamera);
 				
@@ -354,10 +368,6 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 				glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 			}
 		}
-
-		
-
-
 
 		unsigned char* data = new unsigned char[width * height * 4];
 		glBindFramebuffer(GL_READ_BUFFER, Framebuffer::cmFBO);
@@ -405,6 +415,9 @@ void RenderHandler::regularDraw()
 		int index = fetchModelIndex(renderQueueDataVector[i].RenderID);
 		if (index != -1 && !renderQueueDataVector[i].isInstanced)
 		{
+			// whole cull if (Collision::AABBtoSphereRangeCull())
+			
+			
 			int modelGPShaderIndex = ShaderHandler::fetchShaderIndex(renderQueueDataVector[i].gpShaderUUID);
 
 			// these are temp
@@ -418,15 +431,17 @@ void RenderHandler::regularDraw()
 			models[index].model->updatePrevRotation(renderQueueDataVector[i].pRotation);
 			models[index].model->updatePrevScale(renderQueueDataVector[i].pScale);
 			models[index].model->updatePrevTranformation();
-
+			
+			// range cull prep before draw
+			
+			models[index].model->childrenRangeCull(Scene::maincamera.Position, Scene::maincamera.nearFar.y);
+			//models[index].model->childrenRangeCull(Scene::maincamera.Position, 15.0f);
+			
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.Activate();
 			Scene::maincamera.Matrix(ShaderHandler::shaderObjects[modelGPShaderIndex].Shader, "camMatrix");
 
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.Activate();
-			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat("deltatime", TimeUtil::deltatime);
-			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat("time",TimeUtil::time);
-			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat("priorTime", TimeUtil::priorTime);
-			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setInt("frame", TimeUtil::frame);
+			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setTimeVariables();
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setBool("doBinaryAlpha", RenderClass::doBinaryAlpha);
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setBool("animateBinaryAlpha", RenderClass::animateBinaryAlpha);
 			// this would normally be in material
@@ -472,8 +487,10 @@ void RenderHandler::regularDraw()
 				models[index].model->updateRotation(renderQueueDataVector[i].rotation);
 				models[index].model->updateScale(renderQueueDataVector[i].scale);
 				models[index].model->updateTranformation();
+				
+				models[index].model->childrenRangeCull(Scene::maincamera.Position, Scene::maincamera.nearFar.y);
 
-				LightingHandler::update(ShaderHandler::shaderObjects[modelShaderIndex].Shader);
+				LightingHandler::sendToShader(ShaderHandler::shaderObjects[modelShaderIndex].Shader);
 
 				//RenderClass::bluenoise->Bind();
 				//ShaderHandler::shaderObjects[modelShaderIndex].Shader.setInt("BlueNoiseTex", 6);
@@ -499,11 +516,7 @@ void RenderHandler::regularDraw()
 				Scene::maincamera.Matrix(ShaderHandler::shaderObjects[modelShaderIndex].Shader, "camMatrix"); // Send Camera Matrix To Shader Prog
 
 				ShaderHandler::shaderObjects[modelShaderIndex].Shader.Activate();
-				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("deltatime", TimeUtil::deltatime);
-				//ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("time", glfwGetTime() );
-				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("time",TimeUtil::time);
-				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setFloat("priorTime", TimeUtil::priorTime);
-				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setInt("frame", TimeUtil::frame);
+				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setTimeVariables();
 				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setBool("doBinaryAlpha", RenderClass::doBinaryAlpha);
 				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setBool("animateBinaryAlpha", RenderClass::animateBinaryAlpha);
 				// this would normally be in material

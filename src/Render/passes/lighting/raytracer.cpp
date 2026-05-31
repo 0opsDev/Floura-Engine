@@ -347,9 +347,8 @@ void raytracer::render() {
 	testCompute.setFloat3("orientation", Scene::maincamera.Orientation);
 	testCompute.setFloat3("camUp", Scene::maincamera.Up);
 	testCompute.setFloat("fov", Scene::maincamera.fov);
-	testCompute.setFloat("time",TimeUtil::time);
-	testCompute.setFloat("priorTime", TimeUtil::priorTime);
-	testCompute.setFloat("deltatime", TimeUtil::deltatime);
+	
+	testCompute.setTimeVariables();
 
 	testCompute.setFloat("maxDistance", raytracer::maxDistance);
 	testCompute.setFloat("noiseThreshold", raytracer::noiseThreshold);
@@ -381,7 +380,7 @@ void raytracer::render() {
 	testCompute.setFloat3("sceneBoundPos", Scene::SceneBounds.position);
 	testCompute.setFloat3("sceneBoundScale", Scene::SceneBounds.size);
 
-	LightingHandler::update(testCompute);
+	LightingHandler::sendToShader(testCompute);
 
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);

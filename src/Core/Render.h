@@ -17,6 +17,7 @@ public:
 
 	// billboard
 	static Shader GBLpass;
+	static Shader ssPass;
 	static Shader taaShader;
 	static Shader billBoardShader;
 	static Shader gPassShaderBillBoard;
@@ -24,6 +25,8 @@ public:
 	static Shader LineShader;
 	static bool renderSkybox;
 	static bool doReflections;
+	static bool doSSR;
+	static bool doContactShadows;
 	static bool doFog;
 	static GLfloat DepthDistance;
 	static GLfloat DepthPlane[];
@@ -58,6 +61,8 @@ public:
 
 	static void DeferredLightingPass();
 	
+	static void ScreenSpaceLightingPass();
+	
 	static void taaPass();
 
 	static void Cleanup();
@@ -65,6 +70,8 @@ public:
 	static float gammaCorrect(float input);
 
 	static glm::vec3 gammaCorrect3(glm::vec3 input);
+	
+	static void compileShaders();
 
 };
 #endif

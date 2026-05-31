@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <string>
+#include <glm/vec2.hpp>
 
 class windowHandler
 {
@@ -15,6 +16,7 @@ public:
 	static float window_width, window_height;
 	static std::string s_WindowTitle; //"OpenGL Window"
 	static bool doVsync;
+	static double mouseX, mouseY;
 
 	static GLFWmonitor* fetchPrimaryWindow();
 
@@ -28,7 +30,11 @@ public:
 
 	static void setVSync(bool enabled);
 
-	static void InitMainWidnow();
+	static void InitMainWindow();
+	
+	static void PollMousePositionsMainWindow();
+	
+	static void updateMouseLock(bool enabled, int w, int h);
 	
 	static void addWindowDropCallback(GLFWwindow* window);
 	

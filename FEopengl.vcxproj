@@ -174,10 +174,12 @@
     <ClCompile Include="src\Render\Buffer\VAO.cpp" />
     <ClCompile Include="src\Render\Buffer\VBO.cpp" />
     <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp" />
+    <ClCompile Include="src\Render\Handler\LoadHandler.cpp" />
     <ClCompile Include="src\Render\Handler\RenderHandler.cpp" />
     <ClCompile Include="src\Render\Handler\sceneDescription.cpp" />
     <ClCompile Include="src\Render\Handler\ShaderHandler.cpp" />
     <ClCompile Include="src\Render\Handler\TextureMapManager.cpp" />
+    <ClCompile Include="src\Render\Handler\UniformManager.cpp" />
     <ClCompile Include="src\Render\Object\Billboard.cpp" />
     <ClCompile Include="src\Render\Object\Cubemap.cpp" />
     <ClCompile Include="src\Render\Object\line.cpp" />
@@ -437,8 +439,10 @@
     <ClCompile Include="src\Scripting\ScriptObject.cpp" />
     <ClCompile Include="src\Sound\SoundProgram.cpp" />
     <ClCompile Include="src\Sound\SoundRunner.cpp" />
+    <ClCompile Include="src\Systems\general\flouraEvent.cpp" />
     <ClCompile Include="src\Systems\Physics\BVH.cpp" />
     <ClCompile Include="src\Systems\Physics\Collision.cpp" />
+    <ClCompile Include="src\Systems\Physics\physworld.cpp" />
     <ClCompile Include="src\Systems\util\relationshipManager.cpp" />
     <ClCompile Include="src\Systems\util\UUID.cpp" />
     <ClCompile Include="src\utils\FE_math.cpp" />
@@ -485,10 +489,12 @@
     <ClInclude Include="src\Render\Buffer\VAO.h" />
     <ClInclude Include="src\Render\Buffer\VBO.h" />
     <ClInclude Include="src\Render\Cube\CubeVisualizer.h" />
+    <ClInclude Include="src\Render\Handler\LoadHandler.h" />
     <ClInclude Include="src\Render\Handler\RenderHandler.h" />
     <ClInclude Include="src\Render\Handler\sceneDescription.h" />
     <ClInclude Include="src\Render\Handler\ShaderHandler.h" />
     <ClInclude Include="src\Render\Handler\TextureMapManager.h" />
+    <ClInclude Include="src\Render\Handler\UniformManager.h" />
     <ClInclude Include="src\Render\Object\Billboard.h" />
     <ClInclude Include="src\Render\Object\Cubemap.h" />
     <ClInclude Include="src\Render\Object\line.h" />
@@ -525,8 +531,10 @@
     <ClInclude Include="src\Scripting\ScriptObject.h" />
     <ClInclude Include="src\Sound\SoundProgram.h" />
     <ClInclude Include="src\Sound\SoundRunner.h" />
+    <ClInclude Include="src\Systems\general\flouraEvent.h" />
     <ClInclude Include="src\Systems\Physics\BVH.h" />
     <ClInclude Include="src\Systems\Physics\Collision.h" />
+    <ClInclude Include="src\Systems\Physics\physworld.h" />
     <ClInclude Include="src\Systems\util\relationshipManager.h" />
     <ClInclude Include="src\Systems\util\UUID.h" />
     <ClInclude Include="src\utils\FE_math.h" />
@@ -540,7 +548,6 @@
     <None Include="Assets\Shaders\compute\DenoiseRenderQuad.frag" />
     <None Include="Assets\Shaders\compute\emptycomputeShader.comp" />
     <None Include="Assets\Shaders\compute\Raytrace.comp" />
-    <None Include="Assets\Shaders\compute\ssao.comp" />
     <None Include="Assets\Shaders\compute\viewmatrix.comp" />
     <None Include="Assets\Shaders\Db\BillBoard.frag" />
     <None Include="Assets\Shaders\Db\BillBoard.vert" />
@@ -595,6 +602,10 @@
     <Content Include="Assets\Shaders\Db\forWeightDBG.vert" />
     <Content Include="Assets\Shaders\Deferred\DFR_Phon.frag" />
     <Content Include="Assets\Shaders\Deferred\DFR_Phon.vert" />
+    <Content Include="Assets\Shaders\Deferred\screenspaceReflections.frag" />
+    <Content Include="Assets\Shaders\Deferred\screenspaceReflections.vert" />
+    <Content Include="Assets\Shaders\gBuffer\geometryPassPOM.frag" />
+    <Content Include="Assets\Shaders\gBuffer\geometryPassPOM.vert" />
     <Content Include="Assets\Shaders\gBuffer\geometryPassWater.vert" />
     <Content Include="Assets\Shaders\gBuffer\gSkybox.frag" />
     <Content Include="Assets\Shaders\gBuffer\historybuffer.frag" />

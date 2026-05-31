@@ -16,6 +16,15 @@ public:
 	std::string path;
 	bool flipVertical = false;
 	bool linearFilter = false;
+	
+	bool suppressCreation = false;
+	bool created = false;
+	
+	glm::vec4 sColour;
+	bool nIsTexture = false;
+	
+	void createFromCapture();
+	
 	void createColour(glm::vec4 colour, const char* texType, GLuint slot);
 	void createTexture(const char* image, const char* texType, GLuint slot);
 

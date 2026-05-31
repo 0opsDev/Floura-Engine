@@ -13,6 +13,7 @@ out vec3 gNormals;
 out vec3 color;
 out vec2 texCoord;
 
+
 uniform mat4 camMatrix;
 uniform mat4 previousCamMatrix;
 uniform mat4 model;
@@ -24,6 +25,8 @@ uniform vec2 uvScale;
 out vec3 Normal0;
 out vec3 Tangent0;
 out vec3 Bitangent0;
+out vec2 uvscale;
+out vec2 texcoord2;
 
 out highp vec4 currentPos;
 out highp vec4 previousPos;
@@ -49,5 +52,7 @@ void main()
     Normal = Norm;
 
     color = aColor;
-    texCoord = vec2(aTex.x  * uvScale.x, aTex.y * uvScale.y);
+    texcoord2 = vec2(aTex.x  * uvScale.x, aTex.y * uvScale.y);
+    texCoord = vec2(aTex.x, aTex.y);
+    uvscale = uvScale;
 }

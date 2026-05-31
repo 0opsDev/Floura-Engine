@@ -14,6 +14,17 @@
 class Collision
 {
 public:
+	
+	
+	enum collisionTypes
+	{
+		typeAABB,
+		typeSphere,
+		typePlane, // todo
+		typeMesh,
+		typeOOBB, // todo
+		typeFrustum // todo
+	};
 
 	struct minmax
 	{
@@ -27,7 +38,6 @@ public:
 		float depth = 0.0f;
 		glm::vec3 lastHit = glm::vec3(0.0f);
 		glm::vec3 collisionNormal = glm::vec3(0.0f);
-
 	}; 
 
 	struct AABB
@@ -55,6 +65,29 @@ public:
 		glm::vec3 b = glm::vec3(0.0f);
 		glm::vec3 c = glm::vec3(0.0f);
 	};
+	
+	
+	// thanks LOGL
+	struct plane
+	{
+		glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
+		float distance = 1.0f;
+	};
+	
+	struct Frustum
+	{
+		plane topFace;
+		plane bottomFace;
+
+		plane rightFace;
+		plane leftFace;
+
+		plane farFace;
+		plane nearFace;
+	};
+	
+	
+	static Frustum createFrustumFromCamera(glm::mat4 m);
 
 
 	static bool showBoxCollider;
@@ -87,7 +120,9 @@ public:
 	// takes AABB return MinMax
 	static Collision::minmax returnMinMax(glm::vec3 p, glm::vec3 s);
 	
-	static glm::vec3 constrainPoint(glm::vec3 vp, glm::vec3 c2, float cArea);
+	static glm::vec3 constrainPoint(glm::vec3 vp, glm::vec3 c2, float cRadius);
+	
+	static HitResult advancedConstrainPoint(glm::vec3 vp, glm::vec3 c2, float cRadius);
 
 	// AABB collision detection
 	// AABB vs AABB
@@ -151,6 +186,10 @@ public:
 
 	//
 	static bool isBoxInFrustum(const glm::vec3& worldPos, const glm::vec3& Scale, const glm::mat4& view, const glm::mat4& projection);
+	
+	static Sphere AABBtoSphere(const glm::vec3& posA, const glm::vec3& sizeA);
+	
+	static bool AABBtoSphereRangeCull(const glm::vec3& posA, const glm::vec3& sizeA, glm::vec3 point, float distance);
 
 
 

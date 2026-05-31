@@ -6,6 +6,57 @@
 #include <array>
 #include <glm/gtx/norm.hpp>
 
+Collision::Frustum Collision::createFrustumFromCamera(glm::mat4 m)
+{
+	
+	Frustum f;
+	
+	f.leftFace.normal.x = m[0][3] + m[0][0];
+	f.leftFace.normal.y = m[1][3] + m[1][0];
+	f.leftFace.normal.z = m[2][3] + m[2][0];
+	f.leftFace.distance = m[3][3] + m[3][0];
+
+	f.rightFace.normal.x = m[0][3] - m[0][0];
+	f.rightFace.normal.y = m[1][3] - m[1][0];
+	f.rightFace.normal.z = m[2][3] - m[2][0];
+	f.rightFace.distance = m[3][3] - m[3][0];
+
+	f.bottomFace.normal.x = m[0][3] + m[0][1];
+	f.bottomFace.normal.y = m[1][3] + m[1][1];
+	f.bottomFace.normal.z = m[2][3] + m[2][1];
+	f.bottomFace.distance = m[3][3] + m[3][1];
+
+	f.topFace.normal.x = m[0][3] - m[0][1];
+	f.topFace.normal.y = m[1][3] - m[1][1];
+	f.topFace.normal.z = m[2][3] - m[2][1];
+	f.topFace.distance = m[3][3] - m[3][1];
+
+	f.nearFace.normal.x = m[0][3] + m[0][2];
+	f.nearFace.normal.y = m[1][3] + m[1][2];
+	f.nearFace.normal.z = m[2][3] + m[2][2];
+	f.nearFace.distance = m[3][3] + m[3][2];
+
+	f.farFace.normal.x = m[0][3] - m[0][2];
+	f.farFace.normal.y = m[1][3] - m[1][2];
+	f.farFace.normal.z = m[2][3] - m[2][2];
+	f.farFace.distance = m[3][3] - m[3][2];
+	
+	auto normalizePlane = [](plane& p) {
+		float mag = glm::length(p.normal);
+		p.normal /= mag;
+		p.distance /= mag;
+	};
+	
+	normalizePlane(f.leftFace);
+	normalizePlane(f.rightFace);
+	normalizePlane(f.bottomFace);
+	normalizePlane(f.topFace);
+	normalizePlane(f.nearFace);
+	normalizePlane(f.farFace);
+
+	return f;
+}
+
 bool Collision::showBoxCollider = false;
 
 Collision::rubiksCubePoints Collision::fetchFurthestPoints(const std::vector<glm::vec3>& points)
@@ -215,18 +266,49 @@ Collision::minmax Collision::returnMinMax(glm::vec3 p, glm::vec3 s)
 	return newMinMax;
 }
 
-glm::vec3 Collision::constrainPoint(glm::vec3 vp, glm::vec3 c2, float cArea)
+glm::vec3 Collision::constrainPoint(glm::vec3 vp, glm::vec3 c2, float cRadius)
 {
 	// check if inside the radius, otherwise fail
-	if  (SphereVsPoint(c2, cArea, vp)) return vp;
+	if  (SphereVsPoint(c2, cRadius, vp)) return vp;
 	
 	// get normal of two positons from point pointing to victim
 	glm::vec3 direction = c2 - vp;
 	glm::vec3 normal = glm::normalize(direction);
 	// clamp inside
-	glm::vec3 clampedPosition = c2 - normal * cArea;
+	glm::vec3 clampedPosition = c2 - normal * cRadius;
 	
 	return clampedPosition;
+}
+
+Collision::HitResult Collision::advancedConstrainPoint(glm::vec3 vp, glm::vec3 c2, float cRadius)
+{
+	HitResult hitResult;
+	hitResult.isColliding = false;
+	
+	// get distance
+	float distance = glm::distance(c2, vp);
+	// check if inside the radius, otherwise fail (sphere v point collision)
+	if  (distance < cRadius){ hitResult.lastHit = vp; return hitResult;}
+	
+	// is colliding
+	hitResult.isColliding = true;
+	
+	// get normal of two positons from point pointing to victim
+	glm::vec3 direction = c2 - vp;
+	glm::vec3 normal = glm::normalize(direction);
+	hitResult.lastHit = c2 - normal * cRadius; // clamp inside // position of vic
+	
+	// inverse normal for collisionnormal
+	glm::vec3 inverseDirection = vp - c2;
+	glm::vec3 inverseNormal = glm::normalize(inverseDirection);
+	hitResult.collisionNormal =inverseNormal;
+	
+	// how deep past the clamp
+	// get distance from piviot to vic, use cRadius (range) to subtract so the access is left
+	hitResult.depth =distance - cRadius;
+	hitResult.distance = distance;
+
+	return hitResult;
 }
 
 Collision::HitResult Collision::AABBvsAABB(
@@ -736,6 +818,31 @@ bool Collision::isBoxInFrustum(const glm::vec3& worldPos, const glm::vec3& Scale
 	}
 
 	return true;
+}
+
+Collision::Sphere Collision::AABBtoSphere(const glm::vec3& posA, const glm::vec3& sizeA)
+{
+	Sphere nSphere;
+	float length = glm::length(sizeA);
+	nSphere.radius = length;
+	nSphere.position = posA;
+	
+	return nSphere;
+}
+
+bool Collision::AABBtoSphereRangeCull(const glm::vec3& posA, const glm::vec3& sizeA, glm::vec3 point, float distance)
+{
+	// radius from centre off aabb from longest point
+	float sphereRadius = glm::length(sizeA * 1.5f);
+	
+	// distance between aabb centre and point
+	float pDistance = glm::distance(posA, point);
+	
+	//Sphere edge distance from point
+	float edgeDistance = pDistance - sphereRadius;
+	
+	// check wether edge distance is within distance
+	return edgeDistance < distance;
 };
 
 

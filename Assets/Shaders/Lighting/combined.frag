@@ -94,10 +94,7 @@ uniform float smoothnessValue;
 uniform bool doBinaryAlpha;
 uniform bool animateBinaryAlpha;
 
-float linearizeDepth(float depth, float NP, float FP)
-{
-	return (2.0 * NP * FP) / (FP + NP - (depth * 2.0 - 1.0) * (FP - NP));
-}
+float linearizeDepth(float depth, float NP, float FP) { return (2.0 * NP * FP) / (FP + NP - (depth * 2.0 - 1.0) * (FP - NP)); }
 
 vec3 CalcNewNormal(vec2 UV)
 {
@@ -559,12 +556,13 @@ vec3 indirectIBL(int samples, sampler2D specSamp)
 	sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
 	vec2 noiseUV = vec2(gl_FragCoord.xy) / vec2(textureSize(bluemap, 0));
 	vec2 scrollingUV = noiseUV + fract(time * vec2(12.9898, 78.233));
+	vec2 blueNoise = texture(bluemap, scrollingUV).rg;
 	
 	for (int i = 0; i < samples; i++)
 	{
 	//gl_FragCoord
 		//vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + (gl_FragCoord.z * time));
-		vec2 blueNoise = texture(bluemap, scrollingUV).rg;
+
 
 		float u = fract(blueNoise.r + float(i) * 0.61803398875);
 		float v = fract(blueNoise.g + float(i) * 0.61803398875);
@@ -578,8 +576,10 @@ vec3 indirectIBL(int samples, sampler2D specSamp)
 		
 		//vec3 randomDir = sampleHemisphere2(normalize(NreflectedVector), u , v);
 		
-		vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + time); // i thought it would be better to add time for a film grain look, it would also solve with taa
-
+		//vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), i + time); // i thought it would be better to add time for a film grain look, it would also solve with taa
+		vec3 randomDir = sampleHemisphere(normalize(NreflectedVector), u + (time * gl_FragCoord.z ) );
+		//vec3 randomDir = sampleHemisphere2(normalize(NreflectedVector), u + (gl_FragCoord.z ), v + (gl_FragCoord.z ));
+		
 			//int skyLOD = textureQueryLevels(skybox) - 4; // use mipmap for more preformance
 			vec3 skyboxColour = textureLod(cmSamp, randomDir, lod).rgb; 
 			//vec3 skyboxColour = texture(skybox, randomDir).rgb; 
@@ -617,7 +617,7 @@ void main()
 	float farOpacity = distToFar / fadeDistance;
 	farOpacity = clamp(farOpacity, 0.0, 1.0);
 
-	if (BayerNoiseOpacity(farOpacity)) discard;
+	if (blueNoiseOpacity(farOpacity)) discard;
 		
 	sampler2D difusesamp = sampler2D(texture_diffuse_Handle);
 	vec4 albedo = texture(difusesamp, texCoord);
@@ -630,14 +630,15 @@ void main()
 	vec3 diffuse  = vec3(0.0f);
 
 	sampler2D specSamp = sampler2D(texture_roughness_Handle);
-
+	vec3 ARM = texture(specSamp, texCoord).rgb;
+	
 	Reflect(albedo.rgb, diffuse, specular, specSamp);
 	
 	//texture_emission_Handle
 	sampler2D emissionSamp = sampler2D(texture_emission_Handle);
 	vec3 emission = texture(emissionSamp, texCoord).rgb;
 
-	vec3 direct = lights(specSamp).rgb;
+	vec3 direct =  ARM.r * lights(specSamp).rgb;
 
 	vec3 indirect = indirectIBL(indirectSamples, specSamp);
 

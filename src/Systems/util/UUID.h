@@ -16,15 +16,9 @@ public:
 		return ss.str();
 	}
 
-	static uint64_t StringToUUID(const std::string& str) {
-		return std::stoull(str, nullptr, 16);
-	}
+	static uint64_t StringToUUID(const std::string& str) { return std::stoull(str, nullptr, 16); }
 
-
-	static bool compare(uint64_t aID, uint64_t bID)
-	{
-		return aID == bID;
-	}
+	static bool compare(uint64_t aID, uint64_t bID) { return aID == bID; }
 };
 
 #endif

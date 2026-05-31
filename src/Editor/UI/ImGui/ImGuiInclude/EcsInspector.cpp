@@ -67,7 +67,8 @@ void EcsInspector::InspectorWindow() {
 	}
 	else if (FEImGuiWindow::SelectedObjectType == "Empty") EmptyWindow();
 	else if (FEImGuiWindow::SelectedObjectType == "Volume") VolumeWindow();
-	
+	else if (FEImGuiWindow::SelectedObjectType == "Material") MaterialWindow();
+	// these all need to be replaced with enums
 	
 	ImGui::End();
 }
@@ -392,6 +393,44 @@ void EcsInspector::VolumeWindow()
 	FEImGui::DragVec3("Scale", Scene::volumes[FEImGuiWindow::SelectedObjectIndex]->scale, glm::vec3(0.0f), 100.0f);
 }
 
+static std::string materialType = "Standard";
+static std::string materialName = "placeholder";
+
+void EcsInspector::MaterialOnHit()
+{
+	
+}
+
+void EcsInspector::MaterialWindow()
+{
+	ImGui::Text(("Name: "  + FEImGuiWindow::ContentObjectNames[FEImGuiWindow::SelectedObjectIndex] ).c_str());
+	
+	std::vector<char> materialTypeBuffer(materialType.size() + 256);
+	strncpy(materialTypeBuffer.data(), materialType.c_str(), materialTypeBuffer.size());
+	materialTypeBuffer[materialTypeBuffer.size() - 1] = '\0';
+	if (ImGui::InputText("Type", materialTypeBuffer.data(), materialTypeBuffer.size()))
+	{
+		materialType = std::string(materialTypeBuffer.data());
+	}
+	
+	std::vector<char> materialNameBuffer(materialName.size() + 256);
+	strncpy(materialNameBuffer.data(), materialName.c_str(), materialNameBuffer.size());
+	materialNameBuffer[materialNameBuffer.size() - 1] = '\0';
+	if (ImGui::InputText("Name", materialNameBuffer.data(), materialNameBuffer.size()))
+	{
+		materialName = std::string(materialNameBuffer.data());
+	}
+	
+	ImGui::Spacing();
+	ImGui::Text("Paths:");
+	
+	
+	
+	ImGui::Spacing();
+	ImGui::Text("Variables:");
+	
+}
+
 void EcsInspector::entityScriptPane()
 {
 		if (ImGui::TreeNode("Scripting Components")) {
@@ -459,13 +498,13 @@ void EcsInspector::entityPhysicsPane()
 {
 	if (ImGui::TreeNode("Physics Component")) {
 
-		ImGui::Checkbox("has Dynamics ", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.hasRigidbody);
+		ImGui::Checkbox("has Dynamics ", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physobject.hasRigidbody);
 
-		ImGui::Checkbox("affected By Gravity", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.affectedByGravity);
+		ImGui::Checkbox("affected By Gravity", &Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physobject.affectedByGravity);
 
 		if (ImGui::SmallButton("Clear Motion"))
 		{
-			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physics.velocity = glm::vec3(0.0f);
+			Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.physobject.velocity = glm::vec3(0.0f);
 		}
 
 		ImGui::TreePop();// Ends The ImGui Window
@@ -496,13 +535,8 @@ void EcsInspector::entityRelationsPane()
 {
 	if (ImGui::TreeNode("Relationship Component")) {
 
-		std::vector<char> idBuffer(UUIDinput.size() + 256);
-		strncpy(idBuffer.data(), UUIDinput.c_str(), idBuffer.size());
-		idBuffer[idBuffer.size() - 1] = '\0';
-		if (ImGui::InputText("Name", idBuffer.data(), idBuffer.size()))
-		{
-			UUIDinput = std::string(idBuffer.data());
-		}
+		
+		FEImGui::stringInputTextBox("UUIDinput", UUIDinput);
 
 		if (ImGui::Button("Add Parent"))
 		{

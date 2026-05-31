@@ -29,6 +29,8 @@ public:
 
 	// becomes true on okay
 	static std::string fetchFileNamePath(const std::string& fileNamePath);
+	
+	static void stringInputTextBox(const char* label, std::string& input);
 
 	//static void DragVec2(const std::string& label, glm::vec2& values, glm::vec2& resetValue = glm::vec2(0.0f, 0.0f), float columWidth = 100.0f);
 

@@ -111,3 +111,14 @@ std::string FEImGui::fetchFileNamePath(const std::string& fileNamePath)
 		return filePath;
 	}
 }
+
+void FEImGui::stringInputTextBox(const char* label, std::string& input)
+{
+	std::vector<char>buffer(input.size() + 256);
+	strncpy(buffer.data(), input.c_str(), buffer.size());
+	buffer[buffer.size() - 1] = '\0';
+	if (ImGui::InputText("Type", buffer.data(), buffer.size()))
+	{
+		input = std::string(buffer.data());
+	}
+}

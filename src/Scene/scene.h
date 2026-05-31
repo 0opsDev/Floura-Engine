@@ -28,6 +28,7 @@ public:
 	
 	static Collision::AABB SceneBounds;
 	static std::vector <Collision::AABB> rootnodes;
+	static bool entityDeletionUnderGoing;
 
 	static bool spawnNearCamera;
 	
@@ -88,12 +89,16 @@ public:
 	static void draw();// put void calculateSceneBounds();
 
 	static void Update(); 
+	
+	static void sceneUpdateWork();
 
 	static void Delete();
 
 	static void saveEntityState();
 
 	static void restoreEntitiesToState();
+	
+	static void queuedDeletionLoop();
 
 private:
 };

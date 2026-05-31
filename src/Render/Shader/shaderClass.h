@@ -50,6 +50,8 @@ public:
 	void setBool(const char* uniform, bool uniformBool);
 
 	void setHandleui64ARB(const char* uniform, GLuint64 handle);
+	
+	void setTimeVariables();
 
 private:
 	void compileErrors(unsigned int shader, const char* type);

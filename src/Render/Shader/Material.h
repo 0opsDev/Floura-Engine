@@ -8,6 +8,8 @@
 #include <json/json.hpp>
 #include "Render/Handler/ShaderHandler.h"
 #include "xhash"
+#include "Render/Handler/UniformManager.h"
+
 
 using json = nlohmann::json;
 
@@ -31,6 +33,19 @@ public:
 	void update();
 
 	void updateForwardLights();
+	
+	void compileUniforms();
+	
+	uint64_t createUniform(UniformManager::uniformTypeEnum type, std::string name);
+	void createUniformW_ID(UniformManager::uniformTypeEnum type, std::string name, uint64_t UUID);
+	
+	struct uniformPair
+	{
+		uint64_t handle; // ID for search
+		int uniformIndexes; // uniform for quick lookup
+	};
+	
+	std::vector <uniformPair> uniformsPairs;
 
 private:
 	std::string type;

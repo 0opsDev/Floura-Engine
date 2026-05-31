@@ -19,6 +19,7 @@ public:
 	static int tempHeight;
 
 	static unsigned int ViewPortWidth, ViewPortHeight;
+	static unsigned int windowWidth, windowHeight;
 	//static unsigned int frameBufferTexture, RBO, FBO, FBO2, frameBufferTexture2;
 	static Shader frameBufferProgram;
 	static unsigned int FBO, RBO, screentexture;
@@ -34,6 +35,10 @@ public:
 	static void clearsmbuffer();
 
 	static void setupFBO(unsigned int width, unsigned int height);
+	
+	static void setViewportToViewPortResolution();
+	
+	static void attemptFrameBufferResize(unsigned int width, unsigned int height);
 
 	static void updateFrameBufferResolution(unsigned int width, unsigned int height);
 

@@ -8,6 +8,7 @@
 #include <Scripting/ScriptObject.h>
 #include <Scene/ProbeHandler.h>
 //#include <Scene/scene.h>
+#include "Systems/Physics/physworld.h"
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
@@ -48,20 +49,6 @@ public:
 		material material;
 	};
 
-	
-	struct physics { // should have physics handler
-
-		float mass = 1.0f;
-		// current motion
-		glm::vec3 velocity = glm::vec3(0.0f);
-		// applied motion
-		glm::vec3 force = glm::vec3(0.0f);
-
-		// flags
-		bool affectedByGravity = false;
-		bool hasRigidbody = false;
-	};
-
 	struct collider {
 		std::vector<Collision::AABB> boxcolliders; // not used yet
 		std::vector<Collision::AABB> rootnodes;
@@ -88,7 +75,7 @@ public:
 
 	struct components {
 		flags flags;
-		physics physics;
+		physworld::object physobject;
 		collider collider;
 		systems systems;
 		render render;
@@ -115,6 +102,10 @@ public:
 	void createwUUID(uint64_t nUUID, ENT_TYPE_ENUM type, const std::string& name, const std::string& path, const std::string& materialPath);
 
 	void create(ENT_TYPE_ENUM type, const std::string& name, const std::string& path, const std::string& materialPath);
+	
+private:
+	void createGeneralLogic();
+public:
 
 	void LoadMaterial(std::string path);
 
@@ -129,6 +120,8 @@ public:
 	void initScript(int index);
 
 	void update();
+	
+	void updatePhysicsDynamics(float deltatime);
 
 	void draw();
 
@@ -137,6 +130,10 @@ public:
 	void updateLights();
 
 	void Delete();
+	
+	bool queuedForDeletion = false;
+	
+	void queuedDeletion(); // the real deletion, delete stays for existing architecture
 
 	//void addParent();
 
