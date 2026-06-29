@@ -10,7 +10,7 @@ public:
     
     static bool overlayDebug;
 
-    static unsigned int dbgBuffer, dbgColour, hDBO;
+    static unsigned int dbgBuffer, dbgColour, dbgRBO, hDBO;
     
     static void setupDBGbuffers(unsigned int width, unsigned int height);
     

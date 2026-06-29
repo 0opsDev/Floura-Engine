@@ -1,5 +1,5 @@
 #include "Material.h"
-#include <Core/Render.h>
+#include <Render/Handler/RenderClass.h>
 #include <Scene/LightingHandler.h>
 #include <utils/logConsole.h>
 #include "Scene/scene.h"
@@ -133,8 +133,8 @@ void Material::jsonLoad(std::string path)
 		// if they exsist 
 		if (item.contains("GeomShader")) {
 			GeometryShaderPath = item.at("GeomShader").get<std::string>();}
-		if (item.contains("GeometryGPShaderPath")) {
-			GeometryGPShaderPath = item.at("GeometryGPShaderPath").get<std::string>();}
+		if (item.contains("GPGeometryShader")) {
+			GeometryGPShaderPath = item.at("GPGeometryShader").get<std::string>();}
 		
 		// mpass
 		if (item.contains("GeomMPSShader")){

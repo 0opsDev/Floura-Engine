@@ -1,10 +1,10 @@
 ﻿#include "physworld.h"
 #include "utils/timeUtil.h"
-#include "Core/Render.h"
+#include <Render/Handler/RenderClass.h>
 #include "Render/Handler/RenderHandler.h"
 #include <random>
 
-    
+
 std::vector<physworld::objectPosBundle> physworld::pObjects;
 std::vector<physworld::emitter> physworld::emitters;
 float physworld::tickrate = 30.0f;
@@ -240,15 +240,43 @@ void physworld::bundleArrayDeleteWithUUID(uint64_t UUID)
 {
     for (int i = 0; i < pObjects.size(); ++i)
     {
-        if (pObjects[i].physicsObject->UUID = UUID)
+        if (pObjects[i].physicsObject->UUID == UUID)
         {
+            //std::cout << "match: " <<UUID << std::endl;
             pObjects.erase(pObjects.begin() + i);
             return; // erase and exit
         }
     }
 }
 
-void physworld::collisionUpdate()
+void physworld::collisionResolve()
 {
     // some sort of collision objects, or collision types that all test agaisnt eachother and return data in some kind of format for a response 
+    for (int a = 0; a < pObjects.size(); ++a)
+        for (int b = 0; b < pObjects.size(); ++b)
+        {
+            // if same object we break
+            if (pObjects[a].physicsObject->UUID == pObjects[b].physicsObject->UUID) break;
+            
+            if (!pObjects[a].physicsObject->collisionObject.isCollider || !pObjects[b].physicsObject->collisionObject.isCollider) continue; // neither is collider
+            
+            // id like to do col test here, i guess i should store collider obj on the phys obj
+
+            //Collision::HitResult rc = Collision::resolveCollisionW_NewPositons(pObjects[a].physicsObject->collisionObject, pObjects[b].physicsObject->collisionObject,  *pObjects[a].position, *pObjects[b].position);
+            Collision::HitResult rc = Collision::resolveCollision(pObjects[a].physicsObject->collisionObject, pObjects[b].physicsObject->collisionObject);
+            
+            // plug into solver and do some stuff idk
+            if (!rc.isColliding) continue; // if we're not colliding there is nothing to solve
+            
+            // debug
+            //std::cout << "A index: " << a << " + b index: " << b << " COLLIDING" << std::endl;
+            // should plug in a
+            solve(rc, *pObjects[a].physicsObject, *pObjects[a].position, *pObjects[b].physicsObject, *pObjects[b].position, *pObjects[b].dirtyFlag, *pObjects[a].dirtyFlag);
+            
+        }
+    
+}
+
+void physworld::solve(Collision::HitResult& hr, object& objA, glm::vec3& posA, object& objB, glm::vec3& posB, bool& dirtyFlagb, bool& dirtyFlaga )
+{
 }

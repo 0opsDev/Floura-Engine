@@ -1,10 +1,10 @@
 #include "raytracer.h"
-#include <Render/Shader/Framebuffer.h>
+#include <Render/Shader/renderTarget.h>
 #include "Render/Object/RenderQuad.h"
 #include <Render/passes/geometry/geometryPass.h>
 #include <utils/FE_math.h>
 #include"Render/passes/post/denoise.h"
-#include "Core/Render.h"
+#include <Render/Handler/RenderClass.h>
 #include "Scene/scene.h"
 #include "Scene/LightingHandler.h"
 #include <Render/Handler/RenderHandler.h>
@@ -72,8 +72,7 @@ void raytracer::uploadToRaytracer(uint64_t instanceUUID)
 
 	uint64_t RenderUUID = RenderHandler::findRenderUUIDwIstanceUUID(instanceUUID);
 	int index = RenderHandler::fetchModelIndex(RenderUUID);
-	if (index != -1)
-	{
+	if (index != -1){
 		// modelHarddata
 		SceneDescription::modelData newCpuModel;
 
@@ -209,8 +208,7 @@ void raytracer::removeFromRaytracer(uint64_t instanceUUID)
 {
 	for (size_t x = 0; x < SceneDescription::modelArray.size(); x++)
 	{
-		if (SceneDescription::modelArray[x].harddata.rayModel.instanceUUID == instanceUUID)
-		{
+		if (SceneDescription::modelArray[x].harddata.rayModel.instanceUUID == instanceUUID){
 			//std::cout << "Removing model from raytracer with UUID: " << modelUUID << std::endl;
 			SceneDescription::modelArray.erase(SceneDescription::modelArray.begin() + x);
 			break;

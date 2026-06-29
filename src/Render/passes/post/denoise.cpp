@@ -1,5 +1,5 @@
 #include "denoise.h"
-#include <Render/Shader/Framebuffer.h>
+#include <Render/Shader/renderTarget.h>
 #include "Render/Object/RenderQuad.h"
 #include <Render/passes/geometry/geometryPass.h>
 #include <utils/FE_math.h>
@@ -7,7 +7,6 @@
 GLuint denoiser::denoiseTexture;
 bool denoiser::doDenoise = true;
 int denoiser::minRadius = 2;
-RenderQuad denoiserQuad;
 Shader denoiser::denoiserQuadShader;
 Shader denoiser::denoiseCompute;
 
@@ -19,8 +18,6 @@ void denoiser::init() {
 }
 
 void denoiser::initcomputeShader(unsigned int width, unsigned int height) {
-
-	denoiserQuad.init();
 
 	denoiserQuadShader.LoadShader("Assets/Shaders/Db/RenderQuad.vert", "Assets/Shaders/compute/DenoiseRenderQuad.frag");
 
@@ -64,7 +61,7 @@ void denoiser::resizeTexture(unsigned int width, unsigned int height) {
 }
 
 void denoiser::RenderToQuad() {
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 	glDisable(GL_CULL_FACE);
 
 	denoiserQuadShader.Activate();
@@ -72,10 +69,10 @@ void denoiser::RenderToQuad() {
 	//glBindImageTexture(0, raytracer::raytracedOutput, 0, GL_FALSE, 7, GL_WRITE_ONLY, GL_RGBA32F);
 	glBindTextureUnit(0, denoiser::denoiseTexture);
 
-	denoiserQuad.draw();
+	RenderQuad::draw();
 
 	glEnable(GL_CULL_FACE);
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 }
 
 void denoiser::render() {

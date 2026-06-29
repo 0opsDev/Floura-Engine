@@ -15,8 +15,7 @@ void RelationshipManager::addParent(int index, uint64_t parentUUID)
 
 	// check if child has parent attached to it as a child
 	//if so erase the parent as a child
-	if (newParentIndex != -1 && parentHasChild(index, parentUUID))
-	{
+	if (newParentIndex != -1 && parentHasChild(index, parentUUID)){
 		// erase parent as child of the child
 		eraseChildFromParent(index, parentUUID);
 
@@ -61,8 +60,7 @@ void RelationshipManager::removeParent(int index)
 {
 	if (index < 0 || index >= (int)Scene::entityObjects.size()) return;
 
-	if (Scene::entityObjects[index]->component.relationship.hasParent)
-	{
+	if (Scene::entityObjects[index]->component.relationship.hasParent){
 		// goto the parent and remove the child
 		uint64_t parentUUID = Scene::entityObjects[index]->component.relationship.parentUUID;
 
@@ -83,39 +81,31 @@ void RelationshipManager::removeParent(int index)
 int RelationshipManager::indexFromUUIDEntity(uint64_t UUID)
 {
 
-	for (size_t i = 0; i < Scene::entityObjects.size(); i++)
-	{
+	for (size_t i = 0; i < Scene::entityObjects.size(); i++){
 		if (Scene::entityObjects[i]->UUID == UUID) return i;
 	}
 
 	return -1;
 }
 
-void RelationshipManager::eraseChildFromParent(int parentIndex, uint64_t childUUID)
-{
-	for (size_t i = 0; i < Scene::entityObjects[parentIndex]->component.relationship.childUUID.size(); i++)
-	{
+void RelationshipManager::eraseChildFromParent(int parentIndex, uint64_t childUUID){
+	for (size_t i = 0; i < Scene::entityObjects[parentIndex]->component.relationship.childUUID.size(); i++){
 		// match
-		if (Scene::entityObjects[parentIndex]->component.relationship.childUUID[i] == childUUID)
-		{
+		if (Scene::entityObjects[parentIndex]->component.relationship.childUUID[i] == childUUID){
 			Scene::entityObjects[parentIndex]->component.relationship.childUUID.erase(Scene::entityObjects[parentIndex]->component.relationship.childUUID.begin() + i);
 			return;
 		}
 	}
 }
 
-void RelationshipManager::pushChildToParent(int parentIndex, uint64_t childUUID)
-{
+void RelationshipManager::pushChildToParent(int parentIndex, uint64_t childUUID){
 	if (!parentHasChild(parentIndex, childUUID) ) Scene::entityObjects[parentIndex]->component.relationship.childUUID.push_back(childUUID);
 }
 
-bool RelationshipManager::parentHasChild(int parentIndex, uint64_t childUUID)
-{
+bool RelationshipManager::parentHasChild(int parentIndex, uint64_t childUUID){
 
-	for (size_t i = 0; i < Scene::entityObjects[parentIndex]->component.relationship.childUUID.size(); i++)
-	{
-		if (Scene::entityObjects[parentIndex]->component.relationship.childUUID[i] == childUUID)
-		{
+	for (size_t i = 0; i < Scene::entityObjects[parentIndex]->component.relationship.childUUID.size(); i++){
+		if (Scene::entityObjects[parentIndex]->component.relationship.childUUID[i] == childUUID){
 			return true;
 		}
 	}

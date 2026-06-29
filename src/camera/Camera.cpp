@@ -4,6 +4,7 @@
 #include "Gameplay/Player.h"
 #include "utils/FE_math.h"
 #include "render/window/WindowHandler.h"
+#include <glm/gtc/matrix_inverse.hpp>
 
 // Global Variables
 
@@ -38,6 +39,10 @@ void Camera::updateMatrix()
     
     projectionAlwaysUnjittered = projection;
     cameraMatrixAlwaysUnjittered = projection * view;
+    
+    inverseViewMatrix = glm::affineInverse(view);
+    inverseUnjitteredProjectionMatrix = glm::inverse(projectionAlwaysUnjittered);
+    
     if (applyJitter) projection = FE_Math::createHaltonJitterProjectionMatrix(projection, currentJitter, width, height);
     
     cameraMatrix = projection * view;

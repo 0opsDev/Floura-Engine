@@ -43,8 +43,9 @@ public:
 	// Deletes a texture
 	void Delete();
 
-private:
 	bool skipstbi = false;
+private:
+
 };
 #endif
 

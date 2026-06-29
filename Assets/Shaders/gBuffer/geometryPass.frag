@@ -12,7 +12,7 @@ layout(location = 5) out vec3 gEmission;
 
 in highp vec3 crntPos;
 in vec3 Normal;
-in vec3 color;
+in vec3 colour;
 in vec2 texCoord;
 
 in vec3 Normal0;

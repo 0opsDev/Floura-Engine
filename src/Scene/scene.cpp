@@ -1186,6 +1186,14 @@ void Scene::restoreEntitiesToState()
 
 void Scene::queuedDeletionLoop()
 {
-	for (int i = 0; i < Scene::entityObjects.size(); ++i){if (Scene::entityObjects[i]->queuedForDeletion) Scene::entityObjects[i]->queuedDeletion();}
+	for (int i = 0; i < Scene::entityObjects.size(); ++i)
+	{
+		if (Scene::entityObjects[i]->queuedForDeletion)
+		{
+			Scene::entityObjects[i]->queuedDeletion();
+			Scene::entityObjects.erase(Scene::entityObjects.begin() + i);
+
+		}
+	}
 	Scene::entityDeletionUnderGoing = false;
 }

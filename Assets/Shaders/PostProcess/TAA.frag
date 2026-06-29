@@ -85,8 +85,7 @@ void main()
 
     highp vec2 historyTexCoord = texCoord - velocity;
     
-    if (any(lessThan(historyTexCoord, vec2(0.0))) || any(greaterThan(historyTexCoord, vec2(1.0))))
-    {
+    if (any(lessThan(historyTexCoord, vec2(0.0))) || any(greaterThan(historyTexCoord, vec2(1.0)))){
         FragColor = vec4(screen, 1.0f);
         return;
     }
@@ -105,6 +104,14 @@ void main()
     //float gDepthLinearized = linearizeDepth(depth, NearPlane, FarPlane);
     
     vec3 previousColourClamped = colourClamp(1, previousColour);
+
+    /*
+    float pLuma = lumaFromRGB(previousColourClamped);
+    float cLuma = lumaFromRGB(screen);
+    float variance = abs(cLuma - pLuma);
+    variance = clamp(variance, 0.0, 1.0);
+    float cweight = mix(0.9, 0.0, variance);
+    */
     
     float blendFactor = 0.9;
    //vec3 accumulated = mix(screen, previousColourClamped, blendFactor);
@@ -117,4 +124,6 @@ void main()
     //FragColor = vec4(vec3(v), 1.0);
     
     //FragColor = vec4(previousColourClamped, 1.0);
+    
+    //FragColor = vec4(vec3(variance), 1.0);
 }

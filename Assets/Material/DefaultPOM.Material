@@ -1,0 +1,18 @@
+[
+	{
+		"type": "Standard",
+		"name": "Default",
+
+		"FragShader": "Assets/Shaders/Lighting/combined.frag",
+		"VertexShader": "Assets/Shaders/Lighting/Default.vert",
+		"GPassFragShader": "Assets/Shaders/gBuffer/geometryPassPOM.frag",
+		"GPassVertShader": "Assets/Shaders/gBuffer/geometryPassPOM.vert",
+
+		"variables": {
+			"type": ["bool"],
+			"name": ["doReflect"],
+			"Value":[true]
+		}
+	}
+
+]

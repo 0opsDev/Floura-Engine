@@ -26,11 +26,12 @@ Screenshots:
 . TAA
 . Gbuffer
 . HBuffer
-. Diffuse, Specular and Normals
+. Full PBR & POM
 . Point, Spot and Directional Lights (WIP)
 . Cubemap Reflections (WIP)
+. Screen Space Relfections (WIP)
+. Contact Shadows (WIP)
 . Shadow Mapping (WIP)
-
 ~~~
 ---
 ### Systems:
@@ -58,12 +59,6 @@ Screenshots:
 . Inspector Tab
 ~~~
 ---
-### Misc:
-~~~
-. Math Class
-~~~
----
-
 
 ### Controls:
 ~~~
@@ -76,4 +71,11 @@ Right Shift: Reset Speed
 F1: Toggle Imgui
 F2: Gravity and Collisions OFF
 F3: Gravity and Collisions ON
+~~~
+---
+### Language Support:
+~~~
+. GLSL
+. SLANG
+. LUA
 ~~~

@@ -49,8 +49,9 @@ public:
 		material material;
 	};
 
-	struct collider {
-		std::vector<Collision::AABB> boxcolliders; // not used yet
+	struct collider { // this is stupid but will stay for broad phase
+		Collision::AABB modelNode;
+		float range = 0.0f;
 		std::vector<Collision::AABB> rootnodes;
 	};
 
@@ -143,6 +144,7 @@ public:
 	public:
 		void updateCollision();
 		void updateMeshAABBs();
+		void updateModelBounds();
 
 	components component;
 	uint64_t UUID;

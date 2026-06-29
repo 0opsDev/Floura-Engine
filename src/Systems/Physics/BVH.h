@@ -1,60 +1,40 @@
 #ifndef BVH_H
 #define BVH_H
 #include "glm/glm.hpp"
-#include <xhash>
 #include <vector>
-#include <Scene/scene.h>
 #include <Systems/Physics/Collision.h>
+#include <Render/Buffer/VBO.h>
 
 class BVH
 {
 public:
-
-	// move bvh and broadphase type functions here later
-
-	struct AABB
-	{
-		glm::vec3 position;
-		glm::vec3 scale;
-	};
-
-	struct root
-	{
-		AABB rootnode;
-		uint64_t ModelUUID;
-		uint64_t MeshUUID;
-	};
-
-	struct topNode
-	{
-		AABB Node;
-		int layer; // layer count
-		int floorNum; // count of encompased objects inside of node (floor below current layer)
-		int offset;
-	};
-
-	struct tlas // calculated from all rootnodes up
-	{
-		int layers;
-		int childrenPerNode;
-		std::vector<root> rootnodes; // root layer (mesh)
-		std::vector<topNode> tNodes; // above layers
-	};
-
-	struct blas // calculated from induvidual rootnode down
-	{
-	};
-
-	static tlas nTlas;
-
-	static void uploadSceneRootsToTlas(std::vector <std::unique_ptr<entity>> entityObjects);
-
-	static void generateTlas(int childPerNodeSize, int layerCount);
-
-	static Collision::AABB rootNodeFromRubixPoints(Collision::rubiksCubePoints points,
-		glm::mat4 ModelMatrix); // returns rootnode
-
+    struct  leaf
+    {
+        // job and bottoms child information
+        int job = 0; // 0 = top, 1 = internal, 2 = bottom
+        int startIndex = 0; // for job 2 (bottoms children (example: triangles))
+        int count = 0; // for job 2 again, the offset of triangles from start
+        
+        // relationships
+        int parentIndex = 0; // for job 1 and 2, parent that holds them
+        // children (if 0 or 1)
+        int firstChildIndex = -1; 
+        int secondChildIndex = -1; // -1 means it doesnt have children
+        
+        // leafs bounds
+        Collision::AABB aabb;
+    };
+    
+    std::vector<BVH::leaf> meshBlasGen(std::vector<Vertex> &vertices, std::vector<GLuint> &indices, Collision::AABB root, int steps);
+    
+    static Collision::AABB rootNodeFromRubixPoints(Collision::rubiksCubePoints points,
+    glm::mat4 ModelMatrix); // returns rootnode
+    
+    static Collision::AABB rootNodeFromRubixPoints(Collision::rubiksCubePoints points); // returns rootnode
+    
 private:
+    
+    void treeInternalClass(std::vector<Vertex> &vertices, std::vector<GLuint> &indices, Collision::AABB root, int steps, int parentIndex, std::vector<leaf>& iblas); 
 
 };
 

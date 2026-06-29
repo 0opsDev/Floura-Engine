@@ -1,8 +1,8 @@
 #include"Billboard.h"
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
-#include <Render/Shader/Framebuffer.h>
-#include <Core/Render.h>
+#include <Render/Shader/renderTarget.h>
+#include <Render/Handler/RenderClass.h>
 #include <Render/passes/geometry/geometryPass.h>
 #include <Scene/LightingHandler.h>
 #include "Scene/scene.h"
@@ -162,7 +162,7 @@ void BillBoard::draw() {
 	model = glm::scale(model, globalTransformation.scale);
 
 	if (RenderClass::DoForwardLightingPass) {
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
 		
@@ -185,5 +185,5 @@ void BillBoard::draw() {
 		//FrameBuffer
 
 	// got just to reset the framebuffer to default
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 }

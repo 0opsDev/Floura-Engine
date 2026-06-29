@@ -1,5 +1,5 @@
 #include "LightingHandler.h"
-#include <Core/Render.h>
+#include <Render/Handler/RenderClass.h>
 #include <glm/gtx/euler_angles.hpp>
 #include <utils/logConsole.h>
 #include "Scene/scene.h"
@@ -31,7 +31,6 @@ float LightingHandler::DirSMMaxBias = 0.005f;
 bool LightingHandler::doDirLight = false;
 bool LightingHandler::doDirSpecularLight = true;
 
-
 unsigned int LightingHandler::shadowMapFBO, LightingHandler::shadowMapHeight, LightingHandler::shadowMapWidth, LightingHandler::dirShadowMap;
 unsigned int LightingHandler::shadowMapFBO2, LightingHandler::shadowMapHeight2, LightingHandler::shadowMapWidth2, LightingHandler::dirShadowMap2;
 unsigned int LightingHandler::shadowMapFBO3, LightingHandler::shadowMapHeight3, LightingHandler::shadowMapWidth3, LightingHandler::dirShadowMap3;
@@ -55,10 +54,12 @@ void createSM(unsigned int & FBO, unsigned int & smTEX, unsigned int w, unsigned
 	glGenTextures(1, &smTEX);
 	glBindTexture(GL_TEXTURE_2D, smTEX);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, w, h, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 	float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
 
@@ -83,8 +84,8 @@ void LightingHandler::setupShadowMapBuffer() {
 	shadowMapHeight3 = 512;
 	shadowMapWidth3 = 512;
 	
-	shadowMapWidth = 4096;
-	shadowMapHeight = 4096;
+	shadowMapWidth = 1024;
+	shadowMapHeight = 1024;
 	
 	createSM(shadowMapFBO, dirShadowMap, shadowMapWidth, shadowMapHeight);
 	//createSM(shadowMapFBO2, dirShadowMap2, shadowMapWidth2, shadowMapHeight2);
@@ -121,8 +122,6 @@ void LightingHandler::drawShadowMap(Model*& model) {
 	LightingHandler::dirShadowMapProgram.Activate();
 	glUniformMatrix4fv(glGetUniformLocation(LightingHandler::dirShadowMapProgram.ID, "lightProjection"), 1, GL_FALSE, glm::value_ptr(lightProjection));
 	
-	RenderClass::bluenoise->Bind();
-	LightingHandler::dirShadowMapProgram.setInt("BlueNoiseTex", 6);
 	LightingHandler::dirShadowMapProgram.setBool("doBinaryAlpha", RenderClass::doBinaryAlpha);
 	LightingHandler::dirShadowMapProgram.setBool("animateBinaryAlpha", RenderClass::animateBinaryAlpha);
 	LightingHandler::dirShadowMapProgram.setHandleui64ARB("bayerMatrixHandle", RenderClass::bayermatrix->handle);
@@ -133,8 +132,15 @@ void LightingHandler::drawShadowMap(Model*& model) {
 	
 	model->childrenRangeCull(CameraPos, dirNearFar.y);
 	
+	//bool tdld = model->doLodsDraw;
+	//int tfll = model->forceLodLevel;
+	
+	//model->doLodsDraw = true;
+	//model->forceLodLevel = 3;
 	model->draw(LightingHandler::dirShadowMapProgram, Scene::maincamera);
-
+	
+	//model->doLodsDraw = tdld;
+	//model->forceLodLevel = tfll;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, viewport[2], viewport[3]);
 }

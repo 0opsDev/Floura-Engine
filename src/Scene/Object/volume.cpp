@@ -1,7 +1,7 @@
 ﻿#include  "volume.h"
 #include "Systems/util/UUID.h"
 #include "Render/Cube/CubeVisualizer.h"
-#include "Core/Render.h"
+#include <Render/Handler/RenderClass.h>
 #include "Render/Handler/RenderHandler.h"
 
 FE_Volume::FE_Volume(VOL_TYPE type)

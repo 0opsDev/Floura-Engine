@@ -1,5 +1,5 @@
 #include "line.h"
-#include <Core/Render.h>
+#include <Render/Handler/RenderClass.h>
 #include "Scene/scene.h"
 
 
@@ -9,15 +9,15 @@ Line3D::Line3D(glm::vec3 pos1, glm::vec3 pos2)
     indices = { 0, 1 };
 
     VAO.Bind();
-    VBO VBO(vertices);
-    EBO EBO(indices);
+    VBO nVBO; nVBO.generateVBO(vertices);
+    EBO nEBO; nEBO.generateEBO(indices);
 
     const size_t stride = sizeof(Vertex);
-    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, position));
+    VAO.LinkAttrib(nVBO, 0, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, position));
 
     VAO.Unbind();
-    VBO.Unbind();
-    EBO.Unbind();
+    nVBO.Unbind();
+    nEBO.Unbind();
 
     Line3D::translate(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
 }
@@ -28,15 +28,15 @@ void Line3D::updateVBO(glm::vec3 pos1, glm::vec3 pos2)
     indices = { 0, 1 };
 
     VAO.Bind();
-    VBO VBO(vertices);
-    EBO EBO(indices);
+    VBO nVBO; nVBO.generateVBO(vertices);
+    EBO nEBO; nEBO.generateEBO(indices);
 
     const size_t stride = sizeof(Vertex);
-    VAO.LinkAttrib(VBO, 0, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, position));
+    VAO.LinkAttrib(nVBO, 0, 3, GL_FLOAT, GL_FALSE, stride, (void*)offsetof(Vertex, position));
 
     VAO.Unbind();
-    VBO.Unbind();
-    EBO.Unbind();
+    nVBO.Unbind();
+    nEBO.Unbind();
 }
 
 Line3D::~Line3D() // Delete
@@ -71,7 +71,7 @@ void Line3D::translatemat4rot(glm::vec3 position, glm::vec3 scale, glm::mat4 rot
 
 void Line3D::draw(glm::vec3 colour)
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     RenderClass::LineShader.Activate();

@@ -5,8 +5,8 @@
 
 		"FragShader": "Assets/Shaders/Db/VertexViewer.frag",
 		"VertexShader": "Assets/Shaders/Db/VertexViewer.vert",
-		"GPassFragShader": "Assets/Shaders/gBuffer/geometryPass.frag",
-		"GPassVertShader": "Assets/Shaders/gBuffer/geometryPass.vert",
+		"GPassFragShader": "Assets/Shaders/gBuffer/geometryPassVertexViewer.frag",
+		"GPassVertShader": "Assets/Shaders/gBuffer/geometryPassVertexViewer.vert",
 
 		"variables": {
 		}

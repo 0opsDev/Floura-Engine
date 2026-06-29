@@ -4,7 +4,7 @@
         "Location": [
             0.0,
             0.0,
-            0.0
+            -0.23223352432250977
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -13,66 +13,32 @@
             0.0
         ],
         "Scale": [
-            50.0,
-            50.0,
-            50.0
+            15.0,
+            15.0,
+            15.0
         ],
         "Scripts": [],
-        "UUID": "c466635e34e6af83",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "plane bs2",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/basic shapes 2/plane.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            50.0,
-            50.0
-        ]
-    },
-    {
-        "CastShadow": false,
-        "Location": [
-            -4.098240852355957,
-            1.3311657905578613,
-            4.486484050750732
-        ],
-        "MaterialPath": "Assets/Material/DefaultPOM.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            5.0,
-            5.0,
-            5.0
-        ],
-        "Scripts": [],
-        "UUID": "93e4087189cca7dc",
+        "UUID": "bee3c1915d77bcaf",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
         "hasParent": false,
         "isBackFaceCulling": false,
-        "name": "drop_imported",
+        "name": "plane",
         "parentUUID": "0000000000000000",
-        "path": "C:/Users/anon/Downloads/ganges_river_pebbles_1k/textures/pebble.gltf",
+        "path": "Assets/Models/basic shapes 2/plane.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
-            5.0,
-            5.0
+            15.0,
+            15.0
         ]
     },
     {
         "CastShadow": true,
         "Location": [
-            -24.468944549560547,
-            -0.9726204872131348,
-            5.483700752258301
+            9.465311050415039,
+            2.3616232872009277,
+            -3.319394826889038
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -81,12 +47,12 @@
             0.0
         ],
         "Scale": [
-            18.499431610107422,
-            1.0,
-            25.621356964111328
+            2.1700000762939453,
+            2.450167417526245,
+            2.1700000762939453
         ],
         "Scripts": [],
-        "UUID": "da87374ae6d88f86",
+        "UUID": "1839134cb314f7c5",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
@@ -95,244 +61,6 @@
         "name": "reflectivecube",
         "parentUUID": "0000000000000000",
         "path": "temp/packasset/reflectivecube.glb",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -22.263988494873047,
-            2.967679023742676,
-            4.437623977661133
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "8a4e6a2320f37ccc",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "emissionCube",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/emissionCube.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -24.238773345947266,
-            2.3807857036590576,
-            7.766262054443359
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "7b310781f101a9fa",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "cube",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/basic shapes/cube.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -28.680814743041992,
-            2.575481414794922,
-            10.171456336975098
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "b24e66e55e4cbfa8",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "cube",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/basic shapes/cube.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -34.06943893432617,
-            2.0981876850128174,
-            12.513469696044922
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "e8ebef42860bddc0",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "cube",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/basic shapes/cube.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            1.8832683563232422,
-            2.0703606605529785,
-            15.067334175109863
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "066329e605c30d59",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "fence",
-        "parentUUID": "0000000000000000",
-        "path": "temp/fence/fence.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": false,
-        "Location": [
-            4.751999855041504,
-            0.08815646171569824,
-            1.5925058126449585
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            5.0,
-            5.0,
-            5.0
-        ],
-        "Scripts": [],
-        "UUID": "99bb60e0a45b9534",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": false,
-        "name": "drop_imported",
-        "parentUUID": "0000000000000000",
-        "path": "C:/Users/anon/Pictures/funky disp test/decalpomtestthingy.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            1.0,
-            1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            -9.581092834472656,
-            7.608771324157715,
-            -2.5268959999084473
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            1.0,
-            1.0,
-            1.0
-        ],
-        "Scripts": [],
-        "UUID": "10258fb57c72a578",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "FlightHelmet",
-        "parentUUID": "0000000000000000",
-        "path": "temp/FlightHelmet/glTF/FlightHelmet.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,

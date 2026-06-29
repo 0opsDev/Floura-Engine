@@ -244,13 +244,7 @@
     <ClCompile Include="src\Gameplay\Player.cpp">
       <Filter>src\Gameplay</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\Shader\FramebufferObject.cpp">
-      <Filter>src\Render\Shader</Filter>
-    </ClCompile>
     <ClCompile Include="src\Render\Shader\Material.cpp">
-      <Filter>src\Render\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\Shader\Framebuffer.cpp">
       <Filter>src\Render\Shader</Filter>
     </ClCompile>
     <ClCompile Include="src\Render\Object\Cubemap.cpp">
@@ -292,9 +286,6 @@
     <ClCompile Include="src\Scene\scene.cpp">
       <Filter>src\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scene\tempscene.cpp">
-      <Filter>src\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scripting\Functions\Screen\LuaScreen.cpp">
       <Filter>src\Scripting\Functions\Screen</Filter>
     </ClCompile>
@@ -325,9 +316,6 @@
     <ClCompile Include="src\Core\gl.c">
       <Filter>src\Editor\core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\passes\post\ssao.cpp">
-      <Filter>src\Render\passes\post</Filter>
-    </ClCompile>
     <ClCompile Include="src\Render\Handler\TextureMapManager.cpp">
       <Filter>src\Render\Handler</Filter>
     </ClCompile>
@@ -346,6 +334,47 @@
     <ClCompile Include="src\Systems\util\relationshipManager.cpp">
       <Filter>src\Systems\util</Filter>
     </ClCompile>
+    <ClCompile Include="src\Libraries\include\meshoptimizer\allocator.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\clusterizer.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\indexanalyzer.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\indexcodec.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\indexgenerator.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\meshletcodec.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\meshletutils.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\opacitymap.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\overdrawoptimizer.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\partition.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\quantization.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\rasterizer.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\simplifier.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\spatialorder.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\stripifier.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\vcacheoptimizer.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\vertexcodec.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\vertexfilter.cpp" />
+    <ClCompile Include="src\Libraries\include\meshoptimizer\vfetchoptimizer.cpp" />
+    <ClCompile Include="src\Render\Animated\animation.cpp" />
+    <ClCompile Include="src\Render\Animated\animator.cpp" />
+    <ClCompile Include="src\Render\Animated\bone.cpp" />
+    <ClCompile Include="src\Render\Handler\LoadHandler.cpp" />
+    <ClCompile Include="src\Render\Handler\sceneDescription.cpp" />
+    <ClCompile Include="src\Render\Handler\UniformManager.cpp" />
+    <ClCompile Include="src\Render\passes\dbg\dbgPass.cpp" />
+    <ClCompile Include="src\Render\passes\post\historyPass.cpp" />
+    <ClCompile Include="src\Render\passes\post\utilityPass.cpp" />
+    <ClCompile Include="src\Render\procedural\GenerationTools.cpp" />
+    <ClCompile Include="src\Render\procedural\ocean.cpp" />
+    <ClCompile Include="src\Render\procedural\terrain.cpp" />
+    <ClCompile Include="src\Render\render_util\flouraSlang.cpp" />
+    <ClCompile Include="src\Render\render_util\meshTools.cpp" />
+    <ClCompile Include="src\Render\window\WindowImporter.cpp" />
+    <ClCompile Include="src\Scene\Object\ProceduralPlaneObject.cpp" />
+    <ClCompile Include="src\Scene\Object\volume.cpp" />
+    <ClCompile Include="src\Scene\FE_LAYER.cpp" />
+    <ClCompile Include="src\Systems\general\jobClass.cpp" />
+    <ClCompile Include="src\Systems\Physics\physworld.cpp" />
+    <ClCompile Include="src\Render\Buffer\Framebuffer.cpp" />
+    <ClCompile Include="src\Render\Shader\renderTarget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera\Camera.h">
@@ -465,13 +494,7 @@
     <ClInclude Include="src\Gameplay\Player.h">
       <Filter>src\Gameplay</Filter>
     </ClInclude>
-    <ClInclude Include="src\Render\Shader\FramebufferObject.h">
-      <Filter>src\Render\Shader</Filter>
-    </ClInclude>
     <ClInclude Include="src\Render\Shader\Material.h">
-      <Filter>src\Render\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Shader\Framebuffer.h">
       <Filter>src\Render\Shader</Filter>
     </ClInclude>
     <ClInclude Include="src\Render\Object\Cubemap.h">
@@ -513,9 +536,6 @@
     <ClInclude Include="src\Scene\scene.h">
       <Filter>src\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scene\tempscene.h">
-      <Filter>src\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scripting\Functions\ScriptIncludes.h">
       <Filter>src\Scripting\Functions</Filter>
     </ClInclude>
@@ -546,9 +566,6 @@
     <ClInclude Include="src\Systems\Physics\BVH.h">
       <Filter>src\Systems\Physics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Render\passes\post\ssao.h">
-      <Filter>src\Render\passes\post</Filter>
-    </ClInclude>
     <ClInclude Include="src\Render\Handler\RenderHandler.h">
       <Filter>src\Render\Handler</Filter>
     </ClInclude>
@@ -567,6 +584,29 @@
     <ClInclude Include="src\Systems\util\relationshipManager.h">
       <Filter>src\Systems\util</Filter>
     </ClInclude>
+    <ClInclude Include="Assets\Shaders\gBuffer\historybuffer.vert" />
+    <ClInclude Include="src\Render\Animated\animation.h" />
+    <ClInclude Include="src\Render\Animated\animator.h" />
+    <ClInclude Include="src\Render\Animated\animdata.h" />
+    <ClInclude Include="src\Render\Animated\bone.h" />
+    <ClInclude Include="src\Render\Handler\LoadHandler.h" />
+    <ClInclude Include="src\Render\Handler\sceneDescription.h" />
+    <ClInclude Include="src\Render\Handler\UniformManager.h" />
+    <ClInclude Include="src\Render\passes\dbg\dbgPass.h" />
+    <ClInclude Include="src\Render\passes\post\historyPass.h" />
+    <ClInclude Include="src\Render\passes\post\utilityPass.h" />
+    <ClInclude Include="src\Render\procedural\ocean.h" />
+    <ClInclude Include="src\Render\procedural\terrain.h" />
+    <ClInclude Include="src\Render\render_util\flouraSlang.h" />
+    <ClInclude Include="src\Render\render_util\meshTools.h" />
+    <ClInclude Include="src\Render\window\WindowImporter.h" />
+    <ClInclude Include="src\Scene\Object\ProceduralPlaneObject.h" />
+    <ClInclude Include="src\Scene\Object\volume.h" />
+    <ClInclude Include="src\Scene\FE_LAYER.h" />
+    <ClInclude Include="src\Systems\general\jobClass.h" />
+    <ClInclude Include="src\Systems\Physics\physworld.h" />
+    <ClInclude Include="src\Render\Buffer\Framebuffer.h" />
+    <ClInclude Include="src\Render\Shader\renderTarget.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Settings.json">
@@ -709,9 +749,6 @@
     </None>
     <None Include="Assets\Shaders\gBuffer\geometryPass.vert">
       <Filter>Resource Files\Shaders\Gbuffer</Filter>
-    </None>
-    <None Include="Assets\Shaders\compute\ssao.comp">
-      <Filter>Resource Files\Shaders\compute</Filter>
     </None>
     <None Include="Assets\Shaders\compute\DenoiseRenderQuad.frag">
       <Filter>Resource Files\Shaders\compute</Filter>

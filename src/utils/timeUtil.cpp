@@ -33,34 +33,27 @@ void TimeUtil::update() {
     }
 }
 
-float TimeUtil::mtDeltatime;
-float TimeUtil::mtLastFrameTime;
-float TimeUtil::mtTime;
-float TimeUtil::mtPriorTime; // for time based effects with motion vectors
+//float TimeUtil::mtDeltatime;
+//float TimeUtil::mtLastFrameTime;
+//float TimeUtil::mtTime;
+//float TimeUtil::mtPriorTime; // for time based effects with motion vectors
+
+TimeUtil::timer TimeUtil::mtTimer;
 
 void TimeUtil::mainThreadUpdate()
 {
-    updateTemplate(mtDeltatime, mtLastFrameTime, mtTime, mtPriorTime);
+    updateTemplate(mtTimer.deltatime, mtTimer.lastFrameTime, mtTimer.time, mtTimer.priorTime);
 }
 
 // physics thread
-float TimeUtil::ptDeltatime;
-float TimeUtil::ptLastFrameTime;
-float TimeUtil::ptTime;
-float TimeUtil::ptPriorTime; // for time based effects with motion vectors
-
+TimeUtil::timer TimeUtil::ptTimer;
 void TimeUtil::physicsThreadUpdate()
 {
-    updateTemplate(ptDeltatime, ptLastFrameTime, ptTime, ptPriorTime);
+    updateTemplate(ptTimer.deltatime, ptTimer.lastFrameTime, ptTimer.time, ptTimer.priorTime);
 }
 
 // worker thread
-float TimeUtil::wtDeltatime;
-float TimeUtil::wtLastFrameTime;
-float TimeUtil::wtTime;
-float TimeUtil::wtPriorTime; // for time based effects with motion vectors
-
-void TimeUtil::workerThreadUpdate()
-{
-    updateTemplate(wtDeltatime, wtLastFrameTime, wtTime, wtPriorTime);
+TimeUtil::timer TimeUtil::wtTimer;
+void TimeUtil::workerThreadUpdate(){
+    updateTemplate(wtTimer.deltatime, wtTimer.lastFrameTime, wtTimer.time, wtTimer.priorTime);
 }

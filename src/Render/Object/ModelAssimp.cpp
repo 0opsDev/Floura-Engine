@@ -6,7 +6,6 @@
 #include <assimp/material.h>
 #include <thread>
 
-
 void Model::updatePosition(glm::vec3 Position)
 {globalTransformation.position = Position;}
 
@@ -112,14 +111,20 @@ void Model::loadModelPathless()
 void Model::draw(Shader& shader, Camera Camera)
 {
     if (!loaded) return;
-    
+    //doLodsDraw
 	// draw all meshes and parse in data
     for (unsigned int i = 0; i < meshes.size(); i++)
     {
         //Collision::Sphere nSphere = Collision::AABBtoSphere(rootnodes[i].position, rootnodes[i].size);
-        
+        bool tLod = meshes[i].hasLod; //get
+        bool tforceLodLevel = meshes[i].forceLodLevel;
+        meshes[i].hasLod = doLodsDraw;
+        meshes[i].forceLodLevel = forceLodLevel;
       //  if (Camera.isRadiusInFrustum(nSphere.position, nSphere.radius))
         meshes[i].draw(shader, Camera);
+        
+        meshes[i].hasLod = tLod; //set
+        meshes[i].forceLodLevel = tforceLodLevel;
     }  
 }
 
@@ -140,25 +145,112 @@ void Model::createMeshAABBs()
 
     meshAabbPoints.reserve(meshes.size());
     rootnodes.reserve(meshes.size());
-
+    
+    glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
+    glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
+    
     for (size_t i = 0; i < meshes.size(); i++)
     {
         Collision::rubiksCubePoints newRubikzCube;
         newRubikzCube = Collision::fetchFurthestVertices(meshes[i].vertices);
         meshAabbPoints.push_back(newRubikzCube);
-
         rootnodes.emplace_back();
+        
+        // worse way to find min max in history (but pre comp so who cares)
+        
+        // transform
+        newRubikzCube = Collision::transformRubiks(newRubikzCube, lModelMatrix[i]);
+        
+        glm::vec3 nmin = glm::vec3(std::numeric_limits<float>::max());
+        glm::vec3 nmax = glm::vec3(std::numeric_limits<float>::lowest());
+        
+        // buttom () these all gotta be trnasformed :/
+        nmin = glm::min(nmin, newRubikzCube.DLB);
+        nmin = glm::min(nmin, newRubikzCube.DLF);
+        nmin = glm::min(nmin, newRubikzCube.DRB);
+        nmin = glm::min(nmin, newRubikzCube.DRF);
+        nmax = glm::max(nmax, newRubikzCube.DLB);
+        nmax = glm::max(nmax, newRubikzCube.DLF);
+        nmax = glm::max(nmax, newRubikzCube.DRB);
+        nmax = glm::max(nmax, newRubikzCube.DRF);
+        // top
+        nmin = glm::min(nmin, newRubikzCube.ULB);
+        nmin = glm::min(nmin, newRubikzCube.ULF);
+        nmin = glm::min(nmin, newRubikzCube.URB);
+        nmin = glm::min(nmin, newRubikzCube.URF);
+        nmax = glm::max(nmax, newRubikzCube.ULB);
+        nmax = glm::max(nmax, newRubikzCube.ULF);
+        nmax = glm::max(nmax, newRubikzCube.URB);
+        nmax = glm::max(nmax, newRubikzCube.URF);
+
+        
+        min = glm::min(min, nmin);
+        max = glm::max(max, nmax);
 	}
+    
+    ModelBounds.position = (min + max) * 0.5f;
+    ModelBounds.size = (max - min) * 0.5f;
+}
+
+void Model::createVoxelMesh(int steps, int minTri, glm::vec3 minSize, bool doVertexSnap)
+{
+    if (!loaded) return;
+    for (size_t i = 0; i < meshes.size(); i++){
+        Collision::AABB nRootNode = BVH::rootNodeFromRubixPoints(meshAabbPoints[i], lModelMatrix[i]);
+        std::vector<Collision::AABB> nAABS = voxelizer::voxelizeMeshKD(meshes[i].vertices, meshes[i].indices, nRootNode, steps, minTri, minSize, doVertexSnap, lModelMatrix[i]);
+        
+        // I know this is terrible logic, but im tired and for looping though this is easier than modifying the voxelizer functions
+        std::vector<voxelizer::voxelObj> vObjArray;
+        for (int z = 0; z < nAABS.size(); ++z){
+            voxelizer::voxelObj nVOBJ;
+            nVOBJ.voxel = nAABS[z];
+            nVOBJ.material.albedo = glm::vec4(1.0f);
+            nVOBJ.material.arm = glm::vec3(1.0f, 0.0f, 1.0f);
+            nVOBJ.material.emission = glm::vec3(0.0f);
+            vObjArray.push_back(nVOBJ);
+        }
+        
+        VoxelMeshes.push_back(vObjArray);
+    }
+}
+
+void Model::createVoxelModel(int steps, int minTri, glm::vec3 minSize)
+{
+    if (!loaded) return;
+    std::vector<Vertex> nvertices;
+    std::vector<GLuint> nindices;
+    GLuint indicieOffset = 0;
+    for (size_t i = 0; i < meshes.size(); i++){
+        
+        // mesh comb
+        for (int x = 0; x < meshes[i].vertices.size(); ++x)
+            nvertices.push_back(meshes[i].vertices[x]);
+        for (int y = 0; y < meshes[i].indices.size(); ++y)
+            nindices.push_back(meshes[i].indices[y] + indicieOffset);
+        indicieOffset = nvertices.size();         // set offset at end of mesh
+    }
+    
+    std::vector<Collision::AABB> nAABS = voxelizer::voxelizeMeshKD(nvertices, nindices, ModelBounds, steps, minTri, minSize, false, glm::mat4(1.0));
+    
+    // I know this is terrible logic, but im tired and for looping though this is easier than modifying the voxelizer functions
+    std::vector<voxelizer::voxelObj> vObjArray;
+    for (int z = 0; z < nAABS.size(); ++z){
+        voxelizer::voxelObj nVOBJ;
+        nVOBJ.voxel = nAABS[z];
+        nVOBJ.material.albedo = glm::vec4(1.0f);
+        nVOBJ.material.arm = glm::vec3(1.0f, 0.0f, 1.0f);
+        nVOBJ.material.emission = glm::vec3(0.0f);
+        vObjArray.push_back(nVOBJ);
+    }
+    
+    VoxelMeshes.push_back(vObjArray);
 }
 
 void Model::updateMeshAABBs()
 {
     if (!loaded) return;
-    for (size_t i = 0; i < meshes.size(); i++)
-    {
-        Collision::AABB newRootNode;
+    for (size_t i = 0; i < meshes.size(); i++){
         glm::mat4 finalMeshMat = gModelMatrix * lModelMatrix[i];
-
         rootnodes[i] = BVH::rootNodeFromRubixPoints(meshAabbPoints[i], finalMeshMat);
     }
 }
@@ -421,59 +513,44 @@ std::vector<Texture> Model::assembleMaterials(aiMesh* mesh, const aiScene* scene
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
-    std::string typeName, int slot)
-{
+    std::string typeName, int slot){
     std::vector<Texture> textures;
 
     aiTextureType targetType = type;
-    //if (type == aiTextureType_DISPLACEMENT && mat->GetTextureCount(type) == 0) {
-     //   targetType = aiTextureType_HEIGHT;
-    //}
 
-
-    if (mat->GetTextureCount(targetType) == 0)
-    {
+    if (mat->GetTextureCount(targetType) == 0){
         glm::vec4 colourFloat = glm::vec4(0.0f);
-        if (type == aiTextureType_DIFFUSE)
-        {
-            aiColor4D albedoFactor(1.0f, 1.0f, 1.0f, 1.0f);
 
-            mat->Get(AI_MATKEY_COLOR_DIFFUSE, albedoFactor);
-
-            colourFloat = glm::vec4(albedoFactor[0], albedoFactor[1], albedoFactor[2], albedoFactor[3]);
+        switch (type){
+        case aiTextureType_DIFFUSE:{
+                aiColor4D albedoFactor(1.0f, 1.0f, 1.0f, 1.0f);
+                mat->Get(AI_MATKEY_COLOR_DIFFUSE, albedoFactor);
+                colourFloat = glm::vec4(albedoFactor[0], albedoFactor[1], albedoFactor[2], albedoFactor[3]);
+                break;
+            }
+        case aiTextureType_DIFFUSE_ROUGHNESS:{
+                ai_real metallic = 1.0f; ai_real roughness = 1.0f;
+                mat->Get(AI_MATKEY_METALLIC_FACTOR, metallic);
+                mat->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness);
+                colourFloat = glm::vec4(1.0f, roughness, metallic, 1.0 - glm::sqrt(roughness));
+                break;
+            }
+        case aiTextureType_NORMALS:{
+                colourFloat = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
+                break;
+            }
+        case aiTextureType_EMISSIVE:{
+                aiColor3D emissionColor(0.0f, 0.0f, 0.0f);             ai_real emissionFactor = 1.0f;
+                mat->Get(AI_MATKEY_COLOR_EMISSIVE, emissionColor);
+                mat->Get(AI_MATKEY_EMISSIVE_INTENSITY, emissionFactor);
+                colourFloat = glm::vec4(emissionColor.r,emissionColor.g,emissionColor.b, emissionFactor);
+                break;
+            }
+            default:{
+                colourFloat = glm::vec4(1.0f);
+                break;
+            }
         }
-        if (type == aiTextureType_DIFFUSE_ROUGHNESS)
-        {
-            ai_real metallic = 1.0f;
-            ai_real roughness = 1.0f;
-
-            mat->Get(AI_MATKEY_METALLIC_FACTOR, metallic);
-            mat->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness);
-
-
-            colourFloat = glm::vec4(0.0f, roughness, metallic, 1.0f);
-        }
-        if (type == aiTextureType_NORMALS)
-        {
-            colourFloat = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
-        }
-        if (type == aiTextureType_EMISSIVE)
-        {
-            mat->Get(AI_MATKEY_COLOR_EMISSIVE, colourFloat);
-        }
-        /*
-        if (type == aiTextureType_DISPLACEMENT)
-        {
-            colourFloat = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        }
-        if (type == aiTextureType_HEIGHT)
-        {
-            colourFloat = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        }
-        */
-        //std::cout << "typeName: " << typeName << std::endl;
-        //std::cout << "typenum: " << type << std::endl;
-        //std::cout << "colour: " << " r: " << colourFloat.x << " g: " << colourFloat.y << " b: " << colourFloat.z << std::endl;
 
         Texture texture;
         if (disableInitialTextureUploadToGPUFlag) texture.suppressCreation = true; // if the flag is enabled, suppress the entire texture from being loaded, and store the vars to be reused
@@ -482,35 +559,50 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
         loadedTex.push_back(texture);
         loadedTexPath.push_back("null");
     }
-
-    for (unsigned int i = 0; i < mat->GetTextureCount(targetType); i++)
+    else
     {
+        for (unsigned int i = 0; i < mat->GetTextureCount(targetType); i++){
         
-        aiString str; // str is path
-        mat->GetTexture(targetType, i, &str);
-        bool skip = false;
-        for (unsigned int j = 0; j < loadedTex.size(); j++)
-        {
-            // check if already exsists, if so pushback texture and break
-            if (loadedTexPath[j] == (str).C_Str()) // dont have a thing for that yet
-            {
-                textures.push_back(loadedTex[j]);
-                skip = true;
-                break;
+            aiString str; // str is path
+            mat->GetTexture(targetType, i, &str);
+            bool skip = false;
+            for (unsigned int j = 0; j < loadedTex.size(); j++){
+                // check if already exsists, if so pushback texture and break
+                if (loadedTexPath[j] == (str).C_Str()) {// dont have a thing for that yet
+                    textures.push_back(loadedTex[j]);
+                    skip = true;
+                    break;
+                }
             }
+            if (!skip){
+                Texture texture;
+                if (disableInitialTextureUploadToGPUFlag) texture.suppressCreation = true; // if the flag is enabled, suppress the entire texture from being loaded, and store the vars to be reused
+                std::string path = directory + "/" + str.C_Str();
+                texture.linearFilter = true;
+                texture.createTexture(path.c_str(), (typeName).c_str(), slot);
+                
+                // detect failure and push def value (if not diffuse)
+                if (texture.skipstbi && type != aiTextureType_DIFFUSE){
+                    glm::vec4 colourFloat = glm::vec4(0.0f);
+                    
+                    switch (type){
+                    case aiTextureType_DIFFUSE_ROUGHNESS:{ colourFloat = glm::vec4(1.0f, 1.0f, 0.0f, 0.0f); break; }
+                    case aiTextureType_NORMALS:{ colourFloat = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f); break;}
+                    case aiTextureType_EMISSIVE:{ colourFloat = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); break; }
+                    default:{ colourFloat = glm::vec4(1.0f); break; }
+                    }
+                    
+                    // push new
+                    texture.Delete();
+                    texture.createColour(colourFloat, (typeName).c_str(), slot);
+                }
+                
+                // push texture
+                textures.push_back(texture);
+                loadedTex.push_back(texture);
+                loadedTexPath.push_back(str.C_Str());
+            }   
         }
-        if (!skip)
-        {
-            Texture texture;
-            if (disableInitialTextureUploadToGPUFlag) texture.suppressCreation = true; // if the flag is enabled, suppress the entire texture from being loaded, and store the vars to be reused
-            std::string path = directory + "/" + str.C_Str();
-            texture.linearFilter = true;
-            texture.createTexture(path.c_str(), (typeName).c_str(), slot);
-            //std::cout << path << std::endl;
-            textures.push_back(texture);
-            loadedTex.push_back(texture);
-            loadedTexPath.push_back(str.C_Str());
-        }   
     }
     return textures;
 }

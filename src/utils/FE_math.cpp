@@ -230,3 +230,12 @@ glm::mat4 FE_Math::createHaltonJitterProjectionMatrix(glm::mat4 matrix, glm::vec
     
     return matrix;
 }
+
+int FE_Math::calculateLODLevel(glm::vec3 vPosition, glm::vec3 cameraPosition, float transitionDistance, int maxLOD)
+{
+    float distance = glm::distance(vPosition, cameraPosition);
+    int targetLOD = static_cast<int>(distance / transitionDistance);
+    targetLOD = std::min(targetLOD, maxLOD);
+    
+    return targetLOD;
+}

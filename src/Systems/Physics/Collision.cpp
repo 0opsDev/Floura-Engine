@@ -6,6 +6,8 @@
 #include <array>
 #include <glm/gtx/norm.hpp>
 
+#include "Scene/LightingHandler.h"
+
 Collision::Frustum Collision::createFrustumFromCamera(glm::mat4 m)
 {
 	
@@ -258,6 +260,51 @@ Collision::rubiksCubePoints Collision::transformRubiks(const rubiksCubePoints& p
 	return newpoints;
 }
 
+Collision::KDsplit Collision::KDsplitVolume(glm::vec3 p, glm::vec3 extents){
+	KDsplit nKDS;
+	
+	// find the longest axis
+	int longestAxis = 0; // 0 assumes x
+	float currentLongestAxis = extents.x;
+	
+	if (extents.y > currentLongestAxis){ // checks if y is longer than x
+		longestAxis = 1; // 1 assumes y
+		currentLongestAxis = extents.y;
+	}
+	
+	if (extents.z > currentLongestAxis){ // checks if z is longer than y or x
+		longestAxis = 2; // 2 assumes z
+		currentLongestAxis = extents.z;
+	}
+	
+	// fetch half extent of current longest axis
+	float halfExtent = currentLongestAxis * 0.5f;
+
+	// place half extent along longest axis
+	glm::vec3 nExtent = glm::vec3(0.0);
+	switch (longestAxis){
+		case 0: nExtent = glm::vec3(halfExtent, extents.y, extents.z); break; // x
+		case 1: nExtent = glm::vec3(extents.x, halfExtent, extents.z); break; // y
+		case 2: nExtent = glm::vec3(extents.x, extents.y, halfExtent); break; // z
+		default:break;
+	}
+	
+	// set the extents
+	nKDS.firstSplit.size = nExtent;
+	nKDS.secondSplit.size = nExtent;
+	
+	// define the displacement along the longest vector and half the half extent to reach the centre
+	glm::vec3 displace = glm::vec3(0.0f);
+	//displace[longestAxis] = halfExtent * 0.5f;
+	displace[longestAxis] = halfExtent;
+	
+	// apply displacement on both halves of the volume
+	nKDS.firstSplit.position = p + displace;
+	nKDS.secondSplit.position = p - displace;
+	
+	return nKDS;
+}
+
 Collision::minmax Collision::returnMinMax(glm::vec3 p, glm::vec3 s)
 {
 	minmax newMinMax;
@@ -337,6 +384,7 @@ Collision::HitResult Collision::AABBvsAABB(
 	{
 		// set if the AABBs are colliding
 		data.isColliding = true;
+
 		// calculate the collision point
 
 		// Determine the closest face and push the victim fully outside
@@ -349,6 +397,7 @@ Collision::HitResult Collision::AABBvsAABB(
 
 		// Find the minimum distance
 		float minDist = std::min({ leftDist, rightDist, bottomDist, topDist, frontDist, backDist });
+		data.depth = minDist; // pent depth???
 
 		if (minDist == leftDist) {
 			data.collisionNormal = glm::vec3(-1.0f, 0.0f, 0.0f);
@@ -843,6 +892,80 @@ bool Collision::AABBtoSphereRangeCull(const glm::vec3& posA, const glm::vec3& si
 	
 	// check wether edge distance is within distance
 	return edgeDistance < distance;
+}
+
+Collision::HitResult Collision::resolveCollision(collisionObject& A, collisionObject& B)
+{
+	HitResult nHR;
+	nHR.isColliding = false;
+	nHR.isSolved = false;
+	if (!A.isCollider || !B.isCollider) return (nHR); // neither is collider
+
+	// sphere vs aabb
+	if (A.type == typeSphere && B.type == typeAABB) 	// a is sphere
+		nHR = AABBvsSphere(B.aabb.position, B.aabb.size, A.sphere.position, A.sphere.radius);
+
+	if (A.type == typeAABB && B.type == typeSphere) 	// b is sphere
+		nHR = AABBvsSphere(A.aabb.position, A.aabb.size, B.sphere.position, B.sphere.radius);
+	//  aabb vs aabb
+	if (A.type == typeAABB && B.type == typeAABB) 
+		nHR = AABBvsAABB(A.aabb.position, A.aabb.size, B.aabb.position, B.aabb.size);
+	// sphere vs sphere
+	if (A.type == typeSphere && B.type == typeSphere)
+		nHR = SpherevsSphere(A.sphere.position, B.sphere.position, A.sphere.radius, B.sphere.radius);
+	
+	return nHR;
+}
+
+Collision::HitResult Collision::resolveCollisionW_NewPositons(collisionObject& A, collisionObject& B,
+	const glm::vec3& posA, const glm::vec3& posB)
+{
+	HitResult nHR;
+	nHR.isColliding = false;
+	nHR.isSolved = false;
+	if (!A.isCollider || !B.isCollider) return (nHR); // neither is collider
+
+	// sphere vs aabb
+	if (A.type == typeSphere && B.type == typeAABB) 	// a is sphere
+		nHR = AABBvsSphere(posB, B.aabb.size, posA, A.sphere.radius);
+
+	if (A.type == typeAABB && B.type == typeSphere) 	// b is sphere
+		nHR = AABBvsSphere(posA, A.aabb.size, posB, B.sphere.radius);
+	//  aabb vs aabb
+	if (A.type == typeAABB && B.type == typeAABB) 
+		nHR = AABBvsAABB(posA, A.aabb.size, posB, B.aabb.size);
+	// sphere vs sphere
+	if (A.type == typeSphere && B.type == typeSphere)
+		nHR = SpherevsSphere(posA, posB, A.sphere.radius, B.sphere.radius);
+	
+	return nHR;
+}
+
+bool Collision::meshAABBCheck(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, AABB aabb)
+{
+	for (int i = 0; i < indices.size(); i += 3){
+        
+		unsigned int i0 = indices[i];
+		unsigned int i1 = indices[i + 1];
+		unsigned int i2 = indices[i + 2];
+        
+		if (i0 >= vertices.size() ||
+		i1 >= vertices.size() ||
+		i2 >= vertices.size()){
+			continue;
+		}
+        
+		// transform point can go here, but not yet
+		
+		glm::vec3 a = vertices[i0].position;
+		glm::vec3 b = vertices[i1].position;
+		glm::vec3 c = vertices[i2].position;
+		
+		// collision sat here
+		Collision::HitResult trihit = Collision::SATTriangleVSAABB(a, b, c, aabb.position, aabb.size);
+		if (trihit.isColliding) return true;
+	}
+	return false;
 };
 
 

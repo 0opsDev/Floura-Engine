@@ -1,22 +1,42 @@
-#version 330 core
+#version 460 core
 
 layout (triangles) in;
 layout (triangle_strip, max_vertices = 3) out; // points looks cool
 
+/*
 out vec3 Normal;
 out vec3 color;
 out vec2 texCoord;
 out vec3 crntPos;
 out vec3 gNormals;
+*/
+
+out highp vec3 crntPos;
+out vec3 Normal;
+out vec3 gNormals;
+out vec3 colour;
+out vec2 texCoord;
+
+//TBN
+out vec3 Normal0;
+out vec3 Tangent0;
+out vec3 Bitangent0;
+
+out highp vec4 currentPos;
+out highp vec4 previousPos;
 
 in DATA
 {
     vec3 Normal;
     vec3 gNormals;
-    vec3 color;
+    vec3 colour;
     vec2 texCoord;
-    mat4 projection;
-    vec3 WorldPos;
+    vec3 Normal0;
+    vec3 Tangent0;
+    vec3 Bitangent0;
+    highp vec3 crntPos;
+    highp vec4 currentPos;
+    highp vec4 previousPos;
 
 } data_in[];
 
@@ -28,17 +48,33 @@ void main()
 
     for (int i = 0; i < 3; i++)
     {
-    //gl_Position = data_in[i].projection * (gl_in[i].gl_Position + surfaceNormal); // 1
-    gl_Position = data_in[i].projection * gl_in[i].gl_Position;
-    crntPos = data_in[i].WorldPos; 
-    Normal = data_in[i].Normal;
-    color = data_in[i].color;
-    texCoord = data_in[i].texCoord;
-    gNormals = data_in[i].gNormals;
+        gl_Position = gl_in[i].gl_Position;
+        
+        Normal = data_in[i].Normal;
+        gNormals = data_in[i].gNormals;
+        colour = data_in[i].colour;
+        texCoord = data_in[i].texCoord;
+        Normal0 = data_in[i].Normal0;
+        Tangent0 = data_in[i].Tangent0;
+        Bitangent0 = data_in[i].Bitangent0;
+        crntPos = data_in[i].crntPos;
+        currentPos = data_in[i].currentPos;
+        previousPos = data_in[i].previousPos;
 
+        
     EmitVertex();
     }
 
 
     EndPrimitive();
 }
+
+/*
+//gl_Position = data_in[i].projection * (gl_in[i].gl_Position + surfaceNormal); // 1
+gl_Position = data_in[i].projection * gl_in[i].gl_Position;
+crntPos = data_in[i].WorldPos; 
+Normal = data_in[i].Normal;
+color = data_in[i].color;
+texCoord = data_in[i].texCoord;
+gNormals = data_in[i].gNormals;
+*/

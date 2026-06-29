@@ -11,12 +11,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include "core/Render.h"
+#include <Render/Handler/RenderClass.h>
 #include "Systems/Physics/Collision.h"
 #include <xhash>
 #include <map>
 #include <iterator>
 #include "Render/Animated/animdata.h"
+#include <Systems/Physics/voxelizer.h>
 
 #define MAX_BONE_INFLUENCE 4
 
@@ -30,6 +31,8 @@ public:
 	bool disableConstructorLoadingModelFlag = false; // for threadding, if true it'll stop the class constructor calling the load function 
 	bool disableInitialMeshUploadToVBOFlag = false; // for threading, stops the uploading to the gpu outside the opengl thread (very big nono, opengl doesnt like)
 	bool disableInitialTextureUploadToGPUFlag = false; // for threading again, stops the textures uploading to the gpu again
+	bool doLodsDraw = false;
+	int forceLodLevel = -1;
 	bool loaded = false; // blocks certain calls unless loaded
 	
 	struct transformation {
@@ -71,10 +74,16 @@ public:
 
 	void createMeshAABBs();
 
+	void createVoxelMesh(int steps, int minTri, glm::vec3 minSize, bool doVertexSnap);
+	void createVoxelModel(int steps, int minTri, glm::vec3 minSize);
+	
 	void updateMeshAABBs();
 
 	// AABBS position stored in local space
 	std::vector<Collision::AABB> rootnodes;
+	Collision::AABB ModelBounds;
+	///std::vector<std::vector<Collision::AABB>> VoxelMeshes;
+	std::vector<std::vector<voxelizer::voxelObj>> VoxelMeshes;
 	std::vector<Mesh> meshes;
 	std::vector<Collision::rubiksCubePoints> meshAabbPoints;
 

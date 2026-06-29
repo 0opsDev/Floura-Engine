@@ -4,7 +4,7 @@
 #include <chrono>
 #include "File/File.h"
 #include <Editor/UI/ImGui/ImGuiWindow.h>
-#include "Render.h"
+#include <Render/Handler/RenderClass.h>
 #include "scene/FE_LAYER.h"
 #include "scene/scene.h"
 #include <Gameplay/Player.h>
@@ -13,19 +13,21 @@
 #include "Editor/UI/ImGui/OpenSceneWindow.h"
 #include "Sound/SoundRunner.h"
 #include <thread>
-#include "Render/Handler/RenderHandler.h"
 #include "Systems/Physics/physworld.h"
 #include "Render/Handler/LoadHandler.h"
-#include "Systems/general/flouraEvent.h"
+#include "Systems/general/jobClass.h"
+#include "argumentHandler.h"
+
 
 bool Main::sleepState = true;
-bool Main::lockGameThread = false; // big nono rn holds renderer
+bool Main::lockGameThread = false; // big no rn holds renderer
 bool Main::lockPhysicsThread = false;
 bool Main::lockWorkerThread = false;
 
 
-int main()
+int main(int argc, char *argv[])
 {
+	ArgumentHandler::processArguments(argc, argv);
 
 	//CloseConsoleWindow();
 	Main::sleepState = true;
@@ -44,15 +46,15 @@ int main()
 	//std::thread pollThread(pollEventsLoop, windowHandler::window);
 	
 	glfwMakeContextCurrent(nullptr);
-	std::thread gameThread(Main::gameloop, windowHandler::window);
+	std::thread gameThread(Main::gameLoop, windowHandler::window);
 	std::thread physicsThread(Main::physicsLoop, windowHandler::window);
 	std::thread workerThread(Main::workerLoop, windowHandler::window);
 	
-	while (!glfwWindowShouldClose(windowHandler::window)) // GAME LOOP
+	while (!glfwWindowShouldClose(windowHandler::window)) // main thread
 	{
 		// no lock here, handles inputs
 		TimeUtil::mainThreadUpdate(); // update time
-		flouraEvent::onBeginningOfMainThread();
+		getAjob::onBeginningOfMainThread();
 		windowHandler::PollMousePositionsMainWindow();
 		Scene::maincamera.inputsMouse(windowHandler::window);
 		glfwPollEvents(); // poll
@@ -78,7 +80,7 @@ int main()
 	return 0;
 }
 
-void Main::gameloop(GLFWwindow* window)
+void Main::gameLoop(GLFWwindow* window)
 {
 	glfwMakeContextCurrent(window); // hand over context to thread
 	while (!glfwWindowShouldClose(window))
@@ -86,7 +88,7 @@ void Main::gameloop(GLFWwindow* window)
 		if (lockGameThread) continue;
 		
 		TimeUtil::update();
-		flouraEvent::onBeginningOfGameThread();
+		getAjob::onBeginningOfGameThread();
 		// cam
 		Scene::maincamera.saveLastMaticies();
 		Scene::maincamera.updateHaltonJitter(); // jitter
@@ -98,9 +100,12 @@ void Main::gameloop(GLFWwindow* window)
 		Scene::onBeginningOfFrame(); // for velocity atm
 		FE_LAYER::onBeginningOfFrame();
 		
+		Scene::sceneUpdateWork(); // belongs to work thread storing here for now
+		
 		Scene::Update();
 		// misc
 		FE_LAYER::Update();
+		
 		Player::update();
 		// render
 		//LoadHandler::updateFromOpenGLThread(); // for the opengl specific stuff that cant run on the other threads to-do with loading
@@ -116,7 +121,7 @@ void Main::physicsAttemptThreadUnlock()
 {
 	if (!lockPhysicsThread) return; // thread not locked
 	
-	// now for the giant condition (small for now, and yeah i know theres better ways to do this)
+	// now for the giant condition (small for now, and yeah I know there's better ways to do this)
 	if (!Scene::entityDeletionUnderGoing)
 	{
 		lockPhysicsThread = false;
@@ -128,15 +133,17 @@ void Main::physicsLoop(GLFWwindow* window)
 	while (!glfwWindowShouldClose(window))
 	{
 		if (lockPhysicsThread){
-			physicsAttemptThreadUnlock(); // attempt unlock and return
+			physicsAttemptThreadUnlock(); // attempt to unlock and return
 			continue;
 		}
 		
-		// could limit tickrate
+		// could limit tick rate
 		TimeUtil::physicsThreadUpdate();
-		flouraEvent::onBeginningOfPhysicsThread();
-		physworld::physicsArrayDynamicUpdateLoop(physworld::worldGravity, TimeUtil::ptDeltatime); //  main update
-		physworld::update(TimeUtil::ptDeltatime);
+		getAjob::onBeginningOfPhysicsThread();
+		physworld::physicsArrayDynamicUpdateLoop(physworld::worldGravity, TimeUtil::ptTimer.deltatime); //  main update
+		physworld::update(TimeUtil::ptTimer.deltatime);
+		
+		physworld::collisionResolve(); // resolve the collisions
 	}
 }
 
@@ -146,10 +153,9 @@ void Main::workerLoop(GLFWwindow* window)
 	while (!glfwWindowShouldClose(window))
 	{
 		if (lockWorkerThread) continue;
-		flouraEvent::onBeginningOfPhysicsThread();
+		getAjob::onBeginningOfPhysicsThread();
 		TimeUtil::workerThreadUpdate();
 		//RenderHandler::updateLoadUnloadedModels(); // load unloaded models, so they are threaded
-		//Scene::sceneUpdateWork();
 	}
 }
 

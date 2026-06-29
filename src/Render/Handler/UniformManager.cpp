@@ -1,6 +1,6 @@
 ﻿#include "UniformManager.h"
 
-#include "Core/Render.h"
+#include <Render/Handler/RenderClass.h>
 
 std::vector<UniformManager::uniformOBJ> UniformManager::umUniformOBJS;
 bool UniformManager::compileOnDirty = true;

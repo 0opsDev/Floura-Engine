@@ -22,6 +22,8 @@ public:
 
 	void draw(glm::vec3 position,
 		glm::vec3 scale, glm::vec3 colour, float thickness, bool hasWireframe, bool fboveride);
+	
+	void draw(glm::mat4 transformation, glm::vec3 colour, float thickness, bool hasWireframe, bool fboveride);
 };
 
 #endif // CUBEVISUALIZER_CLASS_H

@@ -16,5 +16,155 @@
         "ObjectType": "Model",
         "Path": "temp/FlightHelmet/glTF/FlightHelmet.gltf",
         "Type": "NULL"
+    },
+    {
+        "Name": "trans robot thingy",
+        "ObjectType": "Model",
+        "Path": "temp/trans robot thingy/trans_robot.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "temp/sb/galaxy2/Skybox.json",
+        "ObjectType": "Skybox",
+        "Path": "temp/sb/galaxy2/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "temp/sb/galaxy/Skybox.json",
+        "ObjectType": "Skybox",
+        "Path": "temp/sb/galaxy/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "skyLOGL",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/skyLOGL/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Name",
+        "ObjectType": "Model",
+        "Path": "temp/trans robot thingy/robot2test.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "plane",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes 2/plane.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "Cerberus_LP",
+        "ObjectType": "Model",
+        "Path": "temp/Cerberus_by_Andrew_Maximov/Cerberus_LP.FBX",
+        "Type": "NULL"
+    },
+    {
+        "Name": "VertexViewer",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/VertexViewer.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "VerticeViewer",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/VerticeViewer.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "terrplanechunks",
+        "ObjectType": "Model",
+        "Path": "temp/terrplanechunks/terr.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "torus",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/torus.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cube",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/cube.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "greenEmission",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/emissiveCubes/greenEmission.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "blueEmission",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/emissiveCubes/blueEmission.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "redEmission",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/emissiveCubes/redEmission.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "reflectivecube",
+        "ObjectType": "Model",
+        "Path": "temp/packasset/reflectivecube.glb",
+        "Type": "NULL"
+    },
+    {
+        "Name": "erato",
+        "ObjectType": "Model",
+        "Path": "temp/erato/erato.obj",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sibenik",
+        "ObjectType": "Model",
+        "Path": "temp/sibenik/sibenik.obj",
+        "Type": "NULL"
+    },
+    {
+        "Name": "fireplace_room",
+        "ObjectType": "Model",
+        "Path": "temp/fireplace_room/fireplace_room.obj",
+        "Type": "NULL"
+    },
+    {
+        "Name": "emissionCube",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/emissionCube.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sponzacrytek",
+        "ObjectType": "Model",
+        "Path": "temp/sponzacrytek/sponza.obj",
+        "Type": "NULL"
+    },
+    {
+        "Name": "walling",
+        "ObjectType": "Model",
+        "Path": "temp/walling.glb",
+        "Type": "NULL"
+    },
+    {
+        "Name": "picnic_scene",
+        "ObjectType": "Model",
+        "Path": "temp/picnic scene/picnic_scene.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "grey_roof_tiles_02_1k",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/grey_roof_tiles_02_1k.gltf/grey_roof_tiles_02_1k.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "GOWM",
+        "ObjectType": "Model",
+        "Path": "temp/GOWM/gow.gltf",
+        "Type": "NULL"
     }
 ]

@@ -16,12 +16,11 @@
 #include "Render/passes/post/denoise.h"
 #include <Systems/util/relationshipManager.h>
 #include <Render/passes/dbg/dbgPass.h>
-#include <Render/Shader/FramebufferObject.h>
 #include "Render/Handler/UniformManager.h"
 //#include <Instance.h>
 
 
-bool FEImGuiWindow::imGuiEnabled = false;
+bool FEImGuiWindow::imGuiEnabled = true;
 bool FEImGuiWindow::showViewportIcons = true;
 bool FEImGuiWindow::imGuiPanels[] = { true, true, true, true, true, true, true, true, true, true, true, true, true }; // ImGui Panels
 
@@ -520,7 +519,7 @@ void FEImGuiWindow::SystemInfomation() {
 		ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION)); // Display OpenGL version
 		ImGui::Text("Renderer: %s", glGetString(GL_RENDERER));  // Display GPU renderer
 
-		ImGui::Text((std::string("Viewport Size: ") + std::to_string(static_cast<int>(Framebuffer::ViewPortWidth)) + "*" + std::to_string(static_cast<int>(Framebuffer::ViewPortHeight))).c_str());
+		ImGui::Text((std::string("Viewport Size: ") + std::to_string(static_cast<int>(renderTarget::ViewPortWidth)) + "*" + std::to_string(static_cast<int>(renderTarget::ViewPortHeight))).c_str());
 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
@@ -543,14 +542,14 @@ void FEImGuiWindow::RenderWindow() {
 		ImGui::Text("Framerate Limiters");
 		ImGui::Checkbox("Vsync", &windowHandler::doVsync); // Set the value of doVsync (bool)
 		// Screen
-		ImGui::DragInt("Width", &Framebuffer::tempWidth);
-		ImGui::DragInt("Height", &Framebuffer::tempHeight); // screen slider
+		ImGui::DragInt("Width", &renderTarget::tempWidth);
+		ImGui::DragInt("Height", &renderTarget::tempHeight); // screen slider
 
 		if (ImGui::SmallButton("Apply Changes?")) { // apply button
-			glViewport(0, 0, Framebuffer::tempWidth, Framebuffer::tempHeight); // real internal res
-			glfwSetWindowSize(windowHandler::window, Framebuffer::tempWidth, Framebuffer::tempHeight);
+			glViewport(0, 0, renderTarget::tempWidth, renderTarget::tempHeight); // real internal res
+			glfwSetWindowSize(windowHandler::window, renderTarget::tempWidth, renderTarget::tempHeight);
 			windowHandler::setVSync(windowHandler::doVsync); // Set Vsync to value of doVsync (bool)
-			Framebuffer::updateFrameBufferResolution(Framebuffer::tempWidth, Framebuffer::tempHeight); // Update frame buffer resolution
+			renderTarget::updateFrameBufferResolution(renderTarget::tempWidth, renderTarget::tempHeight); // Update frame buffer resolution
 		}
 		if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 		{
@@ -607,7 +606,7 @@ void FEImGuiWindow::RenderWindow() {
 	//RenderClass::doTAA
 	if (ImGui::TreeNode("Anti Aliasing & Post")) {
 		ImGui::Checkbox("doTAA", &RenderClass::doTAA);
-		ImGui::DragFloat("post sharpness", &Framebuffer::sharpness);
+		ImGui::DragFloat("post sharpness", &renderTarget::sharpness);
 		
 		ImGui::TreePop();// Ends The ImGui Window
 	}
@@ -665,10 +664,10 @@ void FEImGuiWindow::PerformanceProfiler() {
 	
 	if (ImGui::TreeNode("Thread Latency")) {
 
-		ImGui::Text(("Main Thread: " + std::to_string(TimeUtil::mtDeltatime * 1000.0f) + " ms").c_str() ); 
-		ImGui::Text(("Physics Thread: " + std::to_string(TimeUtil::ptDeltatime * 1000.0f) + " ms").c_str() ); 
+		ImGui::Text(("Main Thread: " + std::to_string(TimeUtil::mtTimer.deltatime * 1000.0f) + " ms").c_str() ); 
+		ImGui::Text(("Physics Thread: " + std::to_string(TimeUtil::ptTimer.deltatime * 1000.0f) + " ms").c_str() ); 
 		ImGui::Text(("Game Thread: " + std::to_string(TimeUtil::deltatime * 1000.0f) + " ms").c_str() ); 
-		ImGui::Text(("Worker Thread: " + std::to_string(TimeUtil::wtDeltatime * 1000.0f) + " ms").c_str() ); 
+		ImGui::Text(("Worker Thread: " + std::to_string(TimeUtil::wtTimer.deltatime * 1000.0f) + " ms").c_str() ); 
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	
@@ -787,9 +786,9 @@ void FEImGuiWindow::viewport() {
 	float window_width = ImGui::GetContentRegionAvail().x;
 	float window_height = ImGui::GetContentRegionAvail().y;
 	
-	Framebuffer::attemptFrameBufferResize(static_cast<unsigned int>(window_width), static_cast<unsigned int>(window_height)); // Update frame buffer resolution
+	renderTarget::attemptFrameBufferResize(static_cast<unsigned int>(window_width), static_cast<unsigned int>(window_height)); // Update frame buffer resolution
 	
-	ImGui::Image((ImTextureID)(uintptr_t)Framebuffer::Ftexture, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::Image((ImTextureID)(uintptr_t)renderTarget::Ftexture, ImVec2(window_width, window_height), ImVec2(0, 1), ImVec2(1, 0));
 
 	//prevEnableLinearScaling
 	//ScreenUtils::UpdateViewportResize();
@@ -844,7 +843,7 @@ void FEImGuiWindow::viewport() {
 	ImGui::Dummy(ImVec2(0, ImGui::GetWindowHeight() - 135.0f));
 	//ImGui::TextColored(ImVec4(1, 0, 0, 1), "OpenGL Version: %s", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), "GPU: %s", reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-	ImGui::TextColored(ImVec4(1, 0, 0, 1), (std::string("RES: ") + std::to_string(static_cast<int>(Framebuffer::ViewPortWidth)) + "*" + std::to_string(static_cast<int>(Framebuffer::ViewPortHeight))).c_str());
+	ImGui::TextColored(ImVec4(1, 0, 0, 1), (std::string("RES: ") + std::to_string(static_cast<int>(renderTarget::ViewPortWidth)) + "*" + std::to_string(static_cast<int>(renderTarget::ViewPortHeight))).c_str());
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), ("FPS: " + std::to_string(static_cast<int>(TimeUtil::frameRate1hz))).c_str());
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), ("MS: " + std::to_string(TimeUtil::deltatime * 1000.0f) ).c_str());
 

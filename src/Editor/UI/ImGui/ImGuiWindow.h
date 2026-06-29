@@ -5,8 +5,8 @@
 #include "Render/Shader/shaderClass.h"
 #include <string>
 #include "Camera/Camera.h"
-#include <Render/Shader/Framebuffer.h>
-#include <Core/Render.h>
+#include <Render/Shader/renderTarget.h>
+#include <Render/Handler/RenderClass.h>
 #include "ImGuiWindow.h"
 
 #include "ImGuiInclude.h"

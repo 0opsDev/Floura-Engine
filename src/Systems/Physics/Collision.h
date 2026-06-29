@@ -18,6 +18,7 @@ public:
 	
 	enum collisionTypes
 	{
+		typeUndefined,
 		typeAABB,
 		typeSphere,
 		typePlane, // todo
@@ -34,6 +35,7 @@ public:
 
 	struct HitResult {
 		bool isColliding = false;
+		bool isSolved = false; // for solver
 		float distance = 0.0f;
 		float depth = 0.0f;
 		glm::vec3 lastHit = glm::vec3(0.0f);
@@ -43,7 +45,7 @@ public:
 	struct AABB
 	{
 		glm::vec3 position = glm::vec3(0.0f);
-		glm::vec3 size = glm::vec3(0.0f);
+		glm::vec3 size = glm::vec3(1.0f);
 	};
 
 	struct Sphere
@@ -54,9 +56,11 @@ public:
 
 	struct collisionObject
 	{
+		bool isCollider = true;
 		AABB aabb;
 		Sphere sphere;
-		char type; // A = AABB, S = sphere
+		collisionTypes type = typeAABB; // undefined by default
+		HitResult hitResult; // for solving
 	};
 
 	struct tri
@@ -117,6 +121,14 @@ public:
 
 	static rubiksCubePoints transformRubiks(const rubiksCubePoints& points, glm::mat4 matrix);
 
+	struct KDsplit
+	{
+		AABB firstSplit;
+		AABB secondSplit;
+	};
+	
+	static KDsplit KDsplitVolume(glm::vec3 p, glm::vec3 extents);
+	
 	// takes AABB return MinMax
 	static Collision::minmax returnMinMax(glm::vec3 p, glm::vec3 s);
 	
@@ -178,7 +190,7 @@ public:
 	// sphere
 
 	// sphere vs sphere
-	static HitResult SpherevsSphere(
+	static HitResult SpherevsSphere( // pent depth would be nice for solvin
 		const glm::vec3& P1, const glm::vec3& P2,
 		float R1, float R2); // two points and radius
 
@@ -191,7 +203,11 @@ public:
 	
 	static bool AABBtoSphereRangeCull(const glm::vec3& posA, const glm::vec3& sizeA, glm::vec3 point, float distance);
 
-
+	static HitResult resolveCollision(collisionObject& A, collisionObject& B);
+	
+	static HitResult resolveCollisionW_NewPositons(collisionObject& A, collisionObject& B, const glm::vec3& posA, const glm::vec3& posB);
+	
+	static bool meshAABBCheck(std::vector<Vertex> &vertices, std::vector<GLuint> &indices, AABB aabb);
 
 private:
 

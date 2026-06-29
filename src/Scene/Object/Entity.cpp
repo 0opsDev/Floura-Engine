@@ -144,8 +144,7 @@ void entity::update()
 	case ENT_MODEL_TYPE: // model
 	{
 		int index = RenderHandler::fetchModelIndex(component.render.renderID);
-		if (index != -1)
-		{
+		if (index != -1){
 			RenderHandler::models[index].model->updatePosition(component.systems.transformation.position);
 			RenderHandler::models[index].model->updateRotation(component.systems.transformation.rotation);
 			RenderHandler::models[index].model->updateScale(component.systems.transformation.scale);
@@ -153,8 +152,8 @@ void entity::update()
 			RenderHandler::models[index].model->updateMeshAABBs();
 			raytracer::updateboundingboxes(component.render.instanceUUID, component.collider.rootnodes);
 			raytracer::modelMatrixUpdate(component.render.instanceUUID, RenderHandler::models[index].model->gModelMatrix);
+			SceneDescription::globalMatrixUpdateVoxel(component.render.instanceUUID, RenderHandler::models[index].model->gModelMatrix);
 		}
-
 		break;
 	}
 	case ENT_BILLBOARD_TYPE: // billboard
@@ -216,9 +215,9 @@ void entity::queuedDeletion()
 		{
 
 			int index = RenderHandler::fetchModelIndex(component.render.renderID);
-			if (index != -1)
-			{
+			if (index != -1){
 				raytracer::removeFromRaytracer(component.render.instanceUUID);
+				SceneDescription::removeFromVoxelScene(component.render.instanceUUID); // not setup but still, just putting this here
 			}
 			RenderHandler::removeInstancewRenderID(component.render.renderID);
 			//delete component.renderHeads.Model;
@@ -258,30 +257,26 @@ void entity::queuedDeletion()
 	raytracer::RTGlobalTransformFlag = true;
 }
 
-Collision::HitResult entity::AABBVsEntity(glm::vec3 pos, glm::vec3 scale)
-{
-		Collision::HitResult finalResult;
+Collision::HitResult entity::AABBVsEntity(glm::vec3 pos, glm::vec3 scale){
+	Collision::HitResult finalResult;
 	finalResult.isColliding = false;
 	finalResult.distance = std::numeric_limits<float>::max();	
 	int index = RenderHandler::fetchModelIndex(component.render.renderID);
-	if (index != -1)
-	{
+	if (index != -1){
 
 		glm::mat4 gModelMatrix = FE_Math::composeMatrixWDegrees(RenderHandler::models[index].model->globalTransformation.position,
 			RenderHandler::models[index].model->globalTransformation.scale, RenderHandler::models[index].model->globalTransformation.rotation);
 
 		// for each mesh
-		for (size_t x = 0; x < RenderHandler::models[index].model->meshes.size(); x++)
-		{
+		for (size_t x = 0; x < RenderHandler::models[index].model->meshes.size(); x++){
 			// final transformation
 			glm::mat4 finalMatrix = gModelMatrix * RenderHandler::models[index].model->lModelMatrix[x]; // * by local transform
 
 			// AABB to speed things up
 			Collision::HitResult AABB = Collision::AABBvsAABB(component.collider.rootnodes[x].position, component.collider.rootnodes[x].size, pos, scale);
-			if (AABB.isColliding)
-			{
-				for (size_t y = 0; y < RenderHandler::models[index].model->meshes[x].indices.size(); y += 3)
-				{
+			if (AABB.isColliding){
+				for (size_t y = 0; y < RenderHandler::models[index].model->meshes[x].indices.size(); y += 3){
+					
 					unsigned int i0 = RenderHandler::models[index].model->meshes[x].indices[y];
 					unsigned int i1 = RenderHandler::models[index].model->meshes[x].indices[y + 1];
 					unsigned int i2 = RenderHandler::models[index].model->meshes[x].indices[y + 2];
@@ -291,7 +286,6 @@ Collision::HitResult entity::AABBVsEntity(glm::vec3 pos, glm::vec3 scale)
 						i2 >= RenderHandler::models[index].model->meshes[x].vertices.size()) {
 						continue;
 					}
-
 
 					glm::vec3 a = RenderHandler::models[index].model->meshes[x].vertices[i0].position;
 					glm::vec3 b = RenderHandler::models[index].model->meshes[x].vertices[i1].position;
@@ -304,8 +298,7 @@ Collision::HitResult entity::AABBVsEntity(glm::vec3 pos, glm::vec3 scale)
 					// run hit test and return result
 					Collision::HitResult trihit = Collision::SATTriangleVSAABB(a, b, c, pos, scale);
 
-					if (trihit.isColliding && trihit.distance < finalResult.distance)
-					{
+					if (trihit.isColliding && trihit.distance < finalResult.distance){
 						finalResult = trihit;
 					}
 				}
@@ -394,7 +387,6 @@ void entity::draw()
 		newRenderData.position = component.systems.transformation.position;
 		newRenderData.rotation = component.systems.transformation.rotation;
 		newRenderData.scale = component.systems.transformation.scale;
-			
 			newRenderData.pPosition = component.systems.previousTransformation.position;
 			newRenderData.pRotation = component.systems.previousTransformation.rotation;
 			newRenderData.pScale = component.systems.previousTransformation.scale;
@@ -411,8 +403,13 @@ void entity::draw()
 		for (size_t i = 0; i < component.collider.rootnodes.size(); i++)
 		{
 			if (Collision::showBoxCollider)
+			{
 				RenderClass::WhiteCube->draw(component.collider.rootnodes[i].position,
-					component.collider.rootnodes[i].size, glm::vec3(0.0f, 0.0f, 1.0f), 2.0, true, false);
+	component.collider.rootnodes[i].size, glm::vec3(1.0f, 0.0f, 1.0f), 1.0, true, false);
+				RenderClass::WhiteCube->draw(component.collider.modelNode.position,
+	component.collider.modelNode.size, glm::vec3(0.0f, 1.0f, 1.0f), 2.0, true, false);
+			}
+
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
@@ -518,11 +515,38 @@ void entity::updateMeshAABBs()
 				RenderHandler::models[index].model->updateTranformation();
 				RenderHandler::models[index].model->updateMeshAABBs();
 				component.collider.rootnodes = RenderHandler::models[index].model->rootnodes;
+				updateModelBounds();
 			}
 			//component.renderHeads.Model->updateMeshAABBs();
 		}
 	}
 
+}
+
+void entity::updateModelBounds()
+{
+	std::vector<glm::vec3> points;
+	
+	for (size_t i = 0; i < component.collider.rootnodes.size(); i++)
+	{
+		Collision::minmax newMinMax = Collision::returnMinMax(component.collider.rootnodes[i].position, component.collider.rootnodes[i].size);
+
+		// push points into array
+		points.push_back(newMinMax.max);
+		points.push_back(newMinMax.min);
+	}
+	component.collider.modelNode = Collision::createAABBfromPoints(points);
+	
+	// give max extent and turn into range
+	component.collider.range = glm::max(component.collider.modelNode.size.x,  glm::max(component.collider.modelNode.size.y, component.collider.modelNode.size.z));
+	
+	// set colliders
+	component.physobject.collisionObject.aabb = component.collider.modelNode;
+	component.physobject.collisionObject.sphere.position = component.collider.modelNode.position;
+	component.physobject.collisionObject.sphere.radius = component.collider.range;
+	
+	//component.physobject.collisionObject.aabb.size *= 2.0f;
+	//component.physobject.collisionObject.sphere.radius *= 2.0f;
 }
 
 void entity::createModel(const std::string& path, const std::string& materialPath)

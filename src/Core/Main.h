@@ -19,7 +19,7 @@ public:
 	static bool lockPhysicsThread;
 	static bool lockWorkerThread;
 	
-	static void gameloop(GLFWwindow* window);
+	static void gameLoop(GLFWwindow* window);
 	
 	static void physicsAttemptThreadUnlock();
 	

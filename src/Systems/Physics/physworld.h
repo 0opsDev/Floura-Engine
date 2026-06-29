@@ -13,6 +13,7 @@ public:
     {
         uint64_t UUID;
         float mass = 1.0f;
+        float bounciness = 0.5f;
         // current motion
         glm::vec3 velocity = glm::vec3(0.0f);
         // applied motion
@@ -21,6 +22,8 @@ public:
         // flags
         bool affectedByGravity = false;
         bool hasRigidbody = true;
+        Collision::collisionObject collisionObject;
+        
     };
     
     struct particle
@@ -88,7 +91,9 @@ public:
     
     // collisions section
     
-    static void collisionUpdate();
+    static void collisionResolve();
+    
+    static void solve(Collision::HitResult& hr, object& objA, glm::vec3& posA, object& objB, glm::vec3& posB, bool& dirtyFlagb, bool& dirtyFlaga );
     
 private:
     static float accumulatedTime;

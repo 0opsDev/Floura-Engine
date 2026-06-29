@@ -12,8 +12,20 @@
 #include <camera/Camera.h>
 
 class Mesh {
-public:
 
+	private:
+	
+	enum  drawTypes
+	{
+		POINT = 0,
+		LINE = 1,
+		TRIANGLE = 2
+	};
+	
+	public:
+	
+	drawTypes drawType = TRIANGLE;
+	
     uint64_t UUID;
 
     std::vector<Vertex> vertices;
@@ -39,19 +51,21 @@ public:
     void updateGlobalScale(glm::vec3 scale);
     void updateGlobalRotation(glm::vec3 rotation);
 
-	int drawType = 0; // 0 = triangles, 1 = lines, 2 = points
-
     std::string name = "empty";
 	bool culled = false; // reset on end of draw;
 	bool suppressSetupMeshCall = false;
+	bool hasLod = false;
+	bool generateLod = true;
+	int forceLodLevel = -1; // -1 = off
 	bool created = false;
-	
+	float transitionDistance = 5.0f;
 	
 	// exposed for threadding
 	void setupMesh();
     
 private:
-    
+
+	
     glm::mat4 meshMatrix = glm::mat4(1.0f);
 	//glm::mat4 meshPrevMatrix = glm::mat4(1.0f);
     glm::vec3 position = glm::vec3(0.0f);
@@ -64,6 +78,12 @@ private:
     glm::vec3 globalRotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	
     VAO VAO;
+	VBO nVBO;
+	EBO nEBO;
+	
+	EBO lodEBOs[4];
+	size_t lodSizes[4];
+	
 };
 
 #endif

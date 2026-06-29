@@ -18,6 +18,8 @@ uniform sampler2D gSpecular;
 uniform sampler2D gVelocity;
 uniform sampler2D gEmission;
 
+uniform sampler2D skyGradientTexture;
+
 // history
 uniform sampler2D hColour;
 uniform sampler2D hDepthTexture;
@@ -63,7 +65,7 @@ uniform mat4 lightProjection;
 uniform uint64_t BlueNoiseHandle;
 uniform uint64_t bayerMatrixHandle;
 
-uniform sampler2D shadowMap;
+uniform sampler2DShadow  shadowMap;
 
 uniform uint64_t cmMainHandle;
 
@@ -106,6 +108,7 @@ float random(vec3 seed) {
 vec4 RayCast(in vec3 dir, inout vec3 hitCoord, out float dDepth, int maxSteps, out float hit, in float step)
 {
     hitCoord += dir * 0.1;
+    //hitCoord += dir;
 
     dir *= step;
     float depth;
@@ -157,11 +160,8 @@ float CalcShadowFactorDIR(vec4 LightSpacePos, vec3 lightDirection, vec3 normal, 
     float shadow = 0.0f;
 
     // shadow calculation
-    if (lightCoords.z <= 1.0f)
-    {
+    if (lightCoords.z <= 1.0f){
         sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
-
-        // transform to [0,1] range
         lightCoords = (lightCoords + 1.0f) / 2.0f;
         // get the current depth
         float currentDepth = lightCoords.z;
@@ -169,30 +169,28 @@ float CalcShadowFactorDIR(vec4 LightSpacePos, vec3 lightDirection, vec3 normal, 
         float bias = max(DirSMMaxBias * (1.0f - dot(normal, lightDirection)), 0.0005f);
         // PCF
         int sampleRadius = FilterRadius; // FilterRadius // NumberOfSamples
-        //vec2 pixelSize = (float(NumberOfSamples) * 0.1) / textureSize(shadowMap, 0);
-        
         vec2 texSize = vec2(textureSize(bluemap, 0));
         // uv
         vec2 offset = vec2(fract(frame * 0.618), fract(frame * 0.133));
         vec2 noiseUV = (gl_FragCoord.xy / texSize) + offset;
-
+        
         vec2 pixelSize = 1.0 / textureSize(shadowMap, 0);
+        float tsamples = 0.0;
         for(int y = -sampleRadius; y <= sampleRadius; y++)
         {
             for(int x = -sampleRadius; x <= sampleRadius; x++)
             {
                 float angle = texture(bluemap, noiseUV).r * NumberOfSamples;
                 vec2 foffset = vec2(cos(angle), sin(angle));
-                float closestDepth = texture(shadowMap, lightCoords.xy + (vec2(x, y) * foffset) * pixelSize).r;
-                if (currentDepth > closestDepth + bias)
-                shadow += 1.0f;
+                float closestDepth = texture(shadowMap, vec3(lightCoords.xy + (vec2(x, y) * foffset) * pixelSize, currentDepth - bias )).r;
+                //if (currentDepth > closestDepth + bias)
+                shadow += (1.0f - closestDepth);
+                tsamples += 1.0f;
 
             }
         }
 
-        shadow /= pow((sampleRadius * 2 + 1), 2);
-
-
+        shadow /= tsamples;
     }
 
     return shadow;
@@ -243,7 +241,7 @@ float shadowTrace(vec3 lightDirection, vec3 normal, vec3 iPosition)
     //jitt * time;
     
     //vec4 csCoords = RayCast((vec3(jitt)) + rayDir, rayOrigin, dDepth, 12, hit, 0.05);
-    vec4 csCoords = RayCast(rayDir, rayOrigin, dDepth, 256, hit, 0.05);
+    vec4 csCoords = RayCast(rayDir, rayOrigin, dDepth, 64, hit, 0.05);
     if (hit == 1.0f) shadow += 1.0f;
     
     return shadow;
@@ -276,6 +274,7 @@ vec4 direcLight(vec3 ARM, vec3 iNormal, vec3 iPosition)
     //shadow = ssShadow;
   // shadow map end
     
+    //float fAmbient = directAmbient * ARM.r;
   float specular = 0.0f;
   if (doReflect && doDirSpecularLight && diffuse != 0.0f){
 
@@ -289,6 +288,10 @@ vec4 direcLight(vec3 ARM, vec3 iNormal, vec3 iPosition)
       //float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
       specular = specAmount * dirSpecularLight;
       
+      
+   //   return ((diffuse * (1.0f - shadow)) + ARM.g* specular * (1.0f - shadow)) * vec4(directLightCol, 1.0f); }
+  //else{ return ((diffuse * (1.0f - shadow))) * vec4(directLightCol, 1.0f); }
+    
       return ((diffuse * (1.0f - shadow) + directAmbient) + ARM.g* specular * (1.0f - shadow)) * vec4(directLightCol, 1.0f); }
   else{ return ((diffuse * (1.0f - shadow) + directAmbient)) * vec4(directLightCol, 1.0f); }
 }
@@ -485,10 +488,6 @@ vec3 rough(vec3 ARM, vec3 iNormal, vec3 viewVector)
     return vec3(0.0f);
 }
 
-float rand(vec2 co){
-    return fract(sin(dot(co.xy ,vec2(12.9898, 78.233))) * 43758.5453);
-}
-
 // (thanks learnopengl)
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
@@ -570,6 +569,10 @@ void Reflect(vec3 albedo,  vec3 iNormal, vec3 viewVector, out vec3 diffuse, out 
     }
 }
 
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 vec3 sampleHemisphere2(vec3 normal, float u, float v)
 {
 
@@ -604,6 +607,8 @@ vec3 sampleHemisphere(vec3 normal, float random)
     return tangent * localDir.x + bitangent * localDir.y + normal * localDir.z;
 }
 
+
+
 vec4 ssgi(int samples, vec3 ARM)
 {
     float Metallic = ARM.b;
@@ -633,7 +638,10 @@ vec4 ssgi(int samples, vec3 ARM)
     lod = min(lod, 10.0);
 
     vec3 indirectColour = vec3(0.0f);
-
+    
+    float giboost = 1.5;
+    giboost += 1.0;
+    
     if (samples <= 0) return vec4(indirectColour, 0.0);
 
     sampler2D bluemap =sampler2D(BlueNoiseHandle) ;
@@ -641,26 +649,31 @@ vec4 ssgi(int samples, vec3 ARM)
 
     vec2 scrollingUV = noiseUV + fract(time * vec2(12.9898, 78.233));
     vec2 blueNoise = texture(bluemap, scrollingUV).rg;
-
+    
+    int hitcount = 0;
+    
     for (int i = 0; i < samples; i++)
     {
-
         float u = fract(blueNoise.r + float(i) * 0.61803398875);
         float v = fract(blueNoise.g + float(i) * 0.61803398875);
 
         vec3 randomDir = sampleHemisphere(normalize(R), u + (time * gl_FragCoord.z ) );
+        vec3 dir =reflect(V, randomDir);
 
         float hit = 0.0;
         vec4 csCoords = RayCast(randomDir, hitPos, dDepth, 32, hit, 0.4);
 
-        vec3 SSGI = textureLod(hColour, csCoords.xy, lod).rgb;
-        
-        indirectColour += SSGI;
-        
+        if (hit == 1.0)
+        {
+            hitcount++;
+            vec3 SSGI = textureLod(hColour, csCoords.xy, lod).rgb;
+
+            indirectColour += SSGI* giboost;
+        }
     }
 
 
-    return vec4((indirectColour / samples), 1.0);
+    return vec4( clamp((indirectColour / hitcount), 0.0, 1.0), 1.0);
 }
 
 vec3 indirectIBL(int samples, vec3 ARM, vec3 iNormal, vec3 viewVector)
@@ -744,10 +757,14 @@ void main()
     //return;
 
     vec4 albedo = texture(gAlbedoSpec, texCoord);
+    //vec3 skyGradient = texture(skyGradientTexture, texCoord).rgb;
+
+    //FragColor = vec4(skyGradient.rgb, 1.0f);
+    //return;
 
     if (albedo.a <= 0.0)
     {
-        FragColor = vec4(albedo.rgb, 1.0f); return;
+        FragColor = vec4(albedo.rgb, 1.0f); return; // sg
     }
 
     float depth = texture(depthMap, texCoord).r;
@@ -755,7 +772,7 @@ void main()
     //early z cutoff
     if (depth >= 0.99999)
     {
-        FragColor = vec4(albedo.rgb, 1.0f);
+        FragColor = vec4(albedo.rgb, 1.0f); // sg
         return;
     }
 
@@ -792,7 +809,10 @@ void main()
 
     
     //vec3 direct = ARM.r * lights(ARM, normal, position).rgb;
-    vec3 direct =  lights(ARM, normal, position).rgb;
+    vec3 shadow =  lights(ARM, normal, position).rgb;
+    //vec3 direct = shadow * ARM.r;
+    vec3 direct = shadow;
+    
     //vec3 CMGI = indirectIBL(indirectSamples, ARM, normal, viewVector);// [placeholder
     vec3 ssgi = ssgi(indirectSamples, ARM).rgb;
 
@@ -811,11 +831,11 @@ void main()
     
     vec3 reflections = vec3(0.0);
     
-    if (doReflect)
-    {
-        Reflect(albedo.rgb, normal, viewVector, diffuse, specular, ARM);
-        reflections = diffuse + specular;
-    }
+   // if (doReflect)
+    //{
+        //Reflect(albedo.rgb, normal, viewVector, diffuse, specular, ARM);
+        //reflections = diffuse + specular;
+    //}
     
 
     //if (blueNoiseOpacity(0.0)) nssr = ssr(ARM);
@@ -837,7 +857,6 @@ void main()
     //final = vec4(totalDiffuse, 1.0);
     
     FragColor = vec4(final, 1.0f);
-
     //float ld = linearizeDepth(depth, 0.1, 10.0);
 
     //FragColor.rgb = vec3(ld);

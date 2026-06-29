@@ -1,51 +1,28 @@
 #include "BVH.h"
 #include "utils/FE_math.h"
 #include <Render/Handler/RenderHandler.h>
-BVH::tlas BVH::nTlas;
 
-void BVH::uploadSceneRootsToTlas(std::vector<std::unique_ptr<entity>> entityObjects)
-{
-    nTlas.rootnodes.clear(); // clear prior nodes
 
-    // get root nodes
-    for (size_t i = 0; i < entityObjects.size(); i++)
-    {
-        int index = RenderHandler::fetchModelIndex(Scene::entityObjects[i]->component.render.renderID);
-        if (index != -1)
-        {
-            for (size_t x = 0; x < RenderHandler::models[index].model->meshes.size(); x++) // each mesh
-            {
-                root newRootNode;
-                newRootNode.ModelUUID = entityObjects[i]->UUID;
-                newRootNode.MeshUUID = RenderHandler::models[index].model->meshes[x].UUID;
-                newRootNode.rootnode.position = Scene::entityObjects[i]->component.collider.rootnodes[x].position;
-                newRootNode.rootnode.scale = Scene::entityObjects[i]->component.collider.rootnodes[x].size;
-                nTlas.rootnodes.push_back(newRootNode); // meshes
-            }
-        }
-    }
-}
-
-void BVH::generateTlas(int childPerNodeSize, int layerCount)
-{
-
-    for (size_t i = 1; i < layerCount; i++) // layer
-    {
-        topNode newTopNode;
-        if (i == 1) // i want one to pull data from root nodes
-        {
-
-            return;
-        }
-    }
-
+std::vector<BVH::leaf> BVH::meshBlasGen(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, Collision::AABB root, int steps){
+    std::vector<BVH::leaf> nBlas;
+    
+    //Collision::AABB tAABB;
+    //if (!Collision::meshAABBCheck(vertices,  indices, root))return nBlas;
+    
+    //leaf topLeaf;
+    //topLeaf.job = 0; // 0 = top
+    //topLeaf.aabb = root;
+    //Collision::KDsplit split = Collision::KDsplitVolume(topLeaf.aabb.position, topLeaf.aabb.size);
+    
+    treeInternalClass(vertices, indices, root, steps, -1, nBlas); // -1 is top
+    
+    return nBlas;
 }
 
 Collision::AABB BVH::rootNodeFromRubixPoints(Collision::rubiksCubePoints points,
-    glm::mat4 ModelMatrix)
+                                             glm::mat4 ModelMatrix)
 {
     Collision::AABB newNode;
-
     //glm::mat4 newLMat = FE_Math::composeMatrixWDegrees(position, scale, rotation);
     //glm::mat4 newGMat = FE_Math::composeMatrixWDegrees(globalPosition, globalScale, globalRotation);
 
@@ -58,4 +35,21 @@ Collision::AABB BVH::rootNodeFromRubixPoints(Collision::rubiksCubePoints points,
     //boxCollider.position += finalGlobalPos + finalpos;
 
     return newNode;
+}
+
+Collision::AABB BVH::rootNodeFromRubixPoints(Collision::rubiksCubePoints points)
+{
+    Collision::AABB newNode;
+
+    newNode = Collision::createAABBfromRubiksCubePoints(points);
+    newNode.size = FE_Math::pad(newNode.size, 0.1f);
+    //boxCollider.position += finalGlobalPos + finalpos;
+
+    return newNode;
+}
+
+void BVH::treeInternalClass(std::vector<Vertex>& vertices, std::vector<GLuint>& indices,
+                            Collision::AABB root, int steps, int parentIndex, std::vector<leaf>& iblas){
+    if (!Collision::meshAABBCheck(vertices,  indices, root)) return;
+
 }

@@ -1,7 +1,7 @@
 [
     {
         "DefaultSkyboxPath": "Assets/Skybox/skyLOGL/Skybox.json",
-        "DirAmbient": 0.0,
+        "DirAmbient": 0.30000001192092896,
         "DirColour": [
             1.0,
             1.0,
@@ -9,13 +9,13 @@
         ],
         "DirEnabled": true,
         "DirRotation": [
-            174.6999969482422,
-            1093.0999755859375,
+            131.89999389648438,
+            256.70001220703125,
             0.0
         ],
         "DirSMMaxBias": 0.0010000000474974513,
         "DirSpecEnabled": true,
-        "DirSpecular": 5.0,
+        "DirSpecular": 1.0,
         "DoShadowMap": true,
         "DoSkyColour": false,
         "RenderSkybox": true,
@@ -26,13 +26,13 @@
         ],
         "dirNearFar": [
             0.10000000149011612,
-            244.0
+            231.0
         ],
         "dirShadowMapHardness": 4,
-        "dirShadowMapSamples": 4,
-        "dirSmDistance": 16.0,
-        "dirSmHeight": 75.0,
-        "indirectSamples": 12,
+        "dirShadowMapSamples": 1,
+        "dirSmDistance": 19.0,
+        "dirSmHeight": 25.0,
+        "indirectSamples": 0,
         "skyRGBA": [
             0.0,
             0.0,

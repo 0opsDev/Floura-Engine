@@ -1,7 +1,7 @@
 #include"CubeVisualizer.h"
 #include "utils/timeUtil.h"
 #include <glm/gtx/string_cast.hpp>
-#include <Core/Render.h>
+#include <Render/Handler/RenderClass.h>
 #include "Scene/scene.h"
 #include "Render/passes/dbg/dbgPass.h"
 
@@ -81,8 +81,10 @@ void CubeVisualizer::draw(glm::vec3 position,
 		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
 		glEnable(GL_DEPTH_TEST);
 		glBindVertexArray(0);
+		glDisable(GL_CULL_FACE);
+		glDepthFunc(GL_LESS);
 		
-		if (hasWireframe) {glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); glLineWidth(thickness);  glDisable(GL_CULL_FACE);} // Enable wireframe mode
+		if (hasWireframe) {glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); glLineWidth(thickness); } // Enable wireframe mode
 		//std::cout << "height" << height << std::endl;
 		RenderClass::boxShader.Activate();
 
@@ -107,7 +109,49 @@ void CubeVisualizer::draw(glm::vec3 position,
 		//glDepthFunc(GL_LESS);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
+		
+		glEnable(GL_CULL_FACE);
+	}
+	// debug buffer would be cool, actually 3 debug buffers one for wireframe, another for hitboxes and the other for a polygon view simular to unreals
+	//}
+}
+
+void CubeVisualizer::draw(glm::mat4 transformation, glm::vec3 colour, float thickness, bool hasWireframe,
+	bool fboveride)
+{
+		
+	if (dbgPass::overlayDebug)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, dbgPass::dbgBuffer);
+		//glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+		// Since the cubemap will always have a depth of 1.0, we need that equal sign so it doesn't get discarded
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		glBindVertexArray(0);
+		glDisable(GL_CULL_FACE);
+		
+		if (hasWireframe) {glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); glLineWidth(thickness); } // Enable wireframe mode
+		//std::cout << "height" << height << std::endl;
+		RenderClass::boxShader.Activate();
+		
+		RenderClass::boxShader.setMat4("model", transformation);
+		//feed model matrix known as inside the shader "model"
+		RenderClass::boxShader.setMat4("camMatrix", Scene::maincamera.cameraMatrixAlwaysUnjittered);
+		
+		glUniform3f(glGetUniformLocation(RenderClass::boxShader.ID, "camPos"), Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z);
+
+		glUniform3f(glGetUniformLocation(RenderClass::boxShader.ID, "colour"), colour.x, colour.y, colour.z);
+		glBindVertexArray(cubeVAO);
+		//glDepthFunc(GL_ALWAYS);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		// Adjust the width as needed
+		if (hasWireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);glLineWidth(1.0f);} // Restore normal rendering < wireframe
+		//glDepthFunc(GL_LESS);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 		
 		glEnable(GL_CULL_FACE);
 	}

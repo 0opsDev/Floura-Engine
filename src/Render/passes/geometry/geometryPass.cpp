@@ -1,5 +1,5 @@
 #include "geometryPass.h"
-#include <Render/Shader/Framebuffer.h>
+#include <Render/Shader/renderTarget.h>
 #include "Scene/scene.h"
 
 //buffer #1
@@ -243,5 +243,5 @@ void GeometryPass::gPassDraw(Model*& model, Shader& GPass, Camera camera) {
 	
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 }

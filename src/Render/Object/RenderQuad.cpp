@@ -1,6 +1,8 @@
 #include"RenderQuad.h"
-#include "utils/timeUtil.h"
-#include <glm/gtx/string_cast.hpp>
+
+unsigned int RenderQuad::VAO; 
+unsigned int RenderQuad::VBO; 
+unsigned int RenderQuad::EBO;
 
 const float s_Plane_Verticez[] = {
 	// Positions       // Texture Coordinates
@@ -17,11 +19,7 @@ const unsigned int s_Plane_Indicez[6] =
 };
 
 void RenderQuad::init() {
-	buffer(); // create buffer in memory for skybox
-}
-
-void RenderQuad::buffer() {
-	// Create VAO, VBO, and EBO for the billboard
+	// Create VAO, VBO, and EBO
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
@@ -32,12 +30,10 @@ void RenderQuad::buffer() {
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(s_Plane_Indicez), &s_Plane_Indicez, GL_STATIC_DRAW);
-
-	// **Position attribute**
+	
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
-	// **Texture coordinate attribute**
+	
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
@@ -53,12 +49,3 @@ void RenderQuad::draw() {
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 }
-void RenderQuad::drawtex(unsigned int& tex)
-{
-	glDepthFunc(GL_LEQUAL);
-	glBindVertexArray(VAO);
-	glDisable(GL_DEPTH_TEST);
-	glBindTexture(GL_TEXTURE_2D, tex);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-}
-	

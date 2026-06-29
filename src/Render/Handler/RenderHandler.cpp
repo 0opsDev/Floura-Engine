@@ -2,19 +2,23 @@
 #include "Systems/util/UUID.h"
 #include <Scene/LightingHandler.h>
 #include <Render/Handler/ShaderHandler.h>
-#include <Core/Render.h>
-#include <Render/Object/SkyBox.h>
+#include <Render/Handler/RenderClass.h>
+#include <Render/Object/Skybox.h>
 #include <Render/passes/geometry/geometryPass.h>
 #include <Scene/scene.h>
 #include <Editor/UI/ImGui/ImGuiWindow.h>
-#include <Render/Shader/Framebuffer.h>
+#include <Render/Shader/renderTarget.h>
 #include <Gameplay/Player.h>
 #include <Render/passes/post/historyPass.h>
 #include "Scene/FE_LAYER.h"
 #include "utils/FE_math.h"
 #include "LoadHandler.h"
+#include <Render/pipeline/prebuilt_pipelines/flouraDeferred.h>
 
 std::unordered_map<std::string, uint64_t> RenderHandler::pKeyHandleMapRender;
+
+
+
 std::vector<RenderHandler::modelObject> RenderHandler::models;
 std::vector<RenderHandler::renderQueueData> RenderHandler::renderQueueDataVector;
 
@@ -66,6 +70,9 @@ RenderHandler::batchOfUUID RenderHandler::addModel(std::string path)
 		//LoadHandler::addToModelMeshCreateW_RenderIDQueue(nUUID); // << to run on opengl thread
 		//LoadHandler::addToModelTextureCreateW_RenderIDQueue(nUUID);
 		newModelObject.model->createMeshAABBs();
+		
+		//newModelObject.model->createVoxelMesh(8, 1); // comment this out after
+		
 		newModelObject.model->renderID = nUUID;
 		newModelObject.model->instanceUUIDs.push_back(nIUUID);  // set
 		models.push_back(newModelObject);
@@ -132,19 +139,24 @@ void RenderHandler::render()
 	// def draw
 	if (RenderClass::DoDeferredLightingPass)
 	{
-		if (renderENV)  tempCM->cubemapToUUIDShader("cmMainHandle", RenderClass::GBLpass);
-		else Skybox::SkyboxCubemap->cubemapToUUIDShader("cmMainHandle", RenderClass::GBLpass);
-		RenderClass::DeferredLightingPass(); // Forward Lighting Pass
+		if (renderENV)  tempCM->cubemapToUUIDShader("cmMainHandle", FlouraDeferred::DFL_Shader);
+		else Skybox::SkyboxCubemap->cubemapToUUIDShader("cmMainHandle", FlouraDeferred::DFL_Shader);
+		FlouraDeferred::DeferredLightingPass(); // Forward Lighting Pass
+		FlouraDeferred::ssrPass();
 	}
 	
-	if (RenderClass::DoComputeLightingPass)
-	{
+	if (RenderClass::DoComputeLightingPass){
 		if (raytracer::RTGlobalTransformFlag) SceneDescription::updateQuickModelData();
 		raytracer::render(); // Run compute shader for lighting pass
 		raytracer::RTGlobalTransformFlag = false;
 	}
 	
-	RenderClass::ScreenSpaceLightingPass();
+	if (false){
+		//if (raytracer::RTGlobalTransformFlag) SceneDescription::updateQuickVoxelData();
+		SceneDescription::updateQuickVoxelData();
+		RenderClass::raymarchingPass(); // comment out when not using
+		raytracer::RTGlobalTransformFlag = false; // this is dumb i know
+	}
 	
 	if (RenderClass::doTAA) RenderClass::taaPass();
 	
@@ -273,12 +285,12 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 	GLint viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::cmFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::cmFBO);
 
 
 	int width = (int)resolution.x; int height = (int)resolution.y;
 	glViewport(0, 0, width, height); glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	Framebuffer::smUpdateResolution(resolution); glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	renderTarget::smUpdateResolution(resolution); glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	Camera nCamera;
 	nCamera.InitCamera(int(resolution.x), int(resolution.y), pos); // Matching your Position
@@ -293,15 +305,15 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 		nCamera.Up = rqups[x];
 		nCamera.updateMatrix();
 
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::cmFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::cmFBO);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X + x, cm->ID, 0);
-		Framebuffer::clearsmbuffer();
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::cmFBO);
+		renderTarget::clearsmbuffer();
+		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::cmFBO);
 
 		if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox) // should add skybox.scene
-			Skybox::draw(nCamera,  Framebuffer::cmFBO, false);
-		glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::cmFBO);	
+			Skybox::draw(nCamera,  renderTarget::cmFBO, false);
+		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::cmFBO);	
 
 
 		for (size_t i = 0; i < renderQueueDataVector.size(); i++)
@@ -370,7 +382,7 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 		}
 
 		unsigned char* data = new unsigned char[width * height * 4];
-		glBindFramebuffer(GL_READ_BUFFER, Framebuffer::cmFBO);
+		glBindFramebuffer(GL_READ_BUFFER, renderTarget::cmFBO);
 		//glReadBuffer(GL_COLOR_ATTACHMENT0);
 		glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
@@ -544,7 +556,7 @@ void RenderHandler::regularDraw()
 				//raytracer::uvScaleUpdate(component.renderHeads.Model->UUID, component.systems.material.uvScale);
 
 
-				glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+				glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 				ShaderHandler::shaderObjects[modelShaderIndex].Shader.Activate();
 				glEnable(GL_DEPTH_TEST);
 				glDepthFunc(GL_LESS);
@@ -611,4 +623,26 @@ void RenderHandler::instancedDraw()
 		}
 	}
 	// then needs to draw it
+}
+
+std::vector <Texture> RenderHandler::textures; // texture array  (be nice to create texture and store pointer)
+Texture* RenderHandler::uploadAndReturnTextureWptr(const char* image, const char* texType, GLuint slot)
+{
+	// some sort of logic here to check if path is already used and pass over the correct object ptr
+	
+	Texture nTexture;
+	nTexture.linearFilter = true;
+	nTexture.createTexture(image, texType, slot);
+	
+	textures.push_back(nTexture);
+	return &textures.back();
+}
+
+Texture* RenderHandler::uploadAndReturnColourTextureWptr(glm::vec4 colour, const char* texType, GLuint slot)
+{
+	Texture nTexture;
+	nTexture.createColour(colour, texType, slot);
+	
+	textures.push_back(nTexture);
+	return &textures.back();
 }

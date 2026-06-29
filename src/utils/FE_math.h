@@ -54,6 +54,8 @@ public:
 	static float ByteToFloatRGB(int input);
 	
 	static glm::mat4 createHaltonJitterProjectionMatrix(glm::mat4 matrix, glm::vec2 jitter, int height, int width);
+	
+	static int calculateLODLevel(glm::vec3 vPosition, glm::vec3 cameraPosition, float transitionDistance, int maxLOD);
 };
 
 #endif // FE_MATH_CLASS_H

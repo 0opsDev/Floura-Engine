@@ -1,6 +1,6 @@
 #include "Cubemap.h"
 #include <utils/logConsole.h>
-#include <Render/Shader/Framebuffer.h>
+#include <Render/Shader/renderTarget.h>
 
 Cubemap::Cubemap() {
 }

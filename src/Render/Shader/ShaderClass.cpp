@@ -1,6 +1,5 @@
 #include "shaderClass.h"
 #include <utils/logConsole.h>
-#include <utils/timeUtil.h>
 
 std::string get_file_contents(const char* filename)
 {
@@ -27,52 +26,77 @@ std::string get_file_contents(const char* filename)
 
 void Shader::LoadShader(const char* vertexFile, const char* fragmentFile)
 {
-        // uses vertexFile which holds the shader file path and gets the contents of the file which is dumped into vertexCode
-        std::string vertexCode;
+
+        //create shaders
+        GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    
+    if (!isSpirv){
+    
+        std::string vertexCode; 
         std::string fragmentCode;
-        const char* vertexSource;
+        const char* vertexSource; 
         const char* fragmentSource;
-        if (takePath)
-        {
-            vertexCode = get_file_contents(vertexFile);
+    
+        if (takePath){
+            vertexCode = get_file_contents(vertexFile); 
             fragmentCode = get_file_contents(fragmentFile);
             vertexSource = vertexCode.c_str();
             fragmentSource = fragmentCode.c_str();
         }
-        else
-        {
+        else{
             vertexSource = vertexFile;
             fragmentSource = fragmentFile;
         }
-
-        //CREATE VERTEX SHADER
-        GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER); //ep2
-        //feed vert shader data at line 5
-        glShaderSource(vertexShader, 1, &vertexSource, NULL); //ep2
-        //compile into machine code
-        glCompileShader(vertexShader); //ep2
-        //error checking
-        compileErrors(vertexShader, "VERTEX");
-
-        //CREATE FRAGMENT SHADER
-        GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        //feed vert shader data at line 5
-        glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-        //compile into machine code
-        glCompileShader(fragmentShader); //ep2
-        //error checking
-        compileErrors(fragmentShader, "FRAGMENT");
-
-        //wrap then into shader 
-        //create shader program
-        ID = glCreateProgram(); //ep2
-        //attach vert shader and frag shader
-        glAttachShader(ID, vertexShader); //ep2
-        glAttachShader(ID, fragmentShader);//ep2
-        //wrap
-        glLinkProgram(ID);//ep2
-        //error checking
-        compileErrors(ID, "PROGRAM");
+    
+            //feed vert shader data at line 5
+            glShaderSource(vertexShader, 1, &vertexSource, NULL);
+            //compile into machine code
+            glCompileShader(vertexShader);
+            //error checking
+            compileErrors(vertexShader, "VERTEX");
+    
+            //feed vert shader data at line 5
+            glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+            //compile into machine code
+            glCompileShader(fragmentShader);
+            //error checking
+            compileErrors(fragmentShader, "FRAGMENT");
+        }
+        else{ // spirv
+            std::string vertexCode;std::string fragmentCode;
+            const void* vertexBinaryPtr = nullptr;
+            const void* fragmentBinaryPtr = nullptr;
+            size_t vertexSize = 0;
+            size_t fragmentSize = 0;
+            
+            if (takePath){
+                vertexCode = get_file_contents(vertexFile);
+                fragmentCode = get_file_contents(fragmentFile);
+                vertexBinaryPtr = vertexCode.data();
+                fragmentBinaryPtr = fragmentCode.data();
+                vertexSize = vertexCode.size();
+                fragmentSize = fragmentCode.size();
+            }
+            glShaderBinary(1, &vertexShader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, vertexBinaryPtr, (GLsizei)vertexSize);
+            glShaderBinary(1, &fragmentShader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, fragmentBinaryPtr, (GLsizei)fragmentSize);
+            
+            glSpecializeShader(vertexShader, "main", 0, nullptr, nullptr);
+            glSpecializeShader(fragmentShader, "main", 0, nullptr, nullptr);
+            compileErrors(vertexShader, "VERTEX");
+            compileErrors(fragmentShader, "FRAGMENT");
+        }
+            //}
+            //wrap then into shader 
+            //create shader program
+            ID = glCreateProgram(); //ep2
+            //attach vert shader and frag shader
+            glAttachShader(ID, vertexShader); //ep2
+            glAttachShader(ID, fragmentShader);//ep2
+            //wrap
+            glLinkProgram(ID);//ep2
+            //error checking
+            compileErrors(ID, "PROGRAM");
 
         //delete shaders because its already in the program
         glDeleteShader(vertexShader);//ep2
@@ -84,42 +108,88 @@ void Shader::LoadShader(const char* vertexFile, const char* fragmentFile)
 
 void Shader::LoadShaderGeom(const char* vertexFile, const char* fragmentFile, const char* geometryFile)
 {
-    // uses vertexFile which holds the shader file path and gets the contents of the file which is dumped into vertexCode
-    std::string vertexCode = get_file_contents(vertexFile);
-    std::string fragmentCode = get_file_contents(fragmentFile);
-	std::string geometryCode = get_file_contents(geometryFile);
-
-    const char* vertexSource = vertexCode.c_str();
-    const char* fragmentSource = fragmentCode.c_str();
-	const char* geometrySource = geometryCode.c_str();
-
-    //CREATE VERTEX SHADER
+    
+    //create shaders
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    //feed vert shader data at line 5
-    glShaderSource(vertexShader, 1, &vertexSource, NULL);
-    //compile into machine code
-    glCompileShader(vertexShader);
-    //error checking
-    compileErrors(vertexShader, "VERTEX");
-
-    //CREATE FRAGMENT SHADER
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    //feed vert shader data at line 5
-    glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-    //compile into machine code
-    glCompileShader(fragmentShader);
-    //error checking
-    compileErrors(fragmentShader, "FRAGMENT");
-
-    //CREATE GEOMETRY SHADER
     GLuint geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
-    //feed vert shader data at line 5
-    glShaderSource(geometryShader, 1, &geometrySource, NULL);
-    //compile into machine code
-    glCompileShader(geometryShader);
-    //error checking
-    compileErrors(geometryShader, "GEOMETRY");
+    
+    if (!isSpirv){ 
+    
+        std::string vertexCode;std::string fragmentCode;std::string geometryCode;
+        const char* vertexSource;const char* fragmentSource;const char* geometrySource;
+        
+        if (takePath){
+            vertexCode = get_file_contents(vertexFile);
+            fragmentCode = get_file_contents(fragmentFile);
+            geometryCode = get_file_contents(geometryFile);
 
+            vertexSource = vertexCode.c_str();
+            fragmentSource = fragmentCode.c_str();
+            geometrySource = geometryCode.c_str();
+        }
+        else{
+            vertexSource = vertexFile;
+            fragmentSource = fragmentFile;
+            geometrySource = geometryFile;
+        }
+    
+    
+        //feed vert shader data at line 5
+        glShaderSource(vertexShader, 1, &vertexSource, NULL);
+        //compile into machine code
+        glCompileShader(vertexShader);
+        //error checking
+        compileErrors(vertexShader, "VERTEX");
+
+        //feed vert shader data at line 5
+        glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+        //compile into machine code
+        glCompileShader(fragmentShader);
+        //error checking
+        compileErrors(fragmentShader, "FRAGMENT");
+        
+        //feed vert shader data at line 5
+        glShaderSource(geometryShader, 1, &geometrySource, NULL);
+        //compile into machine code
+        glCompileShader(geometryShader);
+        //error checking
+        compileErrors(geometryShader, "GEOMETRY");
+    }
+    else// spirv
+    {
+        std::string vertexCode;std::string fragmentCode;std::string geometryCode;
+        const void* vertexBinaryPtr = nullptr;
+        const void* fragmentBinaryPtr = nullptr;
+        const void* geometryBinaryPtr = nullptr;
+        size_t vertexSize = 0;
+        size_t fragmentSize = 0;
+        size_t geometrySize = 0;
+        
+        if (takePath){
+            vertexCode = get_file_contents(vertexFile);
+            fragmentCode = get_file_contents(fragmentFile);
+            geometryCode = get_file_contents(geometryFile);
+            vertexBinaryPtr = vertexCode.data();
+            fragmentBinaryPtr = fragmentCode.data();
+            geometryBinaryPtr = geometryCode.data();
+            vertexSize = vertexCode.size();
+            fragmentSize = fragmentCode.size();
+            geometrySize = geometryCode.size();
+        }
+        
+        glShaderBinary(1, &vertexShader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, vertexBinaryPtr, (GLsizei)vertexSize);
+        glShaderBinary(1, &fragmentShader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, fragmentBinaryPtr, (GLsizei)fragmentSize);
+        glShaderBinary(1, &geometryShader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, geometryBinaryPtr, (GLsizei)geometrySize);
+            
+        glSpecializeShader(vertexShader, "main", 0, nullptr, nullptr);
+        glSpecializeShader(fragmentShader, "main", 0, nullptr, nullptr);
+        glSpecializeShader(geometryShader, "main", 0, nullptr, nullptr);
+        compileErrors(vertexShader, "VERTEX");
+        compileErrors(fragmentShader, "FRAGMENT");
+        compileErrors(geometryShader, "GEOMETRY");
+        
+    }
     //wrap then into shader 
     //create shader program
     ID = glCreateProgram(); //ep2
@@ -140,14 +210,43 @@ void Shader::LoadShaderGeom(const char* vertexFile, const char* fragmentFile, co
 
 }
 
-void Shader::LoadComputeShader(const char* computeFile) {
-    std::string computeCode = get_file_contents(computeFile);
-    const char* computeSource = computeCode.c_str();
-
+void Shader::LoadComputeShader(const char* computeFile)
+{
+    
     GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
-    glShaderSource(computeShader, 1, &computeSource, NULL);
-    glCompileShader(computeShader);
-    compileErrors(computeShader, "COMPUTE");
+    
+    if (!isSpirv){
+    
+        std::string computeCode;
+        const char* computeSource;
+        
+        if (takePath){
+            computeCode = get_file_contents(computeFile);
+            computeSource = computeCode.c_str();
+        }
+        else{computeSource = computeFile;}
+        
+        
+        glShaderSource(computeShader, 1, &computeSource, NULL);
+        glCompileShader(computeShader);
+        compileErrors(computeShader, "COMPUTE");
+    }
+    else // spirv
+    {
+        std::string computeCode;
+        const void* computeBinaryPtr = nullptr;
+        size_t computeSize = 0;
+        
+        if (takePath){
+            computeCode = get_file_contents(computeFile);
+            computeBinaryPtr = computeCode.data();
+            computeSize = computeCode.size();
+        }
+        glShaderBinary(1, &computeShader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, computeBinaryPtr, (GLsizei)computeSize);
+            
+        glSpecializeShader(computeShader, "main", 0, nullptr, nullptr);
+        compileErrors(computeShader, "COMPUTE");
+    }
 
     ID = glCreateProgram();
     glAttachShader(ID, computeShader);
@@ -218,83 +317,4 @@ void Shader::compileErrors(unsigned int shader, const char* type) {
             std::cerr << "SHADER_LINKING_ERROR for: " << type << "\n" << infoLog << std::endl;
         }
     }
-}
-
-void Shader::setInt(const char* uniform, int uniforIint) {
-    glUniform1i(glGetUniformLocation(ID, uniform), uniforIint);
-}
-void Shader::setInt2(const char* uniform, int uniforIint1, int uniforIint2) {
-    glUniform2i(glGetUniformLocation(ID, uniform), uniforIint1, uniforIint2);
-}
-void Shader::setInt3(const char* uniform, int uniforIint1, int uniforIint2, int uniforIint3) {
-    glUniform3i(glGetUniformLocation(ID, uniform), uniforIint1, uniforIint2, uniforIint3);
-}
-void Shader::setInt4(const char* uniform, int uniforIint1, int uniforIint2, int uniforIint3, int uniforIint4) {
-    glUniform4i(glGetUniformLocation(ID, uniform), uniforIint1, uniforIint2, uniforIint3, uniforIint4);
-}
-
-void Shader::setIntVector(const char* uniform, GLsizei count, const GLint* value) {
-    glUniform1iv(glGetUniformLocation(ID, uniform), count, value);
-}
-
-void Shader::setFloat(const char* uniform, GLfloat uniFloat)
-{
-    glUniform1f(glGetUniformLocation(ID, uniform), uniFloat);
-}
-void Shader::setFloat2(const char* uniform, glm::vec2 vector2)
-{
-    glUniform2f(glGetUniformLocation(ID, uniform), vector2.x, vector2.y);
-}
-void Shader::setFloat3(const char* uniform, glm::vec3 vector3)
-{
-    glUniform3f(glGetUniformLocation(ID, uniform), vector3.x, vector3.y, vector3.z);
-}
-void Shader::setFloat4(const char* uniform, glm::vec4 vector4)
-{
-    glUniform4f(glGetUniformLocation(ID, uniform), vector4.x, vector4.y, vector4.z, vector4.w);
-}
-
-void Shader::setFloatVector(const char* uniform, GLsizei count, const GLfloat* value)
-{
-    glUniform1fv(glGetUniformLocation(ID, uniform), count, value);
-}
-void Shader::setFloat2Vector(const char* uniform, GLsizei count, const GLfloat* value)
-{
-    glUniform2fv(glGetUniformLocation(ID, uniform), count, value);
-}
-void Shader::setFloat3Vector(const char* uniform, GLsizei count, const GLfloat* value)
-{
-    glUniform3fv(glGetUniformLocation(ID, uniform), count, value);
-}
-void Shader::setFloat4Vector(const char* uniform, GLsizei count, const GLfloat* value)
-{
-    glUniform4fv(glGetUniformLocation(ID, uniform), count, value);
-}
-
-void Shader::setMat4(const char* uniform, glm::mat4 uniformMat4)
-{
-    glUniformMatrix4fv(glGetUniformLocation(ID, uniform), 1, GL_FALSE, glm::value_ptr(uniformMat4));
-}
-
-void Shader::setMat3(const char* uniform, glm::mat4 uniformMat3)
-{
-    glUniformMatrix3fv(glGetUniformLocation(ID, uniform), 1, GL_FALSE, glm::value_ptr(uniformMat3));
-}
-
-void Shader::setBool(const char* uniform, bool uniformBool)
-{
-    glUniform1i(glGetUniformLocation(ID, uniform), uniformBool ? 1 : 0);
-}
-
-void Shader::setHandleui64ARB(const char* uniform, GLuint64 handle)
-{
-	glUniformHandleui64ARB(glGetUniformLocation(ID, uniform), handle);
-}
-
-void Shader::setTimeVariables()
-{
-    setFloat("time", TimeUtil::time);
-    setFloat("priorTime", TimeUtil::priorTime);
-    setFloat("deltatime", TimeUtil::deltatime);
-    setInt("frame", TimeUtil::frame);
 }

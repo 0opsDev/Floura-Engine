@@ -3,6 +3,7 @@
 bool dbgPass::overlayDebug = false;
 unsigned int dbgPass::dbgBuffer;
 unsigned int dbgPass::dbgColour;
+unsigned int dbgPass::dbgRBO;
 unsigned int dbgPass::hDBO;
 
 void dbgPass::setupDBGbuffers(unsigned int width, unsigned int height)
@@ -19,6 +20,10 @@ void dbgPass::setupDBGbuffers(unsigned int width, unsigned int height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dbgColour, 0);
 	
+	glGenRenderbuffers(1, &dbgRBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, dbgRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dbgRBO);
 
 	// Error checking
 	auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -33,4 +38,8 @@ void dbgPass::updateDBGResolution(unsigned int width, unsigned int height)
 	glBindTexture(GL_TEXTURE_2D, dbgColour);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	
+	glBindRenderbuffer(GL_RENDERBUFFER, dbgRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }

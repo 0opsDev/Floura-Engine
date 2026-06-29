@@ -52,7 +52,7 @@ struct rayMesh
     uint64_t instanceUUID;
     uint64_t meshUUID;
 
-    // add 3 handles for each texture 
+    // add 4 handles for each texture 
     uint64_t albedoHandle;
     uint64_t specularHandle;
     uint64_t normalHandle;

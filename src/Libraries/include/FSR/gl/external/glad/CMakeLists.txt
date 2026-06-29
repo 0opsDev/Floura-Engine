@@ -1,0 +1,2 @@
+add_library(ffx_lib_glad INTERFACE)
+target_include_directories(ffx_lib_glad INTERFACE include)

@@ -1,5 +1,5 @@
-#ifndef LIGHTINGPASS_CLASS_H
-#define LIGHTINGPASS_CLASS_H
+#ifndef RAYTRACER_CLASS_H
+#define RAYTRACER_CLASS_H
 
 #include<iostream>
 #include "Render/Object/Texture.h"
@@ -57,4 +57,4 @@ public:
 
 private:
 };
-#endif // LIGHTINGPASS_CLASS_H
+#endif // RAYTRACER_CLASS_H

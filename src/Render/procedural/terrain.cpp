@@ -1,5 +1,5 @@
 ﻿#include "terrain.h"
-#include "Core/Render.h"
+#include <Render/Handler/RenderClass.h>
 #include "Render/Handler/RenderHandler.h"
 #include  "Systems/util/UUID.h"
 #include "utils/FE_math.h"

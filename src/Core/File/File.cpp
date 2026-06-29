@@ -79,11 +79,11 @@ void FileClass::loadSettings() {
 			//Resolution
 			// width
 			windowHandler::width = settingsData[0]["Resolution"][0];
-			Framebuffer::tempWidth = settingsData[0]["Resolution"][0];
+			renderTarget::tempWidth = settingsData[0]["Resolution"][0];
 
 			// height
 			windowHandler::height = settingsData[0]["Resolution"][1];
-			Framebuffer::tempHeight = settingsData[0]["Resolution"][1];
+			renderTarget::tempHeight = settingsData[0]["Resolution"][1];
 
 		}
 		if (settingsData[0].contains("Sensitivity")) {
@@ -97,7 +97,7 @@ void FileClass::loadSettings() {
 		//Main::cameraSettings[0] = settingsData[0]["FOV"];
 		Scene::sceneName = settingsData[0]["Scene"].get<std::string>();
 
-		FEImGuiWindow::imGuiEnabled = settingsData[0]["imGui"];
+		//FEImGuiWindow::imGuiEnabled = settingsData[0]["imGui"];
 
 		std::cout << "Loaded settings from Settings.json" << std::endl;
 

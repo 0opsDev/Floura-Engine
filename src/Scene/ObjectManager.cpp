@@ -9,7 +9,7 @@ void deleteObjectSwitch(unsigned char ObjType, int index)
 	{
 	case 'o': // object
 		Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->Delete();
-		Scene::entityObjects.erase(Scene::entityObjects.begin() + FEImGuiWindow::SelectedObjectIndex);
+//		Scene::entityObjects.erase(Scene::entityObjects.begin() + FEImGuiWindow::SelectedObjectIndex);
 		break;
 	case 'l':
 		LightingHandler::deleteLight(FEImGuiWindow::SelectedObjectIndex);

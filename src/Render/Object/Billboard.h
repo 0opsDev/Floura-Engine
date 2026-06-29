@@ -9,7 +9,7 @@
 #include "render/Shader/shaderClass.h"
 #include <camera/Camera.h>
 #include "Render/Object/Texture.h"
-#include "Core/Render.h"
+#include <Render/Handler/RenderClass.h>
 
 class BillBoard
 {

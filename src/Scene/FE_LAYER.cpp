@@ -1,5 +1,7 @@
 #include "FE_LAYER.h"
-#include "Core/Render.h"
+
+#include <typeindex>
+#include <Render/Handler/RenderClass.h>
 #include "camera/Camera.h"
 #include "utils/FE_math.h"
 #include "Render/window/WindowHandler.h"
@@ -25,9 +27,11 @@ Shader temporaryTerrainShader;
 int size = 50;
 
 void FE_LAYER::init(){
-	
 	return;
+	//Collision::KDsplit kds = Collision::KDsplitVolume(glm::vec3(0.0), glm::vec3(1.0, 2.0, 1.0));
 	
+	//return;
+	/*
 	physworld::emitter estrogenEmitter;
 	estrogenEmitter.enabled = true;
 	estrogenEmitter.position = glm::vec3(0.0f, 5.0f, 0.0f);
@@ -52,14 +56,32 @@ void FE_LAYER::init(){
 	
 	
 	return;
-	victimPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"VictimPoint (FE_LAYER.CPP)", "Assets/Models/pdf_teto/scene.gltf", glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.100), glm::vec3(0.0f) );
-	pivotPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"PivPoint (FE_LAYER.CPP)", "Assets/Models/basic shapes/sphere.gltf", glm::vec3(0.0f, 5.0f, 0.0f),glm::vec3(1.0), glm::vec3(0.0f) );
+	*/
+	//"temp/stanford_dragon_pbr.glb" // "temp/sponzacrytek/sponza.obj" // "Assets/Models/basic shapes 2/sphere.gltf" // temp/stanforddragon/stanforddragon.gltf
+	//victimPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"VictimPoint (FE_LAYER.CPP)", "Assets/Models/pdf_teto/scene.gltf", glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.100), glm::vec3(0.0f) );
+	pivotPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"PivPoint (FE_LAYER.CPP)", "temp/stanforddragon/stanforddragon.gltf", glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(1.0), glm::vec3(0.0f) );
 	
+	for (int i = 0; i < Scene::entityObjects.size(); ++i) 
+		if (pivotPointID == Scene::entityObjects[i]->UUID){
+			int mIndex = RenderHandler::fetchModelIndex(Scene::entityObjects[i]->component.render.renderID);
+			//RenderHandler::models[mIndex].model->createVoxelMesh(8, 0, glm::vec3(0.001f), false); // voxelize model instead of mesh
+			RenderHandler::models[mIndex].model->createVoxelMesh(12, 0, glm::vec3(0.1f), false); // voxelize model instead of mesh
+		}
+	
+	// upload to buffer (cause not on entity yet)
+	for (int i = 0; i < Scene::entityObjects.size(); ++i) 
+		if (pivotPointID == Scene::entityObjects[i]->UUID){
+				SceneDescription::uploadToVoxelScene(Scene::entityObjects[i]->component.render.instanceUUID);
+			}
+	
+	
+	/*
 	for (int i = 0; i < Scene::entityObjects.size(); ++i) 
 		if (victimPointID == Scene::entityObjects[i]->UUID){
 			Scene::entityObjects[i]->component.physobject.hasRigidbody = true;
 			Scene::entityObjects[i]->component.physobject.affectedByGravity = true;
 		}
+	*/
 	
 	return;
 	
@@ -100,7 +122,8 @@ static void temporaryUpdateFunction(ocean* inputT, glm::vec3 p, glm::vec3 S, glm
 }
 
 //glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
-void FE_LAYER::Update() {
+void FE_LAYER::Update()
+{
 	return;
 	glm::vec3 pPos = glm::vec3(0.0f, 0.0f, 0.0f);
 	
@@ -184,17 +207,60 @@ void FE_LAYER::onBeginningOfFrame()
 
 static void temporaryDrawFunction(ocean* inputT)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 	
 	inputT->draw(temporaryTerrainShader , Scene::maincamera);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+// https://www.shadertoy.com/view/WfdXD7 thanks
+static float hash11(float p) {
+	p = glm::fract(glm::fract(p) * .1031);
+	p *= p + 33.33;
+	return glm::fract(p*p*2.);
+}
 
+static glm::vec3 hash33(glm::vec3 p) {
+	glm::vec3 np = glm::vec3(0.0f);
+	//x
+	p.x = glm::fract(glm::fract(p.x) * .1031);
+	p.x *= p.x + 33.33;
+	np.x = glm::fract(p.x*p.x*2.);
+	//y
+	p.y = glm::fract(glm::fract(p.y) * .1031);
+	p.y *= p.y + 33.33;
+	np.y = glm::fract(p.y*p.y*2.);
+	//z
+	p.z = glm::fract(glm::fract(p.z) * .1031);
+	p.z *= p.z + 33.33;
+	np.z = glm::fract(p.z*p.z*2.);
+	
+	return np;
+}
 
 void FE_LAYER::draw()
 {
-	physworld::debugDraw();
+	return;
+	//return;
+	//temp
+	for (int i = 0; i < Scene::entityObjects.size(); ++i) 
+		if (pivotPointID == Scene::entityObjects[i]->UUID){
+			int mIndex = RenderHandler::fetchModelIndex(Scene::entityObjects[i]->component.render.renderID);
+			for (int z = 0; z < 	RenderHandler::models[mIndex].model->VoxelMeshes.size(); ++z){
+				for (int x = 0; x < RenderHandler::models[mIndex].model->VoxelMeshes[z].size(); ++x){
+					//RenderHandler::models[mIndex].model->VoxelMeshes[z][x].position;
+					glm::mat4  voxelMatrix = FE_Math::composeMatrixWDegrees(RenderHandler::models[mIndex].model->VoxelMeshes[z][x].voxel.position, RenderHandler::models[mIndex].model->VoxelMeshes[z][x].voxel.size, glm::vec3(0.0f));
+					glm::mat4  gModelMatrix = FE_Math::composeMatrixWDegrees(
+						RenderHandler::models[mIndex].model->globalTransformation.position,
+						RenderHandler::models[mIndex].model->globalTransformation.scale,
+						RenderHandler::models[mIndex].model->globalTransformation.rotation
+						);
+					glm::vec3 rColour = hash33(RenderHandler::models[mIndex].model->VoxelMeshes[z][x].voxel.position);
+					RenderClass::WhiteCube->draw(gModelMatrix * voxelMatrix, rColour, 1.0, false, false);
+				}
+			}
+		}
+	
 	return;
 	temporaryDrawFunction(t);
 	

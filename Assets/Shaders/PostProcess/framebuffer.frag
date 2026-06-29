@@ -3,12 +3,8 @@
 out vec4 FragColor;
 in vec2 texCoords;
 
-uniform sampler2D depthMap;
-uniform sampler2D gPosition;
-uniform sampler2D gNormal;
-uniform sampler2D gAlbedoSpec;
+uniform sampler2D depthTexture;
 uniform sampler2D screenTexture;
-uniform sampler2D gSpecular;
 uniform sampler2D BlueNoiseTex;
 uniform mat4 cameraMatrix;
 
@@ -32,12 +28,34 @@ float calculateExposure(vec3 avgColor)
     float acesBoost = 1.6f;
     
     float minExp = 0.01f;
-    float maxExp = 10.0f;
+    float maxExp = 5.0f;
 
     //float targetExposure = (middleGray / lum);
     float targetExposure = (middleGray / lum) * acesBoost;
 
     return clamp(targetExposure, minExp, maxExp);
+}
+
+// https://www.shadertoy.com/view/XdcXzn# credit here for this one
+mat4 saturationMatrix( float saturation )
+{
+    vec3 luminance = vec3( 0.3086, 0.6094, 0.0820 );
+
+    float oneMinusSat = 1.0 - saturation;
+
+    vec3 red = vec3( luminance.x * oneMinusSat );
+    red+= vec3( saturation, 0, 0 );
+
+    vec3 green = vec3( luminance.y * oneMinusSat );
+    green += vec3( 0, saturation, 0 );
+
+    vec3 blue = vec3( luminance.z * oneMinusSat );
+    blue += vec3( 0, 0, saturation );
+
+    return mat4( red,     0,
+    green,   0,
+    blue,    0,
+    0, 0, 0, 1 );
 }
 
 vec3 ACESFilm(vec3 x) {
@@ -52,17 +70,6 @@ vec3 ACESFilm(vec3 x) {
 float random (vec2 st) {
     return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
 }
-
-
-const float offset_x = 1.0f / 1605.0f;
-const float offset_y = 1.0f / 885.0f;
-
-vec2 offsets[9] = vec2[]
-(
-vec2(-offset_x,  offset_y), vec2( 0.0f,    offset_y), vec2( offset_x,  offset_y),
-vec2(-offset_x,  0.0f),     vec2( 0.0f,    0.0f),     vec2( offset_x,  0.0f),
-vec2(-offset_x, -offset_y), vec2( 0.0f,   -offset_y), vec2( offset_x, -offset_y)
-);
 
 float kernel[9] = float[](
 0.0, -1.0,  0.0,
@@ -114,20 +121,44 @@ float lumaFromRGB(vec3 rgb)
     return luminance;
 }
 
-vec2 sharpenOffsets[4] = vec2[4](
-vec2( 1.0,  0.0),
-vec2( 0.0,  1.0),
-vec2(-1.0,  0.0),
-vec2( 0.0, -1.0)
+float sobelKernel[9] = float[](
+1.0, 1.0,  1.0,
+1.0,  -8.0, 1.0,
+1.0, 1.0,  1.0
 );
 
-vec3 spawnSharpenedImage(sampler2D image, vec2 texCoord2) {
+vec3 sobel(sampler2D tex)
+{
+    vec2 texelSize = 1.0 / textureSize(tex, 0);
+    
+    vec2 offsets[9] = vec2[](
+    vec2(-texelSize.x, texelSize.y),
+    vec2(0.0, texelSize.y),
+    vec2(texelSize.x, texelSize.y),
+    vec2(-texelSize.x, 0.0),
+    vec2(0.0),
+    vec2(texelSize.x, 0.0),
+    vec2(-texelSize.x, -texelSize.y),
+    vec2(0.0, -texelSize.y),
+    vec2(texelSize.x, -texelSize.y)
+    );
+    
+    vec3 colour = vec3(0.0);
+    for (int i = 0; i < 9; i++)
+    {
+        vec3 t = texture(tex, texCoords + offsets[i]).rgb;
+        
+        colour += t * sobelKernel[i];
+    }
+    
+    return colour;
+}
+
+vec3 spawnSharpenedImage(sampler2D image, vec2 texCoord2, float weight) {
 
     vec2 texelSize = 1.0 / textureSize(image, 0);
-
-    float luma = lumaFromRGB(texture(image, texCoords).rgb);
     
-    float nSharpness = clamp(luma * sharpness, 0.0, 1.0);
+    float nSharpness = weight * sharpness;
     //float nSharpness = luma;
     //float nSharpness =sharpness;
 
@@ -145,7 +176,14 @@ void main() {
 
     //FragColor.rgb =texture(screenTexture, texCoords).rgb; return;
     
-    vec3 colour = spawnSharpenedImage(screenTexture, texCoords);
+    float lumaSobel = lumaFromRGB(sobel(depthTexture));
+    if (lumaSobel > 0.00001f) lumaSobel = 1.0;
+    lumaSobel = clamp(lumaSobel, 0.0, 1.0);
+    lumaSobel = 1.0 - lumaSobel;
+    
+    float luma = lumaFromRGB(texture(screenTexture, texCoords).rgb);
+    
+    vec3 colour = spawnSharpenedImage(screenTexture, texCoords, lumaSobel * luma);
 
     colour = vignette(colour, 0.9, 0.5);
     
@@ -163,6 +201,9 @@ void main() {
 
     vec3 aces = ACESFilm(colour * autoExposure * 1.8);
 
+    // hint of saturation
+    aces = vec3(saturationMatrix(1.5) * vec4(aces,1.0));
+
     //aces = filmgrain(aces, 0.1, accum24value);
     
     FragColor.rgb = pow(aces, vec3(gamma)); // tonemap
@@ -178,11 +219,12 @@ void main() {
     //float luma = lumaFromRGB(texture(screenTexture, texCoords).rgb);
 
     //FragColor.rgb = vec3(luma);
+    //FragColor.rgb = vec3(lumaSobel * luma);
     
     //FragColor = texture(gPosition, texCoords);
     
 
-    //FragColor.rgb = avgColor;
+    //\\FragColor.rgb = avgColor;
     
     //FragColor.rgb = texture(gNormal, texCoords).rgb;
 

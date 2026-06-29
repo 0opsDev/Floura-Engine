@@ -10,7 +10,7 @@ layout (location = 5) in vec3 aBitangent;
 out highp vec3 crntPos;
 out vec3 Normal;
 out vec3 gNormals;
-out vec3 color;
+out vec3 colour;
 out vec2 texCoord;
 
 uniform mat4 camMatrix;
@@ -48,6 +48,6 @@ void main()
     vec3 Norm = normalize(normalMatrix * aNormal);
     Normal = Norm;
 
-    color = aColor;
+    colour = aColor;
     texCoord = vec2(aTex.x  * uvScale.x, aTex.y * uvScale.y);
 }

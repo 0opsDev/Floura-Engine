@@ -1,5 +1,5 @@
 ﻿#include  "historyPass.h"
-#include <Render/Shader/Framebuffer.h>
+#include <Render/Shader/renderTarget.h>
 #include "Scene/scene.h"
 #include <Render/passes/geometry/geometryPass.h>
 
@@ -88,7 +88,7 @@ void HistoryPass::hPassDraw()
 	hPassShader.setFloat("gamma", Scene::maincamera.gamma);
 	
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, Framebuffer::screentexture);
+	glBindTexture(GL_TEXTURE_2D, renderTarget::screentexture);
 	hPassShader.setInt("screentexture", 1);
 
 	glActiveTexture(GL_TEXTURE2);
@@ -107,5 +107,5 @@ void HistoryPass::hPassDraw()
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//FrameBuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 }

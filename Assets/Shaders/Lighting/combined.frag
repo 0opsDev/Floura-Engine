@@ -638,7 +638,8 @@ void main()
 	sampler2D emissionSamp = sampler2D(texture_emission_Handle);
 	vec3 emission = texture(emissionSamp, texCoord).rgb;
 
-	vec3 direct =  ARM.r * lights(specSamp).rgb;
+	//vec3 direct =  ARM.r * lights(specSamp).rgb;
+	vec3 direct = lights(specSamp).rgb;
 
 	vec3 indirect = indirectIBL(indirectSamples, specSamp);
 

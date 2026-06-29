@@ -45,7 +45,6 @@ void Texture::createColour(glm::vec4 colour, const char* texType, GLuint slot)
     
     unsigned char fallbackPixel[] = { r , g, b , a};
     bytes = fallbackPixel;
-    skipstbi = true;
 
     // Generates an OpenGL texture object
     glGenTextures(1, &ID);
@@ -106,8 +105,17 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
 
     if (!bytes) {
         std::cerr << "\nFailed to load texture: " << image << "\n" << std::endl;
-        static unsigned char fallbackPixel[] = { 255, 0, 255 };
-        widthImg = 1; heightImg = 1; numColCh = 3;
+        static unsigned char fallbackPixel[] = {
+            // row 1
+            255, 0, 255, 0, 0, 0, 255, 0, 255, 0, 0, 0,
+            // row 2
+            0, 0, 0, 255, 0, 255, 0, 0, 0, 255, 0, 255,
+            // row 3
+            255, 0, 255, 0, 0, 0, 255, 0, 255, 0, 0, 0,
+            // row 4
+            0, 0, 0, 255, 0, 255, 0, 0, 0, 255, 0, 255,
+        };
+        widthImg = 4; heightImg = 4; numColCh = 3;
         bytes = fallbackPixel; 
         skipstbi = true;
     }
@@ -119,7 +127,7 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
 
     glBindTexture(GL_TEXTURE_2D, ID);
     
-    if (linearFilter){
+    if (linearFilter && !skipstbi){
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }

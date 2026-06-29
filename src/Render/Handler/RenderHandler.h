@@ -9,6 +9,7 @@
 #include<vector>
 #include<camera/Camera.h>
 #include<Render/Object/Cubemap.h>
+#include <Render/Object/Texture.h>
 
 class RenderHandler
 {
@@ -84,11 +85,11 @@ public:
 
 	static void init();
 
+	static Cubemap* tempCM; // made pub
 private:
 
 	static Shader cmShader;
 	
-	static Cubemap* tempCM;
 
 	static void cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm, Shader& shader, glm::vec2 resolution, glm::vec3 pos, float range);
 
@@ -99,6 +100,13 @@ private:
 	static void instancedDraw();
 
 	static std::unordered_map<std::string, uint64_t> pKeyHandleMapRender; // takes path as key, returns handle
-
+	
+public:
+	
+	static std::vector <Texture> textures; // texture array 
+	
+	static Texture* uploadAndReturnTextureWptr(const char* image, const char* texType, GLuint slot);
+	static Texture* uploadAndReturnColourTextureWptr(glm::vec4 colour, const char* texType, GLuint slot);
+	
 };
 #endif // RENDER_HANDLER_CLASS_H
