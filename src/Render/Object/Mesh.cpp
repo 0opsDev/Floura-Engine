@@ -5,12 +5,10 @@
 #include <Render/Object/Skybox.h>
 #include "Scene/scene.h"
 #include "Systems/util/UUID.h"
-#include <Systems/Physics/BVH.h>
 #include <Render/render_util/meshTools.h>
 
 
-void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures)
-{
+void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures){
     UUID = UUID::returnHandle();
 
     // err checking
@@ -31,8 +29,7 @@ void Mesh::create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, s
     if (!suppressSetupMeshCall) setupMesh();
 }
 
-void Mesh::createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
-{
+void Mesh::createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuint>& indices){
     // err checking
     if (vertices.empty()) LogConsole::print("mesh.cpp Vertices are empty");
     if (indices.empty())LogConsole::print("mesh.cpp indices are empty");
@@ -49,15 +46,11 @@ void Mesh::createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuin
     if (!suppressSetupMeshCall) setupMesh();
 }
 
-void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
-{
-    if (!created) return;
-    
-    if (culled){ culled = false; return;}
-    
-    shader.Activate();
-    VAO.Bind();
+void Mesh::genBlas(int mintri, int maxDepth){
+    blas = BVH::blasGenKDAccel(vertices, indices, mintri, maxDepth, glm::mat4(1.0f));
+}
 
+void Mesh::bindMaterial(Shader& shader){
     unsigned int numDiffuse = 0;
     unsigned int numSpecular = 0;
     unsigned int numNormal = 0;
@@ -71,12 +64,24 @@ void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
         else if (type == "texture_roughness") {num = std::to_string(numSpecular++);}
         else if (type == "texture_normal") {num = std::to_string(numNormal++);}
         else if (type == "texture_emission") {num = std::to_string(numEmissive++);}
-        //else if (type == "texture_displacement"){num = std::to_string(numDisp++);}
         shader.Activate(); 
         shader.setHandleui64ARB((type + "_Handle").c_str(), textures[i].handle);
         textures[i].texUnit(shader, (type).c_str(), textures[i].unit);
         textures[i].Bind();
     }
+}
+
+void Mesh::draw(Shader& shader, Camera Camera){
+    if (!created) return;
+    
+    if (culled){ culled = false; return;}
+    
+    shader.Activate();
+    VAO.Bind();
+    
+    // bind material
+    bindMaterial(shader);
+    
     // Camera Matrix
     shader.Activate();
     //glUniform3f(glGetUniformLocation(shader.ID, "camPos"), Camera.Position.x, Camera.Position.y, Camera.Position.z);
@@ -111,12 +116,17 @@ void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
     size_t count = indices.size();
     
     if (hasLod){
-        glm::vec3 childPosition = glm::vec3(globalMeshMatrix * glm::vec4(position, 1.0));
-        
+        //glm::vec3 childPosition = glm::vec3(globalMeshMatrix * glm::vec4(position, 1.0));
+        //		glm::vec3 np = glm::clamp(P, v.position - v.size, v.position + v.size); // should use mesh extents here
+        Collision::AABB aabb = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints, globalMeshMatrix);
+        glm::vec3 np = Collision::nearestPointOnAABB(Camera.Position , aabb.position, aabb.size);
         int lodLevel = 0;
-        if (forceLodLevel < 0) lodLevel = FE_Math::calculateLODLevel(childPosition, Camera.Position, transitionDistance, 4) - 1;
+        if (forceLodLevel < 0) lodLevel = FE_Math::calculateLODLevel(np, Camera.Position, transitionDistance, 4) - 1;
         else lodLevel = forceLodLevel;
         //std::cout << "lodLevel = " << lodLevel << std::endl;
+        
+        lodLevel = 3;
+        
         if (lodLevel < 0){
             nEBO.Bind();
         }
@@ -140,8 +150,7 @@ void Mesh::draw(Shader& shader, Camera Camera) // Scene::maincamera
     //glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Mesh::drawInstanced(Shader& shader, Camera Camera, int instanceCount)
-{
+void Mesh::drawInstanced(Shader& shader, Camera Camera, int instanceCount){
     if (!created) return;
     std::cout << "drawing instance" << instanceCount << std::endl;
 }
@@ -193,8 +202,7 @@ void Mesh::setupMesh()
     created = true;
 }
 
-void Mesh::Delete()
-{
+void Mesh::Delete(){
     VAO.Delete();
     nVBO.Delete();
     nEBO.Delete();
@@ -204,54 +212,41 @@ void Mesh::Delete()
     lodEBOs[2].Delete();
     lodEBOs[3].Delete();
     
-    for (size_t i = 0; i < textures.size(); i++)
-    {
+    for (size_t i = 0; i < textures.size(); i++){
         textures[i].Delete();
     }
     textures.clear();
 
     vertices.clear();
     indices.clear();
+    
+    blas.clear();
 }
 
-
-
-void Mesh::updateMatrix(glm::mat4 matrix)
-{
+void Mesh::updateMatrix(glm::mat4 matrix){
     Mesh::meshMatrix = matrix;
 }
-
-void Mesh::updatePosition(glm::vec3 position)
-{
+void Mesh::updatePosition(glm::vec3 position){
     Mesh::position = position;
 }
-void Mesh::updateRotation(glm::vec3 rotation)
-{
+void Mesh::updateRotation(glm::vec3 rotation){
     Mesh::rotation = rotation;
 }
-void Mesh::updateScale(glm::vec3 scale)
-{
+void Mesh::updateScale(glm::vec3 scale){
     Mesh::scale = scale;
 }
-void Mesh::updateGlobalMatrix(glm::mat4 matrix)
-{
+void Mesh::updateGlobalMatrix(glm::mat4 matrix){
 	Mesh::globalMeshMatrix = matrix;
 }
-
-void Mesh::updatePrevGlobalMatrix(glm::mat4 matrix)
-{
+void Mesh::updatePrevGlobalMatrix(glm::mat4 matrix){
     Mesh::globalPrevMeshMatrix = matrix;
 }
-
-void Mesh::updateGlobalPosition(glm::vec3 position)
-{
+void Mesh::updateGlobalPosition(glm::vec3 position){
     Mesh::globalPosition = position;
 }
-void Mesh::updateGlobalScale(glm::vec3 scale)
-{
+void Mesh::updateGlobalScale(glm::vec3 scale){
     Mesh::globalScale = scale;
 }
-void Mesh::updateGlobalRotation(glm::vec3 rotation)
-{
+void Mesh::updateGlobalRotation(glm::vec3 rotation){
     Mesh::globalRotation = rotation;
 }

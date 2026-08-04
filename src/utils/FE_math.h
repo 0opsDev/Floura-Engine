@@ -1,6 +1,7 @@
 #include <glm/ext/vector_float3.hpp>
 #include <glm/fwd.hpp>
 #include <vector>
+#include <glm/gtx/dual_quaternion.hpp>
 #ifndef FE_MATH_CLASS_H
 #define FE_MATH_CLASS_H
 
@@ -24,6 +25,23 @@ public:
 
 	static float AreaOfTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3);
 
+	static glm::vec3 faceNormalFromTriangle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c){
+		return glm::normalize(glm::cross(b - a, c - a));
+	}
+	
+	static glm::vec3 faceNormalFromTriangle( glm::vec3 ap,glm::vec3 bp, glm::vec3 cp, 
+	glm::vec3 an, glm::vec3 bn, glm::vec3 cn ){
+		
+		glm::vec3 fn = glm::cross(bp - ap, cp - ap);
+		// if facenormal is opossing the vertex normals, then flip
+		if (glm::dot(fn, an + bn + cn) < 0.0f) 
+			fn = -fn;
+		
+		return glm::normalize(fn);
+	}
+	
+	static glm::vec2 uvPosFromVertexAndPoint(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c, const glm::vec2 &aUV, const glm::vec2 &bUV, const glm::vec2 &cUV, const glm::vec3 &p);
+	
 	static glm::vec3 RadiansToNormal(float yawRad, float pitchRad);
 
 	static void NormalToRadians(glm::vec3 normal, float& yawRad, float& pitchRad);
@@ -40,6 +58,7 @@ public:
 
 	static void transformPoint(glm::vec3& point, glm::mat4 matrix);
 
+	static glm::vec3 transformPointReturn(glm::vec3 point, glm::mat4 matrix);
 	// pad vec3 from 0.0f
 	static glm::vec3 pad(glm::vec3 value, float padding);
 
@@ -56,6 +75,12 @@ public:
 	static glm::mat4 createHaltonJitterProjectionMatrix(glm::mat4 matrix, glm::vec2 jitter, int height, int width);
 	
 	static int calculateLODLevel(glm::vec3 vPosition, glm::vec3 cameraPosition, float transitionDistance, int maxLOD);
+	
+	static float normalizeScale(glm::vec3 size, float target);
+	
+	static float normalizeFloat(float v, float min, float max);
+	
+	static glm::quat vec3DegreesToQuat(glm::vec3 degrees);
 };
 
 #endif // FE_MATH_CLASS_H

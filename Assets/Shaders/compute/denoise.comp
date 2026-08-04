@@ -7,8 +7,7 @@ void storeSignal(int layer, ivec2 fragpos, vec4 color) {
     imageStore(outSignals, ivec3(fragpos.xy, layer), color);
 }
 
-vec4 loadSingal(int layer, ivec2 fragpos)
-{
+vec4 loadSingal(int layer, ivec2 fragpos){
     return imageLoad(outSignals, ivec3(fragpos.xy, layer));
 }
 
@@ -31,8 +30,7 @@ uniform bool doDenoise;
 float alphavalue = 1.0f;
 uniform int minRadius;
 
-float linearizeDepth(float depth, float NearPlane, float FarPlane)
-{
+float linearizeDepth(float depth, float NearPlane, float FarPlane){
 	return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
 }
 
@@ -43,10 +41,8 @@ out vec3 directOut, out vec3 specularOut, float depthThershold, float normalThre
     vec3 specularAccumulated = vec3(0.0f);
     float weight = 0.0f;
 
-    for (int x = -radius; x < radius; x++)
-    {
-            for (int y = -radius; y < radius; y++)
-            {
+    for (int x = -radius; x < radius; x++){
+            for (int y = -radius; y < radius; y++){
                 ivec2 neighbourCoords = pixelCoords + ivec2(x, y);
                 neighbourCoords = clamp(neighbourCoords, ivec2(0, 0), size - 1);
 
@@ -165,8 +161,7 @@ float depthThershold, float normalThreshold)
 
     for (int x = -secondaryRadius; x < secondaryRadius; x++)
     {
-            for (int y = -secondaryRadius; y < secondaryRadius; y++)
-            {
+            for (int y = -secondaryRadius; y < secondaryRadius; y++){
                 ivec2 neighbourCoords = pixelCoords + ivec2(x, y);
                 neighbourCoords = clamp(neighbourCoords, ivec2(0, 0), size - 1);
 
@@ -189,7 +184,6 @@ float depthThershold, float normalThreshold)
 
                 if (neighbourNoise != 0.0f) // noise cant sample, skip
                     continue;
-
 
                 vec3 weights = vec3(0.2126, 0.7152, 0.0722);
                 float luminance = dot(neighbourIndirectColour.rgb / 255.0, weights);
@@ -348,12 +342,10 @@ void main() {
     //vec3 final = specularIndirect;
     //vec3 final = direct; // * albedoTex;
 
-    if (primaryskip)
-    {
+    if (primaryskip){
         final = albedoTex * (directSignal + indirect) + (specularSignal + specularIndirect) + emission;
     }
-    else
-    {
+    else {
         final = albedoTex * (direct + indirect) + (specular + specularIndirect) + emission;
     }
 

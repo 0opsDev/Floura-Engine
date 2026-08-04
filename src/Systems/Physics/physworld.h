@@ -55,8 +55,7 @@ public:
     
 private:
     
-    struct objectPosBundle
-    {
+    struct objectPosBundle{
         object* physicsObject;
         glm::vec3* position;
         bool* dirtyFlag;
@@ -65,7 +64,6 @@ private:
 public:
     
     static std::vector<objectPosBundle> pObjects;
-    
     static std::vector<emitter> emitters;
     static float tickrate;
     
@@ -90,6 +88,8 @@ public:
     static void bundleArrayDeleteWithUUID(uint64_t UUID);
     
     // collisions section
+    
+    static void collisionResolveCamera();
     
     static void collisionResolve();
     

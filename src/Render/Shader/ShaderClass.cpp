@@ -283,8 +283,7 @@ void Shader::LoadComputeShader(const char* computeFile)
     */
 }
 
-void Shader::Activate()
-{
+void Shader::Activate(){
     glUseProgram(ID);
 }
 // just making a seperate function for compute shaders to skip a if check
@@ -295,8 +294,7 @@ void Shader::ActivateCompute(int x, int y, int z) {
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
-void Shader::Delete()
-{
+void Shader::Delete(){
     glDeleteProgram(ID);
 }
 

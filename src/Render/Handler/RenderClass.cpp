@@ -1,28 +1,24 @@
 ﻿#include "RenderClass.h"
-#include <Render/Cube/CubeVisualizer.h>
-#include <glm/ext/vector_float3.hpp>
-#include <glm/gtx/norm.hpp>
+#include "Render/Handler/CubeVisualizer.h"
 #include "Render/Object/RenderQuad.h"
-#include <Render/passes/geometry/geometryPass.h>
-#include <Render/passes/lighting/raytracer.h>
+#include <Render/pipeline/prebuilt_pipelines/geometryPass.h>
+//#include <Render/pipeline/prebuilt_pipelines/depreciated/raytracer.h>
 #include <Render/window/WindowHandler.h>
 #include <Scene/LightingHandler.h>
 #include <Scene/scene.h>
-#include "Render/passes/post/denoise.h"
-#include  "Render/passes/post/historyPass.h"
+#include  "Render/pipeline/prebuilt_pipelines/historyPass.h"
 #include <Render/Handler/RenderHandler.h>
-#include  "Render/Handler/sceneDescription.h"
-#include "Render/passes/dbg/dbgPass.h"
-#include "Scene/FE_LAYER.h"
+//#include  "Render/Handler/depreciated/sceneDescription.h"
+#include  "Render/pipeline/prebuilt_pipelines/dbgPass.h"
 #include <Render/render_util/flouraSlang.h>
 #include <Render/pipeline/prebuilt_pipelines/flouraDeferred.h>
+#include <Systems/Physics/SDF.h>
+#include <Render/pipeline/prebuilt_pipelines/swrt.h>
 
 Shader RenderClass::taaShader;
-Shader RenderClass::raymarchShader;
 Shader RenderClass::skyGadientShader;
 Shader RenderClass::billBoardShader;
 Shader RenderClass::gPassShaderBillBoard;
-Shader RenderClass::boxShader;
 Shader RenderClass::LineShader;
 
 bool RenderClass::renderSkybox = true;
@@ -32,24 +28,20 @@ bool RenderClass::doContactShadows = true;
 bool RenderClass::doFog = true;
 GLfloat RenderClass::DepthDistance = 100.0f;
 GLfloat RenderClass::DepthPlane[] = { 0.1f, 100.0f };
-glm::vec3 RenderClass::skyRGBA = glm::vec3(1.0f, 1.0f, 1.0f);
-glm::vec3 RenderClass::fogRGBA = glm::vec3( 1.0f, 1.0f, 1.0f);
+glm::vec3 RenderClass::skyRGBA = glm::vec3(1.0f);
+glm::vec3 RenderClass::fogRGBA = glm::vec3( 1.0f);
 
-CubeVisualizer* RenderClass::WhiteCube;
 Line3D* RenderClass::line;
 Texture* RenderClass::bluenoise;
 Texture* RenderClass::bayermatrix;
-Texture* RenderClass::SusanneSDF64x64r8;
 bool RenderClass::doTAA = true;
 bool RenderClass::doBinaryAlpha = true;
 bool RenderClass::animateBinaryAlpha = true;
 
 Shader SolidColour;
 
-bool RenderClass::DoDeferredLightingPass = true; // Toggle for lighting pass
-bool RenderClass::DoForwardLightingPass = false; // Toggle for regular pass
-bool RenderClass::DoComputeLightingPass = false;
-
+RenderClass::renderersEnum RenderClass::currentRenderer = RenderClass::DEFERRED;
+int RenderClass::currentRendererInd = 1;
 void initGLenable() {
 	// glenables
 	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
@@ -89,7 +81,6 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 
 	windowHandler::InitMainWindow();
 	if (!gladLoadGL(glfwGetProcAddress)) {
-		// Log that GLAD failed to initialize
 		std::cerr << "Failed to initialize GLAD" << std::endl;
 		return;
 	}
@@ -97,7 +88,6 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	windowHandler::setVSync(windowHandler::doVsync); // Set Vsync to value of doVsync (bool)
 
 	// glenables
-	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
 	initGLenable(); //bool for direction of polys
 	HistoryPass::init(); // init the RQ of the HP
 	RenderQuad::init();
@@ -108,16 +98,17 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	GeometryPass::setupGbuffers(width, height); // here
 	HistoryPass::setupHbuffers(width, height);
 	SceneDescription::generateSceneBuffers();
-	SceneDescription::generateVoxelBuffers();
+	//SceneDescription::generateVoxelBuffers();
+	flouraSDF::initLocalScene();
 	FlouraDeferred::init();
-
+	FlouraSWRT::setupSWRTbuffers(width, height);
+	
 	// load bluenoise texture
 	bluenoise = new Texture(); bluenoise->createTexture("Assets/Dependants/LDR_LLL1_0.png", "misc", 6);
 	bayermatrix = new Texture(); bayermatrix->createTexture("Assets/Dependants/bayer_matrix.png", "misc", 7);
-	SusanneSDF64x64r8 = new Texture(); SusanneSDF64x64r8->createTexture("Assets/Dependants/Susanne_64x64_8I.png", "SDF", 8);
-
-	raytracer::initcomputeShader(width, height); // Initialize compute shader for lighting pass
-	denoiser::initcomputeShader(width, height);
+	
+	//raytracer::initcomputeShader(width, height); // Initialize compute shader for lighting pass
+	//denoiser::initcomputeShader(width, height);
 
 	initGlobalShaders();
 	LightingHandler::setupShadowMapBuffer();
@@ -138,27 +129,23 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	}
 
 	Skybox::init();
-
-	WhiteCube = new CubeVisualizer;
+	CubeVisualizer::init();
 	line = new Line3D(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 }
 
 void RenderClass::initGlobalShaders() {
-	// cube collider and billboard, oh yeah and framebuffer
 	billBoardShader.LoadShader("Assets/Shaders/Db/BillBoard.vert", "Assets/Shaders/Db/BillBoard.frag");
 	gPassShaderBillBoard.LoadShader("Assets/Shaders/gBuffer/geometryPassBillboard.vert", "Assets/Shaders/gBuffer/geometryPassBillboard.frag");
-	boxShader.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Db/OrangeHitbox.frag");
 	SolidColour.LoadShader("Assets/Shaders/Lighting/Default.vert", "Assets/Shaders/Db/solidColour.frag");
-	
-	// Assets/Shaders/gBuffer/historybuffer
-	// history pass
 	HistoryPass::hPassShader.LoadShader("Assets/Shaders/gBuffer/historybuffer.vert", "Assets/Shaders/gBuffer/historybuffer.frag");
 	
 	// keep an eye on these in a moment or later
 	
 	FlouraDeferred::createShaders();
 	taaShader.LoadShader("Assets/Shaders/PostProcess/TAA.vert", "Assets/Shaders/PostProcess/TAA.frag");
-	raymarchShader.LoadShader("Assets/Shaders/raymarched/raymarch.vert", "Assets/Shaders/raymarched/raymarch.frag");
+	//raymarchShader.LoadShader("Assets/Shaders/raymarched/raymarch.vert", "Assets/Shaders/raymarched/raymarch.frag");
+	FlouraSWRT::initShaders();
+	//raymarchShaderT.LoadComputeShader("Assets/Shaders/raymarched/raymarch.comp");
 	
 	
 	//std::string tvert; std::string tfrag;
@@ -168,8 +155,8 @@ void RenderClass::initGlobalShaders() {
 	//	skyGadientShader.LoadShader(tvert.c_str(), tfrag.c_str());
 	//}
 	
-	skyGadientShader.isSpirv = true;
-	skyGadientShader.LoadShader("Assets/Shaders/raymarched/skygradient_vert.spv", "Assets/Shaders/raymarched/skygradient_frag.spv");
+	//skyGadientShader.isSpirv = true;
+	//skyGadientShader.LoadShader("Assets/Shaders/raymarched/skygradient_vert.spv", "Assets/Shaders/raymarched/skygradient_frag.spv");
 	//skyGadientShader.LoadShader("Assets/Shaders/raymarched/skygradient.vert", "Assets/Shaders/raymarched/skygradient.frag");
 	
 
@@ -180,37 +167,35 @@ void RenderClass::initGlobalShaders() {
 }
 
 void RenderClass::ClearFramebuffers() {
-
 	// Clear first framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear with colour
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Clear second framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FFBO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear with colour
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
 	// clear sk b
-	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::SGFBO);
-	glClear(GL_COLOR_BUFFER_BIT); // Clear with colour
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::SGFBO);
+	//glClear(GL_COLOR_BUFFER_BIT); // Clear with colour
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Clear GBuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, GeometryPass::gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear with colour
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER,  dbgPass::dbgBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear with colour
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	
 	LightingHandler::clearSMFBO();
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 float Counter;
-void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int height) 
-{
+void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int height) {
 	LightingHandler::update();
 	RenderClass::ClearFramebuffers(); // Clear Framebuffers
 	
@@ -224,8 +209,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 		glClearColor(pow(0.0f, Scene::maincamera.gamma), pow(0.0f, Scene::maincamera.gamma), pow(0.0f, Scene::maincamera.gamma), 1.0f);
 	}
 
-	if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox) // should add skybox.scene
-	{
+	if (!FEImGuiWindow::isWireframe && RenderClass::renderSkybox){
 		Skybox::draw(Scene::maincamera, renderTarget::FBO, true);
 		Skybox::setPreviousMats(Scene::maincamera);
 		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
@@ -240,7 +224,7 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	
 	RenderHandler::render();
 	
-	physworld::debugDraw();
+	//physworld::debugDraw();
 	
 	// Framebuffer logic
 	renderTarget::FBODraw(FEImGuiWindow::imGuiPanels[0], window);
@@ -263,6 +247,7 @@ void RenderClass::taaPass()
 	// send gPass textures to shader
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, renderTarget::screentexture);
+	glGenerateMipmap(GL_TEXTURE_2D);
 	taaShader.setInt("screentexture", 0);
 	
 	glActiveTexture(GL_TEXTURE1);
@@ -280,6 +265,7 @@ void RenderClass::taaPass()
 	// skip 8 because of shadow map (i really need to use bindless on these)
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, HistoryPass::hColour);
+	glGenerateMipmap(GL_TEXTURE_2D);
 	taaShader.setInt("hColour", 4);
 	
 	// reserve 10 for depth
@@ -300,35 +286,6 @@ void RenderClass::taaPass()
 	
 	
 	//shader.
-	RenderQuad::draw();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glActiveTexture(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void RenderClass::raymarchingPass()
-{
-	
-	glDisable(GL_CULL_FACE);
-	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
-	raymarchShader.Activate();
-
-	
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
-	raymarchShader.setInt("depthMap", 2);
-	
-	raymarchShader.setHandleui64ARB("SusanneSDF64x64r8_handle", RenderClass::SusanneSDF64x64r8->handle);
-	raymarchShader.setFloat2("screenSize", glm::vec2(Scene::maincamera.width, Scene::maincamera.height));
-	raymarchShader.setMat4("u_ViewMatrix", Scene::maincamera.view);
-	//raymarchShader.setMat4("u_ProjectionMatrix", Scene::maincamera.projectionAlwaysUnjittered);
-	raymarchShader.setMat4("u_ProjectionMatrix", Scene::maincamera.projection);
-	raymarchShader.setFloat3("cameraPosition", Scene::maincamera.Position);
-	
-	raymarchShader.setTimeVariables();
-	
-	LightingHandler::sendToShader(raymarchShader);
-	
 	RenderQuad::draw();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glActiveTexture(0);
@@ -368,32 +325,34 @@ void RenderClass::skyGraidentPass()
 void RenderClass::Cleanup() {
 	billBoardShader.Delete();
 	gPassShaderBillBoard.Delete();
-	boxShader.Delete();
 	taaShader.Delete();
-	raymarchShader.Delete();
+	//raymarchShader.Delete();
+	//skyGadientShader.Delete();
 	SolidColour.Delete();
 	billBoardShader.Delete();
 	LineShader.Delete();
 	FlouraDeferred::Delete();
+	flouraSDF::cleanupLocalScene();
 	renderTarget::frameBufferProgram.Delete();
-
-	WhiteCube->~CubeVisualizer();
+	GeometryPass::cleanupGbuffers();
+	dbgPass::cleanupDBGbuffers();
+	HistoryPass::cleanupHbuffers();
+	FlouraSWRT::cleanupShaders();
+	FlouraSWRT::cleanupSWRTbuffers();
+	
+	CubeVisualizer::cleanup();
 	line->~Line3D();
+	
+	bayermatrix->Delete();
+	bluenoise->Delete();
 }
 
 float RenderClass::gammaCorrect(float input) {
 	
 	return input;
-	
 	return pow(input, 1.0f / Scene::maincamera.gamma);
 }
 
-glm::vec3 RenderClass::gammaCorrect3(glm::vec3 input) {
-	return input;
-	return pow(input, glm::vec3(1.0f / Scene::maincamera.gamma) );
-}
-
-void RenderClass::compileShaders()
-{
+void RenderClass::compileShaders(){
 	for (int i = 0; i < Scene::entityObjects.size(); ++i) Scene::entityObjects[i]->component.systems.material.Material.compileUniforms();
 }

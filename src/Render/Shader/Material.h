@@ -31,8 +31,6 @@ public:
 	void ClearMaterial();
 
 	void update();
-
-	void updateForwardLights();
 	
 	void compileUniforms();
 	

@@ -17,6 +17,7 @@ public:
 	static std::string s_WindowTitle; //"OpenGL Window"
 	static bool doVsync;
 	static double mouseX, mouseY;
+	static bool isFullscreen;
 
 	static GLFWmonitor* fetchPrimaryWindow();
 
@@ -28,6 +29,8 @@ public:
 
 	static void SetWindowIcon(GLFWwindow* window, std::string path);
 
+	static void toggleFullscreen(GLFWwindow* &window,  bool& isFullscreen, int windowedWidth, int windowedHeight);
+	
 	static void setVSync(bool enabled);
 
 	static void InitMainWindow();

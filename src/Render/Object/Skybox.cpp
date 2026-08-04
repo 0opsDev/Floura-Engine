@@ -1,7 +1,7 @@
 #include"Skybox.h"
 #include <glm/gtx/string_cast.hpp>
 #include <Render/Handler/RenderClass.h>
-#include <Render/passes/geometry/geometryPass.h>
+#include <Render/pipeline/prebuilt_pipelines/geometryPass.h>
 #include "Scene/scene.h"
 #include <Render/Shader/renderTarget.h>
 
@@ -111,8 +111,7 @@ void Skybox::draw(Camera& camera, const unsigned int framebuffer, bool gPassEnab
 	glDepthFunc(GL_LEQUAL);
 	
 	// should allow take shader in, not make these two seperated shaders inside the skybox class with the arguments
-	if (gPassEnabled)
-	{
+	if (gPassEnabled){
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, GeometryPass::gBuffer);
 		
@@ -141,7 +140,7 @@ void Skybox::draw(Camera& camera, const unsigned int framebuffer, bool gPassEnab
 		gSkyboxShader.setMat4("previousProjection", previousprojection);
 		
 		//skyboxShader.setInt("skybox", 0);
-		gSkyboxShader.setFloat3("skyRGBA", RenderClass::gammaCorrect3(RenderClass::skyRGBA));
+		gSkyboxShader.setFloat3("skyRGBA", RenderClass::skyRGBA);
 		gSkyboxShader.setBool("DoSbRGBA", DoSbRGBA);
 		gSkyboxShader.setMat4("rotation", rot);
 		SkyboxCubemap->cubemapToUUIDShader("skyboxHandle", gSkyboxShader);
@@ -168,7 +167,7 @@ void Skybox::draw(Camera& camera, const unsigned int framebuffer, bool gPassEnab
 	    skyboxShader.setMat4("previousView", previousview);
         skyboxShader.setMat4("previousProjection", previousprojection);
 		//skyboxShader.setInt("skybox", 0);
-		skyboxShader.setFloat3("skyRGBA", RenderClass::gammaCorrect3(RenderClass::skyRGBA));
+		skyboxShader.setFloat3("skyRGBA", RenderClass::skyRGBA);
 		skyboxShader.setBool("DoSbRGBA", DoSbRGBA);
 		skyboxShader.setMat4("rotation", rot);
 		SkyboxCubemap->cubemapToUUIDShader("skyboxHandle", skyboxShader);

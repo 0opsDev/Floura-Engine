@@ -5,6 +5,8 @@ class EcsInspector
 {
 public:
 
+	static char NameBuffer[256];
+	
 	static void InspectorWindow();
 
 	static void ModelWindow();
@@ -20,8 +22,6 @@ public:
 	static void CameraWindow();
 	
 	static void EmptyWindow();
-	
-	static void VolumeWindow();
 	
 	static void MaterialOnHit();
 	

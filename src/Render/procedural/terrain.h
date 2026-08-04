@@ -4,7 +4,7 @@
 #include <Render/Shader/shaderClass.h>
 #include  "Render/Object/Mesh.h"
 #include "Render/Buffer/VBO.h"
-#include "Render/Cube/CubeVisualizer.h"
+#include "Render/Handler/CubeVisualizer.h"
 
 class Terrain {
 public:

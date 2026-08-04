@@ -1,5 +1,4 @@
 #include "LuaScreen.h"
-#include "utils/screenutils.h" 
 #include <Render/window/WindowHandler.h>
 
 void luaScreen::SetScreen(sol::state& luaState) {

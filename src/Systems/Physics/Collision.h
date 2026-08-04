@@ -1,9 +1,13 @@
-#include <glm/ext/vector_float3.hpp>
-#include <vector>
-#include <Render/Buffer/VBO.h>
+
+
 #ifndef COLLISION_H
 #define COLLISION_H
 
+#include <glm/ext/vector_float3.hpp>
+#include <vector>
+#include <Render/Buffer/VBO.h>
+//#include <Systems/Physics/BVH.h>
+//#include <Systems/Physics/voxelizer.h>
 /*
 	static class for handling collision detection between different collider types
 	returns true if a collision is detected, false otherwise
@@ -89,17 +93,13 @@ public:
 		plane farFace;
 		plane nearFace;
 	};
-	
-	
-	static Frustum createFrustumFromCamera(glm::mat4 m);
 
 
 	static bool showBoxCollider;
 
 	// AABB
 
-	struct rubiksCubePoints
-	{
+	struct rubiksCubePoints{
 		// based off rubix cube notation
 		glm::vec3 ULF = glm::vec3(0.0f); // up left front
 		glm::vec3 URF = glm::vec3(0.0f); // up right front
@@ -121,6 +121,13 @@ public:
 
 	static rubiksCubePoints transformRubiks(const rubiksCubePoints& points, glm::mat4 matrix);
 
+	static Collision::AABB rootNodeFromRubixPoints(Collision::rubiksCubePoints points,
+		glm::mat4 ModelMatrix); // returns rootnode
+	
+	// two of the same thing i know bad and spooky, im tired
+	static Collision::AABB rootNodeFromRubixPointsNoPadding(Collision::rubiksCubePoints points,
+	glm::mat4 ModelMatrix);
+	
 	struct KDsplit
 	{
 		AABB firstSplit;
@@ -136,6 +143,8 @@ public:
 	
 	static HitResult advancedConstrainPoint(glm::vec3 vp, glm::vec3 c2, float cRadius);
 
+	static glm::vec3 nearestPointOnAABB(const glm::vec3& p, const glm::vec3& pos, const glm::vec3& extents);
+	
 	// AABB collision detection
 	// AABB vs AABB
 	static HitResult AABBvsAABB(
@@ -153,9 +162,22 @@ public:
 	
 	static HitResult AABBvsSphere(const glm::vec3 posB, const glm::vec3 scaleB, const glm::vec3 pointS, const float radius);
 
-
 	// triangle
+	
+	static glm::vec3 closestPointOnTriangle(const glm::vec3& P, const glm::vec3& A, const glm::vec3& B, const glm::vec3& C);
+	
+	struct voxelAccel{
+		Collision::AABB voxel;
+		std::vector<GLuint> indices;
+	};
+	
+	static float distanceToClosestPointOnMesh(std::vector<Vertex> &vertices, std::vector<GLuint> &indices, glm::vec3 &P); 
+	
+	static float distanceToClosestPointOnMeshSDF(std::vector<Vertex> &vertices, std::vector<GLuint> &indices, glm::vec3 &P); 
+	static glm::vec3 distanceToClosestPointOnMeshSDF_PlusUV(std::vector<Vertex> &vertices, std::vector<GLuint> &indices, glm::vec3 &P); 
+	static glm::vec3 distanceToClosestPointOnMeshSDFAccel_PlusUV(std::vector<Vertex> &vertices, std::vector<voxelAccel>& voxelAccel, glm::vec3 &P); 
 
+	
 	static bool TrianglevsPoint(
 		const glm::vec3& P, const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, float epsilon);
 
@@ -171,6 +193,9 @@ public:
 
 	static HitResult SATTriangleVSAABB(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2,
 																		const glm::vec3& AABBpos, const glm::vec3& AABBsize);
+	
+	static HitResult NearestPointTriangleVSAABB(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2,
+																	const glm::vec3& AABBpos, const glm::vec3& AABBsize);
 
 private:
 

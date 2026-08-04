@@ -3,7 +3,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <Render/Shader/renderTarget.h>
 #include <Render/Handler/RenderClass.h>
-#include <Render/passes/geometry/geometryPass.h>
+#include <Render/pipeline/prebuilt_pipelines/geometryPass.h>
 #include <Scene/LightingHandler.h>
 #include "Scene/scene.h"
 
@@ -80,13 +80,18 @@ void BillBoard::drawF(glm::mat4 modelMatrix, Shader shader, glm::mat4 camMatrix)
 	shader.Activate(); // s
 	// Pass transformations to shader
 	shader.setMat4("model", modelMatrix);
+	
+	glm::mat3 model3x3 = glm::mat3(modelMatrix);
+	glm::mat3 normalMatrix = glm::transpose(glm::inverse(model3x3));
+	glUniformMatrix3fv(glGetUniformLocation(shader.ID, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
+	
 	shader.setMat4("camMatrix", camMatrix);
 
 	// Render the billboard
 	glBindVertexArray(cubeVAO);
 	Tex.Bind();
 	shader.setInt("texture0", 0);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0); // E
 }
@@ -129,16 +134,13 @@ void BillBoard::drawShadowMap()
 	glBindVertexArray(cubeVAO);
 	Tex.Bind();
 	LightingHandler::dirShadowMapProgramBB.setInt("texture0", 0);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0); // E
 }
 void BillBoard::draw() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
-	if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) {
-		return; // Skip rendering if not in regular or lighting pass
-	}
 	// Compute the forward vector towards the camera
 	glm::vec3 camForward = glm::normalize(Scene::maincamera.Position - globalTransformation.position);
 
@@ -160,8 +162,10 @@ void BillBoard::draw() {
 	model = glm::translate(model, globalTransformation.position);
 	model = model * billboardRotation;  // Ensure billboard rotation before scaling
 	model = glm::scale(model, globalTransformation.scale);
-
-	if (RenderClass::DoForwardLightingPass) {
+	
+	
+	glDisable(GL_CULL_FACE); 
+	if (RenderClass::currentRendererInd == RenderClass::FORWARD) {
 		glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
 
@@ -175,13 +179,12 @@ void BillBoard::draw() {
 		//
 		//
 		// Gpass
-		glBindFramebuffer(GL_FRAMEBUFFER, 0); 
 		glBindFramebuffer(GL_FRAMEBUFFER, GeometryPass::gBuffer);
 
 		drawF(model, RenderClass::gPassShaderBillBoard, Scene::maincamera.cameraMatrix);
 
-		glDisable(GL_CULL_FACE); 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0); 
+		glEnable(GL_CULL_FACE); 
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0); 
 		//FrameBuffer
 
 	// got just to reset the framebuffer to default

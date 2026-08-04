@@ -4,8 +4,8 @@
 #extension GL_ARB_bindless_texture : require
 
 layout(location = 0) out vec3 gPosition;
-layout(location = 1) out vec3 gNormal;
-layout(location = 2) out vec4 gAlbedoSpec;
+layout(location = 1) out vec4 gNormal;
+layout(location = 2) out vec4 gAlbedo;
 layout(location = 3) out vec4 gSpecular;
 layout(location = 4) out vec4 gVelocity;
 layout(location = 5) out vec3 gEmission;
@@ -14,6 +14,7 @@ in vec3 crntPos;
 in vec2 texCoord;
 
 uniform sampler2D texture0;
+uniform mat3 normalMatrix;
 //uniform sampler2D noiseMapTexture;
 
 void main()
@@ -26,12 +27,11 @@ void main()
     gPosition = crntPos; // Output position as-is
 
     //purple
-    gNormal = vec3(1.0, 0, 1.0); // Default normal if texture is black
+    gNormal = vec4(normalMatrix * vec3(1.0, 0, 1.0), 1.0f); // Default normal if texture is black
 
-    gAlbedoSpec.rgb = albedoTex.rgb;
-
+    gAlbedo.rgb = albedoTex.rgb;
    //Ensure alpha is correctly fetched
-   gAlbedoSpec.a = 0.0f;
+    gAlbedo.a = 1.0f;
 
    gSpecular = vec4(1.0f,1.0f,0.0f,1.0f);
 

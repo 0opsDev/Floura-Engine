@@ -4,16 +4,18 @@
 #include <Render/Handler/ShaderHandler.h>
 #include <Render/Handler/RenderClass.h>
 #include <Render/Object/Skybox.h>
-#include <Render/passes/geometry/geometryPass.h>
+#include <Render/pipeline/prebuilt_pipelines/geometryPass.h>
 #include <Scene/scene.h>
 #include <Editor/UI/ImGui/ImGuiWindow.h>
 #include <Render/Shader/renderTarget.h>
-#include <Gameplay/Player.h>
-#include <Render/passes/post/historyPass.h>
+#include <Render/pipeline/prebuilt_pipelines/historyPass.h>
 #include "Scene/FE_LAYER.h"
 #include "utils/FE_math.h"
 #include "LoadHandler.h"
 #include <Render/pipeline/prebuilt_pipelines/flouraDeferred.h>
+#include <Render/pipeline/prebuilt_pipelines/swrt.h>
+
+#include "Systems/Physics/SDF.h"
 
 std::unordered_map<std::string, uint64_t> RenderHandler::pKeyHandleMapRender;
 
@@ -33,10 +35,9 @@ uint64_t RenderHandler::fetchHandle(std::string path)
 	return 0;
 }
 
-int RenderHandler::fetchModelIndex(uint64_t RenderID)
+int RenderHandler::fetchModelIndex(uint64_t RenderID) // use a map here << this slows things down
 {
-	for (size_t i = 0; i < models.size(); i++)
-	{
+	for (size_t i = 0; i < models.size(); i++){
 		if (models[i].RenderID == RenderID) return (int)i;
 	}
 	return -1;
@@ -44,19 +45,16 @@ int RenderHandler::fetchModelIndex(uint64_t RenderID)
 
 void RenderHandler::updateLoadUnloadedModels()
 {
-	for (int i = 0; i < models.size(); ++i) // should have a int count for how many have gotten loaded, and - on it to skip the for loop
-	{
+	for (int i = 0; i < models.size(); ++i) {// should have a int count for how many have gotten loaded, and - on it to skip the for loop
 		if (models[i].model->disableConstructorLoadingModelFlag && !models[i].model->loaded) // if the flag is active, and the model is not classed as loaded
 			models[i].model->loadModelPathless(); // load
 	}
 }
 
-RenderHandler::batchOfUUID RenderHandler::addModel(std::string path)
-{
+RenderHandler::batchOfUUID RenderHandler::addModel(std::string path){
 	uint64_t nUUID = fetchHandle(path);
 	uint64_t nIUUID = UUID::returnHandle();
-	if (nUUID == 0) // if equal to zero handle does not exist in array, we can create away
-	{
+	if (nUUID == 0){ // if equal to zero handle does not exist in array, we can create away
 		// assign new handle
 		nUUID = UUID::returnHandle();
 		pKeyHandleMapRender[path] = nUUID;
@@ -70,19 +68,27 @@ RenderHandler::batchOfUUID RenderHandler::addModel(std::string path)
 		//LoadHandler::addToModelMeshCreateW_RenderIDQueue(nUUID); // << to run on opengl thread
 		//LoadHandler::addToModelTextureCreateW_RenderIDQueue(nUUID);
 		newModelObject.model->createMeshAABBs();
+		newModelObject.model->generateMeshBlases(8, 16);
 		
-		//newModelObject.model->createVoxelMesh(8, 1); // comment this out after
+		// sdf stuff
+		//newModelObject.model->SDFgenerate(64, 15);
+		newModelObject.model->SDFgeneratePrim(64, 15); 
+		//newModelObject.model->SDFgenerateBlas(64, 15);
+		
+		//flouraSDF::cacheSDF("Cache/SDF/temp/", newModelObject.model->hash, newModelObject.model->meshSDFs);
+		
+		//newModelObject.model->createVoxelMesh(8, 1);
 		
 		newModelObject.model->renderID = nUUID;
-		newModelObject.model->instanceUUIDs.push_back(nIUUID);  // set
+		Model::instaceData IsD;  IsD.ID =nIUUID;
+		newModelObject.model->instacesData.push_back(IsD);  // set
 		models.push_back(newModelObject);
 	}
-	else
-	{
+	else{
 		int index = fetchModelIndex(nUUID);
-		if (index != -1)
-		{
-			models[index].model->instanceUUIDs.push_back(nIUUID); // add
+		if (index != -1){
+			Model::instaceData IsD; IsD.ID =nIUUID;
+			models[index].model->instacesData.push_back(IsD); // add
 			models[index].instances += 1;
 		}
 	}
@@ -92,21 +98,23 @@ RenderHandler::batchOfUUID RenderHandler::addModel(std::string path)
 	return nBatchOfUUIDS;
 }
 
-void RenderHandler::addToRenderQueue(renderQueueData data)
-{
+void RenderHandler::addToRenderQueue(renderQueueData data){
 	renderQueueDataVector.push_back(data);
 }
 
-void RenderHandler::clearRenderQueue()
-{
+void RenderHandler::clearRenderQueue(){
 	renderQueueDataVector.clear();
 }
 
 float dAccum = 0.0;
 float dAccumthresh = 1.0 / 1.0f;
 
-void RenderHandler::render()
-{
+void RenderHandler::render(){
+	
+	if (RenderClass::currentRendererInd == RenderClass::NONE){
+		clearRenderQueue();
+		return;
+	}
 	
 	shadowDraw();
 	
@@ -114,8 +122,7 @@ void RenderHandler::render()
 	dAccum += TimeUtil::deltatime;
 	
 	// reflection draw
-	if (RenderClass::doReflections && renderENV  &&  dAccum > dAccumthresh || ProbeHandler::indirectSamples > 0 && renderENV  &&  dAccum > dAccumthresh)
-	{
+	if (RenderClass::doReflections && renderENV  &&  dAccum > dAccumthresh || ProbeHandler::indirectSamples > 0 && renderENV  &&  dAccum > dAccumthresh){
 		float range = 100.0f;
 		
 		//glm::vec3(Scene::maincamera.Position.x, Scene::maincamera.Position.y, Scene::maincamera.Position.z)
@@ -135,27 +142,29 @@ void RenderHandler::render()
 	FE_LAYER::draw();
 	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Restore normal rendering < wireframe
-	
-	// def draw
-	if (RenderClass::DoDeferredLightingPass)
-	{
+
+
+	switch (RenderClass::currentRendererInd){
+	case RenderClass::DEFERRED:
 		if (renderENV)  tempCM->cubemapToUUIDShader("cmMainHandle", FlouraDeferred::DFL_Shader);
 		else Skybox::SkyboxCubemap->cubemapToUUIDShader("cmMainHandle", FlouraDeferred::DFL_Shader);
 		FlouraDeferred::DeferredLightingPass(); // Forward Lighting Pass
-		FlouraDeferred::ssrPass();
-	}
-	
-	if (RenderClass::DoComputeLightingPass){
-		if (raytracer::RTGlobalTransformFlag) SceneDescription::updateQuickModelData();
-		raytracer::render(); // Run compute shader for lighting pass
-		raytracer::RTGlobalTransformFlag = false;
-	}
-	
-	if (false){
+		FlouraDeferred::ssrPass(); // << overhead
+		break;
+	case RenderClass::SWRT: // currently disabled
+		//if (raytracer::RTGlobalTransformFlag) SceneDescription::updateQuickModelData();
+		//raytracer::render(); // Run compute shader for lighting pass
+		//raytracer::RTGlobalTransformFlag = false;
+		break;
+	case RenderClass::SWRT2:
 		//if (raytracer::RTGlobalTransformFlag) SceneDescription::updateQuickVoxelData();
-		SceneDescription::updateQuickVoxelData();
-		RenderClass::raymarchingPass(); // comment out when not using
+		//SceneDescription::updateQuickVoxelData();
+		FlouraSWRT::draw();
+		//RenderClass::raymarchingPass(); // comment out when not using
 		raytracer::RTGlobalTransformFlag = false; // this is dumb i know
+		break;
+	default:
+		break;
 	}
 	
 	if (RenderClass::doTAA) RenderClass::taaPass();
@@ -166,9 +175,12 @@ void RenderHandler::render()
 	clearRenderQueue();
 }
 
-void RenderHandler::removeInstancewRenderID(uint64_t RenderID)
-{
+void RenderHandler::removeInstancewRenderID(uint64_t RenderID, uint64_t instanceID){
 	int index = fetchModelIndex(RenderID);
+	for (int i = 0; i < models[index].model->instacesData.size(); ++i){
+		if (instanceID != models[index].model->instacesData[i].ID) continue;
+		models[index].model->instacesData.erase(models[index].model->instacesData.begin() + i);
+	}
 	removeInstance(index);
 }
 
@@ -196,24 +208,20 @@ void RenderHandler::removeInstance(int index)
 uint64_t RenderHandler::findRenderUUIDwIstanceUUID(uint64_t InstanceUUID)
 {
 
-	for (size_t i = 0; i < RenderHandler::models.size(); i++)
-	{
-		for (size_t x = 0; x < RenderHandler::models[i].model->instanceUUIDs.size(); x++)
-		{
-			if (RenderHandler::models[i].model->instanceUUIDs[x] == InstanceUUID)
+	for (size_t i = 0; i < RenderHandler::models.size(); i++){
+		for (size_t x = 0; x < RenderHandler::models[i].model->instacesData.size(); x++){
+			if (RenderHandler::models[i].model->instacesData[x].ID == InstanceUUID)
 				return RenderHandler::models[i].RenderID;
 		}
 		
 	}
-
 	return uint64_t(0);
 }
 
 uint64_t RenderHandler::findModelUUIDwRenderUUID(uint64_t RenderID)
 {
 	int index = fetchModelIndex(RenderID);
-	if (index != -1)
-	{
+	if (index != -1){
 		return RenderHandler::models[index].model->UUID;
 	}
 
@@ -418,15 +426,13 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderHandler::regularDraw()
-{
+void RenderHandler::regularDraw(){
+	if (renderQueueDataVector.empty()) return;
 
 	// gpass
-	for (size_t i = 0; i < renderQueueDataVector.size(); i++)
-	{
+	for (size_t i = 0; i < renderQueueDataVector.size(); i++){
 		int index = fetchModelIndex(renderQueueDataVector[i].RenderID);
-		if (index != -1 && !renderQueueDataVector[i].isInstanced)
-		{
+		if (index != -1 && !renderQueueDataVector[i].isInstanced){
 			// whole cull if (Collision::AABBtoSphereRangeCull())
 			
 			
@@ -484,13 +490,11 @@ void RenderHandler::regularDraw()
 
 	
 	
-	if (RenderClass::DoForwardLightingPass) {
+	if (RenderClass::currentRendererInd == RenderClass::FORWARD) {
 		// regular non instanced
-		for (size_t i = 0; i < renderQueueDataVector.size(); i++)
-		{
+		for (size_t i = 0; i < renderQueueDataVector.size(); i++){
 			int index = fetchModelIndex(renderQueueDataVector[i].RenderID);
-			if (index != -1 && !renderQueueDataVector[i].isInstanced)
-			{
+			if (index != -1 && !renderQueueDataVector[i].isInstanced){
 
 				int modelShaderIndex = ShaderHandler::fetchShaderIndex(renderQueueDataVector[i].shaderUUID);
 
@@ -533,7 +537,7 @@ void RenderHandler::regularDraw()
 				ShaderHandler::shaderObjects[modelShaderIndex].Shader.setBool("animateBinaryAlpha", RenderClass::animateBinaryAlpha);
 				// this would normally be in material
 
-				if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) continue; // Skip rendering if not in regular or lighting pass
+				//if (!RenderClass::DoForwardLightingPass && !RenderClass::DoDeferredLightingPass) continue; // Skip rendering if not in regular or lighting pass
 				if (renderQueueDataVector[i].doCulling == true && !FEImGuiWindow::isWireframe) glEnable(GL_CULL_FACE);
 				else glDisable(GL_CULL_FACE);
 				if (renderQueueDataVector[i].cullFrontFace) glCullFace(GL_FRONT);
@@ -563,14 +567,6 @@ void RenderHandler::regularDraw()
 
 				// temp
 				models[index].model->draw(ShaderHandler::shaderObjects[modelShaderIndex].Shader, Scene::maincamera);
-				// Draw the mesh bounding box for visualization
-				//for (size_t i = 0; i < component.renderHeads.Model->meshes.size(); i++)
-				//{
-				//	if (Collision::showBoxCollider)
-				//		RenderClass::WhiteCube->draw(component.renderHeads.Model->meshes[i].boxCollider.position,
-				//			component.renderHeads.Model->meshes[i].boxCollider.size, glm::vec3(1.0f));
-				//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				//}
 
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Enable wireframe mode
 
@@ -587,14 +583,12 @@ void RenderHandler::regularDraw()
 
 void RenderHandler::shadowDraw()
 {
+	if (renderQueueDataVector.empty()) return;
 	// shadow pass add infomation like culling, facedir
-	for (size_t i = 0; i < renderQueueDataVector.size(); i++)
-	{
-		if (renderQueueDataVector[i].castsShadow && !renderQueueDataVector[i].isInstanced)
-		{
+	for (size_t i = 0; i < renderQueueDataVector.size(); i++){
+		if (renderQueueDataVector[i].castsShadow && !renderQueueDataVector[i].isInstanced){
 			int index = fetchModelIndex(renderQueueDataVector[i].RenderID);
-			if (index != -1)
-			{
+			if (index != -1){
 				// these are temp
 				models[index].model->updatePosition(renderQueueDataVector[i].position);
 				models[index].model->updateRotation(renderQueueDataVector[i].rotation);
@@ -615,34 +609,10 @@ void RenderHandler::shadowDraw()
 void RenderHandler::instancedDraw()
 {
 	// needs to make batches of instanced data, do sep for both shadow and regular, shadow doesnt include shaders or uv
-	for (size_t i = 0; i < renderQueueDataVector.size(); i++)
-	{
-		if (renderQueueDataVector[i].isInstanced)
-		{
+	for (size_t i = 0; i < renderQueueDataVector.size(); i++){
+		if (renderQueueDataVector[i].isInstanced){
 
 		}
 	}
 	// then needs to draw it
-}
-
-std::vector <Texture> RenderHandler::textures; // texture array  (be nice to create texture and store pointer)
-Texture* RenderHandler::uploadAndReturnTextureWptr(const char* image, const char* texType, GLuint slot)
-{
-	// some sort of logic here to check if path is already used and pass over the correct object ptr
-	
-	Texture nTexture;
-	nTexture.linearFilter = true;
-	nTexture.createTexture(image, texType, slot);
-	
-	textures.push_back(nTexture);
-	return &textures.back();
-}
-
-Texture* RenderHandler::uploadAndReturnColourTextureWptr(glm::vec4 colour, const char* texType, GLuint slot)
-{
-	Texture nTexture;
-	nTexture.createColour(colour, texType, slot);
-	
-	textures.push_back(nTexture);
-	return &textures.back();
 }

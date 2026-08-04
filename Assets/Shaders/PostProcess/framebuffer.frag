@@ -4,6 +4,8 @@ out vec4 FragColor;
 in vec2 texCoords;
 
 uniform sampler2D depthTexture;
+uniform sampler2D albedo;
+uniform sampler2D normal;
 uniform sampler2D screenTexture;
 uniform sampler2D BlueNoiseTex;
 uniform mat4 cameraMatrix;
@@ -17,8 +19,7 @@ uniform float time;
 uniform float deltaTime;
 uniform float accum24value;
 
-float calculateExposure(vec3 avgColor)
-{
+float calculateExposure(vec3 avgColor){
     float lum = dot(avgColor, vec3(0.2126, 0.7152, 0.0722));
     
     lum = max(lum, 0.0001f); 
@@ -114,8 +115,7 @@ vec3 filmgrainColoured(vec3 colour, float amount, float randomValue)
 }
 
 
-float lumaFromRGB(vec3 rgb)
-{
+float lumaFromRGB(vec3 rgb){
     vec3 weights = vec3(0.2126, 0.7152, 0.0722);
     float luminance = dot(rgb, weights);
     return luminance;
@@ -172,19 +172,26 @@ vec3 spawnSharpenedImage(sampler2D image, vec2 texCoord2, float weight) {
     texture(image, texCoords + vec2(0, -texelSize.y)).rgb * neighbor;
 }
 
-void main() {
+float linearizeDepth(float depth, float NearPlane, float FarPlane){
+    return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
+}
 
+
+void main() {
     //FragColor.rgb =texture(screenTexture, texCoords).rgb; return;
     
-    float lumaSobel = lumaFromRGB(sobel(depthTexture));
-    if (lumaSobel > 0.00001f) lumaSobel = 1.0;
-    lumaSobel = clamp(lumaSobel, 0.0, 1.0);
-    lumaSobel = 1.0 - lumaSobel;
+    //float lumaSobel = lumaFromRGB(sobel(depthTexture));
+    //if (lumaSobel > 0.00001f) lumaSobel = 1.0;
+    //lumaSobel = clamp(lumaSobel, 0.0, 1.0);
+   // lumaSobel = 1.0 - lumaSobel;
     
-    float luma = lumaFromRGB(texture(screenTexture, texCoords).rgb);
+    //float luma = lumaFromRGB(texture(screenTexture, texCoords).rgb);
     
-    vec3 colour = spawnSharpenedImage(screenTexture, texCoords, lumaSobel * luma);
-
+    //vec3 colour = spawnSharpenedImage(screenTexture, texCoords, lumaSobel * luma);
+    vec3 colour = texture(screenTexture, texCoords).rgb;
+    vec3 nrm = texture(normal, texCoords).rgb;
+    float depth = linearizeDepth(texture(depthTexture, texCoords).r, 0.1f, 100.0f);
+   
     colour = vignette(colour, 0.9, 0.5);
     
     int lastLOD = textureQueryLevels(screenTexture) - 1;
@@ -202,7 +209,7 @@ void main() {
     vec3 aces = ACESFilm(colour * autoExposure * 1.8);
 
     // hint of saturation
-    aces = vec3(saturationMatrix(1.5) * vec4(aces,1.0));
+    //aces = vec3(saturationMatrix(1.5) * vec4(aces,1.0));
 
     //aces = filmgrain(aces, 0.1, accum24value);
     
@@ -220,13 +227,4 @@ void main() {
 
     //FragColor.rgb = vec3(luma);
     //FragColor.rgb = vec3(lumaSobel * luma);
-    
-    //FragColor = texture(gPosition, texCoords);
-    
-
-    //\\FragColor.rgb = avgColor;
-    
-    //FragColor.rgb = texture(gNormal, texCoords).rgb;
-
-    //FragColor.rgb = texture(gNormal, texCoords).rgb;
 }

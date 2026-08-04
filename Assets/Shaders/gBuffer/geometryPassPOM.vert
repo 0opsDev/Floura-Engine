@@ -27,6 +27,7 @@ out vec3 Tangent0;
 out vec3 Bitangent0;
 out vec2 uvscale;
 out vec2 texcoord2;
+out mat4 ioCamMatrix;
 
 out highp vec4 currentPos;
 out highp vec4 previousPos;
@@ -55,4 +56,6 @@ void main()
     texcoord2 = vec2(aTex.x  * uvScale.x, aTex.y * uvScale.y);
     texCoord = vec2(aTex.x, aTex.y);
     uvscale = uvScale;
+
+    ioCamMatrix = camMatrix;
 }

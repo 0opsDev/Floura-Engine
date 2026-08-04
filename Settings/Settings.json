@@ -2,7 +2,7 @@
   {
     "Scene": "Scenes/House/objects",
     "Sensitivity": [ 100.0, 100.0 ],
-    "Vsync": false,
+    "Vsync": true,
     "Resolution": [ 1920, 1080 ]
   }
 ]

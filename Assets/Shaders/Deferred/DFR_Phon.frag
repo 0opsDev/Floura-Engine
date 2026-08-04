@@ -3,7 +3,7 @@
 #extension GL_ARB_gpu_shader_int64 : enable
 #extension GL_ARB_bindless_texture : require
 
-out vec4 FragColor;
+out vec4 FragColour;
 
 in vec2 texCoord;
 //in vec3 camPositon;
@@ -37,7 +37,6 @@ uniform vec3 skyColor;
 
 uniform bool DEFtoggle;
 uniform bool doFog;
-uniform vec2 screenSize;
 uniform float time;
 uniform int frame;
 
@@ -114,8 +113,7 @@ vec4 RayCast(in vec3 dir, inout vec3 hitCoord, out float dDepth, int maxSteps, o
     float depth;
     vec4 projectedCoord = vec4(0.0);
 
-    for (int i = 1; i < maxSteps; i++)
-    {
+    for (int i = 1; i < maxSteps; i++){
         hitCoord += dir;
 
         projectedCoord = projectionMatrix * vec4(hitCoord, 1.0);
@@ -136,10 +134,8 @@ vec4 RayCast(in vec3 dir, inout vec3 hitCoord, out float dDepth, int maxSteps, o
         dDepth = hitCoord.z - sampledViewPos.z;
 
 
-        if((dir.z - dDepth) < 0.3)
-        {
-            if(dDepth <= 0.0)
-            {
+        if((dir.z - dDepth) < 0.3){
+            if(dDepth <= 0.0){
                 vec4 Result;
                 Result = vec4(projectedCoord.xy, dDepth, 1.0);
                 hit = 1.0;
@@ -764,7 +760,7 @@ void main()
 
     if (albedo.a <= 0.0)
     {
-        FragColor = vec4(albedo.rgb, 1.0f); return; // sg
+        FragColour = vec4(albedo.rgb, 1.0f); return; // sg
     }
 
     float depth = texture(depthMap, texCoord).r;
@@ -772,7 +768,7 @@ void main()
     //early z cutoff
     if (depth >= 0.99999)
     {
-        FragColor = vec4(albedo.rgb, 1.0f); // sg
+        FragColour = vec4(albedo.rgb, 1.0f); // sg
         return;
     }
 
@@ -855,8 +851,10 @@ void main()
     //vec3 final = albedo.rgb *  gi + roughness;
     
     //final = vec4(totalDiffuse, 1.0);
+
+    FragColour = vec4(final, 1.0f);
+    //FragColour = vec4( vec3(linearizeDepth(depth, 0.1, 5.0)), 1.0);
     
-    FragColor = vec4(final, 1.0f);
     //float ld = linearizeDepth(depth, 0.1, 10.0);
 
     //FragColor.rgb = vec3(ld);

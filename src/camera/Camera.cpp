@@ -23,8 +23,7 @@ void Camera::SetViewportSize(int newWidth, int newHeight) {
     aspect = static_cast<float>(width) / static_cast<float>(height);
 }
 
-void Camera::updateMatrix()
-{
+void Camera::updateMatrix(){
     //std::cout << "Internal camera instance address: " << this << std::endl;
     // Initializes matrices
 
@@ -39,26 +38,24 @@ void Camera::updateMatrix()
     
     projectionAlwaysUnjittered = projection;
     cameraMatrixAlwaysUnjittered = projection * view;
-    
-    inverseViewMatrix = glm::affineInverse(view);
-    inverseUnjitteredProjectionMatrix = glm::inverse(projectionAlwaysUnjittered);
-    
+
     if (applyJitter) projection = FE_Math::createHaltonJitterProjectionMatrix(projection, currentJitter, width, height);
     
     cameraMatrix = projection * view;
 }
 
-void Camera::Matrix(Shader& shader, const char* uniform)
-{
+void Camera::Matrix(Shader& shader, const char* uniform){
     // Exports the camera matrix to the Vertex Shader
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
 
-void Camera::saveLastMaticies()
-{
+void Camera::saveLastMaticies(){
     previousJitter = currentJitter; 
     scaledPreviousJitter = scaledCurrentJitter;
     lastCameraMatrix = cameraMatrix; // set the previous
+    
+    hView = view;
+    hProjection = projection;
 }
 
 const glm::vec2 HaltonJitters[8] = {

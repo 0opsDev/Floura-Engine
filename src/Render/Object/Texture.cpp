@@ -46,9 +46,7 @@ void Texture::createColour(glm::vec4 colour, const char* texType, GLuint slot)
     unsigned char fallbackPixel[] = { r , g, b , a};
     bytes = fallbackPixel;
 
-    // Generates an OpenGL texture object
     glGenTextures(1, &ID);
-    // Assigns the texture to a Texture Unit
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, ID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -75,15 +73,13 @@ void Texture::createColour(glm::vec4 colour, const char* texType, GLuint slot)
         handle = glGetTextureHandleARB(ID);
         glMakeTextureHandleResidentARB(handle);
     }
-
-    // Unbinds the OpenGL Texture object so that it can't accidentally be modified
+    
     glBindTexture(GL_TEXTURE_2D, 0);
     //LogConsole::print("Texture loading finished");
     created = true;
 }
 
-void Texture::createTexture(const char* image, const char* texType, GLuint slot)
-{
+void Texture::createTexture(const char* image, const char* texType, GLuint slot){
     path = image;
     //LogConsole::print("Texture loading started");
     // Assigns the type of the texture to the texture object
@@ -106,25 +102,23 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
     if (!bytes) {
         std::cerr << "\nFailed to load texture: " << image << "\n" << std::endl;
         static unsigned char fallbackPixel[] = {
-            // row 1
-            255, 0, 255, 0, 0, 0, 255, 0, 255, 0, 0, 0,
-            // row 2
-            0, 0, 0, 255, 0, 255, 0, 0, 0, 255, 0, 255,
-            // row 3
-            255, 0, 255, 0, 0, 0, 255, 0, 255, 0, 0, 0,
-            // row 4
-            0, 0, 0, 255, 0, 255, 0, 0, 0, 255, 0, 255,
+            255, 0, 255, 0, 0, 0, 255, 0, 255, 0, 0, 0,            // row 1
+            0, 0, 0, 255, 0, 255, 0, 0, 0, 255, 0, 255,            // row 2
+            255, 0, 255, 0, 0, 0, 255, 0, 255, 0, 0, 0,            // row 3
+            0, 0, 0, 255, 0, 255, 0, 0, 0, 255, 0, 255,            // row 4
         };
         widthImg = 4; heightImg = 4; numColCh = 3;
         bytes = fallbackPixel; 
         skipstbi = true;
     }
 
-    // Generates an OpenGL texture object
+    GLenum format = GL_RGB;
+    if (numColCh == 4)format = GL_RGBA;
+    //else if (numColCh == 3) format = GL_RGB;
+    else if (numColCh == 1) format = GL_RED;
+    
     glGenTextures(1, &ID);
-    // Assigns the texture to a Texture Unit
     glActiveTexture(GL_TEXTURE0 + slot);
-
     glBindTexture(GL_TEXTURE_2D, ID);
     
     if (linearFilter && !skipstbi){
@@ -136,61 +130,28 @@ void Texture::createTexture(const char* image, const char* texType, GLuint slot)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
     
-
-
-    // Configures the way the texture repeats (if it does at all)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    if (numColCh == 4)
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGBA, // GL_RGBA
-            widthImg,
-            heightImg,
-            0,
-            GL_RGBA,
-            GL_UNSIGNED_BYTE,
-            bytes
-        );
-    else if (numColCh == 3)
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGB, //was GL_RGB
-            widthImg,
-            heightImg,
-            0,
-            GL_RGB,
-            GL_UNSIGNED_BYTE,
-            bytes
-        );
-    else if (numColCh == 1)
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RED,
-            widthImg,
-            heightImg,
-            0,
-            GL_RED,
-            GL_UNSIGNED_BYTE,
-            bytes
-        );
-    // Generates MipMaps
+    
+    glTexImage2D(
+    GL_TEXTURE_2D,
+    0,
+    format,
+    widthImg,
+    heightImg,
+    0,
+    format,
+    GL_UNSIGNED_BYTE,
+    bytes
+    );
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    if (!skipstbi)
-    // Deletes the image data as it is already in the OpenGL Texture object
-    stbi_image_free(bytes);
+    if (!skipstbi) stbi_image_free(bytes); // Deletes the image data as it is already in the OpenGL Texture object
 
     if (GLAD_GL_ARB_bindless_texture) {
         handle = glGetTextureHandleARB(ID);
 		glMakeTextureHandleResidentARB(handle);
     }
-
-    // Unbinds the OpenGL Texture object so that it can't accidentally be modified
     glBindTexture(GL_TEXTURE_2D, 0);
     //LogConsole::print("Texture loading finished");
     created = true;
@@ -248,25 +209,20 @@ void Texture::handleToShader(Shader& shader, const char* uniform)
 	shader.setHandleui64ARB(uniform, handle);
 }
 
-void Texture::Bind()
-{
+void Texture::Bind(){
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, ID);
-    //std::cout << "Texture bound: " << unit << std::endl;
 }
 
-void Texture::Unbind()
-{
+void Texture::Unbind(){
     glBindTexture(GL_TEXTURE_2D, 0);
-    //std::cout << "Texture unbound: " << unit << std::endl;
 }
 
 void Texture::Delete()
 {
 	// delete the handle first
-    if (GLAD_GL_ARB_bindless_texture) {
+    if (GLAD_GL_ARB_bindless_texture)
         glMakeTextureHandleNonResidentARB(handle);
-	}
     glDeleteTextures(1, &ID);
     //std::cout << "Texture deleted: " << ID << std::endl;
 }

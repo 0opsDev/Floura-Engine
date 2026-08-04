@@ -13,11 +13,11 @@
 #include <glm/gtx/quaternion.hpp>
 #include <Render/Handler/RenderClass.h>
 #include "Systems/Physics/Collision.h"
-#include <xhash>
 #include <map>
 #include <iterator>
 #include "Render/Animated/animdata.h"
 #include <Systems/Physics/voxelizer.h>
+#include <Render/Object/texture3D.h>
 
 #define MAX_BONE_INFLUENCE 4
 
@@ -26,7 +26,11 @@ public:
 
 	uint64_t UUID;// modelID
 	uint64_t renderID;
-	std::vector<uint64_t>instanceUUIDs;
+	//std::vector<uint64_t>instanceUUIDs;
+	struct instaceData{
+		uint64_t ID;
+	};
+	std::vector<instaceData> instacesData;
 
 	bool disableConstructorLoadingModelFlag = false; // for threadding, if true it'll stop the class constructor calling the load function 
 	bool disableInitialMeshUploadToVBOFlag = false; // for threading, stops the uploading to the gpu outside the opengl thread (very big nono, opengl doesnt like)
@@ -34,6 +38,7 @@ public:
 	bool doLodsDraw = false;
 	int forceLodLevel = -1;
 	bool loaded = false; // blocks certain calls unless loaded
+	bool sdfCompatible = true;;
 	
 	struct transformation {
 		glm::vec3 position = glm::vec3(0.0f);
@@ -73,7 +78,14 @@ public:
 	void drawInstance(Shader& shader, Camera Camera, int instanceCount);
 
 	void createMeshAABBs();
-
+	
+	void generateMeshBlases(int mintri, int maxDepth);
+	
+	void SDFgenerate(int sliceSize, GLuint slot);
+	void SDFgenerateVox(int accelSteps, int accelMinTri, int sliceSize, GLuint slot);
+	void SDFgenerateBlas(int sliceSize, GLuint slot);
+	void SDFgeneratePrim(int sliceSize, GLuint slot);
+	
 	void createVoxelMesh(int steps, int minTri, glm::vec3 minSize, bool doVertexSnap);
 	void createVoxelModel(int steps, int minTri, glm::vec3 minSize);
 	
@@ -84,6 +96,7 @@ public:
 	Collision::AABB ModelBounds;
 	///std::vector<std::vector<Collision::AABB>> VoxelMeshes;
 	std::vector<std::vector<voxelizer::voxelObj>> VoxelMeshes;
+	std::vector<Texture3D *> meshSDFs;
 	std::vector<Mesh> meshes;
 	std::vector<Collision::rubiksCubePoints> meshAabbPoints;
 
@@ -97,6 +110,7 @@ public:
 
 	
 	std::string path; 
+	unsigned int hash;
 	
 private:
 	std::vector<std::string> loadedTexPath;

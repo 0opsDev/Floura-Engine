@@ -7,19 +7,22 @@
 #include "Render/window/WindowHandler.h"
 #include <Scene/Object/Entity.h>
 #include "Scene/scene.h"
-#include "Render/Cube/CubeVisualizer.h"
+#include "Render/Handler/CubeVisualizer.h"
 #include <Render/Animated/animator.h>
 #include "Render/Handler/RenderHandler.h"
 #include "utils/timeUtil.h"
 #include "render/procedural/terrain.h"
 #include "render/procedural/ocean.h"
 #include "Systems/Physics/physworld.h"
+#include <Systems/Physics/BVH.h>
+
+#include "Systems/Physics/SDF.h"
 
 
 //uint64_t gunID = 0;
 //uint64_t renderID = 0;
 
-uint64_t pivotPointID = 0;
+uint64_t FE_LAYER::pivotPointID = 0;
 uint64_t victimPointID = 0;
 
 ocean* t;
@@ -27,7 +30,7 @@ Shader temporaryTerrainShader;
 int size = 50;
 
 void FE_LAYER::init(){
-	return;
+	//return;
 	//Collision::KDsplit kds = Collision::KDsplitVolume(glm::vec3(0.0), glm::vec3(1.0, 2.0, 1.0));
 	
 	//return;
@@ -57,22 +60,48 @@ void FE_LAYER::init(){
 	
 	return;
 	*/
-	//"temp/stanford_dragon_pbr.glb" // "temp/sponzacrytek/sponza.obj" // "Assets/Models/basic shapes 2/sphere.gltf" // temp/stanforddragon/stanforddragon.gltf
+	//return;
+	//"temp/stanford_dragon_pbr.glb" // "temp/sponzacrytek/sponza.obj" // "Assets/Models/basic shapes 2/sphere.gltf" // temp/stanforddragon/stanforddragon.gltf // temp/fireplace_room/fireplace_room.obj
 	//victimPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"VictimPoint (FE_LAYER.CPP)", "Assets/Models/pdf_teto/scene.gltf", glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(0.100), glm::vec3(0.0f) );
-	pivotPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"PivPoint (FE_LAYER.CPP)", "temp/stanforddragon/stanforddragon.gltf", glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(1.0), glm::vec3(0.0f) );
+	// temp/bistro/assets/annasbistro/annasbistro.gltf
+	//pivotPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"PivPoint (FE_LAYER.CPP)", "Assets/Models/basic shapes 2/sphere.gltf", glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(1.0), glm::vec3(0.0f) );
+	//pivotPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"PivPoint (FE_LAYER.CPP)", "temp/fireplace_room/fireplace_room.obj", glm::vec3(-2.0f, 0.0f, 0.0f),glm::vec3(1.0), glm::vec3(0.0f) );
+	//pivotPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"PivPoint (FE_LAYER.CPP)", "temp/stanforddragon/stanforddragon.gltf", glm::vec3(-2.0f, 0.0f, 0.0f),glm::vec3(1.0), glm::vec3(0.0f) );
+	//pivotPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"PivPoint (FE_LAYER.CPP)", "temp/erato/erato.obj", glm::vec3(-2.0f, 0.0f, 0.0f),glm::vec3(0.1), glm::vec3(0.0f) );
+	//pivotPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"PivPoint (FE_LAYER.CPP)", "temp/sponzacrytek/sponza.obj", glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(1.0), glm::vec3(0.0f) );
+	//pivotPointID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"PivPoint (FE_LAYER.CPP)", "temp/bistro/assets/annasbistro/annasbistro.gltf", glm::vec3(0.0f, 0.0f, 0.0f),glm::vec3(1.0), glm::vec3(0.0f) );
+	
+	//fireplace_room
 	
 	for (int i = 0; i < Scene::entityObjects.size(); ++i) 
 		if (pivotPointID == Scene::entityObjects[i]->UUID){
 			int mIndex = RenderHandler::fetchModelIndex(Scene::entityObjects[i]->component.render.renderID);
-			//RenderHandler::models[mIndex].model->createVoxelMesh(8, 0, glm::vec3(0.001f), false); // voxelize model instead of mesh
-			RenderHandler::models[mIndex].model->createVoxelMesh(12, 0, glm::vec3(0.1f), false); // voxelize model instead of mesh
+			//RenderHandler::models[mIndex].model->generateMeshBlases(0, 8); // 8 is the lowest ill steep
+			//RenderHandler::models[mIndex].model->SDFgenerateBlas(64, 15); // 
+			//RenderHandler::models[mIndex].model->SDFgeneratePrim(64, 15);
+			//RenderHandler::models[mIndex].model->SDFgenerateBlas(64, 15, "Cache/SDF/temp/"); // 
+			//RenderHandler::models[mIndex].model->SDFgeneratePrim(32, 15, "Cache/SDF/temp/");
+			//flouraSDF::uploadToLSDFScene(Scene::entityObjects[i]->component.render.instanceUUID);
+
+			//RenderHandler::models[mIndex].model->SDFgenerate(12, 4, 32,  0,"Cache/SDF/temp/");
+			
+			//blasT = BVH::blasGenKD(RenderHandler::models[mIndex].model->meshes[0].vertices, RenderHandler::models[mIndex].model->meshes[0].indices, RenderHandler::models[mIndex].model->ModelBounds, 48, 4, glm::mat4(1.0f));
+			//std::cout << "leaf count: " << blasT.size() << std::endl;
+			
+				//voxelizer::bakeMeshSDF(RenderHandler::models[mIndex].model->meshes[0].vertices, RenderHandler::models[mIndex].model->meshes[0].indices, RenderHandler::models[mIndex].model->ModelBounds, 64, *RenderClass::Susanne64, 0);
+				//RenderHandler::models[mIndex].model->meshes[0].vertices;
+				//RenderHandler::models[mIndex].model->createVoxelMesh(8, 0, glm::vec3(0.001f), false); // voxelize model instead of mesh
+				//RenderHandler::models[mIndex].model->createVoxelMesh(12, 0, glm::vec3(0.1f), false); // voxelize model instead of mesh
+			//}
 		}
+	//GL_RED, GL_UNSIGNED_BYTE, 1
+	//FlouraImageWrite::writeImage3DToDisk(RenderClass::Susanne64->ID, RenderClass::Susanne64->width, RenderClass::Susanne64->height, RenderClass::Susanne64->depth, "Assets/volume/SDF/standfordpbr_64.png", GL_RGB, GL_UNSIGNED_BYTE, 3);
 	
 	// upload to buffer (cause not on entity yet)
-	for (int i = 0; i < Scene::entityObjects.size(); ++i) 
-		if (pivotPointID == Scene::entityObjects[i]->UUID){
-				SceneDescription::uploadToVoxelScene(Scene::entityObjects[i]->component.render.instanceUUID);
-			}
+	//for (int i = 0; i < Scene::entityObjects.size(); ++i) 
+		//if (pivotPointID == Scene::entityObjects[i]->UUID){
+				//SceneDescription::uploadToVoxelScene(Scene::entityObjects[i]->component.render.instanceUUID);
+			//}
 	
 	
 	/*
@@ -122,8 +151,7 @@ static void temporaryUpdateFunction(ocean* inputT, glm::vec3 p, glm::vec3 S, glm
 }
 
 //glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
-void FE_LAYER::Update()
-{
+void FE_LAYER::Update(){
 	return;
 	glm::vec3 pPos = glm::vec3(0.0f, 0.0f, 0.0f);
 	
@@ -198,8 +226,7 @@ static void temporaryPreviousUpdateFunction(ocean* inputT, glm::vec3 p, glm::vec
 
 	inputT->updatePrevTranformation();
 }
-void FE_LAYER::onBeginningOfFrame()
-{
+void FE_LAYER::onBeginningOfFrame(){
 	return;
 	temporaryUpdateFunction(t, glm::vec3(0.0), glm::vec3(1.0), glm::vec3(0.0));
 }
@@ -238,8 +265,7 @@ static glm::vec3 hash33(glm::vec3 p) {
 	return np;
 }
 
-void FE_LAYER::draw()
-{
+void FE_LAYER::draw(){
 	return;
 	//return;
 	//temp
@@ -256,7 +282,7 @@ void FE_LAYER::draw()
 						RenderHandler::models[mIndex].model->globalTransformation.rotation
 						);
 					glm::vec3 rColour = hash33(RenderHandler::models[mIndex].model->VoxelMeshes[z][x].voxel.position);
-					RenderClass::WhiteCube->draw(gModelMatrix * voxelMatrix, rColour, 1.0, false, false);
+					CubeVisualizer::draw(gModelMatrix * voxelMatrix, rColour, 1.0, false, false);
 				}
 			}
 		}

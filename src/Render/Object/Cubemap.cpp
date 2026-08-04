@@ -56,15 +56,20 @@ void Cubemap::loadCubeMap(std::string path)
 		if (data)
 		{
 			stbi_set_flip_vertically_on_load(false);
-			glTexImage2D
-			(
+			
+			format = GL_RGB;
+			if (numColCh == 4)format = GL_RGBA;
+			//else if (numColCh == 3) format = GL_RGB;
+			else if (numColCh == 1) format = GL_RED;
+			
+			glTexImage2D(
 				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
 				0,
-				GL_RGBA,
+				format,
 				width,
 				height,
 				0,
-				GL_RGBA,
+				format,
 				GL_UNSIGNED_BYTE,
 				data
 			);
@@ -74,8 +79,7 @@ void Cubemap::loadCubeMap(std::string path)
 
 
 		}
-		else
-		{
+		else{
 			LogConsole::print("Failed to load texture: " + facesCubemap[i]);
 			stbi_image_free(data);
 		}
@@ -137,11 +141,11 @@ void Cubemap::resizeCubeMap(glm::vec2 resolution)
 		glTexImage2D(
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
 			0,
-			GL_RGBA,
+			format, // different internal formats will cause issues with this but ehhh
 			(int)resolution.x,
 			(int)resolution.y,
 			0,
-			GL_RGBA,
+			format,
 			GL_UNSIGNED_BYTE,
 			NULL
 		);

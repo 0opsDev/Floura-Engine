@@ -5,59 +5,9 @@
 #include <utils/FE_math.h>
 #include <array>
 #include <glm/gtx/norm.hpp>
-
 #include "Scene/LightingHandler.h"
+#include <limits>
 
-Collision::Frustum Collision::createFrustumFromCamera(glm::mat4 m)
-{
-	
-	Frustum f;
-	
-	f.leftFace.normal.x = m[0][3] + m[0][0];
-	f.leftFace.normal.y = m[1][3] + m[1][0];
-	f.leftFace.normal.z = m[2][3] + m[2][0];
-	f.leftFace.distance = m[3][3] + m[3][0];
-
-	f.rightFace.normal.x = m[0][3] - m[0][0];
-	f.rightFace.normal.y = m[1][3] - m[1][0];
-	f.rightFace.normal.z = m[2][3] - m[2][0];
-	f.rightFace.distance = m[3][3] - m[3][0];
-
-	f.bottomFace.normal.x = m[0][3] + m[0][1];
-	f.bottomFace.normal.y = m[1][3] + m[1][1];
-	f.bottomFace.normal.z = m[2][3] + m[2][1];
-	f.bottomFace.distance = m[3][3] + m[3][1];
-
-	f.topFace.normal.x = m[0][3] - m[0][1];
-	f.topFace.normal.y = m[1][3] - m[1][1];
-	f.topFace.normal.z = m[2][3] - m[2][1];
-	f.topFace.distance = m[3][3] - m[3][1];
-
-	f.nearFace.normal.x = m[0][3] + m[0][2];
-	f.nearFace.normal.y = m[1][3] + m[1][2];
-	f.nearFace.normal.z = m[2][3] + m[2][2];
-	f.nearFace.distance = m[3][3] + m[3][2];
-
-	f.farFace.normal.x = m[0][3] - m[0][2];
-	f.farFace.normal.y = m[1][3] - m[1][2];
-	f.farFace.normal.z = m[2][3] - m[2][2];
-	f.farFace.distance = m[3][3] - m[3][2];
-	
-	auto normalizePlane = [](plane& p) {
-		float mag = glm::length(p.normal);
-		p.normal /= mag;
-		p.distance /= mag;
-	};
-	
-	normalizePlane(f.leftFace);
-	normalizePlane(f.rightFace);
-	normalizePlane(f.bottomFace);
-	normalizePlane(f.topFace);
-	normalizePlane(f.nearFace);
-	normalizePlane(f.farFace);
-
-	return f;
-}
 
 bool Collision::showBoxCollider = false;
 
@@ -141,24 +91,14 @@ Collision::rubiksCubePoints Collision::fetchFurthestVertices(const std::vector<V
 	return fp;
 }
 
-Collision::rubiksCubePoints Collision::aabbToRubixCubePoints(const glm::vec3 p, glm::vec3 s)
-{
+Collision::rubiksCubePoints Collision::aabbToRubixCubePoints(const glm::vec3 p, glm::vec3 s){
 	rubiksCubePoints nPoints;
-
 	
 	//glm::vec3 hs = s * 0.5f; // half scale
 	glm::vec3 hs = s; // half scale
 
 	glm::vec3 pos = glm::vec3(p.x + hs.x, p.y + hs.y, p.z + hs.z);
 	glm::vec3 neg = glm::vec3(p.x - hs.x, p.y - hs.y, p.z - hs.z);
-
-	//float px = p.x + hs.x; // right
-	//float py = p.y + hs.y; //up
-	//float pz = p.z + hs.z; // front
-
-	//float nx = p.x - hs.x; // left
-	//float ny = p.y - hs.y; // down
-	//float nz = p.z - hs.z; // back
 
 	// up
 	nPoints.ULF = glm::vec3(neg.x, pos.y, pos.z); // up left front
@@ -260,6 +200,23 @@ Collision::rubiksCubePoints Collision::transformRubiks(const rubiksCubePoints& p
 	return newpoints;
 }
 
+Collision::AABB Collision::rootNodeFromRubixPoints(Collision::rubiksCubePoints points, glm::mat4 ModelMatrix){
+	Collision::AABB newNode;
+	Collision::rubiksCubePoints newpoints = Collision::transformRubiks(points, ModelMatrix);
+
+	newNode = Collision::createAABBfromRubiksCubePoints(newpoints);
+	newNode.size = FE_Math::pad(newNode.size, 0.1f);
+	return newNode;
+}
+
+Collision::AABB Collision::rootNodeFromRubixPointsNoPadding(Collision::rubiksCubePoints points, glm::mat4 ModelMatrix){
+	Collision::AABB newNode;
+	Collision::rubiksCubePoints newpoints = Collision::transformRubiks(points, ModelMatrix);
+
+	newNode = Collision::createAABBfromRubiksCubePoints(newpoints);
+	return newNode;
+}
+
 Collision::KDsplit Collision::KDsplitVolume(glm::vec3 p, glm::vec3 extents){
 	KDsplit nKDS;
 	
@@ -356,6 +313,10 @@ Collision::HitResult Collision::advancedConstrainPoint(glm::vec3 vp, glm::vec3 c
 	hitResult.distance = distance;
 
 	return hitResult;
+}
+
+glm::vec3 Collision::nearestPointOnAABB(const glm::vec3& p, const glm::vec3& pos, const glm::vec3& extents){
+	return glm::clamp(p, pos - extents, pos + extents); 
 }
 
 Collision::HitResult Collision::AABBvsAABB(
@@ -483,6 +444,7 @@ Collision::HitResult Collision::AABBvsPoint(
 		}
 	}
 	// else no collision
+	if (data.isColliding) data.depth = glm::distance(data.lastHit, point);
 
 	return data;
 }
@@ -557,6 +519,272 @@ Collision::HitResult Collision::AABBvsSphere(const glm::vec3 posB, const glm::ve
 	}
 
 	return newResult;
+}
+
+// https://github.com/juj/MathGeoLib/tree/master (thanks jukka), i didnt feel like writing this
+/*
+	Copyright Jukka Jylänki
+	
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+
+*/
+
+glm::vec3 Collision::closestPointOnTriangle(const glm::vec3& P, const glm::vec3& A, const glm::vec3& B,
+	const glm::vec3& C){
+	
+	/** The code for Triangle-float3 test is from Christer Ericson's Real-Time Collision Detection, pp. 141-142. */
+
+	// Check if P is in vertex region outside A.
+	glm::vec3 ab = B - A;
+	glm::vec3 ac = C- A;
+	glm::vec3 ap = P - A;
+	float d1 = glm::dot(ab, ap);
+	float d2 = glm::dot(ac, ap);
+	if (d1 <= 0.f && d2 <= 0.f)
+		return A; // Barycentric coordinates are (1,0,0).
+
+	// Check if P is in vertex region outside B.
+	glm::vec3 bp = P - B;
+	float d3 = glm::dot(ab, bp);
+	float d4 = glm::dot(ac, bp);
+	if (d3 >= 0.f && d4 <= d3)
+		return B; // Barycentric coordinates are (0,1,0).
+
+	// Check if P is in edge region of AB, and if so, return the projection of P onto AB.
+	float vc = d1*d4 - d3*d2;
+	if (vc <= 0.f && d1 >= 0.f && d3 <= 0.f)
+	{
+		float v = d1 / (d1 - d3);
+		return A + v * ab; // The barycentric coordinates are (1-v, v, 0).
+	}
+
+	// Check if P is in vertex region outside C.
+	glm::vec3 cp = P - C;
+	float d5 = glm::dot(ab, cp);
+	float d6 = glm::dot(ac, cp);
+	if (d6 >= 0.f && d5 <= d6)
+		return C; // The barycentric coordinates are (0,0,1).
+
+	// Check if P is in edge region of AC, and if so, return the projection of P onto AC.
+	float vb = d5*d2 - d1*d6;
+	if (vb <= 0.f && d2 >= 0.f && d6 <= 0.f)
+	{
+		float w = d2 / (d2 - d6);
+		return A + w * ac; // The barycentric coordinates are (1-w, 0, w).
+	}
+
+	// Check if P is in edge region of BC, and if so, return the projection of P onto BC.
+	float va = d3*d6 - d5*d4;
+	if (va <= 0.f && d4 - d3 >= 0.f && d5 - d6 >= 0.f)
+	{
+		float w = (d4 - d3) / (d4 - d3 + d5 - d6);
+		return B + w * (C - B); // The barycentric coordinates are (0, 1-w, w).
+	}
+
+	// P must be inside the face region. Compute the closest point through its barycentric coordinates (u,v,w).
+	float denom = 1.f / (va + vb + vc);
+	float v = vb * denom;
+	float w = vc * denom;
+	return A + ab * v + ac * w;
+}
+
+float Collision::distanceToClosestPointOnMesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, glm::vec3 &P){
+	float ld = std::numeric_limits<float>::max();
+	
+	for (int i = 0; i < indices.size(); i += 3){
+		unsigned int &i0 = indices[i];
+		unsigned int &i1 = indices[i + 1];
+		unsigned int &i2 = indices[i + 2];
+        
+		if (i0 >= vertices.size() ||
+		i1 >= vertices.size() ||
+		i2 >= vertices.size())
+			continue;
+		
+		glm::vec3 &a = vertices[i0].position;
+		glm::vec3 &b = vertices[i1].position;
+		glm::vec3 &c = vertices[i2].position;
+		
+		glm::vec3 np = closestPointOnTriangle(P, a, b, c);
+		float nd = glm::distance(np, P);
+		ld = glm::min(ld, nd);
+	}
+	
+	return ld;
+}
+
+float Collision::distanceToClosestPointOnMeshSDF(std::vector<Vertex>& vertices, std::vector<GLuint>& indices,
+	glm::vec3 &P){
+	bool anyHit = false;
+	float minDist = std::numeric_limits<float>::max();
+	glm::vec3 cP(0.0f);
+	glm::vec3 cA(0.0f);glm::vec3 cB(0.0f);glm::vec3 cC(0.0f);
+	
+	for (int i = 0; i < indices.size(); i += 3){
+		unsigned int &i0 = indices[i];
+		unsigned int &i1 = indices[i + 1];
+		unsigned int &i2 = indices[i + 2];
+        
+		if (i0 >= vertices.size() ||
+		i1 >= vertices.size() ||
+		i2 >= vertices.size())
+			continue;
+		
+		glm::vec3 &a = vertices[i0].position;
+		glm::vec3 &b = vertices[i1].position;
+		glm::vec3 &c = vertices[i2].position;
+		
+		glm::vec3 np = closestPointOnTriangle(P, a, b, c);
+		
+		float nd = glm::distance(np, P);
+		if (nd < minDist){
+			anyHit = true;
+			minDist = nd;
+			cP = np;
+			
+			// pos
+			cA = a;
+			cB = b;
+			cC = c;
+		}
+	}
+	if (!anyHit) return 0.0f;
+	// if directions are opossing, then flip ld (calc face normal here to cut down on calcs)
+	if (glm::dot(P - cP, FE_Math::faceNormalFromTriangle(cA, cB, cC)) < 0.0f)
+		minDist = -minDist;
+	
+	return minDist;
+}
+
+glm::vec3 Collision::distanceToClosestPointOnMeshSDF_PlusUV(std::vector<Vertex>& vertices, std::vector<GLuint>& indices,
+	glm::vec3 &P){
+	bool anyHit = false;
+	float minDist = std::numeric_limits<float>::max();
+	glm::vec3 cP(0.0f);
+	// i didnt know apparently you dont need = then the type.. this is so much better :3
+	glm::vec3 cA(0.0f);glm::vec3 cB(0.0f);glm::vec3 cC(0.0f);
+	glm::vec2 auv(0.0);glm::vec2 buv(0.0);glm::vec2 cuv(0.0);
+	
+	
+	for (int i = 0; i < indices.size(); i += 3){
+		unsigned int &i0 = indices[i];
+		unsigned int &i1 = indices[i + 1];
+		unsigned int &i2 = indices[i + 2];
+        
+		if (i0 >= vertices.size() ||
+		i1 >= vertices.size() ||
+		i2 >= vertices.size())
+			continue;
+		
+		glm::vec3 &a = vertices[i0].position;
+		glm::vec3 &b = vertices[i1].position;
+		glm::vec3 &c = vertices[i2].position;
+		
+		glm::vec3 np = closestPointOnTriangle(P, a, b, c);
+		
+		float nd = glm::distance(np, P);
+		if (nd < minDist){
+			anyHit = true;
+			minDist = nd;
+			cP = np;
+			
+			// pos
+			cA = a;
+			cB = b;
+			cC = c;
+			
+			// uv
+			auv = vertices[i0].texUV;
+			buv = vertices[i1].texUV;
+			cuv = vertices[i2].texUV;
+		}
+	}
+	if (!anyHit) return glm::vec3(0.0f);
+
+	// if directions are opossing, then flip ld (calc face normal here to cut down on calcs)
+	if (glm::dot(P - cP, FE_Math::faceNormalFromTriangle(cA, cB, cC)) < 0.0f)
+		minDist = -minDist;
+	
+	// calc uv with return instead of every cycle to cut down on calcs
+	return glm::vec3(minDist, FE_Math::uvPosFromVertexAndPoint(cA,cB,cC, auv, buv, cuv, cP));
+}
+
+
+glm::vec3 Collision::distanceToClosestPointOnMeshSDFAccel_PlusUV(std::vector<Vertex>& vertices, std::vector<voxelAccel>& voxelAccel, glm::vec3 &P){
+	bool anyHit = false;
+	float minDist = std::numeric_limits<float>::max();
+	glm::vec3 cP(0.0f);
+	
+	int closestVoxelIndex = -1;
+	
+	// gotta find the closest point on the aabb
+	for (int i = 0; i < voxelAccel.size(); ++i){
+		Collision::AABB v = voxelAccel[i].voxel;
+		// pos, min and max
+		const glm::vec3 np = Collision::nearestPointOnAABB(P, v.position, v.size);
+		float nd = glm::distance(np, P);
+		
+		if (nd < minDist){
+			anyHit = true;
+			minDist = nd;
+			cP = np;
+			closestVoxelIndex = i;
+		}
+	}
+	
+	if (!anyHit || closestVoxelIndex < 0) return glm::vec3(0.0f);
+	
+	// reset
+	anyHit = false;
+	minDist = std::numeric_limits<float>::max();
+	cP = glm::vec3(0.0f);
+	std::vector<GLuint> affectedIndices = voxelAccel[closestVoxelIndex].indices;
+	
+	const Vertex* cV1 = nullptr;
+	const Vertex* cV2 = nullptr;
+	const Vertex* cV3 = nullptr;
+	
+	for (int i = 0; i < affectedIndices.size(); i += 3){
+		const unsigned int &i0 = affectedIndices[i];
+		const unsigned int &i1 = affectedIndices[i + 1];
+		const unsigned int &i2 = affectedIndices[i + 2];
+        
+		if (i0 >= vertices.size() ||
+		i1 >= vertices.size() ||
+		i2 >= vertices.size())
+			continue;
+		
+		const glm::vec3 np = Collision::closestPointOnTriangle(P, vertices[i0].position, vertices[i1].position, vertices[i2].position);
+		
+		float nd = glm::distance(np, P);
+		if (nd < minDist){
+			anyHit = true;
+			minDist = nd;
+			cP = np;
+			
+			cV1 = &vertices[i0];
+			cV2 = &vertices[i1];
+			cV3 = &vertices[i2];
+		}
+	}
+	if (!anyHit) return glm::vec3(0.0f);
+
+	// if directions are opossing, then flip ld (calc face normal here to cut down on calcs)
+	if (glm::dot(P - cP, FE_Math::faceNormalFromTriangle(cV1->position, cV2->position, cV3->position)) < 0.0f)
+		minDist = -minDist;
+	
+	// calc uv with return instead of every cycle to cut down on calcs
+	return glm::vec3(minDist, FE_Math::uvPosFromVertexAndPoint(cV1->position,cV2->position,cV3->position, cV1->texUV, cV2->texUV, cV3->texUV, cP));
 }
 
 bool Collision::TrianglevsPoint(
@@ -695,8 +923,7 @@ Collision::HitResult Collision::SATTrianglevsTriangle(
 	return data;
 }
 
-Collision::HitResult Collision::SATTriangleVSAABB(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& AABBpos, const glm::vec3& AABBsize)
-{
+Collision::HitResult Collision::SATTriangleVSAABB(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& AABBpos, const glm::vec3& AABBsize){
 	HitResult data;
 	data.isColliding = false;
 	float minOverlap = std::numeric_limits<float>::max();
@@ -760,6 +987,19 @@ Collision::HitResult Collision::SATTriangleVSAABB(const glm::vec3& v0, const glm
 	}
 	
 	return data;
+}
+
+Collision::HitResult Collision::NearestPointTriangleVSAABB(const glm::vec3& v0, const glm::vec3& v1,
+	const glm::vec3& v2, const glm::vec3& AABBpos, const glm::vec3& AABBsize){
+	HitResult nHR;
+	nHR.isColliding = true;
+	
+	float furthestPointDist = glm::max(glm::distance(AABBpos, v0), glm::max(glm::distance(AABBpos, v1), glm::distance(AABBpos, v2)));
+	
+	glm::vec3 tNP = closestPointOnTriangle(AABBpos, v0, v1, v2);
+	nHR = Collision::AABBvsPoint(AABBpos, AABBsize, tNP);
+	
+	return  nHR;
 }
 
 // SAT
@@ -836,8 +1076,7 @@ Collision::HitResult Collision::SpherevsSphere(
 }
 
 
-bool Collision::SphereVsPoint(glm::vec3 spherePoint, float radius, glm::vec3 point)
-{
+bool Collision::SphereVsPoint(glm::vec3 spherePoint, float radius, glm::vec3 point){
 	// distance between two points
 	float distance = glm::distance(spherePoint, point);
 

@@ -25,6 +25,8 @@ in vec4 previousPos;
 in vec2 uvscale;
 in vec2 texcoord2;
 
+in mat4 ioCamMatrix;
+
 //uint64_t
 // these need to move to bindless
 uniform uint64_t texture_diffuse_Handle;
@@ -145,7 +147,7 @@ bool boolBayerNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (
 
 float linearizeDepth(float depth, float NP, float FP) { return (2.0 * NP * FP) / (FP + NP - (depth * 2.0 - 1.0) * (FP - NP)); }
 
-float heightScale = 1.5;
+float heightScale = 0.1;
 bool invertPOM = true;
 float minLayers = 8.0;
 float maxLayers = 32.0;
@@ -186,6 +188,13 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir, sampler2D heightsamp, float s
 	vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
 
 	return finalTexCoords;
+}
+
+float calcPOMdepth(vec3 gp){
+	vec4 clipPos = ioCamMatrix * vec4(gp, 1.0);
+	float ndcDepth = clipPos.z / clipPos.w;
+	
+	return ndcDepth * 0.5 + 0.5;
 }
 
 void main()
@@ -249,8 +258,14 @@ void main()
 	float displacement = 0.0f;
 	if (invertPOM) displacement = 1.0 - texture(nSamp, pomCoords).a; // Fetch normal from texture
 	else displacement = texture(nSamp, pomCoords).a; // Fetch normal from texture
-	gPosition = crntPos - (normalize(Normal0) * (1.0 - displacement) * heightScale);
-
+	
+	vec3 wpos = crntPos - (normalize(Normal0) * (1.0 - displacement) * heightScale);
+	gPosition = wpos;
+	
+	//albedoTex.r = displacement;
+	
+	gl_FragDepth = calcPOMdepth(wpos);
+	
 	gNormal.rgb = CalcNewNormal(pomCoords);
     
 	gNormal.a = displacement;

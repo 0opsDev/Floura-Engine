@@ -1,12 +1,12 @@
 #include "Render/Shader/renderTarget.h"
-#include <Render/passes/geometry/geometryPass.h>
-#include <Render/passes/lighting/raytracer.h>
+#include <Render/pipeline/prebuilt_pipelines/geometryPass.h>
+//#include <Render/pipeline/prebuilt_pipelines/depreciated/raytracer.h>
 #include <Render/window/WindowHandler.h>
-#include <utils/logConsole.h>
 #include "Scene/scene.h"
 #include <glm/gtx/compatibility.hpp>
-#include <Render/passes/post/historyPass.h>
-#include "Render/passes/dbg/dbgPass.h"
+#include  "Render/pipeline/prebuilt_pipelines/historyPass.h"
+#include  "Render/pipeline/prebuilt_pipelines/dbgPass.h"
+#include <Render/pipeline/prebuilt_pipelines/swrt.h>
 
 int renderTarget::tempWidth;
 int renderTarget::tempHeight;
@@ -77,33 +77,7 @@ void renderTarget::smInit(glm::vec2 res)
 	}
 }
 
-void renderTarget::setupSGFBO(unsigned int width, unsigned int height)
-{
-	/*
-	sgFrameBuffer.width = width;
-	sgFrameBuffer.height = height;
-	
-	Framebuffer::FBOparameters nfbop;
-	nfbop.internalFormat = GL_RGB16F;
-	nfbop.internalFormat = GL_RGBA;
-	nfbop.internalFormat = GL_FLOAT;
-	nfbop.minFilter = GL_TEXTURE_MIN_FILTER;
-	nfbop.MinSamplingFilter = GL_LINEAR;
-	nfbop.MagFilter = GL_TEXTURE_MAG_FILTER;
-	nfbop.MagSamplingFilter = GL_LINEAR;
-	nfbop.wrap1 = GL_TEXTURE_WRAP_S;
-	nfbop.clamp1 = GL_CLAMP_TO_EDGE;
-	nfbop.wrap2 = GL_TEXTURE_WRAP_T;
-	nfbop.clamp2 = GL_CLAMP_TO_EDGE;
-	nfbop.colourAttachment = GL_COLOR_ATTACHMENT0;
-	
-	//Framebuffer::RBOparameters nrbop;
-	//nrbop.doRBO = true;
-	//nrbop.internalFormat = GL_DEPTH24_STENCIL8;
-	//nrbop.attachment = GL_DEPTH_STENCIL_ATTACHMENT;
-	*/
-	//sgFrameBuffer.setup(nfbop, nrbop);
-
+void renderTarget::setupSGFBO(unsigned int width, unsigned int height){
 	// GEN FBO
 	glGenFramebuffers(1, &SGFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, SGFBO);
@@ -251,7 +225,8 @@ void renderTarget::updateFrameBufferResolution(unsigned int width, unsigned int 
 	dbgPass::updateDBGResolution(width, height);
 	GeometryPass::updateGbufferResolution(width, height);
 	HistoryPass::updateHbufferResolution(width, height);
-	raytracer::resizeTexture(width, height);
+	//raytracer::resizeTexture(width, height);
+	FlouraSWRT::updateSWRTbuffersResolution(width, height);
 }
 
 float fps24accumulator = 0;
@@ -274,6 +249,14 @@ void rtFinalUnifroms()
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
 	renderTarget::frameBufferProgram.setInt("depthTexture", 1);
+	
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gAlbedoSpec);
+	renderTarget::frameBufferProgram.setInt("albedo", 2);
+	
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
+	renderTarget::frameBufferProgram.setInt("normal", 3);
 
 	renderTarget::frameBufferProgram.setFloat("gamma", Scene::maincamera.gamma);
 	

@@ -6,9 +6,9 @@
 #include <Editor/UI/ImGui/ImGuiWindow.h>
 #include <Render/Object/Skybox.h>
 //#include <Render/Cube/Billboard.h>
-#include "Render/Cube/CubeVisualizer.h"
 #include <Render/Object/line.h>
 #include "Render/Object/Texture.h"
+#include "Render/Object/texture3D.h"
 #include <glad/gl.h>
 
 class RenderClass
@@ -17,11 +17,9 @@ public:
 
 	// billboard
 	static Shader taaShader;
-	static Shader raymarchShader;
 	static Shader skyGadientShader;
 	static Shader billBoardShader;
 	static Shader gPassShaderBillBoard;
-	static Shader boxShader;
 	static Shader LineShader;
 	static bool renderSkybox;
 	static bool doReflections;
@@ -32,11 +30,9 @@ public:
 	static GLfloat DepthPlane[];
 	static glm::vec3 skyRGBA;
 	static glm::vec3 fogRGBA;
-	static CubeVisualizer* WhiteCube;
 	static Line3D* line;
 	static Texture* bluenoise;
 	static Texture* bayermatrix;
-	static Texture* SusanneSDF64x64r8;
 	static bool doTAA;
 	static bool doBinaryAlpha;
 	static bool animateBinaryAlpha;
@@ -49,10 +45,17 @@ public:
 		glm::quat qRotation = glm::quat(0.0f, 0.0f, 0.0f, 0.0f);
 		glm::vec3 scale = glm::vec3(1.0f);
 	};
-
-	static bool DoDeferredLightingPass; // Toggle for lighting pass
-	static bool DoForwardLightingPass; // Toggle for regular pass
-	static bool DoComputeLightingPass;
+	
+	enum renderersEnum{
+		NONE = 0,
+		DEFERRED = 1,
+		FORWARD = 2,
+		SWRT = 3,
+		SWRT2 = 4
+	};
+	
+	static renderersEnum currentRenderer;
+	static int currentRendererInd;
 
 	static void init(unsigned int width, unsigned int height);
 
@@ -64,15 +67,11 @@ public:
 	
 	static void taaPass();
 	
-	static void raymarchingPass();
-	
 	static void skyGraidentPass();
 
 	static void Cleanup();
 
 	static float gammaCorrect(float input);
-
-	static glm::vec3 gammaCorrect3(glm::vec3 input);
 	
 	static void compileShaders();
 

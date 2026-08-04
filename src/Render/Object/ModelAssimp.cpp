@@ -5,6 +5,9 @@
 #include <assimp/pbrmaterial.h>
 #include <assimp/material.h>
 #include <thread>
+#include "utils/imageWrite.h"
+#include <chrono>
+#include <Systems/Physics/SDF.h>
 
 void Model::updatePosition(glm::vec3 Position)
 {globalTransformation.position = Position;}
@@ -15,13 +18,11 @@ void Model::updateRotation(glm::vec3 Rotation)
 void Model::updateScale(glm::vec3 Scale)
 {globalTransformation.scale = Scale;}
 
-void Model::updateTranformation()
-{
+void Model::updateTranformation(){
 
     gModelMatrix = FE_Math::composeMatrixWDegrees(globalTransformation.position, globalTransformation.scale, globalTransformation.rotation);
 
-    for (unsigned int i = 0; i < meshes.size(); i++)
-    {
+    for (unsigned int i = 0; i < meshes.size(); i++){
         meshes[i].updateMatrix(lModelMatrix[i]);
         meshes[i].updatePosition(localTransformation[i].position);
 		meshes[i].updateRotation(localTransformation[i].rotation);
@@ -44,8 +45,7 @@ void Model::updatePrevRotation(glm::vec3 Rotation)
 void Model::updatePrevScale(glm::vec3 Scale)
 {previousGlobalTransformation.scale = Scale;}
 
-void Model::updatePrevTranformation()
-{
+void Model::updatePrevTranformation(){
     pgModelMatrix = FE_Math::composeMatrixWDegrees(previousGlobalTransformation.position, previousGlobalTransformation.scale, previousGlobalTransformation.rotation);
 
     for (unsigned int i = 0; i < meshes.size(); i++)
@@ -54,8 +54,7 @@ void Model::updatePrevTranformation()
     }
 }
 
-void Model::childrenRangeCull(glm::vec3 position, float range)
-{
+void Model::childrenRangeCull(glm::vec3 position, float range){
     //return;
     //rootnodes
     
@@ -66,10 +65,15 @@ void Model::childrenRangeCull(glm::vec3 position, float range)
 }
 
 
-Model::Model(const char* file, bool disableConstructorLoading, bool disableInitialMeshUploadToVBO, bool disableInitialTextureUploadToGPU)
-{
+Model::Model(const char* file, bool disableConstructorLoading, bool disableInitialMeshUploadToVBO, bool disableInitialTextureUploadToGPU){
     UUID = UUID::returnHandle();
     path = file;
+    // do hash here
+    unsigned int hash = 5381;
+    for (int i = 0; i < path.size(); ++i){
+        hash *= 32 + path[i];
+    }
+    Model::hash = hash;
     
     disableConstructorLoadingModelFlag = disableConstructorLoading;
     disableInitialMeshUploadToVBOFlag = disableInitialMeshUploadToVBO;
@@ -101,10 +105,14 @@ Model::~Model() {
     }
     loadedTex.clear();
 
+    for (int i = 0; i < meshSDFs.size(); ++i){
+        meshSDFs[i]->Delete();
+        meshSDFs.erase(meshSDFs.begin() + i);
+    }
+    
 }
 
-void Model::loadModelPathless()
-{
+void Model::loadModelPathless(){
     loadModel(path);
 }
 
@@ -113,14 +121,16 @@ void Model::draw(Shader& shader, Camera Camera)
     if (!loaded) return;
     //doLodsDraw
 	// draw all meshes and parse in data
-    for (unsigned int i = 0; i < meshes.size(); i++)
-    {
+    for (unsigned int i = 0; i < meshes.size(); i++){
         //Collision::Sphere nSphere = Collision::AABBtoSphere(rootnodes[i].position, rootnodes[i].size);
         bool tLod = meshes[i].hasLod; //get
         bool tforceLodLevel = meshes[i].forceLodLevel;
         meshes[i].hasLod = doLodsDraw;
         meshes[i].forceLodLevel = forceLodLevel;
       //  if (Camera.isRadiusInFrustum(nSphere.position, nSphere.radius))
+        
+       // if (!meshAabbPoints.empty()) meshes[i].drawRoot = 
+        
         meshes[i].draw(shader, Camera);
         
         meshes[i].hasLod = tLod; //set
@@ -153,6 +163,7 @@ void Model::createMeshAABBs()
     {
         Collision::rubiksCubePoints newRubikzCube;
         newRubikzCube = Collision::fetchFurthestVertices(meshes[i].vertices);
+        meshes[i].meshAabbPoints = newRubikzCube;
         meshAabbPoints.push_back(newRubikzCube);
         rootnodes.emplace_back();
         
@@ -192,11 +203,242 @@ void Model::createMeshAABBs()
     ModelBounds.size = (max - min) * 0.5f;
 }
 
+void Model::generateMeshBlases(int mintri, int maxDepth)
+{
+    std::cout << "blas generation" <<  std::endl;
+    auto start = std::chrono::steady_clock::now();
+    for (int i = 0; i < meshes.size(); ++i){
+        //Collision::AABB nRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], glm::mat4(1.0));
+        meshes[i].genBlas(mintri, maxDepth);
+                
+        //std::cout << "index: " << i << " - " << abs((((meshes.size() -float(i)) - meshes.size()) / meshes.size()) * 100.0f ) << "%"<< std::endl;
+    }
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> seconds = end - start;
+    std::cout << "time elapsed (seconds): " << seconds.count() << std::endl;
+}
+
+void Model::SDFgenerate(int sliceSize, GLuint slot){
+            if (!loaded) return;
+    
+    if (meshes.size() > flouraSDF::localPerModelMeshCountCap){
+        sdfCompatible = false;
+        return;
+    }
+    
+    for (int i = 0; i < meshSDFs.size(); ++i)
+        meshSDFs[i]->Delete();
+    meshSDFs.clear();
+
+    auto start = std::chrono::steady_clock::now();
+    
+    std::cout << "Amount to generate: " << meshes.size() << std::endl;
+    for (int i = 0; i < meshes.size(); ++i){
+        Collision::AABB nRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], glm::mat4(1.0));
+        
+        float normalizedScale = FE_Math::normalizeScale(nRootNode.size, 1.0f); // 1.0 is the area but a .2 pad would be good
+        glm::mat4 normalizedMatrix(1.0); normalizedMatrix = glm::scale(normalizedMatrix, glm::vec3(normalizedScale));
+        
+        Collision::AABB transformedRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], normalizedMatrix);
+        
+        std::vector<Vertex> nVertices = meshes[i].vertices;
+
+        for (int x = 0; x< meshes[i].vertices.size(); ++x)
+            FE_Math::transformPoint(nVertices[x].position, normalizedMatrix);
+        
+        Texture3D* nT3D; nT3D = new Texture3D();
+        meshSDFs.push_back(nT3D);
+        
+        // sdf generate function using voxel accel
+        flouraSDF::bakeMeshSDF(nVertices, meshes[i].indices, transformedRootNode, sliceSize, *meshSDFs.back(), slot);
+        std::cout << "index: " << i << " - " << abs((((meshes.size() -float(i)) - meshes.size()) / meshes.size()) * 100.0f ) << "%"<< std::endl;
+    }
+
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> seconds = end - start;
+    std::cout << "time elapsed (seconds): " << seconds.count() << std::endl;
+}
+
+void Model::SDFgenerateVox(int accelSteps, int accelMinTri, int sliceSize, GLuint slot){
+    if (!loaded) return;
+    
+    if (meshes.size() > flouraSDF::localPerModelMeshCountCap){
+        sdfCompatible = false;
+        return;
+    }
+    
+    for (int i = 0; i < meshSDFs.size(); ++i)
+        meshSDFs[i]->Delete();
+    meshSDFs.clear();
+    
+    auto start = std::chrono::steady_clock::now();
+    // should be some kinda hash thingy to check if we have sdf already, and then if so load them from disk
+    // maybe use renderID_index_size.png
+    std::cout << "count: " << meshes.size()<< std::endl;
+    for (int i = 0; i < meshes.size(); ++i){
+        Collision::AABB nRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], glm::mat4(1.0));
+        
+        float normalizedScale = FE_Math::normalizeScale(nRootNode.size, 1.0f); // 1.0 is the area but a .2 pad would be good
+        // min + max * 0.5
+        //glm::vec3 centre = ( (nRootNode.position - nRootNode.size) + (nRootNode.position + nRootNode.size) * 0.5f);
+        
+        glm::mat4 normalizedMatrix(1.0);
+        normalizedMatrix = glm::scale(normalizedMatrix, glm::vec3(normalizedScale));
+        //normalizedMatrix = glm::translate(normalizedMatrix, -centre);
+        
+        Collision::AABB transformedRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], normalizedMatrix);
+        
+        std::vector<Vertex> nVertices = meshes[i].vertices;
+
+        for (int x = 0; x< meshes[i].vertices.size(); ++x)
+            FE_Math::transformPoint(nVertices[x].position, normalizedMatrix);
+        
+        //std::vector<Collision::voxelAccel> nVA = voxelizer::voxelizeMeshKDAccel(meshes[i].vertices, meshes[i].indices, transformedRootNode, accelSteps, accelMinTri, glm::vec3(0.0f), glm::mat4(1.0));
+        std::vector<Collision::voxelAccel> nVA = voxelizer::voxelizeMeshKDAccel(nVertices, meshes[i].indices, transformedRootNode, accelSteps, accelMinTri, glm::vec3(0.0f), glm::mat4(1.0f));
+        
+        Texture3D* nT3D;
+        nT3D = new Texture3D();
+        meshSDFs.push_back(nT3D);
+        
+        
+        // sdf generate function using voxel accel
+        //flouraSDF::bakeMeshSDF(nVertices, meshes[i].indices, transformedRootNode, sliceSize, *meshSDFs.back(), slot);
+        flouraSDF::bakeMeshSDFAccel(nVertices, nVA, transformedRootNode, sliceSize, *meshSDFs.back(), slot);
+        
+        std::cout << "index: " << i << " - " << abs((((meshes.size() -float(i)) - meshes.size()) / meshes.size()) * 100.0f ) << "%"<< std::endl;
+    }
+        
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> seconds = end - start;
+    std::cout << "time elapsed (seconds): " << seconds.count() << std::endl;
+}
+
+void Model::SDFgenerateBlas(int sliceSize, GLuint slot){
+    if (!loaded) return;
+    
+    if (meshes.size() > flouraSDF::localPerModelMeshCountCap){
+        sdfCompatible = false;
+        return;
+    }
+    
+    for (int i = 0; i < meshSDFs.size(); ++i)
+        meshSDFs[i]->Delete();
+    meshSDFs.clear();
+    
+    auto start = std::chrono::steady_clock::now();
+    // should be some kinda hash thingy to check if we have sdf already, and then if so load them from disk
+    // maybe use renderID_index_size.png
+    std::cout << "count: " << meshes.size()<< std::endl;
+    for (int i = 0; i < meshes.size(); ++i){
+        Collision::AABB nRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], glm::mat4(1.0));
+        
+        float normalizedScale = FE_Math::normalizeScale(nRootNode.size, 1.0f); // 1.0 is the area but a .2 pad would be good
+        // min + max * 0.5
+        //glm::vec3 centre = ( (nRootNode.position - nRootNode.size) + (nRootNode.position + nRootNode.size) * 0.5f);
+        
+        glm::mat4 normalizedMatrix(1.0);
+        normalizedMatrix = glm::scale(normalizedMatrix, glm::vec3(normalizedScale));
+        //normalizedMatrix = glm::translate(normalizedMatrix, -centre);
+        
+        Collision::AABB transformedRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], normalizedMatrix);
+        
+        std::vector<Vertex> nVertices = meshes[i].vertices;
+
+        for (int x = 0; x< meshes[i].vertices.size(); ++x)
+            FE_Math::transformPoint(nVertices[x].position, normalizedMatrix);
+        
+        // need to scale blas for this
+        
+        std::vector<BVH::leaf> nBLAS = meshes[i].blas;
+        
+        // transform blas
+        for (int x = 0; x< nBLAS.size(); ++x){
+            nBLAS[x].aabb = Collision::rootNodeFromRubixPointsNoPadding(Collision::aabbToRubixCubePoints(nBLAS[x].aabb.position, nBLAS[x].aabb.size), normalizedMatrix);
+        }
+        
+        Texture3D* nT3D;
+        nT3D = new Texture3D();
+        meshSDFs.push_back(nT3D);
+        // still pushbak the texture lets just not do anything with it
+        if (nBLAS.empty()) continue;
+        
+        // sdf generate function using voxel accel
+        //flouraSDF::bakeMeshSDF(nVertices, meshes[i].indices, transformedRootNode, sliceSize, *meshSDFs.back(), slot);
+        //flouraSDF::bakeMeshSDFAccel(nVertices, nVA, transformedRootNode, sliceSize, *meshSDFs.back(), slot);
+        flouraSDF::bakeMeshSDFAccel(nVertices, nBLAS, transformedRootNode, sliceSize, *meshSDFs.back(), slot);
+        
+        std::cout << "index: " << i << " - " << abs((((meshes.size() -float(i)) - meshes.size()) / meshes.size()) * 100.0f ) << "%"<<"\n";
+    }
+        
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> seconds = end - start;
+    std::cout << "time elapsed (seconds): " << seconds.count() << std::endl;
+}
+
+void Model::SDFgeneratePrim(int sliceSize, GLuint slot){
+        if (!loaded) return;
+    
+    if (meshes.size() > flouraSDF::localPerModelMeshCountCap){
+        sdfCompatible = false;
+        return;
+    }
+    
+    for (int i = 0; i < meshSDFs.size(); ++i)
+        meshSDFs[i]->Delete();
+    meshSDFs.clear();
+    
+    auto start = std::chrono::steady_clock::now();
+    
+    std::cout << "Amount to generate: " << meshes.size() << std::endl;
+    for (int i = 0; i < meshes.size(); ++i){
+        Collision::AABB nRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], glm::mat4(1.0));
+        
+        float normalizedScale = FE_Math::normalizeScale(nRootNode.size, 1.0f); // 1.0 is the area but a .2 pad would be good
+        // min + max * 0.5
+        //glm::vec3 centre = ( (nRootNode.position - nRootNode.size) + (nRootNode.position + nRootNode.size) * 0.5f);
+        
+        glm::mat4 normalizedMatrix(1.0);
+        normalizedMatrix = glm::scale(normalizedMatrix, glm::vec3(normalizedScale));
+        //normalizedMatrix = glm::translate(normalizedMatrix, -centre);
+        
+        Collision::AABB transformedRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], normalizedMatrix);
+        
+        std::vector<Vertex> nVertices = meshes[i].vertices;
+
+        for (int x = 0; x< meshes[i].vertices.size(); ++x)
+            FE_Math::transformPoint(nVertices[x].position, normalizedMatrix);
+        
+        std::vector<BVH::BVH_primitive> nPrims = BVH::buildIndicesIntoPrims(meshes[i].vertices, meshes[i].indices);
+        
+        // transform blas
+        for (int x = 0; x< nPrims.size(); ++x){
+            nPrims[x].extents = Collision::rootNodeFromRubixPointsNoPadding(Collision::aabbToRubixCubePoints(nPrims[x].extents.position, nPrims[x].extents.size), normalizedMatrix);
+            //std::cout<<nBLAS[x].prims.size() << std::endl;
+        }
+        
+        Texture3D* nT3D; nT3D = new Texture3D();
+        meshSDFs.push_back(nT3D);
+        // still pushbak the texture lets just not do anything with it
+        if (nPrims.empty()) continue;
+        
+        // sdf generate function using voxel accel
+        //flouraSDF::bakeMeshSDF(nVertices, meshes[i].indices, transformedRootNode, sliceSize, *meshSDFs.back(), slot);
+        //flouraSDF::bakeMeshSDFAccel(nVertices, nVA, transformedRootNode, sliceSize, *meshSDFs.back(), slot);
+        flouraSDF::bakeMeshSDFAccel(nVertices, nPrims, transformedRootNode, sliceSize, *meshSDFs.back(), slot);
+        
+        std::cout << "index: " << i << " - " << abs((((meshes.size() -float(i)) - meshes.size()) / meshes.size()) * 100.0f ) << "%"<< std::endl;
+    }
+        
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> seconds = end - start;
+    std::cout << "time elapsed (seconds): " << seconds.count() << std::endl;
+}
+
 void Model::createVoxelMesh(int steps, int minTri, glm::vec3 minSize, bool doVertexSnap)
 {
     if (!loaded) return;
     for (size_t i = 0; i < meshes.size(); i++){
-        Collision::AABB nRootNode = BVH::rootNodeFromRubixPoints(meshAabbPoints[i], lModelMatrix[i]);
+        Collision::AABB nRootNode = Collision::rootNodeFromRubixPoints(meshAabbPoints[i], lModelMatrix[i]);
         std::vector<Collision::AABB> nAABS = voxelizer::voxelizeMeshKD(meshes[i].vertices, meshes[i].indices, nRootNode, steps, minTri, minSize, doVertexSnap, lModelMatrix[i]);
         
         // I know this is terrible logic, but im tired and for looping though this is easier than modifying the voxelizer functions
@@ -251,7 +493,7 @@ void Model::updateMeshAABBs()
     if (!loaded) return;
     for (size_t i = 0; i < meshes.size(); i++){
         glm::mat4 finalMeshMat = gModelMatrix * lModelMatrix[i];
-        rootnodes[i] = BVH::rootNodeFromRubixPoints(meshAabbPoints[i], finalMeshMat);
+        rootnodes[i] = Collision::rootNodeFromRubixPoints(meshAabbPoints[i], finalMeshMat);
     }
 }
 

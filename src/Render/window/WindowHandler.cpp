@@ -13,6 +13,7 @@ float windowHandler::window_height;
 std::string windowHandler::s_WindowTitle = "OpenGL Window";\
 bool windowHandler::doVsync = false;
 double windowHandler::mouseX = 0.0, windowHandler::mouseY = 0.0;
+bool windowHandler::isFullscreen;
 
 GLFWmonitor* windowHandler::fetchPrimaryWindow() {
 	GLFWmonitor* tempMonitor = glfwGetPrimaryMonitor();
@@ -57,6 +58,21 @@ void windowHandler::SetWindowIcon(GLFWwindow* window, std::string path) {
 
 	//change to icon (what window, how many images, what image)
 	glfwSetWindowIcon(window, 1, Iconinages);
+}
+
+void windowHandler::toggleFullscreen(GLFWwindow*& window, bool& isFullscreen, int windowedWidth, int windowedHeight)
+{
+	if (!isFullscreen) {
+		glfwGetWindowSize(window, &windowedWidth, &windowedHeight);
+
+		const GLFWvidmode* mode = glfwGetVideoMode(windowHandler::primaryMonitor); // Get the video mode of the monitor
+
+		glfwSetWindowMonitor(window, windowHandler::primaryMonitor, 0, 0, mode->width, mode->height, mode->refreshRate); // Switch to fullscreen
+	}
+	else { 
+		glfwSetWindowMonitor(window, NULL, 0, 0, windowedWidth, windowedHeight, 0); 
+	}
+	isFullscreen = !isFullscreen;
 }
 
 void windowHandler::setVSync(bool enabled) {

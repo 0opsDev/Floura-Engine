@@ -4,6 +4,10 @@
 #include "Render/Handler/RenderHandler.h"
 #include <random>
 
+#include "Gameplay/Player.h"
+#include "Render/Handler/CubeVisualizer.h"
+#include "Scene/scene.h"
+#include "utils/FE_math.h"
 
 std::vector<physworld::objectPosBundle> physworld::pObjects;
 std::vector<physworld::emitter> physworld::emitters;
@@ -40,8 +44,7 @@ float physworld::accumulatedTime = 0.0f;
 
 void physworld::update(float deltatime)
 {
-    for (auto& emitter : emitters)
-    {
+    for (auto& emitter : emitters){
         // check if enabled
         if (!emitter.enabled) continue;
 
@@ -152,24 +155,20 @@ void physworld::update(float deltatime)
     
 }
 
-void physworld::debugDraw()
-{
+void physworld::debugDraw(){
     for (const auto& emitter : emitters)
     {
         // draw emitter
-        if (!emitter.enabled)
-        {
-            RenderClass::WhiteCube->draw(emitter.position, glm::vec3(0.3f), glm::vec3(0.5, 0.0, 0.0),0.5f, false, false);
+        if (!emitter.enabled){
+            CubeVisualizer::draw(emitter.position, glm::vec3(0.3f), glm::vec3(0.5, 0.0, 0.0),0.5f, false, false);
             return;
         }
-        RenderClass::WhiteCube->draw(emitter.position, glm::vec3(0.3f), glm::vec3(0.0, 0.5, 0.0),0.5f, false, false);       
+        CubeVisualizer::draw(emitter.position, glm::vec3(0.3f), glm::vec3(0.0, 0.5, 0.0),0.5f, false, false);       
         
         
-        for (int i = 0; i < emitter.particles.size(); ++i)
-        {
-            if (emitter.particles[i].alive)
-            {
-                RenderClass::WhiteCube->draw(emitter.particles[i].position, emitter.particles[i].scale, glm::vec3(1.0, 1.0, 0.0),0.5f, false, false);
+        for (int i = 0; i < emitter.particles.size(); ++i){
+            if (emitter.particles[i].alive){
+                CubeVisualizer::draw(emitter.particles[i].position, emitter.particles[i].scale, glm::vec3(1.0, 1.0, 0.0),0.5f, false, false);
             }
         }
     }
@@ -229,19 +228,15 @@ void physworld::addPhysicsObjectToArray(object* physicsObject, glm::vec3* positi
 
 void physworld::physicsArrayDynamicUpdateLoop(glm::vec3 gravity, float deltatime)
 {
-    for (int i = 0; i < pObjects.size(); ++i)
-    {
+    for (int i = 0; i < pObjects.size(); ++i){
         physworld::stimulateP_Objects(pObjects[i].physicsObject, *pObjects[i].position,  *pObjects[i].dirtyFlag, gravity, deltatime);
     }
     
 }
 
-void physworld::bundleArrayDeleteWithUUID(uint64_t UUID)
-{
-    for (int i = 0; i < pObjects.size(); ++i)
-    {
-        if (pObjects[i].physicsObject->UUID == UUID)
-        {
+void physworld::bundleArrayDeleteWithUUID(uint64_t UUID){
+    for (int i = 0; i < pObjects.size(); ++i){
+        if (pObjects[i].physicsObject->UUID == UUID){
             //std::cout << "match: " <<UUID << std::endl;
             pObjects.erase(pObjects.begin() + i);
             return; // erase and exit
@@ -249,8 +244,76 @@ void physworld::bundleArrayDeleteWithUUID(uint64_t UUID)
     }
 }
 
-void physworld::collisionResolve()
-{
+/*
+for (int a = 0; a < pObjects.size(); ++a){
+    if (!pObjects[a].physicsObject->collisionObject.isCollider || pObjects[a].physicsObject->collisionObject.type != Collision::typeAABB) continue; // neither is collider
+   
+    Collision::HitResult rc = Collision::AABBvsAABB(pObjects[a].physicsObject->collisionObject.aabb.position, pObjects[a].physicsObject->collisionObject.aabb.size, 
+                                                                            Scene::maincamera.Position, Player::cameraColliderScale);
+    if (!rc.isColliding) continue;
+    std::cout << "agg" <<  std::endl; 
+}
+*/
+void physworld::collisionResolveCamera(){
+    for (int a = 0; a < Scene::entityObjects.size(); ++a){
+        
+        //if (!Scene::entityObjects[a]->component.flags.hasCollider) continue; // neither is collider
+        
+        glm::mat4 gModelMatrix = FE_Math::composeMatrixWDegrees(Scene::entityObjects[a]->component.systems.transformation.position, Scene::entityObjects[a]->component.systems.transformation.scale, Scene::entityObjects[a]->component.systems.transformation.rotation);
+        
+        int index = RenderHandler::fetchModelIndex(Scene::entityObjects[a]->component.render.renderID);
+        if (index <= -1) continue;
+
+        //Scene::entityObjects[a]->component.collider.rootnodes
+        for (int i = 0; i < Scene::entityObjects[a]->component.collider.rootnodes.size(); ++i){
+            Collision::HitResult rc = Collision::AABBvsAABB(Scene::entityObjects[a]->component.collider.rootnodes[i].position, FE_Math::pad(Scene::entityObjects[a]->component.collider.rootnodes[i].size, 0.5f), Scene::maincamera.Position, Player::cameraColliderScale);
+            if (!rc.isColliding) continue;
+            glm::mat4 tMatrix = gModelMatrix * RenderHandler::models[index].model->lModelMatrix[i];
+            for (int j = 0; j < RenderHandler::models[index].model->meshes[i].blas.back().prims.size(); ++j){
+                Collision::AABB nprimAABB = Collision::rootNodeFromRubixPointsNoPadding(Collision::aabbToRubixCubePoints(
+                    RenderHandler::models[index].model->meshes[i].blas.back().prims[j].extents.position, RenderHandler::models[index].model->meshes[i].blas.back().prims[j].extents.size), tMatrix);
+                
+                Collision::HitResult rc2 = Collision::AABBvsAABB(nprimAABB.position, FE_Math::pad(nprimAABB.size, 0.1f), Scene::maincamera.Position, Player::cameraColliderScale);
+                if (!rc2.isColliding) continue;
+
+                Scene::maincamera.Position += rc2.collisionNormal * rc2.depth; // Scene::maincamera.Position + 
+                Player::velocity = glm::vec3(0.0f);
+                /*
+                const unsigned int &i0 =RenderHandler::models[index].model->meshes[i].blas.back().prims[j].i0;
+                const unsigned int &i1 = RenderHandler::models[index].model->meshes[i].blas.back().prims[j].i1;
+                const unsigned int &i2 = RenderHandler::models[index].model->meshes[i].blas.back().prims[j].i2;
+                
+                std::vector<Vertex> &nVertices = RenderHandler::models[index].model->meshes[i].vertices;
+				
+                if (i0 >= nVertices.size() ||
+                    i1 >= nVertices.size() ||
+                    i2 >= nVertices.size())
+                    continue;
+				
+                const Vertex* a = &nVertices[i0];
+                const Vertex* b = &nVertices[i1];
+                const Vertex* c = &nVertices[i2];
+                //tMatrix
+                Collision::HitResult trihit = Collision::SATTriangleVSAABB(FE_Math::transformPointReturn(a->position, tMatrix), FE_Math::transformPointReturn(b->position, tMatrix), FE_Math::transformPointReturn(c->position, tMatrix),
+                    Scene::maincamera.Position, Player::cameraColliderScale);
+                //Collision::HitResult trihit = Collision::NearestPointTriangleVSAABB(FE_Math::transformPointReturn(a->position, tMatrix), FE_Math::transformPointReturn(b->position, tMatrix), FE_Math::transformPointReturn(c->position, tMatrix),
+                //   Scene::maincamera.Position, Player::cameraColliderScale);
+                if (!trihit.isColliding) return;
+                
+                    Scene::maincamera.Position += trihit.collisionNormal * trihit.depth; // Scene::maincamera.Position + 
+                    Player::velocity = glm::vec3(0.0f);
+                
+                std::cout << "agg" <<  std::endl;
+                //Scene::maincamera.Position += rc2.collisionNormal * rc2.depth; // Scene::maincamera.Position + 
+                //Player::velocity = glm::vec3(0.0f);
+                */
+            }
+        }
+    }
+}
+
+void physworld::collisionResolve(){
+    return; // disabled
     // some sort of collision objects, or collision types that all test agaisnt eachother and return data in some kind of format for a response 
     for (int a = 0; a < pObjects.size(); ++a)
         for (int b = 0; b < pObjects.size(); ++b)
@@ -267,6 +330,7 @@ void physworld::collisionResolve()
             
             // plug into solver and do some stuff idk
             if (!rc.isColliding) continue; // if we're not colliding there is nothing to solve
+            //std::cout << "agg" <<  std::endl;
             
             // debug
             //std::cout << "A index: " << a << " + b index: " << b << " COLLIDING" << std::endl;

@@ -12,8 +12,7 @@ void storeSignal(int layer, ivec2 fragpos, vec4 color) {
     imageStore(outSignals, ivec3(fragpos.xy, layer), color);
 }
 
-vec4 loadSingal(int layer, ivec2 fragpos)
-{
+vec4 loadSingal(int layer, ivec2 fragpos){
     return imageLoad(outSignals, ivec3(fragpos.xy, layer));
 }
 
@@ -42,8 +41,7 @@ struct triangle // need 16 byte allignment
     vec4 aBiTangent, bBiTangent,  cBiTangent;
 };
 
-struct rayMesh
-{
+struct rayMesh{
 	int triangleCount; // 4
 	int meshIndex; // 4
     int modelIndex;
@@ -60,8 +58,7 @@ struct rayMesh
 
 };
 
-struct modelQuickData
-{
+struct modelQuickData{
     uint64_t instanceUUID;
     uint64_t padding;
     mat4 ModelMatrix;
@@ -69,8 +66,7 @@ struct modelQuickData
     vec4 uvScale;
 };
 
-struct rootnodeAABB
-{
+struct rootnodeAABB{
     vec4 position;
     vec4 scale;
 
@@ -170,14 +166,12 @@ float linearizeDepth(float depth, float NearPlane, float FarPlane)
 	return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
 }
 
-vec3 transformPoint(vec3 p, mat4 matrix)
-{
+vec3 transformPoint(vec3 p, mat4 matrix){
     vec4 transformed = matrix * vec4(p, 1.0f);
     return vec3(transformed);
 }
 
-hitResult AabbVsRay(vec3 rayOrigin, vec3 rayDir, vec3 position, vec3 scale)
-{
+hitResult AabbVsRay(vec3 rayOrigin, vec3 rayDir, vec3 position, vec3 scale){
     hitResult hr; hr.hit = false; hr.hitDistance = INF;
 	vec3 Min = position - scale;
 	vec3 Max = position + scale;
@@ -305,8 +299,7 @@ hitResult triangleVsRay(vec3 rayOrigin, vec3 rayDir, triangle vertice, float max
     return data;
 }
 
-vec3 rayDirfromCam(mat4 projection, mat4 view, ivec2 pixelCoords, ivec2 size)
-{
+vec3 rayDirfromCam(mat4 projection, mat4 view, ivec2 pixelCoords, ivec2 size){
     // uv
     vec2 uv = (vec2(pixelCoords) + 0.5) / vec2(size) * 2.0 - 1.0;
     vec4 target = projection * vec4(uv.x, uv.y, -1.0, 1.0);
@@ -628,8 +621,7 @@ vec3 indirectTrace(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 normal,
     return iColour;
 }
 
-vec3 emissionTrace(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 normal, int samples, float maxDist)
-{
+vec3 emissionTrace(hitResult hit, vec3 incidentDir, vec3 hitColour, vec3 normal, int samples, float maxDist){
     vec3 iColour = hitColour;
     vec3 currentOrigin = hit.lasthit;
     vec3 currentDir = incidentDir;

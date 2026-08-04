@@ -6,6 +6,10 @@
 class FE_LAYER // FE_LAYER is a good rename
 {
 public:
+	
+	
+	static uint64_t pivotPointID;
+	
 	// might be nice to not have these static, so you can swap scenes, load then create them whatever with other ones loaded
 	static void init();
 

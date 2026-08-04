@@ -37,6 +37,7 @@ public:
 private:
 
 	std::array<std::string, 6> facesCubemap;
+	GLenum format = GL_RGB;
 };
 
 #endif

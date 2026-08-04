@@ -10,13 +10,13 @@
 #include "Render/Object/Texture.h"
 #include <xhash>
 #include <camera/Camera.h>
+#include <Systems/Physics/BVH.h>
 
 class Mesh {
 
 	private:
 	
-	enum  drawTypes
-	{
+	enum  drawTypes{
 		POINT = 0,
 		LINE = 1,
 		TRIANGLE = 2
@@ -34,10 +34,12 @@ class Mesh {
 	
     void create(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, std::vector<Texture>& textures);
     void createWithoutTexture(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
+	
+	void genBlas(int mintri, int maxDepth);
+	
+	void bindMaterial(Shader &shader);
     void draw(Shader &shader, Camera Camera);
-
     void drawInstanced(Shader& shader, Camera Camera, int instanceCount);
-
     void Delete();
 
     void updateMatrix(glm::mat4 matrix);
@@ -55,13 +57,16 @@ class Mesh {
 	bool culled = false; // reset on end of draw;
 	bool suppressSetupMeshCall = false;
 	bool hasLod = false;
-	bool generateLod = true;
+	bool generateLod = false;
 	int forceLodLevel = -1; // -1 = off
 	bool created = false;
 	float transitionDistance = 5.0f;
 	
 	// exposed for threadding
 	void setupMesh();
+	
+	std::vector<BVH::leaf> blas;
+	Collision::rubiksCubePoints meshAabbPoints;
     
 private:
 

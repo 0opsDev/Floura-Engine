@@ -374,3 +374,7 @@ FE Build.zip
 
 # Ignore the temp folder
 temp/
+
+# ignore cached SDF folder but keep it
+Cache/SDF/*
+!Cache/SDF/.gitkeep

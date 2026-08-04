@@ -3,7 +3,7 @@
 
 #include "Render/procedural/ocean.h"
 #include "Render/procedural/terrain.h"
-#include "Render/passes/lighting/raytracer.h"
+#include <Render/pipeline/prebuilt_pipelines/depreciated/raytracer.h>
 #include "Scene/ProbeHandler.h"
 
 class ProceduralPlaneObject {

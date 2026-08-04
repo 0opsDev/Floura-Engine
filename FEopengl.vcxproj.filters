@@ -154,9 +154,6 @@
     <ClCompile Include="src\camera\Camera.cpp">
       <Filter>src\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\ScreenUtils.cpp">
-      <Filter>src\utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\utils\timeUtil.cpp">
       <Filter>src\utils</Filter>
     </ClCompile>
@@ -226,9 +223,6 @@
     <ClCompile Include="src\Core\File\File.cpp">
       <Filter>src\Editor\core\File</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Render.cpp">
-      <Filter>src\Editor\core</Filter>
-    </ClCompile>
     <ClCompile Include="src\Editor\UI\ImGui\FE_ImGui.cpp">
       <Filter>src\Editor\UI\ImGui</Filter>
     </ClCompile>
@@ -262,25 +256,10 @@
     <ClCompile Include="src\Render\Object\RenderQuad.cpp">
       <Filter>src\Render\Object</Filter>
     </ClCompile>
-    <ClCompile Include="src\Render\passes\post\denoise.cpp">
-      <Filter>src\Render\passes\post</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\passes\lighting\raytracer.cpp">
-      <Filter>src\Render\passes\lighting</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\passes\geometry\geometryPass.cpp">
-      <Filter>src\Render\passes\geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Render\Cube\CubeVisualizer.cpp">
-      <Filter>src\Render\Cube</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scene\Object\Entity.cpp">
       <Filter>src\Scene\Object</Filter>
     </ClCompile>
     <ClCompile Include="src\Scene\LightingHandler.cpp">
-      <Filter>src\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Scene\ObjectManager.cpp">
       <Filter>src\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Scene\scene.cpp">
@@ -359,9 +338,6 @@
     <ClCompile Include="src\Render\Handler\LoadHandler.cpp" />
     <ClCompile Include="src\Render\Handler\sceneDescription.cpp" />
     <ClCompile Include="src\Render\Handler\UniformManager.cpp" />
-    <ClCompile Include="src\Render\passes\dbg\dbgPass.cpp" />
-    <ClCompile Include="src\Render\passes\post\historyPass.cpp" />
-    <ClCompile Include="src\Render\passes\post\utilityPass.cpp" />
     <ClCompile Include="src\Render\procedural\GenerationTools.cpp" />
     <ClCompile Include="src\Render\procedural\ocean.cpp" />
     <ClCompile Include="src\Render\procedural\terrain.cpp" />
@@ -369,19 +345,29 @@
     <ClCompile Include="src\Render\render_util\meshTools.cpp" />
     <ClCompile Include="src\Render\window\WindowImporter.cpp" />
     <ClCompile Include="src\Scene\Object\ProceduralPlaneObject.cpp" />
-    <ClCompile Include="src\Scene\Object\volume.cpp" />
     <ClCompile Include="src\Scene\FE_LAYER.cpp" />
     <ClCompile Include="src\Systems\general\jobClass.cpp" />
     <ClCompile Include="src\Systems\Physics\physworld.cpp" />
     <ClCompile Include="src\Render\Buffer\Framebuffer.cpp" />
     <ClCompile Include="src\Render\Shader\renderTarget.cpp" />
+    <ClCompile Include="src\Core\argumentHandler.cpp" />
+    <ClCompile Include="src\Render\Handler\CubeVisualizer.cpp" />
+    <ClCompile Include="src\Render\Handler\RenderClass.cpp" />
+    <ClCompile Include="src\Render\Object\texture3D.cpp" />
+    <ClCompile Include="src\Render\pipeline\prebuilt_pipelines\dbgPass.cpp" />
+    <ClCompile Include="src\Render\pipeline\prebuilt_pipelines\denoise.cpp" />
+    <ClCompile Include="src\Render\pipeline\prebuilt_pipelines\flouraDeferred.cpp" />
+    <ClCompile Include="src\Render\pipeline\prebuilt_pipelines\geometryPass.cpp" />
+    <ClCompile Include="src\Render\pipeline\prebuilt_pipelines\historyPass.cpp" />
+    <ClCompile Include="src\Render\pipeline\prebuilt_pipelines\raytracer.cpp" />
+    <ClCompile Include="src\Render\pipeline\prebuilt_pipelines\swrt.cpp" />
+    <ClCompile Include="src\Systems\Physics\SDF.cpp" />
+    <ClCompile Include="src\Systems\Physics\voxelizer.cpp" />
+    <ClCompile Include="src\utils\imageWrite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera\Camera.h">
       <Filter>src\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\ScreenUtils.h">
-      <Filter>src\utils</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\timeUtil.h">
       <Filter>src\utils</Filter>
@@ -473,9 +459,6 @@
     <ClInclude Include="src\Core\File\File.h">
       <Filter>src\Editor\core\File</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\Render.h">
-      <Filter>src\Editor\core</Filter>
-    </ClInclude>
     <ClInclude Include="src\Editor\UI\ImGui\FE_ImGui.h">
       <Filter>src\Editor\UI\ImGui</Filter>
     </ClInclude>
@@ -512,25 +495,10 @@
     <ClInclude Include="src\Render\Object\SkyBox.h">
       <Filter>src\Render\Object</Filter>
     </ClInclude>
-    <ClInclude Include="src\Render\passes\post\denoise.h">
-      <Filter>src\Render\passes\post</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\passes\lighting\raytracer.h">
-      <Filter>src\Render\passes\lighting</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\passes\geometry\geometryPass.h">
-      <Filter>src\Render\passes\geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Render\Cube\CubeVisualizer.h">
-      <Filter>src\Render\Cube</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scene\Object\Entity.h">
       <Filter>src\Scene\Object</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene\LightingHandler.h">
-      <Filter>src\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\ObjectManager.h">
       <Filter>src\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene\scene.h">
@@ -592,21 +560,31 @@
     <ClInclude Include="src\Render\Handler\LoadHandler.h" />
     <ClInclude Include="src\Render\Handler\sceneDescription.h" />
     <ClInclude Include="src\Render\Handler\UniformManager.h" />
-    <ClInclude Include="src\Render\passes\dbg\dbgPass.h" />
-    <ClInclude Include="src\Render\passes\post\historyPass.h" />
-    <ClInclude Include="src\Render\passes\post\utilityPass.h" />
     <ClInclude Include="src\Render\procedural\ocean.h" />
     <ClInclude Include="src\Render\procedural\terrain.h" />
     <ClInclude Include="src\Render\render_util\flouraSlang.h" />
     <ClInclude Include="src\Render\render_util\meshTools.h" />
     <ClInclude Include="src\Render\window\WindowImporter.h" />
     <ClInclude Include="src\Scene\Object\ProceduralPlaneObject.h" />
-    <ClInclude Include="src\Scene\Object\volume.h" />
     <ClInclude Include="src\Scene\FE_LAYER.h" />
     <ClInclude Include="src\Systems\general\jobClass.h" />
     <ClInclude Include="src\Systems\Physics\physworld.h" />
     <ClInclude Include="src\Render\Buffer\Framebuffer.h" />
     <ClInclude Include="src\Render\Shader\renderTarget.h" />
+    <ClInclude Include="src\Core\argumentHandler.h" />
+    <ClInclude Include="src\Render\Handler\CubeVisualizer.h" />
+    <ClInclude Include="src\Render\Handler\RenderClass.h" />
+    <ClInclude Include="src\Render\Object\texture3D.h" />
+    <ClInclude Include="src\Render\pipeline\prebuilt_pipelines\dbgPass.h" />
+    <ClInclude Include="src\Render\pipeline\prebuilt_pipelines\denoise.h" />
+    <ClInclude Include="src\Render\pipeline\prebuilt_pipelines\flouraDeferred.h" />
+    <ClInclude Include="src\Render\pipeline\prebuilt_pipelines\geometryPass.h" />
+    <ClInclude Include="src\Render\pipeline\prebuilt_pipelines\historyPass.h" />
+    <ClInclude Include="src\Render\pipeline\prebuilt_pipelines\raytracer.h" />
+    <ClInclude Include="src\Render\pipeline\prebuilt_pipelines\swrt.h" />
+    <ClInclude Include="src\Systems\Physics\SDF.h" />
+    <ClInclude Include="src\Systems\Physics\voxelizer.h" />
+    <ClInclude Include="src\utils\imageWrite.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Settings.json">

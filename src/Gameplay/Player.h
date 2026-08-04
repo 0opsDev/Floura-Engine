@@ -33,12 +33,12 @@ public:
 	static bool DoJump;
 	static bool s_DoGravity;
 	static bool isMoving;
-private:
+	
 	static glm::vec3 velocity;
 	static glm::vec3 force;
 	static glm::vec3 gravity;
 	static float mass;
-
+private:
 };
 
 #endif

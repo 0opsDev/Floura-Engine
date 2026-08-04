@@ -241,8 +241,7 @@ vec3 CalculateNormal( in vec3 p )
 }
 
 
-float softshadow(vec3 ro, vec3 rd, float start, float end, float k)
-{
+float softshadow(vec3 ro, vec3 rd, float start, float end, float k){
     float result = 1.0;
     float previousDistToScene = 1e20;
     for (float distTravelled = start; distTravelled < end; ){

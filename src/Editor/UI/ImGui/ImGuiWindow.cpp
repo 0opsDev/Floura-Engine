@@ -1,7 +1,7 @@
 #include "ImGuiWindow.h"
 #include <Core/File/File.h>
 #include <Sound/SoundRunner.h>
-#include <Render/passes/lighting/raytracer.h>
+#include <Render/pipeline/prebuilt_pipelines/depreciated/raytracer.h>
 #include <Scene/scene.h>
 #include <Gameplay/Player.h>
 #include <Render/window/WindowHandler.h>
@@ -10,13 +10,13 @@
 #include "FE_ImGui.h"
 #include <Scene/LightingHandler.h>
 #include "utils/logConsole.h"
-#include <Scene/ObjectManager.h>
 #include <utils/FE_math.h>
 #include "ImGuiInclude/EcsInspector.h"
-#include "Render/passes/post/denoise.h"
+#include "Render/pipeline/prebuilt_pipelines/depreciated/denoise.h"
 #include <Systems/util/relationshipManager.h>
-#include <Render/passes/dbg/dbgPass.h>
+#include  "Render/pipeline/prebuilt_pipelines/dbgPass.h"
 #include "Render/Handler/UniformManager.h"
+#include  "Render/pipeline/prebuilt_pipelines/swrt.h"
 //#include <Instance.h>
 
 
@@ -234,17 +234,13 @@ void FEImGuiWindow::loadContentObjects(std::string path) {
 		file >> ContentObjectFileData;
 	}
 	catch (const nlohmann::json::parse_error& e) {
-		// This catch block specifically handles JSON parsing errors,
-		// which gives more precise error information from the library.
 		std::cout << "JSON Parse Error loading ContentObject data: " << e.what() << std::endl;
 		std::cout << "Error byte position: " << e.byte << std::endl; // Specific to nlohmann::json
 	}
 	catch (const std::ios_base::failure& e) {
-		// This catch block handles file I/O errors (e.g., file not found, permission issues).
 		std::cout << "File I/O Error loading ContentObject data: " << e.what() << std::endl;
 	}
 	catch (const std::exception& e) {
-		// A general catch-all for any other std::exception derived errors.
 		std::cout << "An unexpected error occurred loading ContentObject data: " << e.what() << std::endl;
 	}
 	file.close();
@@ -368,7 +364,6 @@ void FEImGuiWindow::Update() {
 	if (FEImGuiWindow::imGuiPanels[9]) EcsInspector::InspectorWindow();
 	if (FEImGuiWindow::imGuiPanels[10]) SceneFolderWindow();
 	if (FEImGuiWindow::imGuiPanels[11]) ConsoleWindow();
-	if (FEImGuiWindow::imGuiPanels[12]) FrameSequencerWindow();
 	//
 	// imguizmo selection
 	//
@@ -402,7 +397,7 @@ void FEImGuiWindow::Update() {
 	ImGui::Render(); // Renders the ImGUI elements
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
-
+static const char* rendererItems[]{ "None","Deferred", "Forward", "SWRT OLD (deprecated soon)", "SWRT"};
 void FEImGuiWindow::menuwindow()
 {
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -445,8 +440,8 @@ void FEImGuiWindow::menuwindow()
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("View"))
-		{
+		if (ImGui::BeginMenu("View")){
+			ImGui::Combo("Renderer", &RenderClass::currentRendererInd, rendererItems, IM_ARRAYSIZE(rendererItems));
 			ImGui::Checkbox("Wireframe", &FEImGuiWindow::isWireframe);
 			ImGui::Checkbox("showBoxCollider", &Collision::showBoxCollider);
 			ImGui::Checkbox("viewProbes", &ProbeHandler::viewProbes);
@@ -475,9 +470,6 @@ void FEImGuiWindow::menuwindow()
 		}
 		if (ImGui::BeginMenu("Debug")) {
 			ImGui::Checkbox("overlayDebug", &dbgPass::overlayDebug);
-			ImGui::Checkbox("DoDeferredLightingPass", &RenderClass::DoDeferredLightingPass);
-			ImGui::Checkbox("DoForwardLightingPass", &RenderClass::DoForwardLightingPass);
-			ImGui::Checkbox("DoRaytracedPass", &RenderClass::DoComputeLightingPass);
 			ImGui::Checkbox("doPlayerBoxCollision: ", &Player::CollideWithCamera);
 			ImGui::EndMenu();
 		}
@@ -531,11 +523,11 @@ static const char* probeItems[]{ "SceneToProbeSpace","aabbsSceneToProbeSpace", "
 
 void FEImGuiWindow::RenderWindow() {
 	ImGui::Begin("Rendering"); // ImGUI window creation
+	ImGui::Combo("Renderer", &RenderClass::currentRendererInd, rendererItems, IM_ARRAYSIZE(rendererItems));
 	if (ImGui::SmallButton("Reload Model Shaders?")) for (size_t i = 0; i < ShaderHandler::shaderObjects.size(); i++)ShaderHandler::reloadShader(i);
 	if (ImGui::SmallButton("Reload Global Shaders")) RenderClass::initGlobalShaders();
 	if (ImGui::SmallButton("Compile Shaders")) RenderClass::compileShaders();
 	ImGui::Checkbox("compileOnDirty", &UniformManager::compileOnDirty);
-
 	if (ImGui::TreeNode("window")) {
 
 		ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
@@ -553,7 +545,7 @@ void FEImGuiWindow::RenderWindow() {
 		}
 		if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
 		{
-			ScreenUtils::toggleFullscreen(windowHandler::window, windowHandler::width, windowHandler::height); //needs to be fixed //GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight
+			windowHandler::toggleFullscreen(windowHandler::window, windowHandler::isFullscreen, windowHandler::width, windowHandler::height); //needs to be fixed //GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight
 		} //Toggle Fullscreen
 
 		ImGui::TreePop();// Ends The ImGui Window
@@ -612,28 +604,49 @@ void FEImGuiWindow::RenderWindow() {
 	}
 	
 		if (ImGui::TreeNode("Raytracer")) {
+			
+			if (ImGui::TreeNode("SWRT 2 (SDF based)")){
+				ImGui::Checkbox("doHalfRes", &FlouraSWRT::doHalfRes);
+				
+				if (ImGui::TreeNode("denoising")){
+					ImGui::Checkbox("doDenoiseSplitDBGView", &FlouraSWRT::doDenoiseSplitDBGView);
+					ImGui::Spacing();
+					ImGui::Checkbox("doTemporalAccumulation", &FlouraSWRT::doTemporalAccumulation);
+					ImGui::Checkbox("doDenoise", &FlouraSWRT::doDenoise);
+					ImGui::Spacing();
+					ImGui::DragInt("denoiseRadius", &FlouraSWRT::denoiseRadius);
+					ImGui::DragFloat("temporalAccumulationBlendFactor",&FlouraSWRT:: temporalAccumulationBlendFactor);
+					
+					ImGui::TreePop();// Ends The ImGui Window
+				}
+			
+				ImGui::TreePop();// Ends The ImGui Window
+			}
+			
+			if (ImGui::TreeNode("SWRT (triangle based)"))
+			{
+				ImGui::Text("denoiser");
+				ImGui::Checkbox("Do Denoise", &denoiser::doDenoise);
+				ImGui::DragInt("minRadius", &denoiser::minRadius);
+				ImGui::Text("raytracer");
+				ImGui::DragFloat("downscaleFactor", &raytracer::downscaleFactor);
+				ImGui::Checkbox("doAccumulate", &raytracer::doAccumulate);
+				ImGui::DragInt("Max Accumulated Frames", &raytracer::maxAccumulatedFrames);
+				ImGui::Checkbox("reset Accumulation On Dirty", &raytracer::resetAccumulationOnDirty);
+				ImGui::Text("primary hit");
+				ImGui::DragFloat("Noise Threshold", &raytracer::noiseThreshold);
+				ImGui::DragFloat("Max Distance", &raytracer::maxDistance);
+				ImGui::Text("Reflections");
+				ImGui::DragFloat("Reflection Distance", &raytracer::reflectionDistance);
+				ImGui::DragInt("Reflection Bounces", &raytracer::reflectionBounces);
+				ImGui::Text("Indirect");
+				ImGui::DragInt("Indirect Samples", &raytracer::indirectSamples);
+				ImGui::DragInt("Indirect Bounces", &raytracer::indirectBounces);
 
-			ImGui::Text("denoiser");
-			ImGui::Checkbox("Do Denoise", &denoiser::doDenoise);
-			ImGui::DragInt("minRadius", &denoiser::minRadius);
-			ImGui::Text("raytracer");
-			ImGui::Checkbox("DoRaytracedPass", &RenderClass::DoComputeLightingPass);
-			ImGui::DragFloat("downscaleFactor", &raytracer::downscaleFactor);
-			ImGui::Checkbox("doAccumulate", &raytracer::doAccumulate);
-			ImGui::DragInt("Max Accumulated Frames", &raytracer::maxAccumulatedFrames);
-			ImGui::Checkbox("reset Accumulation On Dirty", &raytracer::resetAccumulationOnDirty);
-			ImGui::Text("primary hit");
-			ImGui::DragFloat("Noise Threshold", &raytracer::noiseThreshold);
-			ImGui::DragFloat("Max Distance", &raytracer::maxDistance);
-			ImGui::Text("Reflections");
-			ImGui::DragFloat("Reflection Distance", &raytracer::reflectionDistance);
-			ImGui::DragInt("Reflection Bounces", &raytracer::reflectionBounces);
-			ImGui::Text("Indirect");
-			ImGui::DragInt("Indirect Samples", &raytracer::indirectSamples);
-			ImGui::DragInt("Indirect Bounces", &raytracer::indirectBounces);
-
-			if (ImGui::SmallButton("Clear Accumulation")) {
-				raytracer::RTGlobalTransformFlag = true;
+				if (ImGui::SmallButton("Clear Accumulation")) {
+					raytracer::RTGlobalTransformFlag = true;
+				}
+				ImGui::TreePop();// Ends The ImGui Window
 			}
 			ImGui::TreePop();// Ends The ImGui Window
 		}
@@ -1076,33 +1089,6 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 		if (!Scene::entityObjects[i]->component.relationship.hasParent) HierarchyElement(i);
 	}
 	
-	for (size_t i = 0; i < Scene::volumes.size(); i++)
-	{
-		ImGui::BeginGroup();
-
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
-		ImGui::ImageButton(
-			("##openButtonV" + std::to_string(i)).c_str(),
-			(ImTextureID)(intptr_t)FEImGuiWindow::volumeAREAIcon.ID,
-			ImVec2(icon_size, icon_size)
-		);
-		if (ImGui::IsItemClicked()) {
-			FEImGuiWindow::SelectedObjectType = "Volume";
-			FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
-		}
-		ImGui::PopStyleColor(3);
-
-
-		ImGui::SameLine();
-		if (ImGui::MenuItem((Scene::volumes[i]->name + "##V" + std::to_string(i)).c_str())) {
-			FEImGuiWindow::SelectedObjectType = "Volume";
-			FEImGuiWindow::SelectedObjectIndex = static_cast<int>(i);
-		}
-		ImGui::EndGroup();
-	}
-	
 		for (size_t i = 0; i < Scene::SoundObjects.size(); i++) {
 			ImGui::BeginGroup();
 
@@ -1187,7 +1173,7 @@ void FEImGuiWindow::HierarchyList() { // have size of icons increase with window
 }
 
 
-static const char* hierarchyItems[]{ "Models","BillBoards","Sound", "Light", "Empty", "Volume" };
+static const char* hierarchyItems[]{ "Models","BillBoards","Sound", "Light", "Empty"};
 static int hierarchySelectedItem = 0; // Index of the selected item in the hierarchy combo box
 
 static const char* contentItems[]{ "Models","BillBoards", "Sound", "Material", "Skybox"};
@@ -1302,17 +1288,6 @@ void FEImGuiWindow::addWindow(std::string typeString, bool &isOpen) {
 				if (Scene::spawnNearCamera) Scene::AddEntityObject(entity::ENT_EMPTY_TYPE, name, "", 
 		Scene::maincamera.Position - ( FE_Math::getForwardFromViewMatrix(Scene::maincamera.cameraMatrix * 5.0f) ) , glm::vec3(1.0f), glm::vec3(0.0f) );
 				else Scene::AddEntityObject(entity::ENT_EMPTY_TYPE, name, "", glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(0.0f));
-			}
-		}
-		else if (hierarchySelectedItem == 5)
-		{
-			ImGui::Text("just voxel type for now");
-			nameInput();
-			
-			if (ImGui::ImageButton("##plusIcon", (ImTextureID)FEImGuiWindow::plusIcon.ID, ImVec2(10, 10))) {
-				if (Scene::spawnNearCamera) Scene::AddVolumeObject(FE_Volume::VOXEL, name, 
-		Scene::maincamera.Position - ( FE_Math::getForwardFromViewMatrix(Scene::maincamera.cameraMatrix * 5.0f) ) , glm::vec3(1.0f));
-				else Scene::AddVolumeObject(FE_Volume::VOXEL, name, glm::vec3(0.0f), glm::vec3(1.0f));
 			}
 		}
 		
@@ -1577,28 +1552,6 @@ void FEImGuiWindow::ConsoleWindow()
 
 	ImGui::Separator();
 	ImGui::Text("Text box should go here");
-
-	ImGui::End();
-}
-
-void FEImGuiWindow::FrameSequencerWindow()
-{
-	ImGui::Begin("Frame Sequencer");
-	ImGui::Text("placeholder");
-
-	ImGui::BeginGroup();
-	ImGui::Text("Hierarchy:");
-
-
-	ImGui::EndGroup();
-	// padding
-	ImGui::SameLine(ImGui::GetWindowWidth() - (ImGui::GetWindowWidth() * 0.5f));
-
-	ImGui::BeginGroup();
-	ImGui::Text("Inspector:");
-
-
-	ImGui::EndGroup();
 
 	ImGui::End();
 }

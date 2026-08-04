@@ -18,27 +18,20 @@ uniform sampler2D hColour;
 uniform sampler2D hDepthTexture;
 uniform sampler2D hNormal;
 
-uniform vec2 screenSize;
+//uniform vec2 screenSize;
 uniform float time;
 uniform int frame;
 
 uniform float FarPlane;
 uniform float NearPlane;
 
-float linearizeDepth(float depth, float NP, float FP)
-{
-    return (2.0 * NP * FP) / (FP + NP - (depth * 2.0 - 1.0) * (FP - NP));
-}
-
-float lumaFromRGB(vec3 rgb)
-{
+float lumaFromRGB(vec3 rgb){
     vec3 weights = vec3(0.2126, 0.7152, 0.0722);
     float luminance = dot(rgb, weights);
     return luminance;
 }
 
-vec3 colourClamp(int radius, vec3 colour)
-{
+vec3 colourClamp(int radius, vec3 colour){
     vec3 minColour = vec3(9999.0);
     vec3 maxColour = vec3(-9999.0);
 
@@ -62,25 +55,8 @@ vec3 colourClamp(int radius, vec3 colour)
     return clamp(colour, minColour, maxColour);
 }
 
-
-
-void main()
-{
+void main(){
     vec3 screen = texture(screentexture, texCoord).rgb;
-
-    //FragColor.rgb = screen; return;
-    
-
-    //early z cutoff
-   // if (depth >= 0.99999)
-   // {
-    //    FragColor = vec4(screen, 1.0f);
-     //   return;
-    //}
-
-    //vec3 normal = texture(gNormal, texCoord).rgb;
-    //float displacement = texture(gNormal, texCoord).a;
-
     highp vec2 velocity = texture(gVelocity, texCoord).rg;
 
     highp vec2 historyTexCoord = texCoord - velocity;
@@ -91,39 +67,9 @@ void main()
     }
     
     vec3 previousColour = texture(hColour, historyTexCoord).rgb;
-
-    //FragColor = vec4(cLuminance.r, 0.0, 0.0, 1.0);
-    //return;
-  
-    //vec4 previousNormals = texture(hNormal, historyTexCoord);
-    //float gDepthLinearized = linearizeDepth(depth, NearPlane, FarPlane); // depth
-    
-    //float hDepth = texture(hDepthTexture, historyTexCoord).r;
-    //float hDepthLinearized = linearizeDepth(hDepth, NearPlane, FarPlane);
-    //float depth = texture(depthMap, texCoord).r;
-    //float gDepthLinearized = linearizeDepth(depth, NearPlane, FarPlane);
-    
     vec3 previousColourClamped = colourClamp(1, previousColour);
-
-    /*
-    float pLuma = lumaFromRGB(previousColourClamped);
-    float cLuma = lumaFromRGB(screen);
-    float variance = abs(cLuma - pLuma);
-    variance = clamp(variance, 0.0, 1.0);
-    float cweight = mix(0.9, 0.0, variance);
-    */
     
     float blendFactor = 0.9;
-   //vec3 accumulated = mix(screen, previousColourClamped, blendFactor);
-    
-    vec3 accumulated = mix(screen, previousColourClamped, blendFactor);
-    //vec3 accumulated = mix(screen, previousColour, blendFactor);
-    
+    vec3 accumulated = mix(vec3(screen), previousColourClamped, blendFactor);
     FragColor = vec4(accumulated, 1.0);
-
-    //FragColor = vec4(vec3(v), 1.0);
-    
-    //FragColor = vec4(previousColourClamped, 1.0);
-    
-    //FragColor = vec4(vec3(variance), 1.0);
 }

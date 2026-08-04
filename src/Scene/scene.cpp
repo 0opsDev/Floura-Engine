@@ -8,7 +8,9 @@
 #include <utils/FE_math.h>
 #include "Systems/util/relationshipManager.h"
 #include "Systems/util/UUID.h"
-#include  "Render/passes/dbg/dbgPass.h"
+#include  "Render/pipeline/prebuilt_pipelines/dbgPass.h"
+#include "Render/Handler/CubeVisualizer.h"
+#include "Systems/Physics/SDF.h"
 
 std::string Scene::sceneName = ""; // Map loading
 std::vector <SoundProgram> Scene::SoundObjects;
@@ -17,7 +19,6 @@ Camera Scene::maincamera;
 
 glm::vec3 Scene::initalCameraPos = glm::vec3(0, 0, 0);
 std::vector <ProbeHandler::probe> Scene::probes;
-std::vector <FE_Volume*> Scene::volumes;
 
 Collision::AABB Scene::SceneBounds;
 std::vector <Collision::AABB> Scene::rootnodes;
@@ -756,20 +757,6 @@ uint64_t Scene::AddEntityObject(entity::ENT_TYPE_ENUM type, std::string name, st
 	return UUID;
 }
 
-uint64_t Scene::AddVolumeObject(FE_Volume::VOL_TYPE type, std::string name, glm::vec3 spawnPosition, glm::vec3 spawnScale)
-{
-	FE_Volume* nVolume = new FE_Volume(type);
-	nVolume->position = spawnPosition;
-	nVolume->scale = spawnScale;
-	nVolume->name = name;
-	
-	uint64_t UUID = nVolume->ID;
-	
-	volumes.emplace_back(nVolume);
-	LogConsole::print("Created Volume: " + name);
-	return UUID;
-}
-
 void Scene::billBoardLoad(std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
@@ -988,8 +975,7 @@ void Scene::cameraSettingsLoad(std::string path) {
 
 void Scene::shadowmapDraw()
 {
-	for (size_t i = 0; i < entityObjects.size(); i++)
-	{
+	for (size_t i = 0; i < entityObjects.size(); i++){
 		entityObjects[i]->drawShadowMap();
 	}
 }
@@ -1005,63 +991,46 @@ void Scene::callAllScriptInit()
 	}
 }
 
-void Scene::resetAllScripts()
-{
-	for (size_t i = 0; i < entityObjects.size(); i++)
-	{
-		for (size_t x = 0; x < entityObjects[i]->ScriptObjects.size(); x++)
-		{
+void Scene::resetAllScripts(){
+	for (size_t i = 0; i < entityObjects.size(); i++){
+		for (size_t x = 0; x < entityObjects[i]->ScriptObjects.size(); x++){
 			entityObjects[i]->reloadScript(x);
 		}
 	}
 }
 
-void Scene::onBeginningOfFrame()
-{
+void Scene::onBeginningOfFrame(){
 	// update prior transform
-	for (size_t i = 0; i < entityObjects.size(); i++)
-	{
+	for (size_t i = 0; i < entityObjects.size(); i++){
 		entityObjects[i]->component.systems.previousTransformation = entityObjects[i]->component.systems.transformation;
 	}
 }
 
-void Scene::draw() 
-{
-	if (dbgPass::overlayDebug)
-	{
-		if (Collision::showBoxCollider)
-		{
-			RenderClass::WhiteCube->draw(SceneBounds.position,
+void Scene::draw() {
+	if (dbgPass::overlayDebug){
+		if (Collision::showBoxCollider){
+			CubeVisualizer::draw(SceneBounds.position,
 				SceneBounds.size, glm::vec3(1.0f, 0.0f, 0.0f),5.0, true, false);
 		}
 
-		if (ProbeHandler::viewProbes)
-		{
+		if (ProbeHandler::viewProbes){
 			float distance = 20.0f;
 
-			for (size_t i = 0; i < probes.size(); i++)
-			{
+			for (size_t i = 0; i < probes.size(); i++){
 				glm::vec3 pCol = glm::vec3(0.0f, 0.0f, 1.0f);
 				if (FE_Math::isInRange(probes[i].position, Scene::maincamera.Position, distance)) pCol = glm::vec3(1.0f, 0.0f, 0.0f);
 
-				//RenderClass::WhiteCube->draw(probes[i].position,
+				//CubeVisualizer::draw(probes[i].position,
 				//	glm::vec3(probes[i].size), glm::vec3(1.0f), true);
 
-				RenderClass::WhiteCube->draw(probes[i].position,
+				CubeVisualizer::draw(probes[i].position,
 					glm::vec3(0.5f), pCol, 2.0, false, false);
 			}
-		}
-
-		for (int i = 0; i < volumes.size(); ++i)
-		{
-			volumes[i]->debugDraw();
 		}
 	}
 	
 	// entities shadow map should go above here
-	for (size_t i = 0; i < entityObjects.size(); i++)
-	{
-		entityObjects[i]->updateLights();
+	for (size_t i = 0; i < entityObjects.size(); i++){
 		entityObjects[i]->draw();
 	}
 
@@ -1095,11 +1064,8 @@ void Scene::draw()
 }
 
 
-void Scene::Update() 
-{
-
-	for (size_t i = 0; i < entityObjects.size(); i++)
-	{
+void Scene::Update() {
+	for (size_t i = 0; i < entityObjects.size(); i++){
 		//entityObjects[i]->updateCollision();
 
 		entityObjects[i]->update();
@@ -1107,8 +1073,7 @@ void Scene::Update()
 
 	for (size_t i = 0; i < SoundObjects.size(); i++) {
 
-		if (SoundObjects[i].is3D)
-		{
+		if (SoundObjects[i].is3D){
 			SoundObjects[i].updateCameraPosition();
 			SoundObjects[i].SetSoundPosition(SoundObjects[i].position);
 		}
@@ -1122,10 +1087,8 @@ void Scene::Update()
 }
 
 // update but on the work thread (expensive tasks)
-void Scene::sceneUpdateWork()
-{
-	if (ProbeHandler::dirtyScene)
-	{
+void Scene::sceneUpdateWork(){
+	if (ProbeHandler::dirtyScene){
 		calculateSceneBounds();
 
 		// enable this for the probes (im disabling them)
@@ -1146,8 +1109,9 @@ void Scene::Delete() {
 	FEImGuiWindow::SelectedObjectIndex = -1;
 	FEImGuiWindow::SelectedObjectType = ' ';
 	
-	for (size_t i = 0; i < entityObjects.size(); i++)
-	{
+	flouraSDF::wipeScene();
+	
+	for (size_t i = 0; i < entityObjects.size(); i++){
 		entityObjects[i]->Delete(); }
 	entityObjects.clear();
 
@@ -1188,12 +1152,21 @@ void Scene::queuedDeletionLoop()
 {
 	for (int i = 0; i < Scene::entityObjects.size(); ++i)
 	{
-		if (Scene::entityObjects[i]->queuedForDeletion)
-		{
+		if (Scene::entityObjects[i]->queuedForDeletion){
 			Scene::entityObjects[i]->queuedDeletion();
 			Scene::entityObjects.erase(Scene::entityObjects.begin() + i);
 
 		}
 	}
 	Scene::entityDeletionUnderGoing = false;
+}
+
+Collision::HitResult Scene::traceIntoScene(glm::vec3 ro, glm::vec3 rd){
+	Collision::HitResult hr;
+
+	for (int i = 0; i < Scene::entityObjects.size(); ++i){
+		
+	}
+	
+	return hr;
 }

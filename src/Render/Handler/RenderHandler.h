@@ -73,7 +73,7 @@ public:
 
 	static void render();
 
-	static void removeInstancewRenderID(uint64_t RenderID);
+	static void removeInstancewRenderID(uint64_t RenderID, uint64_t instanceID);
 	
 	static void removeInstance(int index);
 
@@ -100,13 +100,6 @@ private:
 	static void instancedDraw();
 
 	static std::unordered_map<std::string, uint64_t> pKeyHandleMapRender; // takes path as key, returns handle
-	
-public:
-	
-	static std::vector <Texture> textures; // texture array 
-	
-	static Texture* uploadAndReturnTextureWptr(const char* image, const char* texType, GLuint slot);
-	static Texture* uploadAndReturnColourTextureWptr(glm::vec4 colour, const char* texType, GLuint slot);
 	
 };
 #endif // RENDER_HANDLER_CLASS_H

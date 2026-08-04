@@ -3,7 +3,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <utils/logConsole.h>
 #include "Scene/scene.h"
-#include "Render/passes/lighting/raytracer.h"
+//#include <Render/pipeline/prebuilt_pipelines/depreciated/raytracer.h>
 #include "utils/FE_math.h"
 
 std::vector<LightingHandler::Light> LightingHandler::Lights;
@@ -84,8 +84,8 @@ void LightingHandler::setupShadowMapBuffer() {
 	shadowMapHeight3 = 512;
 	shadowMapWidth3 = 512;
 	
-	shadowMapWidth = 1024;
-	shadowMapHeight = 1024;
+	shadowMapWidth = 4096;
+	shadowMapHeight = 4096;
 	
 	createSM(shadowMapFBO, dirShadowMap, shadowMapWidth, shadowMapHeight);
 	//createSM(shadowMapFBO2, dirShadowMap2, shadowMapWidth2, shadowMapHeight2);
@@ -181,7 +181,7 @@ void LightingHandler::sendToShader(Shader Shader)
 {
 	Shader.Activate();
 
-	Shader.setFloat4("skyColor", glm::vec4(glm::vec3(RenderClass::gammaCorrect3(RenderClass::skyRGBA)), 1.0f));
+	Shader.setFloat4("skyColor", glm::vec4(RenderClass::skyRGBA, 1.0f));
 	Shader.setBool("doReflect", RenderClass::doReflections);
 
 
@@ -202,7 +202,7 @@ void LightingHandler::sendToShader(Shader Shader)
 
 			Shader.setFloat3((uniformName + "rotation").c_str(), rotatedDirection);
 
-			Shader.setFloat3((uniformName + "colour").c_str(), RenderClass::gammaCorrect3(Lights[i].colour));
+			Shader.setFloat3((uniformName + "colour").c_str(), Lights[i].colour);
 			Shader.setFloat((uniformName + "radius").c_str(), Lights[i].radius);
 			Shader.setInt((uniformName + "type").c_str(), Lights[i].type);
 
@@ -215,7 +215,7 @@ void LightingHandler::sendToShader(Shader Shader)
 	Shader.setFloat("FogNearPlane", RenderClass::DepthPlane[0]);
 	Shader.setFloat("FogFarPlane", RenderClass::DepthPlane[1]);
 	Shader.setBool("doFog", RenderClass::doFog);
-	Shader.setFloat3("fogColour", RenderClass::gammaCorrect3(RenderClass::fogRGBA));
+	Shader.setFloat3("fogColour", RenderClass::fogRGBA);
 	Shader.setFloat("NearPlane", Scene::maincamera.nearFar.x);
 	Shader.setFloat("FarPlane", Scene::maincamera.nearFar.y);
 	Shader.setInt("lightCount", activeLightIndex);
@@ -235,7 +235,7 @@ void LightingHandler::sendToShader(Shader Shader)
 	Shader.setFloat("dirSpecularLight", dirSpecularLight);
 	Shader.setFloat3("directLightPos", rotatedDirectionDIR); // 0.0f, 1.0f, 0.0f
 	//
-	Shader.setFloat3("directLightCol", RenderClass::gammaCorrect3(directLightCol)); // 1.0f, 1.0f, 1.0f
+	Shader.setFloat3("directLightCol", directLightCol); // 1.0f, 1.0f, 1.0f
 
 	//DirSMMaxBias
 	Shader.setFloat("doDirShadowMap", doDirShadowMap);
@@ -255,7 +255,7 @@ void LightingHandler::sendToShader(Shader Shader)
 }
 
 float smAccum = 0.0;
-float smAccumthresh = 1.0 / 10.0f;
+float smAccumthresh = 1.0 / 30.0f;
 
 
 // different thresh for different ranges, + only update on dirty 

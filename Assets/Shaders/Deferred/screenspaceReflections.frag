@@ -30,8 +30,6 @@ uniform mat4 inverseViewMatrix;
 uniform mat4 inverseProjection;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
-
-uniform vec2 screenSize;
 uniform float time;
 uniform int frame;
 
@@ -58,10 +56,6 @@ float linearizeDepth(float depth, float NP, float FP)
     return (2.0 * NP * FP) / (FP + NP - (depth * 2.0 - 1.0) * (FP - NP));
 }
 
-int maxstep = 128;
-float stepsize = 0.4f;
-float rayThickness = 0.3;
-const float reflectionSpecularFalloffExponent = 3.0;
 const int numBinarySearchSteps = 5;
 
 vec3 BinarySearch(inout vec3 dir, inout vec3 hitCoord, inout float dDepth)
@@ -95,6 +89,8 @@ vec3 BinarySearch(inout vec3 dir, inout vec3 hitCoord, inout float dDepth)
 
     return vec3(projectedCoord.xy, depth);
 }
+
+float rayThickness = 0.1;
 
 vec4 RayCast(in vec3 dir, inout vec3 hitCoord, out float dDepth, int maxSteps, out float hit, in float step)
 {
@@ -161,11 +157,13 @@ vec3 hash33(vec3 src) {
     return uintBitsToFloat(h & 0x007fffffu | 0x3f800000u) - 1.0;
 }
 
+int maxstep = 256;
+float stepsize = 0.4f;
+const float reflectionSpecularFalloffExponent = 3.0;
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0) { return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); }
 
-vec4 ssr(vec3 ARM, vec3 position, vec3 normal, int maxSteps, float step)// out bool bClamp
-{
+vec4 ssr(vec3 ARM, vec3 position, vec3 normal, int maxSteps, float step){
     float Metallic = ARM.b;
     float rough = ARM.g;
 
@@ -219,7 +217,7 @@ vec4 ssr(vec3 ARM, vec3 position, vec3 normal, int maxSteps, float step)// out b
         -R.z;
 
         vec3 SSR = textureLod(hColour, csCoords.xy, 0).rgb * clamp(ReflectionMultiplier, 0.0, 0.9) * Fresnel;//hColour
-        return vec4(clamp(SSR,0.0, 1.0), 1.0);//Metallic
+        return vec4(clamp(SSR,0.0, 1.0), ReflectionMultiplier);//Metallic
     }
     return vec4(0.0);
 
@@ -319,20 +317,16 @@ vec3 blur(sampler2D samp, vec2 coord)
     return colour / samples;
 }
 
-void main()
-{
-    vec2 velocity = texture(gVelocity, texCoord).rg;
-    //vec2 scaledVelocity = velocity * 1.0;
-    //FragColor = vec4(scaledVelocity, 0.0f, 1.0f);
+void main(){
 
-    //return;
-
+    //vec3 positionTemp = texture(gPosition, texCoord).rgb;
+    //FragColor = vec4(vec3(positionTemp), 1.0f); return;
     vec4 albedo = texture(gAlbedoSpec, texCoord);
-    
     vec3 colour = texture(screentexture, texCoord).rgb;
-
-    if (albedo.a <= 0.0)
-    {
+    //FragColor = vec4(vec3(albedo.rgb), 1.0f); return;
+    //FragColor = vec4(vec3(colour), 1.0f); return;
+    
+    if (albedo.a <= 0.0){
         FragColor = vec4(colour, 1.0f); return;
     }
 
@@ -362,7 +356,7 @@ void main()
     vec3 viewVector = position - camPos;
 
     vec3 emission = texture(gEmission, texCoord).rgb;
-    vec3 nEmissionblur = blur(gEmission, texCoord) ;
+    //vec3 nEmissionblur = blur(gEmission, texCoord) ;
     
     vec4 reflections = vec4(0.0);
 
@@ -371,10 +365,11 @@ void main()
     vec3 specular = vec3(0.0f);
     vec3 diffuse  = vec3(0.0f);
     
-    if (reflections.a == 0.0 && doReflections)
-    {
+    if (reflections.a < 1.0 && doReflections){
         Reflect(albedo.rgb, normal, viewVector, diffuse, specular, ARM);
-        reflections.rgb = diffuse + specular;
+
+        reflections.rgb = mix(diffuse + specular, reflections.rgb, reflections.a);
+        //reflections.rgb = diffuse + specular;
     }
 
     
@@ -385,6 +380,7 @@ void main()
     
     //vec3 ndbColour = mix(vec3(1.0, 0.0, 0.0), reflections.rgb, reflections.a);
     //FragColor = vec4(vec3(ndbColour), 1.0f);
-    FragColor = vec4(vec3(final + nEmissionblur), 1.0f);
+    FragColor = vec4(vec3(final), 1.0f);
+    //FragColor = vec4(vec3(final + nEmissionblur), 1.0f);
     
 }

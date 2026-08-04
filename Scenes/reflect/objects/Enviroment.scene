@@ -1,6 +1,6 @@
 [
     {
-        "DefaultSkyboxPath": "temp/sb/galaxy2/Skybox.json",
+        "DefaultSkyboxPath": "Assets/Skybox/clearsky/Skybox.json",
         "DirAmbient": 0.0,
         "DirColour": [
             1.0,

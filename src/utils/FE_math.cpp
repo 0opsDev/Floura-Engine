@@ -76,9 +76,7 @@ float FE_Math::magnitude(glm::vec3 v) {
 }
 
 
-float FE_Math::AreaOfTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3)
-{
-
+float FE_Math::AreaOfTriangle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3){
     // 2 vectors from points
     glm::vec3 u = p2 - p1;
     glm::vec3 v = p3 - p1;
@@ -90,6 +88,30 @@ float FE_Math::AreaOfTriangle(const glm::vec3& p1, const glm::vec3& p2, const gl
     return glm::length(cp) * 0.5f;
 }
 
+
+// pretty sure i have something like this in collision, but this is for uv for its fine, its that barycentric triangle collision functuion, but it pulls uv
+glm::vec2 FE_Math::uvPosFromVertexAndPoint(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c, const glm::vec2 &aUV, const glm::vec2 &bUV, const glm::vec2 &cUV, const glm::vec3 &p){
+    // calc areas
+    float totalArea = AreaOfTriangle(a, b, c);
+    float areaPAB = AreaOfTriangle(p, a, b);
+    float areaPBC = AreaOfTriangle(p, b, c);
+    float areaPCA = AreaOfTriangle(p, c, a);
+    
+    // sum of each area
+    float areasum = areaPAB + areaPBC + areaPCA;
+    float elipson = 0.0001f * totalArea;
+    
+    // if point inside elipson
+    if (glm::abs(totalArea - areasum) < elipson){
+        // calc weight
+        float weightA = areaPBC / totalArea;
+        float weightB = areaPCA / totalArea;
+        float weightC = areaPAB / totalArea;
+        
+        return glm::vec2( (weightA * aUV) + (weightB * bUV) + (weightC * cUV) );
+    }
+    return glm::vec2(0.0f); 
+}
 
 glm::vec3 FE_Math::RadiansToNormal(float yawRad, float pitchRad)
 {
@@ -155,11 +177,16 @@ glm::vec2 FE_Math::findTwoFurthestPointsZ(std::vector<glm::vec3> points)
 }
 
 
-void FE_Math::transformPoint(glm::vec3& point, glm::mat4 matrix)
-{
+void FE_Math::transformPoint(glm::vec3& point, glm::mat4 matrix){
     glm::vec4 transformed = matrix * glm::vec4(point, 1.0f);
     point = glm::vec3(transformed);
 }
+// version that doesnt use &
+glm::vec3 FE_Math::transformPointReturn(glm::vec3 point, glm::mat4 matrix){
+    glm::vec4 transformed = matrix * glm::vec4(point, 1.0f);
+    return glm::vec3(transformed);
+}
+
 
 
 glm::vec3 FE_Math::pad(glm::vec3 value, float padding)
@@ -231,11 +258,26 @@ glm::mat4 FE_Math::createHaltonJitterProjectionMatrix(glm::mat4 matrix, glm::vec
     return matrix;
 }
 
-int FE_Math::calculateLODLevel(glm::vec3 vPosition, glm::vec3 cameraPosition, float transitionDistance, int maxLOD)
-{
+int FE_Math::calculateLODLevel(glm::vec3 vPosition, glm::vec3 cameraPosition, float transitionDistance, int maxLOD){
     float distance = glm::distance(vPosition, cameraPosition);
     int targetLOD = static_cast<int>(distance / transitionDistance);
     targetLOD = std::min(targetLOD, maxLOD);
     
     return targetLOD;
+}
+
+float FE_Math::normalizeScale(glm::vec3 size, float target){
+    float longestAxis = glm::max(size.x, glm::max(size.y, size.z));
+    return target / glm::max(longestAxis, 0.00001f); // prevent div by zero
+}
+
+float FE_Math::normalizeFloat(float v, float min, float max){
+    if (min == max) return 0.0;
+    return glm::clamp((v -min) / (max - min), 0.0f, 1.0f);
+}
+
+glm::quat FE_Math::vec3DegreesToQuat(glm::vec3 degrees){
+    glm::vec3 r = glm::radians(degrees);
+    glm::quat q = glm::quat(r);
+    return q;
 }

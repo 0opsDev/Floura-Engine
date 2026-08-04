@@ -63,12 +63,6 @@ void Material::update()
 	ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat("time", glfwGetTime());
 }
 
-void Material::updateForwardLights() {
-	int modelShaderIndex = ShaderHandler::fetchShaderIndex(modelShaderUUID);
-	LightingHandler::sendToShader(ShaderHandler::shaderObjects[modelShaderIndex].Shader);
-	
-}
-
 void Material::compileUniforms()
 {
 	for (int i = 0; i < uniformsPairs.size(); ++i) uniformsPairs[i].uniformIndexes = UniformManager::getIndexFromHandle(uniformsPairs[i].handle);

@@ -605,8 +605,7 @@ vec4 calculateFog(float near, float far, float depthDistance, vec3 Colour, vec4 
 	return originalImage * (1.0f - logisticizedDepth) + vec4(logisticizedDepth * vec4(Colour, 1.0f)); // fog
 }
 
-void main()
-{
+void main(){
 	float linearizedDepth = linearizeDepth(gl_FragCoord.z, NearPlane, FarPlane);
 	//early z cutoff
 	if (linearizedDepth > FarPlane)
@@ -640,7 +639,7 @@ void main()
 
 	//vec3 direct =  ARM.r * lights(specSamp).rgb;
 	vec3 direct = lights(specSamp).rgb;
-
+	//direct *= vec3(ARM.r);
 	vec3 indirect = indirectIBL(indirectSamples, specSamp);
 
 	vec3 gi = (direct + indirect);

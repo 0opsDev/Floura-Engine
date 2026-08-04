@@ -3,12 +3,13 @@
 #include <utils/FE_math.h>
 #include <utils/logConsole.h>
 #include <Scene/LightingHandler.h>
-#include <Render/passes/geometry/geometryPass.h>
 #include <Gameplay/Player.h>
 #include "Systems/util/UUID.h"
-#include "Render/passes/lighting/raytracer.h"
+#include <Render/pipeline/prebuilt_pipelines/depreciated/raytracer.h>
 #include <Render/Handler/RenderHandler.h>
 #include "Systems/util/relationshipManager.h"
+#include "Render/Handler/CubeVisualizer.h"
+#include "Systems/Physics/SDF.h"
 //#include "Systems/Physics/physworld.h"
 
 void entity::createwUUID(uint64_t nUUID, ENT_TYPE_ENUM type, const std::string& name, const std::string& path, const std::string& materialPath)
@@ -150,9 +151,15 @@ void entity::update()
 			RenderHandler::models[index].model->updateScale(component.systems.transformation.scale);
 			RenderHandler::models[index].model->updateTranformation();
 			RenderHandler::models[index].model->updateMeshAABBs();
-			raytracer::updateboundingboxes(component.render.instanceUUID, component.collider.rootnodes);
-			raytracer::modelMatrixUpdate(component.render.instanceUUID, RenderHandler::models[index].model->gModelMatrix);
-			SceneDescription::globalMatrixUpdateVoxel(component.render.instanceUUID, RenderHandler::models[index].model->gModelMatrix);
+			
+			
+			// wait for dirty
+			
+			if (raytracer::RTGlobalTransformFlag){ // all of these are wasteful, make sure to look into these
+				//raytracer::updateboundingboxes(component.render.instanceUUID, component.collider.rootnodes);
+				//raytracer::modelMatrixUpdate(component.render.instanceUUID, RenderHandler::models[index].model->gModelMatrix);
+				flouraSDF::updateGlobalTransformation(component.render.instanceUUID, RenderHandler::models[index].model->gModelMatrix, component.systems.transformation.rotation);
+			}
 		}
 		break;
 	}
@@ -190,11 +197,6 @@ void entity::updatePhysicsDynamics(float deltatime)
 	}
 }
 
-void entity::updateLights()
-{
-	component.systems.material.Material.updateForwardLights();
-}
-
 void entity::Delete()
 {
 	// right now logic (raise flags, queue for the deletion event (lock physics thread etc) )
@@ -216,10 +218,11 @@ void entity::queuedDeletion()
 
 			int index = RenderHandler::fetchModelIndex(component.render.renderID);
 			if (index != -1){
-				raytracer::removeFromRaytracer(component.render.instanceUUID);
-				SceneDescription::removeFromVoxelScene(component.render.instanceUUID); // not setup but still, just putting this here
+				//raytracer::removeFromRaytracer(component.render.instanceUUID);
+				flouraSDF::removeFromLSDFScene(component.render.instanceUUID);
+				//SceneDescription::removeFromVoxelScene(component.render.instanceUUID); // not setup but still, just putting this here
 			}
-			RenderHandler::removeInstancewRenderID(component.render.renderID);
+			RenderHandler::removeInstancewRenderID(component.render.renderID, component.render.instanceUUID);
 			//delete component.renderHeads.Model;
 			//component.renderHeads.Model = nullptr;
 			component.systems.material.Material.ClearMaterial();
@@ -367,92 +370,77 @@ Collision::HitResult entity::RayVsEntity(glm::vec3 rayPos, glm::vec3 rayDir)
 }
 
 
-void entity::draw()
-{
+void entity::draw(){
 	if (!component.flags.render) return;
 
-	switch (type)
-	{
-	case ENT_MODEL_TYPE: // model
-	{
-		RenderHandler::renderQueueData newRenderData;
-		newRenderData.RenderID = component.render.renderID;
-		newRenderData.shaderUUID = component.systems.material.Material.modelShaderUUID;
-		newRenderData.gpShaderUUID = component.systems.material.Material.modelGpassShaderUUID;
+	switch (type){
+		case ENT_MODEL_TYPE:{
+			RenderHandler::renderQueueData newRenderData;
+			newRenderData.RenderID = component.render.renderID;
+			newRenderData.shaderUUID = component.systems.material.Material.modelShaderUUID;
+			newRenderData.gpShaderUUID = component.systems.material.Material.modelGpassShaderUUID;
 			newRenderData.entityUUID = UUID;
-		newRenderData.castsShadow = component.flags.castsShadow;
-		newRenderData.cullFrontFace = component.flags.cullFrontFace;
-		newRenderData.doCulling = component.flags.doCulling;
-		newRenderData.isInstanced = component.render.drawInstanced;
-		newRenderData.position = component.systems.transformation.position;
-		newRenderData.rotation = component.systems.transformation.rotation;
-		newRenderData.scale = component.systems.transformation.scale;
+			newRenderData.castsShadow = component.flags.castsShadow;
+			newRenderData.cullFrontFace = component.flags.cullFrontFace;
+			newRenderData.doCulling = component.flags.doCulling;
+			newRenderData.isInstanced = component.render.drawInstanced;
+			newRenderData.position = component.systems.transformation.position;
+			newRenderData.rotation = component.systems.transformation.rotation;
+			newRenderData.scale = component.systems.transformation.scale;
 			newRenderData.pPosition = component.systems.previousTransformation.position;
 			newRenderData.pRotation = component.systems.previousTransformation.rotation;
 			newRenderData.pScale = component.systems.previousTransformation.scale;
 			
-		newRenderData.smoothnessValue = component.render.smoothnessValue;
-		newRenderData.uvScale = component.systems.material.uvScale;
-		RenderHandler::addToRenderQueue(newRenderData);
+			newRenderData.smoothnessValue = component.render.smoothnessValue;
+			newRenderData.uvScale = component.systems.material.uvScale;
+			RenderHandler::addToRenderQueue(newRenderData);
 
-		int index = RenderHandler::fetchModelIndex(component.render.renderID);
-		if (index != -1)
-		{
-			raytracer::uvScaleUpdate(component.render.instanceUUID, component.systems.material.uvScale);
-		}
-		for (size_t i = 0; i < component.collider.rootnodes.size(); i++)
-		{
-			if (Collision::showBoxCollider)
-			{
-				RenderClass::WhiteCube->draw(component.collider.rootnodes[i].position,
-	component.collider.rootnodes[i].size, glm::vec3(1.0f, 0.0f, 1.0f), 1.0, true, false);
-				RenderClass::WhiteCube->draw(component.collider.modelNode.position,
-	component.collider.modelNode.size, glm::vec3(0.0f, 1.0f, 1.0f), 2.0, true, false);
+			// these need to be dirty
+			int index = RenderHandler::fetchModelIndex(component.render.renderID);
+			if (index != -1){
+				//raytracer::uvScaleUpdate(component.render.instanceUUID, component.systems.material.uvScale);
+				flouraSDF::updateUVscale(component.render.instanceUUID, component.systems.material.uvScale);
 			}
+			for (size_t i = 0; i < component.collider.rootnodes.size(); i++){
+				if (Collision::showBoxCollider){
+					CubeVisualizer::draw(component.collider.rootnodes[i].position,
+		component.collider.rootnodes[i].size, glm::vec3(1.0f, 0.0f, 1.0f), 1.0, true, false);
+					CubeVisualizer::draw(component.collider.modelNode.position,
+		component.collider.modelNode.size, glm::vec3(0.0f, 1.0f, 1.0f), 2.0, true, false);
+				}
 
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
 		break;
 	}
-	case ENT_BILLBOARD_TYPE:// billboard
-	{
-		component.render.BillBoard->draw();
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		case ENT_BILLBOARD_TYPE:{
+			component.render.BillBoard->draw();
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		break;
-	}
+		}
 	}
 }
 
-void entity::drawShadowMap()
-{
+void entity::drawShadowMap(){
 	if (!component.flags.castsShadow) return;
-	switch (type)
-	{
-	case ENT_BILLBOARD_TYPE: // billboard
+	if (type == ENT_BILLBOARD_TYPE)
 		LightingHandler::drawShadowMapBillboard(component.render.BillBoard, component.systems.transformation.position, component.systems.transformation.scale);
-		break;
-	}
 }
 
 // fetch model matrix,
 // fetch model data
 
-void entity::updateCollision()
-{
+void entity::updateCollision(){
 	entity::updateMeshAABBs();
-	switch (type)
-	{
-	case ENT_MODEL_TYPE:
-	{
+	switch (type){
+	case ENT_MODEL_TYPE:{
 		int index = RenderHandler::fetchModelIndex(component.render.renderID);
-		if (index != -1)
-		{
+		if (index != -1){
 
 			// just for now do camera vs aabb from meshes, in future there should
 		// be a collision handler, that does objects vs objects for aabbs
-			for (size_t i = 0; i < component.collider.rootnodes.size(); i++)
-			{
+			for (size_t i = 0; i < component.collider.rootnodes.size(); i++){
 				// Calculate global position and scale
 
 				// these two are bugged
@@ -473,13 +461,11 @@ void entity::updateCollision()
 					Player::cameraColliderScale);
 
 				// Handle collision logic
-				if (collisionData.isColliding)
-				{
+				if (collisionData.isColliding){
 					Scene::maincamera.Position = glm::vec3(collisionData.lastHit.x,
 						(collisionData.lastHit.y + (Player::cameraColliderScale.y / 2.0f)),
 						collisionData.lastHit.z);
-
-					RenderClass::WhiteCube->draw(collisionData.lastHit, glm::vec3(0.1f), glm::vec3(1.0f, 0.0f, 0.0f),2.0, true, false);
+					CubeVisualizer::draw(collisionData.lastHit, glm::vec3(0.1f), glm::vec3(1.0f, 0.0f, 0.0f),2.0, true, false);
 
 					if (collisionData.collisionNormal == glm::vec3(0.0f, 1.0f, 0.0f)) // up or down
 						Player::isColliding = true; // Set collision state
@@ -499,15 +485,12 @@ void entity::updateCollision()
 
 void entity::updateMeshAABBs()
 {
-	if (component.render.dirtyTransform)
-	{
+	if (component.render.dirtyTransform){
 		component.render.dirtyTransform = false;
 
-		if (type == ENT_MODEL_TYPE)
-		{
+		if (type == ENT_MODEL_TYPE){
 			int index = RenderHandler::fetchModelIndex(component.render.renderID);
-			if (index != -1)
-			{
+			if (index != -1){
 
 				RenderHandler::models[index].model->updatePosition(component.systems.transformation.position);
 				RenderHandler::models[index].model->updateRotation(component.systems.transformation.rotation);
@@ -527,8 +510,7 @@ void entity::updateModelBounds()
 {
 	std::vector<glm::vec3> points;
 	
-	for (size_t i = 0; i < component.collider.rootnodes.size(); i++)
-	{
+	for (size_t i = 0; i < component.collider.rootnodes.size(); i++){
 		Collision::minmax newMinMax = Collision::returnMinMax(component.collider.rootnodes[i].position, component.collider.rootnodes[i].size);
 
 		// push points into array
@@ -561,19 +543,18 @@ void entity::createModel(const std::string& path, const std::string& materialPat
 	component.systems.material.Material.LoadMaterial(materialPath);
 
 	int index = RenderHandler::fetchModelIndex(component.render.renderID);
-	if (index != -1)
-	{
-		raytracer::uploadToRaytracer(newBatchOfUUID.instanceUUID);
+	if (index != -1){
+		//raytracer::uploadToRaytracer(newBatchOfUUID.instanceUUID);
+		
+		flouraSDF::uploadToLSDFScene(component.render.instanceUUID);
 	}
 }
 
-void entity::createBillBoard(const std::string& path)
-{
+void entity::createBillBoard(const std::string& path){
 	component.render.BillBoard = new BillBoard(path);
 }
 
-void entity::sendEntityUniformsToScripts(ScriptObject* obj)
-{
+void entity::sendEntityUniformsToScripts(ScriptObject* obj){
 	sol::table transform = obj->getOrCreateTable("transform");
 	obj->setUniform("positionX", transform, sol::make_object(obj->luaState, component.systems.transformation.position.x));
 	obj->setUniform("positionY", transform, sol::make_object(obj->luaState, component.systems.transformation.position.y));
@@ -591,15 +572,13 @@ void entity::sendEntityUniformsToScripts(ScriptObject* obj)
 	obj->setUniform("positionZ", camera, sol::make_object(obj->luaState, Scene::maincamera.Position.z));
 }
 
-void entity::getEntityUniformsToScripts(ScriptObject* obj)
-{
+void entity::getEntityUniformsToScripts(ScriptObject* obj){
 	sol::table transform = obj->getOrCreateTable("transform");
 	setPosition(glm::vec3(transform["positionX"].get<float>(), transform["positionY"].get<float>(), transform["positionZ"].get<float>()));
 	setScale(glm::vec3(transform["scaleX"].get<float>(), transform["scaleY"].get<float>(), transform["scaleZ"].get<float>()));
 	setRotation(glm::vec3(transform["rotationX"].get<float>(), transform["rotationY"].get<float>(), transform["rotationZ"].get<float>()));
 }
 
-void entity::initEntityTables(ScriptObject* obj)
-{
+void entity::initEntityTables(ScriptObject* obj){
 	obj->createTable("transform");
 }

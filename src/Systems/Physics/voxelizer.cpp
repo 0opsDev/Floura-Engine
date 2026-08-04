@@ -33,10 +33,24 @@ std::vector<Collision::AABB> voxelizer::voxelizeMeshKD(std::vector<Vertex>& vert
     return nAABs;
 }
 
+std::vector<Collision::voxelAccel> voxelizer::voxelizeMeshKDAccel(std::vector<Vertex>& vertices,
+    std::vector<GLuint>& indices, Collision::AABB root, int steps, int minTri, glm::vec3 minSize,
+    glm::mat4 transformation){
+    std::vector<Collision::voxelAccel> nAABs;
+    std::vector<Vertex> nVertices = vertices;
+    
+    // transform
+    for (int i = 0; i < nVertices.size(); ++i)
+        FE_Math::transformPoint(nVertices[i].position, transformation);
+    
+    voxelizerInternalKDAccel(nVertices, indices, root, steps, minTri, minSize, nAABs);
+    return nAABs;
+}
+
 bool voxelizer::voxelizerInternalKD(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, Collision::AABB root,
                                     int steps, int minTri, glm::vec3 minSize, std::vector<Collision::AABB>& AABBs){
     
-    if (steps <= 0) return false;
+    if (steps <= 0 && minTri <= 0) return false;
     
     int hitCount = 0; // use for triangles hit
     
@@ -45,9 +59,9 @@ bool voxelizer::voxelizerInternalKD(std::vector<Vertex>& vertices, std::vector<G
     // does collision
     for (int i = 0; i < indices.size(); i += 3){
         
-        unsigned int i0 = indices[i];
-        unsigned int i1 = indices[i + 1];
-        unsigned int i2 = indices[i + 2];
+        unsigned int &i0 = indices[i];
+        unsigned int &i1 = indices[i + 1];
+        unsigned int &i2 = indices[i + 2];
         
         if (i0 >= vertices.size() ||
         i1 >= vertices.size() ||
@@ -55,9 +69,9 @@ bool voxelizer::voxelizerInternalKD(std::vector<Vertex>& vertices, std::vector<G
             continue;
         
         // transform point can go here, but not yet
-        glm::vec3 a = vertices[i0].position;
-        glm::vec3 b = vertices[i1].position;
-        glm::vec3 c = vertices[i2].position;
+        glm::vec3 &a = vertices[i0].position;
+        glm::vec3 &b = vertices[i1].position;
+        glm::vec3 &c = vertices[i2].position;
 		
         // collision sat here
         Collision::HitResult trihit = Collision::SATTriangleVSAABB(a, b, c, root.position, root.size);
@@ -89,10 +103,13 @@ bool voxelizer::voxelizerInternalKD(std::vector<Vertex>& vertices, std::vector<G
     if (countBelowMinimum >= 6) return false;
     // ^^ yandere dev ahh code
     
+    // for 0 = infinte steps
+    int nSize = 1; if (steps > 0) nSize = steps - 1;
+    
     //kds.firstSplit.size
     // traverse down
-    bool rA = voxelizerInternalKD(vertices, nIndices, kds.firstSplit, steps - 1, minTri, minSize, AABBs);
-    bool rB = voxelizerInternalKD(vertices, nIndices, kds.secondSplit, steps - 1, minTri, minSize, AABBs);
+    bool rA = voxelizerInternalKD(vertices, nIndices, kds.firstSplit, nSize, minTri, minSize, AABBs);
+    bool rB = voxelizerInternalKD(vertices, nIndices, kds.secondSplit, nSize, minTri, minSize, AABBs);
     
     // if both are false, pushback the root
     if (!rA && !rB) AABBs.push_back(root);
@@ -104,7 +121,7 @@ bool voxelizer::voxelizerInternalKDwVertSnap(std::vector<Vertex>& vertices, std:
     Collision::AABB root, int steps, int minTri, glm::vec3 minSize, std::vector<Collision::AABB>& AABBs)
 {
         
-    if (steps <= 0) return false;
+    if (steps <= 0 && minTri <= 0) return false;
     
     int hitCount = 0; // use for triangles hit
     
@@ -114,9 +131,9 @@ bool voxelizer::voxelizerInternalKDwVertSnap(std::vector<Vertex>& vertices, std:
     // does collision
     for (int i = 0; i < indices.size(); i += 3){
         
-        unsigned int i0 = indices[i];
-        unsigned int i1 = indices[i + 1];
-        unsigned int i2 = indices[i + 2];
+        unsigned int &i0 = indices[i];
+        unsigned int &i1 = indices[i + 1];
+        unsigned int &i2 = indices[i + 2];
         
         if (i0 >= vertices.size() ||
         i1 >= vertices.size() ||
@@ -124,9 +141,9 @@ bool voxelizer::voxelizerInternalKDwVertSnap(std::vector<Vertex>& vertices, std:
             continue;
         
         // transform point can go here, but not yet
-        glm::vec3 a = vertices[i0].position;
-        glm::vec3 b = vertices[i1].position;
-        glm::vec3 c = vertices[i2].position;
+        glm::vec3 &a = vertices[i0].position;
+        glm::vec3 &b = vertices[i1].position;
+        glm::vec3 &c = vertices[i2].position;
 		
         // collision sat here
         Collision::HitResult trihit = Collision::SATTriangleVSAABB(a, b, c, root.position, root.size);
@@ -148,7 +165,7 @@ bool voxelizer::voxelizerInternalKDwVertSnap(std::vector<Vertex>& vertices, std:
     //if (hitCount <= 0) return false;
     
     Collision::rubiksCubePoints nRubikzCube = Collision::fetchFurthestVertices(nVertices);
-    Collision::AABB nAABB = BVH::rootNodeFromRubixPoints(nRubikzCube);
+    Collision::AABB nAABB = Collision::rootNodeFromRubixPoints(nRubikzCube, glm::mat4(1.0f));
     
     // should kd split and test both
     Collision::KDsplit kds = Collision::KDsplitVolume(nAABB.position, nAABB.size);
@@ -161,12 +178,89 @@ bool voxelizer::voxelizerInternalKDwVertSnap(std::vector<Vertex>& vertices, std:
     if (countBelowMinimum >= 6) return false;
     // ^^ yandere dev ahh code
     
+    // for 0 = infinte steps
+    int nSize = 1; if (steps > 0) nSize = steps - 1;
+    
     // traverse down
-    bool rA = voxelizerInternalKDwVertSnap(vertices, nIndices, kds.firstSplit, steps - 1, minTri, minSize, AABBs);
-    bool rB = voxelizerInternalKDwVertSnap(vertices, nIndices, kds.secondSplit, steps - 1, minTri, minSize, AABBs);
+    bool rA = voxelizerInternalKDwVertSnap(vertices, nIndices, kds.firstSplit, nSize, minTri, minSize, AABBs);
+    bool rB = voxelizerInternalKDwVertSnap(vertices, nIndices, kds.secondSplit, nSize, minTri, minSize, AABBs);
     
     // if both are false, pushback the root
     if (!rA && !rB) AABBs.push_back(root);
+    
+    return true;
+}
+
+bool voxelizer::voxelizerInternalKDAccel(std::vector<Vertex>& vertices, std::vector<GLuint>& indices,
+    Collision::AABB root, int steps, int minTri, glm::vec3 minSize, std::vector<Collision::voxelAccel>& AABBs){
+        
+    if (steps <= 0 && minTri <= 0) return false;
+    
+    int hitCount = 0; // use for triangles hit
+    
+    std::vector<GLuint> nIndices;
+    
+    // does collision
+    for (int i = 0; i < indices.size(); i += 3){
+        
+        unsigned int &i0 = indices[i];
+        unsigned int &i1 = indices[i + 1];
+        unsigned int &i2 = indices[i + 2];
+        
+        if (i0 >= vertices.size() ||
+        i1 >= vertices.size() ||
+        i2 >= vertices.size())
+            continue;
+        
+        // transform point can go here, but not yet
+        glm::vec3 &a = vertices[i0].position;
+        glm::vec3 &b = vertices[i1].position;
+        glm::vec3 &c = vertices[i2].position;
+		
+        // collision sat here
+        Collision::HitResult trihit = Collision::SATTriangleVSAABB(a, b, c, root.position, root.size);
+        if (trihit.isColliding){
+            nIndices.push_back(i0);
+            nIndices.push_back(i1);
+            nIndices.push_back(i2);
+            
+            hitCount++;
+        }
+    }
+    
+    // if under min or nohit
+    if (hitCount < minTri || hitCount <= 0) return false;
+    //if (hitCount <= 0) return false;
+    
+    // should kd split and test both
+    Collision::KDsplit kds = Collision::KDsplitVolume(root.position, root.size);
+    // if children have any axis below min size snap them, and if all are return false
+    // going for if statements so i can filter which axis are min
+    int countBelowMinimum = 0;
+    if (kds.firstSplit.size.x < minSize.x){ kds.firstSplit.size.x  = minSize.x; countBelowMinimum++;}
+    if (kds.firstSplit.size.y < minSize.y){ kds.firstSplit.size.y  = minSize.y; countBelowMinimum++;}
+    if (kds.firstSplit.size.z < minSize.z){ kds.firstSplit.size.z  = minSize.z; countBelowMinimum++;}
+    if (kds.secondSplit.size.x < minSize.x){ kds.secondSplit.size.x  = minSize.x; countBelowMinimum++;}
+    if (kds.secondSplit.size.y < minSize.y){ kds.secondSplit.size.y  = minSize.y; countBelowMinimum++;}
+    if (kds.secondSplit.size.z < minSize.z){ kds.secondSplit.size.z  = minSize.z; countBelowMinimum++;}
+    
+    if (countBelowMinimum >= 6) return false;
+    // ^^ yandere dev ahh code
+    
+    // for 0 = infinte steps
+    int nSize = 1; if (steps > 0) nSize = steps - 1;
+    
+    //kds.firstSplit.size
+    // traverse down
+    bool rA = voxelizerInternalKDAccel(vertices, nIndices, kds.firstSplit, nSize, minTri, minSize, AABBs);
+    bool rB = voxelizerInternalKDAccel(vertices, nIndices, kds.secondSplit, nSize, minTri, minSize, AABBs);
+    
+    Collision::voxelAccel nVA;
+    nVA.voxel = root;
+    nVA.indices = nIndices;
+    
+    // if both are false, pushback the root
+    if (!rA && !rB) AABBs.push_back(nVA);
     
     return true;
 }

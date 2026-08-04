@@ -37,10 +37,10 @@ public:
     float aspect = 0.0f;
     float speed = 0.1f;
     glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 inverseViewMatrix = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
+    glm::mat4 hView = glm::mat4(1.0f);
+    glm::mat4 hProjection = glm::mat4(1.0f);
     glm::mat4 projectionAlwaysUnjittered = glm::mat4(1.0f);
-    glm::mat4 inverseUnjitteredProjectionMatrix = glm::mat4(1.0f);
     float fov = 60.0f;
     glm::vec2 nearFar = glm::vec2(0.1f, 100.0f);
     float gamma = 2.2f;

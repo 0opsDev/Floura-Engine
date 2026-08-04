@@ -5,8 +5,6 @@
 #include "Scene/scene.h"
 #include <Render/Handler/RenderHandler.h>
 #include "utils/FE_math.h"
-#include <xhash>
-#include "Render/passes/lighting/raytracer.h"
 
 bool Player::CollideWithCamera = true;
 bool Player::isGrounded = false;
@@ -61,20 +59,16 @@ void Player::update() {
 	float adjustedSpeed = 5.0f * TimeUtil::deltatime;
 	glm::vec3 flatOrientation = glm::normalize(glm::vec3(Scene::maincamera.Orientation.x, 0.0f, Scene::maincamera.Orientation.z));
 	
-	if (glfwGetKey(windowHandler::window, GLFW_KEY_W) == GLFW_PRESS)
-	{
+	if (glfwGetKey(windowHandler::window, GLFW_KEY_W) == GLFW_PRESS){
 		Scene::maincamera.Position += adjustedSpeed * flatOrientation;
 	}
-	if (glfwGetKey(windowHandler::window, GLFW_KEY_A) == GLFW_PRESS)
-	{
+	if (glfwGetKey(windowHandler::window, GLFW_KEY_A) == GLFW_PRESS){
 		Scene::maincamera.Position += adjustedSpeed * -glm::normalize(glm::cross(flatOrientation, Scene::maincamera.Up));
 	}
-	if (glfwGetKey(windowHandler::window, GLFW_KEY_S) == GLFW_PRESS)
-	{
+	if (glfwGetKey(windowHandler::window, GLFW_KEY_S) == GLFW_PRESS){
 		Scene::maincamera.Position += adjustedSpeed * -flatOrientation;
 	}
-	if (glfwGetKey(windowHandler::window, GLFW_KEY_D) == GLFW_PRESS)
-	{
+	if (glfwGetKey(windowHandler::window, GLFW_KEY_D) == GLFW_PRESS){
 		Scene::maincamera.Position += adjustedSpeed * glm::normalize(glm::cross(flatOrientation, Scene::maincamera.Up));
 	}
 	// very bad collisions with aabb

@@ -2,7 +2,6 @@
 #include "Editor/UI/ImGui/ImGuiInclude.h"
 #include "Editor/UI/ImGui/FE_ImGui.h"
 #include "Scene/LightingHandler.h"
-#include "Scene/ObjectManager.h"
 #include "Scene/scene.h"
 #include "utils/logConsole.h"
 #include "Gameplay/Player.h"
@@ -13,6 +12,8 @@
 
 static const char* lightTypes[]{ "Spotlight","Pointlight" };
 static int SelectedLight = 0;
+
+char EcsInspector::NameBuffer[256] = "New Object";
 
 void EcsInspector::InspectorWindow() {
 
@@ -66,7 +67,6 @@ void EcsInspector::InspectorWindow() {
 		ImGui::DragFloat2("Near and Far Depth Plane", RenderClass::DepthPlane);
 	}
 	else if (FEImGuiWindow::SelectedObjectType == "Empty") EmptyWindow();
-	else if (FEImGuiWindow::SelectedObjectType == "Volume") VolumeWindow();
 	else if (FEImGuiWindow::SelectedObjectType == "Material") MaterialWindow();
 	// these all need to be replaced with enums
 	
@@ -90,9 +90,9 @@ void EcsInspector::ModelWindow() {
 	ImGui::Text(("Instance UUID: " + (Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->component.render.instanceIDString)).c_str());
 
 
-	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
+	ImGui::InputText("##Name", EcsInspector::NameBuffer, sizeof(EcsInspector::NameBuffer));
 	ImGui::SameLine();
-	if (ImGui::SmallButton("Apply Name"))Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name = ObjectManager::NameBuffer;
+	if (ImGui::SmallButton("Apply Name"))Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name = EcsInspector::NameBuffer;
 
 	if (ImGui::TreeNode("Rendering Component")) {
 
@@ -167,7 +167,7 @@ void EcsInspector::ModelWindow() {
 	}
 	ImGui::Spacing();
 	if (ImGui::SmallButton("Delete")) {
-		ObjectManager::deleteObjectwIndex('o', FEImGuiWindow::SelectedObjectIndex);
+		Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->Delete();
 		//ObjectManager::deleteObject('m', Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->ID.UniqueNumber);
 		//Scene::modelObjects[FEImGuiWindow::SelectedObjectIndex]->Delete();
 		//Scene::modelObjects.erase(Scene::modelObjects.begin() + FEImGuiWindow::SelectedObjectIndex);
@@ -195,18 +195,10 @@ void EcsInspector::BillBoardWindow() {
 	ImGui::SameLine();
 	if (ImGui::Button("copy")) ImGui::SetClipboardText(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->UUIDstring.c_str());
 
-	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
+	ImGui::InputText("##Name", EcsInspector::NameBuffer, sizeof(EcsInspector::NameBuffer));
 	ImGui::SameLine();
-	if (ImGui::SmallButton("Apply Name"))Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name = ObjectManager::NameBuffer;
-
-	if (ImGui::TreeNode("Transform Component")) {
-		ImGui::Text("Transformations: ");
-
-
-		ImGui::DragFloat3("Position", &bPos.x);
-		ImGui::DragFloat3("Scale", &bScale.x);
-		ImGui::TreePop();// Ends The ImGui Window
-	}
+	if (ImGui::SmallButton("Apply Name"))Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name = EcsInspector::NameBuffer;
+	
 	ImGui::Spacing();
 	entityTransformPane();
 	ImGui::Spacing();
@@ -220,7 +212,7 @@ void EcsInspector::BillBoardWindow() {
 
 	ImGui::Spacing();
 	if (ImGui::SmallButton("Delete")) {
-		ObjectManager::deleteObjectwIndex('o', FEImGuiWindow::SelectedObjectIndex); // should be o
+		Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->Delete();
 		FEImGuiWindow::SelectedObjectType = "";
 		// skip loop
 		return;
@@ -244,9 +236,9 @@ void EcsInspector::SoundWindow()
 {
 	//Scene::SoundObjects
 	ImGui::Text((Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].name).c_str());
-	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
+	ImGui::InputText("##Name", EcsInspector::NameBuffer, sizeof(EcsInspector::NameBuffer));
 	ImGui::SameLine();
-	if (ImGui::SmallButton("Apply Name")) Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].name = ObjectManager::NameBuffer;
+	if (ImGui::SmallButton("Apply Name")) Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].name = EcsInspector::NameBuffer;
 
 	ImGui::DragFloat3("Position", &Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].position.x);
 	ImGui::DragFloat("Volume", &Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].currentvolume, 0.01f, 0.0f, 1.0f);
@@ -257,7 +249,8 @@ void EcsInspector::SoundWindow()
 	ImGui::Checkbox("Is3D", &Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].is3D);
 
 	if (ImGui::SmallButton("Delete")) {
-		ObjectManager::deleteObjectwIndex('s', FEImGuiWindow::SelectedObjectIndex);
+		Scene::SoundObjects[FEImGuiWindow::SelectedObjectIndex].DeleteSound();
+		Scene::SoundObjects.erase(Scene::SoundObjects.begin() + FEImGuiWindow::SelectedObjectIndex);
 		FEImGuiWindow::SelectedObjectType = "";
 	}
 }
@@ -293,7 +286,7 @@ void EcsInspector::LightWindow() {
 
 	if (ImGui::SmallButton("Delete")) {
 		//LightingHandler::Lights.erase(LightingHandler::Lights.begin() + FEImGuiWindow::SelectedObjectIndex);
-		ObjectManager::deleteObjectwIndex('l', FEImGuiWindow::SelectedObjectIndex);
+		LightingHandler::deleteLight(FEImGuiWindow::SelectedObjectIndex);
 		FEImGuiWindow::SelectedObjectIndex = 0; // reset index
 		FEImGuiWindow::SelectedObjectType = "";
 	}
@@ -373,9 +366,9 @@ void EcsInspector::EmptyWindow()
 	ImGui::SameLine();
 	if (ImGui::Button("copy")) ImGui::SetClipboardText(Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->UUIDstring.c_str());
 	
-	ImGui::InputText("##Name", ObjectManager::NameBuffer, sizeof(ObjectManager::NameBuffer));
+	ImGui::InputText("##Name", EcsInspector::NameBuffer, sizeof(EcsInspector::NameBuffer));
 	ImGui::SameLine();
-	if (ImGui::SmallButton("Apply Name"))Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name = ObjectManager::NameBuffer;
+	if (ImGui::SmallButton("Apply Name"))Scene::entityObjects[FEImGuiWindow::SelectedObjectIndex]->name = EcsInspector::NameBuffer;
 	
 	ImGui::Spacing();
 	entityTransformPane();
@@ -384,13 +377,6 @@ void EcsInspector::EmptyWindow()
 	ImGui::Spacing();
 	entityScriptPane();
 	ImGui::Spacing();
-}
-
-void EcsInspector::VolumeWindow()
-{
-	ImGui::Checkbox("doDebugDraw", &Scene::volumes[FEImGuiWindow::SelectedObjectIndex]->doDebugDraw);
-	FEImGui::DragVec3("Position", Scene::volumes[FEImGuiWindow::SelectedObjectIndex]->position, glm::vec3(0.0f), 100.0f);
-	FEImGui::DragVec3("Scale", Scene::volumes[FEImGuiWindow::SelectedObjectIndex]->scale, glm::vec3(0.0f), 100.0f);
 }
 
 static std::string materialType = "Standard";

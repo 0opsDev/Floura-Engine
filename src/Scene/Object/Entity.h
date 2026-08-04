@@ -1,9 +1,12 @@
+#ifndef FE_OBJECT_H
+#define FE_OBJECT_H
+
 #include <string>
 #include <Render/Object/ModelAssimp.h>
 #include <Render/Object/Billboard.h>
 #include <Render/Shader/Material.h>
 #include "Systems/Physics/Collision.h"
-#include "Render/passes/lighting/raytracer.h"
+#include <Render/pipeline/prebuilt_pipelines/depreciated/raytracer.h>
 #include <vector>
 #include <Scripting/ScriptObject.h>
 #include <Scene/ProbeHandler.h>
@@ -13,8 +16,6 @@
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
 
-#ifndef FE_OBJECT_H
-#define FE_OBJECT_H
 
 class entity
 {
@@ -128,8 +129,6 @@ public:
 
 	void drawShadowMap();
 
-	void updateLights();
-
 	void Delete();
 	
 	bool queuedForDeletion = false;
@@ -141,7 +140,6 @@ public:
 	// aabb vs entity here
 	Collision::HitResult AABBVsEntity(glm::vec3 pos, glm::vec3 scale);
 	Collision::HitResult RayVsEntity(glm::vec3 rayPos, glm::vec3 rayDir);
-	public:
 		void updateCollision();
 		void updateMeshAABBs();
 		void updateModelBounds();

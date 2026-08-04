@@ -3,6 +3,7 @@
 #include "Render/Handler/RenderHandler.h"
 #include  "Systems/util/UUID.h"
 #include "utils/FE_math.h"
+#include "Render/Handler/CubeVisualizer.h"
 
 void ocean::updatePosition(glm::vec3 Position)
 {globalTransformation.position = Position;}
@@ -117,8 +118,7 @@ void ocean::draw(Shader shader, Camera Camera)
 
 void ocean::dbgChunkDraw()
 {
-    for (int i = 0; i < chunks.size(); ++i)
-    {
-        RenderClass::WhiteCube->draw(chunks[i].position, glm::vec3(chunks[i].areaXZ * 0.5), chunks[i].colourLod,  2.0, true, false);
+    for (int i = 0; i < chunks.size(); ++i){
+        CubeVisualizer::draw(chunks[i].position, glm::vec3(chunks[i].areaXZ * 0.5), chunks[i].colourLod,  2.0, true, false);
     }
 }

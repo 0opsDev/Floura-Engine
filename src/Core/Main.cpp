@@ -18,15 +18,13 @@
 #include "Systems/general/jobClass.h"
 #include "argumentHandler.h"
 
-
 bool Main::sleepState = true;
 bool Main::lockGameThread = false; // big no rn holds renderer
 bool Main::lockPhysicsThread = false;
 bool Main::lockWorkerThread = false;
 
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
 	ArgumentHandler::processArguments(argc, argv);
 
 	//CloseConsoleWindow();
@@ -50,8 +48,7 @@ int main(int argc, char *argv[])
 	std::thread physicsThread(Main::physicsLoop, windowHandler::window);
 	std::thread workerThread(Main::workerLoop, windowHandler::window);
 	
-	while (!glfwWindowShouldClose(windowHandler::window)) // main thread
-	{
+	while (!glfwWindowShouldClose(windowHandler::window)){ // main thread
 		// no lock here, handles inputs
 		TimeUtil::mainThreadUpdate(); // update time
 		getAjob::onBeginningOfMainThread();
@@ -80,11 +77,9 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void Main::gameLoop(GLFWwindow* window)
-{
+void Main::gameLoop(GLFWwindow* window){
 	glfwMakeContextCurrent(window); // hand over context to thread
-	while (!glfwWindowShouldClose(window))
-	{
+	while (!glfwWindowShouldClose(window)){
 		if (lockGameThread) continue;
 		
 		TimeUtil::update();
@@ -111,27 +106,22 @@ void Main::gameLoop(GLFWwindow* window)
 		//LoadHandler::updateFromOpenGLThread(); // for the opengl specific stuff that cant run on the other threads to-do with loading
 		
 		RenderClass::Render(windowHandler::window, windowHandler::width, windowHandler::height);
-		
 	}
 	
 	glfwMakeContextCurrent(nullptr);
 }
 
-void Main::physicsAttemptThreadUnlock()
-{
+void Main::physicsAttemptThreadUnlock(){
 	if (!lockPhysicsThread) return; // thread not locked
 	
 	// now for the giant condition (small for now, and yeah I know there's better ways to do this)
-	if (!Scene::entityDeletionUnderGoing)
-	{
+	if (!Scene::entityDeletionUnderGoing){
 		lockPhysicsThread = false;
 	}
 }
 
-void Main::physicsLoop(GLFWwindow* window)
-{
-	while (!glfwWindowShouldClose(window))
-	{
+void Main::physicsLoop(GLFWwindow* window){
+	while (!glfwWindowShouldClose(window)){
 		if (lockPhysicsThread){
 			physicsAttemptThreadUnlock(); // attempt to unlock and return
 			continue;
@@ -144,14 +134,13 @@ void Main::physicsLoop(GLFWwindow* window)
 		physworld::update(TimeUtil::ptTimer.deltatime);
 		
 		physworld::collisionResolve(); // resolve the collisions
+		physworld::collisionResolveCamera();
 	}
 }
 
 // this thread is for worker tasks
-void Main::workerLoop(GLFWwindow* window)
-{
-	while (!glfwWindowShouldClose(window))
-	{
+void Main::workerLoop(GLFWwindow* window){
+	while (!glfwWindowShouldClose(window)){
 		if (lockWorkerThread) continue;
 		getAjob::onBeginningOfPhysicsThread();
 		TimeUtil::workerThreadUpdate();

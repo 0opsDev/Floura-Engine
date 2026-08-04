@@ -1,6 +1,6 @@
 ﻿#include "flouraDeferred.h"
-#include <Render/passes/geometry/geometryPass.h>
-#include <Render/passes/post/historyPass.h>
+#include <Render/pipeline/prebuilt_pipelines/geometryPass.h>
+#include <Render/pipeline/prebuilt_pipelines/historyPass.h>
 #include <Render/Shader/renderTarget.h>
 #include <Render/Handler/RenderClass.h>
 #include <Scene/LightingHandler.h>
@@ -104,11 +104,8 @@ void FlouraDeferred::DeferredLightingPass(){
 	DFL_Shader.setMat4("cameraMatrix", Scene::maincamera.cameraMatrix);
 	DFL_Shader.setMat4("projectionMatrix", Scene::maincamera.projection);
 	DFL_Shader.setMat4("viewMatrix", Scene::maincamera.view);
-	glm::mat4 inverseView = glm::inverse(Scene::maincamera.view);
-	DFL_Shader.setMat4("inverseViewMatrix",inverseView);
-
-	glm::mat4 inverseProjection = glm::inverse(Scene::maincamera.projection);
-	DFL_Shader.setMat4("inverseProjection", inverseProjection);
+	DFL_Shader.setMat4("inverseViewMatrix",glm::inverse(Scene::maincamera.view));
+	DFL_Shader.setMat4("inverseProjection", glm::inverse(Scene::maincamera.projection));
 
 	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(Scene::maincamera.cameraMatrix)));
 	DFL_Shader.setMat3("normalMatrix", normalMatrix);
@@ -116,9 +113,6 @@ void FlouraDeferred::DeferredLightingPass(){
 	DFL_Shader.setFloat3("orientation", Scene::maincamera.Orientation);
 	DFL_Shader.setFloat3("cameraPos", Scene::maincamera.Position);
 	DFL_Shader.setFloat3("cameraDirection", Scene::maincamera.Orientation);
-	//std::cout << Camera::width << " " << Camera::height << std::endl;
-	DFL_Shader.setFloat2("screenSize", glm::vec2(Scene::maincamera.width, Scene::maincamera.height));
-	
 	DFL_Shader.setFloat3("camPos", Scene::maincamera.Position);
 	DFL_Shader.setInt("indirectSamples", ProbeHandler::indirectSamples);
 
@@ -126,7 +120,7 @@ void FlouraDeferred::DeferredLightingPass(){
 	DFL_Shader.setHandleui64ARB("BlueNoiseHandle", RenderClass::bluenoise->handle);
 	DFL_Shader.setHandleui64ARB("bayerMatrixHandle", RenderClass::bayermatrix->handle);
 
-	DFL_Shader.setBool("doSSR", RenderClass::doSSR);
+	//DFL_Shader.setBool("doSSR", RenderClass::doSSR);
 	DFL_Shader.setBool("doContactShadows", RenderClass::doContactShadows);
 
 	DFL_Shader.setTimeVariables();
@@ -141,7 +135,7 @@ void FlouraDeferred::DeferredLightingPass(){
 }
 
 void FlouraDeferred::ssrPass(){
-    	glDisable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 	SSR_Shader.Activate();
 	// gPass textures bound to FB
@@ -209,11 +203,8 @@ void FlouraDeferred::ssrPass(){
 	SSR_Shader.setMat4("cameraMatrix", Scene::maincamera.cameraMatrix);
 	SSR_Shader.setMat4("projectionMatrix", Scene::maincamera.projection);
 	SSR_Shader.setMat4("viewMatrix", Scene::maincamera.view);
-	glm::mat4 inverseView = glm::inverse(Scene::maincamera.view);
-	SSR_Shader.setMat4("inverseViewMatrix",inverseView);
-
-	glm::mat4 inverseProjection = glm::inverse(Scene::maincamera.projection);
-	SSR_Shader.setMat4("inverseProjection", inverseProjection);
+	SSR_Shader.setMat4("inverseViewMatrix",glm::inverse(Scene::maincamera.view));
+	SSR_Shader.setMat4("inverseProjection", glm::inverse(Scene::maincamera.projection));
 
 	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(Scene::maincamera.cameraMatrix)));
 	SSR_Shader.setMat3("normalMatrix", normalMatrix);
@@ -221,12 +212,8 @@ void FlouraDeferred::ssrPass(){
 	SSR_Shader.setFloat3("orientation", Scene::maincamera.Orientation);
 	SSR_Shader.setFloat3("cameraPos", Scene::maincamera.Position);
 	SSR_Shader.setFloat3("cameraDirection", Scene::maincamera.Orientation);
-	//std::cout << Camera::width << " " << Camera::height << std::endl;
-	SSR_Shader.setFloat2("screenSize", glm::vec2(Scene::maincamera.width, Scene::maincamera.height));
-	
 	SSR_Shader.setFloat3("camPos", Scene::maincamera.Position);
 	SSR_Shader.setInt("indirectSamples", ProbeHandler::indirectSamples);
-
 	
 	SSR_Shader.setHandleui64ARB("BlueNoiseHandle", RenderClass::bluenoise->handle);
 	SSR_Shader.setHandleui64ARB("bayerMatrixHandle", RenderClass::bayermatrix->handle);
