@@ -1,0 +1,14 @@
+[
+  {
+    "Path": "Assets/Skybox/qwantani_dusk_2_puresky_4k",
+
+    "Faces": [
+      "02_left.png",
+      "04_right.png",
+      "01_up.png",
+      "06_down.png",
+      "05_front.png",
+      "03_back.png"
+    ]
+  }
+]
