@@ -3,16 +3,10 @@
 #extension GL_ARB_gpu_shader_int64 : enable
 #extension GL_ARB_bindless_texture : require
 
-// Outputs colors in RGBA
 out vec4 FragColor;
-
-// Imports the current position from the Vertex Shader
 in vec3 crntPos;
-// Imports the normal from the Vertex Shader
 in vec3 Normal;
-// Imports the color from the Vertex Shader
 in vec3 color;
-// Imports the texture coordinates from the Vertex Shader
 in vec2 texCoord;
 
 in vec4 fragPosLight;
@@ -61,8 +55,7 @@ uniform float time;
 uniform int frame;
 uniform int indirectSamples;
 
-struct Light
-{
+struct Light{
 	vec3 position;
 	vec3 rotation;
 	vec3 colour;
@@ -305,8 +298,7 @@ vec4 lights(sampler2D specSamp){
 	vec4 finalColour = vec4(0.0);
     //return (diffuseTex * skyColor);
 	int maxLights = 64;
-	for (int i = 0; i < min(lightCount, maxLights); i++)
-		{
+	for (int i = 0; i < min(lightCount, maxLights); i++){
 			if (Lights[i].type == 0){
 			finalColour += spotLight(i, specSamp);
 			}
@@ -314,20 +306,15 @@ vec4 lights(sampler2D specSamp){
 			if (Lights[i].type == 1){
 			finalColour += pointLight(i, specSamp);
 		}
-
 	}
 	//return finalColour;
 		//FragColor = direcLight(); doDirLight
 
-	if (doDirLight) // if direct light is enabled, add it to the final color
-	{
+	if (doDirLight){// if direct light is enabled, add it to the final color
 		finalColour += direcLight(specSamp);
 	}
 
-		///return vec4(finalColour.xyz, diffuseTex.a);
-		return vec4(finalColour); // was xyz
-		//return vec4((diffuseTex.xyz * skyColor.xyz) + finalColour.xyz, diffuseTex.a);
-		//return (diffuseTex.xyz * skyColor.xyz) + finalColour.xyz;
+	return finalColour; // was xyz
 } 
 
 float rand(vec2 co){
@@ -466,22 +453,17 @@ bool blueNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (could
 // maxDist = 50.0;
 
 //void Reflect(vec3 albedo, out vec3 diffuse, out vec3 specular, sampler2D specSamp, float depth)
-void Reflect(vec3 albedo, out vec3 diffuse, out vec3 specular, sampler2D specSamp)
-{
-
-
-/*
-
+void Reflect(vec3 albedo, out vec3 diffuse, out vec3 specular, sampler2D specSamp){
+	/*
 	float fadeDistance = 10.0;
 	float distToFar = maxDist - depth;
 	float farOpacity = distToFar / fadeDistance;
 	farOpacity = clamp(farOpacity, 0.0, 1.0);
 
 	if (blueNoiseOpacity(farOpacity)) return;
-*/
+	*/
 	//	if (doReflect && depth < maxDist)
-	if (doReflect)
-	{
+	if (doReflect){
 		float met = 0;
 		vec3 nF = vec3(0.0f);
 		vec3 irradiance = vec3(0.0f);
@@ -496,10 +478,8 @@ void Reflect(vec3 albedo, out vec3 diffuse, out vec3 specular, sampler2D specSam
 }
 
 
-vec3 rough(sampler2D specSamp)
-{
-	if (doReflect)
-	{
+vec3 rough(sampler2D specSamp){
+	if (doReflect){
 	// textures
 	vec3 metallicRoughness = texture(specSamp, texCoord).rgb; // metalic
 	float rough = metallicRoughness.g;
@@ -598,8 +578,7 @@ float logisticDepth(float depth, float steepness, float offset, float NearPlane,
     return 1.0 / (1.0 + expVal);
 }
 
-vec4 calculateFog(float near, float far, float depthDistance, vec3 Colour, vec4 originalImage)
-{
+vec4 calculateFog(float near, float far, float depthDistance, vec3 Colour, vec4 originalImage){
 	float linearizedFogDepth = linearizeDepth(gl_FragCoord.z, near, far);
 	float logisticizedDepth = logisticDepth(gl_FragCoord.z, 0.1f, depthDistance, near, far);
 	return originalImage * (1.0f - logisticizedDepth) + vec4(logisticizedDepth * vec4(Colour, 1.0f)); // fog

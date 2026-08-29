@@ -5,8 +5,7 @@
 
 #include "Render/Shader/shaderClass.h"
 
-class Texture3D
-{
+class Texture3D{
 public:
     
     GLuint ID; // texture ID
@@ -15,6 +14,7 @@ public:
     int width = 0; int height = 0; int depth = 0;
     
     void createTexture3D(const char* path, const char* texType, GLuint slot);
+    void createImage3D(int w, int h, int d, const char* texType, GLuint slot, GLenum format);
     
     void Bind();
     void Unbind();

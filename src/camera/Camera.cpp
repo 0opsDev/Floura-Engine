@@ -4,7 +4,6 @@
 #include "Gameplay/Player.h"
 #include "utils/FE_math.h"
 #include "render/window/WindowHandler.h"
-#include <glm/gtc/matrix_inverse.hpp>
 
 // Global Variables
 
@@ -92,45 +91,25 @@ void Camera::Inputs(GLFWwindow* window, float deltatime)
 	{
         // Handles inputs
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        {
             Position += adjustedSpeed * Orientation;
-        }
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        {
             Position += adjustedSpeed * -glm::normalize(glm::cross(Orientation, Up));
-        }
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        {
             Position += adjustedSpeed * -Orientation;
-        }
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        {
             Position += adjustedSpeed * glm::normalize(glm::cross(Orientation, Up));
-        }
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) //jump
-        {
             Position += adjustedSpeed * Up;
-        }
         if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-        {
             Position += adjustedSpeed * -Up;
-        }
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        {
             s_scrollSpeed += 10.0f * deltatime;
-        }
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        {
             s_scrollSpeed -= 10.0f * deltatime;
-        }
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        {
             speed = (10.0f + s_scrollSpeed);
-        }
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-        {
             speed = (5.0f + s_scrollSpeed);
-        }
 	}
     else {
         // Flattened forward direction (ignore Y component)

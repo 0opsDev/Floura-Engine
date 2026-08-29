@@ -93,7 +93,7 @@ public:
     
     static void collisionResolve();
     
-    static void solve(Collision::HitResult& hr, object& objA, glm::vec3& posA, object& objB, glm::vec3& posB, bool& dirtyFlagb, bool& dirtyFlaga );
+    static void solve(Collision::HitResult& hr, object& objA, glm::vec3& posA, object& objB, glm::vec3& posB);
     
 private:
     static float accumulatedTime;

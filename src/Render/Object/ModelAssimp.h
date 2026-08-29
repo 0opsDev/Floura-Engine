@@ -85,6 +85,8 @@ public:
 	void SDFgenerateVox(int accelSteps, int accelMinTri, int sliceSize, GLuint slot);
 	void SDFgenerateBlas(int sliceSize, GLuint slot);
 	void SDFgeneratePrim(int sliceSize, GLuint slot);
+	void VXGgeneratePrim(int sliceSize, GLuint slot);
+	void VXGgenerateBlas(int sliceSize, GLuint slot);
 	
 	void createVoxelMesh(int steps, int minTri, glm::vec3 minSize, bool doVertexSnap);
 	void createVoxelModel(int steps, int minTri, glm::vec3 minSize);
@@ -97,6 +99,7 @@ public:
 	///std::vector<std::vector<Collision::AABB>> VoxelMeshes;
 	std::vector<std::vector<voxelizer::voxelObj>> VoxelMeshes;
 	std::vector<Texture3D *> meshSDFs;
+	std::vector<Texture3D *> meshVXGs;
 	std::vector<Mesh> meshes;
 	std::vector<Collision::rubiksCubePoints> meshAabbPoints;
 

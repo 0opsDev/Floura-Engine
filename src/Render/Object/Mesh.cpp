@@ -56,8 +56,7 @@ void Mesh::bindMaterial(Shader& shader){
     unsigned int numNormal = 0;
     unsigned int numEmissive = 0;
 
-    for (unsigned int i = 0; i < textures.size(); i++)
-    {
+    for (unsigned int i = 0; i < textures.size(); i++){
         std::string num;
         std::string type = textures[i].type;
         if (type == "texture_diffuse") {num = std::to_string(numDiffuse++);}

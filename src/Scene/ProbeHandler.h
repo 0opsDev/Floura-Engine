@@ -1,41 +1,48 @@
 #ifndef PROBE_HANDLER_CLASS_H	
 #define PROBE_HANDLER_CLASS_H
 
-#include <iostream>
 #include <glm/glm.hpp>
-#include <Systems/Physics/Collision.h>
 #include <vector>
+#include <Render/Object/texture3D.h>
 class ProbeHandler
 {
 public:
-
-	struct probe
-	{
-		int size; // same on all sides, also whole number
-		glm::ivec3 position; // also whole number
+	
+	enum probeTypes{
+		individualBaked = 0,
+		gridBaked = 1,
+		individualDynamic = 2,
+		gridDynamic = 3
 	};
-
-	static bool viewProbes;
+	
+	struct probeVolume{
+		Texture3D* indirectVolume;
+		Texture3D* emissionVolume;
+		uint64_t uuid;
+		glm::vec3 position = glm::vec3(0.0f);
+		glm::vec3 scale = glm::vec3(10.0f);
+	};
+	
+	struct volume{
+		glm::vec3 position = glm::vec3(0.0f);
+		glm::vec3 scale = glm::vec3(10.0f);
+		uint64_t uuid;
+		int updateRate = 1;
+		
+	};
+	
+	
+	
+	static GLuint probesSSBO;
+	static std::vector<probeVolume> probeVolumes;
+	
 	static bool dirtyScene;
-	static int sceneProveArea;
-	static int probeCalculationMethod;
 	static int indirectSamples; // sticking it here for now
-
-	// should take all root nodes, and the scene bounds
-
-	// basic one that takes scene bounds
-	static std::vector<ProbeHandler::probe> SceneToProbeSpace(Collision::AABB SceneBounds, int probeArea);
-
-
-	static std::vector<ProbeHandler::probe> aabbsSceneToProbeSpace(Collision::AABB SceneBounds, std::vector<Collision::AABB> aabbs, int probeArea);
-
-	static std::vector<ProbeHandler::probe> aabbsToProbeSpace(Collision::AABB SceneBounds, std::vector<Collision::AABB> aabbs, int probeArea);
-
-	static std::vector<ProbeHandler::probe> calculateProbesWithMethod(int calculationMethod, Collision::AABB SceneBounds, std::vector<Collision::AABB> aabbs, int probeArea);
-
-private:
-
-	static bool collideWithAnyRootNode(glm::vec3 p, glm::vec3 s, std::vector<Collision::AABB> aabbs);
-
+	
+	static void init();
+	static void cleanup();
+	
+	static uint64_t createProbe(glm::vec3 p, glm::vec3 s, int w, int h, int d);
+	static void deleteProbe(uint64_t UUID);
 };
 #endif 

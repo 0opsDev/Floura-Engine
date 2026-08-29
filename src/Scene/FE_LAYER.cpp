@@ -11,8 +11,6 @@
 #include <Render/Animated/animator.h>
 #include "Render/Handler/RenderHandler.h"
 #include "utils/timeUtil.h"
-#include "render/procedural/terrain.h"
-#include "render/procedural/ocean.h"
 #include "Systems/Physics/physworld.h"
 #include <Systems/Physics/BVH.h>
 
@@ -25,11 +23,17 @@
 uint64_t FE_LAYER::pivotPointID = 0;
 uint64_t victimPointID = 0;
 
-ocean* t;
 Shader temporaryTerrainShader;
 int size = 50;
 
 void FE_LAYER::init(){
+	/*
+	std::vector<Texture3D*> nTA;
+	Texture3D nTexture;
+	Scene::voxelizeArea(glm::vec3(8.277,3.111, -9.802), glm::vec3(1.0f), nTexture,32, 15);
+	nTA.push_back(&nTexture);
+	voxelizer::cacheVXG("Cache/VXG/temp/", 69, nTA);
+	*/
 	//return;
 	//Collision::KDsplit kds = Collision::KDsplitVolume(glm::vec3(0.0), glm::vec3(1.0, 2.0, 1.0));
 	
@@ -114,8 +118,6 @@ void FE_LAYER::init(){
 	
 	return;
 	
-	t = new ocean(20,size);
-	
 	temporaryTerrainShader.LoadShaderGeom("Assets/Shaders/Db/VerticeViewer.vert","Assets/Shaders/Db/VertexViewer.frag", "Assets/Shaders/Db/VerticeViewer.geom"); 
 	//gunID = Scene::AddEntityObject(entity::ENT_MODEL_TYPE,"gun_loaded_from_cpp", "temp/Capoeira.fbx", glm::vec3(0.0f),glm::vec3(0.01), glm::vec3(0.0f) );
 
@@ -137,17 +139,6 @@ void FE_LAYER::init(){
 		//animator.init(&danceAnimation);
 	//}
 	
-}
-
-static void temporaryUpdateFunction(ocean* inputT, glm::vec3 p, glm::vec3 S, glm::vec3 R)
-{
-	inputT->updatePosition(p);
-	inputT->updateScale(S);
-	inputT->updateRotation(R);
-
-	inputT->updateTranformation();
-	
-	inputT->tagChunkLODLevels(50.0f, Scene::maincamera.Position);
 }
 
 //glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
@@ -176,7 +167,6 @@ void FE_LAYER::Update(){
 		}
 	
 	return;
-	temporaryUpdateFunction(t, glm::vec3(0.0, 0.0, 0.0), glm::vec3(1.0), glm::vec3(0.0));
 	
 	/*
 	glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer::FBO);
@@ -217,27 +207,8 @@ void FE_LAYER::Update(){
 	*/
 
 }
-static void temporaryPreviousUpdateFunction(ocean* inputT, glm::vec3 p, glm::vec3 S, glm::vec3 R)
-{
-	
-	inputT->updatePrevPosition(p);
-	inputT->updatePrevScale(S);
-	inputT->updatePrevRotation(R);
-
-	inputT->updatePrevTranformation();
-}
 void FE_LAYER::onBeginningOfFrame(){
 	return;
-	temporaryUpdateFunction(t, glm::vec3(0.0), glm::vec3(1.0), glm::vec3(0.0));
-}
-
-
-static void temporaryDrawFunction(ocean* inputT)
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
-	
-	inputT->draw(temporaryTerrainShader , Scene::maincamera);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 // https://www.shadertoy.com/view/WfdXD7 thanks
@@ -288,9 +259,6 @@ void FE_LAYER::draw(){
 		}
 	
 	return;
-	temporaryDrawFunction(t);
-	
-	t->dbgChunkDraw();
 	
 //	t->pointDraw();
 }

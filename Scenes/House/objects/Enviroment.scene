@@ -1,6 +1,6 @@
 [
     {
-        "DefaultSkyboxPath": "Assets/Skybox/skyLOGL/Skybox.json",
+        "DefaultSkyboxPath": "Assets/Skybox/qwantani_dusk_2_puresky_4k/Skybox.json",
         "DirAmbient": 0.0,
         "DirColour": [
             1.0,
@@ -9,11 +9,11 @@
         ],
         "DirEnabled": true,
         "DirRotation": [
-            108.0,
-            90.0,
-            0.0
+            20.5,
+            124.5,
+            0.20000000298023224
         ],
-        "DirSMMaxBias": 0.004999999888241291,
+        "DirSMMaxBias": 0.003000000026077032,
         "DirSpecEnabled": true,
         "DirSpecular": 1.0,
         "DoShadowMap": true,
@@ -26,12 +26,12 @@
         ],
         "dirNearFar": [
             89.0999984741211,
-            276.0
+            400.0
         ],
-        "dirShadowMapHardness": 5,
+        "dirShadowMapHardness": 4,
         "dirShadowMapSamples": 1,
-        "dirSmDistance": 115.0,
-        "dirSmHeight": 174.0,
+        "dirSmDistance": 80.0,
+        "dirSmHeight": 260.0,
         "indirectSamples": 0,
         "skyRGBA": [
             0.0,

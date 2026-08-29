@@ -6,6 +6,7 @@
 #include <Scene/LightingHandler.h>
 #include <Scene/Scene.h>
 
+#include "swrt.h"
 #include "Render/Handler/RenderHandler.h"
 
 
@@ -31,64 +32,31 @@ Shader FlouraDeferred::DFL_Shader;
 Shader FlouraDeferred::SSR_Shader;
 
 void FlouraDeferred::DeferredLightingPass(){
-	glDisable(GL_CULL_FACE);
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 	DFL_Shader.Activate();
-	// gPass textures bound to FB
-	// send gPass textures to shader
-	glActiveTexture(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gPosition);
-	DFL_Shader.setInt("gPosition", 1);
-
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
-	DFL_Shader.setInt("gNormal", 2);
-
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gAlbedoSpec);
-	DFL_Shader.setInt("gAlbedoSpec", 3);
-
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
-	DFL_Shader.setInt("depthMap", 5);
+	/*
+	FlouraSWRT::indirectProbePass();
+	DFL_Shader.setHandleui64ARB("indirectVolume", FlouraSWRT::testChunk.indirectVolume->handle);
+	DFL_Shader.setHandleui64ARB("emissionVolume", FlouraSWRT::testChunk.emissionVolume->handle);
+	DFL_Shader.setFloat3("ivPosition", FlouraSWRT::testChunk.position);
+	DFL_Shader.setFloat("ivScale", FlouraSWRT::testChunk.scale);
+	*/
 	
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gSpecular);
-	DFL_Shader.setInt("gSpecular", 6);
-	
-	glActiveTexture(GL_TEXTURE7);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gVelocity);
-	DFL_Shader.setInt("gVelocity", 7);
-	// skip 8 because of shadow map (i really need to use bindless on these)
-	
-	
-	glActiveTexture(GL_TEXTURE10);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gEmission);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	DFL_Shader.setInt("gEmission", 10);
+	DFL_Shader.setTexture2D("gPosition", 1, GeometryPass::gPosition);
+	DFL_Shader.setTexture2D("gNormal", 2, GeometryPass::gNormal);
+	DFL_Shader.setTexture2D("gAlbedoSpec", 3, GeometryPass::gAlbedoSpec);
+	DFL_Shader.setTexture2D("depthMap", 5, GeometryPass::depthTexture);
+	DFL_Shader.setTexture2D("gSpecular", 6, GeometryPass::gSpecular);
+	DFL_Shader.setTexture2D("gVelocity", 7, GeometryPass::gVelocity);
+	// skip 8 because of shadow map
+	DFL_Shader.setTexture2D("gEmission", 10, GeometryPass::gEmission);
 	
 
 	glActiveTexture(GL_TEXTURE11);
 	glBindTexture(GL_TEXTURE_2D, HistoryPass::hColour);
 	glGenerateMipmap(GL_TEXTURE_2D); // remove later
 	DFL_Shader.setInt("hColour", 11);
-	
-	// reserve 10 for depth
-	glActiveTexture(GL_TEXTURE12);
-	glBindTexture(GL_TEXTURE_2D, HistoryPass::hDepthTexture);
-	DFL_Shader.setInt("hDepthTexture", 12);
-	
-	// prior normals
-	glActiveTexture(GL_TEXTURE13);
-	glBindTexture(GL_TEXTURE_2D, HistoryPass::hNormal);
-	DFL_Shader.setInt("hNormal", 13);
-	
-	glActiveTexture(GL_TEXTURE14);
-	glBindTexture(GL_TEXTURE_2D, renderTarget::skyGradientTexture);
-	DFL_Shader.setInt("skyGradientTexture", 14);
+	DFL_Shader.setTexture2D("hDepthTexture", 12, HistoryPass::hDepthTexture);
 	
 	DFL_Shader.setFloat("NearPlane", Scene::maincamera.nearFar.x);
 	DFL_Shader.setFloat("FarPlane", Scene::maincamera.nearFar.y);
@@ -129,72 +97,31 @@ void FlouraDeferred::DeferredLightingPass(){
 	
 	//shader.
 	RenderQuad::draw();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glActiveTexture(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void FlouraDeferred::ssrPass(){
-	glDisable(GL_CULL_FACE);
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 	SSR_Shader.Activate();
-	// gPass textures bound to FB
-	// send gPass textures to shader
-	glActiveTexture(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
 	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, renderTarget::screentexture);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	SSR_Shader.setInt("screentexture", 0);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gPosition);
-	SSR_Shader.setInt("gPosition", 1);
-
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
-	SSR_Shader.setInt("gNormal", 2);
-
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gAlbedoSpec);
-	SSR_Shader.setInt("gAlbedoSpec", 3);
-
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
-	SSR_Shader.setInt("depthMap", 5);
+	SSR_Shader.setTexture2D("gPosition", 1, GeometryPass::gPosition);
+	SSR_Shader.setTexture2D("gNormal", 2, GeometryPass::gNormal);
+	SSR_Shader.setTexture2D("gAlbedoSpec", 3, GeometryPass::gAlbedoSpec);
+	SSR_Shader.setTexture2D("depthMap", 5, GeometryPass::depthTexture);
+	SSR_Shader.setTexture2D("gSpecular", 6, GeometryPass::gSpecular);
+	SSR_Shader.setTexture2D("gVelocity", 7, GeometryPass::gVelocity);
+	// skip 8 because of shadow map
+	SSR_Shader.setTexture2D("gEmission", 10, GeometryPass::gEmission);
 	
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gSpecular);
-	SSR_Shader.setInt("gSpecular", 6);
-	
-	glActiveTexture(GL_TEXTURE7);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gVelocity);
-	SSR_Shader.setInt("gVelocity", 7);
-	// skip 8 because of shadow map (i really need to use bindless on these)
-	
-	glActiveTexture(GL_TEXTURE10);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gEmission);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	SSR_Shader.setInt("gEmission", 10);
-	
-
 	glActiveTexture(GL_TEXTURE11);
 	glBindTexture(GL_TEXTURE_2D, HistoryPass::hColour);
 	glGenerateMipmap(GL_TEXTURE_2D); // remove later
 	SSR_Shader.setInt("hColour", 11);
 	
-	// reserve 10 for depth
-	glActiveTexture(GL_TEXTURE12);
-	glBindTexture(GL_TEXTURE_2D, HistoryPass::hDepthTexture);
-	SSR_Shader.setInt("hDepthTexture", 12);
-	
-	// prior normals
-	glActiveTexture(GL_TEXTURE13);
-	glBindTexture(GL_TEXTURE_2D, HistoryPass::hNormal);
-	SSR_Shader.setInt("hNormal", 13);
-	
-	
+	SSR_Shader.setTexture2D("hDepthTexture", 12, HistoryPass::hDepthTexture);
 	SSR_Shader.setFloat("NearPlane", Scene::maincamera.nearFar.x);
 	SSR_Shader.setFloat("FarPlane", Scene::maincamera.nearFar.y);
 	
@@ -231,7 +158,4 @@ void FlouraDeferred::ssrPass(){
 	
 	//shader.
 	RenderQuad::draw();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glActiveTexture(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
 }

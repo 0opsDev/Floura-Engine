@@ -15,8 +15,9 @@ bool Player::DoJump = true;
 glm::vec3 Player::velocity;
 glm::vec3 Player::force;
 glm::vec3 Player::gravity = glm::vec3(0.0f, -9.81f, 0.0f);
+glm::vec3 Player::tPositon = glm::vec3(0.0f);
 glm::vec3 Player::cameraColliderScale = glm::vec3(1.0, 1.0, 1.0);
-float Player::mass = 70.0f;
+float Player::mass = 5.0f;
 
 glm::vec3 lastpos = glm::vec3(0.0f);
 
@@ -30,16 +31,14 @@ void Player::init() {
 
 int Player::playstate = 0;
 
-void Player::stopState()
-{
+void Player::stopState(){
 	if (playstate == 0) return;
 	Player::playstate = 0;
 	Scene::reloadScene("Cache/Scene/Current");
 	Scene::resetAllScripts();
 }
 
-void Player::playState()
-{
+void Player::playState(){
 	if (playstate == 1) return;
 	
 	if (playstate == 0) Scene::maincamera.Position = Scene::initalCameraPos;
@@ -131,14 +130,6 @@ void Player::update() {
 		else 
 		{
 			FootSound.StopSound();
-		}
-		if (s_DoGravity) {
-			force += mass * gravity; // applying foce
-
-			velocity += force / mass * TimeUtil::deltatime;
-			Scene::maincamera.Position += Player::velocity * TimeUtil::deltatime;
-
-			force = glm::vec3(0.0f); // reset force at end
 		}
 
 		Player::DoJump = false;

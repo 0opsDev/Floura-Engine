@@ -22,7 +22,7 @@ Screenshots:
 . Forward Renderer (WIP)
 . Deferred Renderer (WIP)
 . RayTracer (WIP)
-. Denoiser (WIP)
+. SVGF denoiser (WIP)
 . TAA
 . Gbuffer
 . HBuffer

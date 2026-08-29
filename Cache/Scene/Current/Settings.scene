@@ -7,7 +7,7 @@
         ],
         "Window": "Default",
         "doFog": false,
-        "doReflections": true,
+        "doReflections": false,
         "fogRGBA": [
             1.0,
             1.0,

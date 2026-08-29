@@ -6,7 +6,6 @@
 unsigned int HistoryPass::hDepthTexture;
 unsigned int HistoryPass::hBuffer; 
 unsigned int HistoryPass::hColour; 
-unsigned int HistoryPass::hNormal; 
 unsigned int HistoryPass::hDBO;
 Shader HistoryPass::hPassShader;
 RenderQuad HistoryPass::hpRenderQuad;
@@ -20,9 +19,6 @@ void HistoryPass::updateHbufferResolution(unsigned int width, unsigned int heigh
 	glBindTexture(GL_TEXTURE_2D, hColour);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	//glBindTexture(GL_TEXTURE_2D, 0);
-    // hNormal
-    glBindTexture(GL_TEXTURE_2D, hNormal);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
     //glBindTexture(GL_TEXTURE_2D, 0);
 	// Update depth textures
 	glBindTexture(GL_TEXTURE_2D, hDepthTexture);
@@ -44,15 +40,6 @@ void HistoryPass::setupHbuffers(unsigned int width, unsigned int height){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hColour, 0);
-	
-	glGenTextures(1, &hNormal);
-	glBindTexture(GL_TEXTURE_2D, hNormal);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, hNormal, 0);
 	
 	// Create Depth Texture
 	glGenTextures(1, &hDepthTexture);
@@ -77,23 +64,10 @@ void HistoryPass::setupHbuffers(unsigned int width, unsigned int height){
 
 void HistoryPass::hPassDraw(){
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glActiveTexture(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	
 	hPassShader.Activate();
 	hPassShader.setFloat("gamma", Scene::maincamera.gamma);
-	
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, renderTarget::screentexture);
-	hPassShader.setInt("screentexture", 1);
-
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
-	hPassShader.setInt("currentDepth", 2);
-
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
-	hPassShader.setInt("currentNormal", 3);
+	hPassShader.setTexture2D("screentexture", 1, renderTarget::screentexture);
+	hPassShader.setTexture2D("currentDepth", 2, GeometryPass::depthTexture);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, hBuffer);
 	glEnable(GL_DEPTH_TEST);
@@ -110,7 +84,6 @@ void HistoryPass::cleanupHbuffers(){
 	glDeleteFramebuffers(1, &hBuffer);
 	GLuint texs[] = {
 		hColour,
-		hNormal,
 		hDepthTexture,
 	};
 	glDeleteTextures(sizeof(texs) / sizeof(GLuint), texs);

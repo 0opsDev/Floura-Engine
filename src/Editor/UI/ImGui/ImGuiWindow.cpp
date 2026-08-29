@@ -444,7 +444,6 @@ void FEImGuiWindow::menuwindow()
 			ImGui::Combo("Renderer", &RenderClass::currentRendererInd, rendererItems, IM_ARRAYSIZE(rendererItems));
 			ImGui::Checkbox("Wireframe", &FEImGuiWindow::isWireframe);
 			ImGui::Checkbox("showBoxCollider", &Collision::showBoxCollider);
-			ImGui::Checkbox("viewProbes", &ProbeHandler::viewProbes);
 			ImGui::Checkbox("showViewportIcons", &FEImGuiWindow::showViewportIcons);
 
 			ImGui::EndMenu();
@@ -507,31 +506,33 @@ void FEImGuiWindow::menuwindow()
 
 void FEImGuiWindow::SystemInfomation() {
 	if (ImGui::TreeNode("System information")) {
-
+		GLint temp = 0;
 		ImGui::Text("OpenGL Version: %s", glGetString(GL_VERSION)); // Display OpenGL version
 		ImGui::Text("Renderer: %s", glGetString(GL_RENDERER));  // Display GPU renderer
+		ImGui::Text("Vendor: %s", glGetString(GL_VENDOR));  // Display GPU vendor
+		ImGui::Text("Shading lang verr: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &temp);
+		ImGui::Text("Max Colour Attachments: %s", std::to_string(temp));
+		glGetIntegerv(GL_MAX_DRAW_BUFFERS, &temp);
+		ImGui::Text("Max Draw Buffers: %s", std::to_string(temp));
+		ImGui::Text("glfw version. %s", glfwGetVersionString());
+		
 
 		ImGui::Text((std::string("Viewport Size: ") + std::to_string(static_cast<int>(renderTarget::ViewPortWidth)) + "*" + std::to_string(static_cast<int>(renderTarget::ViewPortHeight))).c_str());
-
+		
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 
 }
-// SceneToProbeSpace aabbsSceneToProbeSpace  aabbsToProbeSpace
-
-static const char* probeItems[]{ "SceneToProbeSpace","aabbsSceneToProbeSpace", "aabbsToProbeSpace"};
 
 void FEImGuiWindow::RenderWindow() {
 	ImGui::Begin("Rendering"); // ImGUI window creation
 	ImGui::Combo("Renderer", &RenderClass::currentRendererInd, rendererItems, IM_ARRAYSIZE(rendererItems));
 	if (ImGui::SmallButton("Reload Model Shaders?")) for (size_t i = 0; i < ShaderHandler::shaderObjects.size(); i++)ShaderHandler::reloadShader(i);
 	if (ImGui::SmallButton("Reload Global Shaders")) RenderClass::initGlobalShaders();
-	if (ImGui::SmallButton("Compile Shaders")) RenderClass::compileShaders();
+	if (ImGui::SmallButton("Compile Shader Uniforms")) RenderClass::compileShaderUniforms();
 	ImGui::Checkbox("compileOnDirty", &UniformManager::compileOnDirty);
 	if (ImGui::TreeNode("window")) {
-
-		ImGui::Dummy(ImVec2(0.0f, 5.0f)); // Adds 5 pixels of vertical space
-		ImGui::Text("Framerate Limiters");
 		ImGui::Checkbox("Vsync", &windowHandler::doVsync); // Set the value of doVsync (bool)
 		// Screen
 		ImGui::DragInt("Width", &renderTarget::tempWidth);
@@ -543,8 +544,7 @@ void FEImGuiWindow::RenderWindow() {
 			windowHandler::setVSync(windowHandler::doVsync); // Set Vsync to value of doVsync (bool)
 			renderTarget::updateFrameBufferResolution(renderTarget::tempWidth, renderTarget::tempHeight); // Update frame buffer resolution
 		}
-		if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)"))
-		{
+		if (ImGui::SmallButton("Toggle Fullscreen (WARNING WILL TOGGLE HDR OFF)")){
 			windowHandler::toggleFullscreen(windowHandler::window, windowHandler::isFullscreen, windowHandler::width, windowHandler::height); //needs to be fixed //GLFWwindow* &window, GLFWmonitor* &monitor, int windowedWidth, int windowedHeight
 		} //Toggle Fullscreen
 
@@ -552,49 +552,19 @@ void FEImGuiWindow::RenderWindow() {
 	}
 	
 	if (ImGui::TreeNode("ScreenSpace")) {
-		
 		ImGui::Checkbox("doSSR", &RenderClass::doSSR);
 		ImGui::Checkbox("doContactShadows", &RenderClass::doContactShadows);
+		ImGui::DragInt("indirectSamples", &ProbeHandler::indirectSamples);
 		
 		ImGui::TreePop();// Ends The ImGui Window
 	}
 	
 	if (ImGui::TreeNode("General")) {
-		
 		ImGui::Checkbox("doBinaryAlpha", &RenderClass::doBinaryAlpha);
 		ImGui::Checkbox("animateBinaryAlpha", &RenderClass::animateBinaryAlpha);
 		
 		ImGui::TreePop();// Ends The ImGui Window
 	}
-	
-	if (ImGui::TreeNode("Scene Desc"))
-	{
-		if (ImGui::SmallButton("Reload Raytracer Shader")) {
-			raytracer::reloadSceneToRaytracer();
-		}
-		if (ImGui::SmallButton("Upload Scene To Raytracer")) {
-			raytracer::uploadSceneToRaytracer();
-		}
-		if (ImGui::SmallButton("Clear Raytraced Data")) {
-			raytracer::clearRaytracerData();
-		}
-
-		ImGui::TreePop();// Ends The ImGui Window
-	}
-
-		if (ImGui::TreeNode("probes")) {
-
-			ImGui::Checkbox("ViewProbes", &ProbeHandler::viewProbes);
-			ImGui::DragInt("indirectSamples", &ProbeHandler::indirectSamples);
-			ImGui::DragInt("scene Prove Area", &ProbeHandler::sceneProveArea);
-			if (ImGui::Combo("ObjectType", &ProbeHandler::probeCalculationMethod, probeItems, IM_ARRAYSIZE(probeItems))) { ProbeHandler::dirtyScene = true;}
-
-			if (ImGui::SmallButton("Recalculate Probes")) {
-				ProbeHandler::dirtyScene = true;
-			}
-
-			ImGui::TreePop();// Ends The ImGui Window
-		}
 	//RenderClass::doTAA
 	if (ImGui::TreeNode("Anti Aliasing & Post")) {
 		ImGui::Checkbox("doTAA", &RenderClass::doTAA);
@@ -602,54 +572,21 @@ void FEImGuiWindow::RenderWindow() {
 		
 		ImGui::TreePop();// Ends The ImGui Window
 	}
-	
+	if (RenderClass::currentRendererInd == RenderClass::SWRT2){
 		if (ImGui::TreeNode("Raytracer")) {
-			
-			if (ImGui::TreeNode("SWRT 2 (SDF based)")){
-				ImGui::Checkbox("doHalfRes", &FlouraSWRT::doHalfRes);
-				
-				if (ImGui::TreeNode("denoising")){
-					ImGui::Checkbox("doDenoiseSplitDBGView", &FlouraSWRT::doDenoiseSplitDBGView);
-					ImGui::Spacing();
-					ImGui::Checkbox("doTemporalAccumulation", &FlouraSWRT::doTemporalAccumulation);
-					ImGui::Checkbox("doDenoise", &FlouraSWRT::doDenoise);
-					ImGui::Spacing();
-					ImGui::DragInt("denoiseRadius", &FlouraSWRT::denoiseRadius);
-					ImGui::DragFloat("temporalAccumulationBlendFactor",&FlouraSWRT:: temporalAccumulationBlendFactor);
+			ImGui::DragInt("Resolution Scale Factor", &FlouraSWRT::resScaleFactor);
+			if (ImGui::TreeNode("denoising")){
+				ImGui::Checkbox("doDenoiseSplitDBGView", &FlouraSWRT::doDenoiseSplitDBGView);
+				ImGui::Spacing();
+				ImGui::Checkbox("doTemporalAccumulation", &FlouraSWRT::doTemporalAccumulation);
+				ImGui::DragFloat("temporalAccumulationBlendFactor",&FlouraSWRT:: temporalAccumulationBlendFactor);
+				ImGui::Checkbox("doSVGF", &FlouraSWRT::doSVGF);
 					
-					ImGui::TreePop();// Ends The ImGui Window
-				}
-			
-				ImGui::TreePop();// Ends The ImGui Window
-			}
-			
-			if (ImGui::TreeNode("SWRT (triangle based)"))
-			{
-				ImGui::Text("denoiser");
-				ImGui::Checkbox("Do Denoise", &denoiser::doDenoise);
-				ImGui::DragInt("minRadius", &denoiser::minRadius);
-				ImGui::Text("raytracer");
-				ImGui::DragFloat("downscaleFactor", &raytracer::downscaleFactor);
-				ImGui::Checkbox("doAccumulate", &raytracer::doAccumulate);
-				ImGui::DragInt("Max Accumulated Frames", &raytracer::maxAccumulatedFrames);
-				ImGui::Checkbox("reset Accumulation On Dirty", &raytracer::resetAccumulationOnDirty);
-				ImGui::Text("primary hit");
-				ImGui::DragFloat("Noise Threshold", &raytracer::noiseThreshold);
-				ImGui::DragFloat("Max Distance", &raytracer::maxDistance);
-				ImGui::Text("Reflections");
-				ImGui::DragFloat("Reflection Distance", &raytracer::reflectionDistance);
-				ImGui::DragInt("Reflection Bounces", &raytracer::reflectionBounces);
-				ImGui::Text("Indirect");
-				ImGui::DragInt("Indirect Samples", &raytracer::indirectSamples);
-				ImGui::DragInt("Indirect Bounces", &raytracer::indirectBounces);
-
-				if (ImGui::SmallButton("Clear Accumulation")) {
-					raytracer::RTGlobalTransformFlag = true;
-				}
 				ImGui::TreePop();// Ends The ImGui Window
 			}
 			ImGui::TreePop();// Ends The ImGui Window
 		}
+	}
 
 		ImGui::End();
 }

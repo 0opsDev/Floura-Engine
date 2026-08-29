@@ -9,7 +9,7 @@
 class HistoryPass
 {
 public:
-    static unsigned int hDepthTexture, hBuffer, hColour, hNormal, hDBO;
+    static unsigned int hDepthTexture, hBuffer, hColour, hDBO;
    static Shader hPassShader;
     
     static void init();

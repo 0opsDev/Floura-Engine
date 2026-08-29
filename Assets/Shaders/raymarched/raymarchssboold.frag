@@ -699,9 +699,8 @@ vec4 volumetric(vec3 albedo, vec3 ro, vec3 rd, float maxdist, float mindist, int
             gbuffer nngbuffer = lightAThit(behindhit, rd);
             colour = vec4(mix(albedo,nngbuffer.colour, beers), 1.0);
         }
-        else
-        {
-            colour = vec4(mix(albedo,skycolour - max(0.95 * rd.y, 0.0), beers), 1.0);
+        else {
+            colour = vec4(mix(albedo, skycolour - max(0.95 * rd.y, 0.0), beers), 1.0);
         }
     }
 

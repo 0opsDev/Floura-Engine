@@ -2,116 +2,75 @@
 #include "Framebuffer.h"
 #include <iostream>
 
-void Framebuffer::setup(FBOparameters iFBOparameters, RBOparameters iRBOparameters)
-{
-    glGenFramebuffers(1, &FBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-    glGenTextures(1, &texture); 
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, iFBOparameters.internalFormat, width, height, 0, iFBOparameters.format, iFBOparameters.format, NULL);
-    glTexParameteri(GL_TEXTURE_2D, iFBOparameters.minFilter, iFBOparameters.MinSamplingFilter); 
-    glTexParameteri(GL_TEXTURE_2D, iFBOparameters.MagFilter, iFBOparameters.MagSamplingFilter);
-    glTexParameteri(GL_TEXTURE_2D, iFBOparameters.wrap1, iFBOparameters.clamp1);
-    glTexParameteri(GL_TEXTURE_2D, iFBOparameters.wrap2, iFBOparameters.clamp2);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, iFBOparameters.colourAttachment, GL_TEXTURE_2D, texture, 0);
-
-    if (iRBOparameters.doRBO){
-        glGenRenderbuffers(1, &RBO);
-        glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-        glRenderbufferStorage(GL_RENDERBUFFER, iRBOparameters.internalFormat, width, height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, iRBOparameters.attachment, GL_RENDERBUFFER, RBO);
-    }
+int Framebuffer::uploadAttachment(GLenum internalFormat, GLenum format, GLenum type, GLenum minFilter, GLenum magFilter, GLenum clamp){
+    attachment nAttach;
+    nAttach.internalFormat = internalFormat;
+    nAttach.format = format;
+    nAttach.type = type;
+    nAttach.minFilter = minFilter;
+    nAttach.magFilter = magFilter;
+    nAttach.clamp = clamp;
+    attachments.push_back(nAttach);
     
-    nFBOparameters = iFBOparameters;
-    nRBOparameters = iRBOparameters;
-    
-    // Error checking
-    auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-        std::cout << "Framebuffer error: " << fboStatus << std::endl;
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // incase you need the index idk 
+    return static_cast<int>(attachments.size());
 }
 
-void Framebuffer::setupMulti(std::vector<FBOparameters> iFBOparametersMulti, RBOparameters iRBOparameters)
-{
+void Framebuffer::createBuffers(unsigned int  width, unsigned int  height){
+    // only supports colour buffers rn
     glGenFramebuffers(1, &FBO);
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
     
-    std::vector<unsigned int> attachments;
-
-    for (int i = 0; i < iFBOparametersMulti.size(); ++i)
-    {
-        unsigned int ntexture;
+    std::vector<GLuint> nAttachments;
+    nAttachments.reserve(attachments.size());
+    
+    for (int i = 0; i < attachments.size(); ++i){
+        glGenTextures(1, &attachments[i].ID);
+        glBindTexture(GL_TEXTURE_2D, attachments[i].ID);
+        glTexImage2D(GL_TEXTURE_2D, 0, attachments[i].internalFormat, width, height, 0, attachments[i].format, attachments[i].type, NULL);
         
-        glGenTextures(1, &ntexture); 
-        glBindTexture(GL_TEXTURE_2D, ntexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, iFBOparametersMulti[i].internalFormat, width, height, 0, iFBOparametersMulti[i].format, iFBOparametersMulti[i].type, NULL);
-        glTexParameteri(GL_TEXTURE_2D, iFBOparametersMulti[i].minFilter, iFBOparametersMulti[i].MinSamplingFilter); 
-        glTexParameteri(GL_TEXTURE_2D, iFBOparametersMulti[i].MagFilter, iFBOparametersMulti[i].MagSamplingFilter);
-        glTexParameteri(GL_TEXTURE_2D, iFBOparametersMulti[i].wrap1, iFBOparametersMulti[i].clamp1);
-        glTexParameteri(GL_TEXTURE_2D, iFBOparametersMulti[i].wrap2, iFBOparametersMulti[i].clamp2);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, iFBOparametersMulti[i].colourAttachment, GL_TEXTURE_2D, ntexture, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, attachments[i].minFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, attachments[i].magFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, attachments[i].clamp);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  attachments[i].clamp);
         
-        textures.push_back(ntexture);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, attachments[i].ID, 0);
         
-        attachments.push_back(iFBOparametersMulti[i].colourAttachment);
+        nAttachments.push_back(GL_COLOR_ATTACHMENT0 + i);
     }
     
-    glDrawBuffers(attachments.size(), attachments.data());
-
-    if (iRBOparameters.doRBO){
-        glGenRenderbuffers(1, &RBO);
-        glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-        glRenderbufferStorage(GL_RENDERBUFFER, iRBOparameters.internalFormat, width, height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, iRBOparameters.attachment, GL_RENDERBUFFER, RBO);
-    }
+    glDrawBuffers(nAttachments.size(), nAttachments.data());
     
-    FBOparametersMulti = iFBOparametersMulti;
-    nRBOparameters = iRBOparameters;
-    
-    // Error checking
-    auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-        std::cout << "Framebuffer error: " << fboStatus << std::endl;
-    }
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer not complete!" << std::endl;
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Framebuffer::resize(int width, int height)
-{
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, nFBOparameters.internalFormat, width, height, 0, nFBOparameters.format, nFBOparameters.type, NULL);
-    glBindTexture(GL_TEXTURE_2D, 0);
+void Framebuffer::resizeBuffers(unsigned int  width, unsigned int  height){
+    if (width <= 0 || height <=0)return;
     
-	if (!nRBOparameters.doRBO) return;
-    // update renderbuffer texture
-    glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, nRBOparameters.internalFormat, width, height);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-}
-
-void Framebuffer::resizeMulti(int newWidth, int newHeight)
-{
-    width = newWidth;
-    height = newHeight;
-
-    for (int i = 0; i < FBOparametersMulti.size(); ++i)
-    {
-        glBindTexture(GL_TEXTURE_2D, textures[i]);
-        glTexImage2D(GL_TEXTURE_2D, 0, FBOparametersMulti[i].internalFormat, width, height, 0, FBOparametersMulti[i].format, FBOparametersMulti[i].type, NULL);
+    for (int i = 0; i < attachments.size(); ++i){
+        glBindTexture(GL_TEXTURE_2D, attachments[i].ID);
+        glTexImage2D(GL_TEXTURE_2D, 0, attachments[i].internalFormat, width, height, 0, attachments[i].format, attachments[i].type, NULL);
     }
     glBindTexture(GL_TEXTURE_2D, 0);
-    
-    if (!nRBOparameters.doRBO) return;
-    glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, nRBOparameters.internalFormat, width, height);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-void Framebuffer::Delete(){
+void Framebuffer::deleteBuffers(){
     glDeleteFramebuffers(1, &FBO);
-    glDeleteRenderbuffers(1, &RBO);
-    glDeleteTextures(1, &texture);
+    
+    if (attachments.empty()) return;
+    
+    std::vector<GLuint> IDs;
+    IDs.reserve(attachments.size());
+
+    for (int i = 0; i < attachments.size(); ++i){
+        IDs.push_back(attachments[i].ID);
+    }
+    
+    glDeleteTextures(static_cast<GLsizei>(IDs.size()), IDs.data());
+    
+    attachments.clear();
 }
+

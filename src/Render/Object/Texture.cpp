@@ -226,3 +226,37 @@ void Texture::Delete()
     glDeleteTextures(1, &ID);
     //std::cout << "Texture deleted: " << ID << std::endl;
 }
+
+glm::vec4 Texture::rgbaSample(glm::vec2 uv, bool flip){
+    glBindTexture(GL_TEXTURE_2D, ID);
+                
+    int width; int height;
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+                
+    if (width <= 0 || height <= 0) return glm::vec4(0.0f);
+                
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                
+    std::vector<unsigned char> pixels(width * height * 4);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+                
+    glm::vec2 repeatingUV = uv - glm::floor(uv);
+                
+    int pixelX = static_cast<int>(repeatingUV.x * static_cast<float>(width - 1));
+    int pixelY = 0.0f;
+    if (flip){ pixelY = static_cast<int>( (1.0f - repeatingUV.y) * static_cast<float>(height - 1));}// flip
+    else pixelY = static_cast<int>( repeatingUV.y * static_cast<float>(height - 1));
+                
+    pixelX = glm::clamp(pixelX, 0, width - 1);
+    pixelY = glm::clamp(pixelY, 0, height - 1);
+                
+    int ind = (pixelY * width + pixelX) * 4;
+    
+    return glm::vec4(
+     pixels[ind + 0] / 255.0f,
+     pixels[ind + 1] / 255.0f,
+     pixels[ind + 2] / 255.0f,
+     pixels[ind + 3] / 255.0f
+     );   
+}

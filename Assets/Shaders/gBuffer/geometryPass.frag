@@ -44,18 +44,13 @@ uniform bool animateBinaryAlpha;
 
 uniform float time;
 
-vec3 CalcNewNormal()
-{
+vec3 CalcNewNormal(vec3 normal){
 	//	return normalize(Normal); 
 	// texture
 	//vec3 normalTex = texture(texture_normal0, texCoord).xyz;
 
-	sampler2D nSamp = sampler2D(texture_normal_Handle);
-
-	vec3 normalTex = normalize(texture(nSamp, texCoord).xyz * 2.0f - 1.0f);
-
-	// transform from 0,1 to -1, 1
-	//normalTex = 2.0 * normalTex - vec3(1.0);
+	vec3 normalTex = normalize(normal * 2.0f - 1.0f);
+	
 
 	// normalize tangent space vector
 	vec3 nNormal = normalize(Normal0);
@@ -115,8 +110,7 @@ void BayerNoiseOpacity(float Threshold) // for fade out or opacity (cheap) (coul
 	if (bayer > Threshold) discard;
 }
 
-void main()
-{
+void main(){
 	//return;
 
 	ivec2 texelCoord = ivec2(gl_FragCoord.xy);
@@ -131,7 +125,7 @@ void main()
 	highp vec2 previousNDC = previousPos.xy / (previousPos.w);
 	highp vec2 velocity = (currentNDC + scaledCurrentJitter) - (previousNDC + scaledPreviousJitter);
 
-	if (length(velocity) < 0.001) { velocity = vec2(0.0); }
+	//if (length(velocity) < 0.001) { velocity = vec2(0.0); }
 	
 	gVelocity = vec4(velocity * 0.5, 1.0, 1.0); // velocity + alpha
 	
@@ -144,9 +138,10 @@ void main()
 
 	gPosition = crntPos; // Output position as-is
     float displacement = texture(nSamp, texCoord).a; // Fetch normal from texture
-
-	gNormal.rgb = CalcNewNormal();
-    
+	
+	gNormal.rgb = CalcNewNormal(texture(nSamp, texCoord).xyz);
+	//gNormal.rgb = CalcNewNormal(vec3(0.5f, 0.5f, 1.0f));
+	
 	gNormal.a = displacement;
 
     // Assign Albedo RGB from texture

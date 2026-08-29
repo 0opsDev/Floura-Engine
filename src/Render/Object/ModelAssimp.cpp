@@ -8,6 +8,7 @@
 #include "utils/imageWrite.h"
 #include <chrono>
 #include <Systems/Physics/SDF.h>
+#include "Render/pipeline/prebuilt_pipelines/swrt.h"
 
 void Model::updatePosition(glm::vec3 Position)
 {globalTransformation.position = Position;}
@@ -48,8 +49,7 @@ void Model::updatePrevScale(glm::vec3 Scale)
 void Model::updatePrevTranformation(){
     pgModelMatrix = FE_Math::composeMatrixWDegrees(previousGlobalTransformation.position, previousGlobalTransformation.scale, previousGlobalTransformation.rotation);
 
-    for (unsigned int i = 0; i < meshes.size(); i++)
-    {
+    for (unsigned int i = 0; i < meshes.size(); i++){
         meshes[i].updatePrevGlobalMatrix(pgModelMatrix);
     }
 }
@@ -58,8 +58,7 @@ void Model::childrenRangeCull(glm::vec3 position, float range){
     //return;
     //rootnodes
     
-    for (unsigned int i = 0; i < rootnodes.size(); i++)
-    {
+    for (unsigned int i = 0; i < rootnodes.size(); i++){
         if (!Collision::AABBtoSphereRangeCull(rootnodes[i].position, rootnodes[i].size, position, range) ) meshes[i].culled = true;
     }  
 }
@@ -85,21 +84,18 @@ Model::Model(const char* file, bool disableConstructorLoading, bool disableIniti
 
 Model::~Model() {
     // Delete mesh first then clear all array inside model
-    for (size_t i = 0; i < meshes.size(); i++)
-    {
+    for (size_t i = 0; i < meshes.size(); i++){
         meshes[i].Delete();
         meshes.erase(meshes.begin() + i);
     }
     meshes.clear();
 
-    for (size_t i = 0; i < loadedTexPath.size(); i++)
-    {
+    for (size_t i = 0; i < loadedTexPath.size(); i++){
         loadedTexPath.erase(loadedTexPath.begin() + i);
     }
     loadedTexPath.clear();
 
-    for (size_t i = 0; i < loadedTex.size(); i++)
-    {
+    for (size_t i = 0; i < loadedTex.size(); i++){
         loadedTex[i].Delete();
         loadedTex.erase(loadedTex.begin() + i);
     }
@@ -221,7 +217,7 @@ void Model::generateMeshBlases(int mintri, int maxDepth)
 void Model::SDFgenerate(int sliceSize, GLuint slot){
             if (!loaded) return;
     
-    if (meshes.size() > flouraSDF::localPerModelMeshCountCap){
+    if (meshes.size() > FlouraSWRT::localPerModelMeshCountCap){
         sdfCompatible = false;
         return;
     }
@@ -262,7 +258,7 @@ void Model::SDFgenerate(int sliceSize, GLuint slot){
 void Model::SDFgenerateVox(int accelSteps, int accelMinTri, int sliceSize, GLuint slot){
     if (!loaded) return;
     
-    if (meshes.size() > flouraSDF::localPerModelMeshCountCap){
+    if (meshes.size() > FlouraSWRT::localPerModelMeshCountCap){
         sdfCompatible = false;
         return;
     }
@@ -316,7 +312,7 @@ void Model::SDFgenerateVox(int accelSteps, int accelMinTri, int sliceSize, GLuin
 void Model::SDFgenerateBlas(int sliceSize, GLuint slot){
     if (!loaded) return;
     
-    if (meshes.size() > flouraSDF::localPerModelMeshCountCap){
+    if (meshes.size() > FlouraSWRT::localPerModelMeshCountCap){
         sdfCompatible = false;
         return;
     }
@@ -376,9 +372,9 @@ void Model::SDFgenerateBlas(int sliceSize, GLuint slot){
 }
 
 void Model::SDFgeneratePrim(int sliceSize, GLuint slot){
-        if (!loaded) return;
+    if (!loaded) return;
     
-    if (meshes.size() > flouraSDF::localPerModelMeshCountCap){
+    if (meshes.size() > FlouraSWRT::localPerModelMeshCountCap){
         sdfCompatible = false;
         return;
     }
@@ -427,6 +423,126 @@ void Model::SDFgeneratePrim(int sliceSize, GLuint slot){
         flouraSDF::bakeMeshSDFAccel(nVertices, nPrims, transformedRootNode, sliceSize, *meshSDFs.back(), slot);
         
         std::cout << "index: " << i << " - " << abs((((meshes.size() -float(i)) - meshes.size()) / meshes.size()) * 100.0f ) << "%"<< std::endl;
+    }
+        
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> seconds = end - start;
+    std::cout << "time elapsed (seconds): " << seconds.count() << std::endl;
+}
+
+void Model::VXGgeneratePrim(int sliceSize, GLuint slot){
+    if (!loaded) return;
+    
+    if (meshes.size() > FlouraSWRT::localPerModelMeshCountCap){
+        sdfCompatible = false;
+        return;
+    }
+    
+    for (int i = 0; i < meshVXGs.size(); ++i)
+        meshVXGs[i]->Delete();
+    meshVXGs.clear();
+    
+    auto start = std::chrono::steady_clock::now();
+    
+    std::cout << "Amount to generate: " << meshes.size() << std::endl;
+    for (int i = 0; i < meshes.size(); ++i){
+        Collision::AABB nRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], glm::mat4(1.0));
+        
+        float normalizedScale = FE_Math::normalizeScale(nRootNode.size, 1.0f); // 1.0 is the area but a .2 pad would be good
+        // min + max * 0.5
+        //glm::vec3 centre = ( (nRootNode.position - nRootNode.size) + (nRootNode.position + nRootNode.size) * 0.5f);
+        
+        glm::mat4 normalizedMatrix(1.0);
+        normalizedMatrix = glm::scale(normalizedMatrix, glm::vec3(normalizedScale));
+        //normalizedMatrix = glm::translate(normalizedMatrix, -centre);
+        
+        Collision::AABB transformedRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], normalizedMatrix);
+        
+        std::vector<Vertex> nVertices = meshes[i].vertices;
+
+        for (int x = 0; x< meshes[i].vertices.size(); ++x)
+            FE_Math::transformPoint(nVertices[x].position, normalizedMatrix);
+        
+        std::vector<BVH::BVH_primitive> nPrims = BVH::buildIndicesIntoPrims(meshes[i].vertices, meshes[i].indices);
+        
+        // transform blas
+        for (int x = 0; x< nPrims.size(); ++x){
+            nPrims[x].extents = Collision::rootNodeFromRubixPointsNoPadding(Collision::aabbToRubixCubePoints(nPrims[x].extents.position, nPrims[x].extents.size), normalizedMatrix);
+            //std::cout<<nBLAS[x].prims.size() << std::endl;
+        }
+        
+        Texture3D* nT3D; nT3D = new Texture3D();
+        meshVXGs.push_back(nT3D);
+        // still pushbak the texture lets just not do anything with it
+        if (nPrims.empty()) continue;
+        
+        voxelizer::bakeMeshVXGAccel(nVertices, nPrims, transformedRootNode, sliceSize, *meshVXGs.back(), slot, 
+            meshes[i].textures);
+        
+        std::cout << "index: " << i << " - " << abs((((meshes.size() -float(i)) - meshes.size()) / meshes.size()) * 100.0f ) << "%"<< std::endl;
+    }
+        
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> seconds = end - start;
+    std::cout << "time elapsed (seconds): " << seconds.count() << std::endl;
+}
+
+void Model::VXGgenerateBlas(int sliceSize, GLuint slot){
+        if (!loaded) return;
+    
+    if (meshes.size() > FlouraSWRT::localPerModelMeshCountCap){
+        sdfCompatible = false;
+        return;
+    }
+    
+    for (int i = 0; i < meshVXGs.size(); ++i)
+        meshVXGs[i]->Delete();
+    meshVXGs.clear();
+    
+    auto start = std::chrono::steady_clock::now();
+    // should be some kinda hash thingy to check if we have sdf already, and then if so load them from disk
+    // maybe use renderID_index_size.png
+    std::cout << "count: " << meshes.size()<< std::endl;
+    for (int i = 0; i < meshes.size(); ++i){
+        Collision::AABB nRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], glm::mat4(1.0));
+        
+        float normalizedScale = FE_Math::normalizeScale(nRootNode.size, 1.0f); // 1.0 is the area but a .2 pad would be good
+        // min + max * 0.5
+        //glm::vec3 centre = ( (nRootNode.position - nRootNode.size) + (nRootNode.position + nRootNode.size) * 0.5f);
+        
+        glm::mat4 normalizedMatrix(1.0);
+        normalizedMatrix = glm::scale(normalizedMatrix, glm::vec3(normalizedScale));
+        //normalizedMatrix = glm::translate(normalizedMatrix, -centre);
+        
+        Collision::AABB transformedRootNode = Collision::rootNodeFromRubixPointsNoPadding(meshAabbPoints[i], normalizedMatrix);
+        
+        std::vector<Vertex> nVertices = meshes[i].vertices;
+
+        for (int x = 0; x< meshes[i].vertices.size(); ++x)
+            FE_Math::transformPoint(nVertices[x].position, normalizedMatrix);
+        
+        // need to scale blas for this
+        
+        std::vector<BVH::leaf> nBLAS = meshes[i].blas;
+        
+        // transform blas
+        for (int x = 0; x< nBLAS.size(); ++x){
+            nBLAS[x].aabb = Collision::rootNodeFromRubixPointsNoPadding(Collision::aabbToRubixCubePoints(nBLAS[x].aabb.position, nBLAS[x].aabb.size), normalizedMatrix);
+        }
+        
+        Texture3D* nT3D;
+        nT3D = new Texture3D();
+        meshVXGs.push_back(nT3D);
+        // still pushbak the texture lets just not do anything with it
+        if (nBLAS.empty()) continue;
+        
+        // sdf generate function using voxel accel
+        //flouraSDF::bakeMeshSDF(nVertices, meshes[i].indices, transformedRootNode, sliceSize, *meshSDFs.back(), slot);
+        //flouraSDF::bakeMeshSDFAccel(nVertices, nVA, transformedRootNode, sliceSize, *meshSDFs.back(), slot);
+        voxelizer::bakeMeshVXGAccel(nVertices, nBLAS, transformedRootNode, sliceSize, *meshVXGs.back(), slot,
+        meshes[i].textures);
+        
+        std::cout << "index: " << i << " - " << abs((((meshes.size() -float(i)) - meshes.size()) / meshes.size()) * 100.0f ) << "%"<<"\n";
     }
         
     auto end = std::chrono::steady_clock::now();
@@ -488,8 +604,7 @@ void Model::createVoxelModel(int steps, int minTri, glm::vec3 minSize)
     VoxelMeshes.push_back(vObjArray);
 }
 
-void Model::updateMeshAABBs()
-{
+void Model::updateMeshAABBs(){
     if (!loaded) return;
     for (size_t i = 0; i < meshes.size(); i++){
         glm::mat4 finalMeshMat = gModelMatrix * lModelMatrix[i];
@@ -506,8 +621,7 @@ void Model::loadModel(std::string path)
     const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices);
     //const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-    {
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
         std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
         return;
     }
@@ -518,11 +632,9 @@ void Model::loadModel(std::string path)
     //std::cout << "bone count " << m_BoneCounter << std::endl;
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene)
-{
+void Model::processNode(aiNode* node, const aiScene* scene){
     // process all the node's meshes (if any)
-    for (unsigned int i = 0; i < node->mNumMeshes; i++)
-    {
+    for (unsigned int i = 0; i < node->mNumMeshes; i++){
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         totalVertices += mesh->mNumVertices;
         totalIndices  += mesh->mNumFaces * 3;
@@ -533,14 +645,12 @@ void Model::processNode(aiNode* node, const aiScene* scene)
     }
     
     // then do the same for each of its children
-    for (unsigned int i = 0; i < node->mNumChildren; i++)
-    {
+    for (unsigned int i = 0; i < node->mNumChildren; i++){
         processNode(node->mChildren[i], scene);
     }
 }
 
-void Model::processPositions(aiNode* node)
-{
+void Model::processPositions(aiNode* node){
     aiMatrix4x4 localTransform = node->mTransformation;
     aiVector3D position; aiVector3D scale; aiQuaternion rotation;
     localTransform.Decompose(scale, rotation, position);
@@ -563,9 +673,7 @@ void Model::processPositions(aiNode* node)
     lModelMatrix.push_back(model);
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
-{
-    
+Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene){
     // primary mesh data extraction
     std::vector<Vertex> vertices = assembleVertices(mesh);
     std::vector<GLuint> indices = assembleIndices(mesh);
@@ -582,21 +690,16 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     return Mesh(nMesh);
 }
 
-void Model::SetVertexBoneDataToDefault(Vertex& vertex)
-{
-    for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
-    {
+void Model::SetVertexBoneDataToDefault(Vertex& vertex){
+    for (int i = 0; i < MAX_BONE_INFLUENCE; i++){
         vertex.m_BoneIDs[i] = -1; // invalid ID -1
         vertex.m_Weights[i] = 0.0f;
     }
 }
 
-void Model::SetVertexBoneData(Vertex& vertex, int boneID, float weight)
-{
-    for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
-    {
-        if (vertex.m_BoneIDs[i] < 0)
-        {
+void Model::SetVertexBoneData(Vertex& vertex, int boneID, float weight){
+    for (int i = 0; i < MAX_BONE_INFLUENCE; ++i){
+        if (vertex.m_BoneIDs[i] < 0){
             vertex.m_Weights[i] = weight;
             vertex.m_BoneIDs[i] = boneID;
             break;
@@ -615,17 +718,14 @@ static inline glm::mat4 ConvertMatrixToGLMFormat(const aiMatrix4x4& from) // tha
     return to;
 }
 
-void Model::ExtractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene)
-{
+void Model::ExtractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene){
     auto& boneInfoMap = m_BoneInfoMap;
     int& boneCount = m_BoneCounter;
     
-    for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
-    {
+    for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex){
         int boneID = -1;
         std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
-        if (boneInfoMap.find(boneName) == boneInfoMap.end())
-        {
+        if (boneInfoMap.find(boneName) == boneInfoMap.end()){
             BoneInfo newBoneInfo;
             newBoneInfo.id = boneCount;
             newBoneInfo.offset = ConvertMatrixToGLMFormat(mesh->mBones[boneIndex]->mOffsetMatrix);
@@ -633,16 +733,14 @@ void Model::ExtractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* 
             boneID = boneCount;
             boneCount++;
         }
-        else
-        {
+        else{
             boneID = boneInfoMap[boneName].id;
         }
         assert(boneID != -1);
         auto weights = mesh->mBones[boneIndex]->mWeights;
         int numWeights = mesh->mBones[boneIndex]->mNumWeights;
 
-        for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
-        {
+        for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex){
             int vertexId = weights[weightIndex].mVertexId;
             float weight = weights[weightIndex].mWeight;
             assert(vertexId <= vertices.size());
@@ -653,13 +751,10 @@ void Model::ExtractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* 
 }
 
 
-std::vector<Vertex> Model::assembleVertices(aiMesh* mesh)
-{
+std::vector<Vertex> Model::assembleVertices(aiMesh* mesh){
     std::vector<Vertex> vertices;
     
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-    {
-        
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++){
         Vertex vertex;
         SetVertexBoneDataToDefault(vertex); // feed dummy data
         
@@ -711,12 +806,10 @@ std::vector<Vertex> Model::assembleVertices(aiMesh* mesh)
     return vertices;
 }
 
-std::vector<GLuint> Model::assembleIndices(aiMesh* mesh)
-{
+std::vector<GLuint> Model::assembleIndices(aiMesh* mesh){
     std::vector<GLuint> indices;
     
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-    {
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++){
         aiFace face = mesh->mFaces[i];
         for (unsigned int j = 0; j < face.mNumIndices; j++)
             indices.push_back(face.mIndices[j]);
@@ -726,8 +819,7 @@ std::vector<GLuint> Model::assembleIndices(aiMesh* mesh)
 }
 
 
-std::vector<Texture> Model::assembleMaterials(aiMesh* mesh, const aiScene* scene)
-{
+std::vector<Texture> Model::assembleMaterials(aiMesh* mesh, const aiScene* scene){
     std::vector<Texture> textures;
     
     if (mesh->mMaterialIndex >= 0) // needs to check material type like "vec4 col instead of texture"

@@ -1,0 +1,26 @@
+﻿#version 460 core
+
+layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
+
+layout(binding = 0, rgba16f) writeonly uniform image2D oindirect;
+layout(binding = 1, rgba16f) writeonly uniform image2D oemission;
+layout(binding = 2, rgba16f) writeonly uniform image2D oindirectSpecular;
+layout(binding = 3, rgba16f) writeonly uniform image2D oemissionSpecular;
+
+uniform sampler2D dIndirect;
+uniform sampler2D dEmission;
+uniform sampler2D dIndirectSpecular;
+uniform sampler2D dEmissionSpecular;
+
+uniform vec2 screenSize;
+
+void main() {
+    const ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size = ivec2(screenSize); // could do imagesize but this is quicker
+    if (pixelCoords.x >= size.x || pixelCoords.y >= size.y) return;
+
+    imageStore(oindirect, pixelCoords, texelFetch(dIndirect, pixelCoords, 0));
+    imageStore(oemission, pixelCoords, texelFetch(dEmission, pixelCoords, 0));
+    imageStore(oindirectSpecular, pixelCoords, texelFetch(dIndirectSpecular, pixelCoords, 0));
+    imageStore(oemissionSpecular, pixelCoords, texelFetch(dEmissionSpecular, pixelCoords, 0));
+}

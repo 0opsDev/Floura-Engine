@@ -105,8 +105,7 @@ void renderTarget::setupSGFBO(unsigned int width, unsigned int height){
 	
 }
 
-void renderTarget::smUpdateResolution(glm::vec2 res)
-{
+void renderTarget::smUpdateResolution(glm::vec2 res){
 	glBindTexture(GL_TEXTURE_2D, renderTarget::cmtexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, res.x, res.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -231,8 +230,7 @@ void renderTarget::updateFrameBufferResolution(unsigned int width, unsigned int 
 
 float fps24accumulator = 0;
 float accum24value = 0;
-void rtFinalUnifroms()
-{
+void rtFinalUnifroms(){
 	renderTarget::frameBufferProgram.Activate();
 	renderTarget::frameBufferProgram.setFloat("time", glfwGetTime());
 	renderTarget::frameBufferProgram.setFloat("deltaTime", TimeUtil::deltatime);
@@ -246,27 +244,19 @@ void rtFinalUnifroms()
 	glGenerateMipmap(GL_TEXTURE_2D);
 	renderTarget::frameBufferProgram.setInt("screenTexture", 0);
 	
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
-	renderTarget::frameBufferProgram.setInt("depthTexture", 1);
-	
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gAlbedoSpec);
-	renderTarget::frameBufferProgram.setInt("albedo", 2);
-	
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
-	renderTarget::frameBufferProgram.setInt("normal", 3);
 
-	renderTarget::frameBufferProgram.setFloat("gamma", Scene::maincamera.gamma);
-	
-	glActiveTexture(GL_TEXTURE10);
-	glBindTexture(GL_TEXTURE_2D, dbgPass::dbgColour);
-	renderTarget::frameBufferProgram.setInt("dbgColour", 10);
+	renderTarget::frameBufferProgram.setTexture2D("depthTexture", 1 ,GeometryPass::depthTexture);
+	renderTarget::frameBufferProgram.setTexture2D("albedo", 2, GeometryPass::gAlbedoSpec);
+	renderTarget::frameBufferProgram.setTexture2D("normal", 3, GeometryPass::gNormal);
+	renderTarget::frameBufferProgram.setTexture2D("dbgColour", 10, dbgPass::dbgColour);
 	//dbgPass
 	
+	
+	renderTarget::frameBufferProgram.setFloat("gamma", Scene::maincamera.gamma);
 	RenderClass::bluenoise->Bind();
 	renderTarget::frameBufferProgram.setInt("BlueNoiseTex", 11);
+	
+	renderTarget::frameBufferProgram.setHandleui64ARB("LUT", RenderClass::LUT->handle);
 	
 	glDisable(GL_DEPTH_TEST);
 }
@@ -325,15 +315,13 @@ void renderTarget::FBODraw(bool imGuiPanels, GLFWwindow* window) {
 		rq.draw();	
 		
 	}
-	else
-	{
+	else{
 		renderTarget::FBO2Draw();
 	}
 	glEnable(GL_DEPTH_TEST);
 }
 
-void renderTarget::Delete()
-{
+void renderTarget::Delete(){
 	glDeleteFramebuffers(1, &FBO);
 	glDeleteRenderbuffers(1, &RBO);
 	glDeleteTextures(1, &screentexture);

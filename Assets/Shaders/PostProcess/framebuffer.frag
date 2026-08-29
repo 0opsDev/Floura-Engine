@@ -19,6 +19,8 @@ uniform float time;
 uniform float deltaTime;
 uniform float accum24value;
 
+uniform sampler3D LUT;
+
 float calculateExposure(vec3 avgColor){
     float lum = dot(avgColor, vec3(0.2126, 0.7152, 0.0722));
     
@@ -29,7 +31,8 @@ float calculateExposure(vec3 avgColor){
     float acesBoost = 1.6f;
     
     float minExp = 0.01f;
-    float maxExp = 5.0f;
+    //float maxExp = 5.0f;
+    float maxExp = 2.0f;
 
     //float targetExposure = (middleGray / lum);
     float targetExposure = (middleGray / lum) * acesBoost;
@@ -195,10 +198,10 @@ void main() {
     colour = vignette(colour, 0.9, 0.5);
     
     int lastLOD = textureQueryLevels(screenTexture) - 1;
-	vec3 avgColor = textureLod(screenTexture, vec2(0.5, 0.5), lastLOD).rgb;
-    //vec3 avgColor = textureLod(screenTexture, texCoords, lastLOD).rgb;
+	vec3 avgColour = textureLod(screenTexture, vec2(0.5, 0.5), lastLOD).rgb;
+    //vec3 avgColour = textureLod(screenTexture, texCoords, lastLOD).rgb;
 
-    float autoExposure = calculateExposure(avgColor);
+    float autoExposure = calculateExposure(avgColour);
     ///float autoExposure = 0.1;
     
     vec3 tonemappedColour = vec3(1.0f) - exp(-colour  * autoExposure);
@@ -207,21 +210,28 @@ void main() {
     //vec3 tonemappedColour = vec3(1.0f) - exp(-colour  * 5.0);
 
     vec3 aces = ACESFilm(colour * autoExposure * 1.8);
+    //vec3 aces = ACESFilm(colour * 1.0 * 1.8);
+    
 
     // hint of saturation
     //aces = vec3(saturationMatrix(1.5) * vec4(aces,1.0));
 
     //aces = filmgrain(aces, 0.1, accum24value);
-    
-    FragColor.rgb = pow(aces, vec3(gamma)); // tonemap
-    //FragColor.rgb = pow(aces, vec3(gamma)); // aces
+    FragColor.rgb = pow(aces, vec3(gamma)); // aces
     //FragColor.rgb = pow(colour, vec3(gamma)); // off
 
+    /*
+    vec3 lutSize = vec3(textureSize(LUT, 0));
+    vec3 uvw = (colour.rgb * float(lutSize - 1.0) + 0.5) / lutSize;
+    FragColor.rgb = texture(LUT, uvw).rgb;
+*/   
+    
     if (overlayDebug){
         vec4 dbg = texture(dbgColour, texCoords);
         //FragColor.rgb *= dbg.rgb;
         FragColor.rgb = mix(FragColor.rgb, dbg.rgb, 0.5);
     }
+    
 
     //float luma = lumaFromRGB(texture(screenTexture, texCoords).rgb);
 

@@ -42,6 +42,8 @@ public:
 	void Unbind();
 	// Deletes a texture
 	void Delete();
+	
+	glm::vec4 rgbaSample(glm::vec2 uv, bool flip);
 
 	bool skipstbi = false;
 private:

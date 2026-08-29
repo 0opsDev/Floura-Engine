@@ -12,12 +12,6 @@
         "Type": "NULL"
     },
     {
-        "Name": "trans robot thingy",
-        "ObjectType": "Model",
-        "Path": "temp/trans robot thingy/trans_robot.gltf",
-        "Type": "NULL"
-    },
-    {
         "Name": "temp/sb/galaxy2/Skybox.json",
         "ObjectType": "Skybox",
         "Path": "temp/sb/galaxy2/Skybox.json",
@@ -357,6 +351,114 @@
         "Name": "pomrocks",
         "ObjectType": "Model",
         "Path": "temp/pomrocks/pomrocks.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "male_cheaple",
+        "ObjectType": "Model",
+        "Path": "temp/cheaple/male_cheaple.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "ww2cityscene",
+        "ObjectType": "Model",
+        "Path": "temp/ww2cityscene/ww2cityscene.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "lightbeam",
+        "ObjectType": "Model",
+        "Path": "temp/lightbeam.glb",
+        "Type": "NULL"
+    },
+    {
+        "Name": "null",
+        "ObjectType": "Skybox",
+        "Path": "Assets/",
+        "Type": "NULL"
+    },
+    {
+        "Name": "sunset",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/sunset/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "charolettenbrunn_park",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/charolettenbrunn_park/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "slope",
+        "ObjectType": "Model",
+        "Path": "Assets/Models/basic shapes/slope.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "brown_photostudio_01_4k",
+        "ObjectType": "Skybox",
+        "Path": "temp/sb/brown_photostudio_01_4k/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "picapica",
+        "ObjectType": "Model",
+        "Path": "temp/picapica/picapica.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "annasLaundry",
+        "ObjectType": "Model",
+        "Path": "temp/annasLaundry/annasLaundry.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "annaAarch",
+        "ObjectType": "Model",
+        "Path": "temp/annasarch/annaAarch.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "VerticeViewer",
+        "ObjectType": "Material",
+        "Path": "Assets/Material/VerticeViewer.Material",
+        "Type": "NULL"
+    },
+    {
+        "Name": "AnnasCastle",
+        "ObjectType": "Model",
+        "Path": "temp/AnnasCastle/castle.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "qwantani_dusk_2_puresky_4k",
+        "ObjectType": "Skybox",
+        "Path": "Assets/Skybox/qwantani_dusk_2_puresky_4k/Skybox.json",
+        "Type": "NULL"
+    },
+    {
+        "Name": "cornel",
+        "ObjectType": "Model",
+        "Path": "temp/cornel/cornel.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "iloveyoulexx",
+        "ObjectType": "Model",
+        "Path": "temp/lexxieismybaby/iloveyoulexx.gltf",
+        "Type": "NULL"
+    },
+    {
+        "Name": "gi teapots",
+        "ObjectType": "Model",
+        "Path": "temp/giteapots/teapots.glb",
+        "Type": "NULL"
+    },
+    {
+        "Name": "rainbowglass",
+        "ObjectType": "Model",
+        "Path": "temp/rainbowglass.glb",
         "Type": "NULL"
     }
 ]

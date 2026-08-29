@@ -2,9 +2,9 @@
     {
         "CastShadow": true,
         "Location": [
-            0.0,
-            1.0,
-            0.0
+            -13.545491218566895,
+            1.2963290214538574,
+            14.177203178405762
         ],
         "MaterialPath": "Assets/Material/Default.Material",
         "Rotation": [
@@ -18,53 +18,19 @@
             1.0
         ],
         "Scripts": [],
-        "UUID": "b73b1884dda6ccfd",
+        "UUID": "a90ba515fb2939ce",
         "children": [],
         "doRender": true,
         "drawInstanced": false,
         "hasParent": false,
         "isBackFaceCulling": true,
-        "name": "emissionCube",
+        "name": "annaAarch",
         "parentUUID": "0000000000000000",
-        "path": "Assets/Models/emissionCube.gltf",
+        "path": "temp/annasarch/annaAarch.gltf",
         "smoothnessValue": 0.0,
         "uvScale": [
             1.0,
             1.0
-        ]
-    },
-    {
-        "CastShadow": true,
-        "Location": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "MaterialPath": "Assets/Material/Default.Material",
-        "Rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Scale": [
-            10.0,
-            5.0,
-            20.0
-        ],
-        "Scripts": [],
-        "UUID": "329339b6b290adda",
-        "children": [],
-        "doRender": true,
-        "drawInstanced": false,
-        "hasParent": false,
-        "isBackFaceCulling": true,
-        "name": "plane",
-        "parentUUID": "0000000000000000",
-        "path": "Assets/Models/basic shapes 2/plane.gltf",
-        "smoothnessValue": 0.0,
-        "uvScale": [
-            10.0,
-            20.0
         ]
     }
 ]

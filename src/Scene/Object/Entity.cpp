@@ -9,11 +9,11 @@
 #include <Render/Handler/RenderHandler.h>
 #include "Systems/util/relationshipManager.h"
 #include "Render/Handler/CubeVisualizer.h"
-#include "Systems/Physics/SDF.h"
+#include "Render/pipeline/prebuilt_pipelines/swrt.h"
 //#include "Systems/Physics/physworld.h"
 
-void entity::createwUUID(uint64_t nUUID, ENT_TYPE_ENUM type, const std::string& name, const std::string& path, const std::string& materialPath)
-{
+
+void entity::createwUUID(uint64_t nUUID, ENT_TYPE_ENUM type, const std::string& name, const std::string& path, const std::string& materialPath){
 	entity::UUID = nUUID;
 	UUIDstring = UUID::UUIDToString(UUID);
 	//std::cout << UUIDstring << std::endl;
@@ -25,8 +25,7 @@ void entity::createwUUID(uint64_t nUUID, ENT_TYPE_ENUM type, const std::string& 
 	// set path 
 	entity::path = path;
 
-	switch (type)
-	{
+	switch (type){
 	case ENT_MODEL_TYPE: // model
 		createModel(path, materialPath);
 		break;
@@ -43,8 +42,7 @@ void entity::createwUUID(uint64_t nUUID, ENT_TYPE_ENUM type, const std::string& 
 }
 
 
-void entity::create(ENT_TYPE_ENUM type, const std::string& name, const std::string& path, const std::string& materialPath)
-{
+void entity::create(ENT_TYPE_ENUM type, const std::string& name, const std::string& path, const std::string& materialPath){
 	UUID = UUID::returnHandle();
 	UUIDstring = UUID::UUIDToString(UUID);
 	//std::cout << UUIDstring << std::endl;
@@ -56,8 +54,7 @@ void entity::create(ENT_TYPE_ENUM type, const std::string& name, const std::stri
 	// set path 
 	entity::path = path;
 	
-	switch (type)
-	{
+	switch (type){
 	case ENT_MODEL_TYPE: // model
 		createModel(path, materialPath);
 		break;
@@ -73,8 +70,7 @@ void entity::create(ENT_TYPE_ENUM type, const std::string& name, const std::stri
 	createGeneralLogic();
 }
 
-void entity::createGeneralLogic()
-{
+void entity::createGeneralLogic(){
 	raytracer::RTGlobalTransformFlag = true;
 	// within here attach phys object to handler
 	
@@ -83,8 +79,7 @@ void entity::createGeneralLogic()
 	physworld::addPhysicsObjectToArray(&component.physobject, &component.systems.transformation.position, &raytracer::RTGlobalTransformFlag);
 }
 
-void entity::LoadMaterial(std::string path)
-{
+void entity::LoadMaterial(std::string path){
 	component.systems.material.Material.LoadMaterial(path);
 }
 
@@ -158,7 +153,7 @@ void entity::update()
 			if (raytracer::RTGlobalTransformFlag){ // all of these are wasteful, make sure to look into these
 				//raytracer::updateboundingboxes(component.render.instanceUUID, component.collider.rootnodes);
 				//raytracer::modelMatrixUpdate(component.render.instanceUUID, RenderHandler::models[index].model->gModelMatrix);
-				flouraSDF::updateGlobalTransformation(component.render.instanceUUID, RenderHandler::models[index].model->gModelMatrix, component.systems.transformation.rotation);
+				FlouraSWRT::updateGlobalTransformation(component.render.instanceUUID, RenderHandler::models[index].model->gModelMatrix, component.systems.transformation.rotation);
 			}
 		}
 		break;
@@ -219,7 +214,7 @@ void entity::queuedDeletion()
 			int index = RenderHandler::fetchModelIndex(component.render.renderID);
 			if (index != -1){
 				//raytracer::removeFromRaytracer(component.render.instanceUUID);
-				flouraSDF::removeFromLSDFScene(component.render.instanceUUID);
+				FlouraSWRT::removeFromLSDFScene(component.render.instanceUUID);
 				//SceneDescription::removeFromVoxelScene(component.render.instanceUUID); // not setup but still, just putting this here
 			}
 			RenderHandler::removeInstancewRenderID(component.render.renderID, component.render.instanceUUID);
@@ -399,7 +394,7 @@ void entity::draw(){
 			int index = RenderHandler::fetchModelIndex(component.render.renderID);
 			if (index != -1){
 				//raytracer::uvScaleUpdate(component.render.instanceUUID, component.systems.material.uvScale);
-				flouraSDF::updateUVscale(component.render.instanceUUID, component.systems.material.uvScale);
+				FlouraSWRT::updateUVscale(component.render.instanceUUID, component.systems.material.uvScale);
 			}
 			for (size_t i = 0; i < component.collider.rootnodes.size(); i++){
 				if (Collision::showBoxCollider){
@@ -546,7 +541,7 @@ void entity::createModel(const std::string& path, const std::string& materialPat
 	if (index != -1){
 		//raytracer::uploadToRaytracer(newBatchOfUUID.instanceUUID);
 		
-		flouraSDF::uploadToLSDFScene(component.render.instanceUUID);
+		FlouraSWRT::uploadToLSDFScene(component.render.instanceUUID);
 	}
 }
 

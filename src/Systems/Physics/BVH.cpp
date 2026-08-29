@@ -74,6 +74,77 @@ std::vector<BVH::leaf> BVH::blasGenBVH(std::vector<Vertex>& vertices, std::vecto
     return nLeafs;
 }
 
+int BVH::aabbTraverseKDtree(std::vector<Vertex>& vertices, std::vector<BVH::leaf>& leaves, int &fatherLeafIndex, float &minDist, int &minIndex, int &closestPrimIndex, glm::vec3& p, glm::vec3& s){
+    if (leaves.empty() || fatherLeafIndex < 0) return -1;
+        
+    glm::vec3 np = Collision::nearestPointOnAABB(p, leaves[fatherLeafIndex].aabb.position, leaves[fatherLeafIndex].aabb.size);
+    float nd = glm::distance(np, p); // get the distance
+    
+    if (nd >= minDist) return -1;
+    
+    Collision::HitResult hr = Collision::AABBvsAABB(leaves[fatherLeafIndex].aabb.position, leaves[fatherLeafIndex].aabb.size, p, s);
+    if (!hr.isColliding) return -1;
+    
+    // if we are bottom
+    if  (leaves[fatherLeafIndex].firstChildIndex <= -1 && leaves[fatherLeafIndex].secondChildIndex <= -1){
+        //minDist = nd;
+        //minIndex = fatherLeafIndex;
+        float primMinDist = minDist;
+        for (int i = 0; i < leaves[fatherLeafIndex].prims.size(); ++i){
+            const glm::vec3 npp = Collision::nearestPointOnAABB(p, leaves[fatherLeafIndex].prims[i].extents.position, leaves[fatherLeafIndex].prims[i].extents.size);
+            float npd = glm::distance(npp, p);
+            if (npd < primMinDist){
+                const unsigned int &i0 = leaves[fatherLeafIndex].prims[i].i0;
+                const unsigned int &i1 = leaves[fatherLeafIndex].prims[i].i1;
+                const unsigned int &i2 = leaves[fatherLeafIndex].prims[i].i2;
+				
+                if (i0 >= vertices.size() ||
+                    i1 >= vertices.size() ||
+                    i2 >= vertices.size())
+                    continue;
+				
+                const Vertex* cV1 = &vertices[i0];
+                const Vertex* cV2 = &vertices[i1];
+                const Vertex* cV3 = &vertices[i2];
+	
+                const glm::vec3 tnp = Collision::closestPointOnTriangle(p, cV1->position, cV2->position, cV3->position);
+                float tnd = glm::distance(tnp, p);
+                if (tnd < minDist){
+                    closestPrimIndex = i;
+                    minIndex = fatherLeafIndex;
+                    minDist = tnd;
+                }
+            }
+        }
+        return 1;
+    }
+    
+    int firstChildInd = leaves[fatherLeafIndex].firstChildIndex;
+    int secondChildInd = leaves[fatherLeafIndex].secondChildIndex;
+    
+    float fnd = std::numeric_limits<float>::max();
+    float snd = std::numeric_limits<float>::max();
+    
+    if (firstChildInd >= 0){
+        glm::vec3 fnp = Collision::nearestPointOnAABB(p, leaves[firstChildInd].aabb.position, leaves[firstChildInd].aabb.size);
+        fnd = glm::distance(fnp, p); // get the distance
+    }
+    if (secondChildInd >= 0){
+        glm::vec3 snp = Collision::nearestPointOnAABB(p, leaves[secondChildInd].aabb.position, leaves[secondChildInd].aabb.size);
+        snd = glm::distance(snp, p); // get the distance
+    }
+    
+    if (fnd < snd){
+        if (firstChildInd >= 0 && fnd < minDist)aabbTraverseKDtree(vertices, leaves, leaves[fatherLeafIndex].firstChildIndex, minDist, minIndex, closestPrimIndex, p, s);
+        if (secondChildInd >= 0 && snd < minDist)aabbTraverseKDtree(vertices, leaves, leaves[fatherLeafIndex].secondChildIndex, minDist,minIndex, closestPrimIndex, p, s);
+    }
+    else{
+        if (secondChildInd >= 0 && snd < minDist)aabbTraverseKDtree(vertices, leaves, leaves[fatherLeafIndex].secondChildIndex, minDist,minIndex, closestPrimIndex, p, s);
+        if (firstChildInd >= 0 && fnd < minDist)aabbTraverseKDtree(vertices, leaves, leaves[fatherLeafIndex].firstChildIndex, minDist, minIndex, closestPrimIndex, p, s);
+    }
+    return 0;
+}
+
 std::vector<BVH::leaf> BVH::blasGenKDAccel(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, int minTri, int maxDepth, glm::mat4 transformation){
             
     std::vector<leaf> nLeafs;
@@ -110,6 +181,8 @@ bool BVH::blasInternalKD(std::vector<BVH_primitive>& prims, std::vector<Vertex> 
                          leaf& rootLeaf, int& minTri, int &maxDepth, int depth, std::vector<leaf>& Leafs){
         
         if (minTri <= 0 || depth > maxDepth) return false;
+    
+        Collision::AABB cAABB =rootLeaf.aabb;
         
         int hitCount = 0; // use for triangles hit
         //int count = 0;
@@ -119,7 +192,7 @@ bool BVH::blasInternalKD(std::vector<BVH_primitive>& prims, std::vector<Vertex> 
 
         // does collision
         for (int i = 0; i < prims.size(); ++i){
-            Collision::HitResult abbbHit =Collision::AABBvsAABB(rootLeaf.aabb.position, rootLeaf.aabb.size, prims[i].extents.position, prims[i].extents.size);
+            Collision::HitResult abbbHit =Collision::AABBvsAABB(cAABB.position, cAABB.size, prims[i].extents.position, prims[i].extents.size);
             //std::cout << "touched this deep" << std::endl;
             if (abbbHit.isColliding){ // we are failing to collide
                 if (prims[i].i0 >= vertices.size() || prims[i].i1 >= vertices.size() || prims[i].i2 >= vertices.size())
@@ -129,7 +202,7 @@ bool BVH::blasInternalKD(std::vector<BVH_primitive>& prims, std::vector<Vertex> 
                 glm::vec3 &b = vertices[prims[i].i1].position;
                 glm::vec3 &c = vertices[prims[i].i2].position;
                 
-                Collision::HitResult trihit = Collision::SATTriangleVSAABB(a, b, c, rootLeaf.aabb.position, rootLeaf.aabb.size);
+                Collision::HitResult trihit = Collision::SATTriangleVSAABB(a, b, c, cAABB.position, cAABB.size);
                 if (trihit.isColliding){
                     nprims.push_back(prims[i]);
                     nIndices.push_back(prims[i].i0);
@@ -146,7 +219,7 @@ bool BVH::blasInternalKD(std::vector<BVH_primitive>& prims, std::vector<Vertex> 
         //rootLeaf.prims = nprims;
         
         // should kd split and test both
-        Collision::KDsplit kds = Collision::KDsplitVolume(rootLeaf.aabb.position, rootLeaf.aabb.size);
+        Collision::KDsplit kds = Collision::KDsplitVolume(cAABB.position, cAABB.size);
 
         leaf firstLeaf; firstLeaf.aabb = kds.firstSplit; 
         leaf secondLeaf; secondLeaf.aabb = kds.secondSplit;
@@ -180,4 +253,4 @@ bool BVH::blasInternalKD(std::vector<BVH_primitive>& prims, std::vector<Vertex> 
     return true;
     //return rA || rB;
     //return rA && rB;
-    }
+}

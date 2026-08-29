@@ -33,6 +33,7 @@ public:
 	static Line3D* line;
 	static Texture* bluenoise;
 	static Texture* bayermatrix;
+	static Texture3D* LUT;
 	static bool doTAA;
 	static bool doBinaryAlpha;
 	static bool animateBinaryAlpha;
@@ -70,10 +71,8 @@ public:
 	static void skyGraidentPass();
 
 	static void Cleanup();
-
-	static float gammaCorrect(float input);
 	
-	static void compileShaders();
+	static void compileShaderUniforms();
 
 };
 #endif

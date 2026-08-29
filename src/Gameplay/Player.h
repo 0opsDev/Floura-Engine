@@ -37,6 +37,7 @@ public:
 	static glm::vec3 velocity;
 	static glm::vec3 force;
 	static glm::vec3 gravity;
+	static glm::vec3 tPositon;
 	static float mass;
 private:
 };

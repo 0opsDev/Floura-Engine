@@ -1,9 +1,7 @@
 #include "relationshipManager.h"
 #include "Scene/scene.h"
 
-void RelationshipManager::addParent(int index, uint64_t parentUUID)
-{
-
+void RelationshipManager::addParent(int index, uint64_t parentUUID){
 	// child UUID
 	uint64_t childUUID = Scene::entityObjects[index]->UUID;
 
@@ -31,8 +29,7 @@ void RelationshipManager::addParent(int index, uint64_t parentUUID)
 	uint64_t exisitingParentUUID = Scene::entityObjects[index]->component.relationship.parentUUID;
 
 	// if there was an existing parent, erase the child from the parent
-	if (existingHasParent)
-	{
+	if (existingHasParent){
 		int exisitingParentIndex = indexFromUUIDEntity(exisitingParentUUID);
 		
 		// erase child
@@ -56,8 +53,7 @@ void RelationshipManager::addParent(int index, uint64_t parentUUID)
 
 }
 
-void RelationshipManager::removeParent(int index)
-{
+void RelationshipManager::removeParent(int index){
 	if (index < 0 || index >= (int)Scene::entityObjects.size()) return;
 
 	if (Scene::entityObjects[index]->component.relationship.hasParent){
@@ -78,9 +74,7 @@ void RelationshipManager::removeParent(int index)
 	Scene::entityObjects[index]->component.relationship.parentUUID = 0;
 }
 
-int RelationshipManager::indexFromUUIDEntity(uint64_t UUID)
-{
-
+int RelationshipManager::indexFromUUIDEntity(uint64_t UUID){
 	for (size_t i = 0; i < Scene::entityObjects.size(); i++){
 		if (Scene::entityObjects[i]->UUID == UUID) return i;
 	}
@@ -103,12 +97,10 @@ void RelationshipManager::pushChildToParent(int parentIndex, uint64_t childUUID)
 }
 
 bool RelationshipManager::parentHasChild(int parentIndex, uint64_t childUUID){
-
 	for (size_t i = 0; i < Scene::entityObjects[parentIndex]->component.relationship.childUUID.size(); i++){
 		if (Scene::entityObjects[parentIndex]->component.relationship.childUUID[i] == childUUID){
 			return true;
 		}
 	}
-
 	return false;
 }

@@ -20,8 +20,7 @@ class Collision
 public:
 	
 	
-	enum collisionTypes
-	{
+	enum collisionTypes{
 		typeUndefined,
 		typeAABB,
 		typeSphere,
@@ -31,8 +30,7 @@ public:
 		typeFrustum // todo
 	};
 
-	struct minmax
-	{
+	struct minmax{
 		glm::vec3 min;
 		glm::vec3 max;
 	};
@@ -46,20 +44,17 @@ public:
 		glm::vec3 collisionNormal = glm::vec3(0.0f);
 	}; 
 
-	struct AABB
-	{
+	struct AABB{
 		glm::vec3 position = glm::vec3(0.0f);
 		glm::vec3 size = glm::vec3(1.0f);
 	};
 
-	struct Sphere
-	{
+	struct Sphere{
 		glm::vec3 position = glm::vec3(0.0f);
 		float radius = 1.0f;
 	};
 
-	struct collisionObject
-	{
+	struct collisionObject{
 		bool isCollider = true;
 		AABB aabb;
 		Sphere sphere;
@@ -67,8 +62,7 @@ public:
 		HitResult hitResult; // for solving
 	};
 
-	struct tri
-	{
+	struct tri{
 		glm::vec3 a = glm::vec3(0.0f);
 		glm::vec3 b = glm::vec3(0.0f);
 		glm::vec3 c = glm::vec3(0.0f);
@@ -76,14 +70,12 @@ public:
 	
 	
 	// thanks LOGL
-	struct plane
-	{
+	struct plane{
 		glm::vec3 normal = glm::vec3(0.0f, 1.0f, 0.0f);
 		float distance = 1.0f;
 	};
 	
-	struct Frustum
-	{
+	struct Frustum{
 		plane topFace;
 		plane bottomFace;
 

@@ -34,6 +34,7 @@ glm::vec3 RenderClass::fogRGBA = glm::vec3( 1.0f);
 Line3D* RenderClass::line;
 Texture* RenderClass::bluenoise;
 Texture* RenderClass::bayermatrix;
+Texture3D* RenderClass::LUT;
 bool RenderClass::doTAA = true;
 bool RenderClass::doBinaryAlpha = true;
 bool RenderClass::animateBinaryAlpha = true;
@@ -42,29 +43,7 @@ Shader SolidColour;
 
 RenderClass::renderersEnum RenderClass::currentRenderer = RenderClass::DEFERRED;
 int RenderClass::currentRendererInd = 1;
-void initGLenable() {
-	// glenables
-	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
-	glEnable(GL_DEPTH_TEST); // Depth buffer
-	glDepthFunc(GL_LESS);
-	//glEnable(GL_STENCIL_TEST); //stencil buffer
-	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-	glEnable(GL_CULL_FACE); // Culling
-	glCullFace(GL_BACK);
-
-	//switch (frontFaceSide) { //currently set to false
-	//case true: { glFrontFace(GL_CW); break; } // inside facing
-	//case false: { glFrontFace(GL_CCW); break; } // outside facing
-	//}
-
-	glFrontFace(GL_CCW);
-	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-	glEnable(GL_FRAMEBUFFER_SRGB);
-	//glEnable(GL_MULTISAMPLE);
-}
-
 void RenderClass::init(unsigned int width, unsigned int height) {
-
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4), glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6); // Window Minimum and Maximum version
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //OpenGl Profile
@@ -88,7 +67,24 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	windowHandler::setVSync(windowHandler::doVsync); // Set Vsync to value of doVsync (bool)
 
 	// glenables
-	initGLenable(); //bool for direction of polys
+	// depth pass. render things in correct order. eg sky behind wall, dirt under water, not random order
+	glEnable(GL_DEPTH_TEST); // Depth buffer
+	glDepthFunc(GL_LESS);
+	//glEnable(GL_STENCIL_TEST); //stencil buffer
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glEnable(GL_CULL_FACE); // Culling
+	glCullFace(GL_BACK);
+
+	//switch (frontFaceSide) { //currently set to false
+	//case true: { glFrontFace(GL_CW); break; } // inside facing
+	//case false: { glFrontFace(GL_CCW); break; } // outside facing
+	//}
+
+	glFrontFace(GL_CCW);
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	glEnable(GL_FRAMEBUFFER_SRGB);
+	//glEnable(GL_MULTISAMPLE);
+	
 	HistoryPass::init(); // init the RQ of the HP
 	RenderQuad::init();
 	// put in one function
@@ -99,14 +95,14 @@ void RenderClass::init(unsigned int width, unsigned int height) {
 	HistoryPass::setupHbuffers(width, height);
 	SceneDescription::generateSceneBuffers();
 	//SceneDescription::generateVoxelBuffers();
-	flouraSDF::initLocalScene();
+	FlouraSWRT::initSWRTssbo();
 	FlouraDeferred::init();
 	FlouraSWRT::setupSWRTbuffers(width, height);
 	
-	// load bluenoise texture
-	bluenoise = new Texture(); bluenoise->createTexture("Assets/Dependants/LDR_LLL1_0.png", "misc", 6);
+	//bluenoise = new Texture(); bluenoise->createTexture("Assets/Dependants/LDR_LLL1_0.png", "misc", 6);
+	bluenoise = new Texture(); bluenoise->linearFilter = false; bluenoise->createTexture("Assets/Dependants/LDR_RGBA_0.png", "misc", 6);
 	bayermatrix = new Texture(); bayermatrix->createTexture("Assets/Dependants/bayer_matrix.png", "misc", 7);
-	
+	LUT = new Texture3D(); LUT->createTexture3D("Assets/Dependants/LUT_33.png", "lut", 15); 
 	//raytracer::initcomputeShader(width, height); // Initialize compute shader for lighting pass
 	//denoiser::initcomputeShader(width, height);
 
@@ -238,29 +234,17 @@ void RenderClass::Render(GLFWwindow* window, unsigned int width, unsigned int he
 	glfwSwapBuffers(window); // Swap BackBuffer with FrontBuffer (DoubleBuffering)
 }
 
-void RenderClass::taaPass()
-{
-		glDisable(GL_CULL_FACE);
+void RenderClass::taaPass(){
+	glDisable(GL_CULL_FACE);
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::FBO);
 	taaShader.Activate();
-	// gPass textures bound to FB
-	// send gPass textures to shader
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, renderTarget::screentexture);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	taaShader.setInt("screentexture", 0);
-	
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gNormal);
-	taaShader.setInt("gNormal", 1);
-
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::depthTexture);
-	taaShader.setInt("depthMap", 2);
-	
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, GeometryPass::gVelocity);
-	taaShader.setInt("gVelocity", 3);
+	taaShader.setTexture2D("gNormal", 1, GeometryPass::gNormal);
+	taaShader.setTexture2D("depthMap", 2, GeometryPass::depthTexture);
+	taaShader.setTexture2D("gVelocity", 3, GeometryPass::gVelocity);
 
 	// skip 8 because of shadow map (i really need to use bindless on these)
 	glActiveTexture(GL_TEXTURE4);
@@ -268,15 +252,7 @@ void RenderClass::taaPass()
 	glGenerateMipmap(GL_TEXTURE_2D);
 	taaShader.setInt("hColour", 4);
 	
-	// reserve 10 for depth
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, HistoryPass::hDepthTexture);
-	taaShader.setInt("hDepthTexture", 5);
-	
-	// prior normals
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_2D, HistoryPass::hNormal);
-	taaShader.setInt("hNormal", 6);
+	taaShader.setTexture2D("hDepthTexture", 5, HistoryPass::hDepthTexture);
 	
 	taaShader.setFloat("NearPlane", Scene::maincamera.nearFar.x);
 	taaShader.setFloat("FarPlane", Scene::maincamera.nearFar.y);
@@ -292,8 +268,7 @@ void RenderClass::taaPass()
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void RenderClass::skyGraidentPass()
-{
+void RenderClass::skyGraidentPass(){
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_DITHER); // idk if this did anything to help with the debanding, test later
 	glBindFramebuffer(GL_FRAMEBUFFER, renderTarget::SGFBO);
@@ -332,7 +307,7 @@ void RenderClass::Cleanup() {
 	billBoardShader.Delete();
 	LineShader.Delete();
 	FlouraDeferred::Delete();
-	flouraSDF::cleanupLocalScene();
+	FlouraSWRT::cleanupSWRTssbo();
 	renderTarget::frameBufferProgram.Delete();
 	GeometryPass::cleanupGbuffers();
 	dbgPass::cleanupDBGbuffers();
@@ -345,14 +320,10 @@ void RenderClass::Cleanup() {
 	
 	bayermatrix->Delete();
 	bluenoise->Delete();
-}
-
-float RenderClass::gammaCorrect(float input) {
 	
-	return input;
-	return pow(input, 1.0f / Scene::maincamera.gamma);
+	LUT->Delete();
 }
 
-void RenderClass::compileShaders(){
+void RenderClass::compileShaderUniforms(){
 	for (int i = 0; i < Scene::entityObjects.size(); ++i) Scene::entityObjects[i]->component.systems.material.Material.compileUniforms();
 }

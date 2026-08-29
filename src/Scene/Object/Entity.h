@@ -33,9 +33,6 @@ public:
 		bool render = true;
 		bool doCulling = true;
 		bool cullFrontFace = false;
-		bool hasCollider = false;
-		bool hasPhysics = false;
-
 	};
 
 	struct transformation {
@@ -68,8 +65,7 @@ public:
 		bool drawInstanced = false;
 	};
 
-	struct relationship
-	{
+	struct relationship{
 		bool hasParent = false;
 		uint64_t parentUUID;
 		std::vector<uint64_t> childUUID;

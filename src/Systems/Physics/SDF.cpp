@@ -6,152 +6,6 @@
 #include <utils/imageWrite.h>
 #include <glm/gtx//matrix_decompose.hpp>
 
-int flouraSDF::localPerModelMeshCountCap = 50; // 10
-GLuint flouraSDF::localSDF_SSBOID;
-std::vector<flouraSDF::localSDF> flouraSDF::localSDFS;
-
-void flouraSDF::uploadToLSDFScene(uint64_t instanceUUID){
-    //for (size_t x = 0; x <localSDFS.size(); x++)
-    //    if (localSDFS[x].instanceUUID == instanceUUID)
-    //        break;
-    
-    uint64_t RenderUUID = RenderHandler::findRenderUUIDwIstanceUUID(instanceUUID);
-    int ind = RenderHandler::fetchModelIndex(RenderUUID);
-    
-    if (!RenderHandler::models[ind].model->sdfCompatible) return;
-    
-    // SDF meshes
-    for (int i = 0; i <  RenderHandler::models[ind].model->meshes.size(); ++i){
-        localSDF nLSDF;
-        nLSDF.instanceUUID = instanceUUID;
-        nLSDF.SDF_Handle = RenderHandler::models[ind].model->meshSDFs[i]->handle;
-        
-        Collision::AABB ab = Collision::rootNodeFromRubixPoints( RenderHandler::models[ind].model->meshAabbPoints[i], RenderHandler::models[ind].model->lModelMatrix[i]); // local
-        
-        nLSDF.position = glm::vec4(ab.position, 1.0f);
-        nLSDF.extents = glm::vec4(ab.size, 1.0f);
-    	nLSDF.globalTransform = glm::mat4(1.0f);
-    	
-        for (int z = 0; z < RenderHandler::models[ind].model->meshes[i].textures.size(); ++z){
-            std::string type = RenderHandler::models[ind].model->meshes[i].textures[z].type;
-            if (type == "texture_diffuse"){
-                nLSDF.texture_diffuse_Handle = RenderHandler::models[ind].model->meshes[i].textures[z].handle;
-            }
-            else if (type == "texture_roughness"){
-                nLSDF.texture_roughness_Handle = RenderHandler::models[ind].model->meshes[i].textures[z].handle;
-            }
-            else if (type == "texture_normal"){
-                nLSDF.texture_normal_Handle = RenderHandler::models[ind].model->meshes[i].textures[z].handle;
-            }
-            else if (type == "texture_emission"){
-                nLSDF.texture_emission_Handle = RenderHandler::models[ind].model->meshes[i].textures[z].handle;
-            }
-        }
-
-        localSDFS.push_back(nLSDF);
-    }
-	
-    updateSDFBuffer();
-}
-
-void flouraSDF::removeFromLSDFScene(uint64_t instanceUUID){
-	for (size_t x = 0; x <localSDFS.size();)
-		if (localSDFS[x].instanceUUID == instanceUUID){
-			localSDFS.erase(localSDFS.begin() + x);
-			//break;
-		}
-	else{
-		x++;
-	}
-	updateSDFBuffer();
-}
-
-void flouraSDF::updateUVscale(uint64_t instanceUUID, glm::vec2& scale){
-	for (size_t x = 0; x <localSDFS.size(); x++)
-		if (localSDFS[x].instanceUUID == instanceUUID){
-			// putting in w component for padding and to save space
-			localSDFS[x].position.w = scale.x;
-			localSDFS[x].extents.w = scale.y;
-			//break;
-		}
-	
-	updateSDFBuffer();
-}
-
-void flouraSDF::updateGlobalTransformation(uint64_t instanceUUID, glm::mat4& gt, glm::vec3 gRotation){
-	for (size_t x = 0; x <localSDFS.size(); x++)
-		if (localSDFS[x].instanceUUID == instanceUUID){
-			
-			glm::mat4 localMatrix = FE_Math::composeMatrixWDegrees(localSDFS[x].position, localSDFS[x].extents, glm::vec3(0.0f));
-			
-			glm::mat4 totalMatrix = gt * localMatrix;
-			
-			// trs extraction (just ts here)
-			localSDFS[x].gPosition = glm::vec4(glm::vec3(totalMatrix[3]),1.0f);
-			glm::vec3 ns = glm::vec3(0.0f);
-			ns.x = glm::length(glm::vec3(totalMatrix[0]));
-			ns.y = glm::length(glm::vec3(totalMatrix[1]));
-			ns.z = glm::length(glm::vec3(totalMatrix[2]));
-			localSDFS[x].gExtents = glm::vec4(glm::vec3(ns), 1.0f);
-			
-			// just do rotation
-			//glm::quat nr = FE_Math::vec3DegreesToQuat(gRotation);
-			
-			//glm::quat invNR = glm::conjugate(nr);
-			
-			//localSDFS[x].gRotation = glm::vec4(invNR.x, invNR.y, invNR.z, invNR.w);
-			
-			// just for now i wont use the expensive stuff above as i am considering quats
-			//localSDFS[x].globalTransform = glm::inverse(gRotationMatrix);
-			glm::mat4 gRotationMatrix = FE_Math::composeMatrixWDegrees(glm::vec3(0.0), glm::vec3(1.0f), gRotation);
-			localSDFS[x].globalTransform = glm::inverse(gRotationMatrix);
-			
-			Collision::AABB nRoot = Collision::createAABBfromRubiksCubePoints(Collision::transformRubiks(Collision::aabbToRubixCubePoints(localSDFS[x].position, localSDFS[x].extents), gt));
-			localSDFS[x].rootPosition = glm::vec4(nRoot.position,  localSDFS[x].position.w);
-			localSDFS[x].rootExtents = glm::vec4(nRoot.size, localSDFS[x].extents.w);
-			
-			//gModelMatrix = FE_Math::composeMatrixWDegrees(globalTransformation.position, globalTransformation.scale, globalTransformation.rotation);
-			
-			//glm::vec3 min = localSDFS[x].position - localSDFS[x].extents;
-			//glm::vec3 max =  localSDFS[x].position + localSDFS[x].extents;
-			
-			//FE_Math::transformPoint(min, localSDFS[x].globalTransform);
-			//FE_Math::transformPoint(max, localSDFS[x].globalTransform);
-			
-			//localSDFS[x].rootPosition = glm::vec4((max + min) * 0.5f,  localSDFS[x].position.w);
-			//localSDFS[x].rootExtents = glm::vec4((max - min) * 0.5f, localSDFS[x].extents.w);
-		}
-	
-	updateSDFBuffer();
-}
-
-void flouraSDF::updateSDFBuffer(){
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, localSDF_SSBOID);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, localSDFS.size() * sizeof(localSDF), localSDFS.data(), GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, localSDF_SSBOID);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-}
-
-void flouraSDF::wipeScene(){
-	for (size_t x = 0; x <localSDFS.size();)
-			localSDFS.erase(localSDFS.begin() + x);
-	updateSDFBuffer();
-}
-
-void flouraSDF::initLocalScene(){
-	glGenBuffers(1, &localSDF_SSBOID);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, localSDF_SSBOID);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, 1024, NULL, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, localSDF_SSBOID); // 6
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // Unbind
-	//meshSSBOID
-}
-
-void flouraSDF::cleanupLocalScene(){
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	glDeleteBuffers(1, &localSDF_SSBOID);
-}
-
 void flouraSDF::cacheSDF(const char* path, int hash, std::vector<Texture3D *>& meshSDFs){
 	for (int i = 0; i < meshSDFs.size(); ++i){
 		std::string nPath = path + std::to_string(hash) + "_" + std::to_string(i) +".SDF";
@@ -469,7 +323,6 @@ void flouraSDF::bakeMeshSDFAccel(std::vector<Vertex>& vertices, std::vector<BVH:
 
 
 void flouraSDF::nearestPointBlasTraversal(std::vector<BVH::leaf>& leaves, std::vector<Vertex>& vertices, float &minDist, int &minIndex, int& closestPrimIndex, int cLeafIndex, glm::vec3& P){
-	
     if (leaves.empty() || cLeafIndex < 0) return;
     
     // nearest point on node
@@ -654,8 +507,7 @@ glm::vec3 flouraSDF::distanceToClosestPointOnMeshSDFAccel_PlusUV(std::vector<Ver
 }
 
 glm::vec3 flouraSDF::distanceToClosestPointOnMeshSDFAccel_PlusUV(std::vector<Vertex>& vertices,
-	std::vector<BVH::BVH_primitive>& prims, glm::vec3& P)
-{
+	std::vector<BVH::BVH_primitive>& prims, glm::vec3& P){
 	int closestPrimIndex = -1;
 	
 	nearestNeighbourPrims(vertices, prims, closestPrimIndex, P);

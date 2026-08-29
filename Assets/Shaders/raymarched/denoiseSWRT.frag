@@ -3,21 +3,20 @@
 //out vec4 FragColor;
 in highp vec2 texCoord;
 
-layout(location = 0) out vec4 hIndirect;
-layout(location = 1) out vec4 hEmission;
-layout(location = 2) out vec4 hIndirectSpecular;
-layout(location = 3) out vec4 hEmissionSpecular;
-layout(location = 4) out vec3 presentImage;
-layout(location = 5) out float hdepth;
+layout(location = 0) out vec3 presentImage;
+// denoise buffer
+layout(location = 1) out vec4 dindirect;
+layout(location = 2) out vec4 dEmission;
+//layout(location = 3) out vec4 dIndirectSpecular;
+//layout(location = 4) out vec4 dEmissionSpecular;
 
 uniform sampler2D swrtSpecular;
-uniform sampler2D swrtDbgColour;
 
 uniform sampler2D gEmission;
 uniform sampler2D gNormal;
-uniform sampler2D gAlbedoSpec;
 uniform sampler2D depthMap;
 uniform sampler2D gSpecular;
+uniform sampler2D gPosition;
 
 uniform sampler2D swrtIndirect;
 uniform sampler2D swrtEmission;
@@ -32,7 +31,9 @@ uniform bool doDenoiseSplitDBGView;
 uniform float NearPlane;
 uniform float FarPlane;
 
+uniform int passIndex;
 uniform int passNum;
+uniform int passRadius;
 
 float lumaFromRGB(vec3 rgb){
     vec3 weights = vec3(0.2126, 0.7152, 0.0722);
@@ -40,150 +41,120 @@ float lumaFromRGB(vec3 rgb){
     return luminance;
 }
 
-float linearizeDepth(float depth, float NearPlane, float FarPlane){
-    return (2.0 * NearPlane * FarPlane) / (FarPlane + NearPlane - (depth * 2.0 - 1.0) * (FarPlane - NearPlane));
-}
+float kernel[5] = float[5](1.0/16.0, 1.0 / 4.0, 3.0 / 8.0, 1.0 / 4.0, 1.0 / 16.0);
 
-vec3 indirectDenoise(sampler2D inputSampler, vec3 colour, float linearizedDepth, vec3 normal, float farplane, int radius){
-    vec2 lscreenSize = textureSize(inputSampler, 0);    
-    vec2 ltexelSize = 1.0 / lscreenSize;
+//vec4 indirectWaveletDenoise(sampler2D inputSampler, sampler2D variance, int channel, vec3 colour, float linearizedDepth, vec3 normal, float farplane, int radius){
+vec4 indirectWaveletDenoise(sampler2D inputSampler, sampler2D variance, int channel, vec3 colour, vec3 cGP, vec3 normal, float farplane){
+    vec2 inputSize = textureSize(inputSampler, 0);
+    vec2 texelSize = 1.0 / inputSize;
 
-    //float avgL =0.0; 
-    int h = 0;
-    vec3 avgC = vec3(0.0f);
-    for(int x = -radius; x <= radius; ++x){
-        for(int y = -radius; y <= radius; ++y){
-            vec2 offset = vec2(x, y) * ltexelSize;
-            //if (offset.x > 1.0 || offset.y > 1.0 || offset.x < 0.0 || offset.y < 0.0) continue;
-            float neighbourDepth = texture(depthMap, texCoord + offset).r;
-            float neighbourDepthLinearized = linearizeDepth(neighbourDepth, 0.1f, farplane);
-            float depthDifference = abs(neighbourDepthLinearized - linearizedDepth);
+    float cVar = texture(variance, texCoord)[channel];
+    float cLuma = lumaFromRGB(colour);
 
-            vec3 neighbourNormal = texture(gNormal, texCoord + offset).rgb;
-            float normalSimilarity = dot(neighbourNormal, normal);
-            if (depthDifference > 0.1 || normalSimilarity < 0.9) continue;
+    //float sigmaDepth = 0.05f;
+    float sigmaPos = 0.5; //  0.05
+    float sigmaNormal = 0.2; // 0.2;
+    
+    vec3 sumColour = vec3(0.0f);
+    float sumWeight = 0.0f;
+    float sumVar = 0.0f;
+    float sumWeightsq = 0.0f;
 
+    int r = 2; // force to 2 rn for 5 radius
+    for(int x = -r; x <= r; ++x)
+    for(int y = -r; y <= r; ++y){
+        vec2 offset = vec2(x, y) * float(passRadius) * texelSize;
 
-            vec3 neighbourColour = texture(inputSampler, texCoord + offset).rgb;
-            //float nLumanance = lumaFromRGB(neighbourColour);
-            avgC += neighbourColour;
+        float spatialWeight = kernel[x + 2] * kernel[y + 2];
 
-            h++;
-            //avgL += nLumanance;
-        }
+        // gonna sample up here
+        vec3 neighbourColour = texture(inputSampler, texCoord + offset).rgb;
+
+        vec3 neighbourGposition = texture(gPosition, texCoord + offset).rgb;
+        vec3 gPositionDifference = neighbourGposition - cGP;
+        float dist2 = dot(gPositionDifference,gPositionDifference);
+        float positionWeight = min(exp(-(dist2)/sigmaPos),1.0);
+
+        vec3 neighbourNormal = texture(gNormal, texCoord + offset).rgb;
+        float normalCos = max(dot(neighbourNormal, normal), 0.0);
+        float normaDifference = 1.0 - normalCos;
+        float normalWeight = exp( -(normaDifference * normaDifference) / (2.0 * sigmaNormal * sigmaNormal));
+
+        float neighbourVar = texture(variance, texCoord + offset)[channel];
+        float neighbourLuma = lumaFromRGB(neighbourColour);
+        float lumaDifference  = abs(cLuma - neighbourLuma);
+        
+        float noiseLvl = sqrt(max(0.0, cVar));
+        float lumaWeight = exp(-lumaDifference / (4.0 * noiseLvl + 1e-4) );
+        
+        //float tWeight = spatialWeight * depthWeight * normalWeight * lumaWeight;
+        float tWeight = spatialWeight * positionWeight * normalWeight * lumaWeight;
+        //float tWeight = spatialWeight * positionWeight * normalWeight;
+        
+        sumColour += neighbourColour * tWeight;
+        sumVar += neighbourVar * (tWeight * tWeight);
+        sumWeight += tWeight;
+        sumWeightsq += (tWeight * tWeight);
     }
-    return avgC / h;
-    /*
-    float avgLuminance = 0.0f; if (h > 0) avgLuminance = avgL / float(h);
-    return colour * (avgLuminance / max(lumaFromRGB(colour), 0.0001f));
-    */
-}
-
-vec3 specularDenoise(sampler2D inputSampler, vec3 colour, float linearizedDepth, vec3 normal, vec2 rm, float farplane, int radius){
-    vec2 lscreenSize = textureSize(inputSampler, 0);
-    vec2 ltexelSize = 1.0 / lscreenSize;
-
-    //float avgL =0.0; 
-    int h = 0;
-    vec3 avgC = vec3(0.0f);
-    for(int x = -radius; x <= radius; ++x){
-        for(int y = -radius; y <= radius; ++y){
-            vec2 offset = vec2(x, y) * ltexelSize;
-           // if (offset.x > 1.0 || offset.y > 1.0 || offset.x < 0.0 || offset.y < 0.0) continue;
-            
-            float neighbourDepth = texture(depthMap, texCoord + offset).r;
-            float neighbourDepthLinearized = linearizeDepth(neighbourDepth, 0.1f, farplane);
-            float depthDifference = abs(neighbourDepthLinearized - linearizedDepth);
-
-            vec2 neighbourRM = texture(gSpecular, texCoord + offset).gb;
-            float roughDifference = abs(neighbourRM.r - rm.r);
-            float metDifference = abs(neighbourRM.g - rm.g);
-            
-            vec3 neighbourNormal = texture(gNormal, texCoord + offset).rgb;
-            float normalSimilarity = dot(neighbourNormal, normal);
-            if (depthDifference > 0.1 || normalSimilarity < 0.95 || roughDifference > 0.1 || metDifference > 0.1) continue;
-
-
-            vec3 neighbourColour = texture(inputSampler, texCoord + offset).rgb;
-            //float nLumanance = lumaFromRGB(neighbourColour);
-            avgC += neighbourColour;
-
-            h++;
-            //avgL += nLumanance;
-        }
-    }
-    return avgC / h;
-    /*
-    float avgLuminance = 0.0f; if (h > 0) avgLuminance = avgL / float(h);
-    return colour * (avgLuminance / max(lumaFromRGB(colour), 0.0001f));
-    */
+    
+    vec4 outColour = vec4(vec3(
+            (sumWeight > 0.0) ? (sumColour / sumWeight) : colour),  
+            (sumWeightsq > 0.0) ? (sumVar / sumWeightsq) : cVar);
+    return outColour;
 }
 
 void main(){
-    vec4 indirect                = texture(swrtIndirect, texCoord);
-    vec4 emission              = texture(swrtEmission, texCoord);
-    vec4 indirectSpecular   = texture(swrtIndirectSpecular, texCoord);
-    vec4 emissionSpecular = texture(swrtEmissionSpecular, texCoord);
     float gdepth                 = texture2D(depthMap, texCoord).r;
-    
-    hIndirect                = indirect;
-    hEmission              = emission;
-    hIndirectSpecular   = indirectSpecular;
-    hEmissionSpecular = emissionSpecular;
-    hdepth = gdepth;
-
     if (gdepth >= 0.99999) discard;
 
-    vec3 specular     = texture(swrtSpecular, texCoord).rgb;
-    vec3 direct = texture2D(swrtDbgColour, texCoord).rgb;
+    vec4 indirect                = texture(swrtIndirect, texCoord);
+    vec4 emission              = texture(swrtEmission, texCoord);
+    vec3 indirectSpecular   = texture(swrtIndirectSpecular, texCoord).rgb;
+    vec3 emissionSpecular = texture(swrtEmissionSpecular, texCoord).rgb;
+    vec3 specular               = texture(swrtSpecular, texCoord).rgb;
+    
     vec3 gemission  = texture(gEmission, texCoord).rgb;
-    vec3 gnrm         = normalize(texture(gNormal, texCoord).rgb);
-    vec3 galbedo     = texture(gAlbedoSpec, texCoord).rgb;
+    vec3 gnrm         = normalize(texture(gNormal, texCoord).rgb); // move into do denoise
     vec3 gSpecular   = texture(gSpecular, texCoord).rgb;
     
-    vec3 nIndirect               = indirect.rgb;
-    vec3 nEmission             = emission.rgb;
-    vec3 nSpecular              = specular.rgb;
-    vec3 nIndirectSpecular   = indirectSpecular.rgb;
-    vec3 nEmissionSpecular = emissionSpecular.rgb;
+    vec4 nIndirect                = indirect;
+    vec4 nEmission              = emission;
 
-    vec2 lscreenSize = textureSize(swrtDbgColour, 0);
+    vec2 lscreenSize = textureSize(swrtIndirect, 0);
     bool split = true;
-    if (gl_FragCoord.x > lscreenSize.x / 2 && doDenoiseSplitDBGView) split = false;
+    if (texCoord.x > lscreenSize.x / 2 && doDenoiseSplitDBGView) split = false;
     
     if (doDenoise && split){
-        vec4 nFV = texture(filteredVariance, texCoord);
-        float u = float(denoiseRadius);
-        float v = 1.0f;
-        int INDradius        = int(clamp(mix(u, v, nFV.r), 1, denoiseRadius));
-        int EMradius         = int(clamp(mix(u, v, nFV.g), 1, denoiseRadius));
-        //int INDspecradius = int(clamp(mix(u, v, nFV.b), 1, denoiseRadius));
-        //int EMspecradius  = int(clamp(mix(u, v, nFV.a), 1, denoiseRadius));
-        //int specRadius      = int(clamp(mix(0, 3, gSpecular.g), 0, denoiseRadius));
-        int specularRadius = 5;
-        
-        float d       = linearizeDepth(gdepth, NearPlane, FarPlane);
-        nIndirect   = indirectDenoise(swrtIndirect, indirect.rgb, d, gnrm, FarPlane, INDradius); 
-        nEmission = indirectDenoise(swrtEmission, emission.rgb, d, gnrm, FarPlane, EMradius);
-
-        if (gSpecular.g > 0.4){
-            //nIndirectSpecular    = specularDenoise(swrtIndirectSpecular, indirectSpecular.rgb, d, gnrm, vec2(gSpecular.g, gSpecular.b), FarPlane, specularRadius);
-            nEmissionSpecular  = specularDenoise(swrtEmissionSpecular, emissionSpecular.rgb, d, gnrm, vec2(gSpecular.g, gSpecular.b), FarPlane, specularRadius);
-            nSpecular               = specularDenoise(swrtSpecular, specular.rgb, d, gnrm, vec2(gSpecular.g, gSpecular.b), FarPlane, specularRadius);
+        vec3 gp = texture(gPosition, texCoord).rgb;
+        if (passIndex == 0){ // first pass
+            nIndirect = indirectWaveletDenoise(swrtIndirect, filteredVariance, 0, indirect.rgb, gp, gnrm, FarPlane);
+            nEmission = indirectWaveletDenoise(swrtEmission, filteredVariance, 1, emission.rgb, gp, gnrm, FarPlane);
+        }
+        else{ // secondary (reads off pingpong)
+            nIndirect = indirectWaveletDenoise(swrtIndirect, swrtIndirect, 3, indirect.rgb, gp, gnrm, FarPlane);
+            nEmission = indirectWaveletDenoise(swrtEmission, swrtEmission, 3, emission.rgb, gp, gnrm, FarPlane);
         }
     }
-    
-    //vec3 gi = clamp((direct.rgb + nIndirect.rgb), 0.0001, 1.0);
-    vec3 gi = direct.rgb + nIndirect.rgb;
-    // nSpecular - indirectSpecular < i currently am passing specualr thru here temporarily 
-    vec3 combine = gi + nIndirectSpecular.rgb + (nEmission.rgb + gemission);
 
-    vec3 colour = galbedo * combine; // 0.001f
+    // write into d buffer
+    dindirect = nIndirect;
+    dEmission = nEmission;
+    
+    if (passNum != passIndex + 1) return;
+    //vec3 gi = direct.rgb + nIndirect.rgb;
+    // nSpecular - indirectSpecular < i currently am passing specualr thru here temporarily 
+    // needs to be seperated into two
+    presentImage = clamp(specular, 0.0, 1.0);
+    dEmission.rgb = (nEmission.rgb + emissionSpecular + gemission);
+
+    //vec3 combine = nIndirect.rgb + (nEmission.rgb + emissionSpecular + gemission);
     
     //FragColor = vec4(1.0, 0.0, 0.0, 1.0);
     //FragColor = vec4(gi, 1.0f);
     //presentImage = direct.rgb;
+    //presentImage = gi;
+    //presentImage = nIndirectSpecular.rgb;
     //presentImage = combine.rgb;
-    presentImage = colour.rgb;
-    //presentImage = vec3(indirect.a);
+    //presentImage = nIndirect.rgb;
+    //presentImage = nIndirectSpecular.rgb;
 }

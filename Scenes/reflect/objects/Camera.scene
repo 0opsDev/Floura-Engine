@@ -3,7 +3,7 @@
         "FOV": 75.0,
         "cameraColliderScale": [
             1.0,
-            1.7999999523162842,
+            5.0,
             1.0
         ],
         "farPlane": 500.0,

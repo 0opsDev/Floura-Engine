@@ -133,8 +133,20 @@ void Main::physicsLoop(GLFWwindow* window){
 		physworld::physicsArrayDynamicUpdateLoop(physworld::worldGravity, TimeUtil::ptTimer.deltatime); //  main update
 		physworld::update(TimeUtil::ptTimer.deltatime);
 		
+		if (Player::s_DoGravity) {
+			Player::force += Player::mass * Player::gravity; // applying foce
+
+			Player::velocity += Player::force / Player::mass * TimeUtil::ptTimer.deltatime;
+			Scene::maincamera.Position += Player::velocity * TimeUtil::ptTimer.deltatime;
+
+			Player::force = glm::vec3(0.0f); // reset force at end
+		}
+		
 		physworld::collisionResolve(); // resolve the collisions
-		physworld::collisionResolveCamera();
+		for (int i = 0; i < 32; ++i){ // solve 32 times
+			physworld::collisionResolveCamera();
+		}
+		
 	}
 }
 

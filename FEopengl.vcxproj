@@ -884,83 +884,6 @@
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="src\Render\pipeline\prebuilt_pipelines\swrt.cpp" />
-    <ClCompile Include="src\Render\procedural\GenerationTools.cpp" />
-    <ClCompile Include="src\Render\procedural\ocean.cpp" />
-    <ClCompile Include="src\Render\procedural\terrain.cpp">
-      <AssemblerOutput>NoListing</AssemblerOutput>
-      <AssemblerListingLocation>FlouraEngineGL\x64\Release\</AssemblerListingLocation>
-      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
-      <BrowseInformation>false</BrowseInformation>
-      <BrowseInformationFile>FlouraEngineGL\x64\Release\</BrowseInformationFile>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <CompileAs>Default</CompileAs>
-      <UseDynamicDebugging>false</UseDynamicDebugging>
-      <ConformanceMode>Default</ConformanceMode>
-      <DiagnosticsFormat>Column</DiagnosticsFormat>
-      <DisableLanguageExtensions>false</DisableLanguageExtensions>
-      <ErrorReporting>Prompt</ErrorReporting>
-      <ExpandAttributedSource>false</ExpandAttributedSource>
-      <ExceptionHandling>Sync</ExceptionHandling>
-      <EnableASAN>false</EnableASAN>
-      <EnableFuzzer>false</EnableFuzzer>
-      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <EnableVectorLength>NotSet</EnableVectorLength>
-      <FloatingPointModel>Precise</FloatingPointModel>
-      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
-      <GenerateModuleDependencies>false</GenerateModuleDependencies>
-      <GenerateSourceDependencies>false</GenerateSourceDependencies>
-      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
-      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>Default</LanguageStandard_C>
-      <MinimalRebuild>false</MinimalRebuild>
-      <ModuleDependenciesFile>FlouraEngineGL\x64\Release\</ModuleDependenciesFile>
-      <ModuleOutputFile>FlouraEngineGL\x64\Release\</ModuleOutputFile>
-      <OmitDefaultLibName>false</OmitDefaultLibName>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
-      <Optimization>MaxSpeed</Optimization>
-      <ObjectFileName>FlouraEngineGL\x64\Release\</ObjectFileName>
-      <CallingConvention>Cdecl</CallingConvention>
-      <ProgramDataBaseFileName>FlouraEngineGL\x64\Release\vc143.pdb</ProgramDataBaseFileName>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>FlouraEngineGL\x64\Release\FlouraEngineGL.pch</PrecompiledHeaderOutputFile>
-      <PreprocessToFile>false</PreprocessToFile>
-      <PreprocessKeepComments>false</PreprocessKeepComments>
-      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
-      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <ShowIncludes>false</ShowIncludes>
-      <SourceDependenciesFile>FlouraEngineGL\x64\Release\</SourceDependenciesFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <SmallerTypeCheck>false</SmallerTypeCheck>
-      <SpectreMitigation>false</SpectreMitigation>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <SupportJustMyCode>false</SupportJustMyCode>
-      <TrackerLogDirectory>FlouraEngineGL\x64\Release\FlouraEngineGL.tlog\</TrackerLogDirectory>
-      <TranslateIncludes>false</TranslateIncludes>
-      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
-      <TreatWarningAsError>false</TreatWarningAsError>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <UseFullPaths>true</UseFullPaths>
-      <WarningLevel>Level1</WarningLevel>
-      <XMLDocumentationFileName>FlouraEngineGL\x64\Release\</XMLDocumentationFileName>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <IntelJCCErratum>false</IntelJCCErratum>
-      <BuildStlModules>false</BuildStlModules>
-      <TreatAngleIncludeAsExternal>false</TreatAngleIncludeAsExternal>
-      <ExternalWarningLevel>InheritWarningLevel</ExternalWarningLevel>
-      <TreatExternalTemplatesAsInternal>true</TreatExternalTemplatesAsInternal>
-      <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_UNICODE;UNICODE;</PreprocessorDefinitions>
-      <LinkCompiled>true</LinkCompiled>
-    </ClCompile>
     <ClCompile Include="src\Render\render_util\flouraSlang.cpp" />
     <ClCompile Include="src\Render\render_util\meshTools.cpp" />
     <ClCompile Include="src\Render\Shader\renderTarget.cpp" />
@@ -970,81 +893,6 @@
     <ClCompile Include="src\Render\window\WindowImporter.cpp" />
     <ClCompile Include="src\Scene\LightingHandler.cpp" />
     <ClCompile Include="src\Scene\Object\Entity.cpp" />
-    <ClCompile Include="src\Scene\Object\ProceduralPlaneObject.cpp">
-      <AssemblerOutput>NoListing</AssemblerOutput>
-      <AssemblerListingLocation>FlouraEngineGL\x64\Release\</AssemblerListingLocation>
-      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
-      <BrowseInformation>false</BrowseInformation>
-      <BrowseInformationFile>FlouraEngineGL\x64\Release\</BrowseInformationFile>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <CompileAs>Default</CompileAs>
-      <UseDynamicDebugging>false</UseDynamicDebugging>
-      <ConformanceMode>Default</ConformanceMode>
-      <DiagnosticsFormat>Column</DiagnosticsFormat>
-      <DisableLanguageExtensions>false</DisableLanguageExtensions>
-      <ErrorReporting>Prompt</ErrorReporting>
-      <ExpandAttributedSource>false</ExpandAttributedSource>
-      <ExceptionHandling>Sync</ExceptionHandling>
-      <EnableASAN>false</EnableASAN>
-      <EnableFuzzer>false</EnableFuzzer>
-      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <EnableVectorLength>NotSet</EnableVectorLength>
-      <FloatingPointModel>Precise</FloatingPointModel>
-      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
-      <GenerateModuleDependencies>false</GenerateModuleDependencies>
-      <GenerateSourceDependencies>false</GenerateSourceDependencies>
-      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
-      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>Default</LanguageStandard_C>
-      <MinimalRebuild>false</MinimalRebuild>
-      <ModuleDependenciesFile>FlouraEngineGL\x64\Release\</ModuleDependenciesFile>
-      <ModuleOutputFile>FlouraEngineGL\x64\Release\</ModuleOutputFile>
-      <OmitDefaultLibName>false</OmitDefaultLibName>
-      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
-      <Optimization>MaxSpeed</Optimization>
-      <ObjectFileName>FlouraEngineGL\x64\Release\</ObjectFileName>
-      <CallingConvention>Cdecl</CallingConvention>
-      <ProgramDataBaseFileName>FlouraEngineGL\x64\Release\vc143.pdb</ProgramDataBaseFileName>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>FlouraEngineGL\x64\Release\FlouraEngineGL.pch</PrecompiledHeaderOutputFile>
-      <PreprocessToFile>false</PreprocessToFile>
-      <PreprocessKeepComments>false</PreprocessKeepComments>
-      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
-      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <ShowIncludes>false</ShowIncludes>
-      <SourceDependenciesFile>FlouraEngineGL\x64\Release\</SourceDependenciesFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <SmallerTypeCheck>false</SmallerTypeCheck>
-      <SpectreMitigation>false</SpectreMitigation>
-      <StructMemberAlignment>Default</StructMemberAlignment>
-      <SupportJustMyCode>false</SupportJustMyCode>
-      <TrackerLogDirectory>FlouraEngineGL\x64\Release\FlouraEngineGL.tlog\</TrackerLogDirectory>
-      <TranslateIncludes>false</TranslateIncludes>
-      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
-      <TreatWarningAsError>false</TreatWarningAsError>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <UseFullPaths>true</UseFullPaths>
-      <WarningLevel>Level1</WarningLevel>
-      <XMLDocumentationFileName>FlouraEngineGL\x64\Release\</XMLDocumentationFileName>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <IntelJCCErratum>false</IntelJCCErratum>
-      <BuildStlModules>false</BuildStlModules>
-      <TreatAngleIncludeAsExternal>false</TreatAngleIncludeAsExternal>
-      <ExternalWarningLevel>InheritWarningLevel</ExternalWarningLevel>
-      <TreatExternalTemplatesAsInternal>true</TreatExternalTemplatesAsInternal>
-      <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_UNICODE;UNICODE;</PreprocessorDefinitions>
-      <LinkCompiled>true</LinkCompiled>
-    </ClCompile>
     <ClCompile Include="src\Scene\ProbeHandler.cpp" />
     <ClCompile Include="src\Scene\scene.cpp" />
     <ClCompile Include="src\Scene\FE_LAYER.cpp" />
@@ -1129,8 +977,6 @@
     <ClInclude Include="src\Render\pipeline\prebuilt_pipelines\geometryPass.h" />
     <ClInclude Include="src\Render\pipeline\prebuilt_pipelines\historyPass.h" />
     <ClInclude Include="src\Render\pipeline\prebuilt_pipelines\swrt.h" />
-    <ClInclude Include="src\Render\procedural\ocean.h" />
-    <ClInclude Include="src\Render\procedural\terrain.h" />
     <ClInclude Include="src\Render\render_util\flouraSlang.h" />
     <ClInclude Include="src\Render\render_util\meshTools.h" />
     <ClInclude Include="src\Render\Shader\renderTarget.h" />
@@ -1140,7 +986,6 @@
     <ClInclude Include="src\Render\window\WindowImporter.h" />
     <ClInclude Include="src\Scene\LightingHandler.h" />
     <ClInclude Include="src\Scene\Object\Entity.h" />
-    <ClInclude Include="src\Scene\Object\ProceduralPlaneObject.h" />
     <ClInclude Include="src\Scene\ProbeHandler.h" />
     <ClInclude Include="src\Scene\scene.h" />
     <ClInclude Include="src\Scene\FE_LAYER.h" />
@@ -1199,10 +1044,8 @@
     <None Include="Assets\Shaders\Lighting\Default.geom" />
     <None Include="Assets\Shaders\Lighting\Default.vert" />
     <None Include="Assets\Shaders\Lighting\DefaultGeom.vert" />
-    <None Include="Assets\Shaders\Lighting\depth.frag" />
     <None Include="Assets\Shaders\Lighting\geomfur.geom" />
     <None Include="Assets\Shaders\Lighting\NormalView.frag" />
-    <None Include="Assets\Shaders\Lighting\PS1.vert" />
     <None Include="Assets\Shaders\Lighting\reflection.frag" />
     <None Include="Assets\Shaders\Lighting\shadowMap.frag" />
     <None Include="Assets\Shaders\Lighting\shadowMap.vert" />
@@ -1238,6 +1081,9 @@
     <Content Include="Assets\Shaders\PostProcess\TAA.frag" />
     <Content Include="Assets\Shaders\PostProcess\TAA.vert" />
     <Content Include="Assets\Shaders\raymarched\denoisePrePassSWRT.frag" />
+    <Content Include="Assets\Shaders\raymarched\indirectProbeSWRT.comp" />
+    <Content Include="Assets\Shaders\raymarched\pingpongSWRT.comp" />
+    <Content Include="Assets\Shaders\raymarched\pingpongSWRT.frag" />
     <Content Include="Assets\Shaders\raymarched\presentSWRT.frag" />
     <Content Include="Assets\Shaders\raymarched\denoiseSWRT.frag" />
     <Content Include="Assets\Shaders\raymarched\traceSWRT.comp" />
@@ -1255,10 +1101,6 @@
     <Content Include="Assets\Shaders\slang\hashFunctions.slangh" />
     <Content Include="README.md" />
     <Content Include="src\Libraries\include\meshoptimizer\cred.txt" />
-    <Content Include="src\Render\procedural\GenerationTools.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="src\Render\passes\" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

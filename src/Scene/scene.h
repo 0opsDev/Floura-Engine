@@ -13,8 +13,7 @@
 using json = nlohmann::json;
 
 //testclass
-class Scene
-{
+class Scene{
 public:
 
 	static std::string sceneName; // Map loading
@@ -22,7 +21,6 @@ public:
 	static std::vector <std::unique_ptr<entity>> entityObjects;
 	static Camera maincamera;
 	static glm::vec3 initalCameraPos;
-	static std::vector <ProbeHandler::probe> probes;
 	
 	static Collision::AABB SceneBounds;
 	static std::vector <Collision::AABB> rootnodes;
@@ -98,6 +96,11 @@ public:
 	
 	static Collision::HitResult traceIntoScene(glm::vec3 ro, glm::vec3 rd);
 
+	static void voxelizeArea(glm::vec3 p, glm::vec3 s, Texture3D& texture, int sliceSize, GLuint slot);
+	
+	static void tagMeshes(glm::vec3 p, glm::vec3 s, std::vector<Mesh*> &meshes, std::vector<glm::mat4>& matrices);
+
+	
 private:
 };
 #endif

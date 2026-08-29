@@ -39,6 +39,9 @@ public:
     static std::vector<BVH_primitive> buildIndicesIntoPrims(std::vector<Vertex> &vertices, std::vector<GLuint> &indices);
     
     static std::vector<leaf> blasGenBVH(std::vector<Vertex> &vertices, std::vector<GLuint> &indices, int minTri, glm::mat4 transformation);
+
+    static int aabbTraverseKDtree(std::vector<Vertex>& vertices, std::vector<BVH::leaf>& leaves, int &fatherLeafIndex, float &minDist, int &minIndex, int &closestPrimIndex, glm::vec3& p, glm::vec3& s);
+    
     
     static std::vector<leaf> blasGenKDAccel(std::vector<Vertex> &vertices, std::vector<GLuint> &indices, int minTri, int maxDepth, glm::mat4 transformation);
     // moved here

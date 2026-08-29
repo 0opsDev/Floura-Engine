@@ -88,5 +88,11 @@
         "ObjectType": "Skybox",
         "Path": "temp/sb/galaxy2/Skybox.json",
         "Type": "NULL"
+    },
+    {
+        "Name": "annaAarch",
+        "ObjectType": "Model",
+        "Path": "temp/annasarch/annaAarch.gltf",
+        "Type": "NULL"
     }
 ]

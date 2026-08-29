@@ -51,15 +51,15 @@ uniform bool doReflections;
 
 uniform uint64_t SB_Handle;
 
-float linearizeDepth(float depth, float NP, float FP)
-{
+bool doMatCap = false;
+
+float linearizeDepth(float depth, float NP, float FP){
     return (2.0 * NP * FP) / (FP + NP - (depth * 2.0 - 1.0) * (FP - NP));
 }
 
 const int numBinarySearchSteps = 5;
 
-vec3 BinarySearch(inout vec3 dir, inout vec3 hitCoord, inout float dDepth)
-{
+vec3 BinarySearch(inout vec3 dir, inout vec3 hitCoord, inout float dDepth){
     float depth;
 
     vec4 projectedCoord;
@@ -92,8 +92,7 @@ vec3 BinarySearch(inout vec3 dir, inout vec3 hitCoord, inout float dDepth)
 
 float rayThickness = 0.1;
 
-vec4 RayCast(in vec3 dir, inout vec3 hitCoord, out float dDepth, int maxSteps, out float hit, in float step)
-{
+vec4 RayCast(in vec3 dir, inout vec3 hitCoord, out float dDepth, int maxSteps, out float hit, in float step){
     hitCoord += dir* 0.1;
 
     dir *= step;
@@ -163,7 +162,7 @@ const float reflectionSpecularFalloffExponent = 3.0;
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0) { return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0); }
 
-vec4 ssr(vec3 ARM, vec3 position, vec3 normal, int maxSteps, float step){
+vec4 ssr(vec3 ARM, vec3 position, vec3 normal, int maxSteps, float step, highp vec2 velocity){
     float Metallic = ARM.b;
     float rough = ARM.g;
 
@@ -202,9 +201,9 @@ vec4 ssr(vec3 ARM, vec3 position, vec3 normal, int maxSteps, float step){
     ivec2 size = ivec2(textureSize(gNormal, 0)); // get size of tex
         
     vec4 csCoords = RayCast(rayDir, hitPos, dDepth, maxSteps, hit, step);
+    csCoords.xy -= velocity;
     
-    if (hit == 1.0)
-    {
+    if (hit == 1.0){
         //vec4 csCoords = RayCast(vec3(jitt) + R, hitPos, dDepth, maxSteps, hit, step);
 
         vec2 dCoords = smoothstep(0.2, 0.6, abs(vec2(0.5, 0.5) - csCoords.xy));
@@ -301,22 +300,6 @@ void Reflect(vec3 albedo,  vec3 iNormal, vec3 viewVector, out vec3 diffuse, out 
         //diffuse = nDiffuse;
 }
 
-vec3 blur(sampler2D samp, vec2 coord)
-{
-    
-    int samples = 10;
-    vec3 colour = vec3(0.0);
-
-    for (int i = 5; i < samples; i++)
-    {
-        vec3 mipmap = textureLod(samp, coord, i).rgb;
-
-        colour += mipmap;
-    }
-
-    return colour / samples;
-}
-
 void main(){
 
     //vec3 positionTemp = texture(gPosition, texCoord).rgb;
@@ -333,8 +316,7 @@ void main(){
     float depth = texture(depthMap, texCoord).r;
 
     //early z cutoff
-    if (depth >= 0.99999)
-    {
+    if (depth >= 0.99999){
         FragColor = vec4(colour, 1.0f);
         return;
     }
@@ -356,11 +338,21 @@ void main(){
     vec3 viewVector = position - camPos;
 
     vec3 emission = texture(gEmission, texCoord).rgb;
-    //vec3 nEmissionblur = blur(gEmission, texCoord) ;
+    highp vec2 velocity = texture(gVelocity, texCoord).rg;
     
     vec4 reflections = vec4(0.0);
+    
+    if (doMatCap){
+        vec3 v = normalize(viewVector);
+        vec3 r = reflect(v, normal);
 
-    if (doSSR) reflections = ssr(ARM, position, normal, maxstep, stepsize);
+        vec3 reflectionColour = textureLod(samplerCube(cmMainHandle), r, 0).rgb;
+        
+        FragColor.rgb = reflectionColour;
+        return;
+    }
+
+    if (doSSR) reflections = ssr(ARM, position, normal, maxstep, stepsize, velocity);
 
     vec3 specular = vec3(0.0f);
     vec3 diffuse  = vec3(0.0f);

@@ -1,13 +1,13 @@
 [
     {
-        "DepthDistance": 30.0,
+        "DepthDistance": 54.0,
         "DepthPlane": [
             0.10000000149011612,
-            30.0
+            75.0
         ],
         "Window": "Default",
-        "doFog": true,
-        "doReflections": true,
+        "doFog": false,
+        "doReflections": false,
         "fogRGBA": [
             1.0,
             1.0,

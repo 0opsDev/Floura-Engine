@@ -3,13 +3,11 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <utils/logConsole.h>
 #include "Scene/scene.h"
-//#include <Render/pipeline/prebuilt_pipelines/depreciated/raytracer.h>
 #include "utils/FE_math.h"
 
 std::vector<LightingHandler::Light> LightingHandler::Lights;
 
-void LightingHandler::clearSMFBO()
-{
+void LightingHandler::clearSMFBO(){
 	if (framePause) return;
 	glBindFramebuffer(GL_FRAMEBUFFER, LightingHandler::shadowMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -48,8 +46,7 @@ Shader LightingHandler::dirShadowMapProgram;
 Shader LightingHandler::dirShadowMapProgramBB;
 
 
-void createSM(unsigned int & FBO, unsigned int & smTEX, unsigned int w, unsigned int h)
-{
+void createSM(unsigned int & FBO, unsigned int & smTEX, unsigned int w, unsigned int h){
 	glGenFramebuffers(1, &FBO);
 	glGenTextures(1, &smTEX);
 	glBindTexture(GL_TEXTURE_2D, smTEX);
@@ -177,8 +174,7 @@ void LightingHandler::drawShadowMapBillboard(BillBoard*& bilboard, glm::vec3 tra
 
 }
 
-void LightingHandler::sendToShader(Shader Shader)
-{
+void LightingHandler::sendToShader(Shader Shader){
 	Shader.Activate();
 
 	Shader.setFloat4("skyColor", glm::vec4(RenderClass::skyRGBA, 1.0f));
@@ -187,10 +183,8 @@ void LightingHandler::sendToShader(Shader Shader)
 
 	int activeLightIndex = 0;
 
-	for (size_t i = 0; i < Lights.size(); ++i)
-	{
-		if (Lights[i].enabled)
-		{
+	for (size_t i = 0; i < Lights.size(); ++i){
+		if (Lights[i].enabled){
 			std::string uniformName = "Lights[" + std::to_string(activeLightIndex) + "].";
 			Shader.setFloat3((uniformName + "position").c_str(), Lights[i].position);
 

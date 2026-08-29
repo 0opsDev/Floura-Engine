@@ -3,7 +3,6 @@
 
 #include<iostream>
 #include<string>
-#include<array>
 #include <json/json.hpp>
 #include <glm/fwd.hpp>
 #include <glm/ext/vector_float3.hpp>

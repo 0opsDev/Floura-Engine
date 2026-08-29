@@ -68,5 +68,5 @@ void UniformManager::dirtyCompileCall()
 {
     if (!compileOnDirty) return;
     
-    RenderClass::compileShaders();
+    RenderClass::compileShaderUniforms();
 }

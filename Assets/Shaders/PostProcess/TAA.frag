@@ -16,7 +16,6 @@ uniform highp sampler2D gVelocity;
 // history
 uniform sampler2D hColour;
 uniform sampler2D hDepthTexture;
-uniform sampler2D hNormal;
 
 //uniform vec2 screenSize;
 uniform float time;

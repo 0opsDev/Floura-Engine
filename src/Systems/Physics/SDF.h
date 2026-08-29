@@ -11,42 +11,6 @@ class flouraSDF
 {
 public:
     
-    static  int localPerModelMeshCountCap;
-    
-    struct localSDF{
-        glm::vec4 position; // uv.x
-        glm::vec4 extents; // uv.y
-        glm::vec4 rootPosition;
-        glm::vec4 rootExtents;
-        glm::vec4 gPosition;
-        glm::vec4 gExtents;
-        //glm::vec4 gRotation;
-        glm::mat4 globalTransform;
-        
-        uint64_t instanceUUID;
-        uint64_t SDF_Handle;
-        
-        uint64_t texture_diffuse_Handle;
-        uint64_t texture_roughness_Handle;
-        uint64_t texture_normal_Handle;
-        uint64_t texture_emission_Handle;
-    };
-    
-    static GLuint localSDF_SSBOID;
-    
-    static std::vector<localSDF> localSDFS;
-    
-    static void uploadToLSDFScene(uint64_t instanceUUID);
-    static void removeFromLSDFScene(uint64_t instanceUUID);
-    
-    static void updateUVscale(uint64_t instanceUUID, glm::vec2& scale);
-    static void updateGlobalTransformation(uint64_t instanceUUID, glm::mat4& gt, glm::vec3 gRotation);
-    static void updateSDFBuffer();
-    static void wipeScene();
-    
-    static void initLocalScene();
-    static void cleanupLocalScene();
-    
     static void cacheSDF(const char* path, int hash, std::vector<Texture3D *>& meshSDFs);
     
     // SDF

@@ -106,6 +106,36 @@ void Texture3D::createTexture3D(const char* path, const char* texType, GLuint sl
     created = true;
 }
 
+void Texture3D::createImage3D(int w, int h, int d, const char* texType, GLuint slot, GLenum format){
+    type = std::string(texType);
+    Texture3D::slot = slot;
+    width = w; height = h; depth = d;
+
+    glGenTextures(1, &ID);
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_3D, ID);
+
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    glTexStorage3D(GL_TEXTURE_3D, 1, format, width, height, depth);
+    //glGenerateMipmap(GL_TEXTURE_3D);
+    
+    if (GLAD_GL_ARB_bindless_texture) {
+        handle = glGetTextureHandleARB(ID);
+        glMakeTextureHandleResidentARB(handle);
+        handleImage = glGetImageHandleARB(ID, 0, GL_FALSE, 0, format);
+        glMakeImageHandleResidentARB(handleImage, GL_READ_WRITE);
+    }
+    
+    glBindTexture(GL_TEXTURE_3D, 0);
+    
+    created = true;
+}
+
 void Texture3D::Bind(){
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_3D, ID);

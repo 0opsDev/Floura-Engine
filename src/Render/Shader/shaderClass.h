@@ -33,7 +33,6 @@ private:
 	void compileErrors(unsigned int shader, const char* type);
 	
 public:
-	
 	const void setInt(const char* uniform, int uniforIint) {glUniform1i(glGetUniformLocation(ID, uniform), uniforIint);}
 	const void setInt(int slot, int uniforIint) {glUniform1i(slot, uniforIint);}
 	const void setInt2(const char* uniform, int uniforIint1, int uniforIint2) {glUniform2i(glGetUniformLocation(ID, uniform), uniforIint1, uniforIint2);}
@@ -76,6 +75,38 @@ public:
 		setFloat("deltatime", TimeUtil::deltatime);
 		setInt("frame", TimeUtil::frame);
 	}
+	
+		const void setTexture3D(const char* uniform, int slot, GLuint TID){
+		glActiveTexture(GL_TEXTURE0 + slot);
+		glBindTexture(GL_TEXTURE_3D, TID);
+		glUniform1i(glGetUniformLocation(ID, uniform), slot);
+	}
+	const void setTexture3D(int slot, GLuint ID){
+		glActiveTexture(GL_TEXTURE0 + slot);
+		glBindTexture(GL_TEXTURE_3D, ID);
+		glUniform1i(slot, slot);
+	}
+	const void setTexture2D(const char* uniform, int slot, GLuint TID){
+		glActiveTexture(GL_TEXTURE0 + slot);
+		glBindTexture(GL_TEXTURE_2D, TID);
+		glUniform1i(glGetUniformLocation(ID, uniform), slot);
+	}
+	const void setTexture2D(int slot, GLuint TID){
+		glActiveTexture(GL_TEXTURE0 + slot);
+		glBindTexture(GL_TEXTURE_2D, TID);
+		glUniform1i(slot, slot);
+	}
+	const void setCubeMap(const char* uniform, int slot, GLuint TID){
+		glActiveTexture(GL_TEXTURE0 + slot);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, TID);
+		glUniform1i(glGetUniformLocation(ID, uniform), slot);
+	}
+	const void setCubeMap(int slot, GLuint TID){
+		glActiveTexture(GL_TEXTURE0 + slot);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, TID);
+		glUniform1i(slot, slot);
+	}
+	
 };
 
 #endif

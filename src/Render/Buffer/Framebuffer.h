@@ -8,48 +8,37 @@
 class Framebuffer
 {
 public:
-	
-	struct FBOparameters
-	{
-		int internalFormat;
-		int format;
-		int type;
-		int minFilter;
-		int MinSamplingFilter;
-		int MagFilter;
-		int MagSamplingFilter;
-		int wrap1;
-		int clamp1;
-		int wrap2;
-		int clamp2;
-		int colourAttachment;
-	};
-	
-	struct RBOparameters
-	{
-		bool doRBO;
-		int internalFormat;
-		int attachment;
-	};
-	
-	std::vector<unsigned int> textures;
-	unsigned int FBO, RBO, texture;
-	int width, height;
-	
-	void setup(FBOparameters iFBOparameters, RBOparameters iRBOparameters);
-	
-	void setupMulti(std::vector<FBOparameters> iFBOparametersMulti, RBOparameters iRBOparameters);
-	
-	void resize(int width, int height);
-	
-	void resizeMulti(int width, int height);
-	
-	void Delete();
-	
+    
+    GLuint FBO;
+    
+    int uploadAttachment(GLenum internalFormat, GLenum format, GLenum type, GLenum minFilter, GLenum magFilter, GLenum clamp);
+    
+    void createBuffers(unsigned int  width, unsigned int  height);
+    
+    void resizeBuffers(unsigned int  width, unsigned int  height);
+    
+    void deleteBuffers();
+    
 private:
-	FBOparameters nFBOparameters;
-	RBOparameters nRBOparameters;
-	std::vector<FBOparameters> FBOparametersMulti;
+    
+    struct attachment{
+        GLuint ID;
+        GLenum internalFormat = GL_RGBA8;
+        GLenum format = GL_RGBA;
+        GLenum type = GL_UNSIGNED_BYTE;
+        
+        GLenum minFilter = GL_NEAREST;
+        GLenum magFilter = GL_NEAREST;
+        
+        GLenum clamp = GL_CLAMP_TO_EDGE;
+    };
+    
+    std::vector<attachment> attachments;
+public:
+    
+    GLuint fetchID(size_t index){
+        return attachments[index].ID;
+    }
 };
 
 #endif

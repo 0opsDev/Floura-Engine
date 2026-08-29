@@ -2,6 +2,7 @@
 #include <glm/fwd.hpp>
 #include <vector>
 #include <glm/gtx/dual_quaternion.hpp>
+#include <glm/gtc/round.hpp>
 #ifndef FE_MATH_CLASS_H
 #define FE_MATH_CLASS_H
 
@@ -81,6 +82,10 @@ public:
 	static float normalizeFloat(float v, float min, float max);
 	
 	static glm::quat vec3DegreesToQuat(glm::vec3 degrees);
+	
+	static glm::vec3 snapToGrid(const glm::vec3& pos, float gridSize){
+		return glm::round(pos / gridSize) * gridSize;
+	}
 };
 
 #endif // FE_MATH_CLASS_H

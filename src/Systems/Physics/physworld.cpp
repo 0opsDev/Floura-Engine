@@ -156,8 +156,7 @@ void physworld::update(float deltatime)
 }
 
 void physworld::debugDraw(){
-    for (const auto& emitter : emitters)
-    {
+    for (const auto& emitter : emitters){
         // draw emitter
         if (!emitter.enabled){
             CubeVisualizer::draw(emitter.position, glm::vec3(0.3f), glm::vec3(0.5, 0.0, 0.0),0.5f, false, false);
@@ -174,14 +173,9 @@ void physworld::debugDraw(){
     }
 }
 
-void physworld::stimulateObject(object& physicsObject, glm::vec3& position, glm::vec3 gravity, float deltatime)
-{
-    if (physicsObject.hasRigidbody) // change name to has dynamics
-    {
-
-        if (physicsObject.affectedByGravity)
-        {
-
+void physworld::stimulateObject(object& physicsObject, glm::vec3& position, glm::vec3 gravity, float deltatime){
+    if (physicsObject.hasRigidbody) {// change name to has dynamics
+        if (physicsObject.affectedByGravity){
             physicsObject.force += physicsObject.mass * gravity; // applying foce
         }
 
@@ -194,16 +188,10 @@ void physworld::stimulateObject(object& physicsObject, glm::vec3& position, glm:
     }
 }
 
-void physworld::stimulateP_Objects(object* physicsObject, glm::vec3 &position, bool &dirtyFlag, glm::vec3 gravity, float deltatime)
-{
-    if (physicsObject->hasRigidbody) // change name to has dynamics
-    {
-
+void physworld::stimulateP_Objects(object* physicsObject, glm::vec3 &position, bool &dirtyFlag, glm::vec3 gravity, float deltatime){
+    if (physicsObject->hasRigidbody){// change name to has dynamics
         if (physicsObject->affectedByGravity)
-        {
-
             physicsObject->force += physicsObject->mass * gravity; // applying foce
-        }
 
         physicsObject->velocity += physicsObject->force / physicsObject->mass * deltatime;
         
@@ -216,8 +204,7 @@ void physworld::stimulateP_Objects(object* physicsObject, glm::vec3 &position, b
     }
 }
 
-void physworld::addPhysicsObjectToArray(object* physicsObject, glm::vec3* position, bool* dirtyFlag)
-{
+void physworld::addPhysicsObjectToArray(object* physicsObject, glm::vec3* position, bool* dirtyFlag){
     objectPosBundle nBundle;
     nBundle.physicsObject = physicsObject;
     nBundle.position = position;
@@ -226,8 +213,7 @@ void physworld::addPhysicsObjectToArray(object* physicsObject, glm::vec3* positi
     pObjects.push_back(nBundle);
 }
 
-void physworld::physicsArrayDynamicUpdateLoop(glm::vec3 gravity, float deltatime)
-{
+void physworld::physicsArrayDynamicUpdateLoop(glm::vec3 gravity, float deltatime){
     for (int i = 0; i < pObjects.size(); ++i){
         physworld::stimulateP_Objects(pObjects[i].physicsObject, *pObjects[i].position,  *pObjects[i].dirtyFlag, gravity, deltatime);
     }
@@ -255,6 +241,8 @@ for (int a = 0; a < pObjects.size(); ++a){
 }
 */
 void physworld::collisionResolveCamera(){
+    if (!Player::s_DoGravity) return; 
+    
     for (int a = 0; a < Scene::entityObjects.size(); ++a){
         
         //if (!Scene::entityObjects[a]->component.flags.hasCollider) continue; // neither is collider
@@ -275,49 +263,35 @@ void physworld::collisionResolveCamera(){
                 
                 Collision::HitResult rc2 = Collision::AABBvsAABB(nprimAABB.position, FE_Math::pad(nprimAABB.size, 0.1f), Scene::maincamera.Position, Player::cameraColliderScale);
                 if (!rc2.isColliding) continue;
-
-                Scene::maincamera.Position += rc2.collisionNormal * rc2.depth; // Scene::maincamera.Position + 
-                Player::velocity = glm::vec3(0.0f);
-                /*
-                const unsigned int &i0 =RenderHandler::models[index].model->meshes[i].blas.back().prims[j].i0;
-                const unsigned int &i1 = RenderHandler::models[index].model->meshes[i].blas.back().prims[j].i1;
-                const unsigned int &i2 = RenderHandler::models[index].model->meshes[i].blas.back().prims[j].i2;
                 
-                std::vector<Vertex> &nVertices = RenderHandler::models[index].model->meshes[i].vertices;
-				
-                if (i0 >= nVertices.size() ||
-                    i1 >= nVertices.size() ||
-                    i2 >= nVertices.size())
-                    continue;
-				
-                const Vertex* a = &nVertices[i0];
-                const Vertex* b = &nVertices[i1];
-                const Vertex* c = &nVertices[i2];
-                //tMatrix
-                Collision::HitResult trihit = Collision::SATTriangleVSAABB(FE_Math::transformPointReturn(a->position, tMatrix), FE_Math::transformPointReturn(b->position, tMatrix), FE_Math::transformPointReturn(c->position, tMatrix),
-                    Scene::maincamera.Position, Player::cameraColliderScale);
-                //Collision::HitResult trihit = Collision::NearestPointTriangleVSAABB(FE_Math::transformPointReturn(a->position, tMatrix), FE_Math::transformPointReturn(b->position, tMatrix), FE_Math::transformPointReturn(c->position, tMatrix),
-                //   Scene::maincamera.Position, Player::cameraColliderScale);
-                if (!trihit.isColliding) return;
+                glm::vec3 relative = Player::velocity - glm::vec3(0.0f); // just gonna put this since everything is static as hell
+                float relativeNormal = glm::dot(relative, rc2.collisionNormal);
                 
-                    Scene::maincamera.Position += trihit.collisionNormal * trihit.depth; // Scene::maincamera.Position + 
-                    Player::velocity = glm::vec3(0.0f);
+                if (relativeNormal < 0.0f){
+                    float aMass = 1.0f;
+                    float e = 0.5f;
+                    float combinedInvMass = (1 / aMass) + (1 / Player::mass);
+                    float magnitude = -(1.0f + e) * relativeNormal / combinedInvMass;
+                    glm::vec3 impulse = magnitude * rc2.collisionNormal;
+                    glm::vec3 deltaVA = impulse / aMass;// assume
+                    glm::vec3 deltaVB = impulse / Player::mass;
                 
-                std::cout << "agg" <<  std::endl;
-                //Scene::maincamera.Position += rc2.collisionNormal * rc2.depth; // Scene::maincamera.Position + 
-                //Player::velocity = glm::vec3(0.0f);
-                */
+                    Player::velocity += deltaVB;
+                }
+                
+                Scene::maincamera.Position += rc2.collisionNormal * rc2.depth* 0.05f;
+                
+                //Scene::maincamera.Position += rc2.collisionNormal * rc2.depth; // Scene::maincamera.Position +           
             }
         }
     }
 }
 
 void physworld::collisionResolve(){
-    return; // disabled
+    //return; // disabled
     // some sort of collision objects, or collision types that all test agaisnt eachother and return data in some kind of format for a response 
     for (int a = 0; a < pObjects.size(); ++a)
-        for (int b = 0; b < pObjects.size(); ++b)
-        {
+        for (int b = 0; b < pObjects.size(); ++b){
             // if same object we break
             if (pObjects[a].physicsObject->UUID == pObjects[b].physicsObject->UUID) break;
             
@@ -335,12 +309,28 @@ void physworld::collisionResolve(){
             // debug
             //std::cout << "A index: " << a << " + b index: " << b << " COLLIDING" << std::endl;
             // should plug in a
-            solve(rc, *pObjects[a].physicsObject, *pObjects[a].position, *pObjects[b].physicsObject, *pObjects[b].position, *pObjects[b].dirtyFlag, *pObjects[a].dirtyFlag);
+            //solve(rc, *pObjects[a].physicsObject, *pObjects[a].position, *pObjects[b].physicsObject, *pObjects[b].position);
             
         }
     
 }
 
-void physworld::solve(Collision::HitResult& hr, object& objA, glm::vec3& posA, object& objB, glm::vec3& posB, bool& dirtyFlagb, bool& dirtyFlaga )
-{
+void physworld::solve(Collision::HitResult& hr, object& objA, glm::vec3& posA, object& objB, glm::vec3& posB){
+    glm::vec3 relative = objB.velocity - objA.velocity; 
+    float relativeNormal = glm::dot(relative, hr.collisionNormal);
+                
+    if (relativeNormal < 0.0f){
+        float e = 0.5f;
+        float combinedInvMass = (1 / objA.mass) + (1 / objB.mass);
+        float magnitude = -(1.0f + e) * relativeNormal / combinedInvMass;
+        glm::vec3 impulse = magnitude * hr.collisionNormal;
+        glm::vec3 deltaVA = impulse / objA.mass;
+        glm::vec3 deltaVB = impulse / objB.mass;
+                
+        objA.velocity -= deltaVA;
+        objB.velocity += deltaVB;
+    }
+                
+    posB += hr.collisionNormal * hr.depth* 0.05f;
+    posA -= hr.collisionNormal * hr.depth* 0.05f;
 }

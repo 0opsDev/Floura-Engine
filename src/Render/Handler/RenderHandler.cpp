@@ -43,8 +43,7 @@ int RenderHandler::fetchModelIndex(uint64_t RenderID) // use a map here << this 
 	return -1;
 }
 
-void RenderHandler::updateLoadUnloadedModels()
-{
+void RenderHandler::updateLoadUnloadedModels(){
 	for (int i = 0; i < models.size(); ++i) {// should have a int count for how many have gotten loaded, and - on it to skip the for loop
 		if (models[i].model->disableConstructorLoadingModelFlag && !models[i].model->loaded) // if the flag is active, and the model is not classed as loaded
 			models[i].model->loadModelPathless(); // load
@@ -72,10 +71,14 @@ RenderHandler::batchOfUUID RenderHandler::addModel(std::string path){
 		
 		// sdf stuff
 		//newModelObject.model->SDFgenerate(64, 15);
-		newModelObject.model->SDFgeneratePrim(64, 15); 
+		newModelObject.model->SDFgeneratePrim(32, 15); 
+		//newModelObject.model->VXGgeneratePrim(32, 15); 
+		//newModelObject.model->SDFgeneratePrim(64, 15); 
 		//newModelObject.model->SDFgenerateBlas(64, 15);
+		//newModelObject.model->VXGgenerateBlas(33, 15); 
 		
 		//flouraSDF::cacheSDF("Cache/SDF/temp/", newModelObject.model->hash, newModelObject.model->meshSDFs);
+		//voxelizer::cacheVXG("Cache/VXG/temp/", newModelObject.model->hash, newModelObject.model->meshVXGs);
 		
 		//newModelObject.model->createVoxelMesh(8, 1);
 		
@@ -146,10 +149,15 @@ void RenderHandler::render(){
 
 	switch (RenderClass::currentRendererInd){
 	case RenderClass::DEFERRED:
+		glDisable(GL_CULL_FACE);
 		if (renderENV)  tempCM->cubemapToUUIDShader("cmMainHandle", FlouraDeferred::DFL_Shader);
 		else Skybox::SkyboxCubemap->cubemapToUUIDShader("cmMainHandle", FlouraDeferred::DFL_Shader);
 		FlouraDeferred::DeferredLightingPass(); // Forward Lighting Pass
 		FlouraDeferred::ssrPass(); // << overhead
+		
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glActiveTexture(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 		break;
 	case RenderClass::SWRT: // currently disabled
 		//if (raytracer::RTGlobalTransformFlag) SceneDescription::updateQuickModelData();
@@ -270,7 +278,6 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 	}
 
 	if (cm->ID == 0) {
-
 		glDeleteTextures(1, &cm->ID);
 		// Creates the cubemap texture object
 		glGenTextures(1, &cm->ID);
@@ -429,6 +436,8 @@ void RenderHandler::cmDraw(std::vector<renderQueueData> rqdVector, Cubemap*& cm,
 void RenderHandler::regularDraw(){
 	if (renderQueueDataVector.empty()) return;
 
+	if (FEImGuiWindow::isWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
+	
 	// gpass
 	for (size_t i = 0; i < renderQueueDataVector.size(); i++){
 		int index = fetchModelIndex(renderQueueDataVector[i].RenderID);
@@ -472,15 +481,12 @@ void RenderHandler::regularDraw(){
 			if (renderQueueDataVector[i].cullFrontFace) glCullFace(GL_FRONT);
 			else glCullFace(GL_BACK);
 
-			if (FEImGuiWindow::isWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Enable wireframe mode
-
 			//smoothnessValue
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.Activate();
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.setFloat2("uvScale", renderQueueDataVector[i].uvScale);
 
 			ShaderHandler::shaderObjects[modelGPShaderIndex].Shader.Activate();
 			GeometryPass::gPassDraw(models[index].model, ShaderHandler::shaderObjects[modelGPShaderIndex].Shader, Scene::maincamera);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Enable wireframe mode
 
 			//glFrontFace(GL_CCW);
 			glCullFace(GL_BACK); // Reset culling to default
@@ -579,10 +585,10 @@ void RenderHandler::regularDraw(){
 			}
 		}
 	}
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Enable wireframe mode
 }
 
-void RenderHandler::shadowDraw()
-{
+void RenderHandler::shadowDraw(){
 	if (renderQueueDataVector.empty()) return;
 	// shadow pass add infomation like culling, facedir
 	for (size_t i = 0; i < renderQueueDataVector.size(); i++){
@@ -606,8 +612,7 @@ void RenderHandler::shadowDraw()
 	}
 }
 
-void RenderHandler::instancedDraw()
-{
+void RenderHandler::instancedDraw(){
 	// needs to make batches of instanced data, do sep for both shadow and regular, shadow doesnt include shaders or uv
 	for (size_t i = 0; i < renderQueueDataVector.size(); i++){
 		if (renderQueueDataVector[i].isInstanced){

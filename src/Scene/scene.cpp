@@ -10,7 +10,8 @@
 #include "Systems/util/UUID.h"
 #include  "Render/pipeline/prebuilt_pipelines/dbgPass.h"
 #include "Render/Handler/CubeVisualizer.h"
-#include "Systems/Physics/SDF.h"
+#include "Render/Handler/RenderHandler.h"
+#include "Render/pipeline/prebuilt_pipelines/swrt.h"
 
 std::string Scene::sceneName = ""; // Map loading
 std::vector <SoundProgram> Scene::SoundObjects;
@@ -18,7 +19,6 @@ std::vector <std::unique_ptr<entity>> Scene::entityObjects;
 Camera Scene::maincamera;
 
 glm::vec3 Scene::initalCameraPos = glm::vec3(0, 0, 0);
-std::vector <ProbeHandler::probe> Scene::probes;
 
 Collision::AABB Scene::SceneBounds;
 std::vector <Collision::AABB> Scene::rootnodes;
@@ -112,10 +112,8 @@ void Scene::loadScene(std::string path) {
 	LogConsole::print("Loaded scene from: " + path);
 }
 
-void Scene::reloadScene(std::string path)
-{
+void Scene::reloadScene(std::string path){
 	if (FEImGuiWindow::imGuiEnabled) {
-
 		if (FEImGuiWindow::imGuiEnabled) {
 			FEImGuiWindow::ContentObjects.clear();
 			FEImGuiWindow::ContentObjectNames.clear();
@@ -194,8 +192,7 @@ void Scene::saveScene(std::string path) {
 }
 
 
-void Scene::enviromentSave(std::string path)
-{
+void Scene::enviromentSave(std::string path){
 	try {
 		json EnviromentData = json::array();  // New JSON array to hold model data
 
@@ -336,7 +333,7 @@ void Scene::modelReload(std::string path)
 		
 		//std::cout << "pre"<< entityObjects[index]->UUID << std::endl;
 		//std::cout << "new"<< tempUUID << std::endl;
-		if (entityObjects[index]->UUID != tempUUID) { index++; continue; } // index++;
+		if (entityObjects[index]->UUID != tempUUID) { index++; continue; } // index++; // segfault here 
 
 		//std::cout << "ee" << std::endl;
 
@@ -973,8 +970,7 @@ void Scene::cameraSettingsLoad(std::string path) {
 }
 
 
-void Scene::shadowmapDraw()
-{
+void Scene::shadowmapDraw(){
 	for (size_t i = 0; i < entityObjects.size(); i++){
 		entityObjects[i]->drawShadowMap();
 	}
@@ -1011,21 +1007,6 @@ void Scene::draw() {
 		if (Collision::showBoxCollider){
 			CubeVisualizer::draw(SceneBounds.position,
 				SceneBounds.size, glm::vec3(1.0f, 0.0f, 0.0f),5.0, true, false);
-		}
-
-		if (ProbeHandler::viewProbes){
-			float distance = 20.0f;
-
-			for (size_t i = 0; i < probes.size(); i++){
-				glm::vec3 pCol = glm::vec3(0.0f, 0.0f, 1.0f);
-				if (FE_Math::isInRange(probes[i].position, Scene::maincamera.Position, distance)) pCol = glm::vec3(1.0f, 0.0f, 0.0f);
-
-				//CubeVisualizer::draw(probes[i].position,
-				//	glm::vec3(probes[i].size), glm::vec3(1.0f), true);
-
-				CubeVisualizer::draw(probes[i].position,
-					glm::vec3(0.5f), pCol, 2.0, false, false);
-			}
 		}
 	}
 	
@@ -1090,17 +1071,6 @@ void Scene::Update() {
 void Scene::sceneUpdateWork(){
 	if (ProbeHandler::dirtyScene){
 		calculateSceneBounds();
-
-		// enable this for the probes (im disabling them)
-		
-		//probes = ProbeHandler::calculateProbesWithMethod(ProbeHandler::probeCalculationMethod, SceneBounds, rootnodes, ProbeHandler::sceneProveArea);
-		
-		// ^^
-		
-		//probes = ProbeHandler::aabbsSceneToProbeSpace(SceneBounds, rootnodes, ProbeHandler::sceneProveArea); // faster in rendering cubemaps, because it only places near objects (more rootnodes slows down)
-		//probes = ProbeHandler::SceneToProbeSpace(SceneBounds, ProbeHandler::sceneProveArea); // faster with less rootnodes (places nodes in empty spaces)
-		//probes = ProbeHandler::aabbsToProbeSpace(SceneBounds, rootnodes, ProbeHandler::sceneProveArea); // faster for extremely open scenes, falso aster in rendering cubemaps,because it only places near objects, but the quality is the worst out of the 3
-		// 4th method should be per object and only if that object becomes dirty
 	}
 }
 
@@ -1109,7 +1079,7 @@ void Scene::Delete() {
 	FEImGuiWindow::SelectedObjectIndex = -1;
 	FEImGuiWindow::SelectedObjectType = ' ';
 	
-	flouraSDF::wipeScene();
+	FlouraSWRT::wipeScene();
 	
 	for (size_t i = 0; i < entityObjects.size(); i++){
 		entityObjects[i]->Delete(); }
@@ -1148,10 +1118,8 @@ void Scene::restoreEntitiesToState()
 {
 }
 
-void Scene::queuedDeletionLoop()
-{
-	for (int i = 0; i < Scene::entityObjects.size(); ++i)
-	{
+void Scene::queuedDeletionLoop(){
+	for (int i = 0; i < Scene::entityObjects.size(); ++i){
 		if (Scene::entityObjects[i]->queuedForDeletion){
 			Scene::entityObjects[i]->queuedDeletion();
 			Scene::entityObjects.erase(Scene::entityObjects.begin() + i);
@@ -1169,4 +1137,87 @@ Collision::HitResult Scene::traceIntoScene(glm::vec3 ro, glm::vec3 rd){
 	}
 	
 	return hr;
+}
+
+void Scene::voxelizeArea(glm::vec3 p, glm::vec3 s, Texture3D& texture, int sliceSize, GLuint slot){
+	std::vector<Mesh*> nMeshes;
+	std::vector<glm::mat4> nMatrices;
+	
+	tagMeshes(p, s, nMeshes, nMatrices);
+	
+	/*
+	std::vector<glm::vec3> positions;
+	
+	for (int i = 0; i < nMeshes.size(); ++i){
+		for (int x = 0; x < nMeshes[i]->vertices.size(); ++x){
+			positions.push_back(nMeshes[i]->vertices[x].position);
+		}
+	}
+	std::cout << nMeshes.size() << std::endl;
+	
+	//Collision::AABB root = Collision::createAABBfromRubiksCubePoints(Collision::fetchFurthestPoints(positions));
+	
+	//std::cout<<root.position.x << " " << root.position.y << " " << root.position.z << " " << std::endl;
+	//std::cout<<root.size.x << " " << root.size.y << " " << root.size.z << " " << std::endl;
+	*/
+	Collision::AABB root;
+	root.position = p;
+	root.size =  s;
+	
+	voxelizer::bakeMeshVXGAccelMeshPrims(nMeshes, nMatrices, root, sliceSize, texture, slot);
+}
+
+void Scene::tagMeshes(glm::vec3 p, glm::vec3 s, std::vector<Mesh*>& meshes, std::vector<glm::mat4>& matrices){
+	for (int i = 0; i < entityObjects.size(); ++i){
+		Collision::AABB& modelNode = entityObjects[i]->component.collider.modelNode;
+		Collision::HitResult modelHR = Collision::AABBvsAABB(p, s, modelNode.position, modelNode.size);
+		
+		int mIndex = RenderHandler::fetchModelIndex(entityObjects[i]->component.render.renderID);
+		
+		// early meshnode and index edge case
+		if (!modelHR.isColliding || mIndex < 0) continue;
+		
+		// compose global matrix
+		glm::mat4 gMatix = FE_Math::composeMatrixWDegrees(
+			entityObjects[i]->component.systems.transformation.position,
+			entityObjects[i]->component.systems.transformation.scale, 
+			entityObjects[i]->component.systems.transformation.rotation
+			);
+		
+		// each mesh
+		for (int x = 0; x < RenderHandler::models[mIndex].model->meshes.size(); ++x){
+			// compose local matrix
+			glm::mat4 lMatrix  = FE_Math::composeMatrixWDegrees(
+				RenderHandler::models[mIndex].model->localTransformation[x].position,
+				RenderHandler::models[mIndex].model->localTransformation[x].scale,
+				RenderHandler::models[mIndex].model->localTransformation[x].rotation
+				);
+			// compose the final matrix
+			glm::mat4 fMatrix = gMatix * lMatrix;
+			
+			// should do mesh node collison before building prims
+			
+			// can compose prims for a better tagging to speed up the voxelization step (fk it imma do it)
+			std::vector<Vertex> nVertices = RenderHandler::models[mIndex].model->meshes[x].vertices;
+			
+			// transform vertices
+			for (int y = 0; y< nVertices.size(); ++y)
+				FE_Math::transformPoint(nVertices[y].position, fMatrix);
+			
+			// generate prims
+			std::vector<BVH::BVH_primitive> nPrims = BVH::buildIndicesIntoPrims(nVertices,
+				 RenderHandler::models[mIndex].model->meshes[x].indices);
+
+
+			for (int y = 0; y < nPrims.size(); ++y){
+				Collision::HitResult pHR = Collision::AABBvsAABB(p, s, nPrims[y].extents.position, nPrims[y].extents.size);
+				if (pHR.isColliding){
+					meshes.push_back(&RenderHandler::models[mIndex].model->meshes[x]);
+					matrices.push_back(fMatrix);
+					break;
+				}
+			}
+		}
+	}
+	
 }

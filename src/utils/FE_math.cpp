@@ -32,8 +32,7 @@ float FE_Math::GetProximityValueLinear(const glm::vec3& object_position, const g
     return std::clamp(result, min, max);
 }
 
-glm::mat4 FE_Math::composeMatrix(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation) // takes rads for degrees
-{
+glm::mat4 FE_Math::composeMatrix(glm::vec3 position, glm::vec3 scale, glm::vec3 rotation) {// takes rads for degrees
     glm::mat4 mTransform = glm::mat4(1.0f);
     glm::mat4 mRotation = glm::mat4(1.0f);
     glm::mat4 mScale = glm::mat4(1.0f);
@@ -56,18 +55,15 @@ glm::mat4 FE_Math::composeMatrix(glm::vec3 position, glm::vec3 scale, glm::vec3 
     return (mTransform * mRotation * mScale);
 }
 
-float FE_Math::calculateCenter1D(glm::vec2 input)
-{
+float FE_Math::calculateCenter1D(glm::vec2 input){
     return (input.x + input.y) / 2.0f;
 }
 
-float FE_Math::distanceFromTwoPoints1D(glm::vec2 input)
-{
+float FE_Math::distanceFromTwoPoints1D(glm::vec2 input){
     return glm::abs(input.x - input.y);
 }
 
-float FE_Math::furthestPoint(glm::vec2 input)
-{
+float FE_Math::furthestPoint(glm::vec2 input){
     return glm::max(input.x, input.y);
 }
 
@@ -113,8 +109,7 @@ glm::vec2 FE_Math::uvPosFromVertexAndPoint(const glm::vec3 &a, const glm::vec3 &
     return glm::vec2(0.0f); 
 }
 
-glm::vec3 FE_Math::RadiansToNormal(float yawRad, float pitchRad)
-{
+glm::vec3 FE_Math::RadiansToNormal(float yawRad, float pitchRad){
     glm::vec3 normal;
     normal.x = cos(pitchRad) * sin(yawRad);
     normal.y = sin(pitchRad);
@@ -122,8 +117,7 @@ glm::vec3 FE_Math::RadiansToNormal(float yawRad, float pitchRad)
     return glm::normalize(normal);
 }
 
-void FE_Math::NormalToRadians(glm::vec3 normal, float& yawRad, float& pitchRad)
-{
+void FE_Math::NormalToRadians(glm::vec3 normal, float& yawRad, float& pitchRad){
     normal = glm::normalize(normal);
 
     pitchRad = asin(normal.y);
@@ -138,34 +132,29 @@ glm::vec3 FE_Math::getForwardFromViewMatrix(const glm::mat4& viewMatrix) {
     return glm::normalize(glm::vec3(-viewMatrix[0][2], -viewMatrix[1][2], -viewMatrix[2][2]));
 }
 
-glm::vec2 FE_Math::findTwoFurthestPointsX(std::vector<glm::vec3> points)
-{
+glm::vec2 FE_Math::findTwoFurthestPointsX(std::vector<glm::vec3> points){
     // max and min points
     glm::vec3 minX = glm::vec3(std::numeric_limits<float>::max());
     glm::vec3 maxX = glm::vec3(std::numeric_limits<float>::lowest());
 
 
-    for (size_t x = 0; x < points.size(); x++)
-    {
+    for (size_t x = 0; x < points.size(); x++){
         minX = (points[x].x < minX.x) ? points[x] : minX;
         maxX = (points[x].x > maxX.x) ? points[x] : maxX;
     }
     return glm::vec2(minX.x, maxX.x);
 }
 
-glm::vec2 FE_Math::findTwoFurthestPointsY(std::vector<glm::vec3> points)
-{
+glm::vec2 FE_Math::findTwoFurthestPointsY(std::vector<glm::vec3> points){
     glm::vec3 minY = glm::vec3(std::numeric_limits<float>::max());
     glm::vec3 maxY = glm::vec3(std::numeric_limits<float>::lowest());
-    for (size_t x = 0; x < points.size(); x++)
-    {
+    for (size_t x = 0; x < points.size(); x++){
         minY = (points[x].y < minY.y) ? points[x] : minY;
         maxY = (points[x].y > maxY.y) ? points[x] : maxY;
     }
     return glm::vec2(minY.y, maxY.y);
 }
-glm::vec2 FE_Math::findTwoFurthestPointsZ(std::vector<glm::vec3> points)
-{
+glm::vec2 FE_Math::findTwoFurthestPointsZ(std::vector<glm::vec3> points){
     glm::vec3 minZ = glm::vec3(std::numeric_limits<float>::max());
     glm::vec3 maxZ = glm::vec3(std::numeric_limits<float>::lowest());
     for (size_t x = 0; x < points.size(); x++)
@@ -189,8 +178,7 @@ glm::vec3 FE_Math::transformPointReturn(glm::vec3 point, glm::mat4 matrix){
 
 
 
-glm::vec3 FE_Math::pad(glm::vec3 value, float padding)
-{
+glm::vec3 FE_Math::pad(glm::vec3 value, float padding){
     glm::vec3 newPad = value;
     if (value.x < padding)
         newPad.x = padding;
@@ -202,8 +190,7 @@ glm::vec3 FE_Math::pad(glm::vec3 value, float padding)
     return newPad;
 }
 
-glm::vec3 FE_Math::normalFrom2Points(glm::vec3 p1, glm::vec3 p2)
-{
+glm::vec3 FE_Math::normalFrom2Points(glm::vec3 p1, glm::vec3 p2){
     // direction vector
     glm::vec3 v = glm::normalize(p2 - p1);
 
@@ -217,8 +204,7 @@ glm::vec3 FE_Math::normalFrom2Points(glm::vec3 p1, glm::vec3 p2)
     return glm::normalize(glm::cross(r, v));
 }
 
-glm::mat4 FE_Math::composeMatrixWDegrees(glm::vec3 p, glm::vec3 s, glm::vec3 r)
-{
+glm::mat4 FE_Math::composeMatrixWDegrees(glm::vec3 p, glm::vec3 s, glm::vec3 r){
     glm::mat4 np = glm::translate(glm::mat4(1.0f), p);
     glm::mat4 nr = glm::mat4(1.0f);
     nr = glm::rotate(nr, glm::radians(r.x), glm::vec3(1, 0, 0));
@@ -229,26 +215,22 @@ glm::mat4 FE_Math::composeMatrixWDegrees(glm::vec3 p, glm::vec3 s, glm::vec3 r)
     return np * nr * ns;
 }
 
-glm::mat4 FE_Math::composeMatrixwQuaternion(glm::vec3 p, glm::vec3 s, glm::quat r)
-{
+glm::mat4 FE_Math::composeMatrixwQuaternion(glm::vec3 p, glm::vec3 s, glm::quat r){
     glm::mat4 np = glm::translate(glm::mat4(1.0f), p);
     glm::mat4 nr = glm::mat4_cast(glm::normalize(r));
     glm::mat4 ns = glm::scale(glm::mat4(1.0f), s);
 	return np * nr * ns;
 }
 
-int FE_Math::floatToByteRGB(float input)
-{
+int FE_Math::floatToByteRGB(float input){
     return (input) >= 1.0 ? 255 : (int)((input) * 256.0);
 }
 
-float FE_Math::ByteToFloatRGB(int input)
-{
+float FE_Math::ByteToFloatRGB(int input){
     return input / 255.0f;
 }
 
-glm::mat4 FE_Math::createHaltonJitterProjectionMatrix(glm::mat4 matrix, glm::vec2 jitter, int height, int width)
-{
+glm::mat4 FE_Math::createHaltonJitterProjectionMatrix(glm::mat4 matrix, glm::vec2 jitter, int height, int width){
     float nJitterX = (jitter.x * 2.0f) / static_cast<float>(width);
     float nJitterY = (jitter.y * 2.0f) / static_cast<float>(height);
     
